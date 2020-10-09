@@ -1,0 +1,2 @@
+Copyright (c) Stefano Spinucci (stefano dot spinucci at googlemail dot com)
+All rights reserved.
