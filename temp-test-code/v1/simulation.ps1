@@ -27,8 +27,8 @@ Write-Output "do other actions..."
 
 $fileA = ".\temp.txt"  # slash or backslash is the same
 $fileB = "./temp2.txt"  # slash or backslash is the same
-$successFile = "./ps1.success"
-$errorFile = "./ps1.error"
+$successFile = "./ps1.success.txt"
+$errorFile = "./ps1.error.txt"
 
 Remove-Item $fileA -ErrorAction Ignore
 Remove-Item $fileB -ErrorAction Ignore
