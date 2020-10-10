@@ -28,10 +28,12 @@ Write-Output "do other actions..."
 $fileA = ".\temp.txt"  # slash or backslash is the same
 $fileB = "./temp2.txt"  # slash or backslash is the same
 $successFile = "./ps1.success"
+$errorFile = "./ps1.error"
 
 Remove-Item $fileA -ErrorAction Ignore
 Remove-Item $fileB -ErrorAction Ignore
 Remove-Item $successFile -ErrorAction Ignore
+Remove-Item $errorFile -ErrorAction Ignore
 
 Set-Content -Path $fileA -Encoding utf8 -Value 'Hello, World'  # create $fileA and put some text inside
 Add-Content -Path $fileA -Value 'Hello, World 2'  # append text to $fileA
@@ -44,6 +46,9 @@ if((Get-FileHash $fileA).hash -eq (Get-FileHash $fileB).hash)
         Set-Content -Path $successFile -Encoding utf8 -Value 'success'
     }
 Else
-    {Write-Output "execution ended in error"}
+    {
+        Write-Output "execution ended in error"
+        Set-Content -Path $errorFile -Encoding utf8 -Value 'error'
+    }
 
 #Read-Host -Prompt "execution ended, press RETURN to continue";
