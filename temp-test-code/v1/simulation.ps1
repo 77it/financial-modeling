@@ -28,8 +28,8 @@ Write-Output "do other actions..."
 $fileA = ".\temp.txt"  # slash or backslash is the same
 $fileB = "./temp2.txt"  # slash or backslash is the same
 
-Remove-Item $fileA -ErrorAction SilentlyContinue
-Remove-Item $fileB -ErrorAction SilentlyContinue
+Remove-Item $fileA -ErrorAction Ignore
+Remove-Item $fileB -ErrorAction Ignore
 
 Set-Content -Path $fileA -Encoding utf8 -Value 'Hello, World'  # create $fileA and put some text inside
 Add-Content -Path $fileA -Value 'Hello, World 2'  # append text to $fileA
