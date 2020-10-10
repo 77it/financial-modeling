@@ -2,13 +2,13 @@
 Set-Location -Path $PSScriptRoot  
 
 #region functions
-function deno-checks-and-upgrade
+function test-and-update-deno
 {
     $last_deno_ver = "1.4.2"
     $running_deno_ver = -split(deno --version | select-string -Pattern 'deno') | Select -Index 1 
 
     if (!$?) {  # deno is not installed, or there were problems detecting the version
-        write "Deno missing, installing..."
+        Write-Output "Deno missing, installing..."
         Invoke-WebRequest https://deno.land/x/install/install.ps1 -UseBasicParsing | Invoke-Expression
     }  
     elseif ([version]$running_deno_ver -lt [version]$last_deno_ver) {
@@ -17,18 +17,28 @@ function deno-checks-and-upgrade
 }
 #endregion functions
 
-deno-checks-and-upgrade
+test-and-update-deno
 
 # do other actions
-write "do other actions..."
+Write-Output "do other actions..."
 
 
 ############### EXTRA CODE ONLY TO TEST
 
-Set-Content -Path .\temp.txt -Encoding utf8 -Value 'Hello, World'
-Add-Content -Path .\temp.txt -Value 'Hello, World 2'
+$fileA = ".\temp.txt"  # slash or backslash is the same
+$fileB = "./temp2.txt"  # slash or backslash is the same
 
-deno run --allow-read --allow-write https://gist.githubusercontent.com/stefano77it/ed4eb26ede8a35d03daeaa5cd3612615/raw/1e42c26c557675ea974e401a2ea939deb9e0be2b/rw.ts -i ./temp.txt -o ./temp2.txt
+Remove-Item $fileA -ErrorAction SilentlyContinue
+Remove-Item $fileB -ErrorAction SilentlyContinue
 
-write "execution ended"
+Set-Content -Path $fileA -Encoding utf8 -Value 'Hello, World'  # create $fileA and put some text inside
+Add-Content -Path $fileA -Value 'Hello, World 2'  # append text to $fileA
+
+deno run --allow-read --allow-write https://raw.githubusercontent.com/stefano77it/financial-modeling/master/temp-test-code/v1/rw.ts -i $fileA -o $fileB
+
+if((Get-FileHash $fileA).hash -eq (Get-FileHash $fileB).hash)
+    {Write-Output "execution ended successfully"}
+Else
+    {Write-Output "execution ended in error"}
+
 #Read-Host -Prompt "execution ended, press RETURN to continue";
