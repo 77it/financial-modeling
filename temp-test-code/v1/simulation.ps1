@@ -49,10 +49,7 @@ else {
     Set-Content -Path $errorFile -Encoding utf8 -Value 'error'
 }
 
-# remove `$errorFile` if empty
-if (Test-Path $errorFile)
-    {
-        if ((Get-Item $errorFile).length -eq 0) { Remove-Item $errorFile -ErrorAction Ignore }
-    }
+#remove `$errorFile` if empty
+if (Test-Path $errorFile) { if ((Get-Item $errorFile).length -eq 0) { Remove-Item $errorFile -ErrorAction Ignore } }
 
-# Read-Host -Prompt "execution ended, press RETURN to continue";
+#Read-Host -Prompt "execution ended, press RETURN to continue";
