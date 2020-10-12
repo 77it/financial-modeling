@@ -1,6 +1,16 @@
 # set working directory to the location of this script
 Set-Location -Path $PSScriptRoot  
 
+#region JS scripts
+$JS_asciiart=@"
+// run with `deno run THIS.ts -o "output message"`
+import { parse } from "https://deno.land/std/flags/mod.ts";
+import { text } from 'https://x.nest.land/deno-figlet@0.0.5/mod.js';
+const args = parse(Deno.args);
+console.log(await text(args.o, "big"));
+"@
+#endregion JS scripts
+
 #region functions
 function test-and-update-deno {
     $last_deno_ver = "1.4.2"
@@ -43,15 +53,15 @@ Remove-Item $errorFile -ErrorAction Ignore
 Set-Content -Path $fileA -Encoding utf8 -Value 'Hello, World'  # create $fileA and put some text inside
 Add-Content -Path $fileA -Value 'Hello, World 2'  # append text to $fileA
 
-deno run --allow-read --allow-write https://raw.githubusercontent.com/stefano77it/financial-modeling/master/temp-test-code/v1/rw.ts -i $fileA -o $fileB
+deno run --allow-read --allow-write https://raw.githubusercontent.com/stefano77it/financial-modeling/master/temp-test-code/v1/zTempSomeCodeOnlyToTestACallToRemoteDenoCode.ts -i $fileA -o $fileB
 
 if ((Get-FileHash $fileA).hash -eq (Get-FileHash $fileB).hash) {
-    Write-Output "execution ended successfully"
-    Set-Content -Path $successFile -Encoding utf8 -Value 'success'
+    Write-Output $JS_asciiart | deno run --allow-net - -o "Success!"
+    Write-Output $JS_asciiart | deno run --allow-net - -o "Success!" | Set-Content -Path $successFile -Encoding utf8 
 }
 else {
-    Write-Output "execution ended in error"
-    Set-Content -Path $errorFile -Encoding utf8 -Value 'error'
+    Write-Output $JS_asciiart | deno run --allow-net - -o "Execution error!"
+    Write-Output $JS_asciiart | deno run --allow-net - -o "Execution error!" | Set-Content -Path $errorFile -Encoding utf8 
 }
 
 if (Test-Path $errorFile) { if ((Get-Item $errorFile).length -eq 0) { Remove-Item $errorFile -ErrorAction Ignore } }  #remove file if empty
