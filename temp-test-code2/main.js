@@ -3,12 +3,8 @@
 // test-import-from-https
 
 import { ValuesA1, ValuesA2, ValuesB1, ValuesB2 } from "https://raw.githubusercontent.com/77it/financial-modeling/master/temp-test-code2/modules-v1/moduleA.js";
-/**
- * @typedef { import("./types").Pet } Pet
- */
-/**
- * @typedef { import("https://raw.githubusercontent.com/77it/financial-modeling/master/temp-test-code2/types.d.ts").Pet } Pet2
- */
+import "./types.js";
+//import "https://raw.githubusercontent.com/77it/financial-modeling/master/temp-test-code2/types.js";
 
 console.log(ValuesA1.value + " " + ValuesA2.value + " " + ValuesB1.value + " " + ValuesB2.value);
 
@@ -38,13 +34,7 @@ console.log(a);
 /**
  * @type {Pet}
  */
-var myPet;
+var myPet = {};
 myPet.name = "mimmo";
 console.log(myPet.name);
 
-/**
- * @type {Pet2}
- */
-var myPet;
-myPet.name = "mimmo2";
-console.log(myPet.name);
