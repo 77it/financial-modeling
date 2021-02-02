@@ -38,4 +38,3 @@ console.log(a);
 var myPet = {};
 myPet.name = "mimmo";
 console.log(myPet.name);
-
