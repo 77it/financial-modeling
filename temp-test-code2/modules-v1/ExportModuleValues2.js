@@ -1,9 +1,17 @@
+import "../types.js";
+
+/** @implements {Value} */
 export class ValuesA {
-    /** @type {string} */
     static value = "hello";
 }
 
+/** @implements {Pet} */
 export class ValuesB {
-    /** @type {string} */
-    static value = "module";
+    constructor() {
+        var info = {};
+        info.name = "Ciccio";
+        info.surname = "Pasticcio";
+        this.info = info;
+        this.age = 50;
+      }
 }

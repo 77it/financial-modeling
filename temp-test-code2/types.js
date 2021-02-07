@@ -1,9 +1,12 @@
 /**
  * @typedef {Object} Pet
- * @property {string} name
+ * @property {Object} info
+ * @property {string} info.name
+ * @property {string} info.surname
+ * @property {number} age
  */
 
  /**
  * @typedef {Object} Value
- * @property {string} value
+ * @var {string} value
  */
