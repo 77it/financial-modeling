@@ -1,2 +1,2 @@
-deno run --reload --config ./tsconfig.json main.js
+deno run --reload --config ./tsconfig.deno.json main.js
 pause
