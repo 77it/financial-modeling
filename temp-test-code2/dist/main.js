@@ -1,6 +1,10 @@
 import { ValuesA1, ValuesA2, ValuesB1, ValuesB2 } from "./lib/moduleA.js";
+import { ClassUsingAndReturningIValueAB } from "./ClassUsingAndReturningIValueAB.js";
 var value2 = new ValuesB1;
 console.log(ValuesA1.value + " " + ValuesA2.value + " " + value2.info + " " + ValuesB2.value);
+var c2 = new ClassUsingAndReturningIValueAB;
+var valueAB = { "ValueA": "a", "ValueB": "b" };
+console.log(c2.Run(valueAB));
 class Student {
     constructor(firstName, middleInitial, lastName) {
         Object.defineProperty(this, "firstName", {
