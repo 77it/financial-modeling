@@ -1,6 +1,8 @@
-rmdir dist /s /q
+@REM for DENO
+
+rmdir dist_deno /s /q
 del src\denotypes.d.ts
 deno types >src/denotypes.d.ts
-call tsc
-deno run --reload --config ./tsconfig.deno.json ./dist/main.js
+call tsc --project tsconfig.deno.json
+deno run --reload --config ./tsconfig.deno-run.json ./dist_deno/main.js
 pause
