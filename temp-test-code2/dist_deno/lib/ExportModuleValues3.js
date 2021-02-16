@@ -1,16 +1,6 @@
 export class ValuesA {
+    static value = "hello";
 }
-Object.defineProperty(ValuesA, "value", {
-    enumerable: true,
-    configurable: true,
-    writable: true,
-    value: "hello"
-});
 export class ValuesB {
+    static value = "lib";
 }
-Object.defineProperty(ValuesB, "value", {
-    enumerable: true,
-    configurable: true,
-    writable: true,
-    value: "lib"
-});

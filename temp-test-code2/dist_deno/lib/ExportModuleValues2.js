@@ -1,25 +1,10 @@
 export class ValuesA {
+    static value = "hello";
 }
-Object.defineProperty(ValuesA, "value", {
-    enumerable: true,
-    configurable: true,
-    writable: true,
-    value: "hello"
-});
 export class ValuesB {
+    info;
+    age;
     constructor() {
-        Object.defineProperty(this, "info", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: void 0
-        });
-        Object.defineProperty(this, "age", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: void 0
-        });
         this.info = "Ciccio";
         this.age = 50;
     }

@@ -7,11 +7,12 @@
     "isolatedModules": true,
     "strict": true,
     "useDefineForClassFields": true,
+    "module": "esnext",
+    "target": "esnext",
 
-    "inlineSourceMap": false,
-    "lib": [],
-    "module": "es2020",
-    "target": "es2020",
+    // settings different from https://deno.land/manual@v1.7.2/typescript/configuration
+    "inlineSourceMap": false,  // don't need the base64-serialized TS source inside every JS file
+    "lib": [],  // `"lib": ["deno.window"]` is not defined, then is removed
 
     "declaration": true,
     "checkJs": true,

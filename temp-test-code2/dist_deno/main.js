@@ -6,31 +6,14 @@ var c2 = new ClassUsingAndReturningIValueAB;
 var valueAB = { "ValueA": "a", "ValueB": "b" };
 console.log(c2.Run(valueAB));
 class Student {
+    firstName;
+    middleInitial;
+    lastName;
+    fullName;
     constructor(firstName, middleInitial, lastName) {
-        Object.defineProperty(this, "firstName", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: firstName
-        });
-        Object.defineProperty(this, "middleInitial", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: middleInitial
-        });
-        Object.defineProperty(this, "lastName", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: lastName
-        });
-        Object.defineProperty(this, "fullName", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: void 0
-        });
+        this.firstName = firstName;
+        this.middleInitial = middleInitial;
+        this.lastName = lastName;
         this.fullName = firstName + " " + middleInitial + " " + lastName;
     }
 }
