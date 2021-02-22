@@ -1,5 +1,6 @@
 {
   // from https://deno.land/manual@v1.7.2/typescript/configuration  &  https://www.npmjs.com/package/@tsconfig/deno
+  // see also https://www.typescriptlang.org/tsconfig
   "compilerOptions": {
     "allowJs": true,
     "esModuleInterop": true,
@@ -14,14 +15,19 @@
     "inlineSourceMap": false,  // don't need the base64-serialized TS source inside every JS file
     "lib": [],  // `"lib": ["deno.window"]` is not defined, then is removed
 
-    "declaration": true,
-    "checkJs": true,
-    "outDir": "dist_deno",
+    // from https://deno.land/manual@v1.7.2/typescript/configuration
     "noImplicitAny": true,
     "noImplicitReturns": true,
+    "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "removeComments": false
+    "strictNullChecks": true,
+    "removeComments": false,
+
+    // other settings
+    "declaration": true,  // Generate .d.ts files for every TypeScript or JavaScript file inside your project
+    "checkJs": true,
+    "outDir": "dist_deno",
   },
   "include": [
     "src/**/*"
