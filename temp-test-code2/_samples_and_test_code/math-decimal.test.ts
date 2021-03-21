@@ -12,15 +12,28 @@ import {BigNumber} from "https://raw.githubusercontent.com/MikeMcl/bignumber.js/
 // @deno-types="https://raw.githubusercontent.com/MikeMcl/decimal.js/master/decimal.d.ts"
 import {Decimal} from "https://raw.githubusercontent.com/MikeMcl/decimal.js/master/decimal.mjs";
 
+function toFixed(num:number, decimalPlaces:number):number {
+    var pow = Math.pow(10, decimalPlaces);
+    return Math.round(num*pow) / pow;
+}
+
 //#region number
 // FAILING TEST
 Deno.test("FAILING number: 200.30 * 3 == 600.90", () => {
 	assertEquals(600.90, 200.30 * 3);
 });
 
+Deno.test("number: toFixed(200.30 * 3, 5) == 600.90", () => {
+	assertEquals(600.90, toFixed(200.30 * 3, 5));
+});
+
 // FAILING TEST
 Deno.test("FAILING number: 200.30 + 200.30 + 200.30 == 600.90", () => {
 	assertEquals(600.90, 200.30 + 200.30 + 200.30);
+});
+
+Deno.test("number: toFixed(200.30 + 200.30 + 200.30, 5) == 600.90", () => {
+	assertEquals(600.90, toFixed(200.30 + 200.30 + 200.30, 5));
 });
 
 Deno.test("number: (100 / 3) + (100 / 3) + (100 / 3) == 100", () => {
