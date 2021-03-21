@@ -1,4 +1,4 @@
-// run with deno text THIS-FILE-NAME
+// run with `deno test THIS-FILE-NAME`
 
 
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";

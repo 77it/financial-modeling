@@ -1,3 +1,5 @@
+// deno run THIS-FILE
+
 function toFixed(num:number, decimalPlaces:number):number {
     var pow = Math.pow(10, decimalPlaces);
     return Math.round(num*pow) / pow;
