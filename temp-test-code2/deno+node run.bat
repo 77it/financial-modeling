@@ -7,6 +7,7 @@ del src\lib\RuntimeMediator.ts
 copy src_deno\RuntimeMediator.ts src\lib
 deno types >src/denotypes.d.ts
 call tsc --project tsconfig.deno.json
+rem npx prettier --write ./dist_deno
 deno run --config ./tsconfig.deno-run.json ./dist_deno/main.js
 pause
 
@@ -17,6 +18,7 @@ del src\denotypes.d.ts
 del src\lib\RuntimeMediator.ts
 copy src_node\RuntimeMediator.ts src\lib
 call tsc --project tsconfig.node.json
+npx prettier --write ./dist_node
 node ./dist_node/main.js
 pause
 

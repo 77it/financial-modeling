@@ -2,9 +2,9 @@
   // based on https://www.npmjs.com/package/@tsconfig/node14
 
   "compilerOptions": {
-    "lib": ["es2020"],
+    "lib": ["dom", "esnext"],
     "module": "commonjs",
-    "target": "es2020",
+    "target": "esnext",
  
     "strict": true,
     "esModuleInterop": true,

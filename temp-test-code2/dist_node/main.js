@@ -5,6 +5,7 @@
 2) typescript: `npm install -g typescript`  // global installation
 3) cd in the source folder
 4) node types: `npm i --save-dev @types/node`  // local installation
+5) prettier: `npm install --save-dev --save-exact prettier`
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 const moduleA_js_1 = require("./lib/moduleA.js");
