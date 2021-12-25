@@ -243,6 +243,4 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
-/financialmodel.test/002/Utilities.GDriveLib/client_secret.json
-/financialmodel.test/003/GPUCache
-/financialmodel.test/zFunctionalitiesTestProjects/EPPlus + DataTable Test/BenchmarkDotNet.Artifacts/results
+/temp-test-code3.JS/.idea/
