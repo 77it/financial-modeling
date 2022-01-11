@@ -1,14 +1,11 @@
 // test-import-from-https
 
-//import { ValuesA1, ValuesA2, ValuesB1, ValuesB2 } from "https://raw.githubusercontent.com/77it/financial-modeling/master/temp-test-code2/modules-v1/moduleA.js";
-import { ValuesA1, ValuesA2, ValuesB1, ValuesB2 } from "./modules-v1/moduleA.js";
+import { ValuesA } from "https://raw.githubusercontent.com/77it/financial-modeling/master/temp-test-code3.JS/modules-v1/lib/ExportModuleValues3.js";
+//import { ValuesA1, ValuesA2, ValuesB1, ValuesB2 } from "./modules-v1/moduleA.js";
 //import "https://raw.githubusercontent.com/77it/financial-modeling/master/temp-test-code2/types.js";
 import "./types.js";
 
-/** @type {Pet} */
-var value2 = new ValuesB1;
-
-console.log(ValuesA1.value + " " + ValuesA2.value + " " + value2.info.name + " " + ValuesB2.value);
+console.log(ValuesA.value);
 
 /**
  * This is a function.
@@ -28,7 +25,7 @@ function foo(n) {
 console.log(foo('a'));
 
 /** @type {string[]} */
-const a = ['a', '7'];
+const a = ["a", "7"];
 
 console.log(a);
 
@@ -40,3 +37,10 @@ info.name = "mimmo";
 info.surname = "bello";
 myPet.info = info;
 console.log(myPet.info.name);
+
+
+// DYNAMIC IMPORT
+var importUrl = "https://raw.githubusercontent.com/77it/financial-modeling/master/temp-test-code3.JS/modules-v1/lib/ExportModuleValues3.js";
+const ValuesXXX = (await import(importUrl));
+console.log(ValuesXXX);
+console.log(ValuesXXX.ValuesB.value);
