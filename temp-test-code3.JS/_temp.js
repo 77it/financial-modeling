@@ -24,3 +24,10 @@ class MyClass {
     otherFunction(a) {
     }
 }
+
+let x=null
+let a = false
+if (x === null)
+    console.log("null")
+if (x === undefined)
+    console.log("undefined")
