@@ -1,16 +1,22 @@
 // dependencies
 /* write as   https://exploringjs.com/impatient-js/toc.html */
 
-// JS ledger/SimObject: Create a SimObject class that throw exception with numbers with fractional part > than 10 elements (also in principal, in every number).
-/* Create static method inside SimObject class: simObjNumberValidator; returns string.Empty or the error (from constants simObjNumberValidator_Error_DecimalsMoreThanTen) */
+// JS ledger/SimObject
+/*
+* SimObject class: throw exception with numbers with fractional part > than SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
+* SimObject class: static method: normalizeNumber; returns a number with the right number of decimal places (from Simulation Lock SIMULATION_NUMBERS_DECIMAL_PLACES)
+* SimObject class: store dates without minutes/seconds
+*/
 
 // test:
 // * import from json:
-//   * ../SimulationEngineData/modules.json & ../SimulationEngineData/settings.json
+//   * ../SimulationEngineSettings.json & ../SimulationEngineModules.json
 // * import-from-https
 
 
-import { ValuesA } from "https://raw.githubusercontent.com/77it/financial-modeling/master/temp-test-code3.JS/modules-v1/lib/ExportModuleValues3.js";
+import {
+    ValuesA
+} from "https://raw.githubusercontent.com/77it/financial-modeling/master/temp-test-code3.JS/modules-v1/lib/ExportModuleValues3.js";
 //import { ValuesA1, ValuesA2, ValuesB1, ValuesB2 } from "./modules-v1/moduleA.js";
 //import "https://raw.githubusercontent.com/77it/financial-modeling/master/temp-test-code2/types.js";
 import "./types.js";
@@ -29,7 +35,7 @@ console.log(ValuesA.value);
  */
 function foo(n) {
     return n
-  }
+}
 
 //console.log(foo(5));
 console.log(foo('a'));
