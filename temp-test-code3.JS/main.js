@@ -3,7 +3,7 @@
 
 // JS ledger/SimObject
 /*
-* SimObject class: throw exception with numbers with fractional part > than SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
+* SimObject class: throw exception with numbers with number of decimal (fractional) digits greater than SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
 * SimObject class: static method: normalizeNumber; returns a number with the right number of decimal places (from Simulation Lock SIMULATION_NUMBERS_DECIMAL_PLACES)
 * SimObject class: store dates without minutes/seconds
 */
