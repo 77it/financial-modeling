@@ -8,6 +8,17 @@
 * SimObject class: store dates without minutes/seconds
 */
 
+/*
+Deno modules from Excel modules:
+* write in Excel relative path of modules
+* command line option of “Deno.exe builder.js” to set the root of modules (./ or https/something) before execution from main.js
+
+/////
+
+js lock?
+https://www.talkinghightech.com/en/initializing-js-lock/
+ */
+
 // test:
 // * import from json:
 //   * ../SimulationEngineSettings.json & ../SimulationEngineModules.json
