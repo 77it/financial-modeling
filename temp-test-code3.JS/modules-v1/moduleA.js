@@ -1,7 +1,8 @@
-import { ValuesA as ValuesA1, ValuesB as ValuesB1 } from "./ExportModuleValues2.js";
-import { ValuesA as ValuesA2, ValuesB as ValuesB2 } from "./lib/ExportModuleValues3.js";
+import {ClassA as ClassA1, ClassB as ClassB1, ClassBB as ClassBB1} from "./ExportModuleValues2.js";
+import {ValuesA as ValuesA2, ValuesB as ValuesB2} from "./lib/ExportModuleValues3.js";
 
-export {ValuesA1};
+export {ClassA1};
 export {ValuesA2};
-export {ValuesB1};
+export {ClassB1};
 export {ValuesB2};
+export {ClassBB1};
