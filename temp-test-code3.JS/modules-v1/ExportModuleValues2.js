@@ -31,3 +31,16 @@ export class ClassBB {
         this.age = 50;
     }
 }
+
+
+xxx prova classe
+
+/*
+Parameter validation:
+
+Create classes that have immutable properties
+
+JsDoc definition for the class
+
+classe che ha metodo With per generare classe dalla classe, solo con piccole modifiche
+*/
