@@ -33,3 +33,21 @@ https://www.talkinghightech.com/en/initializing-js-lock/
 // * import from json:
 //   * ../SimulationEngineSettings.json & ../SimulationEngineModules.json
 // * import-from-https
+
+// SimObject definition
+/*
+VersionId
+OldVersionId
+Quantity
+UnityOfMeasure
+ */
+
+// SimulationInit commands
+// * merge-input
+// * init-simulation
+
+
+// Ledger: fornisci alcuni oggetti per scrivere su file:
+// * logger_simObjects
+// * logger_errors
+// * logger_messages
