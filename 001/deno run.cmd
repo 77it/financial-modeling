@@ -2,7 +2,7 @@
 
 echo.
 echo DENO running...
-deno run --allow-net --config ./tsconfig.deno-run.json ./main.js
+deno run --allow-net --config ./deno.json ./main.js
 echo.
 pause
 
