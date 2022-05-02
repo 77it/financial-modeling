@@ -34,7 +34,7 @@ https://www.talkinghightech.com/en/initializing-js-lock/
 //   * ../SimulationEngineSettings.json & ../SimulationEngineModules.json
 // * import-from-https
 
-// SimObject definition
+// SimObject definition (#SimObject)
 /*
 VersionId
 OldVersionId
@@ -42,9 +42,30 @@ Quantity
 UnityOfMeasure
  */
 
-// SimulationInit commands
-// * merge-input
-// * init-simulation
+// SimulationInit (#SimulationInit)
+/*
+# commands
+* merge-input
+* init-simulation
+
+# main.js generation / SimulationEngine
+
+SimulationInit select the maximum supported shared version from min to max: if 1, select the last 1.3.4; …; if 3, select 3.2.3.
+
+If there is no shared version between modules, error.
+
+Simulation init then generate a local main.js that calls the maximum common version of SimulationEngine (as SimulationEngine_v1_0_4)
+*/
+
+// SimulationEngine (#SimulationEngine, #ModuleRunner, #ModulesData)
+/*
+SimulationEngine accepts ModuleRunner and ModuleTables[] as input parameters
+ */
+
+// # Modules (#modules)
+/*
+Every module has two exported const named: MIN_ENGINE_VERSION and MAX_ENGINE_VERSION, two strings with a single number inside.
+ */
 
 
 // Ledger: fornisci alcuni oggetti per scrivere su file:
