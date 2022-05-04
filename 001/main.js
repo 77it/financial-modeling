@@ -46,9 +46,13 @@ UnityOfMeasure
 
 ## command `init-simulation`
 
-### ModulesData preparation
+### `ModulesRunner.js` generation
 
-transform JsonLines in a list of JSON
+is generated a local file named `modulesrunner.js`
+
+### ModulesData transformation in `ModulesData.Json`
+
+transform JsonLines in a list of JSON, a file named `modulesdata.json`
 
 ### main.js generation / SimulationEngine
 
@@ -56,12 +60,15 @@ SimulationInit select the maximum supported shared version from min to max: if 1
 
 If there is no shared version between modules, error.
 
-Simulation init then generate a local main.js that calls the maximum common version of SimulationEngine (as SimulationEngine_v1_0_4)
+Simulation init then generate a local main.js that:
+* import a local `modulesrunner.js`
+* import a local `modulesdata.json`
+* import the maximum common version of SimulationEngine (as SimulationEngine_v1_0_4)
 */
 
-// SimulationEngine (#SimulationEngine, #ModuleRunner, #ModulesData)
+// SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesData)
 /*
-SimulationEngine accepts ModuleRunner and ModuleTables[] as input parameters
+SimulationEngine accepts ModulesRunner and ModuleTables[] as input parameters
  */
 
 // # Modules (#modules)
