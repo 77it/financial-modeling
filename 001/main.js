@@ -29,11 +29,6 @@ js lock?
 https://www.talkinghightech.com/en/initializing-js-lock/
  */
 
-// test:
-// * import from json:
-//   * ../SimulationEngineSettings.json & ../SimulationEngineModules.json
-// * import-from-https
-
 // SimObject definition (#SimObject)
 /*
 VersionId
@@ -45,10 +40,17 @@ UnityOfMeasure
 // SimulationInit (#SimulationInit)
 /*
 # commands
+
 * merge-input
 * init-simulation
 
-# main.js generation / SimulationEngine
+## command `init-simulation`
+
+### ModulesData preparation
+
+transform JsonLines in a list of JSON
+
+### main.js generation / SimulationEngine
 
 SimulationInit select the maximum supported shared version from min to max: if 1, select the last 1.3.4; …; if 3, select 3.2.3.
 
