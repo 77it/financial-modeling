@@ -2,6 +2,18 @@
 // https://stackoverflow.com/questions/61853754/how-to-debug-deno-in-vscode
 // https://deno.land/manual@v1.21.0/vscode_deno#using-the-debugger
 
+// semantic versioning
+/*
+https://semver.org/
+
+first version of libraries etc can start at 0.1.0 as specified in https://semver.org/
+
+the version number is stored in the folder, as
+https://github.com/simulation99/simulation-js/simulation/types/v0/simulation_types.js
+inspired to this real example
+https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/d3/v6/index.d.ts
+ */
+
 /*
 mail to merge:
 Deno unknown   https://mail.google.com/mail/u/0/#search/deno+unknown/CwCPbnFjRftbSWCcZFlrLpVTnHwkkRL
@@ -56,14 +68,14 @@ transform JsonLines in a list of JSON, a file named `modulesdata.json`
 
 ### main.js generation / SimulationEngine
 
-SimulationInit select the maximum supported shared version from min to max: if 1, select the last 1.3.4; …; if 3, select 3.2.3.
+SimulationInit select the maximum supported shared version from min to max: if 1 and 3, select 1, 2, 3.
 
 If there is no shared version between modules, error.
 
 Simulation init then generate a local main.js that:
 * import a local `modulesrunner.js`
 * import a local `modulesdata.json`
-* import the maximum common version of SimulationEngine (as SimulationEngine_v1_0_4)
+* import the maximum common version of SimulationEngine (e.g. v2 importing https://github.com/simulation99/simulation-js/simulation/engine/v2/simulation_engine.js)
 */
 
 // SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesData)
@@ -73,11 +85,22 @@ SimulationEngine accepts ModulesRunner and ModuleTables[] as input parameters
 
 // # Modules (#modules)
 /*
-Every module has two exported const named: MIN_ENGINE_VERSION and MAX_ENGINE_VERSION, two strings with a single number inside.
+Every module has two exported const named: MIN_ENGINE_VERSION and MAX_ENGINE_VERSION, two numbers, starting from zero.
+
+Modules import the type file online, from "https://github.com/simulation99/simulation-js/simulation/types/v0/simulation_types.js)
  */
 
 
-// Ledger: fornisci alcuni oggetti per scrivere su file:
-// * logger_simObjects
-// * logger_errors
-// * logger_messages
+// Ledger: da main.js riceve alcuni oggetti per scrivere su file:
+/*
+* logger_simObjects  // scrive il dump dei SimObjects
+* logger_messages  // scrive un file di messaggi, come lista di stringhe JSON
+
+Ledger crea poi la funzione lock `log_message` per consentire ai moduli di scrivere messaggi.
+*/
+
+// errore, interruzione dell'esecuzione (fatal error, throw)
+/*
+Qualunque modulo che voglia interrompere l'esecuzione del programma per un errore fatale esegue un `throw new Error`, che viene intercettato
+con try catch da main.js, che scrive il file di errore passato dalla riga di comando, e esce.
+ */
