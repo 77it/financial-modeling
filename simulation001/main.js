@@ -104,3 +104,24 @@ Ledger crea poi la funzione lock `log_message` per consentire ai moduli di scriv
 Qualunque modulo che voglia interrompere l'esecuzione del programma per un errore fatale esegue un `throw new Error`, che viene intercettato
 con try catch da main.js, che scrive il file di errore passato dalla riga di comando, e esce.
  */
+
+// some other locks
+/*
+# EBITDA
+lockname: EBITDA
+
+types (defined in JSDocs):
+* ebitdaQuery
+* ebitda
+
+# RATE_EURIBOR
+lockname: RATE_EURIBOR
+
+types (defined in JSDocs):
+* rateEuriborQuery
+* rateEuribor
+
+is a list of {Date, number}, with the sequence of Euribor in the entire simulation range.
+when the rates are stored in the lock, the module that sets the rate shouldn't save dates before start and after end
+(dates from module/table "Set.SimulationSettings", settings "SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE" and "SIMULATION_END_DATE").
+ */
