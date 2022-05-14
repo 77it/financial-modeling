@@ -46,6 +46,67 @@ export function parseJSON(argument) {
 }
 
 
-
 // ispired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/index.ts
-{}
+// & https://stackoverflow.com/a/15289883/5288052
+/**
+ * @description
+ * Get the number of days between the given dates. This means that the times are removed
+ * from the dates and then the difference in days is calculated.
+ *
+ * @param {Date} dateLeft - the later date
+ * @param {Date} dateRight - the earlier date
+ * @returns {Number} the number of calendar days
+ * @throws {TypeError} 2 arguments required
+ *
+ * @example
+ * // How many calendar days are between
+ * // 2 July 2011 23:00:00 and 2 July 2012 00:00:00?
+ * const result = differenceInCalendarDays(
+ *   new Date(2012, 6, 2, 0, 0),
+ *   new Date(2011, 6, 2, 23, 0)
+ * )
+ * //=> 366
+ * // How many calendar days are between
+ * // 2 July 2011 23:59:00 and 3 July 2011 00:01:00?
+ * const result = differenceInCalendarDays(
+ *   new Date(2011, 6, 3, 0, 1),
+ *   new Date(2011, 6, 2, 23, 59)
+ * )
+ * //=> 1
+ */
+export default function differenceInDaysBetweenLoanDates(
+    dateLeft,
+    dateRight
+) {
+    const MILLISECONDS_IN_DAY = 86400000;
+
+    const startOfDayLeft = startOfDay(dateLeft);
+    const startOfDayRight = startOfDay(dateRight);
+
+    const timestampLeft = startOfDayLeft.getTime();
+    const timestampRight = startOfDayRight.getTime();
+
+    // Round the number of days to the nearest integer
+    // because the number of milliseconds in a day is not constant
+    // (e.g. it's different in the day of the daylight saving time clock shift)
+    return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY)
+
+    // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts
+    /**
+     * @description
+     * Return the start of a day for the given date.
+     * The result will be in the local timezone.
+     *
+     * @param {Date} date - the original date
+     * @returns {Date} the start of a day
+     *
+     * @example
+     * // The start of a day for 2 September 2014 11:55:00:
+     * const result = startOfDay(new Date(2014, 8, 2, 11, 55, 0))
+     * //=> Tue Sep 02 2014 00:00:00
+     */    function startOfDay(date) {
+        const _date = new Date(date.getTime());  // clone the date
+        _date.setHours(0, 0, 0, 0)
+        return _date
+    }
+}
