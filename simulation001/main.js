@@ -121,7 +121,7 @@ types (defined in JSDocs):
 * rateEuriborQuery
 * rateEuribor
 
-is a list of {Date, number}, with the sequence of Euribor in the entire simulation range.
+is a list of {Date, rate}, with the sequence of Euribor in the entire simulation range.
 when the rates are stored in the lock, the module that sets the rate shouldn't save dates before start and after end
 (dates from module/table "Set.SimulationSettings", settings "SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE" and "SIMULATION_END_DATE").
  */
