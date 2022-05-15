@@ -56,11 +56,10 @@ export function parseJSON(argument) {
  * @param {Date} dateLeft - the later date
  * @param {Date} dateRight - the earlier date
  * @returns {Number} the number of calendar days
- * @throws {TypeError} 2 arguments required
  *
  * @example
  * // How many calendar days are between
- * // 2 July 2011 23:00:00 and 2 July 2012 00:00:00?
+ * // 2 July 2011 23:00:00 and 2 July 2012 00:00:00 (leap year)?
  * const result = differenceInCalendarDays(
  *   new Date(2012, 6, 2, 0, 0),
  *   new Date(2011, 6, 2, 23, 0)
@@ -74,7 +73,7 @@ export function parseJSON(argument) {
  * )
  * //=> 1
  */
-export default function differenceInDaysBetweenLoanDates(
+export function differenceInCalendarDays(
     dateLeft,
     dateRight
 ) {
@@ -89,7 +88,7 @@ export default function differenceInDaysBetweenLoanDates(
     // Round the number of days to the nearest integer
     // because the number of milliseconds in a day is not constant
     // (e.g. it's different in the day of the daylight saving time clock shift)
-    return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY)
+    return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY);
 
     // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts
     /**
@@ -104,9 +103,10 @@ export default function differenceInDaysBetweenLoanDates(
      * // The start of a day for 2 September 2014 11:55:00:
      * const result = startOfDay(new Date(2014, 8, 2, 11, 55, 0))
      * //=> Tue Sep 02 2014 00:00:00
-     */    function startOfDay(date) {
+     */
+    function startOfDay(date) {
         const _date = new Date(date.getTime());  // clone the date
-        _date.setHours(0, 0, 0, 0)
-        return _date
+        _date.setHours(0, 0, 0, 0);
+        return _date;
     }
 }
