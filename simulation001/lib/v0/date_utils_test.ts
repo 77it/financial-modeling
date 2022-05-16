@@ -130,8 +130,7 @@ describe('parseJSON', () => {
 })
 
 
-// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts
-describe('differenceInCalendarDays', () => {
+describe('differenceInCalendarDays #1', () => {
     it('returns the number of calendar days between the given dates (2022-05-31 - 2022-05-30)', () => {
         const result = differenceInCalendarDays(
             new Date(2022, 4 /* May */, 31, 0, 0),
@@ -148,20 +147,40 @@ describe('differenceInCalendarDays', () => {
         assert(result === 365)
     })
 
-    it('returns the number of calendar days between the given dates (2012 is a leap year - 2011)', () => {
-        const result = differenceInCalendarDays(
-            new Date(2012, 6 /* Jul */, 2, 18, 0),
-            new Date(2011, 6 /* Jul */, 2, 6, 0)
-        )
-        assert(result === 366)
-    })
-
     it('returns the number of calendar days between the given dates (2013 - 2012)', () => {
         const result = differenceInCalendarDays(
             new Date(2013, 6 /* Jul */, 2, 18, 0),
             new Date(2012, 6 /* Jul */, 2, 6, 0)
         )
         assert(result === 365)
+    })
+
+    it('the difference is less than a day,in the same calendar day', () => {
+        const result = differenceInCalendarDays(
+            new Date(2014, 8 /* Sep */, 5, 0, 1),
+            new Date(2014, 8 /* Sep */, 5, 23, 58)
+        )
+        assert(result === 0)
+    })
+
+    it('the difference is the whole day,in the same calendar day', () => {
+        const result = differenceInCalendarDays(
+            new Date(2014, 8 /* Sep */, 5, 0, 0),
+            new Date(2014, 8 /* Sep */, 5, 23, 59)
+        )
+        assert(result === 0)
+    })
+})
+
+
+// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts
+describe('differenceInCalendarDays #2', () => {
+    it('returns the number of calendar days between the given dates (2012 is a leap year - 2011)', () => {
+        const result = differenceInCalendarDays(
+            new Date(2012, 6 /* Jul */, 2, 18, 0),
+            new Date(2011, 6 /* Jul */, 2, 6, 0)
+        )
+        assert(result === 366)
     })
 
     it('returns a negative number if the time value of the first date is smaller', () => {
