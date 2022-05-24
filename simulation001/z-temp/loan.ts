@@ -150,8 +150,8 @@ export class Loan {
 
         alla fine del ciclo, setta `#lastCalculation`
         */
-        PIPPO;
-        this.#lastCalculation = XXX;
+        // PIPPO;
+        // this.#lastCalculation = XXX;
     }
 
     earlyTerminateToday(): LoanLastCalculation {
@@ -189,31 +189,31 @@ export class Loan {
     private calculateTodayRates(): void {
         const _today = this.todayAsIsoString();
 
-        const _rateFixedOrSpread = this.rateIsNumber(this.#settings.rateFixedOrSpread) ?
-            this.#settings.rateFixedOrSpread : this.#settings.rateFixedOrSpread[_today];
+        const _rateFixedOrSpread = this.rateIsNumber(this.#settings.ratesFixedOrSpread) ?
+            this.#settings.ratesFixedOrSpread : this.#settings.ratesFixedOrSpread[_today];
         if (_rateFixedOrSpread != null) { this.#rateFixedOrSpread = _rateFixedOrSpread; }
 
-        const _rateVariablePart = this.#settings.rateVariablePartList[_today];
+        const _rateVariablePart = this.#settings.ratesVariablePartList[_today];
         if (_rateVariablePart != null) { this.#rateVariablePart = _rateVariablePart; }
 
-        const _rateCap = this.rateIsLoanSettingsRateList(this.#settings.rateCap) ?
-            this.#settings.rateCap[_today] : null;
+        const _rateCap = this.rateIsLoanSettingsRateList(this.#settings.ratesCap) ?
+            this.#settings.ratesCap[_today] : null;
         if (_rateCap != null) { this.#rateCap = _rateCap; }
 
-        const _rateFloor = this.rateIsLoanSettingsRateList(this.#settings.rateFloor) ?
-            this.#settings.rateFloor[_today] : null;
+        const _rateFloor = this.rateIsLoanSettingsRateList(this.#settings.ratesFloor) ?
+            this.#settings.ratesFloor[_today] : null;
         if (_rateFloor != null) { this.#rateFloor = _rateFloor; }
     }
 
     private settingsMutablePropertiesChecks(): void {
         if (this.#settings.earlyTerminationDate === undefined) { this.#settings.earlyTerminationDate = null; }
-        if (this.#settings.rateCap === undefined) { this.#settings.rateCap = null; }
-        if (this.#settings.rateFloor === undefined) { this.#settings.rateFloor = null; }
+        if (this.#settings.ratesCap === undefined) { this.#settings.ratesCap = null; }
+        if (this.#settings.ratesFloor === undefined) { this.#settings.ratesFloor = null; }
 
-        if (this.#settings.datesOfSuspendedPayments == null
-            || this.#settings.rateFixedOrSpread == null
-            || this.#settings.rateVariablePartList == null
-            || this.#settings.principalChanges == null
+        if (this.#settings.suspendedPayments == null
+            || this.#settings.ratesFixedOrSpread == null
+            || this.#settings.ratesVariablePartList == null
+            //|| this.#settings.principalChanges == null
             || this.#settings.totalNumberOfPaymentLeftChanges == null
         )
             throw ("one or more required property of 'settings' is null");
