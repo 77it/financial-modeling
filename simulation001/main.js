@@ -56,25 +56,17 @@ UnityOfMeasure
 * merge-input
 * init-simulation
 
-## command `init-simulation`
-
-### `ModulesRunner.js` generation
-
-is generated a local file named `modulesrunner.js`
-
-### ModulesData transformation in `ModulesData.Json`
-
-transform JsonLines in a list of JSON, a file named `modulesdata.json`
-
-### main.js generation / SimulationEngine
+## main.js (#SimulationEngine)
 
 SimulationInit select the maximum supported shared version from min to max: if 1 and 3, select 1, 2, 3.
 
 If there is no shared version between modules, error.
 
-Simulation init then generate a local main.js that:
-* import a local `modulesrunner.js`
-* import a local `modulesdata.json`
+Simulation init then:
+* import an online `modulesrunner.js`  // #ModulesRunner quindi procede col "dynamic import" dei moduli
+* load `modulesdata.jsonl`, deserializzando riga per riga
+  ModuleEngineURI può contenere anche Id nel formato "loan@7"
+    che #ModulesRunner risolve nel caricamento del modulo di default "loan" nel folder "v7" // da https://observablehq.com/@observablehq/require + https://github.com/d3/d3-require#d3-require
 * import the maximum common version of SimulationEngine (e.g. v2 importing https://github.com/simulation99/simulation-js/simulation/engine/v2/simulation_engine.js)
 */
 
@@ -87,7 +79,7 @@ SimulationEngine accepts ModulesRunner and ModuleTables[] as input parameters
 /*
 Every module has two exported const named: MIN_ENGINE_VERSION and MAX_ENGINE_VERSION, two numbers, starting from zero.
 
-Modules import the type file online, from "https://github.com/simulation99/simulation-js/simulation/types/v0/simulation_types.js)
+Modules import the JSDoc type file online, from a file named "simulation_types.js" in a folder named "https://github.com/simulation99/simulation-js/simulation/types/v0" (or "v1" etc)
  */
 
 
