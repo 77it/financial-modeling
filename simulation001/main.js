@@ -125,7 +125,7 @@ to debug, create an option in the setting module that set in all SimObjects desc
 
 // UI UX GUI idea  #UI #UX GUI idea
 /*
-Mostrare grafico di EBITDA, cassa ecc a partire dal report delta (giornaliero, mensile) generato su Excel
+ a partire dal report delta (giornaliero, mensile) generato su Excel
 
-In alternativa, fare il plot dei SimObjects mostrando EBITDA, cassa ecc sommando movimento per movimento i vari SimObjects, e mostrando anche per ogni giorno i SimObjects movimentati, con un link ai moduli che li hanno craeti (il link è generabile solo se JS simulation crea un file che associa ai Command Group Id un link al sorgente del modulo)
+Mostrare grafico giornaliero di EBITDA, cassa ecc a partire dai SimObjects, sommando movimento per movimento i vari SimObjects, e mostrando anche per ogni giorno i SimObjects movimentati
  */
