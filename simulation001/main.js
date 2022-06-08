@@ -2,6 +2,8 @@
 // https://stackoverflow.com/questions/61853754/how-to-debug-deno-in-vscode
 // https://deno.land/manual@v1.21.0/vscode_deno#using-the-debugger
 
+// deno cheat sheet: https://oscarotero.com/deno/
+
 // semantic versioning
 /*
 https://semver.org/
