@@ -65,16 +65,32 @@ SimulationInit select the maximum supported shared version from min to max: if 1
 If there is no shared version between modules, error.
 
 Simulation init then:
+* prevede un metodo chiamato `loadModules` da usare prima dell'avvio della simulazione per passare delle classi definite come
+  {string id, object oggetto} che vengono passate a ModulesRunner
 * import an online `modulesrunner.js`  // #ModulesRunner quindi procede col "dynamic import" dei moduli
 * load `modulesdata.jsonl`, deserializzando riga per riga
-  ModuleEngineURI può contenere anche Id nel formato "loan@7"
-    che #ModulesRunner risolve nel caricamento del modulo di default "loan" nel folder "v7" // da https://observablehq.com/@observablehq/require + https://github.com/d3/d3-require#d3-require
-* import the maximum common version of SimulationEngine (e.g. v2 importing https://github.com/simulation99/simulation-js/simulation/engine/v2/simulation_engine.js)
 */
 
 // SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesData)
 /*
-SimulationEngine accepts ModulesRunner and ModuleTables[] as input parameters
+#SimulationEngine accepts ModulesRunner (già inizializzato) and ModuleTables[] as input parameters
+
+SimulationEngine, nelle varie versioni, è sempre compatibile con le versioni precedenti
+
+
+#ModulesRunner
+
+accetta nell'init della classe 3 parametri:
+* modulesToLoadOnline: {string moduleName, string url}[]  // preso da modulesdata.jsonl
+* modulesToLoadFromObjects: {string moduleName, string url}[]  // SimulationInit valorizza con il metodo `loadModules`
+
+ha il metodo `getSimulationEngine` che restituisce la maximum common version di SimulationEngine (e.g. v2 importing https://github.com/simulation99/simulation-js/simulation/engine/v2/simulation_engine.js)
+
+
+#Observablehq
+Observable può definire delle tabelle di trascodifica dei moduli, il cui ID può essere nel formato "loan@7"
+    che viene risolto nel caricamento del modulo di default "loan" nel folder "v7" // da https://observablehq.com/@observablehq/require + https://github.com/d3/d3-require#d3-require
+
  */
 
 // # Modules (#modules)
