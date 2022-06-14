@@ -4,14 +4,14 @@
 
 // deno cheat sheet: https://oscarotero.com/deno/
 
-// semantic versioning
+// [UNUSED - Simulation must never break old code then won't need versions] semantic versioning
 /*
 https://semver.org/
 
 first version of libraries etc can start at 0.1.0 as specified in https://semver.org/
 
 the version number is stored in the folder, as
-https://github.com/simulation99/simulation-js/simulation/types/v0/simulation_types.js
+https://github.com/simulation99/simulation-js/simulation/lib/v0/simulation_types.js
 inspired to this real example
 https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/d3/v6/index.d.ts
  */
@@ -60,10 +60,6 @@ UnityOfMeasure
 
 ## main.js (#SimulationEngine)
 
-SimulationInit select the maximum supported shared version from min to max: if 1 and 3, select 1, 2, 3.
-
-If there is no shared version between modules, error.
-
 Simulation init then:
 * prevede un metodo chiamato `loadModules` da usare prima dell'avvio della simulazione per passare delle classi definite come
   {string id, object oggetto} che vengono passate a ModulesRunner
@@ -84,8 +80,6 @@ accetta nell'init della classe 3 parametri:
 * modulesToLoadOnline: {string moduleName, string url}[]  // preso da modulesdata.jsonl
 * modulesToLoadFromObjects: {string moduleName, string url}[]  // SimulationInit valorizza con il metodo `loadModules`
 
-ha il metodo `getSimulationEngine` che restituisce la maximum common version di SimulationEngine (e.g. v2 importing https://github.com/simulation99/simulation-js/simulation/engine/v2/simulation_engine.js)
-
 
 #Observablehq
 Observable può definire delle tabelle di trascodifica dei moduli, il cui ID può essere nel formato "loan@7"
@@ -95,9 +89,7 @@ Observable può definire delle tabelle di trascodifica dei moduli, il cui ID pu�
 
 // # Modules (#modules)
 /*
-Every module has two exported const named: MIN_ENGINE_VERSION and MAX_ENGINE_VERSION, two numbers, starting from zero.
-
-Modules import the JSDoc type file online, from a file named "simulation_types.js" in a folder named "https://github.com/simulation99/simulation-js/simulation/types/v0" (or "v1" etc)
+Modules import the JSDoc type file online, from the file "https://github.com/simulation99/simulation-js/simulation/types/simulation_types.js"
  */
 
 
