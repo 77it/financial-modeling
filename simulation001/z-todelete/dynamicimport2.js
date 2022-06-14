@@ -1,9 +1,9 @@
 export class ValuesA {
-    static value = "hello";
+    static value = "hello v0.1.1";
 }
 
 export class ValuesB {
-    static valueX = "module";
+    static valueX = "module v0.1.1";
     /**
      * @param {Object} p
      * @param {string} p.value - Some parameter...
