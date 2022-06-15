@@ -104,8 +104,14 @@ Variables/lock are immutable: when defined/set can't be redefined.
 
 Fields:
 * namespace, variable, value
-* Simulation namespace = ""
+* Simulation/Global namespace = ""
 * Any unit name is allowed
+/////
+get method
+
+(value, optional namespace)
+value can be string or object {value string, namespace string}
+namespace can be null, undefined or "" meaning Simulation/global
 /////
 Ledger crea poi la funzione lock `log_message` per consentire ai moduli di scrivere messaggi.
 */
