@@ -98,6 +98,15 @@ Modules import the JSDoc type file online, from the file "https://github.com/sim
 * logger_simObjects  // scrive il dump dei SimObjects
 * logger_messages  // scrive un file di messaggi, come lista di stringhe JSON
 
+#lock, #variables (#locks #immutable)
+
+Variables/lock are immutable: when defined/set can't be redefined.
+
+Fields:
+* namespace, variable, value
+* Simulation namespace = ""
+* Any unit name is allowed
+/////
 Ledger crea poi la funzione lock `log_message` per consentire ai moduli di scrivere messaggi.
 */
 
