@@ -23,13 +23,13 @@ export class modulesRunner {
     
     static valueX = "moduleRunner v0.1.2";
     constructor() {
-        #classesRepo = {};
+        this.#classesRepo = {};
     }
     
     // method to add classes from object to the repository
     // todo implementa caricamento anche di array di oggetti; va in errore se non è definito id; value is optional
     addClassFromObject({className, URI, classObj}) {
-      #classesRepo[URI + "/" + className] = classObj;
+      this.#classesRepo[`${URI}/${className}`] = classObj;
     }
     
     // method to add classes from URI to the repository
@@ -37,10 +37,10 @@ export class modulesRunner {
     async addClassFromURI({className, URI}) { 
         // DYNAMIC IMPORT (works with deno and browser)
         const _module = (await import(URI));
-        #classesRepo[URI + "/" + className] = _module[objName]; 
+        this.#classesRepo[`${URI}/${className}`] = _module[className]; 
     }
     
     getClass({className, URI}) {
-      return #classesRepo[URI + "/" + className];
+      return this.#classesRepo[`${URI}/${className}`];
     }  
 }
