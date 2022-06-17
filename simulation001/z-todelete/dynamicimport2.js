@@ -14,3 +14,15 @@ export class ValuesB {
         this.value2 = value2;
     }
 }
+
+export class Module {
+    /**
+     * @param {Object} p
+     * @param {string} p.value - Some parameter...
+     * @param {string} p.value2 - Another parameter...
+     */
+    constructor({value, value2}) {
+        this.value = value;
+        this.value2 = value2;
+    }
+}
