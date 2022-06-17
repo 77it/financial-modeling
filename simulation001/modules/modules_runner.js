@@ -42,6 +42,7 @@ export class modulesRunner {
         const _module = (await import(URI));
         this.#classesRepo[`${URI}/${className}`] = _module[className];
       }
+      return true;
     }
     
     getClass({className, URI}) {
