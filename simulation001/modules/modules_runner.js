@@ -16,7 +16,7 @@ export async function loadObj2(objName) {
 }
 
 
-export class modulesRunner {
+export class ModulesRunner {
     /** @type {Object} */ //TODO definisci oggetto 
     // contains id (URI/className) as key and a class as value
     #classesRepo;
