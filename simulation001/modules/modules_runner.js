@@ -32,7 +32,9 @@ export class ModulesRunner {
     addClassFromObject({moduleName, URI, classObj}) {
       if(this.#classesRepo[`${URI}/${moduleName}`] == undefined) {
         this.#classesRepo[`${URI}/${moduleName}`] = classObj;
+        return true;
       }
+      return false;
     }
     
     // method to add classes from URI to the repository
@@ -42,8 +44,9 @@ export class ModulesRunner {
         // DYNAMIC IMPORT (works with deno and browser)
         const _module = (await import(URI));
         this.#classesRepo[`${URI}/${moduleName}`] = _module[this.#defaultClassName];
+        return true;
       }
-      return true;
+      return false;
     }
     
     getClass({moduleName, URI}) {
