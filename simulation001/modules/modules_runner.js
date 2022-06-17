@@ -20,6 +20,7 @@ export class ModulesRunner {
     /** @type {Object} */ //TODO definisci oggetto 
     // contains id (URI/className) as key and a class as value
     #classesRepo;
+    #defaultClassName = "Module";
     
     static valueX = "moduleRunner v0.1.2";
     constructor() {
@@ -28,24 +29,24 @@ export class ModulesRunner {
     
     // method to add classes from object to the repository
     // todo implementa caricamento anche di array di oggetti; va in errore se non è definito id; value is optional
-    addClassFromObject({className, URI, classObj}) {
-      if(this.#classesRepo[`${URI}/${className}`] == undefined) {
-        this.#classesRepo[`${URI}/${className}`] = classObj;
+    addClassFromObject({moduleName, URI, classObj}) {
+      if(this.#classesRepo[`${URI}/${moduleName}`] == undefined) {
+        this.#classesRepo[`${URI}/${moduleName}`] = classObj;
       }
     }
     
     // method to add classes from URI to the repository
     // todo implementa caricamento anche di array di oggetti; va in errore se non è definito id; value is optional
-    async addClassFromURI({className, URI}) { 
-      if(this.#classesRepo[`${URI}/${className}`] == undefined) {
+    async addClassFromURI({moduleName, URI}) { 
+      if(this.#classesRepo[`${URI}/${moduleName}`] == undefined) {
         // DYNAMIC IMPORT (works with deno and browser)
         const _module = (await import(URI));
-        this.#classesRepo[`${URI}/${className}`] = _module[className];
+        this.#classesRepo[`${URI}/${moduleName}`] = _module[this.#defaultClassName];
       }
       return true;
     }
     
-    getClass({className, URI}) {
-      return this.#classesRepo[`${URI}/${className}`];
+    getClass({moduleName, URI}) {
+      return this.#classesRepo[`${URI}/${moduleName}`];
     }  
 }
