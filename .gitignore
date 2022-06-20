@@ -257,3 +257,7 @@ ModelManifest.xml
 .idea/modules.xml
 .idea/vcs.xml
 /.vscode/settings.json
+/src/.idea/workspace.xml
+/src/.idea/vcs.xml
+/src/.idea/modules.xml
+/src/.idea/001.iml
