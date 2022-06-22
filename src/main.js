@@ -16,12 +16,6 @@ inspired to this real example
 https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/d3/v6/index.d.ts
  */
 
-/*
-mail to merge:
-Deno unknown   https://mail.google.com/mail/u/0/#search/deno+unknown/CwCPbnFjRftbSWCcZFlrLpVTnHwkkRL
-JS ledger   https://mail.google.com/mail/u/0/#search/js+ledger/KtbxLxGkMfXgZsMMGhbXFGwxlGjGbWhzsq
- */
-
 // dependencies
 /* write as   https://exploringjs.com/impatient-js/toc.html */
 
@@ -80,12 +74,14 @@ accetta nell'init della classe 3 parametri:
 * modulesToLoadOnline: {string moduleName, string url}[]  // preso da modulesdata.jsonl
 * modulesToLoadFromObjects: {string moduleName, string url}[]  // SimulationInit valorizza con il metodo `loadModules`
 
+# Per generare N simulazioni con diversi scenari (ogni riga può essere inclusa/esclusa)
 
-#Observablehq
-Observable può definire delle tabelle di trascodifica dei moduli, il cui ID può essere nel formato "loan@7"
-    che viene risolto nel caricamento del modulo di default "loan" nel folder "v7" // da https://observablehq.com/@observablehq/require + https://github.com/d3/d3-require#d3-require
+Crea possibilità di filtrare nei parametri iniziali di SimulationEngine comandi con blacklist/whitelist basati su tag.
+Se in un filtro c'è il valore "" vuol dire che in assenza di tag si intende incluso / escluso.
 
- */
+Parametro di SimulationEngine: `filter`
+Contenuto di filter: {type, name, value, match}[]  // type: "+"|"-"; match: "equals" (or omitted)|"startsWith"|"includes"|"endsWith"  // match names from Javascript standard
+*/
 
 // # Modules (#modules)
 /*
@@ -142,6 +138,7 @@ is a list of {Date, rate}, with the sequence of Euribor in the entire simulation
 when the rates are stored in the lock, the module that sets the rate shouldn't save dates before start and after end
 (dates from module/table "Set.SimulationSettings", settings "SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE" and "SIMULATION_END_DATE").
  */
+
 
 // report debug idea   #debug #idea
 /*

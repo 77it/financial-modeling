@@ -262,3 +262,6 @@ ModelManifest.xml
 /src/.idea/modules.xml
 /src/.idea/001.iml
 /src/.idea/deno.xml
+/src/.idea/.gitignore
+/src/.idea/src.iml
+/src/.idea/codeStyles/codeStyleConfig.xml
