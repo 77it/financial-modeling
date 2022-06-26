@@ -4,11 +4,7 @@ export class ValuesA {
 
 export class Module {
     static valueX = "module v0.1.1";
-    /**
-     * @param {Object} p
-     * @param {string} p.value - Some parameter...
-     * @param {string} p.value2 - Another parameter...
-     */
+    /** @param {{value: string, value2: string}} p */
     constructor({value, value2}) {
         this.value = value;
         this.value2 = value2;

@@ -14,6 +14,19 @@ class ValuesB2 {
 
 const modulesRunner = new ModulesRunner();
 
+Deno.test("test addClassFromObject, class defined here", () => {
+    const _URI = "";
+    assert(modulesRunner.addClassFromObject({moduleName: "ValuesB2X", URI: _URI, classObj: ValuesB2}).success);
+
+    const query = modulesRunner.get({moduleName: "ValuesB2X", URI: _URI});
+    assert(query != undefined);
+
+    const _ValuesB2X = query.class;
+    const __ValuesB2X = new _ValuesB2X(8888)
+    assertEquals(__ValuesB2X.valueX, 8888);
+    assertEquals(_URI, query.cdnURI);
+});
+
 Deno.test("test addClassFromURI, alongside module", async () => {
     const _URI = "./z_test_module.js";
     assert((await modulesRunner.addClassFromURI({moduleName: "ValuesB", URI: _URI})).success);
@@ -39,19 +52,6 @@ Deno.test("test addClassFromURI, online module", async () => {
     const __ValuesB2 = new _ValuesB2({value: 9999, value2: "bbb"});
     assertEquals(__ValuesB2.value, 9999);
     assertEquals(__ValuesB2.value2, "bbb");
-    assertEquals(_URI, query.cdnURI);
-});
-
-Deno.test("test addClassFromObject, class defined here", () => {
-    const _URI = "";
-    assert(modulesRunner.addClassFromObject({moduleName: "ValuesB2X", URI: _URI, classObj: ValuesB2}).success);
-
-    const query = modulesRunner.get({moduleName: "ValuesB2X", URI: _URI});
-    assert(query != undefined);
-
-    const _ValuesB2X = query.class;
-    const __ValuesB2X = new _ValuesB2X(8888)
-    assertEquals(__ValuesB2X.valueX, 8888);
     assertEquals(_URI, query.cdnURI);
 });
 
@@ -82,6 +82,31 @@ Deno.test("test addClassFromURI, empty URI", async () => {
     assertEquals(__ValuesB.value, 9999);
     assertEquals(__ValuesB.value2, "bbb");
     assertEquals(`./${_moduleName}.js`, query.cdnURI);
+});
+
+Deno.test("test add from class, get it, and then from uri (skipped for same name), then get the first class", async () => {
+    const _URI = "./z_test_module.js";
+    const _moduleName = "duplicateModule";
+
+    // test add from class
+    assert(modulesRunner.addClassFromObject({moduleName: _moduleName, URI: _URI, classObj: ValuesB2}).success);
+
+    // get the class
+    const query = modulesRunner.get({moduleName: _moduleName, URI: _URI});
+    assert(query != undefined);
+    const _ValuesB = query.class;
+    const __ValuesB = new _ValuesB(9999);
+    assertEquals(__ValuesB.valueX, 9999);
+
+    // add from uri (skipped for same name)
+    assertFalse((await modulesRunner.addClassFromURI({moduleName: _moduleName, URI: _URI})).success);
+
+    // get the first class
+    const query2 = modulesRunner.get({moduleName: _moduleName, URI: _URI});
+    assert(query2 != undefined);
+    const _ValuesB2 = query.class;
+    const __ValuesB2 = new _ValuesB2(9999);
+    assertEquals(__ValuesB2.valueX, 9999);
 });
 
 Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => {
