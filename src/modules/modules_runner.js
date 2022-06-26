@@ -1,78 +1,110 @@
 export class ModulesRunner {
-  /** contains id (URI/className) as key and a class as value
-   * @type {*} */
+  /** contains id (URI/className) as key and a {class: *, cdnURI: string} as value
+   * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
   #defaultClassName = 'Module';
 
   constructor () {
-    this.#classesRepo = {};
+    this.#classesRepo = new Map();
   }
 
   /**
    * Add classes from object to the repository.
    * If URI/moduleName already exists, it is not added.
-   * @param {Object} p
-   * @param {string} p.moduleName
-   * @param {string} p.URI
-   * @param {*} p.classObj
-   * @return {boolean} true if added, false if already exists
+   * @param {{moduleName: string, URI: string, classObj: *}} p
+   * @return {{success: boolean, error?: Object}} true if added, false if already exists
    */
   addClassFromObject ({ moduleName, URI, classObj }) {
-    if (this.#classesRepo[ModulesRunner.#repoKeyBuilder(URI, moduleName)] === undefined) {
-      this.#classesRepo[ModulesRunner.#repoKeyBuilder(URI, moduleName)] = classObj;
-      return true;
+    if (this.#classesRepo.get(ModulesRunner.#repoKeyBuilder(URI, moduleName)) === undefined) {
+      this.#classesRepo.set(ModulesRunner.#repoKeyBuilder(URI, moduleName), {class: classObj, cdnURI: ""});
+      return { success: true };
     }
-    return false;
+    return { success: false, error: new Error('already exists') };
   }
 
   /**
    * Load module from URI and add a class with default name to the repository.
    * If URI/moduleName already exists, it is not added.
-   * @param {Object} p
-   * @param {string} p.moduleName
-   * @param {string} p.URI
-   * @return {Promise<boolean>} true if added, false if already exists
+   * If URI is missing, is set to ./${moduleName}.js
+   * If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
+   * If is missing the ".js" extension from the file, is added
+   * @param {{moduleName: string, URI: string}} p
+   * @return {Promise<{success: boolean, error?: Object}>} true if added, false if already exists
    */
   async addClassFromURI ({ moduleName, URI }) {
-    if (this.#classesRepo[ModulesRunner.#repoKeyBuilder(URI, moduleName)] === undefined) {
-      // DYNAMIC IMPORT (works with deno and browser)
-      const _module = (await import(URI));
-      this.#classesRepo[ModulesRunner.#repoKeyBuilder(URI, moduleName)] = _module[this.#defaultClassName];
-      return true;
-    }
-    return false;
-  }
+    if (this.#classesRepo.get(ModulesRunner.#repoKeyBuilder(URI, moduleName)) === undefined) {
+      try {
+        let _cdnURI = URI;
+        if (_cdnURI.trim() === '')  // If URI is missing, is set to ./${moduleName}.js
+          _cdnURI = `./${moduleName}.js`;
+        else if (isGitHub(_cdnURI))  // If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
+          _cdnURI = gitHubURI2jsDelivr(_cdnURI);
 
-  /**
-   * Load modules from URI and add classes with default name to the repository.
-   * If URI/moduleName already exists, it is not added.
-   * @param {Object[]} p
-   * @param {string} p[].moduleName
-   * @param {string} p[].URI
-   * @return {Promise<boolean>} true if added at least one time, false if already exists
-   */
-  async addClassesFromURI (p) {
-    let _result = false;
-    for (const _p of p) {
-      if (this.#classesRepo[ModulesRunner.#repoKeyBuilder(_p.URI, _p.moduleName)] === undefined) {
+        if (_cdnURI.slice(-3).toLowerCase() !== '.js')  // If is missing the ".js" extension from the file, is added
+          _cdnURI = `${_cdnURI}.js`;
+
         // DYNAMIC IMPORT (works with deno and browser)
-        const _module = (await import(_p.URI));
-        this.#classesRepo[ModulesRunner.#repoKeyBuilder(_p.URI, _p.moduleName)] = _module[this.#defaultClassName];
-        _result = true;
+        const _module = (await import(_cdnURI));
+        this.#classesRepo.set(ModulesRunner.#repoKeyBuilder(URI, moduleName), {class: _module[this.#defaultClassName], cdnURI: _cdnURI});
+      } catch (error) {
+        return { success: false, error: error };
+      }
+      return { success: true };
+    }
+    return { success: false, error: new Error('already exists') };
+
+    /**
+     * @param {string} URI
+     * @return {boolean}
+     */
+    function isGitHub (URI) {
+      // regex from https://github.com/jsdelivr/www.jsdelivr.com/blob/b61fc52e3e828ce0579e510be1c480c7610ef076/src/views/pages/github.html
+      let pattern = /^https?:\/\/(?:github|raw\.githubusercontent)\.com\/([^/]+)\/([^/]+)(?:\/blob)?\/([^/]+)\/(.*)$/i;
+      let match = pattern.exec(URI);
+      if (match)
+        return true;
+      return false;
+    }
+
+    /**
+     * @param {string} URI
+     * @return {string}
+     */
+    function gitHubURI2jsDelivr (URI) {
+      // regex from https://github.com/jsdelivr/www.jsdelivr.com/blob/b61fc52e3e828ce0579e510be1c480c7610ef076/src/views/pages/github.html
+      let pattern = /^https?:\/\/(?:github|raw\.githubusercontent)\.com\/([^/]+)\/([^/]+)(?:\/blob)?\/([^/]+)\/(.*)$/i;
+      let match = pattern.exec(URI);
+
+      if (match) {
+        let [, user, repo, version, file] = match;
+
+        // tag/commit prefix
+        return buildJsDelivrURI({ user: user, repo: repo, version: version, path: file });
+      }
+
+      throw Error();
+
+      /**
+       * @param {{user: string, repo: string, version: string, path: string }} p
+       * @return {string}
+       */
+      function buildJsDelivrURI ({ user, repo, version, path }) {
+        if (version === 'latest') {
+          return `https://cdn.jsdelivr.net/gh/${user}/${repo}/${path}`;
+        }
+
+        return `https://cdn.jsdelivr.net/gh/${user}/${repo}@${version}/${path}`;
       }
     }
-    return _result;
   }
 
   /**
    Get class from the repository.
-   * @param {Object} p
-   * @param {string} p.moduleName
-   * @param {string} p.URI
-   * @return {*}
-   */
-  getClass ({ moduleName, URI }) {
-    return this.#classesRepo[ModulesRunner.#repoKeyBuilder(URI, moduleName)];
+   * @param {{moduleName: string, URI: string}} p
+   * @return {undefined | {class: *, cdnURI: string}}
+   * */
+  get ({ moduleName, URI }) {
+    return this.#classesRepo.get(ModulesRunner.#repoKeyBuilder(URI, moduleName));
   }
 
   /**

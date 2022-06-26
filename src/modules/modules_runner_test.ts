@@ -15,42 +15,93 @@ class ValuesB2 {
 const modulesRunner = new ModulesRunner();
 
 Deno.test("test addClassFromURI, alongside module", async () => {
-	assert(await modulesRunner.addClassFromURI({moduleName: "ValuesB", URI: "./z_test_module.js"}));
+	const _URI = "./z_test_module.js";
+	assert((await modulesRunner.addClassFromURI({moduleName: "ValuesB", URI: _URI})).success);
 
-	const _ValuesB = modulesRunner.getClass({moduleName: "ValuesB", URI: "./z_test_module.js"});
+	const query = modulesRunner.get({moduleName: "ValuesB", URI: _URI});
+	assert(query != undefined);
+
+	const _ValuesB = query.class;
 	const __ValuesB = new _ValuesB({value: 9999, value2: "bbb"});
 	assertEquals(__ValuesB.value, 9999);
 	assertEquals(__ValuesB.value2, "bbb");
+	assertEquals(_URI, query.cdnURI);
 });
 
 Deno.test("test addClassFromURI, online module", async () => {
-	assert(await modulesRunner.addClassFromURI({moduleName: "ValuesB2", URI: "https://cdn.jsdelivr.net/gh/77it/financial-modeling@0.1.8/simulation001/z-todelete/dynamicimport2.js"}));
+	const _URI = "https://cdn.jsdelivr.net/gh/77it/financial-modeling@0.1.8/simulation001/z-todelete/dynamicimport2.js";
+	assert((await modulesRunner.addClassFromURI({moduleName: "ValuesB2", URI: _URI})).success);
 
-	const _ValuesB2 = modulesRunner.getClass({moduleName: "ValuesB2", URI: "https://cdn.jsdelivr.net/gh/77it/financial-modeling@0.1.8/simulation001/z-todelete/dynamicimport2.js"})
+	const query = modulesRunner.get({moduleName: "ValuesB2", URI: _URI});
+	assert(query != undefined);
+
+	const _ValuesB2 = query.class;
 	const __ValuesB2 = new _ValuesB2({value: 9999, value2: "bbb"});
 	assertEquals(__ValuesB2.value, 9999);
 	assertEquals(__ValuesB2.value2, "bbb");
-});
-
-Deno.test("test addClassesFromURI, online module", async () => {
-	const _p = [
-		{moduleName: "ValuesB2a", URI: "https://cdn.jsdelivr.net/gh/77it/financial-modeling@0.1.8/simulation001/z-todelete/dynamicimport2.js"},
-		{moduleName: "ValuesB2b", URI: "https://cdn.jsdelivr.net/gh/77it/financial-modeling@0.1.8/simulation001/z-todelete/dynamicimport2.js"}
-	];
-
-	assert(await modulesRunner.addClassesFromURI(_p));
-
-	const _ValuesB2a = modulesRunner.getClass({moduleName: "ValuesB2a", URI: "https://cdn.jsdelivr.net/gh/77it/financial-modeling@0.1.8/simulation001/z-todelete/dynamicimport2.js"})
-	const __ValuesB2a = new _ValuesB2a({value: 9999, value2: "bbb"});
-	assertEquals(__ValuesB2a.value, 9999);
-	assertEquals(__ValuesB2a.value2, "bbb");
+	assertEquals(_URI, query.cdnURI);
 });
 
 Deno.test("test addClassFromObject, class defined here", () => {
-	assert(modulesRunner.addClassFromObject({moduleName: "ValuesB2X", URI: "", classObj: ValuesB2}));
+	const _URI = "";
+	assert(modulesRunner.addClassFromObject({moduleName: "ValuesB2X", URI: _URI, classObj: ValuesB2}).success);
 
-	const _ValuesB2X = modulesRunner.getClass({moduleName: "ValuesB2X", URI: ""})
+	const query = modulesRunner.get({moduleName: "ValuesB2X", URI: _URI});
+	assert(query != undefined);
+
+	const _ValuesB2X = query.class;
 	const __ValuesB2X = new _ValuesB2X(8888)
 	assertEquals(__ValuesB2X.valueX, 8888);
+	assertEquals(_URI, query.cdnURI);
 });
 
+Deno.test("test addClassFromURI, adding '.js' extension", async () => {
+	const _URI = "./z_test_module";
+	assert((await modulesRunner.addClassFromURI({moduleName: "ValuesB", URI: _URI})).success);
+
+	const query = modulesRunner.get({moduleName: "ValuesB", URI: _URI});
+	assert(query != undefined);
+
+	const _ValuesB = query.class;
+	const __ValuesB = new _ValuesB({value: 9999, value2: "bbb"});
+	assertEquals(__ValuesB.value, 9999);
+	assertEquals(__ValuesB.value2, "bbb");
+	assertEquals(`${_URI}.js`, query.cdnURI);
+});
+
+Deno.test("test addClassFromURI, empty URI", async () => {
+	const _URI = "";
+	const _moduleName = "z_test_module";
+	assert((await modulesRunner.addClassFromURI({moduleName: _moduleName, URI: _URI})).success);
+
+	const query = modulesRunner.get({moduleName: _moduleName, URI: _URI});
+	assert(query != undefined);
+
+	const _ValuesB = query.class;
+	const __ValuesB = new _ValuesB({value: 9999, value2: "bbb"});
+	assertEquals(__ValuesB.value, 9999);
+	assertEquals(__ValuesB.value2, "bbb");
+	assertEquals(`./${_moduleName}.js`, query.cdnURI);
+});
+
+
+/*
+
+prova anche su observable
+
+let a = 'https://github.com/77it/financial-modeling/blob/v0.1.10/simulation001/modules/modules_runner.js';
+console.log(isGitHub(a) ? gitHub2jsDelivr(a) : '');
+a = 'https://github.com/77it/financial-modeling/blob/master/src/modules/modules_runner.js';
+console.log(isGitHub(a) ? gitHub2jsDelivr(a) : '');
+a = 'https://github.com/77it/financial-modeling/blob/latest/simulation001/modules/modules_runner.js';
+console.log(isGitHub(a) ? gitHub2jsDelivr(a) : '');
+a = 'https://raw.githubusercontent.com/77it/financial-modeling/v0.1.10/simulation001/modules/modules_runner.js';
+console.log(isGitHub(a) ? gitHub2jsDelivr(a) : '');
+a = 'https://raw.githubusercontent.com/77it/financial-modeling/master/src/modules/modules_runner.js';
+console.log(isGitHub(a) ? gitHub2jsDelivr(a) : '');
+a = 'https://raw.githubusercontent.com/77it/financial-modeling/latest/src/modules/modules_runner.js';
+console.log(isGitHub(a) ? gitHub2jsDelivr(a) : '');
+a = 'https://cdn.jsdelivr.net/npm/package@version/file';
+console.log(isGitHub(a) ? gitHub2jsDelivr(a) : '');
+
+ */
