@@ -101,10 +101,10 @@ export class ModulesRunner {
   /**
    Get class from the repository.
    * @param {{moduleName: string, URI: string}} p
-   * @return {undefined | {class: *, cdnURI: string}}
+   * @return {undefined | {class?: *, cdnURI?: string}}
    * */
   get ({ moduleName, URI }) {
-    return this.#classesRepo.get(ModulesRunner.#repoKeyBuilder(URI, moduleName));
+    return {...this.#classesRepo.get(ModulesRunner.#repoKeyBuilder(URI, moduleName))};  // return a shallow copy
   }
 
   /**

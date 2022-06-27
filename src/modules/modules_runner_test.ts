@@ -112,7 +112,7 @@ Deno.test("test add from class, get it, and then from uri (skipped for same name
 Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => {
     const _moduleName = "moduleXYZ";
     // list generated using this tool: https://www.jsdelivr.com/github
-    let _list = [
+    const _list = [
         {uri: 'https://github.com/77it/financial-modeling/blob/v0.1.11/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js'},
         {uri: 'https://github.com/77it/financial-modeling/blob/master/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/modules/z_test_module.js'},
         {uri: 'https://github.com/77it/financial-modeling/blob/latest/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling/src/modules/z_test_module.js'},
