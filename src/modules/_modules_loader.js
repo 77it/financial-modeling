@@ -15,8 +15,8 @@ export class ModulesLoader {
    * @return {{success: boolean, error?: Object}} true if added, false if already exists
    */
   addClassFromObject ({ moduleName, URI, classObj }) {
-    if (this.#classesRepo.get(this.#repoKeyBuilder(URI, moduleName)) === undefined) {
-      this.#classesRepo.set(this.#repoKeyBuilder(URI, moduleName), {class: classObj, cdnURI: ""});
+    if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(URI, moduleName)) === undefined) {
+      this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(URI, moduleName), {class: classObj, cdnURI: ""});
       return { success: true };
     }
     return { success: false, error: new Error('already exists') };
@@ -32,7 +32,7 @@ export class ModulesLoader {
    * @return {Promise<{success: boolean, error?: Object}>} true if added, false if already exists
    */
   async addClassFromURI ({ moduleName, URI }) {
-    if (this.#classesRepo.get(this.#repoKeyBuilder(URI, moduleName)) === undefined) {
+    if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(URI, moduleName)) === undefined) {
       try {
         let _cdnURI = URI;
         if (_cdnURI.trim() === '')  // If URI is missing, is set to ./${moduleName}.js
@@ -45,7 +45,7 @@ export class ModulesLoader {
 
         // DYNAMIC IMPORT (works with deno and browser)
         const _module = (await import(_cdnURI));
-        this.#classesRepo.set(this.#repoKeyBuilder(URI, moduleName), {class: _module[this.#defaultClassName], cdnURI: _cdnURI});
+        this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(URI, moduleName), {class: _module[this.#defaultClassName], cdnURI: _cdnURI});
       } catch (error) {
         return { success: false, error: error };
       }
@@ -104,7 +104,7 @@ export class ModulesLoader {
    * @return {undefined | {class: *, cdnURI: string}}
    * */
   get ({ moduleName, URI }) {
-    const _ret = this.#classesRepo.get(this.#repoKeyBuilder(URI, moduleName));
+    const _ret = this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(URI, moduleName));
     if (_ret === undefined)
       return undefined;
     if (_ret.class == null || _ret.cdnURI == null)
@@ -117,7 +117,7 @@ export class ModulesLoader {
    * @param {string} moduleName
    * @return {string}
    */
-  #repoKeyBuilder (URI, moduleName) {
+  static #repoKeyBuilder (URI, moduleName) {
     return `${URI}/${moduleName}`;
   }
 }
