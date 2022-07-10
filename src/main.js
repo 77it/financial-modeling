@@ -56,31 +56,31 @@ UnityOfMeasure
 
 Simulation init then:
 * prevede un metodo chiamato `loadModules` da usare prima dell'avvio della simulazione per passare delle classi definite come
-  {string id, object oggetto} che vengono passate a ModulesRunner
-* import an online `modulesrunner.js`  // #ModulesRunner quindi procede col "dynamic import" dei moduli
+  {string id, object oggetto} che vengono passate a ModulesLoader
+* import an online `modulesloader.js`  // #ModulesLoader quindi procede col "dynamic import" dei moduli
 * load `modulesdata.jsonl`, deserializzando riga per riga
 */
 
-// SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesData)
+// SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesLoader, #ModulesData)
 /*
-#SimulationEngine accepts ModulesRunner (già inizializzato) and ModuleTables[] as input parameters
+#SimulationEngine accepts ModulesLoader (già inizializzato) and ModuleTables[] as input parameters
 
 SimulationEngine, nelle varie versioni, è sempre compatibile con le versioni precedenti
 
 
-#ModulesRunner
 
-accetta nell'init della classe 3 parametri:
+#ModulesLoader
+accetta nell'init della classe 2 parametri:
 * modulesToLoadOnline: {string moduleName, string url}[]  // preso da modulesdata.jsonl
 * modulesToLoadFromObjects: {string moduleName, string url}[]  // SimulationInit valorizza con il metodo `loadModules`
 
-# Per generare N simulazioni con diversi scenari (ogni riga può essere inclusa/esclusa)
-
+#ModulesRunner
+accetta nell'init della classe un parametro:
+# filter: {type, name, value, match}[]  // type: "+"|"-"; match: "equals" (or omitted)|"startsWith"|"includes"|"endsWith"  // match names from Javascript standard
+Per generare N simulazioni con diversi scenari (ogni riga può essere inclusa/esclusa)
 Crea possibilità di filtrare nei parametri iniziali di SimulationEngine comandi con blacklist/whitelist basati su tag.
 Se in un filtro c'è il valore "" vuol dire che in assenza di tag si intende incluso / escluso.
 
-Parametro di SimulationEngine: `filter`
-Contenuto di filter: {type, name, value, match}[]  // type: "+"|"-"; match: "equals" (or omitted)|"startsWith"|"includes"|"endsWith"  // match names from Javascript standard
 */
 
 // # Modules (#modules)
