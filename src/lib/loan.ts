@@ -79,7 +79,7 @@ export class Loan {
         if (this.#extinguished) { return this.getEmptyLoanLastCalculation(); }
 
         const _today: Date = this.addDays(this.#today, 1);
-        this._calculateToDate(_today);
+        this.calculateToDate(_today);
         this.#today = _today;
         return this.#lastCalculation;
     }
@@ -87,71 +87,9 @@ export class Loan {
     calculateToDate(toDate: Date): LoanLastCalculation {
         if (this.#extinguished) { return this.getEmptyLoanLastCalculation(); }
 
-        this._calculateToDate(toDate);
+        this.calculateToDate(toDate);
         this.#today = toDate;
         return this.#lastCalculation;
-    }
-
-    private _calculateToDate(toDate: Date): void {
-        if (this.#extinguished) { throw ("this code should never be executed"); }
-
-        this.settingsMutablePropertiesChecks();
-
-        this.calculateTodayRates();
-
-        let _lastCalculation = this.getEmptyLoanLastCalculation();  // init empty `LastCalculation`
-        if (toDate <= this.#today) {  // do nothing if `toDate` was earlier or is today (and today is already calculated!)
-            this.#lastCalculation = _lastCalculation;
-            return;
-        }
-
-        let lastDailyCalculatedInterest = 0;
-        let lastDailyCalculatedPrincipalChange = 0;
-        let lastCalculatedInterest = 0;
-        let lastCalculatedPrincipalChange = 0;
-
-        if (this.#today.getTime() == this.#settings.earlyTerminationDate?.getTime()) { this.earlyTerminateToday(); }
-
-        /*
-
-        per ogni giorno, da oggi a `toDate`:
-        * se è giorno di scadenza
-            * se sospensione attiva e == `PrincipalWithInterestToBePaidRegularly`:
-                * calcola la quota interessi (base 360) da (`lastDayOfPaidInterests`+1) a oggi
-                * lastCalculatedInterest = lastCalculatedInterest + _interest;
-                * lastDailyCalculatedInterest = _interest;
-                * non scaricare il capitale / non ridurre le rate residue
-                * annota il giorno corrente come `lastDayOfPaidInterests`
-                * concludi
-            * se sospensione attiva e == `PrincipalWithInterestWaived`:
-                * non fare nulla
-                * annota il giorno corrente come `lastDayOfPaidInterests`
-                * concludi
-            * se sospensione attiva e == `PrincipalWithInterestToBePaidAtTheEndOfTheSuspension`:
-                * non fare nulla  // in questo modo alla riattivazione del pagamento post sospensione gli interessi saranno calcolati regolarmente, tutti insieme, dall'ultima rata pagata prima della sospensione
-                * concludi
-            * else:
-                * calcola la quota interessi (base 360) da (`lastDayOfPaidInterests`+1) a oggi
-                * lastCalculatedInterest = lastCalculatedInterest + _interest;
-                * lastDailyCalculatedInterest = _interest;
-                * lastCalculatedPrincipalChange = lastCalculatedPrincipalChange + _principal;
-                * lastDailyCalculatedPrincipalChange = _principal;
-                * scarica capitale per differenza
-                * riduci il numero di rate residue su `numberOfRemainingPayments`
-        
-        [dopo aver fatto quanto sopra] se è un giorno nel quale fare una variazione del capitale,
-        processa prima `principalIncrementsAndDecrements` e poi `principalNewAmounts`
-        1) paga degli interessi fino a quel giorno
-        2) rigenera la rata mensile totale (usando il tasso di interesse del momento, che diventa quello salvato per calcolare la rata)
-
-        [dopo aver fatto quanto sopra] se è un giorno nel quale fare una variazione del capitale (`totalNumberOfPaymentLeftChanges`)
-        1) paga degli interessi fino a quel giorno
-        2) rigenera la rata mensile totale
-
-        alla fine del ciclo, setta `#lastCalculation`
-        */
-        // PIPPO;
-        // this.#lastCalculation = XXX;
     }
 
     earlyTerminateToday(): LoanLastCalculation {
@@ -210,10 +148,8 @@ export class Loan {
         if (this.#settings.ratesCap === undefined) { this.#settings.ratesCap = null; }
         if (this.#settings.ratesFloor === undefined) { this.#settings.ratesFloor = null; }
 
-        if (this.#settings.suspendedPayments == null
-            || this.#settings.ratesFixedOrSpread == null
+        if (this.#settings.ratesFixedOrSpread == null
             || this.#settings.ratesVariablePartList == null
-            //|| this.#settings.principalChanges == null
             || this.#settings.totalNumberOfPaymentLeftChanges == null
         )
             throw ("one or more required property of 'settings' is null");

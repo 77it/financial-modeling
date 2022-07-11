@@ -15,3 +15,6 @@ Deno.test("Loan.calculateAnnuityOfAConstantPaymentLoan", () => {
     const ppa: number = Loan.calculateAnnuityOfAConstantPaymentLoan(0.07, 10, 10_000);
     assertEquals(ppa.toFixed(11), "1423.77502727365");
 });
+
+
+// test a loan that starts the first day;
