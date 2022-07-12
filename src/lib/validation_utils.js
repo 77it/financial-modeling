@@ -3,12 +3,12 @@
  * @param {*} value
  * @returns {Boolean}
  */
-export const _isInvalidDate = (value) => {
+export function isInvalidDate (value) {
   if (Object.prototype.toString.call(value) === '[object Date]') {  // it is a date
     return isNaN(value.getTime());
   }
   return true;  // is not a date
-};
+}
 
 /**
  * To check whether the number is >= 0
@@ -16,6 +16,6 @@ export const _isInvalidDate = (value) => {
  * @param {number} value
  * @return {Boolean}
  */
-export const _isPositive = (value) => {
+export function isPositive (value) {
   return value >= 0;
-};
+}
