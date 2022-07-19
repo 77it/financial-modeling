@@ -1,5 +1,7 @@
 import { isInvalidDate } from './validation_utils.js';
 
+export { isInvalidDate };
+
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license)
 /**
  * @name parseJSON
@@ -37,8 +39,8 @@ export function parseJSON (argument) {
         +parts[1],
         +parts[2] - 1,
         +parts[3],
-        +parts[4] - (+parts[9] || 0) * (parts[8] == '-' ? -1 : 1),
-        +parts[5] - (+parts[10] || 0) * (parts[8] == '-' ? -1 : 1),
+        +parts[4] - (+parts[9] || 0) * (parts[8] === '-' ? -1 : 1),
+        +parts[5] - (+parts[10] || 0) * (parts[8] === '-' ? -1 : 1),
         +parts[6],
         +((parts[7] || '0') + '00').substring(0, 3)
       )
@@ -111,5 +113,3 @@ export function differenceInCalendarDays (
     return _date;
   }
 }
-
-export { isInvalidDate };
