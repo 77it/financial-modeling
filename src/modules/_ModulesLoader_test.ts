@@ -2,7 +2,7 @@
 
 import {assert, assertFalse, assertEquals, assertNotEquals} from "https://deno.land/std/testing/asserts.ts";
 
-import {ModulesLoader} from "./_modules_loader.js";
+import {ModulesLoader} from "./_ModulesLoader.js";
 
 class ValuesB2 {
     valueX;
