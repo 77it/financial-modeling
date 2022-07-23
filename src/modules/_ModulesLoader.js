@@ -62,9 +62,7 @@ export class ModulesLoader {
       // regex from https://github.com/jsdelivr/www.jsdelivr.com/blob/b61fc52e3e828ce0579e510be1c480c7610ef076/src/views/pages/github.html
       let pattern = /^https?:\/\/(?:github|raw\.githubusercontent)\.com\/([^/]+)\/([^/]+)(?:\/blob)?\/([^/]+)\/(.*)$/i;
       let match = pattern.exec(URI);
-      if (match)
-        return true;
-      return false;
+      return Boolean(match);
     }
 
     /**
@@ -83,7 +81,7 @@ export class ModulesLoader {
         return buildJsDelivrURI({ user: user, repo: repo, version: version, path: file });
       }
 
-      throw Error();
+      throw new Error(`can't convert GitHub URL ${URI} to JsDelivr URL`);
 
       /**
        * @param {{user: string, repo: string, version: string, path: string }} p

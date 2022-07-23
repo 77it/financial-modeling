@@ -149,3 +149,9 @@ Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => 
         assertEquals(_entry.cdn, query.cdnURI);
     }
 });
+
+xxx; // testa fallimento import per URI non esistente
+
+xxx; // testa caricamento modulo da ModuleData
+
+xxx; // inserisci nota su ModuleLoader: ModuleName a che serve? e URI? se ci sono ModuleName duplicati? e URI duplicati?
