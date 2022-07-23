@@ -70,7 +70,7 @@ Deno.test("test addClassFromURI, adding '.js' extension", async () => {
 });
 
 Deno.test("test addClassFromURI, empty URI", async () => {
-    const _URI = "";
+    const _URI = "  ";
     const _moduleName = "z_test_module";
     assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, URI: _URI})).success);
 
@@ -82,6 +82,26 @@ Deno.test("test addClassFromURI, empty URI", async () => {
     assertEquals(__ValuesB.value, 9999);
     assertEquals(__ValuesB.value2, "bbb");
     assertEquals(`./${_moduleName}.js`, query.cdnURI);
+
+    //#region test other URI cases
+    const _URI_backslash = " \\ ";
+    assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, URI: _URI_backslash})).success);
+    const query_backslash = modulesLoader.get({moduleName: _moduleName, URI: _URI_backslash});
+    assert(query_backslash != undefined);
+    assertEquals(`./${_moduleName}.js`, query_backslash.cdnURI);
+
+    const _URI_slash = " \/ ";
+    assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, URI: _URI_slash})).success);
+    const query_slash = modulesLoader.get({moduleName: _moduleName, URI: _URI_slash});
+    assert(query_slash != undefined);
+    assertEquals(`./${_moduleName}.js`, query_slash.cdnURI);
+
+    const _URI_dot = " . ";
+    assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, URI: _URI_dot})).success);
+    const query_dot = modulesLoader.get({moduleName: _moduleName, URI: _URI_dot});
+    assert(query_dot != undefined);
+    assertEquals(`./${_moduleName}.js`, query_dot.cdnURI);
+    //#endregion
 });
 
 Deno.test("test add from class, get it, and then from uri (skipped for same name), then get the first class", async () => {

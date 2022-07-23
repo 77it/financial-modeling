@@ -34,8 +34,8 @@ export class ModulesLoader {
   async addClassFromURI ({ moduleName, URI }) {
     if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(URI, moduleName)) === undefined) {
       try {
-        let _cdnURI = URI;
-        if (_cdnURI.trim() === '')  // If URI is missing, is set to ./${moduleName}.js
+        let _cdnURI = URI.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
+        if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/')  // If URI is missing, is set to ./${moduleName}.js
           _cdnURI = `./${moduleName}.js`;
         else if (isGitHub(_cdnURI))  // If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
           _cdnURI = gitHubURI2jsDelivr(_cdnURI);
@@ -53,6 +53,7 @@ export class ModulesLoader {
     }
     return { success: false, error: new Error('already exists') };
 
+    //#region local functions
     /**
      * @param {string} URI
      * @return {boolean}
@@ -96,6 +97,7 @@ export class ModulesLoader {
         return `https://cdn.jsdelivr.net/gh/${user}/${repo}@${version}/${path}`;
       }
     }
+    //#endregion local functions
   }
 
   /**
@@ -108,7 +110,7 @@ export class ModulesLoader {
     if (_ret === undefined)
       return undefined;
     if (_ret.class == null || _ret.cdnURI == null)
-      throw new Error("internal error, some property == null or undefined");
+      throw new Error("internal error, some property of the object loaded from the repo == null or undefined");
     return {..._ret};  // return a shallow copy
   }
 
