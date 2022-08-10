@@ -25,6 +25,12 @@ SimObject class
 * public constant (not simulation lock) SIMULATION_NUMBERS_DECIMAL_PLACES, set to 10
   see test "number-decimal comparison with toFixed & roundTo (bignumber, equality, compare, fraction)_test.js", working up to round to 12, failing from 13 and above in some cases
   see https://en.m.wikipedia.org/wiki/Numeric_precision_in_Microsoft_Excel & https://docs.microsoft.com/en-us/office/troubleshoot/excel/floating-point-arithmetic-inaccurate-result
+  (Excel has 15 significant figures max precision, then 600.000.000.000.001 is correctly retained, instead 6.000.000.000.000.001 becomes 6.000.000.000.000.000 - is lost the final 1)
+    function countDecimals (value) {
+      if ((value % 1) !== 0)
+        return value.toString().split(".")[1].length;
+      return 0;
+    }
 * numbers: throw exception with numbers with number of decimal (fractional) digits greater than SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
 * numbers: static method: normalizeNumber; returns a number with the right number of decimal places (normalize numbers with `roundTo` to SIMULATION_NUMBERS_DECIMAL_PLACES)
 * dates: store dates without minutes/seconds
