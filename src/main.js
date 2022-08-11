@@ -16,13 +16,41 @@ inspired to this real example
 https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/d3/v6/index.d.ts
  */
 
-// dependencies
-/* write as   https://exploringjs.com/impatient-js/toc.html */
+// dependencies (#deps.js #deps.ts #global.d.ts #index.js #dependencies)
+/* create file "deps.js" based on "deps.ts" in https://examples.deno.land/dependency-management
+
+  export {
+    assert,
+    assertEquals,
+    assertStringIncludes,
+  } from "https://deno.land/std@0.151.0/testing/asserts.ts";
+*/
 
 // JS ledger/SimObject
 /*
-SimObject class
-* public constant (not simulation lock) SIMULATION_NUMBERS_MAX_DIGITS = 15; SIMULATION_NUMBERS_DECIMAL_PLACES, set to 2  // 2 is good because is also the default number of Excel decimal digits
+# #digits #precision
+On Ledger (not simulation lock) are defined two public constant
+SIMULATION_NUMBERS_MAX_DIGITS = 15;
+SIMULATION_NUMBERS_DECIMAL_PLACES, set to 2  // 2 is good because is also the default number of Excel decimal digits
+
+## info about numbers, money, precision
+
+from https://mikemcl.github.io/bignumber.js/
+To aid in debugging, if BigNumber.DEBUG is true then an error will be thrown on an invalid n.
+An error will also be thrown if n is of type number with more than 15 significant digits,
+as calling toString or valueOf on these numbers may not result in the intended value.
+
+see https://en.m.wikipedia.org/wiki/Numeric_precision_in_Microsoft_Excel & https://docs.microsoft.com/en-us/office/troubleshoot/excel/floating-point-arithmetic-inaccurate-result
+Although Excel can display 30 decimal places, its precision for a specified number is confined to 15 significant figures, and calculations may have an accuracy that is even less.
+// Excel has 15 significant figures max precision, then 600.000.000.000.001 is correctly retained, instead 6.000.000.000.000.001 becomes 6.000.000.000.000.000 - is lost the final 1
+
+info about money and precision
+https://opendata.stackexchange.com/questions/10346/what-specifications-are-out-there-for-the-precision-required-to-store-money
+http://www.xbrl.org/WGN/precision-decimals-units/WGN-2017-01-11/precision-decimals-units-WGN-2017-01-11.html
+
+
+/////
+# SimObject class #SimObject
 * numbers: stored with big.js http://mikemcl.github.io/big.js/
 * numbers: throw exception with numbers with integer / decimal digits greater than SIMULATION_NUMBERS_INTEGER_PLACES & SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
 
@@ -40,20 +68,23 @@ SimObject class
 * numbers: static method: normalizeNumber; returns a number with the right number of decimal places (normalize numbers with `roundTo` to SIMULATION_NUMBERS_DECIMAL_PLACES)
 * dates: store dates without minutes/seconds
 
-# info about numbers, money, precision
 
-from https://mikemcl.github.io/bignumber.js/
-To aid in debugging, if BigNumber.DEBUG is true then an error will be thrown on an invalid n.
-An error will also be thrown if n is of type number with more than 15 significant digits,
-as calling toString or valueOf on these numbers may not result in the intended value.
+## SimObject properties
 
-see https://en.m.wikipedia.org/wiki/Numeric_precision_in_Microsoft_Excel & https://docs.microsoft.com/en-us/office/troubleshoot/excel/floating-point-arithmetic-inaccurate-result
-Although Excel can display 30 decimal places, its precision for a specified number is confined to 15 significant figures, and calculations may have an accuracy that is even less.
-// Excel has 15 significant figures max precision, then 600.000.000.000.001 is correctly retained, instead 6.000.000.000.000.001 becomes 6.000.000.000.000.000 - is lost the final 1
+// not exported properties
+VersionId
+OldVersionId
+Quantity
+UnityOfMeasure
 
-info about money and precision
-https://opendata.stackexchange.com/questions/10346/what-specifications-are-out-there-for-the-precision-required-to-store-money
-http://www.xbrl.org/WGN/precision-decimals-units/WGN-2017-01-11/precision-decimals-units-WGN-2017-01-11.html
+
+## SimObject methods
+
+* plus/minus, to return squared delta  // internally use Big.js
+* setPrincipal {total, indefinite, plan[{day, amount}]}
+  if sum of indefinite+plan != from total, throw
+  return void
+  // internally use Big.js
 
 */
 
@@ -62,19 +93,8 @@ Deno modules from Excel modules:
 * write in Excel relative path of modules
 * command line option of “Deno.exe builder.js” to set the root of modules (./ or https/something) before execution from main.js
 
-/////
-
-js lock?
-https://www.talkinghightech.com/en/initializing-js-lock/
  */
 
-// SimObject definition (#SimObject)
-/*
-VersionId
-OldVersionId
-Quantity
-UnityOfMeasure
- */
 
 // SimulationInit (#SimulationInit)
 /*
@@ -122,10 +142,13 @@ Modules import the JSDoc type file online, from the file "https://github.com/sim
 
 // Ledger: da main.js riceve alcuni oggetti per scrivere su file:
 /*
-* logger_simObjects  // scrive il dump dei SimObjects
-* logger_messages  // scrive un file di messaggi, come lista di stringhe JSON
+* logger_simObjects_writer  // scrive il dump dei SimObjects
+* logger_messages_writer  // scrive un file di messaggi di errore fatale o warning, come lista di stringhe JSON #logger_messages_writer
 
 #lock, #variables (#locks #immutable)
+
+if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
+
 
 Variables/lock are immutable: when defined/set can't be redefined.
 
@@ -133,20 +156,36 @@ Fields:
 * namespace, variable, value
 * Simulation/Global namespace = ""
 * Any unit name is allowed
+
 /////
 get method
 
 (value, optional namespace)
 value can be string or object {value string, namespace string}
 namespace can be null, undefined or "" meaning Simulation/global
+
 /////
-Ledger crea poi la funzione lock `log_message` per consentire ai moduli di scrivere messaggi.
+Ledger crea poi la funzione lock `log_message` per consentire ai moduli di scrivere messaggi di tipo: debug, info, warning.  #log_message
+tutti i messaggi sono scritti su SimObject di tipo "debug_", inserendo nella descrizione quel che si vuole (tipo messaggio, valore messaggio, ecc);
+warning sono scritti anche su >logger_messages_writer.
+messaggi di errore non sono previsti, vedi >error
+
+/////
+Lock function
+normalizePrincipal {total, indefinite, plan[{day, amount}]}
+  return squared on last plan day if plan array is present, or on indefinite
+  // internally use Big.js, return numbers
+
 */
 
-// errore, interruzione dell'esecuzione (fatal error, throw)
+// errore, interruzione dell'esecuzione (#error #fatal error #throw)
 /*
 Qualunque modulo che voglia interrompere l'esecuzione del programma per un errore fatale esegue un `throw new Error`, che viene intercettato
-con try catch da main.js, che scrive il file di errore passato dalla riga di comando, e esce.
+con try catch da main.js, che:
+* scrive su >logger_messages_writer
+* scrive su SimObject di tipo "debug_"
+* scrive su console
+* ovviamente interrompe l'esecuzione
  */
 
 // some other locks
