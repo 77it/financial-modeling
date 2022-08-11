@@ -22,20 +22,39 @@ https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/d3/v6/index
 // JS ledger/SimObject
 /*
 SimObject class
-* public constant (not simulation lock) SIMULATION_NUMBERS_INTEGER_PLACES, set to 12; SIMULATION_NUMBERS_DECIMAL_PLACES, set to 3; 15 precision in total
+* public constant (not simulation lock) SIMULATION_NUMBERS_MAX_DIGITS = 15; SIMULATION_NUMBERS_DECIMAL_PLACES, set to 2  // 2 is good because is also the default number of Excel decimal digits
 * numbers: stored with big.js http://mikemcl.github.io/big.js/
 * numbers: throw exception with numbers with integer / decimal digits greater than SIMULATION_NUMBERS_INTEGER_PLACES & SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
-  see test "number-decimal comparison with toFixed & roundTo (bignumber, equality, compare, fraction)_test.js", working up to 15/16, failing to store more precision
-  see https://en.m.wikipedia.org/wiki/Numeric_precision_in_Microsoft_Excel & https://docs.microsoft.com/en-us/office/troubleshoot/excel/floating-point-arithmetic-inaccurate-result (Although Excel can display 30 decimal places, its precision for a specified number is confined to 15 significant figures, and calculations may have an accuracy that is even less)
-  (Excel has 15 significant figures max precision, then 600.000.000.000.001 is correctly retained, instead 6.000.000.000.000.001 becomes 6.000.000.000.000.000 - is lost the final 1)
+
     function countDecimals (value) {
       if ((value % 1) !== 0)
         return value.toString().split(".")[1].length;
       return 0;
     }
+    // per normalizzare i decimali ad un numero prefissato -> poi vedi se il numero intero è superiore al consentito (massimo 15 cifre in totale)
+    function roundTo (num, decimalPlaces) {
+      decimalPlaces = decimalPlaces ?? 10;
+      return +num.toFixed(decimalPlaces);
+    }
 * numbers: throw exception with numbers with number of decimal (fractional) digits greater than SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
 * numbers: static method: normalizeNumber; returns a number with the right number of decimal places (normalize numbers with `roundTo` to SIMULATION_NUMBERS_DECIMAL_PLACES)
 * dates: store dates without minutes/seconds
+
+# info about numbers, money, precision
+
+from https://mikemcl.github.io/bignumber.js/
+To aid in debugging, if BigNumber.DEBUG is true then an error will be thrown on an invalid n.
+An error will also be thrown if n is of type number with more than 15 significant digits,
+as calling toString or valueOf on these numbers may not result in the intended value.
+
+see https://en.m.wikipedia.org/wiki/Numeric_precision_in_Microsoft_Excel & https://docs.microsoft.com/en-us/office/troubleshoot/excel/floating-point-arithmetic-inaccurate-result
+Although Excel can display 30 decimal places, its precision for a specified number is confined to 15 significant figures, and calculations may have an accuracy that is even less.
+// Excel has 15 significant figures max precision, then 600.000.000.000.001 is correctly retained, instead 6.000.000.000.000.001 becomes 6.000.000.000.000.000 - is lost the final 1
+
+info about money and precision
+https://opendata.stackexchange.com/questions/10346/what-specifications-are-out-there-for-the-precision-required-to-store-money
+http://www.xbrl.org/WGN/precision-decimals-units/WGN-2017-01-11/precision-decimals-units-WGN-2017-01-11.html
+
 */
 
 /*
