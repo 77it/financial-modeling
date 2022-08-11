@@ -23,10 +23,17 @@ https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/d3/v6/index
 /*
 SimObject class
 * public constant (not simulation lock) SIMULATION_NUMBERS_INTEGER_PLACES, set to 12; SIMULATION_NUMBERS_DECIMAL_PLACES, set to 3; 15 precision in total
-  see test "number-decimal comparison with toFixed & roundTo (bignumber, equality, compare, fraction)_test.js", working up to 15/16, failing to store more precision
-  see https://en.m.wikipedia.org/wiki/Numeric_precision_in_Microsoft_Excel & https://docs.microsoft.com/en-us/office/troubleshoot/excel/floating-point-arithmetic-inaccurate-result (Although Excel can display 30 decimal places, its precision for a specified number is confined to 15 significant figures, and calculations may have an accuracy that is even less)
 * numbers: stored with big.js http://mikemcl.github.io/big.js/
 * numbers: throw exception with numbers with integer / decimal digits greater than SIMULATION_NUMBERS_INTEGER_PLACES & SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
+  see test "number-decimal comparison with toFixed & roundTo (bignumber, equality, compare, fraction)_test.js", working up to 15/16, failing to store more precision
+  see https://en.m.wikipedia.org/wiki/Numeric_precision_in_Microsoft_Excel & https://docs.microsoft.com/en-us/office/troubleshoot/excel/floating-point-arithmetic-inaccurate-result (Although Excel can display 30 decimal places, its precision for a specified number is confined to 15 significant figures, and calculations may have an accuracy that is even less)
+  (Excel has 15 significant figures max precision, then 600.000.000.000.001 is correctly retained, instead 6.000.000.000.000.001 becomes 6.000.000.000.000.000 - is lost the final 1)
+    function countDecimals (value) {
+      if ((value % 1) !== 0)
+        return value.toString().split(".")[1].length;
+      return 0;
+    }
+* numbers: throw exception with numbers with number of decimal (fractional) digits greater than SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
 * numbers: static method: normalizeNumber; returns a number with the right number of decimal places (normalize numbers with `roundTo` to SIMULATION_NUMBERS_DECIMAL_PLACES)
 * dates: store dates without minutes/seconds
 */
