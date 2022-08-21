@@ -1,3 +1,10 @@
+// accounting for developers
+/*
+https://www.moderntreasury.com/journal/accounting-for-developers-part-i
+https://news.ycombinator.com/item?id=32495724
+https://news.ycombinator.com/item?id=23964513
+*/
+
 // debug
 // https://stackoverflow.com/questions/61853754/how-to-debug-deno-in-vscode
 // https://deno.land/manual@v1.21.0/vscode_deno#using-the-debugger
