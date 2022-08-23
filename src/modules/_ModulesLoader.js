@@ -11,12 +11,12 @@ export class ModulesLoader {
   /**
    * Add classes from object to the repository.
    * If URI/moduleName already exists, it is not added.
-   * @param {{moduleName: string, URI: string, classObj: *}} p
+   * @param {{moduleName: string, moduleEngineURI: string, classObj: *}} p
    * @return {{success: boolean, error?: Object}} true if added, false if already exists
    */
-  addClassFromObject ({ moduleName, URI, classObj }) {
-    if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(URI, moduleName)) === undefined) {
-      this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(URI, moduleName), {class: classObj, cdnURI: ""});
+  addClassFromObject ({ moduleName, moduleEngineURI, classObj }) {
+    if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)) === undefined) {
+      this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName), {class: classObj, cdnURI: ""});
       return { success: true };
     }
     return { success: false, error: new Error('already exists') };
@@ -28,16 +28,16 @@ export class ModulesLoader {
    * If URI is missing, is set to ./${moduleName}.js
    * If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
    * If is missing the ".js" extension from the file, is added
-   * @param {{moduleName: string, URI: string}} p
+   * @param {{moduleName: string, moduleEngineURI: string}} p
    * @return {Promise<{success: boolean, error?: Object}>} true if added, false if already exists
    */
-  async addClassFromURI ({ moduleName, URI }) {
-    if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(URI, moduleName)) === undefined) {
+  async addClassFromURI ({ moduleName, moduleEngineURI }) {
+    if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)) === undefined) {
       try {
-        let _cdnURI = URI.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
-        if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/')  // If URI is missing, is set to ./${moduleName}.js
+        let _cdnURI = moduleEngineURI.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
+        if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/')  // If moduleEngineURI is missing, is set to ./${moduleName}.js
           _cdnURI = `./${moduleName}.js`;
-        else if (isGitHub(_cdnURI))  // If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
+        else if (isGitHub(_cdnURI))  // If moduleEngineURI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
           _cdnURI = gitHubURI2jsDelivr(_cdnURI);
 
         if (_cdnURI.slice(-3).toLowerCase() !== '.js')  // If is missing the ".js" extension from the file, is added
@@ -45,7 +45,7 @@ export class ModulesLoader {
 
         // DYNAMIC IMPORT (works with deno and browser)
         const _module = (await import(_cdnURI));
-        this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(URI, moduleName), {class: _module[this.#defaultClassName], cdnURI: _cdnURI});
+        this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName), {class: _module[this.#defaultClassName], cdnURI: _cdnURI});
       } catch (error) {
         return { success: false, error: error };
       }
@@ -55,24 +55,24 @@ export class ModulesLoader {
 
     //#region local functions
     /**
-     * @param {string} URI
+     * @param {string} moduleEngineURI
      * @return {boolean}
      */
-    function isGitHub (URI) {
+    function isGitHub (moduleEngineURI) {
       // regex from https://github.com/jsdelivr/www.jsdelivr.com/blob/b61fc52e3e828ce0579e510be1c480c7610ef076/src/views/pages/github.html
       let pattern = /^https?:\/\/(?:github|raw\.githubusercontent)\.com\/([^/]+)\/([^/]+)(?:\/blob)?\/([^/]+)\/(.*)$/i;
-      let match = pattern.exec(URI);
+      let match = pattern.exec(moduleEngineURI);
       return Boolean(match);
     }
 
     /**
-     * @param {string} URI
+     * @param {string} moduleEngineURI
      * @return {string}
      */
-    function gitHubURI2jsDelivr (URI) {
+    function gitHubURI2jsDelivr (moduleEngineURI) {
       // regex from https://github.com/jsdelivr/www.jsdelivr.com/blob/b61fc52e3e828ce0579e510be1c480c7610ef076/src/views/pages/github.html
       let pattern = /^https?:\/\/(?:github|raw\.githubusercontent)\.com\/([^/]+)\/([^/]+)(?:\/blob)?\/([^/]+)\/(.*)$/i;
-      let match = pattern.exec(URI);
+      let match = pattern.exec(moduleEngineURI);
 
       if (match) {
         let [, user, repo, version, file] = match;
@@ -81,7 +81,7 @@ export class ModulesLoader {
         return buildJsDelivrURI({ user: user, repo: repo, version: version, path: file });
       }
 
-      throw new Error(`can't convert GitHub URL ${URI} to JsDelivr URL`);
+      throw new Error(`can't convert GitHub URL ${moduleEngineURI} to JsDelivr URL`);
 
       /**
        * @param {{user: string, repo: string, version: string, path: string }} p
@@ -100,11 +100,11 @@ export class ModulesLoader {
 
   /**
    Get class from the repository.
-   * @param {{moduleName: string, URI: string}} p
+   * @param {{moduleName: string, moduleEngineURI: string}} p
    * @return {undefined | {class: *, cdnURI: string}}
    * */
-  get ({ moduleName, URI }) {
-    const _ret = this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(URI, moduleName));
+  get ({ moduleName, moduleEngineURI }) {
+    const _ret = this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName));
     if (_ret === undefined)
       return undefined;
     if (_ret.class == null || _ret.cdnURI == null)
@@ -113,11 +113,11 @@ export class ModulesLoader {
   }
 
   /**
-   * @param {string} URI
+   * @param {string} moduleEngineURI
    * @param {string} moduleName
    * @return {string}
    */
-  static #repoKeyBuilder (URI, moduleName) {
-    return `${URI}/${moduleName}`;
+  static #repoKeyBuilder (moduleEngineURI, moduleName) {
+    return `${moduleEngineURI}/${moduleName}`;
   }
 }
