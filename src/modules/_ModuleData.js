@@ -7,11 +7,11 @@ export function ModuleDataLoader (json) {
 
   const deserializedModuleData = JSON.parse(json);
 
-  const moduleName_name = "ModuleName";
-  const moduleAlias_name = "ModuleAlias";
-  const moduleEngineURI_name = "ModuleEngineURI";
-  const moduleSourceLocation_name = "ModuleSourceLocation";
-  const tables_name = "Tables";
+  const moduleName_name = "moduleName";
+  const moduleAlias_name = "moduleAlias";
+  const moduleEngineURI_name = "moduleEngineURI";
+  const moduleSourceLocation_name = "moduleSourceLocation";
+  const tables_name = "tables";
 
   if (deserializedModuleData[moduleName_name] === undefined)
     throw new Error(`${errorMsg}: ${moduleName_name} is missing or undefined`);
@@ -23,8 +23,6 @@ export function ModuleDataLoader (json) {
     throw new Error(`${errorMsg}: ${moduleSourceLocation_name} is missing or undefined`);
   if (deserializedModuleData[tables_name] === undefined)
     throw new Error(`${errorMsg}: ${tables_name} is missing or undefined`);
-
-  xxx; // cambia export di ModuleData in lettere minuscole
 
   xxx; // controlla nomi oggetti contenuti in Tables
 
@@ -48,7 +46,7 @@ export class ModuleData {
   moduleEngineURI;
   /** @type {string} */
   moduleSourceLocation;
-  /** @type {{TableName: string, Table: Object}[]}} */
+  /** @type {{tableName: string, table: Object}[]}} */
   tables;
 
   //#endregion
@@ -59,7 +57,7 @@ export class ModuleData {
    * @param {string} p.moduleAlias
    * @param {string} p.moduleEngineURI
    * @param {string} p.moduleSourceLocation
-   * @param {{TableName: string, Table: Object}[]} p.tables
+   * @param {{tableName: string, table: Object}[]} p.tables
    */
   constructor ({
     moduleName,
@@ -83,8 +81,8 @@ export class ModuleData {
         || typeof moduleEngineURI !== 'string'
         || typeof moduleSourceLocation !== 'string'
         || !Array.isArray(tables)
-        || !tables.every(i => (typeof i.TableName === 'string'))
-        || !tables.every(i => (typeof i.Table === 'object')))
+        || !tables.every(i => (typeof i.tableName === 'string'))
+        || !tables.every(i => (typeof i.table === 'object')))
         throw new Error('argument exception, wrong type');
     }
   }
