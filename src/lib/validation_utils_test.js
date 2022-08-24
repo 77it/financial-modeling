@@ -11,12 +11,12 @@ Deno.test('test valid date', () => {
   assertFalse(isInvalidDate(new Date(Date.UTC(2022, 11, 25))));
 });
 
-Deno.test('test validate(), valid #1', () => {
+Deno.test('test validate(), valid, simple object', () => {
   const objToValidate = { a: 'mamma', b: 99 };
   validate({ obj: objToValidate, validation: { a: 'string', b: 'number' } });
 });
 
-Deno.test('test validate(), valid #2', () => {
+Deno.test('test validate(), valid, complex object', () => {
   const objToValidate = {
     str: 'string',
     num: 123,
@@ -42,7 +42,7 @@ Deno.test('test validate(), valid #2', () => {
   validate({ obj: objToValidate, validation: validation });
 });
 
-Deno.test('test validate(), valid #3, nested object', () => {
+Deno.test('test validate(), valid, nested object', () => {
   const objToValidate = {
     str: 'string',
     arr: [
@@ -58,7 +58,7 @@ Deno.test('test validate(), valid #3, nested object', () => {
   validate({ obj: objToValidate.arr[0], validation: validation });
 });
 
-Deno.test('test validate(), valid #4, objects in array', () => {
+Deno.test('test validate(), valid, objects in array', () => {
   const objToValidate = {
     str: 'string',
     arr: [
@@ -74,22 +74,27 @@ Deno.test('test validate(), valid #4, objects in array', () => {
   validate({ obj: objToValidate.arr, validation: validation, array: true });
 });
 
-Deno.test('test validate(), not valid #1', () => {
+Deno.test('test validate(), not valid, simple object + error message', () => {
   const objToValidate = { a: 'mamma', b: 99 };
 
   try {
-    validate({ obj: objToValidate, validation: { a: 'string', b: 'string' } });
+    validate({ obj: objToValidate, validation: { a: 'string', b: 'string' } , errorMsg: 'personalized error message'});
   } catch (error) {
+    console.log(error.message);
     assert(error.message.includes('b = 99, must be string'));
+    assert(error.message.includes('personalized error message'));
   }
 });
 
-Deno.test('test validate(), not valid #2, objects in array', () => {
+Deno.test('test validate(), not valid, objects in array', () => {
   const objToValidate = {
     str: 'string',
     arr: [
       { valA: 'aaa', valB: { a: 999 } },
-      { valA: 'aaaX', valB: 999 }],
+      { valA: 'aaaX', valB: 999 },
+      { valA: 'aaaY', valB: { a: 222 } },
+      { valA: 'aaaZ', valB: 1 },
+    ],
   };
 
   const validation = {
@@ -98,8 +103,10 @@ Deno.test('test validate(), not valid #2, objects in array', () => {
   };
 
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validate({ obj: objToValidate.arr, validation: validation, array: true });
   } catch (error) {
-    assert(error.message.includes('valB = 999, must be object'));
+    console.log(error.message);
+    assert(error.message.includes('valB = 999, must be an object'));
+    assert(error.message.includes('valB = 1, must be an object'));
   }
 });
