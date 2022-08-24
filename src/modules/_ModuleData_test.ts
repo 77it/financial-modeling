@@ -16,7 +16,9 @@ Deno.test('read multiline file', async () => {
     fileReader.close();
 
     const json0 = ModuleDataLoader(jsonLines[0]);
+    console.log(json0.moduleName);
     assertEquals(json0.moduleName, 'VENDITE');
     const json1 = ModuleDataLoader(jsonLines[1]);
+    console.log(json1.moduleName);
     assertEquals(json1.moduleName, 'SETTINGSX');
 });
