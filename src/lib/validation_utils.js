@@ -33,9 +33,9 @@ export function validate ({ obj, validation, errorMsg }) {
   /** @type {string[]} */
   const errors = [];
 
-  if (typeof obj !== 'object')
+  if (typeof obj !== 'object' || !(obj))
     errors.push(`'obj' parameter must be an object`);
-  if (typeof validation !== 'object')
+  if (typeof validation !== 'object'|| !(validation))
     errors.push(`'validation' parameter must be an object`);
   if (errorMsg != null && typeof errorMsg !== 'string')
     errors.push(`'errorMsg' parameter must be string`);
@@ -91,7 +91,7 @@ export function validate ({ obj, validation, errorMsg }) {
             errors.push(`${key} = ${_obj[key]}, must be an array`);
           break;
         case 'object':
-          if (typeof _obj[key] !== 'object')
+          if (typeof _obj[key] !== 'object' || !(_obj[key]))  // see https://stackoverflow.com/a/12535493/5288052
             errors.push(`${key} = ${_obj[key]}, must be an object`);
           break;
         case 'function':
@@ -99,7 +99,8 @@ export function validate ({ obj, validation, errorMsg }) {
             errors.push(`${key} = ${_obj[key]}, must be a function`);
           break;
         default:
-          throw new Error('unrecognized type to validate');
+          errors.push(`${validation[key]}, unrecognized type to validate`);
+          break;
       }
     }
   }

@@ -147,22 +147,24 @@ Deno.test('test validate(), not valid, array is of wrong type', () => {
   }
 });
 
-Deno.test('test validate(), not valid, null/undefined str parameter', () => {
+Deno.test('test validate(), not valid, null/undefined/not a str parameter', () => {
   const objToValidate = {
     str: null,
     str2: undefined,
+    str3: 999,
   };
 
   const validation = {
     str: 'string',
     str2: 'string',
+    str3: 'string',
   };
 
   try {
     validate({ obj: objToValidate, validation: validation });
   } catch (error) {
     console.log(error.message);
-    assert(error.message.includes('["str = null, must be string","str2 = undefined, must be string"]'));
+    assert(error.message.includes('["str = null, must be string","str2 = undefined, must be string","str3 = 999, must be string"]'));
   }
 });
 
@@ -209,5 +211,119 @@ Deno.test('test validate(), not valid, null/undefined/not a date/invalid date pa
   } catch (error) {
     console.log(error.message);
     assert(error.message.includes('["date = null, must be a valid date","date2 = undefined, must be a valid date","date3 = 999, must be a valid date","date4 = Invalid Date, must be a valid date"]'));
+  }
+});
+
+Deno.test('test validate(), not valid, null/undefined/not a bool parameter', () => {
+  const objToValidate = {
+    bool: null,
+    bool2: undefined,
+    bool3: 999,
+  };
+
+  const validation = {
+    bool: 'boolean',
+    bool2: 'boolean',
+    bool3: 'boolean',
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["bool = null, must be boolean","bool2 = undefined, must be boolean","bool3 = 999, must be boolean"]'));
+  }
+});
+
+Deno.test('test validate(), not valid, null/undefined/not an array parameter', () => {
+  const objToValidate = {
+    arr: null,
+    arr2: undefined,
+    arr3: 999,
+  };
+
+  const validation = {
+    arr: 'array',
+    arr2: 'array',
+    arr3: 'array',
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["arr = null, must be an array","arr2 = undefined, must be an array","arr3 = 999, must be an array"]'));
+  }
+});
+
+Deno.test('test validate(), not valid, null/undefined/not an object parameter', () => {
+  const objToValidate = {
+    obj: null,
+    obj2: undefined,
+    obj3: 999,
+  };
+
+  const validation = {
+    obj: 'object',
+    obj2: 'object',
+    obj3: 'object',
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["obj = null, must be an object","obj2 = undefined, must be an object","obj3 = 999, must be an object"]'));
+  }
+});
+
+Deno.test('test validate(), not valid, null/undefined/not a function parameter', () => {
+  const objToValidate = {
+    fun: null,
+    fun2: undefined,
+    fun3: 999,
+  };
+
+  const validation = {
+    fun: 'function',
+    fun2: 'function',
+    fun3: 'function',
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["fun = null, must be a function","fun2 = undefined, must be a function","fun3 = 999, must be a function"]'));
+  }
+});
+
+Deno.test('test validate(), not valid, string instead of object', () => {
+  const notAnObjToValidate = "mamma";
+
+  const validation = {
+    date: 'date',
+  };
+
+  try {
+    validate({ obj: notAnObjToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["\'obj\' parameter must be an object"]'));
+  }
+});
+
+Deno.test('test validate(), not valid, unknown type', () => {
+  const objToValidate = {str: 'a'};
+
+  const validation = {
+    str: 'unknownType',
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["unknownType, unrecognized type to validate"]'));
   }
 });
