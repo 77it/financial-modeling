@@ -22,24 +22,32 @@ export function isPositive (value) {
 }
 
 /**
- * Validate Object, throw error for validation error
+ * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
  * @param {Object} p
  * @param {*} p.obj - Object to validate
  * @param {*} p.validation - Validation object {name: 'type'}[]
- * @param {boolean} [p.array] - Optional flag, object is an array and the validation is done on contained objects
  * @param {string} [p.errorMsg] - Optional error message
  */
 // see https://github.com/iarna/aproba for inspiration
-export function validate ({ obj, validation, array, errorMsg }) {
+export function validate ({ obj, validation, errorMsg }) {
   /** @type {string[]} */
   const errors = [];
 
-  if (array) {
-    for (const elem of obj) {
-      _validate(elem);
-    }
-  } else
-    _validate(obj);
+  if (typeof obj !== 'object')
+    errors.push(`'obj' parameter must be an object`);
+  if (typeof validation !== 'object')
+    errors.push(`'validation' parameter must be an object`);
+  if (errorMsg != null && typeof errorMsg !== 'string')
+    errors.push(`'errorMsg' parameter must be string`);
+
+  if (errors.length === 0) {  // validate 'obj' if there are no parameters error
+    if (Array.isArray(obj)) {
+      for (const elem of obj) {
+        _validate(elem);
+      }
+    } else
+      _validate(obj);
+  }
 
   if (errors.length > 0) {
     if (errorMsg == null)
@@ -54,6 +62,13 @@ export function validate ({ obj, validation, array, errorMsg }) {
    */
   function _validate (_obj) {
     for (const key of Object.keys(validation)) {
+
+      if (!(key in _obj))
+      {
+        errors.push(`${key} is missing`);
+        continue;
+      }
+
       switch (validation[key]) {  // switch validations
         case 'string':
           if (typeof _obj[key] !== 'string')
@@ -69,7 +84,7 @@ export function validate ({ obj, validation, array, errorMsg }) {
           break;
         case 'date':
           if (!(_obj[key] instanceof Date) || isNaN(_obj[key].getTime()))
-            errors.push(`${key} = ${_obj[key]}, must be valid date`);
+            errors.push(`${key} = ${_obj[key]}, must be a valid date`);
           break;
         case 'array':
           if (!Array.isArray(_obj[key]))

@@ -1,4 +1,4 @@
-import { validate } from '../lib/validation_utils.js';
+import { validate } from '../deps.js';
 
 /**
  * @param {string} json - ModuleData's Json
@@ -47,15 +47,14 @@ export class ModuleData {
           moduleSourceLocation: 'string',
           tables: 'object',
         },
-        msg: `validation of ModuleData ${p}`,
+        errorMsg: `validation of ModuleData ${p}`,
       });
 
     validate(
       {
         obj: p.tables,
         validation: { tableName: 'string', table: 'object' },
-        msg: `validation of ModuleData.tables ${p}`,
-        array: true,
+        errorMsg: `validation of ModuleData.tables ${p}`
       });
 
     this.moduleName = p.moduleName;

@@ -71,7 +71,7 @@ Deno.test('test validate(), valid, objects in array', () => {
     valB: 'object',
   };
 
-  validate({ obj: objToValidate.arr, validation: validation, array: true });
+  validate({ obj: objToValidate.arr, validation: validation });
 });
 
 Deno.test('test validate(), not valid, simple object + error message', () => {
@@ -103,10 +103,111 @@ Deno.test('test validate(), not valid, objects in array', () => {
   };
 
   try {
-    validate({ obj: objToValidate.arr, validation: validation, array: true });
+    validate({ obj: objToValidate.arr, validation: validation });
   } catch (error) {
     console.log(error.message);
     assert(error.message.includes('valB = 999, must be an object'));
     assert(error.message.includes('valB = 1, must be an object'));
+  }
+});
+
+Deno.test('test validate(), not valid, missing keys', () => {
+  const objToValidate = {
+    arr: [],
+  };
+
+  const validation = {
+    arr: 'array',
+    obj: 'object',
+    fun: 'function',
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["obj is missing","fun is missing"]'));
+  }
+});
+
+Deno.test('test validate(), not valid, array is of wrong type', () => {
+  const objToValidate = {
+    arr: 999,
+  };
+
+  const validation = {
+    arr: 'array',
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["arr = 999, must be an array"]'));
+  }
+});
+
+Deno.test('test validate(), not valid, null/undefined str parameter', () => {
+  const objToValidate = {
+    str: null,
+    str2: undefined,
+  };
+
+  const validation = {
+    str: 'string',
+    str2: 'string',
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["str = null, must be string","str2 = undefined, must be string"]'));
+  }
+});
+
+Deno.test('test validate(), not valid, null/undefined/NaN/infinity num parameter', () => {
+  const objToValidate = {
+    num: null,
+    num2: undefined,
+    num3: NaN,
+    num4: 1/0,
+  };
+
+  const validation = {
+    num: 'number',
+    num2: 'number',
+    num3: 'number',
+    num4: 'number',
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["num = null, must be a valid number","num2 = undefined, must be a valid number","num3 = NaN, must be a valid number","num4 = Infinity, must be a valid number"]'));
+  }
+});
+
+Deno.test('test validate(), not valid, null/undefined/not a date/invalid date parameter', () => {
+  const objToValidate = {
+    date: null,
+    date2: undefined,
+    date3: 999,
+    date4: new Date('not a date'),
+  };
+
+  const validation = {
+    date: 'date',
+    date2: 'date',
+    date3: 'date',
+    date4: 'date',
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('["date = null, must be a valid date","date2 = undefined, must be a valid date","date3 = 999, must be a valid date","date4 = Invalid Date, must be a valid date"]'));
   }
 });
