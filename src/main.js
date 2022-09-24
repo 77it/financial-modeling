@@ -76,6 +76,16 @@ http://www.xbrl.org/WGN/precision-decimals-units/WGN-2017-01-11/precision-decima
 * dates: store dates without minutes/seconds
 
 
+## new SimObjects / transaction class (#new #transaction)
+
+la classe Transaction accetta 2 tipi di classi:
+* NewSimObjects : {amount, metadata, etc}
+* DeltaSimObjects : {id, delta, etc}
+
+Ledger usa New/Delta per creare SimObjects che salva dentro Ledger.
+New/Delta vengono distinti da Ledger interrogando la presenza dei campi 'amount' o 'delta' nell'oggetto.
+
+
 ## SimObject properties
 
 // not exported properties
