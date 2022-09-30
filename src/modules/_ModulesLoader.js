@@ -12,14 +12,14 @@ export class ModulesLoader {
    * Add classes from object to the repository.
    * If URI/moduleName already exists, it is not added.
    * @param {{moduleName: string, moduleEngineURI: string, classObj: *}} p
-   * @return {{success: boolean, error?: Object}} true if added, false if already exists
+   * @return {{success: boolean, error?: string}} true if added, false if already exists
    */
   addClassFromObject ({ moduleName, moduleEngineURI, classObj }) {
     if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)) === undefined) {
       this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName), {class: classObj, cdnURI: ""});
       return { success: true };
     }
-    return { success: false, error: new Error('already exists') };
+    return { success: false, error: 'module already exists' };
   }
 
   /**
@@ -29,7 +29,7 @@ export class ModulesLoader {
    * If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
    * If is missing the ".js" extension from the file, is added
    * @param {{moduleName: string, moduleEngineURI: string}} p
-   * @return {Promise<{success: boolean, error?: Object}>} true if added, false if already exists
+   * @return {Promise<{success: boolean, error?: string}>} true if added, false if already exists
    */
   async addClassFromURI ({ moduleName, moduleEngineURI }) {
     if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)) === undefined) {
@@ -47,11 +47,11 @@ export class ModulesLoader {
         const _module = (await import(_cdnURI));
         this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName), {class: _module[this.#defaultClassName], cdnURI: _cdnURI});
       } catch (error) {
-        return { success: false, error: error };
+        return { success: false, error: error.stack?.toString() ?? error.toString() };
       }
       return { success: true };
     }
-    return { success: false, error: new Error('already exists') };
+    return { success: false, error: 'module already exists' };
 
     //#region local functions
     /**

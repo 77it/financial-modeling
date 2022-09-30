@@ -15,6 +15,7 @@ class ValuesB2 {
 
 const modulesLoader = new ModulesLoader();
 
+//#region test addClassFromObject
 Deno.test("test addClassFromObject, class defined here", () => {
     const _URI = "";
     assert(modulesLoader.addClassFromObject({moduleName: "ValuesB2X", moduleEngineURI: _URI, classObj: ValuesB2}).success);
@@ -26,6 +27,15 @@ Deno.test("test addClassFromObject, class defined here", () => {
     const __ValuesB2X = new _ValuesB2X(8888)
     assertEquals(__ValuesB2X.valueX, 8888);
     assertEquals(_URI, query.cdnURI);
+});
+//#endregion test addClassFromObject
+
+//#region test addClassFromURI
+Deno.test("test ERROR addClassFromURI, not existing URI", async () => {
+    const _URI = "https://this-uri-is-not-existing.com";
+    const _ret = (await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI}));
+    assertFalse(_ret.success);
+    assert(_ret.error?.includes("No such host is known."));
 });
 
 Deno.test("test addClassFromURI, alongside module", async () => {
@@ -42,7 +52,7 @@ Deno.test("test addClassFromURI, alongside module", async () => {
     assertEquals(_URI, query.cdnURI);
 });
 
-Deno.test("test addClassFromURI, online module", async () => {
+Deno.test("test addClassFromURI, not-alongside module", async () => {
     const _URI = "https://cdn.jsdelivr.net/gh/77it/financial-modeling@0.1.11/src/modules/z_test_module.js";
     assert((await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI})).success);
 
@@ -70,7 +80,7 @@ Deno.test("test addClassFromURI, adding '.js' extension", async () => {
     assertEquals(`${_URI}.js`, query.cdnURI);
 });
 
-Deno.test("test addClassFromURI, empty URI", async () => {
+Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
     const _URI = "  ";
     const _moduleName = "_ModulesLoader_test_module";
     assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI})).success);
@@ -105,6 +115,29 @@ Deno.test("test addClassFromURI, empty URI", async () => {
     //#endregion
 });
 
+Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => {
+    const _moduleName = "moduleXYZ";
+    // list generated using this tool: https://www.jsdelivr.com/github
+    const _list = [
+        {uri: 'https://github.com/77it/financial-modeling/blob/v0.1.11/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js'},
+        {uri: 'https://github.com/77it/financial-modeling/blob/master/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/modules/z_test_module.js'},
+        {uri: 'https://github.com/77it/financial-modeling/blob/latest/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling/src/modules/z_test_module.js'},
+        {uri: 'https://raw.githubusercontent.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js'},
+        {uri: 'https://raw.githubusercontent.com/77it/financial-modeling/master/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/modules/z_test_module.js'},
+        {uri: 'https://raw.githubusercontent.com/77it/financial-modeling/latest/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling/src/modules/z_test_module.js'},
+    ];
+
+    for (const _entry of _list){
+        //console.log(`DEBUG: testing ${_entry.uri}`)
+        assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _entry.uri})).success);
+        const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _entry.uri});
+        assert(query != undefined);
+        assertEquals(_entry.cdn, query.cdnURI);
+    }
+});
+//#endregion addClassFromURI
+
+//#region test addClassFromObject & addClassFromURI
 Deno.test("test add from class, get it, and then from uri (skipped for same name), then get the first class", async () => {
     const _URI = "./_ModulesLoader_test_module.js";
     const _moduleName = "duplicateModule";
@@ -129,30 +162,12 @@ Deno.test("test add from class, get it, and then from uri (skipped for same name
     const __ValuesB2 = new _ValuesB2(9999);
     assertEquals(__ValuesB2.valueX, 9999);
 });
+//#endregion test addClassFromObject & addClassFromURI
 
-Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => {
-    const _moduleName = "moduleXYZ";
-    // list generated using this tool: https://www.jsdelivr.com/github
-    const _list = [
-        {uri: 'https://github.com/77it/financial-modeling/blob/v0.1.11/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js'},
-        {uri: 'https://github.com/77it/financial-modeling/blob/master/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/modules/z_test_module.js'},
-        {uri: 'https://github.com/77it/financial-modeling/blob/latest/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling/src/modules/z_test_module.js'},
-        {uri: 'https://raw.githubusercontent.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js'},
-        {uri: 'https://raw.githubusercontent.com/77it/financial-modeling/master/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/modules/z_test_module.js'},
-        {uri: 'https://raw.githubusercontent.com/77it/financial-modeling/latest/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling/src/modules/z_test_module.js'},
-    ];
-
-    for (const _entry of _list){
-        //console.log(`DEBUG: testing ${_entry.uri}`)
-        assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _entry.uri})).success);
-        const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _entry.uri});
-        assert(query != undefined);
-        assertEquals(_entry.cdn, query.cdnURI);
-    }
-});
-
-xxx; // testa fallimento import per URI non esistente
-
+/*
 xxx; // testa caricamento modulo da ModuleData
 
-xxx; // inserisci nota su ModuleLoader: ModuleName a che serve? e URI? se ci sono ModuleName duplicati? e URI duplicati?
+xxx; // inserisci nota su ModuleLoader: ModuleName a che serve? e URI?
+
+xxx; // se ci sono ModuleName duplicati? e URI duplicati?
+*/
