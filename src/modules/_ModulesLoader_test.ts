@@ -38,9 +38,11 @@ Deno.test("test ERROR addClassFromURI, not existing URI", async () => {
     assert(_ret.error?.includes("No such host is known."));
 });
 
-Deno.test("test addClassFromURI, alongside module", async () => {
+Deno.test("test addClassFromURI, alongside module (using ModuleData)", async () => {
     const _URI = "./_ModulesLoader_test_module.js";
-    assert((await modulesLoader.addClassFromURI({moduleName: "ValuesB", moduleEngineURI: _URI})).success);
+    const _moduleDataParameters = {moduleName: "ValuesB", moduleEngineURI: _URI, moduleAlias: "", moduleSourceLocation: "", tables: [{tableName: "tab", table: {}}]};
+    const _moduleData = new ModuleData(_moduleDataParameters);
+    assert((await modulesLoader.addClassFromURI(_moduleData)).success);
 
     const query = modulesLoader.get({moduleName: "ValuesB", moduleEngineURI: _URI});
     assert(query != undefined);
@@ -163,11 +165,3 @@ Deno.test("test add from class, get it, and then from uri (skipped for same name
     assertEquals(__ValuesB2.valueX, 9999);
 });
 //#endregion test addClassFromObject & addClassFromURI
-
-/*
-xxx; // testa caricamento modulo da ModuleData
-
-xxx; // inserisci nota su ModuleLoader: ModuleName a che serve? e URI?
-
-xxx; // se ci sono ModuleName duplicati? e URI duplicati?
-*/

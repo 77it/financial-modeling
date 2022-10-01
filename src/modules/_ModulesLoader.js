@@ -1,5 +1,5 @@
 export class ModulesLoader {
-  /** contains id (URI/className) as key and a {class: *, cdnURI: string} as value
+  /** Map containing id (URI/moduleName) as key and a {class: *, cdnURI: string} as value
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
   #defaultClassName = 'Module';
@@ -23,9 +23,9 @@ export class ModulesLoader {
   }
 
   /**
-   * Load module from URI and add a class with default name to the repository.
-   * If URI/moduleName already exists, it is not added.
-   * If URI is missing, is set to ./${moduleName}.js
+   * Load module from URI and add a class with default name {#defaultClassName} to the repository.
+   * If 'URI/moduleName' already exists, it is not added.
+   * If URI is missing or . or / or \, is set to ./${moduleName}.js
    * If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
    * If is missing the ".js" extension from the file, is added
    * @param {{moduleName: string, moduleEngineURI: string}} p
@@ -35,7 +35,7 @@ export class ModulesLoader {
     if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)) === undefined) {
       try {
         let _cdnURI = moduleEngineURI.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
-        if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/')  // If moduleEngineURI is missing, is set to ./${moduleName}.js
+        if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/')  // If moduleEngineURI is missing or . or /, is set to ./${moduleName}.js
           _cdnURI = `./${moduleName}.js`;
         else if (isGitHub(_cdnURI))  // If moduleEngineURI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
           _cdnURI = gitHubURI2jsDelivr(_cdnURI);
@@ -99,7 +99,8 @@ export class ModulesLoader {
   }
 
   /**
-   Get class from the repository.
+   Get a class from the repository. The returned class is not initialized and must be initialized with 'new'.
+   If 'URI/moduleName' is non existent, returns undefined.
    * @param {{moduleName: string, moduleEngineURI: string}} p
    * @return {undefined | {class: *, cdnURI: string}}
    * */

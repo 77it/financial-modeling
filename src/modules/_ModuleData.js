@@ -1,6 +1,7 @@
 import { validate } from '../deps.js';
 
 /**
+ * Returns a ModuleData from a JSON string
  * @param {string} json - ModuleData's Json
  * @return {ModuleData} deserialized ModuleData
  */
@@ -29,6 +30,7 @@ export class ModuleData {
   //#endregion
 
   /**
+   * ModuleData class
    * @param {Object} p
    * @param {string} p.moduleName
    * @param {string} p.moduleAlias
