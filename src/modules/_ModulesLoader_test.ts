@@ -44,7 +44,7 @@ Deno.test("test addClassFromURI, alongside module (using ModuleData)", async () 
     const _moduleData = new ModuleData(_moduleDataParameters);
     assert((await modulesLoader.addClassFromURI(_moduleData)).success);
 
-    const query = modulesLoader.get({moduleName: "ValuesB", moduleEngineURI: _URI});
+    const query = modulesLoader.get(_moduleData);
     assert(query != undefined);
 
     const _ValuesB = query.class;
