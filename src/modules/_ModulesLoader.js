@@ -40,7 +40,7 @@ export class ModulesLoader {
         else if (isGitHub(_cdnURI))  // If moduleEngineURI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
           _cdnURI = gitHubURI2jsDelivr(_cdnURI);
 
-        if (_cdnURI.slice(-3).toLowerCase() !== '.js')  // If is missing the ".js" extension from the file, is added
+        if (_cdnURI.slice(-3).toLowerCase() !== '.js')  // If it is missing the ".js" extension from the file, is added
           _cdnURI = `${_cdnURI}.js`;
 
         // DYNAMIC IMPORT (works with deno and browser)

@@ -83,11 +83,11 @@ Deno.test("test addClassFromURI, adding '.js' extension", async () => {
 });
 
 Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
-    const _URI = "  ";
+    const _URI_spaces = "  ";
     const _moduleName = "_ModulesLoader_test_module";
-    assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI})).success);
+    assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_spaces})).success);
 
-    const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI});
+    const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_spaces});
     assert(query != undefined);
 
     const _ValuesB = query.class;

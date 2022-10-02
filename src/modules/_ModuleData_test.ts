@@ -2,11 +2,11 @@
 
 import {assert, assertFalse, assertEquals, assertNotEquals} from "https://deno.land/std/testing/asserts.ts";
 
-import {ModuleDataLoader, ModuleData} from "./_ModuleData.js";
+import {ModuleDataLoader} from "./_ModuleData.js";
 import { readLines } from "https://deno.land/std@0.152.0/io/mod.ts";
 
 Deno.test('read multiline file', async () => {
-    const filename = "./_ModuleData_test_data.jsonl";
+    const filename = new URL("_ModuleData_test_data.jsonl", import.meta.url);  // see https://github.com/denoland/deno/issues/1286#issuecomment-643624186
     const fileReader = await Deno.open(filename);
 
     const jsonLines = [];
