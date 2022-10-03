@@ -157,12 +157,11 @@ Modules import the JSDoc type file online, from the file "https://github.com/sim
  */
 
 
-// Ledger: da main.js riceve alcuni oggetti per scrivere su file:
+//#region Ledger: da main.js riceve alcuni oggetti per scrivere su file
 /*
 * logger_simObjects_writer  // scrive il dump dei SimObjects
 * logger_messages_writer  // scrive un file di messaggi di errore fatale o warning, come lista di stringhe JSON #logger_messages_writer
-
-#lock, #variables (#locks #immutable)
+* #lock, #variables (#locks #immutable)
 
 if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
 
@@ -205,6 +204,14 @@ con try catch da main.js, che:
 * ovviamente interrompe l'esecuzione
  */
 
+// js lock boolean flag: salesAndPurchasesOnlyVsCash
+/*
+immutable flag (ovviamente)
+
+serve per non muovere il CCN con acquisti e vendite, CCN che dovrebbe essere mosso da altri moduli che impostano "a mano" il livello di crediti v/clienti e debiti v/fornitori.
+è un flag che non è mandatory, ma andrebbe rispettato dai vari moduli. non deve essere rispettato da crediti non commerciali, quali finanziamenti infragruppo, ecc.
+*/
+
 // some other locks
 /*
 # EBITDA
@@ -225,7 +232,7 @@ is a list of {Date, rate}, with the sequence of Euribor in the entire simulation
 when the rates are stored in the lock, the module that sets the rate shouldn't save dates before start and after end
 (dates from module/table "Set.SimulationSettings", settings "SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE" and "SIMULATION_END_DATE").
  */
-
+//#endregion
 
 // report debug idea   #debug #idea
 /*
