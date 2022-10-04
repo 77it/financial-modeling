@@ -65,7 +65,9 @@ export function validate ({ obj, validation, errorMsg }) {
   function _validate (_obj) {
     for (const key of Object.keys(validation)) {
 
-      if (!(key in _obj))
+      xxx implementa check di tipi con ?
+
+      if (!(key in _obj) && tipo termina con ?)
       {
         errors.push(`${key} is missing`);
         continue;
