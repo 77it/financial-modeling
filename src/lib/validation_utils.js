@@ -21,6 +21,8 @@ export function isPositive (value) {
   return value >= 0;
 }
 
+XXX sanitize function: non impostare parametri mancanti, lascia a undefined; se null forza a undefined; se c'è un valore, convertilo.
+
 /**
  * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
  * @param {Object} p
