@@ -21,6 +21,8 @@ export function isPositive (value) {
   return value >= 0;
 }
 
+XXX validate/sanitize accetta tipi con ?
+XXX validate non va in errore se mancano le variabili con ?
 XXX sanitize function: non impostare parametri mancanti, lascia a undefined; se null forza a undefined; se c'è un valore, convertilo.
 
 /**
