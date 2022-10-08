@@ -3,6 +3,7 @@ export class ModulesLoader {
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
   #defaultClassName = 'Module';
+  errors = [];
 
   constructor () {
     this.#classesRepo = new Map();
@@ -16,12 +17,14 @@ export class ModulesLoader {
    */
   addClassFromObject ({ moduleName, moduleEngineURI, classObj }) {
     XXX add validation of input parameters;
+    XXX append errors to 'errors';
 
-    if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)) === undefined) {
-      this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName), {class: classObj, cdnURI: ""});
+    const keyModule = ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)
+    if (this.#classesRepo.get(keyModule) === undefined) {
+      this.#classesRepo.set(keyModule, {class: classObj, cdnURI: ""});
       return { success: true };
     }
-    return { success: false, error: 'module already exists' };
+    return { success: false, error: `module ${keyModule} already exists` };
   }
 
   /**
@@ -35,8 +38,11 @@ export class ModulesLoader {
    */
   async addClassFromURI ({ moduleName, moduleEngineURI }) {
     XXX add validation of input parameters;
+    XXX append errors to 'errors';
 
-    if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)) === undefined) {
+    const keyModule = ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName);
+
+    if (this.#classesRepo.get(keyModule) === undefined) {
       try {
         let _cdnURI = moduleEngineURI.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
         if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/')  // If moduleEngineURI is missing or . or /, is set to ./${moduleName}.js
@@ -49,13 +55,13 @@ export class ModulesLoader {
 
         // DYNAMIC IMPORT (works with deno and browser)
         const _module = (await import(_cdnURI));
-        this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName), {class: _module[this.#defaultClassName], cdnURI: _cdnURI});
+        this.#classesRepo.set(keyModule, {class: _module[this.#defaultClassName], cdnURI: _cdnURI});
       } catch (error) {
         return { success: false, error: error.stack?.toString() ?? error.toString() };
       }
       return { success: true };
     }
-    return { success: false, error: 'module already exists' };
+    return { success: false, error: `module ${keyModule} already exists` };
 
     //#region local functions
     /**
