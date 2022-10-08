@@ -15,6 +15,8 @@ export class ModulesLoader {
    * @return {{success: boolean, error?: string}} true if added, false if already exists
    */
   addClassFromObject ({ moduleName, moduleEngineURI, classObj }) {
+    XXX add validation of input parameters;
+
     if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)) === undefined) {
       this.#classesRepo.set(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName), {class: classObj, cdnURI: ""});
       return { success: true };
@@ -25,13 +27,15 @@ export class ModulesLoader {
   /**
    * Load module from URI and add a class with default name {#defaultClassName} to the repository.
    * If 'URI/moduleName' already exists, it is not added.
-   * If URI is missing or . or / or \, is set to ./${moduleName}.js
+   * If URI is "" or . or / or \, is set to ./${moduleName}.js
    * If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
    * If is missing the ".js" extension from the file, is added
    * @param {{moduleName: string, moduleEngineURI: string}} p
    * @return {Promise<{success: boolean, error?: string}>} true if added, false if already exists
    */
   async addClassFromURI ({ moduleName, moduleEngineURI }) {
+    XXX add validation of input parameters;
+
     if (this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)) === undefined) {
       try {
         let _cdnURI = moduleEngineURI.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
@@ -105,6 +109,8 @@ export class ModulesLoader {
    * @return {undefined | {class: *, cdnURI: string}}
    * */
   get ({ moduleName, moduleEngineURI }) {
+    XXX add validation of input parameters;
+
     const _ret = this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName));
     if (_ret === undefined)
       return undefined;
@@ -112,6 +118,8 @@ export class ModulesLoader {
       throw new Error("internal error, some property of the object loaded from the repo == null or undefined");
     return {..._ret};  // return a shallow copy
   }
+
+  xxx add function getAll (to get an array of all loaded classes;)
 
   /**
    * @param {string} moduleEngineURI
