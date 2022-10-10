@@ -125,7 +125,8 @@ export class ModulesLoader {
     return {..._ret};  // return a shallow copy
   }
 
-  xxx add function getAll (to get an array of all loaded classes;)
+  xxx add function getAll (to get an array of all loaded classes);
+  xxx add function getErrors (to get an array of all loaded classes);  // clone array with structuredclone
 
   /**
    * @param {string} moduleEngineURI
