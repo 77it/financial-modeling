@@ -14,9 +14,22 @@ describe('parseJSON', () => {
     it('short date', () => {
         const date = '2021-01-09';
         const parsedDate = parseJSON(date);
-        console.log(parsedDate);
         const expectedDate = '2021-01-09T00:00:00.000Z';
         assert.strictEqual(parsedDate.toISOString(), expectedDate);
+    })
+
+    it('short date + random extra characters', () => {
+        const date = '2021-01-09!!!WWWtext';
+        const parsedDate = parseJSON(date);
+        const expectedDate = '2021-01-09T00:00:00.000Z';
+        assert.strictEqual(parsedDate.toISOString(), expectedDate);
+    })
+
+    it('parses a fully formed ISO date with Z + random extra characters', () => {
+        const date = '2000-03-15T05:20:10.123Z!!!WWWtext';
+        const parsedDate = parseJSON(date);
+        const expectedDate = '2000-03-15T05:20:10.123Z';
+        assert.strictEqual(parsedDate.toISOString(), expectedDate)
     })
 })
 
@@ -137,7 +150,7 @@ describe('parseJSON', () => {
     it('returns an invalid date for anything else', () => {
         assert.strictEqual(parseJSON('').toString(), 'Invalid Date')
         assert.strictEqual(parseJSON('invalid').toString(), 'Invalid Date')
-        assert.strictEqual(parseJSON('2020-10-10').toString(), 'Invalid Date')
+        assert.strictEqual(parseJSON('2020/10/10').toString(), 'Invalid Date')
     })
 })
 

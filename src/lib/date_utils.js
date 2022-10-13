@@ -36,12 +36,15 @@ export function isInvalidDate (value) {
  *
  * Any other input type or invalid date strings will return an `Invalid Date`.
  *
- * @param {String} argument A fully formed ISO8601 date string to convert
+ * @param {String} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
  * @returns {Date} the parsed date in the local time zone
  */
 export function parseJSON (argument) {
   const parts = argument.match(
     /(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?/
+  );
+  const partsYYYYMMDD = argument.match(
+    /(\d{4})-(\d{2})-(\d{2})/
   );
   if (parts) {
     // Group 8 matches the sign
@@ -57,7 +60,16 @@ export function parseJSON (argument) {
       )
     );
     }
-  else XXX // data su 3 parti
+  else if (partsYYYYMMDD) {
+    // YYYY-MM-DD date
+    return new Date(
+      Date.UTC(
+        +partsYYYYMMDD[1],
+        +partsYYYYMMDD[2] - 1,
+        +partsYYYYMMDD[3]
+      )
+    );
+  }
   return new Date(NaN);
 }
 
