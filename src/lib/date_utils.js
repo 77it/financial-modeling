@@ -1,8 +1,19 @@
-import { isInvalidDate } from './validation_utils.js';
+/**
+ * To check whether the date is valid
+ * @param {*} value
+ * @returns {Boolean}
+ */
+// see from https://stackoverflow.com/a/44198641/5288052 + https://stackoverflow.com/questions/643782/how-to-check-whether-an-object-is-a-date
+export function isInvalidDate (value) {
+  if (value instanceof Date) {
+    return isNaN(value.getTime());
+  }
+  return true;  // is not a date
+}
 
-export { isInvalidDate };
 
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license)
+// added parse of date on 3 fields YYYY-MM-DD
 /**
  * @name parseJSON
  * @category Common Helpers
@@ -45,7 +56,8 @@ export function parseJSON (argument) {
         +((parts[7] || '0') + '00').substring(0, 3)
       )
     );
-  }
+    }
+  else XXX // data su 3 parti
   return new Date(NaN);
 }
 

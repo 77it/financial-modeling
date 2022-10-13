@@ -1,15 +1,4 @@
-/**
- * To check whether the date is valid
- * @param {*} value
- * @returns {Boolean}
- */
-// see from https://stackoverflow.com/a/44198641/5288052 + https://stackoverflow.com/questions/643782/how-to-check-whether-an-object-is-a-date
-export function isInvalidDate (value) {
-  if (value instanceof Date) {
-    return isNaN(value.getTime());
-  }
-  return true;  // is not a date
-}
+export { isInvalidDate } from './date_utils.js';
 
 /**
  * To check whether the number is >= 0

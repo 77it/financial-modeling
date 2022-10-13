@@ -9,6 +9,18 @@ assert.equal = assertEquals;
 assert.strictEqual = assertStrictEquals;
 assert.throws = assertThrows;
 
+
+describe('parseJSON', () => {
+    it('short date', () => {
+        const date = '2021-01-09';
+        const parsedDate = parseJSON(date);
+        console.log(parsedDate);
+        const expectedDate = '2021-01-09T00:00:00.000Z';
+        assert.strictEqual(parsedDate.toISOString(), expectedDate);
+    })
+})
+
+
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/test.ts
 describe('parseJSON', () => {
     it('parses a formatted date with an hour of offset back to UTC - issue 2149', () => {
