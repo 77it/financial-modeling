@@ -4,16 +4,19 @@ import {
   assertThrows,
 } from 'https://deno.land/std/testing/asserts.ts';
 
-import { isInvalidDate, validate } from './validation_utils.js';
-
-Deno.test('test valid date', () => {
-  assert(isInvalidDate(new Date('not a date')));
-  assertFalse(isInvalidDate(new Date(Date.UTC(2022, 11, 25))));
-});
+import { validate } from './validation_utils.js';
 
 Deno.test('test validate(), valid, simple object', () => {
   const objToValidate = { a: 'mamma', b: 99 };
   validate({ obj: objToValidate, validation: { a: 'string', b: 'number' } });
+});
+
+Deno.test('test validate(), valid, `any` type', () => {
+  let objToValidate = { a: 'mamma', b: 99 };
+  validate({ obj: objToValidate, validation: { a: 'any', b: 'number' } });
+
+  objToValidate = { a: 9999, b: 99 };
+  validate({ obj: objToValidate, validation: { a: 'any', b: 'number' } });
 });
 
 Deno.test('test validate(), valid, complex object', () => {

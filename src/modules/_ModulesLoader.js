@@ -1,3 +1,5 @@
+import { validate } from '../deps.js';
+
 export class ModulesLoader {
   /** Map containing id (URI/moduleName) as key and a {class: *, cdnURI: string} as value
    * @type {Map<String, {class: *, cdnURI: string}>} */
@@ -15,13 +17,17 @@ export class ModulesLoader {
    * @param {{moduleName: string, moduleEngineURI: string, classObj: *}} p
    * @return {{success: boolean, error?: string}} true if added, false if already exists
    */
-  addClassFromObject ({ moduleName, moduleEngineURI, classObj }) {
-    XXX add validation of input parameters;
-    XXX append errors to 'errors';
+  addClassFromObject (p) {
+    const validation = {
+      moduleName: 'string',
+      moduleEngineURI: 'string',
+      classObj: 'any'
+    };
+    validate({ obj: p, validation: validation });
 
-    const keyModule = ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName)
+    const keyModule = ModulesLoader.#repoKeyBuilder(p.moduleEngineURI, p.moduleName)
     if (this.#classesRepo.get(keyModule) === undefined) {
-      this.#classesRepo.set(keyModule, {class: classObj, cdnURI: ""});
+      this.#classesRepo.set(keyModule, {class: p.classObj, cdnURI: ""});
       return { success: true };
     }
     return { success: false, error: `module ${keyModule} already exists` };
@@ -36,17 +42,20 @@ export class ModulesLoader {
    * @param {{moduleName: string, moduleEngineURI: string}} p
    * @return {Promise<{success: boolean, error?: string}>} true if added, false if already exists
    */
-  async addClassFromURI ({ moduleName, moduleEngineURI }) {
-    XXX add validation of input parameters;
-    XXX append errors to 'errors';
+  async addClassFromURI (p) {
+    const validation = {
+      moduleName: 'string',
+      moduleEngineURI: 'string'
+    };
+    validate({ obj: p, validation: validation });
 
-    const keyModule = ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName);
+    const keyModule = ModulesLoader.#repoKeyBuilder(moduleEngineURI, p.moduleName);
 
     if (this.#classesRepo.get(keyModule) === undefined) {
       try {
-        let _cdnURI = moduleEngineURI.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
-        if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/')  // If moduleEngineURI is missing or . or /, is set to ./${moduleName}.js
-          _cdnURI = `./${moduleName}.js`;
+        let _cdnURI = p.moduleEngineURI.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
+        if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/')  // If moduleEngineURI is missing or . or /, is set to ./${p.moduleName}.js
+          _cdnURI = `./${p.moduleName}.js`;
         else if (isGitHub(_cdnURI))  // If moduleEngineURI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
           _cdnURI = gitHubURI2jsDelivr(_cdnURI);
 
@@ -114,8 +123,12 @@ export class ModulesLoader {
    * @param {{moduleName: string, moduleEngineURI: string}} p
    * @return {undefined | {class: *, cdnURI: string}}
    * */
-  get ({ moduleName, moduleEngineURI }) {
-    XXX add validation of input parameters;
+  get (p) {
+    const validation = {
+      moduleName: 'string',
+      moduleEngineURI: 'string'
+    };
+    validate({ obj: p, validation: validation });
 
     const _ret = this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName));
     if (_ret === undefined)
@@ -126,7 +139,6 @@ export class ModulesLoader {
   }
 
   xxx add function getAll (to get an array of all loaded classes);
-  xxx add function getErrors (to get an array of all loaded classes);  // clone array with structuredclone
 
   /**
    * @param {string} moduleEngineURI

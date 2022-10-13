@@ -65,6 +65,10 @@ export function validate ({ obj, validation, errorMsg }) {
       }
 
       switch (validation[key]) {  // switch validations
+        case 'any':
+          if (_obj[key] === undefined)
+            errors.push(`${key} = ${_obj[key]}, must be !== undefined`);
+          break;
         case 'string':
           if (typeof _obj[key] !== 'string')
             errors.push(`${key} = ${_obj[key]}, must be string`);

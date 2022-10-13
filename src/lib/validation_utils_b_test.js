@@ -15,3 +15,9 @@ Deno.test('test positive number', () => {
   assertFalse(isPositive(-1));
   assertFalse(isPositive('mamma'));
 });
+
+Deno.test('test valid date', () => {
+  assert(isInvalidDate(new Date('not a date')));
+  assertFalse(isInvalidDate(new Date(Date.UTC(2022, 11, 25))));
+});
+

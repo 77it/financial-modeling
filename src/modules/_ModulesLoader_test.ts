@@ -103,11 +103,23 @@ Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
     assert(query_backslash != undefined);
     assertEquals(`./${_moduleName}.js`, query_backslash.cdnURI);
 
+    const _URI_dotBackslash = " .\\ ";
+    assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dotBackslash})).success);
+    const query_dotBackslash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_dotBackslash});
+    assert(query_dotBackslash != undefined);
+    assertEquals(`./${_moduleName}.js`, query_dotBackslash.cdnURI);
+
     const _URI_slash = " \/ ";
     assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_slash})).success);
     const query_slash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_slash});
     assert(query_slash != undefined);
     assertEquals(`./${_moduleName}.js`, query_slash.cdnURI);
+
+    const _URI_dotSlash = " .\/ ";
+    assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dotSlash})).success);
+    const query_dotSlash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_dotSlash});
+    assert(query_dotSlash != undefined);
+    assertEquals(`./${_moduleName}.js`, query_dotSlash.cdnURI);
 
     const _URI_dot = " . ";
     assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dot})).success);
