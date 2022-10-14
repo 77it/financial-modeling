@@ -10,15 +10,15 @@ export function isPositive (value) {
   return value >= 0;
 }
 
-XXX validate/sanitize accetta tipi con ?
-XXX validate non va in errore se mancano le variabili con ?
-XXX sanitize function: non impostare parametri mancanti, lascia a undefined; se null forza a undefined; se c'è un valore, convertilo.
+XXX sanitize function: se opzionale (?) e === undefined lascia a undefined; in ogni altro caso converti in stringa (se == null -> "", ecc).
+XXX testa any;
 
 /**
  * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
+ * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function'; class is 'function', class instance is 'object'.
  * @param {Object} p
  * @param {*} p.obj - Object to validate
- * @param {*} p.validation - Validation object {name: 'type'}[]
+ * @param {*} p.validation - Validation object {key1: 'typeA', key2: 'typeB'}
  * @param {string} [p.errorMsg] - Optional error message
  */
 // see https://github.com/iarna/aproba for inspiration
@@ -56,15 +56,24 @@ export function validate ({ obj, validation, errorMsg }) {
   function _validate (_obj) {
     for (const key of Object.keys(validation)) {
 
-      xxx implementa check di tipi con ?
-
-      if (!(key in _obj) && tipo termina con ?)
-      {
-        errors.push(`${key} is missing`);
-        continue;
+      let optionalValidation = false;
+      let validationType = '';
+      if (validation[key].toString().trim().slice(-1) === '?') {
+        optionalValidation = true;
+        validationType = validation[key].toString().trim().toLowerCase().slice(0, -1);
+      }
+      else {
+        validationType = validation[key].toString().trim().toLowerCase();
       }
 
-      switch (validation[key]) {  // switch validations
+      if (!(key in _obj)) {  // if validation key is missing in the object to validate
+        if (!optionalValidation) {  // if validation is not optional
+          errors.push(`${key} is missing`);  // append validation error
+        }
+        continue;  // skip validation
+      }
+
+      switch (validationType) {  // switch validations
         case 'any':
           if (_obj[key] === undefined)
             errors.push(`${key} = ${_obj[key]}, must be !== undefined`);
