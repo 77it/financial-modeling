@@ -10,8 +10,7 @@ export function isPositive (value) {
   return value >= 0;
 }
 
-XXX sanitize function: se opzionale (?) e === undefined lascia a undefined; in ogni altro caso converti in stringa (se == null -> "", ecc).
-XXX testa any;
+// XXX sanitize function: se opzionale (?) e === undefined lascia a undefined; in ogni altro caso converti in stringa (se == null -> "", ecc).
 
 /**
  * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.

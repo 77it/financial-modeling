@@ -1,10 +1,12 @@
+// @ts-nocheck
+
+import { validate } from './validation_utils.js';
+
 import {
   assert,
   assertFalse,
   assertThrows,
 } from 'https://deno.land/std/testing/asserts.ts';
-
-import { validate } from './validation_utils.js';
 
 Deno.test('test validate(), valid, simple object', () => {
   const objToValidate = { a: 'mamma', b: 99 };
@@ -17,6 +19,22 @@ Deno.test('test validate(), valid, `any` type', () => {
 
   objToValidate = { a: 9999, b: 99 };
   validate({ obj: objToValidate, validation: { a: 'any', b: 'number' } });
+});
+
+Deno.test('test validate(), not valid, any type is undefined', () => {
+  const objToValidate = { a: undefined, b: 99 };
+
+  const validation = {
+    a: 'any',
+    b: 'number'
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('a = undefined, must be !== undefined'));
+  }
 });
 
 Deno.test('test validate(), valid, complex object', () => {
@@ -77,11 +95,16 @@ Deno.test('test validate(), valid, objects in array', () => {
   validate({ obj: objToValidate.arr, validation: validation });
 });
 
-Deno.test('test validate(), not valid, simple object + error message', () => {
+Deno.test('test validate(), not valid, simple object + personalized error message', () => {
   const objToValidate = { a: 'mamma', b: 99 };
 
+  const validation = {
+    a: 'string',
+    b: 'string'
+  };
+
   try {
-    validate({ obj: objToValidate, validation: { a: 'string', b: 'string' } , errorMsg: 'personalized error message'});
+    validate({ obj: objToValidate, validation: validation, errorMsg: 'personalized error message'});
   } catch (error) {
     console.log(error.message);
     assert(error.message.includes('b = 99, must be string'));
