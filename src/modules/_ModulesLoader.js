@@ -138,8 +138,6 @@ export class ModulesLoader {
     return {..._ret};  // return a shallow copy
   }
 
-  xxx add function getAll (to get an array of all loaded classes);
-
   /**
    * @param {string} moduleEngineURI
    * @param {string} moduleName
