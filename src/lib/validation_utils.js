@@ -19,7 +19,7 @@ export function isPositive (value) {
   return value >= 0;
 }
 
-// XXX sanitize function: se opzionale (?) e === undefined lascia a undefined; in ogni altro caso converti in stringa (se == null -> "", ecc).
+// XXX sanitize function: se opzionale (?) e key is missing, non crearla; in ogni altro caso converti in stringa (se == null -> "", ecc).
 
 /**
  * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
@@ -83,8 +83,8 @@ export function validate ({ obj, validation, errorMsg }) {
 
       switch (validationType) {  // switch validations
         case ANY_TYPE:
-          if (_obj[key] === undefined)
-            errors.push(`${key} = ${_obj[key]}, must be !== undefined`);
+          if (_obj[key] == null)
+            errors.push(`${key} = ${_obj[key]}, must be !== null or undefined`);
           break;
         case STRING_TYPE:
           if (typeof _obj[key] !== 'string')

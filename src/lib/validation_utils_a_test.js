@@ -33,7 +33,23 @@ Deno.test('test validate(), not valid, any type is undefined', () => {
     validate({ obj: objToValidate, validation: validation });
   } catch (error) {
     console.log(error.message);
-    assert(error.message.includes('a = undefined, must be !== undefined'));
+    assert(error.message.includes('a = undefined, must be !== null or undefined'));
+  }
+});
+
+Deno.test('test validate(), not valid, any type is null', () => {
+  const objToValidate = { a: null, b: 99 };
+
+  const validation = {
+    a: 'any',
+    b: 'number'
+  };
+
+  try {
+    validate({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    console.log(error.message);
+    assert(error.message.includes('a = null, must be !== null or undefined'));
   }
 });
 
