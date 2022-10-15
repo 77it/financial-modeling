@@ -18,18 +18,46 @@ describe('parseJSON', () => {
         assert.strictEqual(parsedDate.toISOString(), expectedDate);
     })
 
-    it('short date + random extra characters', () => {
-        const date = '2021-01-09!!!WWWtext';
+    it('short date + spaces', () => {
+        const date = '   2021-01-09     ';
         const parsedDate = parseJSON(date);
         const expectedDate = '2021-01-09T00:00:00.000Z';
         assert.strictEqual(parsedDate.toISOString(), expectedDate);
     })
 
-    it('parses a fully formed ISO date with Z + random extra characters', () => {
-        const date = '2000-03-15T05:20:10.123Z!!!WWWtext';
+    it('Invalid date for short date + random extra characters on start', () => {
+        const date = '!?!?!2021-01-09';
+        const parsedDate = parseJSON(date);
+        const expectedDate = 'Invalid Date';
+        assert.strictEqual(parsedDate.toString(), expectedDate);
+    })
+
+    it('Invalid date for short date + random extra characters on end', () => {
+        const date = '2021-01-09!!!WWWtext';
+        const parsedDate = parseJSON(date);
+        const expectedDate = 'Invalid Date';
+        assert.strictEqual(parsedDate.toString(), expectedDate);
+    })
+
+    it('parses a fully formed ISO date with Z + spaces', () => {
+        const date = '   2000-03-15T05:20:10.123Z   ';
         const parsedDate = parseJSON(date);
         const expectedDate = '2000-03-15T05:20:10.123Z';
         assert.strictEqual(parsedDate.toISOString(), expectedDate)
+    })
+
+    it('Invalid date for parses a fully formed ISO date with Z + random extra characters on start', () => {
+        const date = '!?!?!2000-03-15T05:20:10.123Z';
+        const parsedDate = parseJSON(date);
+        const expectedDate = 'Invalid Date';
+        assert.strictEqual(parsedDate.toString(), expectedDate)
+    })
+
+    it('Invalid date for parses a fully formed ISO date with Z + random extra characters on end', () => {
+        const date = '2000-03-15T05:20:10.123Z!!!WWWtext';
+        const parsedDate = parseJSON(date);
+        const expectedDate = 'Invalid Date';
+        assert.strictEqual(parsedDate.toString(), expectedDate)
     })
 })
 

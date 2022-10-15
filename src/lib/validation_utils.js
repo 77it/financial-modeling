@@ -1,5 +1,14 @@
 export { isInvalidDate } from './date_utils.js';
 
+const ANY_TYPE = 'any';
+const STRING_TYPE = 'string';
+const NUMBER_TYPE = 'number';
+const BOOLEAN_TYPE = 'boolean';
+const DATE_TYPE = 'date';
+const ARRAY_TYPE = 'array';
+const OBJECT_TYPE = 'object';
+const FUNCTION_TYPE = 'function';
+
 /**
  * To check whether the number is >= 0
  *
@@ -73,35 +82,35 @@ export function validate ({ obj, validation, errorMsg }) {
       }
 
       switch (validationType) {  // switch validations
-        case 'any':
+        case ANY_TYPE:
           if (_obj[key] === undefined)
             errors.push(`${key} = ${_obj[key]}, must be !== undefined`);
           break;
-        case 'string':
+        case STRING_TYPE:
           if (typeof _obj[key] !== 'string')
             errors.push(`${key} = ${_obj[key]}, must be string`);
           break;
-        case 'number':
+        case NUMBER_TYPE:
           if (typeof _obj[key] !== 'number' || !isFinite(_obj[key]))
             errors.push(`${key} = ${_obj[key]}, must be a valid number`);
           break;
-        case 'boolean':
+        case BOOLEAN_TYPE:
           if (typeof _obj[key] !== 'boolean')
             errors.push(`${key} = ${_obj[key]}, must be boolean`);
           break;
-        case 'date':
+        case DATE_TYPE:
           if (!(_obj[key] instanceof Date) || isNaN(_obj[key].getTime()))
             errors.push(`${key} = ${_obj[key]}, must be a valid date`);
           break;
-        case 'array':
+        case ARRAY_TYPE:
           if (!Array.isArray(_obj[key]))
             errors.push(`${key} = ${_obj[key]}, must be an array`);
           break;
-        case 'object':
+        case OBJECT_TYPE:
           if (typeof _obj[key] !== 'object' || !(_obj[key]))  // see https://stackoverflow.com/a/12535493/5288052
             errors.push(`${key} = ${_obj[key]}, must be an object`);
           break;
-        case 'function':
+        case FUNCTION_TYPE:
           if (typeof _obj[key] !== 'function')
             errors.push(`${key} = ${_obj[key]}, must be a function`);
           break;

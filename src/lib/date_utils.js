@@ -40,11 +40,11 @@ export function isInvalidDate (value) {
  * @returns {Date} the parsed date in the local time zone
  */
 export function parseJSON (argument) {
-  const parts = argument.match(
-    /(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?/
+  const parts = argument.trim().match(
+    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/
   );
-  const partsYYYYMMDD = argument.match(
-    /(\d{4})-(\d{2})-(\d{2})/
+  const partsYYYYMMDD = argument.trim().match(
+    /^(\d{4})-(\d{2})-(\d{2})$/
   );
   if (parts) {
     // Group 8 matches the sign
