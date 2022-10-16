@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { validate } from './validation_utils.js';
+import { validateObj } from './validation_utils.js';
 
 import {
   assert,
@@ -10,15 +10,15 @@ import {
 
 Deno.test('test validate(), valid, simple object', () => {
   const objToValidate = { a: 'mamma', b: 99 };
-  validate({ obj: objToValidate, validation: { a: 'string', b: 'number' } });
+  validateObj({ obj: objToValidate, validation: { a: 'string', b: 'number' } });
 });
 
 Deno.test('test validate(), valid, `any` type', () => {
   let objToValidate = { a: 'mamma', b: 99 };
-  validate({ obj: objToValidate, validation: { a: 'any', b: 'number' } });
+  validateObj({ obj: objToValidate, validation: { a: 'any', b: 'number' } });
 
   objToValidate = { a: 9999, b: 99 };
-  validate({ obj: objToValidate, validation: { a: 'any', b: 'number' } });
+  validateObj({ obj: objToValidate, validation: { a: 'any', b: 'number' } });
 });
 
 Deno.test('test validate(), not valid, any type is undefined', () => {
@@ -29,12 +29,14 @@ Deno.test('test validate(), not valid, any type is undefined', () => {
     b: 'number'
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('a = undefined, must be !== null or undefined'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('a = undefined, must be !== null or undefined'));
 });
 
 Deno.test('test validate(), not valid, any type is null', () => {
@@ -45,12 +47,14 @@ Deno.test('test validate(), not valid, any type is null', () => {
     b: 'number'
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('a = null, must be !== null or undefined'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('a = null, must be !== null or undefined'));
 });
 
 Deno.test('test validate(), valid, complex object', () => {
@@ -78,7 +82,7 @@ Deno.test('test validate(), valid, complex object', () => {
     any: 'any',
   };
 
-  validate({ obj: objToValidate, validation: validation });
+  validateObj({ obj: objToValidate, validation: validation });
 });
 
 Deno.test('test validate(), valid, object with and without optional properties', () => {
@@ -106,10 +110,10 @@ Deno.test('test validate(), valid, object with and without optional properties',
     any: 999
   };
 
-  validate({ obj: objToValidate, validation: validation });
+  validateObj({ obj: objToValidate, validation: validation });
 
   const emptyObject = {};
-  validate({ obj: emptyObject, validation: validation });
+  validateObj({ obj: emptyObject, validation: validation });
 });
 
 Deno.test('test validate(), valid, nested object', () => {
@@ -125,7 +129,7 @@ Deno.test('test validate(), valid, nested object', () => {
     valB: 'object',
   };
 
-  validate({ obj: objToValidate.arr[0], validation: validation });
+  validateObj({ obj: objToValidate.arr[0], validation: validation });
 });
 
 Deno.test('test validate(), valid, objects in array', () => {
@@ -141,7 +145,7 @@ Deno.test('test validate(), valid, objects in array', () => {
     valB: 'object',
   };
 
-  validate({ obj: objToValidate.arr, validation: validation });
+  validateObj({ obj: objToValidate.arr, validation: validation });
 });
 
 Deno.test('test validate(), not valid, simple object + personalized error message', () => {
@@ -152,13 +156,15 @@ Deno.test('test validate(), not valid, simple object + personalized error messag
     b: 'string'
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation, errorMsg: 'personalized error message'});
+    validateObj({ obj: objToValidate, validation: validation, errorMsg: 'personalized error message'});
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('b = 99, must be string'));
-    assert(error.message.includes('personalized error message'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('b = 99, must be string'));
+  assert(_error.includes('personalized error message'));
 });
 
 Deno.test('test validate(), not valid, objects in array', () => {
@@ -177,13 +183,15 @@ Deno.test('test validate(), not valid, objects in array', () => {
     valB: 'object',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate.arr, validation: validation });
+    validateObj({ obj: objToValidate.arr, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('valB = 999, must be an object'));
-    assert(error.message.includes('valB = 1, must be an object'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('valB = 999, must be an object'));
+  assert(_error.includes('valB = 1, must be an object'));
 });
 
 Deno.test('test validate(), not valid, missing keys', () => {
@@ -197,12 +205,14 @@ Deno.test('test validate(), not valid, missing keys', () => {
     fun: 'function',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["obj is missing","fun is missing"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["obj is missing","fun is missing"]'));
 });
 
 Deno.test('test validate(), not valid, array is of wrong type', () => {
@@ -214,12 +224,14 @@ Deno.test('test validate(), not valid, array is of wrong type', () => {
     arr: 'array',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["arr = 999, must be an array"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["arr = 999, must be an array"]'));
 });
 
 Deno.test('test validate(), not valid, null/undefined/not a str parameter', () => {
@@ -235,12 +247,14 @@ Deno.test('test validate(), not valid, null/undefined/not a str parameter', () =
     str3: 'string',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["str = null, must be string","str2 = undefined, must be string","str3 = 999, must be string"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["str = null, must be string","str2 = undefined, must be string","str3 = 999, must be string"]'));
 });
 
 Deno.test('test validate(), not valid, null/undefined/NaN/infinity num parameter', () => {
@@ -258,12 +272,14 @@ Deno.test('test validate(), not valid, null/undefined/NaN/infinity num parameter
     num4: 'number',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["num = null, must be a valid number","num2 = undefined, must be a valid number","num3 = NaN, must be a valid number","num4 = Infinity, must be a valid number"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["num = null, must be a valid number","num2 = undefined, must be a valid number","num3 = NaN, must be a valid number","num4 = Infinity, must be a valid number"]'));
 });
 
 Deno.test('test validate(), not valid, null/undefined/not a date/invalid date parameter', () => {
@@ -281,12 +297,14 @@ Deno.test('test validate(), not valid, null/undefined/not a date/invalid date pa
     date4: 'date',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["date = null, must be a valid date","date2 = undefined, must be a valid date","date3 = 999, must be a valid date","date4 = Invalid Date, must be a valid date"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["date = null, must be a valid date","date2 = undefined, must be a valid date","date3 = 999, must be a valid date","date4 = Invalid Date, must be a valid date"]'));
 });
 
 Deno.test('test validate(), not valid, null/undefined/not a bool parameter', () => {
@@ -302,12 +320,14 @@ Deno.test('test validate(), not valid, null/undefined/not a bool parameter', () 
     bool3: 'boolean',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["bool = null, must be boolean","bool2 = undefined, must be boolean","bool3 = 999, must be boolean"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["bool = null, must be boolean","bool2 = undefined, must be boolean","bool3 = 999, must be boolean"]'));
 });
 
 Deno.test('test validate(), not valid, null/undefined/not an array parameter', () => {
@@ -323,12 +343,14 @@ Deno.test('test validate(), not valid, null/undefined/not an array parameter', (
     arr3: 'array',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["arr = null, must be an array","arr2 = undefined, must be an array","arr3 = 999, must be an array"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["arr = null, must be an array","arr2 = undefined, must be an array","arr3 = 999, must be an array"]'));
 });
 
 Deno.test('test validate(), not valid, null/undefined/not an object parameter', () => {
@@ -344,12 +366,14 @@ Deno.test('test validate(), not valid, null/undefined/not an object parameter', 
     obj3: 'object',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["obj = null, must be an object","obj2 = undefined, must be an object","obj3 = 999, must be an object"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["obj = null, must be an object","obj2 = undefined, must be an object","obj3 = 999, must be an object"]'));
 });
 
 Deno.test('test validate(), not valid, null/undefined/not a function parameter', () => {
@@ -365,12 +389,14 @@ Deno.test('test validate(), not valid, null/undefined/not a function parameter',
     fun3: 'function',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["fun = null, must be a function","fun2 = undefined, must be a function","fun3 = 999, must be a function"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["fun = null, must be a function","fun2 = undefined, must be a function","fun3 = 999, must be a function"]'));
 });
 
 Deno.test('test validate(), not valid, string instead of object', () => {
@@ -380,12 +406,14 @@ Deno.test('test validate(), not valid, string instead of object', () => {
     date: 'date',
   };
 
+  let _error;
   try {
-    validate({ obj: notAnObjToValidate, validation: validation });
+    validateObj({ obj: notAnObjToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["\'obj\' parameter must be an object"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["\'obj\' parameter must be an object"]'));
 });
 
 Deno.test('test validate(), not valid, unknown type', () => {
@@ -395,10 +423,12 @@ Deno.test('test validate(), not valid, unknown type', () => {
     str: 'unknownType',
   };
 
+  let _error;
   try {
-    validate({ obj: objToValidate, validation: validation });
+    validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    console.log(error.message);
-    assert(error.message.includes('["unknownType, unrecognized type to validate"]'));
+    _error = error.message;
   }
+  console.log(_error);
+  assert(_error.includes('["str type is unrecognized"]'));
 });

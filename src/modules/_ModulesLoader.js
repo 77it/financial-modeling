@@ -1,10 +1,11 @@
-import { validate } from '../deps.js';
+import { validateObj } from '../deps.js';
 
 export class ModulesLoader {
   /** Map containing id (URI/moduleName) as key and a {class: *, cdnURI: string} as value
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
   #defaultClassName = 'Module';
+  /** @type {string[]} */
   errors = [];
 
   constructor () {
@@ -23,7 +24,7 @@ export class ModulesLoader {
       moduleEngineURI: 'string',
       classObj: 'any'
     };
-    validate({ obj: p, validation: validation });
+    validateObj({ obj: p, validation: validation });
 
     const keyModule = ModulesLoader.#repoKeyBuilder(p.moduleEngineURI, p.moduleName)
     if (this.#classesRepo.get(keyModule) === undefined) {
@@ -47,14 +48,14 @@ export class ModulesLoader {
       moduleName: 'string',
       moduleEngineURI: 'string'
     };
-    validate({ obj: p, validation: validation });
+    validateObj({ obj: p, validation: validation });
 
-    const keyModule = ModulesLoader.#repoKeyBuilder(moduleEngineURI, p.moduleName);
+    const keyModule = ModulesLoader.#repoKeyBuilder(p.moduleEngineURI, p.moduleName);
 
     if (this.#classesRepo.get(keyModule) === undefined) {
       try {
         let _cdnURI = p.moduleEngineURI.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
-        if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/')  // If moduleEngineURI is missing or . or /, is set to ./${p.moduleName}.js
+        if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/' || _cdnURI === './')  // If moduleEngineURI is missing or . or /, is set to ./${p.moduleName}.js
           _cdnURI = `./${p.moduleName}.js`;
         else if (isGitHub(_cdnURI))  // If moduleEngineURI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
           _cdnURI = gitHubURI2jsDelivr(_cdnURI);
@@ -128,9 +129,9 @@ export class ModulesLoader {
       moduleName: 'string',
       moduleEngineURI: 'string'
     };
-    validate({ obj: p, validation: validation });
+    validateObj({ obj: p, validation: validation });
 
-    const _ret = this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(moduleEngineURI, moduleName));
+    const _ret = this.#classesRepo.get(ModulesLoader.#repoKeyBuilder(p.moduleEngineURI, p.moduleName));
     if (_ret === undefined)
       return undefined;
     if (_ret.class == null || _ret.cdnURI == null)

@@ -1,4 +1,4 @@
-import { validate } from '../deps.js';
+import { validateObj } from '../deps.js';
 
 /**
  * Returns a ModuleData from a JSON string
@@ -39,7 +39,7 @@ export class ModuleData {
    * @param {{tableName: string, table: Object}[]} p.tables
    */
   constructor (p) {
-    validate(
+    validateObj(
       {
         obj: p,
         validation: {
@@ -52,7 +52,7 @@ export class ModuleData {
         errorMsg: `validation of ModuleData ${p}`,
       });
 
-    validate(
+    validateObj(
       {
         obj: p.tables,
         validation: { tableName: 'string', table: 'object' },
