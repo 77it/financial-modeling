@@ -64,6 +64,7 @@ Deno.test('test validate(), valid, complex object', () => {
       { valA: 'aaaX', valB: { a: 9990 } }],
     obj: { a: 999 },
     fun: () => {console.log('mamma');},
+    any: 999
   };
 
   const validation = {
@@ -74,9 +75,41 @@ Deno.test('test validate(), valid, complex object', () => {
     arr: 'array',
     obj: 'object',
     fun: 'function',
+    any: 'any',
   };
 
   validate({ obj: objToValidate, validation: validation });
+});
+
+Deno.test('test validate(), valid, object with and without optional properties', () => {
+  const validation = {
+    str: 'string?',
+    num: 'number?',
+    bool: 'boolean?',
+    date: 'date?',
+    arr: 'array?',
+    obj: 'object?',
+    fun: 'function?',
+    any: 'any?',
+  };
+
+  const objToValidate = {
+    str: 'string',
+    num: 123,
+    bool: false,
+    date: new Date('1999-12-31T23:59:59'),
+    arr: [
+      { valA: 'aaa', valB: { a: 999 } },
+      { valA: 'aaaX', valB: { a: 9990 } }],
+    obj: { a: 999 },
+    fun: () => {console.log('mamma');},
+    any: 999
+  };
+
+  validate({ obj: objToValidate, validation: validation });
+
+  const emptyObject = {};
+  validate({ obj: emptyObject, validation: validation });
 });
 
 Deno.test('test validate(), valid, nested object', () => {
