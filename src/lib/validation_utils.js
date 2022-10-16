@@ -7,6 +7,10 @@ const NUMBER_TYPE = 'number';
 const BOOLEAN_TYPE = 'boolean';
 const DATE_TYPE = 'date';
 const ARRAY_TYPE = 'array';
+const ARRAY_OF_STRINGS_TYPE = 'array[string]';
+const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
+const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
+const ARRAY_OF_DATES_TYPE = 'array[date]';
 const OBJECT_TYPE = 'object';
 const FUNCTION_TYPE = 'function';
 
@@ -23,7 +27,8 @@ function isPositive (value) {
 // XXX sanitize function: se opzionale (?) e key is missing, non crearla; in ogni altro caso converti in stringa (se == null -> "", ecc).
 
 /**
- * Private validation function of a single value
+ @private
+ * validation function of a single value
  * @param {Object} p
  * @param {*} p.value - Value to validate
  * @param {string} p.validation - Validation string
