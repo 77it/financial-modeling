@@ -33,7 +33,17 @@ https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/d3/v6/index
   } from "https://deno.land/std@0.151.0/testing/asserts.ts";
 */
 
-// JS ledger/SimObject
+
+//#region #Modules init, methods
+/*
+Modules init, input is only one variable, the moduleData of the module
+
+Modules, after init, input is only one variable, the #Ledger object
+*/
+//#endregion #Modules init, methods
+
+
+//#region JS #ledger/#SimObject
 /*
 # SimObject class #SimObject
 * numbers: stored with big.js http://mikemcl.github.io/big.js/
@@ -82,16 +92,10 @@ UnityOfMeasure
   // internally use Big.js
 
 */
-
-/*
-Deno modules from Excel modules:
-* write in Excel relative path of modules
-* command line option of “Deno.exe builder.js” to set the root of modules (./ or https/something) before execution from main.js
-
- */
+//#endregion JS #ledger/#SimObject
 
 
-// SimulationInit (#SimulationInit)
+//#region SimulationInit (#SimulationInit)
 /*
 # commands
 
@@ -106,8 +110,10 @@ Simulation init then:
 * import an online `modulesloader.js`  // #ModulesLoader quindi procede col "dynamic import" dei moduli
 * load `modulesdata.jsonl`, deserializzando riga per riga
 */
+//#endregion SimulationInit (#SimulationInit)
 
-// SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesLoader, #ModulesData)
+
+//#region SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesLoader, #ModulesData)
 /*
 #SimulationEngine accepts ModulesLoader (già inizializzato) and ModuleTables[] as input parameters
 
@@ -128,59 +134,35 @@ Crea possibilità di filtrare nei parametri iniziali di SimulationEngine comandi
 Se in un filtro c'è il valore "" vuol dire che in assenza di tag si intende incluso / escluso.
 
 */
-
-// # Modules (#modules)
-/*
-Modules import the JSDoc type file online, from the file "https://github.com/simulation99/simulation-js/simulation/types/simulation_types.js"
- */
+//#endregion SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesLoader, #ModulesData)
 
 
 //#region Ledger: da main.js riceve alcuni oggetti per scrivere su file
 /*
 * logger_simObjects_writer  // scrive il dump dei SimObjects
-* logger_messages_writer  // scrive un file di messaggi di errore fatale o warning, come lista di stringhe JSON #logger_messages_writer
-* #lock, #variables (#locks #immutable)
+* logger_messages_writer  // scrive un file di messaggi di >Logger o >Throw, come lista di stringhe JSON {type: string [debug|info|warning|error], message: string}
+*/
+//#endregion Ledger: da main.js riceve alcuni oggetti per scrivere su file
 
+
+//#region #Globals (defined inside Ledger) (#variables, #locks)
+/*
 if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
-
 
 Variables/lock are immutable: when defined/set can't be redefined.
 
-Fields:
-* namespace, variable, value
-* Simulation/Global namespace = ""
-* Any unit name is allowed
-
 /////
-get method
-
-(value, optional namespace)
-value can be string or object {value string, namespace string}
+method globalsGet({namespace: optional string, name:string})
 namespace can be null, undefined or "" meaning Simulation/global
+name, string, is the global variable name
 
 /////
-Ledger crea poi la funzione lock `log_message` per consentire ai moduli di scrivere messaggi di tipo: debug, info, warning.  #log_message
-tutti i messaggi sono scritti su SimObject di tipo "debug_", inserendo nella descrizione quel che si vuole (tipo messaggio, valore messaggio, ecc);
-warning sono scritti anche su >logger_messages_writer.
-messaggi di errore non sono previsti, vedi >error
-
-/////
-Lock function
-normalizePrincipal {total, indefinite, plan[{day, amount}]}
-  return squared on last plan day if plan array is present, or on indefinite
-  // internally use Big.js, return numbers
+method globalsSet({namespace: optional string, name: string, value: any})
+namespace can be null, undefined or "" meaning Simulation/global
+name, string, is the global variable name
+value can be string or object
 
 */
-
-// errore, interruzione dell'esecuzione (#error #fatal error #throw)
-/*
-Qualunque modulo che voglia interrompere l'esecuzione del programma per un errore fatale esegue un `throw new Error`, che viene intercettato
-con try catch da main.js, che:
-* scrive su >logger_messages_writer
-* scrive su SimObject di tipo "debug_"
-* scrive su console
-* ovviamente interrompe l'esecuzione
- */
 
 // js lock boolean flag: salesAndPurchasesOnlyVsCash
 /*
@@ -210,16 +192,58 @@ is a list of {Date, rate}, with the sequence of Euribor in the entire simulation
 when the rates are stored in the lock, the module that sets the rate shouldn't save dates before start and after end
 (dates from module/table "Set.SimulationSettings", settings "SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE" and "SIMULATION_END_DATE").
  */
-//#endregion
+//#endregion #Globals (defined inside Ledger) (#variables, #locks)
+
+
+//#region #Logger of debug, info, warning messages (defined inside Ledger)
+/*
+Ledger ha 3 metodi `logDebug`, `logInfo`, `logWarning`  per consentire ai moduli di scrivere messaggi di tipo:
+debug, info, warning.
+
+i messaggi sono scritti su 3 SimObject di tipo "debug_debug", "debug_info", "debug_warning"
+che portano nel campo SimObject.Description quel che si vuole loggare (tipo messaggio, valore messaggio, ecc);
+
+messaggi di errore non sono previsti, vedi >error
+ */
 
 // report debug idea   #debug #idea
 /*
-to debug, create an option in the setting module that set in all SimObjects description the ModuleId from which the SimObject is created.
+for debug purposes, create an option in the setting module that set in all SimObjects.CommandGroup__DebugDescription the ModuleId from which the command group is created.
  */
+//#endregion #Logger of debug, info, warning messages (defined inside Ledger)
 
+
+//#region Ledger other minor methods (#other #minor #extra)
+/*
+today()
+restituisce la data corrente di esecuzione
+
+/////
+
+normalizePrincipal {total, indefinite, plan[{day, amount}]}
+  return squared on last plan day if plan array is present, or on indefinite
+  // internally use Big.js, return numbers
+ */
+//#endregion Ledger other minor methods (#other #minor #extra)
+
+
+//#region errore, interruzione dell'esecuzione (#error #fatal error #throw)
+/*
+Qualunque modulo che voglia interrompere l'esecuzione del programma per un errore fatale esegue un `throw new Error`,
+che viene intercettato con try catch da main.js, che:
+* scrive su >logger_messages_writer
+* scrive su SimObject di tipo "debug_error"
+* scrive su console
+* ovviamente interrompe l'esecuzione
+ */
+//#endregion errore, interruzione dell'esecuzione (#error #fatal error #throw)
+
+
+//#region UI UX GUI idea  #UI #UX GUI idea
 // UI UX GUI idea  #UI #UX GUI idea
 /*
  a partire dal report delta (giornaliero, mensile) generato su Excel
 
 Mostrare grafico giornaliero di EBITDA, cassa ecc a partire dai SimObjects, sommando movimento per movimento i vari SimObjects, e mostrando anche per ogni giorno i SimObjects movimentati
  */
+//#endregion UI UX GUI idea  #UI #UX GUI idea
