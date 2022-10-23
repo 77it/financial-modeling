@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 // tests to be run without type checking
 
 import {

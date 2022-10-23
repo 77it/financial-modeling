@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { validateObj } from './validation_utils.js';
 
 import {
@@ -8,20 +6,20 @@ import {
   assertThrows,
 } from 'https://deno.land/std/testing/asserts.ts';
 
-Deno.test('test validate(), valid, simple object', () => {
+Deno.test('test validateObj(), valid, simple object', () => {
   const objToValidate = { a: 'mamma', b: 99 };
   validateObj({ obj: objToValidate, validation: { a: 'string', b: 'number' } });
 });
 
-Deno.test('test validate(), valid, `any` type', () => {
-  let objToValidate = { a: 'mamma', b: 99 };
+Deno.test('test validateObj(), valid, `any` type', () => {
+  const objToValidate = { a: 'mamma', b: 99 };
   validateObj({ obj: objToValidate, validation: { a: 'any', b: 'number' } });
 
-  objToValidate = { a: 9999, b: 99 };
-  validateObj({ obj: objToValidate, validation: { a: 'any', b: 'number' } });
+  const objToValidate2 = { a: 9999, b: 99 };
+  validateObj({ obj: objToValidate2, validation: { a: 'any', b: 'number' } });
 });
 
-Deno.test('test validate(), not valid, any type is undefined', () => {
+Deno.test('test validateObj(), not valid, any type is undefined', () => {
   const objToValidate = { a: undefined, b: 99 };
 
   const validation = {
@@ -39,7 +37,7 @@ Deno.test('test validate(), not valid, any type is undefined', () => {
   assert(_error.includes('a = undefined, must be !== null or undefined'));
 });
 
-Deno.test('test validate(), not valid, any type is null', () => {
+Deno.test('test validateObj(), not valid, any type is null', () => {
   const objToValidate = { a: null, b: 99 };
 
   const validation = {
@@ -57,7 +55,7 @@ Deno.test('test validate(), not valid, any type is null', () => {
   assert(_error.includes('a = null, must be !== null or undefined'));
 });
 
-Deno.test('test validate(), valid, complex object', () => {
+Deno.test('test validateObj(), valid, complex object', () => {
   const objToValidate = {
     str: 'string',
     num: 123,
@@ -96,13 +94,17 @@ Deno.test('test validate(), valid, complex object', () => {
   validateObj({ obj: objToValidate, validation: validation });
 });
 
-Deno.test('test validate(), valid, object with and without optional properties', () => {
+Deno.test('test validateObj(), valid, object with and without optional types and optional (missing) properties', () => {
   const validation = {
     str: 'string?',
     num: 'number?',
     bool: 'boolean?',
     date: 'date?',
     arr: 'array?',
+    arrStr: 'array[string]?',
+    arrNum: 'array[number]?',
+    arrDate: 'array[date]?',
+    arrBool: 'array[boolean]?',
     obj: 'object?',
     fun: 'function?',
     any: 'any?',
@@ -116,6 +118,10 @@ Deno.test('test validate(), valid, object with and without optional properties',
     arr: [
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }],
+    arrStr: [ 'a', 'b' ],
+    arrNum: [ 99, 0, 55 ],
+    arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ],
+    arrBool: [ false, true ],
     obj: { a: 999 },
     fun: () => {console.log('mamma');},
     any: 999
@@ -127,7 +133,7 @@ Deno.test('test validate(), valid, object with and without optional properties',
   validateObj({ obj: emptyObject, validation: validation });
 });
 
-Deno.test('test validate(), valid, nested object', () => {
+Deno.test('test validateObj(), valid, nested object', () => {
   const objToValidate = {
     str: 'string',
     arr: [
@@ -143,7 +149,7 @@ Deno.test('test validate(), valid, nested object', () => {
   validateObj({ obj: objToValidate.arr[0], validation: validation });
 });
 
-Deno.test('test validate(), valid, objects in array', () => {
+Deno.test('test validateObj(), valid, objects in array', () => {
   const objToValidate = {
     str: 'string',
     arr: [
@@ -159,7 +165,7 @@ Deno.test('test validate(), valid, objects in array', () => {
   validateObj({ obj: objToValidate.arr, validation: validation });
 });
 
-Deno.test('test validate(), not valid, simple object + personalized error message', () => {
+Deno.test('test validateObj(), not valid, simple object + personalized error message', () => {
   const objToValidate = { a: 'mamma', b: 99 };
 
   const validation = {
@@ -178,7 +184,7 @@ Deno.test('test validate(), not valid, simple object + personalized error messag
   assert(_error.includes('personalized error message'));
 });
 
-Deno.test('test validate(), not valid, objects in array', () => {
+Deno.test('test validateObj(), not valid, objects in array', () => {
   const objToValidate = {
     str: 'string',
     arr: [
@@ -205,7 +211,7 @@ Deno.test('test validate(), not valid, objects in array', () => {
   assert(_error.includes('valB = 1, must be an object'));
 });
 
-Deno.test('test validate(), not valid, missing keys', () => {
+Deno.test('test validateObj(), not valid, missing keys', () => {
   const objToValidate = {
     arr: [],
   };
@@ -226,13 +232,21 @@ Deno.test('test validate(), not valid, missing keys', () => {
   assert(_error.includes('["obj is missing","fun is missing"]'));
 });
 
-Deno.test('test validate(), not valid, array is of wrong type', () => {
+Deno.test('test validateObj(), not valid, array is of wrong type', () => {
   const objToValidate = {
     arr: 999,
+    arrStr: [ 'a', 'b', 99 ],
+    arrNum: [ 99, 0, 55, false ],
+    arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59'), 99 ],
+    arrBool: [ false, true, 99 ],
   };
 
   const validation = {
     arr: 'array',
+    arrStr: 'array[string]',
+    arrNum: 'array[number]',
+    arrDate: 'array[date]',
+    arrBool: 'array[boolean]',
   };
 
   let _error;
@@ -242,10 +256,14 @@ Deno.test('test validate(), not valid, array is of wrong type', () => {
     _error = error.message;
   }
   console.log(_error);
-  assert(_error.includes('["arr = 999, must be an array"]'));
+  assert(_error.includes('["arr = 999, must be an array"'));
+  assert(_error.includes('"arrStr array error, [\\"Value = 99, must be string\\"]"'));
+  assert(_error.includes('"arrNum array error, [\\"Value = false, must be a valid number\\"]"'));
+  assert(_error.includes('"arrDate array error, [\\"Value = 99, must be a valid date\\"]"'));
+  assert(_error.includes('"arrBool array error, [\\"Value = 99, must be boolean\\"]"'));
 });
 
-Deno.test('test validate(), not valid, null/undefined/not a str parameter', () => {
+Deno.test('test validateObj(), not valid, null/undefined/not a str parameter', () => {
   const objToValidate = {
     str: null,
     str2: undefined,
@@ -268,7 +286,7 @@ Deno.test('test validate(), not valid, null/undefined/not a str parameter', () =
   assert(_error.includes('["str = null, must be string","str2 = undefined, must be string","str3 = 999, must be string"]'));
 });
 
-Deno.test('test validate(), not valid, null/undefined/NaN/infinity num parameter', () => {
+Deno.test('test validateObj(), not valid, null/undefined/NaN/infinity num parameter', () => {
   const objToValidate = {
     num: null,
     num2: undefined,
@@ -293,7 +311,7 @@ Deno.test('test validate(), not valid, null/undefined/NaN/infinity num parameter
   assert(_error.includes('["num = null, must be a valid number","num2 = undefined, must be a valid number","num3 = NaN, must be a valid number","num4 = Infinity, must be a valid number"]'));
 });
 
-Deno.test('test validate(), not valid, null/undefined/not a date/invalid date parameter', () => {
+Deno.test('test validateObj(), not valid, null/undefined/not a date/invalid date parameter', () => {
   const objToValidate = {
     date: null,
     date2: undefined,
@@ -318,7 +336,7 @@ Deno.test('test validate(), not valid, null/undefined/not a date/invalid date pa
   assert(_error.includes('["date = null, must be a valid date","date2 = undefined, must be a valid date","date3 = 999, must be a valid date","date4 = Invalid Date, must be a valid date"]'));
 });
 
-Deno.test('test validate(), not valid, null/undefined/not a bool parameter', () => {
+Deno.test('test validateObj(), not valid, null/undefined/not a bool parameter', () => {
   const objToValidate = {
     bool: null,
     bool2: undefined,
@@ -341,7 +359,7 @@ Deno.test('test validate(), not valid, null/undefined/not a bool parameter', () 
   assert(_error.includes('["bool = null, must be boolean","bool2 = undefined, must be boolean","bool3 = 999, must be boolean"]'));
 });
 
-Deno.test('test validate(), not valid, null/undefined/not an array parameter', () => {
+Deno.test('test validateObj(), not valid, null/undefined/not an array parameter', () => {
   const objToValidate = {
     arr: null,
     arr2: undefined,
@@ -364,7 +382,7 @@ Deno.test('test validate(), not valid, null/undefined/not an array parameter', (
   assert(_error.includes('["arr = null, must be an array","arr2 = undefined, must be an array","arr3 = 999, must be an array"]'));
 });
 
-Deno.test('test validate(), not valid, null/undefined/not an object parameter', () => {
+Deno.test('test validateObj(), not valid, null/undefined/not an object parameter', () => {
   const objToValidate = {
     obj: null,
     obj2: undefined,
@@ -387,7 +405,7 @@ Deno.test('test validate(), not valid, null/undefined/not an object parameter', 
   assert(_error.includes('["obj = null, must be an object","obj2 = undefined, must be an object","obj3 = 999, must be an object"]'));
 });
 
-Deno.test('test validate(), not valid, null/undefined/not a function parameter', () => {
+Deno.test('test validateObj(), not valid, null/undefined/not a function parameter', () => {
   const objToValidate = {
     fun: null,
     fun2: undefined,
@@ -410,7 +428,7 @@ Deno.test('test validate(), not valid, null/undefined/not a function parameter',
   assert(_error.includes('["fun = null, must be a function","fun2 = undefined, must be a function","fun3 = 999, must be a function"]'));
 });
 
-Deno.test('test validate(), not valid, string instead of object', () => {
+Deno.test('test validateObj(), not valid, string instead of object', () => {
   const notAnObjToValidate = "mamma";
 
   const validation = {
@@ -427,7 +445,7 @@ Deno.test('test validate(), not valid, string instead of object', () => {
   assert(_error.includes('\'obj\' parameter must be an object'));
 });
 
-Deno.test('test validate(), not valid, unknown type', () => {
+Deno.test('test validateObj(), not valid (not existing), unknown type', () => {
   const objToValidate = {str: 'a'};
 
   const validation = {
