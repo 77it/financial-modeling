@@ -8,13 +8,7 @@ import {
   assertThrows,
 } from 'https://deno.land/std/testing/asserts.ts';
 
-import { isInvalidDate, isPositive, validateObj } from './validation_utils.js';
-
-Deno.test('test positive number', () => {
-  assert(isPositive(1));
-  assertFalse(isPositive(-1));
-  assertFalse(isPositive('mamma'));
-});
+import { isInvalidDate, validateObj } from './validation_utils.js';
 
 Deno.test('test valid date', () => {
   assert(isInvalidDate(new Date('not a date')));

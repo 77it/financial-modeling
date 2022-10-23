@@ -413,7 +413,7 @@ Deno.test('test validate(), not valid, string instead of object', () => {
     _error = error.message;
   }
   console.log(_error);
-  assert(_error.includes('["\'obj\' parameter must be an object"]'));
+  assert(_error.includes('\'obj\' parameter must be an object'));
 });
 
 Deno.test('test validate(), not valid, unknown type', () => {
