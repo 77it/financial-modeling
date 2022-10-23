@@ -66,9 +66,15 @@ Deno.test('test validate(), valid, complex object', () => {
     arr: [
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }],
+    arrStr: [ 'a', 'b' ],
+    arrNum: [ 99, 0, 55 ],
+    arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ],
+    arrBool: [ false, true ],
+    arrBoolEmpty: [ ],
     obj: { a: 999 },
     fun: () => {console.log('mamma');},
-    any: 999
+    any: 999,
+    extraValueNotValidated: 999
   };
 
   const validation = {
@@ -77,6 +83,11 @@ Deno.test('test validate(), valid, complex object', () => {
     bool: 'boolean',
     date: 'date',
     arr: 'array',
+    arrStr: 'array[string]',
+    arrNum: 'array[number]',
+    arrDate: 'array[date]',
+    arrBool: 'array[boolean]',
+    arrBoolEmpty: 'array[boolean]',
     obj: 'object',
     fun: 'function',
     any: 'any',
