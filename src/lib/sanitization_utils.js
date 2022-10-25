@@ -7,6 +7,12 @@
  */
 export function sanitize (p, sanitizeInvalid) {
   //XXX togliere parametro sanitizeInvalid
+  //
+  // xxx conversione in data:
+  // se stringa, usa parseJSON da C:\e3\@gitwk\PUBLIC\financial-modeling\src\lib\date_utils.js
+  // se numero, usa new Date(numero)
+  // se data, usa la conversione sotto
+
   if (sanitizeInvalid) {
     return {
       // Set to '' when whitespaces, '', null, undefined, false, 0, -0, 0n, NaN.
