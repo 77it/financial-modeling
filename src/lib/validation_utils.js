@@ -1,5 +1,6 @@
 export { isInvalidDate } from './date_utils.js';
 export { validate, validateObj };
+export { sanitize } from './sanitization_utils.js';
 
 //#region types
 const ANY_TYPE = 'any';
