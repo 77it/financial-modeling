@@ -68,6 +68,36 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   validate({ value: { a: 999 }, validation: 'object?' });
   validate({ value: () => {console.log('mamma');}, validation: 'function?' });
   validate({ value: 999, validation: 'any?' });
+
+  let nullOrUndefined = null;
+  validate({ value: nullOrUndefined, validation: 'string?' });
+  validate({ value: nullOrUndefined, validation: 'number?' });
+  validate({ value: nullOrUndefined, validation: 'boolean?' });
+  validate({ value: nullOrUndefined, validation: 'date?' });
+  validate({ value: nullOrUndefined, validation: 'array?' });
+  validate({ value: nullOrUndefined, validation: 'array[string]?' });
+  validate({ value: nullOrUndefined, validation: 'array[number]?' });
+  validate({ value: nullOrUndefined, validation: 'array[date]?' });
+  validate({ value: nullOrUndefined, validation: 'array[boolean]?' });
+  validate({ value: nullOrUndefined, validation: 'array[boolean]?' });  // empty array
+  validate({ value: nullOrUndefined, validation: 'object?' });
+  validate({ value: nullOrUndefined, validation: 'function?' });
+  validate({ value: nullOrUndefined, validation: 'any?' });
+
+  nullOrUndefined = undefined;
+  validate({ value: nullOrUndefined, validation: 'string?' });
+  validate({ value: nullOrUndefined, validation: 'number?' });
+  validate({ value: nullOrUndefined, validation: 'boolean?' });
+  validate({ value: nullOrUndefined, validation: 'date?' });
+  validate({ value: nullOrUndefined, validation: 'array?' });
+  validate({ value: nullOrUndefined, validation: 'array[string]?' });
+  validate({ value: nullOrUndefined, validation: 'array[number]?' });
+  validate({ value: nullOrUndefined, validation: 'array[date]?' });
+  validate({ value: nullOrUndefined, validation: 'array[boolean]?' });
+  validate({ value: nullOrUndefined, validation: 'array[boolean]?' });  // empty array
+  validate({ value: nullOrUndefined, validation: 'object?' });
+  validate({ value: nullOrUndefined, validation: 'function?' });
+  validate({ value: nullOrUndefined, validation: 'any?' });
 });
 
 Deno.test('test validate(), not valid, all cases', () => {

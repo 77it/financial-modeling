@@ -1,6 +1,4 @@
-export { isInvalidDate } from './date_utils.js';
 export { validate, validateObj };
-export { sanitize } from './sanitization_utils.js';
 
 //#region types
 const ANY_TYPE = 'any';
@@ -18,8 +16,6 @@ const FUNCTION_TYPE = 'function';
 //#endregion types
 
 const SUCCESS = '';
-
-// XXX sanitize function: se opzionale (?) e key is missing, non crearla; in ogni altro caso converti in stringa (se == null -> "", ecc).
 
 /**
  @private
@@ -39,15 +35,13 @@ function _validateValue ({ value, validation, errorMsg }) {
   if (errorMsg == null) errorMsg = 'Value';
 
   let optionalValidation = false;
-  let validationType = SUCCESS;
+  let validationType = validation.toString().trim().toLowerCase();
   if (validation.trim().slice(-1) === '?') {
     optionalValidation = true;
     validationType = validation.toString().trim().toLowerCase().slice(0, -1);
-  } else {
-    validationType = validation.toString().trim().toLowerCase();
   }
 
-  if (value === undefined && optionalValidation) {  // if value to validate is undefined and validation is optional, return success
+  if (value == null && optionalValidation) {  // if value to validate is null/undefined and validation is optional, return success
     return SUCCESS;
   }
 
@@ -196,9 +190,10 @@ function _validateObj ({ obj, validation }) {
 /**
  * Validate value, throw error for validation error.
  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function'; class is 'function', class instance is 'object'.
+ * For optional values (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?'.
  * @param {Object} p
  * @param {*} p.value - Value to validate
- * @param {string} p.validation - Validation string
+ * @param {string} p.validation - Validation type
  * @param {string} [p.errorMsg] - Optional error message
  */
 // see https://github.com/iarna/aproba for inspiration
@@ -221,9 +216,10 @@ function validate ({ value, validation, errorMsg }) {
 /**
  * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function'; class is 'function', class instance is 'object'.
+ * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?'.
  * @param {Object} p
  * @param {*} p.obj - Object to validate
- * @param {*} p.validation - Validation object {key1: 'typeA', key2: 'typeB'}
+ * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}
  * @param {string} [p.errorMsg] - Optional error message
  */
 // see https://github.com/iarna/aproba for inspiration

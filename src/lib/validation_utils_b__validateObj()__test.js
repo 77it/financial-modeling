@@ -131,6 +131,22 @@ Deno.test('test validateObj(), valid, object with and without optional types and
 
   const emptyObject = {};
   validateObj({ obj: emptyObject, validation: validation });
+
+  const nullObject = {
+    str: null,
+    num: null,
+    bool: null,
+    date: null,
+    arr: null,
+    arrStr: null,
+    arrNum: null,
+    arrDate: null,
+    arrBool: null,
+    obj: null,
+    fun: null,
+    any: null
+  };
+  validateObj({ obj: nullObject, validation: validation });
 });
 
 Deno.test('test validateObj(), valid, nested object', () => {
