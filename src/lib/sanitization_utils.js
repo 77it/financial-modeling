@@ -1,5 +1,5 @@
 export { sanitize };
-import { parseJSON } from "./date_utils.js";
+import { parseJSON } from './date_utils.js';
 
 //#region types
 const ANY_TYPE = 'any';
@@ -14,19 +14,22 @@ const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
 const ARRAY_OF_DATES_TYPE = 'array[date]';
 const OBJECT_TYPE = 'object';
 const FUNCTION_TYPE = 'function';
+
 //#endregion types
 
 /**
  * Sanitize value.
  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function'; class is 'function', class instance is 'object'.
  * For optional values (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?'.
- * Object, function, class are ignored and returned as is. Array are cloned before returning them. A non-array value sanitized to array becomes an array with the value added as first element.
+ * Any, object, function, class are ignored and returned as is.
+ * Array are sanitized without cloning them.
+ * A non-array value sanitized to array becomes an array with the value added as first element.
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
  * @param {string} p.sanitization - Sanitization string
  * @return {*} Sanitized value
  */
-function sanitize ({ value, sanitization}) {
+function sanitize ({ value, sanitization }) {
   if (typeof sanitization !== 'string')
     throw new Error(`'sanitization' parameter must be a string`);
 
@@ -41,9 +44,9 @@ function sanitize ({ value, sanitization}) {
     return value;
   }
 
-  switch (sanitizationType) {  // switch validations
+  switch (sanitizationType) {  // switch sanitizations
     case ANY_TYPE:
-      return value;
+      return value;  // return value as is without sanitization
     case STRING_TYPE:
       // Set to '' when whitespaces, '', null, undefined, false, 0, -0, 0n, NaN.
       // First condition to check truthy (not: false, 0, -0, 0n, "", null, undefined, and NaN)
@@ -59,67 +62,44 @@ function sanitize ({ value, sanitization}) {
         _value = parseJSON(value);
       return isNaN(new Date(_value).getTime()) ? new Date(0) : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJSON` can return a not valid date
     case ARRAY_TYPE:
-      if (!Array.isArray(value))
-        return `${errorMsg} = ${value}, must be an array`;
-      return SUCCESS;
+      if (!Array.isArray(value))  // if `value` is not an array return a new array with `value` as first element
+        return [value];
+      return value;
     case ARRAY_OF_STRINGS_TYPE: {
-      const validationResult = _validateArray({ array: value, validation: STRING_TYPE });
-      if (validationResult)
-        return `${errorMsg} array error, ${validationResult}`;
-      return SUCCESS;
+      return _sanitizeArray({ array: value, sanitization: STRING_TYPE });
     }
     case ARRAY_OF_NUMBERS_TYPE: {
-      const validationResult = _validateArray({ array: value, validation: NUMBER_TYPE });
-      if (validationResult)
-        return `${errorMsg} array error, ${validationResult}`;
-      return SUCCESS;
+      return _sanitizeArray({ array: value, sanitization: NUMBER_TYPE });
     }
     case ARRAY_OF_BOOLEANS_TYPE: {
-      const validationResult = _validateArray({ array: value, validation: BOOLEAN_TYPE });
-      if (validationResult)
-        return `${errorMsg} array error, ${validationResult}`;
-      return SUCCESS;
+      return _sanitizeArray({ array: value, sanitization: BOOLEAN_TYPE });
     }
     case ARRAY_OF_DATES_TYPE: {
-      const validationResult = _validateArray({ array: value, validation: DATE_TYPE });
-      if (validationResult)
-        return `${errorMsg} array error, ${validationResult}`;
-      return SUCCESS;
+      return _sanitizeArray({ array: value, sanitization: DATE_TYPE });
     }
     case OBJECT_TYPE:
-      if (value == null || typeof value !== 'object')  // double check, because typeof null is object
-        return `${errorMsg} = ${value}, must be an object`;
-      return SUCCESS;
+      return value;  // return value as is without sanitization
     case FUNCTION_TYPE:
-      if (typeof value !== 'function')
-        return `${errorMsg} = ${value}, must be a function`;
-      return SUCCESS;
+      return value;  // return value as is without sanitization
     default:
-      return `${errorMsg} type is unrecognized`;
+      throw new Error(`sanitization error, ${sanitizationType} type is unrecognized`);
   }
 
   /**
-   * Internal validation function
+   * Internal sanitization function
    * @param {Object} p
-   * @param {[*]} p.array - Array to validate
-   * @param {string} p.validation - Validation string
+   * @param {[*]} p.array - Array to sanitize
+   * @param {string} p.sanitization - Sanitization string
+   * @return {*} Sanitized array
    */
-  function _validateArray ({ array, validation}) {
-    /** @type {string[]} */
-    const errors = [];
+  function _sanitizeArray ({ array, sanitization }) {
+    if (!Array.isArray(array))  // if `value` is not an array return a new array with `value` as first element
+      return [sanitize({ value: array, sanitization: sanitization })];
 
-    if (!Array.isArray(array))
-      return `must be an array`;
-
-    for (const elem of array) {
-      const validationResult = _validateValue({
-        value: elem,
-        validation: validation
-      });
-      if (validationResult) errors.push(validationResult);
+    for (let i = 0; i < array.length; i++) {  // sanitize every element of the array
+      array[i] = sanitize({ value: array[i], sanitization: sanitization });
     }
-    if (errors.length > 0)
-      return (JSON.stringify(errors));
-    return SUCCESS;
+
+    return array;
   }
 }
