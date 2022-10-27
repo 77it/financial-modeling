@@ -1,18 +1,19 @@
 export { validate, validateObj };
 
 //#region types
-const ANY_TYPE = 'any';
-const STRING_TYPE = 'string';
-const NUMBER_TYPE = 'number';
-const BOOLEAN_TYPE = 'boolean';
-const DATE_TYPE = 'date';
-const ARRAY_TYPE = 'array';
-const ARRAY_OF_STRINGS_TYPE = 'array[string]';
-const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
-const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
-const ARRAY_OF_DATES_TYPE = 'array[date]';
-const OBJECT_TYPE = 'object';
-const FUNCTION_TYPE = 'function';
+export const ANY_TYPE = 'any';
+export const STRING_TYPE = 'string';
+export const NUMBER_TYPE = 'number';
+export const BOOLEAN_TYPE = 'boolean';
+export const DATE_TYPE = 'date';
+export const ARRAY_TYPE = 'array';
+export const ARRAY_OF_STRINGS_TYPE = 'array[string]';
+export const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
+export const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
+export const ARRAY_OF_DATES_TYPE = 'array[date]';
+export const OBJECT_TYPE = 'object';
+export const FUNCTION_TYPE = 'function';
+export const SYMBOL_TYPE = 'symbol';
 //#endregion types
 
 const SUCCESS = '';
@@ -102,6 +103,10 @@ function _validateValue ({ value, validation, errorMsg }) {
       if (typeof value !== 'function')
         return `${errorMsg} = ${value}, must be a function`;
       return SUCCESS;
+    case SYMBOL_TYPE:
+      if (typeof value !== 'symbol')
+        return `${errorMsg} = ${value}, must be a symbol`;
+      return SUCCESS;
     default:
       return `${errorMsg} type is unrecognized`;
   }
@@ -189,8 +194,9 @@ function _validateObj ({ obj, validation }) {
 
 /**
  * Validate value, throw error for validation error.
- * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function'; class is 'function', class instance is 'object'.
- * For optional values (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?'.
+ * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
+ * For optional values (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
+ * As types you can use also exported const as 'ANY_TYPE'.
  * @param {Object} p
  * @param {*} p.value - Value to validate
  * @param {string} p.validation - Validation type
@@ -215,8 +221,9 @@ function validate ({ value, validation, errorMsg }) {
 
 /**
  * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
- * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function'; class is 'function', class instance is 'object'.
- * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?'.
+ * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
+ * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
+ * As types you can use also exported const as 'ANY_TYPE'.
  * @param {Object} p
  * @param {*} p.obj - Object to validate
  * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}

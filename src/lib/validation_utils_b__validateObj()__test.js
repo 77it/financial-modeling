@@ -1,4 +1,5 @@
 import { validateObj } from './validation_utils.js';
+import * as Validation from './validation_utils.js';
 
 import {
   assert,
@@ -72,23 +73,25 @@ Deno.test('test validateObj(), valid, complex object', () => {
     obj: { a: 999 },
     fun: () => {console.log('mamma');},
     any: 999,
+    symbol: Symbol(),
     extraValueNotValidated: 999
   };
 
   const validation = {
-    str: 'string',
-    num: 'number',
-    bool: 'boolean',
-    date: 'date',
-    arr: 'array',
-    arrStr: 'array[string]',
-    arrNum: 'array[number]',
-    arrDate: 'array[date]',
-    arrBool: 'array[boolean]',
-    arrBoolEmpty: 'array[boolean]',
-    obj: 'object',
-    fun: 'function',
-    any: 'any',
+    str: Validation.STRING_TYPE,
+    num: Validation.NUMBER_TYPE,
+    bool: Validation.BOOLEAN_TYPE,
+    date: Validation.DATE_TYPE,
+    arr: Validation.ARRAY_TYPE,
+    arrStr: Validation.ARRAY_OF_STRINGS_TYPE,
+    arrNum: Validation.ARRAY_OF_NUMBERS_TYPE,
+    arrDate: Validation.ARRAY_OF_DATES_TYPE,
+    arrBool: Validation.ARRAY_OF_BOOLEANS_TYPE,
+    arrBoolEmpty: Validation.ARRAY_OF_BOOLEANS_TYPE,
+    obj: Validation.OBJECT_TYPE,
+    fun: Validation.FUNCTION_TYPE,
+    symbol: Validation.SYMBOL_TYPE,
+    any: Validation.ANY_TYPE,
   };
 
   validateObj({ obj: objToValidate, validation: validation });
@@ -124,6 +127,7 @@ Deno.test('test validateObj(), valid, object with and without optional types and
     arrBool: [ false, true ],
     obj: { a: 999 },
     fun: () => {console.log('mamma');},
+    symbol: Symbol(),
     any: 999
   };
 
@@ -144,6 +148,7 @@ Deno.test('test validateObj(), valid, object with and without optional types and
     arrBool: null,
     obj: null,
     fun: null,
+    symbol: null,
     any: null
   };
   validateObj({ obj: nullObject, validation: validation });
