@@ -12,8 +12,8 @@ export function isInvalidDate (value) {
 }
 
 
-// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license)
-// added parse of date on 3 fields YYYY-MM-DD
+// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license);
+// added: parse of date on 3 fields YYYY-MM-DD, trim(), updated regex expression to match start/end of the row
 /**
  * @name parseJSON
  * @category Common Helpers

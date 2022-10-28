@@ -75,7 +75,7 @@ function sanitize ({ value, sanitization }) {
     case DATE_TYPE:
       try {
         let _value = value;
-        if (typeof value !== 'string')  // if `value` is string, replace `_value` with a date from a parsed string
+        if (typeof value === 'string')  // if `value` is string, replace `_value` with a date from a parsed string
           _value = parseJSON(value);
         return isNaN(new Date(_value).getTime())
           ? new Date(0) : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJSON` can return a not valid date
