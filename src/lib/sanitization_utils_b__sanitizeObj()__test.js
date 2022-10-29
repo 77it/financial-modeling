@@ -86,7 +86,10 @@ Deno.test('test sanitizeObj()', async (t) => {
       fun: _fun,
       any: 999,
       symbol: _sym,
-      extraValueMissingRequired: ''
+      extraValueMissingRequiredStr: '',
+      extraValueMissingRequiredNum: 0,
+      extraValueMissingRequiredBool: false,
+      extraValueMissingRequiredDate: new Date(0),
     };
 
     const sanitization = {
@@ -108,7 +111,10 @@ Deno.test('test sanitizeObj()', async (t) => {
       fun: S.FUNCTION_TYPE,
       symbol: S.SYMBOL_TYPE,
       any: S.ANY_TYPE,
-      extraValueMissingRequired: S.STRING_TYPE,
+      extraValueMissingRequiredStr: S.STRING_TYPE,
+      extraValueMissingRequiredNum: S.NUMBER_TYPE,
+      extraValueMissingRequiredBool: S.BOOLEAN_TYPE,
+      extraValueMissingRequiredDate: S.DATE_TYPE,
       extraValueMissingNotRequired: S.STRING_TYPE + '?'
     };
 
