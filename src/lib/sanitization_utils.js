@@ -74,6 +74,8 @@ function sanitize ({ value, sanitization }) {
       return Boolean(value);
     case DATE_TYPE:
       try {
+        if (!(value instanceof Date) && !(typeof value === 'string')) // return empty date if type of value is not Date or String
+          return new Date(0);
         let _value = value;
         if (typeof value === 'string')  // if `value` is string, replace `_value` with a date from a parsed string
           _value = parseJSON(value);
