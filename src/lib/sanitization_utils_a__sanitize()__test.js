@@ -25,6 +25,7 @@ Deno.test('test sanitize()', async (t) => {
     const t = S.STRING_TYPE;
     assertEquals('', S.sanitize({value: undefined, sanitization: t}));
     assertEquals('', S.sanitize({value: null, sanitization: t}));
+    assertEquals('0', S.sanitize({value: 0, sanitization: t}));
     assertEquals('999', S.sanitize({value: 999, sanitization: t}));
     assertEquals('', S.sanitize({value: '', sanitization: t}));
     assertEquals('abc', S.sanitize({value: 'abc', sanitization: t}));

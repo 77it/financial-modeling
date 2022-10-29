@@ -1,4 +1,4 @@
-export { sanitize };
+export { sanitize, sanitizeObj };
 import { parseJSON } from './date_utils.js';
 
 //#region types
@@ -35,17 +35,17 @@ function sanitize ({ value, sanitization }) {
   if (typeof sanitization !== 'string')
     throw new Error(`'sanitization' parameter must be a string`);
 
-  let optionalValidation = false;
+  let optionalSanitization = false;
   let sanitizationType = sanitization.toString().trim().toLowerCase();
   if (sanitization.trim().slice(-1) === '?') {
-    optionalValidation = true;
+    optionalSanitization = true;
     sanitizationType = sanitization.toString().
       trim().
       toLowerCase().
       slice(0, -1);
   }
 
-  if (value == null && optionalValidation) {  // if value to validate is null/undefined and validation is optional, return value without sanitization
+  if (value == null && optionalSanitization) {  // if value to validate is null/undefined and validation is optional, return value without sanitization
     return value;
   }
 
@@ -56,6 +56,8 @@ function sanitize ({ value, sanitization }) {
       try {
         if (value instanceof Date)
           return value.toISOString();
+        else if (typeof value === 'number' && isFinite(value))
+          return String(value);
         else
           // Set to '' when whitespaces, '', null, undefined, false, 0, -0, 0n, NaN.
           // First condition to check truthy (not: false, 0, -0, 0n, "", null, undefined, and NaN)
@@ -127,5 +129,56 @@ function sanitize ({ value, sanitization }) {
     }
 
     return array;
+  }
+}
+
+
+/**
+ * Sanitize Object. 
+ * If obj is array, the sanitization is done on contained objects.
+ * If obj is null/undefined or other non-objects returns empty object {}.
+ * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
+ * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
+ * As types you can use also exported const as 'ANY_TYPE'.
+ * Any, object, function, class are ignored and returned as is.
+ * Array are sanitized without cloning them.
+ * A non-array value sanitized to array becomes an array with the value added as first element.
+ * @param {Object} p
+ * @param {*} p.obj - Object to validate
+ * @param {*} p.sanitization - Sanitization object {key1: 'string', key2: 'number?'}
+ * @return {*} Sanitized object
+ */
+function sanitizeObj ({ obj, sanitization }) {
+  if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
+    return { };  // return an empty object if `obj` is not an object
+  if (sanitization == null || typeof sanitization !== 'object')  // double check, because typeof null is object
+    return obj;
+
+  if (Array.isArray(obj)) {
+    for (const elem of obj) {
+      for (let i = 0; i < obj.length; i++) {  // sanitize every element of the array
+        obj[i] = _sanitizeObj2(obj[i]);
+      }
+    }
+  } else
+    return _sanitizeObj2(obj);
+
+  /**
+   * Internal validation function
+   * @param {*} _obj - Object to validate
+   * @return {*} Sanitized object
+   */
+  function _sanitizeObj2 (_obj) {
+    for (const key of Object.keys(sanitization)) {
+
+      const optionalSanitization = (sanitization[key].toString().trim().slice(-1) === '?');
+
+      // if validation key is missing in the object to validate and the validation is optional, skip validation
+      if (!(key in _obj) && optionalSanitization)
+        continue;
+
+      _obj[key] = sanitize({value: _obj[key], sanitization: sanitization[key]});
+    }
+    return _obj;
   }
 }
