@@ -19,9 +19,23 @@ describe('isInvalidDate', () => {
 })
 
 
-describe('parseJSON', () => {
-    it('short date', () => {
+describe('parseJSON #1', () => {
+    it('short date 2021-01-09', () => {
         const date = '2021-01-09';
+        const parsedDate = parseJSON(date);
+        const expectedDate = '2021-01-09T00:00:00.000Z';
+        assert.strictEqual(parsedDate.toISOString(), expectedDate);
+    })
+
+    it('short date 2021/01/09', () => {
+        const date = '2021/01/09';
+        const parsedDate = parseJSON(date);
+        const expectedDate = '2021-01-09T00:00:00.000Z';
+        assert.strictEqual(parsedDate.toISOString(), expectedDate);
+    })
+
+    it('short date 2021.01.09', () => {
+        const date = '2021.01.09';
         const parsedDate = parseJSON(date);
         const expectedDate = '2021-01-09T00:00:00.000Z';
         assert.strictEqual(parsedDate.toISOString(), expectedDate);
@@ -72,7 +86,7 @@ describe('parseJSON', () => {
 
 
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/test.ts
-describe('parseJSON', () => {
+describe('parseJSON #2', () => {
     it('parses a formatted date with an hour of offset back to UTC - issue 2149', () => {
         const date = '2021-01-09T13:18:10.873+01:00'
         const expectedDate = new Date('2021-01-09T12:18:10.873Z')
@@ -187,7 +201,7 @@ describe('parseJSON', () => {
     it('returns an invalid date for anything else', () => {
         assert.strictEqual(parseJSON('').toString(), 'Invalid Date')
         assert.strictEqual(parseJSON('invalid').toString(), 'Invalid Date')
-        assert.strictEqual(parseJSON('2020/10/10').toString(), 'Invalid Date')
+        assert.strictEqual(parseJSON('2020\\10\\10').toString(), 'Invalid Date')
     })
 })
 

@@ -35,6 +35,10 @@ function isInvalidDate (value) {
  * - `2000-03-15T05:20:10.1234567`: Up to 7 digits in milliseconds field. Only first 3 are taken into account since JS does not allow fractional milliseconds
  * - `2000-03-15 05:20:10`: With a space instead of a 'T' separator for APIs returning a SQL date without reformatting
  *
+ * Furthermore, are supported:
+ * - `2000-03-15`
+ * - `2000/03/15`
+ * - `2000.03.15`
  * Any other input type or invalid date strings will return an `Invalid Date`.
  *
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
@@ -44,8 +48,14 @@ function parseJSON (argument) {
   const parts = argument.trim().match(
     /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/
   );
-  const partsYYYYMMDD = argument.trim().match(
+  const partsYYYYMMDD_minus = argument.trim().match(
     /^(\d{4})-(\d{2})-(\d{2})$/
+  );
+  const partsYYYYMMDD_slash = argument.trim().match(
+    /^(\d{4})\/(\d{2})\/(\d{2})$/
+  );
+  const partsYYYYMMDD_dot = argument.trim().match(
+    /^(\d{4})\.(\d{2})\.(\d{2})$/
   );
   if (parts) {
     // Group 8 matches the sign
@@ -60,13 +70,31 @@ function parseJSON (argument) {
         +((parts[7] || '0') + '00').substring(0, 3)
       )
     );
-  } else if (partsYYYYMMDD) {
+  } else if (partsYYYYMMDD_minus) {
     // YYYY-MM-DD date
     return new Date(
       Date.UTC(
-        +partsYYYYMMDD[1],
-        +partsYYYYMMDD[2] - 1,
-        +partsYYYYMMDD[3]
+        +partsYYYYMMDD_minus[1],
+        +partsYYYYMMDD_minus[2] - 1,
+        +partsYYYYMMDD_minus[3]
+      )
+    );
+  } else if (partsYYYYMMDD_slash) {
+    // YYYY/MM/DD date
+    return new Date(
+      Date.UTC(
+        +partsYYYYMMDD_slash[1],
+        +partsYYYYMMDD_slash[2] - 1,
+        +partsYYYYMMDD_slash[3]
+      )
+    );
+  } else if (partsYYYYMMDD_dot) {
+    // YYYY.MM.DD date
+    return new Date(
+      Date.UTC(
+        +partsYYYYMMDD_dot[1],
+        +partsYYYYMMDD_dot[2] - 1,
+        +partsYYYYMMDD_dot[3]
       )
     );
   }
