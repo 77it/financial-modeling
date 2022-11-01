@@ -1,16 +1,17 @@
+export { isInvalidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate };
+
 /**
  * To check whether the date is valid
  * @param {*} value
- * @returns {Boolean}
+ * @returns {boolean}
  */
 // see from https://stackoverflow.com/a/44198641/5288052 + https://stackoverflow.com/questions/643782/how-to-check-whether-an-object-is-a-date
-export function isInvalidDate (value) {
+function isInvalidDate (value) {
   if (value instanceof Date) {
     return isNaN(value.getTime());
   }
   return true;  // is not a date
 }
-
 
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license);
 // added: parse of date on 3 fields YYYY-MM-DD, trim(), updated regex expression to match start/end of the row
@@ -36,10 +37,10 @@ export function isInvalidDate (value) {
  *
  * Any other input type or invalid date strings will return an `Invalid Date`.
  *
- * @param {String} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
+ * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
  * @returns {Date} the parsed date in the local time zone
  */
-export function parseJSON (argument) {
+function parseJSON (argument) {
   const parts = argument.trim().match(
     /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/
   );
@@ -59,8 +60,7 @@ export function parseJSON (argument) {
         +((parts[7] || '0') + '00').substring(0, 3)
       )
     );
-    }
-  else if (partsYYYYMMDD) {
+  } else if (partsYYYYMMDD) {
     // YYYY-MM-DD date
     return new Date(
       Date.UTC(
@@ -73,7 +73,7 @@ export function parseJSON (argument) {
   return new Date(NaN);
 }
 
-// ispired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/index.ts (MIT license)
+// Inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/index.ts (MIT license)
 // & https://stackoverflow.com/a/15289883/5288052
 /**
  * @description
@@ -82,7 +82,7 @@ export function parseJSON (argument) {
  *
  * @param {Date} dateLeft - the later date
  * @param {Date} dateRight - the earlier date
- * @returns {Number} the number of calendar days
+ * @returns {number} the number of calendar days
  *
  * @example
  * // How many calendar days are between
@@ -100,7 +100,7 @@ export function parseJSON (argument) {
  * )
  * //=> 1
  */
-export function differenceInCalendarDays (
+function differenceInCalendarDays (
   dateLeft,
   dateRight
 ) {
@@ -135,5 +135,65 @@ export function differenceInCalendarDays (
     const _date = new Date(date.getTime());  // clone the date
     _date.setHours(0, 0, 0, 0);
     return _date;
+  }
+}
+
+/**
+ * @description
+ * Get the number of days between the given UTC dates. This means that the times are removed
+ * from the dates and then the difference in days is calculated.
+ *
+ * @param {Date} dateLeft - the later date
+ * @param {Date} dateRight - the earlier date
+ * @returns {number} the number of calendar days
+ *
+ * @example
+ * See differenceInCalendarDays
+ */
+function differenceInUTCCalendarDays (
+  dateLeft,
+  dateRight,
+) {
+  const MILLISECONDS_IN_DAY = 86400000;
+
+  const startOfDayLeft = startOfDay(dateLeft);
+  const startOfDayRight = startOfDay(dateRight);
+
+  const timestampLeft = startOfDayLeft.getTime();
+  const timestampRight = startOfDayRight.getTime();
+
+  // Round the number of days to the nearest integer
+  // because the number of milliseconds in a day is not constant
+  // (e.g. it's different in the day of the daylight saving time clock shift)
+  return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY);
+
+  // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts
+  /**
+   * @description
+   * Return the start of a day for the given date.
+   * The result will be in UTC timezone.
+   *
+   * @param {Date} date - the original date
+   * @returns {Date} the start of a day
+   */
+  function startOfDay (date) {
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));  // clone the UTC date without hours/min/sec
+  }
+}
+
+/**
+ * @description
+ * Convert Excel serial date (1900 date system) to UTC date.
+ * If conversion fails, return an invalid date.
+ * See https://docs.microsoft.com/en-us/office/troubleshoot/excel/1900-and-1904-date-system
+ *
+ * @param {number} excelSerialDate
+ * @returns {Date} the converted UTC date
+ */
+function excelSerialDateToUTCDate (excelSerialDate) {
+  try {
+    return new Date(Date.UTC(0, 0, excelSerialDate - 1));  // See https://stackoverflow.com/a/67130235/5288052
+  } catch (_) {
+    return new Date(NaN);
   }
 }

@@ -75,7 +75,7 @@ Deno.test('test sanitize()', async (t) => {
     const t = S.DATE_TYPE;
     assertEquals(new Date(0), S.sanitize({value: undefined, sanitization: t}));
     assertEquals(new Date(0), S.sanitize({value: null, sanitization: t}));
-    assertEquals(new Date(0), S.sanitize({value: 999, sanitization: t}));
+    assertEquals(new Date(Date.UTC(2022, 11, 25)), S.sanitize({value: 44920, sanitization: t}));
     assertEquals(new Date(0), S.sanitize({value: '', sanitization: t}));
     assertEquals(new Date(0), S.sanitize({value: 'abc', sanitization: t}));
     assertEquals(new Date(2022, 11, 25), S.sanitize({value: new Date(2022, 11, 25), sanitization: t}));
@@ -86,7 +86,7 @@ Deno.test('test sanitize()', async (t) => {
     const t2 = t + '?';
     assertEquals(undefined, S.sanitize({value: undefined, sanitization: t2}));
     assertEquals(null, S.sanitize({value: null, sanitization: t2}));
-    assertEquals(new Date(0), S.sanitize({value: 999, sanitization: t2}));
+    assertEquals(new Date(Date.UTC(2022, 11, 25)), S.sanitize({value: 44920, sanitization: t2}));
   });
 
   await t.step("array type", async () => {
@@ -163,10 +163,10 @@ Deno.test('test sanitize()', async (t) => {
   await t.step("array of dates type", async () => {
     const t = S.ARRAY_OF_DATES_TYPE;
     assertEquals([new Date(2022, 11, 25), new Date(Date.UTC(2022, 11, 25, 0, 0, 0)), new Date(Date.UTC(2022, 11, 25, 0, 0, 0))], S.sanitize({value: [new Date(2022, 11, 25),'2022-12-25T00:00:00.000Z','2022-12-25'], sanitization: t}));
-    assertEquals([new Date(0),new Date(0),new Date(0)], S.sanitize({value: [1,2,'a'], sanitization: t}));
+    assertEquals([new Date(Date.UTC(2022, 11, 25)),new Date(Date.UTC(1975, 0, 1)),new Date(0)], S.sanitize({value: [44920, 27395,'a'], sanitization: t}));
     assertEquals([new Date(0)], S.sanitize({value: undefined, sanitization: t}));
     assertEquals([new Date(0)], S.sanitize({value: null, sanitization: t}));
-    assertEquals([new Date(0)], S.sanitize({value: 999, sanitization: t}));
+    assertEquals([new Date(Date.UTC(2022, 11, 25))], S.sanitize({value: 44920, sanitization: t}));
     assertEquals([new Date(0)], S.sanitize({value: '', sanitization: t}));
     assertEquals([new Date(0)], S.sanitize({value: 'abc', sanitization: t}));
     assertEquals([new Date(2022, 11, 25)], S.sanitize({value: new Date(2022, 11, 25), sanitization: t}));
@@ -176,7 +176,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals([new Date(0), new Date(Date.UTC(2022, 11, 25, 0, 0, 0)), new Date(Date.UTC(2022, 11, 25, 0, 0, 0))], S.sanitize({value: [undefined,'2022-12-25T00:00:00.000Z','2022-12-25'], sanitization: t}));
     assertEquals(undefined, S.sanitize({value: undefined, sanitization: t2}));
     assertEquals(null, S.sanitize({value: null, sanitization: t2}));
-    assertEquals([new Date(0)], S.sanitize({value: 999, sanitization: t2}));
+    assertEquals([new Date(Date.UTC(2022, 11, 25))], S.sanitize({value: 44920, sanitization: t2}));
     assertEquals([new Date(2022, 11, 25)], S.sanitize({value: new Date(2022, 11, 25), sanitization: t}));
   });
 

@@ -1,6 +1,7 @@
-import {assert as assertDeno, assertEquals, assertStrictEquals, assertThrows} from "https://deno.land/std@0.139.0/testing/asserts.ts";
+import {isInvalidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate} from "./date_utils.js";
+
+import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from "https://deno.land/std@0.139.0/testing/asserts.ts";
 import {describe, it} from "https://deno.land/std@0.139.0/testing/bdd.ts";
-import {parseJSON, differenceInCalendarDays} from "./date_utils.js";
 
 const assert: any = function (param: any): any {
     return assertDeno(param);
@@ -8,6 +9,14 @@ const assert: any = function (param: any): any {
 assert.equal = assertEquals;
 assert.strictEqual = assertStrictEquals;
 assert.throws = assertThrows;
+
+
+describe('isInvalidDate', () => {
+    it('test', () => {
+        assert(isInvalidDate(new Date('not a date')));
+        assertFalse(isInvalidDate(new Date(Date.UTC(2022, 11, 25))));
+    })
+})
 
 
 describe('parseJSON', () => {
@@ -183,6 +192,25 @@ describe('parseJSON', () => {
 })
 
 
+describe('differenceInUTCCalendarDays', () => {
+    it('returns the number of calendar days (1 day) between the given dates in UTC without hours', () => {
+        const result = differenceInUTCCalendarDays(
+            new Date(Date.UTC(2022, 4 /* May */, 31, 0, 0)),
+            new Date(Date.UTC(2022, 4 /* May */, 30, 0, 0))
+        )
+        assert(result === 1)
+    })
+
+    it('returns the number of calendar days (1 day) between the given dates in UTC with hours', () => {
+        const result = differenceInUTCCalendarDays(
+            new Date(Date.UTC(2022, 4 /* May */, 31, 0, 0)),
+            new Date(Date.UTC(2022, 4 /* May */, 30, 2, 0))
+        )
+        assert(result === 1)
+    })
+})
+
+
 describe('differenceInCalendarDays #1', () => {
     it('returns the number of calendar days between the given dates (2022-05-31 - 2022-05-30)', () => {
         const result = differenceInCalendarDays(
@@ -311,5 +339,15 @@ describe('differenceInCalendarDays #2', () => {
     it('returns NaN if the both dates are `Invalid Date`', () => {
         const result = differenceInCalendarDays(new Date(NaN), new Date(NaN))
         assert(isNaN(result))
+    })
+})
+
+
+describe('excelSerialDateToUTCDate', () => {
+    it('tests', () => {
+        assertEquals(excelSerialDateToUTCDate(367), new Date(Date.UTC(1901, 0, 1, 0, 0, 0)));
+        assertEquals(excelSerialDateToUTCDate(28384), new Date(Date.UTC(1977, 8, 16, 0, 0, 0)));
+        assertEquals(excelSerialDateToUTCDate(44920), new Date(Date.UTC(2022, 11, 25, 0, 0, 0)));
+        assertEquals(excelSerialDateToUTCDate(NaN), new Date(NaN));
     })
 })
