@@ -15,8 +15,17 @@ export const ARRAY_OF_DATES_TYPE = 'array[date]';
 export const OBJECT_TYPE = 'object';
 export const FUNCTION_TYPE = 'function';
 export const SYMBOL_TYPE = 'symbol';
-
 //#endregion types
+
+//#region settings
+export const OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE = 'NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE';
+export const OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE = 'NUMBER_TO_DATE__JS_SERIAL_DATE';
+export const OPTION__NUMBER_TO_DATE__NO_CONVERSION = 'NUMBER_TO_DATE__NO_CONVERSION';
+
+export const OPTIONS = {};
+OPTIONS.NUMBER_TO_DATE = OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE;
+
+//#endregion settings
 
 /**
  * Sanitize value.
@@ -30,7 +39,6 @@ export const SYMBOL_TYPE = 'symbol';
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
  * @param {string} p.sanitization - Sanitization string
- * @param {Object} [p.options] - Optional sanitization options
  * @return {*} Sanitized value
  */
 function sanitize ({ value, sanitization }) {
@@ -82,7 +90,14 @@ function sanitize ({ value, sanitization }) {
         if (typeof value === 'string')  // if `value` is string, replace `_value` with a date from a parsed string
           _value = parseJSON(value);
         else if (typeof value === 'number')  // if `value` is number, convert it as Excel serial date
-          _value = excelSerialDateToUTCDate(value);
+        {
+          if (OPTIONS.NUMBER_TO_DATE === OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)
+            _value = excelSerialDateToUTCDate(value);
+          else if (OPTIONS.NUMBER_TO_DATE === OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE)
+            _value = new Date(value);
+          else
+            _value = new Date(0);
+        }
         return isNaN(new Date(_value).getTime())
           ? new Date(0) : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJSON` can return a not valid date
       } catch (_) {
@@ -134,9 +149,8 @@ function sanitize ({ value, sanitization }) {
   }
 }
 
-
 /**
- * Sanitize Object. 
+ * Sanitize Object.
  * If obj is array, the sanitization is done on contained objects.
  * If obj is null/undefined or other non-objects returns empty object {}.
  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
@@ -152,7 +166,7 @@ function sanitize ({ value, sanitization }) {
  */
 function sanitizeObj ({ obj, sanitization }) {
   if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
-    return { };  // return an empty object if `obj` is not an object
+    return {};  // return an empty object if `obj` is not an object
   if (sanitization == null || typeof sanitization !== 'object')  // double check, because typeof null is object
     return obj;
 
@@ -179,7 +193,7 @@ function sanitizeObj ({ obj, sanitization }) {
       if (!(key in _obj) && optionalSanitization)
         continue;
 
-      _obj[key] = sanitize({value: _obj[key], sanitization: sanitization[key]});
+      _obj[key] = sanitize({ value: _obj[key], sanitization: sanitization[key] });
     }
     return _obj;
   }

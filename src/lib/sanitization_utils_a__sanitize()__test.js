@@ -71,7 +71,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(true, S.sanitize({value: 999, sanitization: t2}));
   });
 
-  await t.step("date type", async () => {
+  await t.step("date type with default option number To Date (OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)", async () => {
     const t = S.DATE_TYPE;
     assertEquals(new Date(0), S.sanitize({value: undefined, sanitization: t}));
     assertEquals(new Date(0), S.sanitize({value: null, sanitization: t}));
@@ -87,6 +87,30 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(undefined, S.sanitize({value: undefined, sanitization: t2}));
     assertEquals(null, S.sanitize({value: null, sanitization: t2}));
     assertEquals(new Date(Date.UTC(2022, 11, 25)), S.sanitize({value: 44920, sanitization: t2}));
+  });
+
+  await t.step("date type with option number To Date OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE", async () => {
+    S.OPTIONS.NUMBER_TO_DATE = S.OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE;
+
+    const t = S.DATE_TYPE;
+    assertEquals(new Date(44920), S.sanitize({value: 44920, sanitization: t}));
+
+    const t2 = t + '?';
+    assertEquals(new Date(44920), S.sanitize({value: 44920, sanitization: t2}));
+  });
+
+  await t.step("date type with option number To Date OPTION__NUMBER_TO_DATE__NO_CONVERSION", async () => {
+    S.OPTIONS.NUMBER_TO_DATE = S.OPTION__NUMBER_TO_DATE__NO_CONVERSION;
+
+    const t = S.DATE_TYPE;
+    assertEquals(new Date(0), S.sanitize({value: 44920, sanitization: t}));
+
+    const t2 = t + '?';
+    assertEquals(new Date(0), S.sanitize({value: 44920, sanitization: t2}));
+  });
+
+  await t.step("resetting option number To Date to OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE", async () => {
+    S.OPTIONS.NUMBER_TO_DATE = S.OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE;
   });
 
   await t.step("array type", async () => {
