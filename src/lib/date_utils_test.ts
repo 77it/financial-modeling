@@ -9,9 +9,10 @@ const assert: any = function (param: any): any {
 assert.equal = assertEquals;
 assert.strictEqual = assertStrictEquals;
 assert.throws = assertThrows;
+const _describe = describe;  // replaced `describe` with `_describe` to prevent highlight of this file from Webstorm
 
 
-describe('isInvalidDate', () => {
+_describe('isInvalidDate', () => {
     it('test', () => {
         assert(isInvalidDate(new Date('not a date')));
         assertFalse(isInvalidDate(new Date(Date.UTC(2022, 11, 25))));
@@ -19,7 +20,7 @@ describe('isInvalidDate', () => {
 })
 
 
-describe('parseJSON #1', () => {
+_describe('parseJSON #1', () => {
     it('short date 2021-01-09', () => {
         const date = '2021-01-09';
         const parsedDate = parseJSON(date);
@@ -86,7 +87,7 @@ describe('parseJSON #1', () => {
 
 
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/test.ts
-describe('parseJSON #2', () => {
+_describe('parseJSON #2', () => {
     it('parses a formatted date with an hour of offset back to UTC - issue 2149', () => {
         const date = '2021-01-09T13:18:10.873+01:00'
         const expectedDate = new Date('2021-01-09T12:18:10.873Z')
@@ -206,7 +207,7 @@ describe('parseJSON #2', () => {
 })
 
 
-describe('differenceInUTCCalendarDays', () => {
+_describe('differenceInUTCCalendarDays', () => {
     it('returns the number of calendar days (1 day) between the given dates in UTC without hours', () => {
         const result = differenceInUTCCalendarDays(
             new Date(Date.UTC(2022, 4 /* May */, 31, 0, 0)),
@@ -225,7 +226,7 @@ describe('differenceInUTCCalendarDays', () => {
 })
 
 
-describe('differenceInCalendarDays #1', () => {
+_describe('differenceInCalendarDays #1', () => {
     it('returns the number of calendar days between the given dates (2022-05-31 - 2022-05-30)', () => {
         const result = differenceInCalendarDays(
             new Date(2022, 4 /* May */, 31, 0, 0),
@@ -269,7 +270,7 @@ describe('differenceInCalendarDays #1', () => {
 
 
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts
-describe('differenceInCalendarDays #2', () => {
+_describe('differenceInCalendarDays #2', () => {
     it('returns the number of calendar days between the given dates (2012 is a leap year - 2011)', () => {
         const result = differenceInCalendarDays(
             new Date(2012, 6 /* Jul */, 2, 18, 0),
@@ -286,7 +287,7 @@ describe('differenceInCalendarDays #2', () => {
         assert(result === -366)
     })
 
-    describe('edge cases', () => {
+    _describe('edge cases', () => {
         it('the difference is less than a day, but the given dates are in different calendar days', () => {
             const result = differenceInCalendarDays(
                 new Date(2014, 8 /* Sep */, 5, 0, 0),
@@ -357,7 +358,7 @@ describe('differenceInCalendarDays #2', () => {
 })
 
 
-describe('excelSerialDateToUTCDate', () => {
+_describe('excelSerialDateToUTCDate', () => {
     it('tests', () => {
         assertEquals(excelSerialDateToUTCDate(367), new Date(Date.UTC(1901, 0, 1, 0, 0, 0)));
         assertEquals(excelSerialDateToUTCDate(28384), new Date(Date.UTC(1977, 8, 16, 0, 0, 0)));
