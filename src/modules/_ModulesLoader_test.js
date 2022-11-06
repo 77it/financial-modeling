@@ -8,7 +8,10 @@ import {ModuleData} from "./_ModuleData.js";
 class ValuesB2 {
     valueX;
 
-    constructor(value: any) {
+    /**
+     * @param {number} value
+     */
+    constructor(value) {
         this.valueX = value;
     }
 }
