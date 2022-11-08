@@ -18,13 +18,12 @@ export const SYMBOL_TYPE = 'symbol';
 //#endregion types
 
 //#region settings
-export const OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE = 'NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE';
-export const OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE = 'NUMBER_TO_DATE__JS_SERIAL_DATE';
-export const OPTION__NUMBER_TO_DATE__NO_CONVERSION = 'NUMBER_TO_DATE__NO_CONVERSION';
-
 export const OPTIONS = {};
-OPTIONS.NUMBER_TO_DATE = OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE;
-
+OPTIONS.NUMBER_TO_DATE_OPTS = {}
+OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE = 'NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE';
+OPTIONS.NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE = 'NUMBER_TO_DATE__JS_SERIAL_DATE';
+OPTIONS.NUMBER_TO_DATE_OPTS.NO_CONVERSION = 'NUMBER_TO_DATE__NO_CONVERSION';
+OPTIONS.NUMBER_TO_DATE = OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
 //#endregion settings
 
 /**
@@ -91,9 +90,9 @@ function sanitize ({ value, sanitization }) {
           _value = parseJSON(value);
         else if (typeof value === 'number')  // if `value` is number, convert it as Excel serial date
         {
-          if (OPTIONS.NUMBER_TO_DATE === OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)
+          if (OPTIONS.NUMBER_TO_DATE === OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE)
             _value = excelSerialDateToUTCDate(value);
-          else if (OPTIONS.NUMBER_TO_DATE === OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE)
+          else if (OPTIONS.NUMBER_TO_DATE === OPTIONS.NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE)
             _value = new Date(value);
           else
             _value = new Date(0);

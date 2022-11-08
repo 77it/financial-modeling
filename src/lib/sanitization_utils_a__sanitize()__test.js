@@ -90,7 +90,7 @@ Deno.test('test sanitize()', async (t) => {
   });
 
   await t.step("date type with option number To Date OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE", async () => {
-    S.OPTIONS.NUMBER_TO_DATE = S.OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE;
+    S.OPTIONS.NUMBER_TO_DATE = S.OPTIONS.NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE;
 
     const t = S.DATE_TYPE;
     assertEquals(new Date(44920), S.sanitize({value: 44920, sanitization: t}));
@@ -100,7 +100,7 @@ Deno.test('test sanitize()', async (t) => {
   });
 
   await t.step("date type with option number To Date OPTION__NUMBER_TO_DATE__NO_CONVERSION", async () => {
-    S.OPTIONS.NUMBER_TO_DATE = S.OPTION__NUMBER_TO_DATE__NO_CONVERSION;
+    S.OPTIONS.NUMBER_TO_DATE = S.OPTIONS.NUMBER_TO_DATE_OPTS.NO_CONVERSION;
 
     const t = S.DATE_TYPE;
     assertEquals(new Date(0), S.sanitize({value: 44920, sanitization: t}));
@@ -110,7 +110,7 @@ Deno.test('test sanitize()', async (t) => {
   });
 
   await t.step("resetting option number To Date to OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE", async () => {
-    S.OPTIONS.NUMBER_TO_DATE = S.OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE;
+    S.OPTIONS.NUMBER_TO_DATE = S.OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
   });
 
   await t.step("array type", async () => {
