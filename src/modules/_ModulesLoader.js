@@ -39,7 +39,7 @@ export class ModulesLoader {
    * If 'URI/moduleName' already exists, it is not added.
    * If URI is "" or . or / or \, is set to ./${moduleName}.js
    * If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
-   * If is missing the ".js" extension from the file, is added
+   * If is missing the ".js" extension from the URI, is added
    * @param {{moduleName: string, moduleEngineURI: string}} p
    * @return {Promise<{success: boolean, error?: string}>} true if added, false if already exists
    */
