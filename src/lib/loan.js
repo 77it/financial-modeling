@@ -133,7 +133,7 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  * @param {number} p.annualInterestRate
  * @param {number} p.totalNoOfPayments
  * @param {number} p.noOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
- * @return {{paymentNr: number, defaultInterestPayment: number, principalPayment: number, totalMortgageRemaining: number}[]}
+ * @return {{paymentNr: number, interestPayment: number, principalPayment: number, totalMortgageRemaining: number}[]}
  */
 function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualInterestRate, totalNoOfPayments , noOfPaymentsInAYear}) {
   // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our total
@@ -159,7 +159,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualI
 
     mortgageArray.push({
       paymentNr: currPaymentNo,
-      defaultInterestPayment: interestPayment,
+      interestPayment: interestPayment,
       principalPayment: principalPayment,
       totalMortgageRemaining: mortgageRemaining
     });
