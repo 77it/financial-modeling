@@ -34,6 +34,7 @@ OPTIONS.NUMBER_TO_DATE = OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
  * Any, object, function, class are ignored and returned as is.
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
+ * String to dates are parsed as JSON to UTC dates
  * Number to dates are considered Excel serial dates (stripping hours, in UTC)
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
@@ -86,7 +87,7 @@ function sanitize ({ value, sanitization }) {
     case DATE_TYPE:
       try {
         let _value = value;
-        if (typeof value === 'string')  // if `value` is string, replace `_value` with a date from a parsed string
+        if (typeof value === 'string')  // if `value` is string, replace it with a UTC date from a parsed string
           _value = parseJSON(value);
         else if (typeof value === 'number')  // if `value` is number, convert it as Excel serial date
         {

@@ -8,26 +8,40 @@ import { financial } from '../deps.js';
 
 //#region TODO
 // TODO subito
-// rendi generico getMortgagePayments
-// confrontalo con piani
-// accetta tasso di interesse e altri campi
+
+// togliere dalle note sotto metodi non necessari (es french)
+
+// getMortgagePayments
+/*
+aggiungi campi:
+* startDate
+* paymentDate: 'startDate', 'startOfMonth', 'endOfMonth'  // optional; if omitted is 'startDate' // vedi https://cdn.jsdelivr.net/npm/@danacita/loanjs@1.1.6/src/repaymentSchedule.ts per gestione anno bisestile
+* [OPZ] dp (number): The number of digits to appear after the decimal point. If this argument is omitted, is 4. [1] [2]
+output, array di:
+* nr data  // 0 per prima rata
+* data in UTC  // con 0 mostra la data di inizio piano
+* capitale residuo
+[1] Piano di ammortamento: internamente taglia a N decimali (default 4) quando scrivi i piani; l'ultimo sfrido di quadratura addebitalo sull'ultima rata.
+4 è scelto in quanto è usato anche nel formato "Fixed Decimal Number" https://learn.microsoft.com/en-us/power-bi/connect-data/desktop-data-types
+[2] // codice per troncare
+const message = Number(new Big(4.27777777).toFixed(4, 0));  // see http://mikemcl.github.io/big.js/#toF
+
+*/
+// poi test: confrontalo con piani generati da excel
+
 
 /*
+funzione per calcolo interessi a partire da un piano (italiano, francese, personalizzato è irrilevante)
 input:
-* startDate
-* nrOfPaymentsInAYear  // 12 for monthly, 1 for yearly
-* nrOfPayments
 * interestOnlyNrOfPayments  // number of interest-only payments, added to `nrOfPayments`   // see https://www.consumerfinance.gov/ask-cfpb/what-is-an-interest-only-loan-en-101/
 * interestCalcMethod: "365/365" "365/360" "30/360"   See https://www.adventuresincre.com/lenders-calcs/
   vedi https://github.com/jutunen/Paydown.js/blob/master/src/paydown.js per tasso /360 o /365
-* paymentDate: 'startDate', 'startOfMonth', 'endOfMonth'  // optional; if omitted is 'startDate' // vedi https://cdn.jsdelivr.net/npm/@danacita/loanjs@1.1.6/src/repaymentSchedule.ts per gestione anno bisestile
-
-output, array di:
-* nr data  // 0 per prima rata
-* data  // con 0 mostra la data di inizio piano
-* capitale residuo
-* etc
- */
+* nrOfPaymentsInAYear  // 12 for monthly, 1 for yearly
+* numero: tasso (spread o tasso fisso)  // quando c'è la lista tassi, si intende spread
+* lista tassi [{date, tasso}] opzionale, per la sequenza dei tassi variabili
+* numero: cap
+* numero: floor
+*/
 
 // JS piano di ammortamento
 /*
@@ -49,7 +63,7 @@ metodi:
 parametri:
 * array: date
 * array: principal % su base 100
-* array: tasso (spread o tasso fisso) % sul capitale residuo
+* numero: tasso (spread o tasso fisso) % sul capitale residuo
 * array: opzionale, % di tassi variabili
 * numero: cap
 * numero: floor
@@ -64,17 +78,10 @@ anche se totalizzano meno di 100.
 * lista tassi [{date, tasso}] opzionale, per la sequenza dei tassi variabili
 * numero: cap
 * numero: floor
-* [OPZ] dp (number): The number of digits to appear after the decimal point. If this argument is omitted, it is treated as 4. [1] [2]
 
 >>> ItalianSchedule/ConstantAmortisationSchedule, senza tasso iniziale, il resto come FrenchSchedule
 
 >>> BulletSchedule
-
-
-[1] Piano di ammortamento: internamente taglia a N decimali (default 4) quando scrivi i piani; l'ultimo sfrido di quadratura addebitalo sull'ultima rata.
-4 è scelto in quanto è usato anche nel formato "Fixed Decimal Number" https://learn.microsoft.com/en-us/power-bi/connect-data/desktop-data-types
-[2] // codice per troncare
-const message = Number(new Big(4.27777777).toFixed(4, 0));  // see http://mikemcl.github.io/big.js/#toF
  */
 //#endregion TODO
 
