@@ -1,4 +1,4 @@
-import { getMonthlyMortgagePayments, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan } from "./loan.js";
+import { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan } from "./loan.js";
 import { financial } from '../deps.js';
 
 import {
@@ -52,10 +52,11 @@ Deno.test('test my loan code, with comparison with `financial` library', async (
 
 Deno.test('test getMortgagePayments', async (t) => {
     await t.step('test #1', async () => {
-        console.log(getMonthlyMortgagePayments({
-            mortgage: 10_000,
-            monthlyInterestRate: 0.07 / 12,
-            numberPayments: 60
+        console.log(getMortgagePaymentsOfAConstantPaymentLoan({
+            startingPrincipal: 10_000,
+            annualInterestRate: 0.07,
+            noOfPaymentsInAYear: 12,
+            totalNoOfPayments: 60
         }));
     });
 });

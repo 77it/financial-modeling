@@ -1,4 +1,4 @@
-export { getMonthlyMortgagePayments, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
+export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
 
 // info about financial library
 // home   https://github.com/lmammino/financial  // backup repository   https://github.com/77it/financial
@@ -8,7 +8,7 @@ import { financial } from '../deps.js';
 
 //#region TODO
 // TODO subito
-// rendi generico getMonthlyMortgagePayments
+// rendi generico getMortgagePayments
 // confrontalo con piani
 // accetta tasso di interesse e altri campi
 
@@ -120,40 +120,40 @@ function calculateAnnuityOfAConstantPaymentLoan ({
 }
 
 
-// inspired to https://observablehq.com/@observablehq/modeling-in-observable?collection=%40observablehq%2Fobservable-for-excel-users
 /**
  * @param {Object} p
- * @param {number} p.mortgage
- * @param {number} p.monthlyInterestRate
- * @param {number} p.numberPayments
- * @return {{paymentNr: number, interestPayment: number, principalPayment: number, totalMortgageRemaining: number}[]}
+ * @param {number} p.startingPrincipal
+ * @param {number} p.annualInterestRate
+ * @param {number} p.totalNoOfPayments
+ * @param {number} p.noOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
+ * @return {{paymentNr: number, defaultInterestPayment: number, principalPayment: number, totalMortgageRemaining: number}[]}
  */
-function getMonthlyMortgagePayments ({ mortgage, monthlyInterestRate, numberPayments }) {
+function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualInterestRate, totalNoOfPayments , noOfPaymentsInAYear}) {
   // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our total
-  let mortgageRemaining = mortgage;
+  let mortgageRemaining = startingPrincipal;
 
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12
   // Multiply by -1, since it default to a negative value
-  const monthlyMortgagePayment = financial.pmt(monthlyInterestRate, numberPayments, mortgage) * -1;
+  const mortgagePayment = -1 * financial.pmt(annualInterestRate / noOfPaymentsInAYear, totalNoOfPayments, startingPrincipal, 0, financial.PaymentDueTime.End);
 
   const mortgageArray = [];
 
   // Here we loop through each payment (starting from 1) and figure out what values will be
-  for (let currPaymentNo = 1; currPaymentNo <= numberPayments; currPaymentNo++) {
+  for (let currPaymentNo = 1; currPaymentNo <= totalNoOfPayments; currPaymentNo++) {
     // The interest payment portion of that month
-    const monthlyInterestPayment = financial.ipmt(monthlyInterestRate, currPaymentNo, numberPayments, mortgage) * -1;
+    const interestPayment = -1 * financial.ipmt(annualInterestRate / noOfPaymentsInAYear, currPaymentNo, totalNoOfPayments, startingPrincipal);
 
-    let monthlyPrincipalPayment = monthlyMortgagePayment - monthlyInterestPayment;
-    if (currPaymentNo === numberPayments)  // if we reached the last payment, the last payment is the residual principal
-      monthlyPrincipalPayment = mortgageRemaining;
+    let principalPayment = mortgagePayment - interestPayment;
+    if (currPaymentNo === totalNoOfPayments)  // if we reached the last payment, the last payment is the residual principal
+      principalPayment = mortgageRemaining;
 
     // Calculate the remaining mortgage amount, which you do by subtracting the principal payment
-    mortgageRemaining = mortgageRemaining - monthlyPrincipalPayment;
+    mortgageRemaining = mortgageRemaining - principalPayment;
 
     mortgageArray.push({
       paymentNr: currPaymentNo,
-      interestPayment: monthlyInterestPayment,
-      principalPayment: monthlyPrincipalPayment,
+      defaultInterestPayment: interestPayment,
+      principalPayment: principalPayment,
       totalMortgageRemaining: mortgageRemaining
     });
   }
