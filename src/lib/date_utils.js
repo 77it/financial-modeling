@@ -102,7 +102,10 @@ function parseJSON (argument) {
 }
 
 // Inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/index.ts (MIT license)
-// & https://stackoverflow.com/a/15289883/5288052
+// & https://stackoverflow.com/a/15289883/5288052 + https://stackoverflow.com/questions/3224834/get-difference-between-2-dates-in-javascript
+// see also
+// https://www.geeksforgeeks.org/how-to-calculate-the-number-of-days-between-two-dates-in-javascript/
+// https://stackoverflow.com/questions/18347050/calculate-the-number-of-days-in-range-picker-javascript
 /**
  * @description
  * Get the number of days between the given dates. This means that the times are removed

@@ -1,4 +1,5 @@
 export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
+import { validateObj } from '../deps.js';
 
 // info about financial library
 // home   https://github.com/lmammino/financial  // backup repository   https://github.com/77it/financial
@@ -7,15 +8,14 @@ export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmou
 import { financial } from '../deps.js';
 
 //#region TODO
+
 // TODO subito
-
-// togliere dalle note sotto metodi non necessari (es french)
-
-// getMortgagePayments
+// getMortgagePaymentsOfAConstantPaymentLoan
 /*
 aggiungi campi:
-* startDate
-* paymentDate: 'startDate', 'startOfMonth', 'endOfMonth'  // optional; if omitted is 'startDate' // vedi https://cdn.jsdelivr.net/npm/@danacita/loanjs@1.1.6/src/repaymentSchedule.ts per gestione anno bisestile
+* startDate  // togli ore, minuti, secondi
+* paymentDate: 'exactDate', 'startOfMonth', 'endOfMonth'  // optional; if omitted is 'exactDate' // vedi https://cdn.jsdelivr.net/npm/@danacita/loanjs@1.1.6/src/repaymentSchedule.ts per gestione anno bisestile
+* gracePeriod
 * [OPZ] dp (number): The number of digits to appear after the decimal point. If this argument is omitted, is 4. [1] [2]
 output, array di:
 * nr data  // 0 per prima rata
@@ -28,60 +28,43 @@ const message = Number(new Big(4.27777777).toFixed(4, 0));  // see http://mikemc
 
 */
 // poi test: confrontalo con piani generati da excel
+// gracepPeriod 0
+// 6 rate bimestrali
 
-
+// funzione per calcolo di interessi a partire da un piano con quote capitali già calcolate
 /*
-funzione per calcolo interessi a partire da un piano (italiano, francese, personalizzato è irrilevante)
+`getInterestPayments`
+  funzione per calcolo interessi a partire da un piano generato da `getMortgagePaymentsOfAConstantPaymentLoan` (per piano francese) o da altri metodi (per altri tipi di piani)
+  Se il capitale in qualche riga è negativo accettalo, vuol dire che c'è un incremento di debito.
 input:
-* interestOnlyNrOfPayments  // number of interest-only payments, added to `nrOfPayments`   // see https://www.consumerfinance.gov/ask-cfpb/what-is-an-interest-only-loan-en-101/
-* interestCalcMethod: "365/365" "365/360" "30/360"   See https://www.adventuresincre.com/lenders-calcs/
-  vedi https://github.com/jutunen/Paydown.js/blob/master/src/paydown.js per tasso /360 o /365
-* nrOfPaymentsInAYear  // 12 for monthly, 1 for yearly
-* numero: tasso (spread o tasso fisso)  // quando c'è la lista tassi, si intende spread
-* lista tassi [{date, tasso}] opzionale, per la sequenza dei tassi variabili
-* numero: cap
-* numero: floor
+* number: interestOnlyNrOfPayments  // number of interest-only payments, added to `nrOfPayments`   // see https://www.consumerfinance.gov/ask-cfpb/what-is-an-interest-only-loan-en-101/
+* string: interestCalcMethod: "365/365" | "365/360" | "30/360"
+  See https://www.adventuresincre.com/lenders-calcs/
+  See https://github.com/jutunen/Paydown.js/blob/master/src/paydown.js per tasso /360 o /365
+* number: nrOfPaymentsInAYear  // 12 for monthly, 1 for yearly
+* number: rate  // spread or fixed rate: when there is the field `ratesList` this is the spread
+* {date, number}[]: ratesList  // optional, sequence of variable rates
+* number: cap  // optional
+* number: floor  // optional
+* bool: negativeRateIsZero  // optional, quando tasso+spread < 0 considera zero
 */
 
-// JS piano di ammortamento
+
+// funzione per ricalcolo quote capitale con singole rate prese da Excel
 /*
-differenza tra date:
-* quando importi date, togli ore, minuti, secondi
-  vedi differenceInCalendarDays() in C:\e3\@gitwk\PUBLIC\financial-modeling\src\lib\date_utils.js\
-* Diff in days between dates, rounded (see luxon/date-fns for algo)
-  * https://www.geeksforgeeks.org/how-to-calculate-the-number-of-days-between-two-dates-in-javascript/
-  * https://stackoverflow.com/questions/18347050/calculate-the-number-of-days-in-range-picker-javascript
-  * https://stackoverflow.com/questions/3224834/get-difference-between-2-dates-in-javascript
-
-Se il capitale in qualche riga è negativo accettalo, vuol dire che c'è un incremento di debito.
-
-Se l'interesse tra parametro e spread è negativo consideralo zero.
-
-metodi:
->>> CustomSchedule: serve per scaricare tutto il capitale residuo fino alla fine (bullet) o per piani persoanlizzati
-    (anche senza formula per generare il piano, prendendo capitale+interessi da una tabella Excel)
+`CustomSchedule`
+  Funzione che consente di calcolare correttamente le quote di capitale a partire da piani le cui rate di capiale sono state prese su Excel.
+  Poiché la somma delle rate può essere imperfetta rispetto al capitale residuo, per evitare problemi ricalcoliamo con questa funzione le quote di ogni rata.
+  Logica di funzionamento:
+    il parametro `principalPayments` contiene un array principal, considerati come quote di `startingPrincipal`;
+    si sommano tutte le quote e si divide `startingPrincipal` per esse; con l'ultima quota l'importo residuo deve essere zero.
+  Gli interessi non sono oggetto di questa funzione (possono essere digitati/calcolati su Excel
+  oppure calcolati con i parametri di tasso da Execl, alimentando la funzione `getInterestPayments`).
 parametri:
-* array: date
-* array: principal % su base 100
-* numero: tasso (spread o tasso fisso) % sul capitale residuo
-* array: opzionale, % di tassi variabili
-* numero: cap
-* numero: floor
-Considera le percentuali solo dal giorno di inizio simulazione alla fine del piano,
-anche se totalizzano meno di 100.
-
->>> FrenchSchedule/ConstantAnnuitySchedule (rata costante); parametri per generare un debito, a partire dal residuo capitale a una certa data:
-* numero: tasso iniziale
-* data: scadenza
-* numero: periodicità (numero di rate in un anno)
-* numero: tasso (spread o tasso fisso)  // quando c'è la lista tassi, si intende variabile
-* lista tassi [{date, tasso}] opzionale, per la sequenza dei tassi variabili
-* numero: cap
-* numero: floor
-
->>> ItalianSchedule/ConstantAmortisationSchedule, senza tasso iniziale, il resto come FrenchSchedule
-
->>> BulletSchedule
+* numero: startingPrincipal
+* date[]: dates  // array di date
+* number[]: principalPayments
+return {date[]: dates, number[]: principalPayments}
  */
 //#endregion TODO
 
@@ -131,34 +114,79 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  * @param {Object} p
  * @param {number} p.startingPrincipal
  * @param {number} p.annualInterestRate
- * @param {number} p.totalNoOfPayments
- * @param {number} p.noOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
- * @return {{paymentNr: number, interestPayment: number, principalPayment: number, totalMortgageRemaining: number}[]}
+ * @param {number} p.numberOfPayments
+ * @param {number} p.numberOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
+ * @param {number} [p.gracePeriod=0] optional, number of periods with interest-only payments
+ * @return {{paymentNo: number, interestPayment: number, principalPayment: number, totalMortgageRemaining: number}[]}
  */
-function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualInterestRate, totalNoOfPayments , noOfPaymentsInAYear}) {
-  // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our total
-  let mortgageRemaining = startingPrincipal;
+function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualInterestRate, numberOfPayments , numberOfPaymentsInAYear, gracePeriod=0}) {
+  validateObj(
+    { obj:
+        {
+          startingPrincipal: startingPrincipal,
+          annualInterestRate: annualInterestRate,
+          numberOfPayments: numberOfPayments,
+          numberOfPaymentsInAYear: numberOfPaymentsInAYear,
+          gracePeriod: gracePeriod
+        },
+      validation:
+        {
+          startingPrincipal: 'number',
+          annualInterestRate: 'number',
+          numberOfPayments: 'number',
+          numberOfPaymentsInAYear: 'number',
+          gracePeriod: 'number?'
+        }
+    });
+
+  const numberOfPaymentsWithoutGracePeriod = numberOfPayments - gracePeriod;
+  if (!(numberOfPaymentsWithoutGracePeriod > 0))
+    throw new Error(`Validation error: number of payments without grace period is ${numberOfPaymentsWithoutGracePeriod}, must be > 0`);
 
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12
   // Multiply by -1, since it default to a negative value
-  const mortgagePayment = -1 * financial.pmt(annualInterestRate / noOfPaymentsInAYear, totalNoOfPayments, startingPrincipal, 0, financial.PaymentDueTime.End);
+  const mortgagePayment = -1 * financial.pmt(annualInterestRate / numberOfPaymentsInAYear, numberOfPaymentsWithoutGracePeriod, startingPrincipal, 0, financial.PaymentDueTime.End);
 
   const mortgageArray = [];
 
-  // Here we loop through each payment (starting from 1) and figure out what values will be
-  for (let currPaymentNo = 1; currPaymentNo <= totalNoOfPayments; currPaymentNo++) {
+  // first payment, without payments and full principal
+  mortgageArray.push({
+    paymentNo: 0,
+    interestPayment: 0,
+    principalPayment: 0,
+    totalMortgageRemaining: startingPrincipal
+  });
+
+  // Here we loop through each gracePeriod payment (only interest)
+  for (let currPaymentNo = 1; currPaymentNo <= gracePeriod; currPaymentNo++) {
+    // The interest payment portion of the period
+    const interestPayment = startingPrincipal * annualInterestRate / numberOfPaymentsInAYear;
+
+    mortgageArray.push({
+      paymentNo: currPaymentNo,
+      interestPayment: interestPayment,
+      principalPayment: 0,
+      totalMortgageRemaining: startingPrincipal
+    });
+  }
+
+  // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our total
+  let mortgageRemaining = startingPrincipal;
+
+  // Here we loop through each payment (starting from 1) and figure out the interest and principal payments
+  for (let currPaymentNo = 1; currPaymentNo <= numberOfPaymentsWithoutGracePeriod; currPaymentNo++) {
     // The interest payment portion of that month
-    const interestPayment = -1 * financial.ipmt(annualInterestRate / noOfPaymentsInAYear, currPaymentNo, totalNoOfPayments, startingPrincipal);
+    const interestPayment = -1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, currPaymentNo, numberOfPaymentsWithoutGracePeriod, startingPrincipal);
 
     let principalPayment = mortgagePayment - interestPayment;
-    if (currPaymentNo === totalNoOfPayments)  // if we reached the last payment, the last payment is the residual principal
+    if (currPaymentNo === numberOfPaymentsWithoutGracePeriod)  // if we reached the last payment, the last payment is the residual principal
       principalPayment = mortgageRemaining;
 
     // Calculate the remaining mortgage amount, which you do by subtracting the principal payment
     mortgageRemaining = mortgageRemaining - principalPayment;
 
     mortgageArray.push({
-      paymentNr: currPaymentNo,
+      paymentNo: currPaymentNo + gracePeriod,
       interestPayment: interestPayment,
       principalPayment: principalPayment,
       totalMortgageRemaining: mortgageRemaining

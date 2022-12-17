@@ -1,5 +1,5 @@
-export { validateObj } from './lib/validation_utils.js';
-export { sanitize } from './lib/sanitization_utils.js';
+export { validate, validateObj } from './lib/validation_utils.js';
+export { sanitize, sanitizeObj } from './lib/sanitization_utils.js';
 export { isInvalidDate } from './lib/date_utils.js';
 
 

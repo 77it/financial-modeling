@@ -55,8 +55,8 @@ Deno.test('test getMortgagePayments', async (t) => {
         console.log(getMortgagePaymentsOfAConstantPaymentLoan({
             startingPrincipal: 10_000,
             annualInterestRate: 0.07,
-            noOfPaymentsInAYear: 12,
-            totalNoOfPayments: 60
+            numberOfPaymentsInAYear: 12,
+            numberOfPayments: 60
         }));
     });
 
@@ -64,15 +64,17 @@ Deno.test('test getMortgagePayments', async (t) => {
         console.log(getMortgagePaymentsOfAConstantPaymentLoan({
             startingPrincipal: Number.MAX_SAFE_INTEGER,
             annualInterestRate: 0.07,
-            noOfPaymentsInAYear: 1,
-            totalNoOfPayments: 3
+            numberOfPaymentsInAYear: 1,
+            numberOfPayments: 4,
+            gracePeriod: 1
         }));
 
         console.log(getMortgagePaymentsOfAConstantPaymentLoan({
             startingPrincipal: Number.MIN_SAFE_INTEGER,
             annualInterestRate: 0.07,
-            noOfPaymentsInAYear: 1,
-            totalNoOfPayments: 3
+            numberOfPaymentsInAYear: 1,
+            numberOfPayments: 4,
+            gracePeriod: 1
         }));
     });
 });
