@@ -46,7 +46,7 @@ function _validateValue ({ value, validation, errorMsg }) {
     return SUCCESS;
   }
 
-  switch (validationType) {  // switch validations
+  switch (validationType.toLowerCase()) {  // switch validations
     case ANY_TYPE:
       if (value == null)
         return `${errorMsg} = ${value}, must be !== null or undefined`;

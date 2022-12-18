@@ -59,7 +59,7 @@ function sanitize ({ value, sanitization }) {
     return value;
   }
 
-  switch (sanitizationType) {  // switch sanitizations
+  switch (sanitizationType.toLowerCase()) {  // switch sanitizations
     case ANY_TYPE:
       return value;  // return value as is without sanitization
     case STRING_TYPE:

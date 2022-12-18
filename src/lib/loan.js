@@ -18,7 +18,6 @@ aggiungi campi:
 * gracePeriod
 * [OPZ] dp (number): The number of digits to appear after the decimal point. If this argument is omitted, is 4. [1] [2]
 output, array di:
-* nr data  // 0 per prima rata
 * data in UTC  // con 0 mostra la data di inizio piano
 * capitale residuo
 [1] Piano di ammortamento: internamente taglia a N decimali (default 4) quando scrivi i piani; l'ultimo sfrido di quadratura addebitalo sull'ultima rata.
@@ -112,17 +111,19 @@ function calculateAnnuityOfAConstantPaymentLoan ({
 
 /**
  * @param {Object} p
+ * @param {Date} p.startDate
  * @param {number} p.startingPrincipal
  * @param {number} p.annualInterestRate
  * @param {number} p.numberOfPayments
  * @param {number} p.numberOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
  * @param {number} [p.gracePeriod=0] optional, number of periods with interest-only payments
- * @return {{paymentNo: number, interestPayment: number, principalPayment: number, totalMortgageRemaining: number}[]}
+ * @return {{date: Date, paymentNo: number, interestPayment: number, principalPayment: number, totalMortgageRemaining: number}[]}
  */
-function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualInterestRate, numberOfPayments , numberOfPaymentsInAYear, gracePeriod=0}) {
+function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincipal, annualInterestRate, numberOfPayments , numberOfPaymentsInAYear, gracePeriod=0}) {
   validateObj(
     { obj:
         {
+          startDate: startDate,
           startingPrincipal: startingPrincipal,
           annualInterestRate: annualInterestRate,
           numberOfPayments: numberOfPayments,
@@ -131,6 +132,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualI
         },
       validation:
         {
+          startDate: 'date',
           startingPrincipal: 'number',
           annualInterestRate: 'number',
           numberOfPayments: 'number',
@@ -143,6 +145,10 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualI
   if (!(numberOfPaymentsWithoutGracePeriod > 0))
     throw new Error(`Validation error: number of payments without grace period is ${numberOfPaymentsWithoutGracePeriod}, must be > 0`);
 
+  // remove hh:mm.ss.00 from startDate
+  let _startDate = new Date(startDate);  // clone the date
+  _startDate = _startDate.setHours(0, 0, 0, 0);
+
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12
   // Multiply by -1, since it default to a negative value
   const mortgagePayment = -1 * financial.pmt(annualInterestRate / numberOfPaymentsInAYear, numberOfPaymentsWithoutGracePeriod, startingPrincipal, 0, financial.PaymentDueTime.End);
@@ -151,6 +157,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualI
 
   // first payment, without payments and full principal
   mortgageArray.push({
+    date: startDate,
     paymentNo: 0,
     interestPayment: 0,
     principalPayment: 0,
@@ -162,7 +169,10 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualI
     // The interest payment portion of the period
     const interestPayment = startingPrincipal * annualInterestRate / numberOfPaymentsInAYear;
 
+    xxx add months to date;
+
     mortgageArray.push({
+      date: currDate,
       paymentNo: currPaymentNo,
       interestPayment: interestPayment,
       principalPayment: 0,
@@ -185,7 +195,10 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startingPrincipal, annualI
     // Calculate the remaining mortgage amount, which you do by subtracting the principal payment
     mortgageRemaining = mortgageRemaining - principalPayment;
 
+    xxx add months to date;
+
     mortgageArray.push({
+      date: currDate,
       paymentNo: currPaymentNo + gracePeriod,
       interestPayment: interestPayment,
       principalPayment: principalPayment,
