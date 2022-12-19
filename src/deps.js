@@ -1,6 +1,6 @@
 export { validate, validateObj } from './lib/validation_utils.js';
 export { sanitize, sanitizeObj } from './lib/sanitization_utils.js';
-export { isInvalidDate } from './lib/date_utils.js';
+export { isInvalidDate, addMonths } from './lib/date_utils.js';
 
 
 //#region number libraries

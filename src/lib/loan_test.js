@@ -53,6 +53,7 @@ Deno.test('test my loan code, with comparison with `financial` library', async (
 Deno.test('test getMortgagePayments', async (t) => {
     await t.step('test #1', async () => {
         console.log(getMortgagePaymentsOfAConstantPaymentLoan({
+            startDate: new Date(2022, 11, 25, 0, 0, 0),
             startingPrincipal: 10_000,
             annualInterestRate: 0.07,
             numberOfPaymentsInAYear: 12,
@@ -62,6 +63,7 @@ Deno.test('test getMortgagePayments', async (t) => {
 
     await t.step('test #2, principal as Number.MAX_VALUE, MIN_VALUE, MAX_SAFE_INTEGER, MIN_SAFE_INTEGER', async () => {
         console.log(getMortgagePaymentsOfAConstantPaymentLoan({
+            startDate: new Date(2022, 11, 25, 0, 0, 0),
             startingPrincipal: Number.MAX_SAFE_INTEGER,
             annualInterestRate: 0.07,
             numberOfPaymentsInAYear: 1,
@@ -70,6 +72,7 @@ Deno.test('test getMortgagePayments', async (t) => {
         }));
 
         console.log(getMortgagePaymentsOfAConstantPaymentLoan({
+            startDate: new Date(2022, 11, 25, 0, 0, 0),
             startingPrincipal: Number.MIN_SAFE_INTEGER,
             annualInterestRate: 0.07,
             numberOfPaymentsInAYear: 1,

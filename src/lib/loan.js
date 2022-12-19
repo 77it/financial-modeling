@@ -1,5 +1,6 @@
 export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
 import { validateObj } from '../deps.js';
+import { addMonths } from '../deps.js';
 
 // info about financial library
 // home   https://github.com/lmammino/financial  // backup repository   https://github.com/77it/financial
@@ -145,9 +146,10 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
   if (!(numberOfPaymentsWithoutGracePeriod > 0))
     throw new Error(`Validation error: number of payments without grace period is ${numberOfPaymentsWithoutGracePeriod}, must be > 0`);
 
-  // remove hh:mm.ss.00 from startDate
-  let _startDate = new Date(startDate);  // clone the date
-  _startDate = _startDate.setHours(0, 0, 0, 0);
+  if (!((numberOfPaymentsInAYear > 0) && (numberOfPaymentsInAYear <= 12) && (12 % numberOfPaymentsInAYear === 0)))
+    throw new Error(`Validation error: number of payments in a year is ${numberOfPaymentsInAYear}, must be > 0, < 12 and a number between 1|2|3|4|6|12`);
+
+  let currDate = new Date(startDate);  // clone startDate
 
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12
   // Multiply by -1, since it default to a negative value
@@ -157,7 +159,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
 
   // first payment, without payments and full principal
   mortgageArray.push({
-    date: startDate,
+    date: currDate,
     paymentNo: 0,
     interestPayment: 0,
     principalPayment: 0,
@@ -169,7 +171,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
     // The interest payment portion of the period
     const interestPayment = startingPrincipal * annualInterestRate / numberOfPaymentsInAYear;
 
-    xxx add months to date;
+    currDate = addMonths(currDate, 12 / numberOfPaymentsInAYear);
 
     mortgageArray.push({
       date: currDate,
@@ -195,7 +197,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
     // Calculate the remaining mortgage amount, which you do by subtracting the principal payment
     mortgageRemaining = mortgageRemaining - principalPayment;
 
-    xxx add months to date;
+    currDate = addMonths(currDate, 12 / numberOfPaymentsInAYear);
 
     mortgageArray.push({
       date: currDate,
