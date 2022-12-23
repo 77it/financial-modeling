@@ -91,6 +91,13 @@ UnityOfMeasure
   return void
   // internally use Big.js
 
+## Ledger/SimObject dates + export/dump to JSON (date UTC conversion)
+
+store dates in Ledger/SimObject as local dates, no UTC
+
+convert to UTC only when dumping the SimObject to JSON
+  sample code: const dateExportToJSON = new Date(Date.UTC(_d0.getFullYear(), _d0.getMonth(),_d0.getDate(), _d0.getHours(),_d0.getMinutes(), _d0.getSeconds(), _d0.getMilliseconds())).toJSON();
+
 */
 //#endregion JS #ledger/#SimObject
 
