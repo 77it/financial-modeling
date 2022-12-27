@@ -14,9 +14,7 @@ import { financial } from '../deps.js';
 // getMortgagePaymentsOfAConstantPaymentLoan
 /*
 aggiungi campi:
-* startDate  // togli ore, minuti, secondi
 * paymentDate: 'exactDate', 'startOfMonth', 'endOfMonth'  // optional; if omitted is 'exactDate' // vedi https://cdn.jsdelivr.net/npm/@danacita/loanjs@1.1.6/src/repaymentSchedule.ts per gestione anno bisestile
-* gracePeriod
 * [OPZ] dp (number): The number of digits to appear after the decimal point. If this argument is omitted, is 4. [1] [2]
 output, array di:
 * data in UTC  // con 0 mostra la data di inizio piano
@@ -138,7 +136,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
           annualInterestRate: 'number',
           numberOfPayments: 'number',
           numberOfPaymentsInAYear: 'number',
-          gracePeriod: 'number?'
+          gracePeriod: 'number'
         }
     });
 
@@ -149,7 +147,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
   if (!((numberOfPaymentsInAYear > 0) && (numberOfPaymentsInAYear <= 12) && (12 % numberOfPaymentsInAYear === 0)))
     throw new Error(`Validation error: number of payments in a year is ${numberOfPaymentsInAYear}, must be > 0, < 12 and a number between 1|2|3|4|6|12`);
 
-  let currDate = new Date(startDate);  // clone startDate
+  let currDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0);  // clone startDate removing time
 
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12
   // Multiply by -1, since it default to a negative value
