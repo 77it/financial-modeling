@@ -18,6 +18,24 @@ class ValuesB2 {
 
 const modulesLoader = new ModulesLoader();
 
+//#region test import inside import
+// This test demonstrates that when a module named "_ModulesLoader_test_module.js" of a specific version ("@v0.1.19") is imported,
+// any subsequent local imports (e.g. ./_ModulesLoader_test_module2.js) from that module will also be of that version ("@v0.1.19").
+Deno.test("test import inside import", async () => {
+  {
+    const _module = (await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.19/src/modules/_ModulesLoader_test_module.js"));
+    assertEquals(_module.Module.valueX, "module v0.1.2");
+    assertEquals(await _module.value_from_other_file__ValuesA2(), "tag v0.1.19");
+  }
+
+  {
+    const _module = (await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.20/src/modules/_ModulesLoader_test_module.js"));
+    assertEquals(_module.Module.valueX, "module v0.1.3");
+    assertEquals(await _module.value_from_other_file__ValuesA2(), "tag v0.1.20");
+  }
+});
+//#endregion test import inside import
+
 //#region test addClassFromObject
 Deno.test("test addClassFromObject, class defined here", () => {
   const _URI = "";
@@ -151,12 +169,6 @@ Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => 
     assert(query != undefined);
     assertEquals(_entry.cdn, query.cdnURI);
   }
-});
-
-Deno.test("test import inside import", async () => {
-  const _module = (await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.19/src/modules/_ModulesLoader_test_module.js"));
-  assertEquals(_module.Module.valueX, "module v0.1.2");
-  assertEquals(_module.value_from_other_file__ValuesA2(), "tag v0.1.19");
 });
 //#endregion addClassFromURI
 
