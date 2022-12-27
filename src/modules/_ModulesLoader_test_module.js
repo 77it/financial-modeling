@@ -1,11 +1,11 @@
 import {ValuesA2} from './_ModulesLoader_test_module2.js';
 
 export class ValuesA {
-  static value = "hello v0.1.2";
+  static value = "hello v0.1.3";
 }
 
 export class Module {
-  static valueX = "module v0.1.2";
+  static valueX = "module v0.1.3";
   /** @param {{value: string, value2: string}} p */
   constructor({value, value2}) {
     this.value = value;

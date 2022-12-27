@@ -154,7 +154,8 @@ Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => 
 });
 
 Deno.test("test import inside import", async () => {
-  const _module = (await import("https://github.com/77it/financial-modeling/blob/v0.1.19/src/modules/_ModulesLoader_test_module.js"));
+  const _module = (await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.19/src/modules/_ModulesLoader_test_module.js"));
+  assertEquals(_module.Module.valueX, "module v0.1.2");
   assertEquals(_module.value_from_other_file__ValuesA2(), "tag v0.1.19");
 });
 //#endregion addClassFromURI
