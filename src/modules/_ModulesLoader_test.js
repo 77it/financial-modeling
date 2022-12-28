@@ -29,6 +29,12 @@ Deno.test("test import inside import", async () => {
   }
 
   {
+    const _module = (await import("https://raw.githubusercontent.com/77it/financial-modeling/v0.1.19/src/modules/_ModulesLoader_test_module.js"));
+    assertEquals(_module.Module.valueX, "module v0.1.2");
+    assertEquals(await _module.value_from_other_file__ValuesA2(), "tag v0.1.19");
+  }
+
+  {
     const _module = (await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.20/src/modules/_ModulesLoader_test_module.js"));
     assertEquals(_module.Module.valueX, "module v0.1.3");
     assertEquals(await _module.value_from_other_file__ValuesA2(), "tag v0.1.20");
