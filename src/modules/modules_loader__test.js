@@ -2,7 +2,7 @@
 
 import {assert, assertFalse, assertEquals, assertNotEquals} from "https://deno.land/std/testing/asserts.ts";
 
-import {ModulesLoader} from "./_ModulesLoader.js";
+import {ModulesLoader} from "./modules_loader.js";
 import {ModuleData} from "./module_data.js";
 
 class ValuesB2 {
@@ -19,8 +19,8 @@ class ValuesB2 {
 const modulesLoader = new ModulesLoader();
 
 //#region test import inside import
-// This test demonstrates that when a module named "_ModulesLoader_test_module.js" of a specific version ("@v0.1.19") is imported,
-// any subsequent local imports (e.g. ./_ModulesLoader_test_module2.js) from that module will also be of that version ("@v0.1.19").
+// This test demonstrates that when a module named "modules_loader_test_module.js" of a specific version ("@v0.1.19") is imported,
+// any subsequent local imports (e.g. ./modules_loader_test_module2.js) from that module will also be of that version ("@v0.1.19").
 Deno.test("test import inside import", async () => {
   {
     const _module = (await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.19/src/modules/_ModulesLoader_test_module.js"));
@@ -66,7 +66,7 @@ Deno.test("test ERROR addClassFromURI, not existing URI", async () => {
 });
 
 Deno.test("test addClassFromURI, alongside module (using ModuleData)", async () => {
-  const _URI = "./_ModulesLoader_test_module.js";
+  const _URI = "./modules_loader_test_module.js";
   const _moduleDataParameters = {moduleName: "ValuesB", moduleEngineURI: _URI, moduleAlias: "", moduleSourceLocation: "", tables: [{tableName: "tab", table: {}}]};
   const _moduleData = new ModuleData(_moduleDataParameters);
   assert((await modulesLoader.addClassFromURI(_moduleData)).success);
@@ -96,7 +96,7 @@ Deno.test("test addClassFromURI, not-alongside module", async () => {
 });
 
 Deno.test("test addClassFromURI, adding '.js' extension", async () => {
-  const _URI = "./_ModulesLoader_test_module";
+  const _URI = "./modules_loader_test_module";
   assert((await modulesLoader.addClassFromURI({moduleName: "ValuesB", moduleEngineURI: _URI})).success);
 
   const query = modulesLoader.get({moduleName: "ValuesB", moduleEngineURI: _URI});
@@ -111,7 +111,7 @@ Deno.test("test addClassFromURI, adding '.js' extension", async () => {
 
 Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
   const _URI_spaces = "  ";
-  const _moduleName = "_ModulesLoader_test_module";
+  const _moduleName = "modules_loader_test_module";
   assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_spaces})).success);
 
   const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_spaces});
@@ -180,7 +180,7 @@ Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => 
 
 //#region test addClassFromObject & addClassFromURI
 Deno.test("test add from class, get it, and then from uri (skipped for same name), then get the first class", async () => {
-  const _URI = "./_ModulesLoader_test_module.js";
+  const _URI = "./modules_loader_test_module.js";
   const _moduleName = "duplicateModule";
 
   // test add from class

@@ -1,4 +1,4 @@
-import {ValuesA2} from './_ModulesLoader_test_module2.js';
+import {ValuesA2} from './modules_loader_test_module2.js';
 
 export class ValuesA {
   static value = "hello v0.1.3";
@@ -14,6 +14,6 @@ export class Module {
 }
 
 export async function value_from_other_file__ValuesA2(){
-  const _module = (await import("./_ModulesLoader_test_module2.js"));
+  const _module = (await import("./modules_loader_test_module2.js"));
   return _module.ValuesA2.value;
 }
