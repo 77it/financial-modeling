@@ -6,8 +6,6 @@ import { validateObj } from '../deps.js';
  * @return {ModuleData} deserialized ModuleData
  */
 export function ModuleDataLoader (json) {
-  const errorMsg = 'Error during deserialization of ModuleData';
-
   const deserializedModuleData = JSON.parse(json);
 
   return new ModuleData(deserializedModuleData);
@@ -52,6 +50,7 @@ export class ModuleData {
         errorMsg: `validation of ModuleData ${p}`,
       });
 
+    // validate table array
     validateObj(
       {
         obj: p.tables,
