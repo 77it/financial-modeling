@@ -1,0 +1,1 @@
+// this is the SimObject draft used to create a transaction
