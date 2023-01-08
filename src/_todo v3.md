@@ -1,8 +1,45 @@
+# TODO
+
+main-treasury-temp.js
+    * deserializza `modulesData` input
+    * chiama engine.js passando modulesData[]
+
+engine.js
+    inizializza `simulation context` che contiene:
+    * `Ledger`
+    inizializza `moduleRunner` passando `simulation context`
+
+moduleRunner
+    chiama giorno per giorno i moduli
+
+i moduli
+    * alla prima chiamata elaborano la tabella di input
+    * ogni giorno: elaborano i nuovi `SimObjects`
+    * ogni giorno: interrogano i vecchi `SimObjects` su Ledger per vedere se è giunto il tempo di scaricarli
+
+Ledger
+    * accetta transazioni
+    * salva i `SimObjects`
+    * fa un dump dei `SimObjects` dopo ogni transazione
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <engine.js>
 
 # simulation context
 
-main.js inizializza "simulation context" che contiene:
+engine.js inizializza "simulation context" che contiene:
 * Ledger
 * Log
 * Lock
