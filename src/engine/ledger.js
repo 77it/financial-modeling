@@ -18,7 +18,9 @@ squareTrn(): input SimObjectType/SimObjectName or SimObjectId (es per cash o amm
 
 commitTrn(): conclude la transazione; errore se non quadra
 
-extinguishSimObject(): accetta un id, crea una scrittura con importo residuo di un SimObject; restituisce l’oggetto creato, con amount in formato Big. name from [1] https://www.iasplus.com/en/standards/ifric/ifric19
+extinguishSO(): accetta un id, crea una scrittura con importo residuo di un SimObject; restituisce l’oggetto creato, con amount in formato Big. name from [1] https://www.iasplus.com/en/standards/ifric/ifric19
+
+deltaSO(): accetta un id e un importo delta, crea una scrittura con una variazione del SimObject del delta indicato; restituisce l’oggetto creato, con amount in formato Big.
  */
 
 // SimObjects storage and edits, #queue
