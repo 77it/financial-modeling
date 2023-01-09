@@ -45,18 +45,10 @@ Ledger
 engine.js inizializza "simulation context" che contiene:
 * Ledger
 * Log
-* Lock
+* Constants
 * Drivers
 * etc
 e lo passa a ModuleRunner
-
-
-# locks
-
-Non tutti i lock vengono chiamati da modulesRunner:
-* alcuni come EBITDA servono per offrire delle funzionalità a chi li chiama
-* altri servono dal callback per funzioni speciali (Tax, Treasury, ecc)
-* altri ancora possono essere usati solo come traccia di qualche funzionalità che non deve essere portata avanti da altri (un modulo che vuole offrire una funzionalità cerca di aprire un lock; se è già aperto va in errore e non fa quella azione che avrebbe voluto fare - eventualmente loggando un warning)
 
 </engine.js>
 
@@ -68,15 +60,15 @@ Non tutti i lock vengono chiamati da modulesRunner:
 Sequenza delle attività di ModuleRunner:
 * before starting the Simulation, without being able to change the accounting (Ledger is still "closed"):
     1) call all modules methods `oneTimeBeforeTheSimulationStarts`
-       * to set the #locks
+       * to set the #constants
        * to set the #drivers
     2) freeze Drivers and Locks repository
 * giornalmente, chiamate ai moduli in ordine di scrittura su Excel:
     * setta il driver $.TODAY con la data corrente (JS Date object)  #$_TODAY_driver
-    * modules method call `beforeDailyModeling` // ledger is closed here; do some actions useful for the next day, computing >ebitda_lock_id for example
+    * modules method call `beforeDailyModeling` // ledger is closed here; do some actions useful for the next day, computing >ebitda_const_id for example
     * open Ledger
     * modules method call `dailyModeling`
-    * special locks calling, at the end of the day; ledger is still open here
+    * special constants calling, at the end of the day; ledger is still open here
         vanno chiamati in questo ordine logico (prima le tasse, poi i giri di cassa, poi il calcolo degli oneri finanziari)
 		* $$.TaxManager
 		* $$.CashManager
@@ -94,20 +86,51 @@ Sequenza delle attività di ModuleRunner:
 # modules methods
 
 Standard module methods:
-* oneTimeBeforeTheSimulationStarts(listOfTables: any[], setContext: Divers_and_Globals__set, getContext: Divers_and_Globals__get): void;
-* beforeDailyModeling(getContext: Divers_and_Globals__get): void;
-* dailyModeling(getContext: Divers_and_Globals__get): void;
-* oneTimeAfterTheSimulationEnds(getContext: Divers_and_Globals__get): void;
+* oneTimeBeforeTheSimulationStarts({listOfTables: any[], driversSet, constantsSet}): void;
+* beforeDailyModeling({driversGet, constantsGet}): void;
+* dailyModeling({driversGet, constantsGet}): void;
+* oneTimeAfterTheSimulationEnds({driversGet, constantsGet}): void;
 
 </_sampleModule.js>
 
 
-<modules and locks>
+<constants definition (#constants, #globals, #variables, #locks)>
+if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
+Constants are immutable: when defined/set can't be redefined.
 
-# EBITDA module #EBITDA #lock
-#ebitda_lock_id
+method constantsGet({namespace: optional string, name:string})
+global/simulation namespace is "$$"; namespace can be null, undefined or "" meaning $$
 
-Registra il lock di simulazione `$$.EBITDA` che registra una funzione che restituisce l'EBITDA della Unit dell'anno fiscale (setting di Unit $.END_OF_THE_FISCAL_YEAR__MONTH o altro setting da esso derivato)
+method constantsSet({namespace: optional string, name: string, value: any})
+global/simulation namespace is "$$"; namespace can be null, undefined or "" meaning $$
+
+</constants definition (#constants, #globals, #variables, #locks)>
+
+
+<#modules and #constants>
+
+# constants usage
+
+Non tutte le constants vengono chiamate da modulesRunner:
+* alcune come EBITDA servono per offrire delle funzionalità a chi li chiama
+* altre servono dal callback per funzioni speciali (Tax, Treasury, ecc)
+* altre ancora possono essere usate solo come traccia di qualche funzionalità che non deve essere portata avanti da altri (un modulo che vuole offrire una funzionalità cerca di aprire una const; se è già aperta va in errore e non fa quella azione che avrebbe voluto fare - eventualmente loggando un warning)
+
+
+# CCN module (nome provvisorio)
+
+Moduli che scaricano i crediti/debiti commerciali a fine giornata appena si manifestano, o ne impostano il valore perché sia sempre una certa soglia (in relazione ai ricavi/costi, ad esempio).
+
+
+# RATE_EURIBOR constant
+
+Is a list of {Date, rate}, with the sequence of Euribor in the entire simulation range.
+
+
+# EBITDA module #EBITDA #constant
+#ebitda_const_id
+
+Registra const di simulazione `$$.EBITDA` che registra una funzione che restituisce l'EBITDA della Unit dell'anno fiscale (setting di Unit $.END_OF_THE_FISCAL_YEAR__MONTH o altro setting da esso derivato)
 
 Durante `beforeDailyModeling` calcola l'EBITDA interrogando ledger.
 
@@ -116,7 +139,7 @@ Durante `beforeDailyModeling` calcola l'EBITDA interrogando ledger.
 
 # Treasury module
 
-Registra il lock di simulazione `$$.Treasury`
+Registra const di simulazione `$$.Treasury`
 
 ## movimenti di cassa di una certa Unit a fine giornata: chiusura delle partite di cassa aperte
 
@@ -147,7 +170,7 @@ Il modulo tesoreria, che calcola l'ammontare degli interessi passivi, deve avere
 
 # cash manager module (cash manager è un modulo differente da Tresury)
 
-Registra il lock di simulazione `$$.CashManager`
+Registra const di simulazione `$$.CashManager`
 
 At EOD, transfer excess cash from Unit to Unit, following rules taken from some input tables.
 
@@ -156,7 +179,7 @@ Va eseguito prima di Treasury (in modo da consentire a Treasury il calcolo degli
 
 # tax manager module
 
-Registra il lock di simulazione `$$.TaxManager`
+Registra const di simulazione `$$.TaxManager`
 
 ## tax manager settings
 
@@ -165,3 +188,5 @@ Taxes uses no Simulation/Unit settings but a table, because every tax manager ca
 Table example:
 
     Unit name | Tax rate
+
+</#modules and #constants>

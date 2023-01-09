@@ -77,60 +77,6 @@ Se in un filtro c'è il valore "" vuol dire che in assenza di tag si intende inc
 //#endregion SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesLoader, #ModulesData)
 
 
-//#region #Globals (defined inside Ledger) (#variables, #locks)
-/*
-if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
-
-Variables/lock are immutable: when defined/set can't be redefined.
-
-/////
-method globalsGet({namespace: optional string, name:string})
-namespace can be null, undefined or "" meaning Simulation/global
-name, string, is the global variable name
-
-/////
-method globalsSet({namespace: optional string, name: string, value: any})
-namespace can be null, undefined or "" meaning Simulation/global
-name, string, is the global variable name
-value can be string or object
-
-*/
-
-
-// js lock boolean flag: salesAndPurchasesOnlyVsCash
-/*
-immutable flag (ovviamente)
-
-serve per non muovere il CCN con acquisti e vendite, CCN che dovrebbe essere mosso da altri moduli che impostano "a mano" il livello di crediti v/clienti e debiti v/fornitori.
-è un flag che non è mandatory, ma andrebbe rispettato dai vari moduli. non deve essere rispettato da crediti non commerciali, quali finanziamenti infragruppo, ecc.
-
-in alternativa ci possono essere dei moduli che scaricano i crediti/debiti commerciali a fine giornata appena si manifestano, o ne impostano il valore perché sia sempre una certa soglia (in relazione ai ricavi/costi, ad esempio) 
-*/
-
-
-// some other locks
-/*
-# EBITDA
-lockname: EBITDA
-
-types (defined in JSDocs):
-* ebitdaQuery
-* ebitda
-
-# RATE_EURIBOR
-lockname: RATE_EURIBOR
-
-types (defined in JSDocs):
-* rateEuriborQuery
-* rateEuribor
-
-is a list of {Date, rate}, with the sequence of Euribor in the entire simulation range.
-when the rates are stored in the lock, the module that sets the rate shouldn't save dates before start and after end
-(dates from module/table "Set.SimulationSettings", settings "SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE" and "SIMULATION_END_DATE").
- */
-//#endregion #Globals (defined inside Ledger) (#variables, #locks)
-
-
 //#region #Logger of debug, info, warning messages (defined inside Ledger)
 /*
 Ledger ha 3 metodi `logDebug`, `logInfo`, `logWarning`  per consentire ai moduli di scrivere messaggi di tipo:
