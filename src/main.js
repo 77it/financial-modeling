@@ -103,6 +103,8 @@ immutable flag (ovviamente)
 
 serve per non muovere il CCN con acquisti e vendite, CCN che dovrebbe essere mosso da altri moduli che impostano "a mano" il livello di crediti v/clienti e debiti v/fornitori.
 è un flag che non è mandatory, ma andrebbe rispettato dai vari moduli. non deve essere rispettato da crediti non commerciali, quali finanziamenti infragruppo, ecc.
+
+in alternativa ci possono essere dei moduli che scaricano i crediti/debiti commerciali a fine giornata appena si manifestano, o ne impostano il valore perché sia sempre una certa soglia (in relazione ai ricavi/costi, ad esempio) 
 */
 
 
