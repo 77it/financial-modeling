@@ -1,4 +1,4 @@
-import { validateObj } from '../deps.js';
+import { validateObj } from '../../deps.js';
 
 export class ModulesLoader {
   /** Map containing id (URI/moduleName) as key and a {class: *, cdnURI: string} as value

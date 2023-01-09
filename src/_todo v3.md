@@ -10,6 +10,9 @@ engine.js
     inizializza `moduleRunner` passando `simulation context`
 
 moduleRunner
+    inizializza al suo interno
+    * Drivers
+    * Contants
     chiama giorno per giorno i moduli
 
 i moduli
@@ -36,21 +39,6 @@ Ledger
 <vault>
 #ledger   see ledger.js
 </vault>
-
-
-<engine.js>
-
-# simulation context
-
-engine.js inizializza "simulation context" che contiene:
-* Ledger
-* Log
-* Constants
-* Drivers
-* etc
-e lo passa a ModuleRunner
-
-</engine.js>
 
 
 <modulesRunner.js>

@@ -1,4 +1,4 @@
-import { validateObj } from '../deps.js';
+import { validateObj } from '../../deps.js';
 
 /**
  * Returns a ModuleData from a JSON string
