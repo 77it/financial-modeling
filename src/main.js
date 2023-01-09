@@ -5,11 +5,14 @@ https://news.ycombinator.com/item?id=32495724
 https://news.ycombinator.com/item?id=23964513
 */
 
+
 // debug
 // https://stackoverflow.com/questions/61853754/how-to-debug-deno-in-vscode
 // https://deno.land/manual@v1.21.0/vscode_deno#using-the-debugger
 
+
 // deno cheat sheet: https://oscarotero.com/deno/
+
 
 // [UNUSED - Simulation must never break old code then won't need versions] semantic versioning
 /*
@@ -22,6 +25,7 @@ https://github.com/simulation99/simulation-js/simulation/lib/v0/simulation_types
 inspired to this real example
 https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/d3/v6/index.d.ts
  */
+
 
 // dependencies (#deps.js #deps.ts #global.d.ts #index.js #dependencies)
 /* create file "deps.js" based on "deps.ts" in https://examples.deno.land/dependency-management
@@ -55,10 +59,7 @@ Simulation init then:
 //#region SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesLoader, #ModulesData)
 /*
 #SimulationEngine accepts ModulesLoader (già inizializzato) and ModuleTables[] as input parameters
-
 SimulationEngine, nelle varie versioni, è sempre compatibile con le versioni precedenti
-
-
 
 #ModulesLoader
 accetta nell'init della classe 2 parametri:
@@ -74,14 +75,6 @@ Se in un filtro c'è il valore "" vuol dire che in assenza di tag si intende inc
 
 */
 //#endregion SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesLoader, #ModulesData)
-
-
-//#region Ledger: da main.js riceve alcuni oggetti per scrivere su file
-/*
-* logger_simObjects_writer  // scrive il dump dei SimObjects
-* logger_messages_writer  // scrive un file di messaggi di >Logger o >Throw, come lista di stringhe JSON {type: string [debug|info|warning|error], message: string}
-*/
-//#endregion Ledger: da main.js riceve alcuni oggetti per scrivere su file
 
 
 //#region #Globals (defined inside Ledger) (#variables, #locks)
@@ -103,6 +96,7 @@ value can be string or object
 
 */
 
+
 // js lock boolean flag: salesAndPurchasesOnlyVsCash
 /*
 immutable flag (ovviamente)
@@ -110,6 +104,7 @@ immutable flag (ovviamente)
 serve per non muovere il CCN con acquisti e vendite, CCN che dovrebbe essere mosso da altri moduli che impostano "a mano" il livello di crediti v/clienti e debiti v/fornitori.
 è un flag che non è mandatory, ma andrebbe rispettato dai vari moduli. non deve essere rispettato da crediti non commerciali, quali finanziamenti infragruppo, ecc.
 */
+
 
 // some other locks
 /*
@@ -145,6 +140,7 @@ che portano nel campo SimObject.Description quel che si vuole loggare (tipo mess
 messaggi di errore non sono previsti, vedi >error
  */
 
+
 // report debug idea   #debug #idea
 /*
 for debug purposes, create an option in the setting module that set in all SimObjects.CommandGroup__DebugDescription the ModuleId from which the command group is created.
@@ -156,7 +152,6 @@ for debug purposes, create an option in the setting module that set in all SimOb
 /*
 today()
 restituisce la data corrente di esecuzione
-
  */
 //#endregion Ledger other minor methods (#other #minor #extra)
 

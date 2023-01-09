@@ -1,4 +1,12 @@
 ﻿// TODO
+
+// init
+/*
+da main.js riceve alcuni oggetti per scrivere su file
+* logger_simObjects_writer  // scrive il dump dei SimObjects
+* logger_messages_writer  // scrive un file di messaggi di >Logger o >Throw, come lista di stringhe JSON {type: string [debug|info|warning|error], message: string}
+*/
+
 /*
 Ledger: private map to store SO
 
@@ -9,7 +17,6 @@ method addTrn(array) // validate elements
 
 // dates: store dates in Ledger as local dates, no UTC
 
-// TODO later
 /*
 Js Ledger, metodi
 

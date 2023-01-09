@@ -94,10 +94,10 @@ Sequenza delle attività di ModuleRunner:
 # modules methods
 
 Standard module methods:
-* oneTimeBeforeTheSimulationStarts(listOfTables: any[], setContext: Divers_and_Variables_Repository__set, getContext: Divers_and_Variables_Repository__get): void;
-* beforeDailyModeling(getContext: Divers_and_Variables_Repository__get): void;
-* dailyModeling(getContext: Divers_and_Variables_Repository__get): void;
-* oneTimeAfterTheSimulationEnds(getContext: Divers_and_Variables_Repository__get): void;
+* oneTimeBeforeTheSimulationStarts(listOfTables: any[], setContext: Divers_and_Globals__set, getContext: Divers_and_Globals__get): void;
+* beforeDailyModeling(getContext: Divers_and_Globals__get): void;
+* dailyModeling(getContext: Divers_and_Globals__get): void;
+* oneTimeAfterTheSimulationEnds(getContext: Divers_and_Globals__get): void;
 
 </_sampleModule.js>
 
