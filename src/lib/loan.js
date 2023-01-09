@@ -2,6 +2,21 @@ export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmou
 import { validateObj } from '../deps.js';
 import { addMonths } from '../deps.js';
 
+// info about loans
+/*
+see https://www.modefinance.com/en/company/blog/is-risk-contemplated-in-the-amortization-plans-you-work-with
+see https://docenti-deps.unisi.it/lucaregis/wp-content/uploads/sites/53/2017/02/LR_Financial_Mathematics_18_19-6.pdf
+
+French amortization method – fixed installment amounts where the payment of overdue interest and capital share vary
+Italian amortization method – varying installment amounts where the payment of overdue interest share varies, while the capital share remains fixed
+Bullet amortization method – installments composed only of interest shares, while the final installment is equal to the initial capital amount plus the final interest share
+Balloon amortization method – only part of the capital amount is paid in installments until maturity and the rest in one final macro installment
+Custom amortization method – the installments are composed of capital share chosen one by one from the user
+
+info about interest rates calculation methods: "365/365" | "365/360" | "30/360"
+https://www.adventuresincre.com/lenders-calcs/
+*/
+
 // info about financial library
 // home   https://github.com/lmammino/financial  // backup repository   https://github.com/77it/financial
 // npm   https://www.npmjs.com/package/financial/v/0.1.3
@@ -109,6 +124,8 @@ function calculateAnnuityOfAConstantPaymentLoan ({
 
 
 /**
+ * Compute the full schedule of a French amortization schedule (a series of constant payments at regular intervals)
+ *
  * @param {Object} p
  * @param {Date} p.startDate
  * @param {number} p.startingPrincipal
