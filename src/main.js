@@ -34,79 +34,11 @@ https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/d3/v6/index
 */
 
 
-//#region #Modules init, methods
-/*
-Modules init, input is only one variable, the moduleData of the module
-
-Modules, after init, input is only one variable, the #Ledger object
-*/
-//#endregion #Modules init, methods
-
-
-//#region JS #ledger/#SimObject
-/*
-# SimObject class #SimObject
-* numbers: stored with big.js http://mikemcl.github.io/big.js/
-* numbers: throw exception with numbers with integer / decimal digits greater than SIMULATION_NUMBERS_INTEGER_PLACES & SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
-
-    function countDecimals (value) {
-      if ((value % 1) !== 0)
-        return value.toString().split(".")[1].length;
-      return 0;
-    }
-    // per normalizzare i decimali ad un numero prefissato -> poi vedi se il numero intero è superiore al consentito (massimo 15 cifre in totale)
-    function roundTo (num, decimalPlaces) {
-      decimalPlaces = decimalPlaces ?? 10;
-      return +num.toFixed(decimalPlaces);
-    }
-* numbers: throw exception with numbers with number of decimal (fractional) digits greater than SIMULATION_NUMBERS_DECIMAL_PLACES elements (also in principal, in every number)
-* numbers: static method: normalizeNumber; returns a number with the right number of decimal places (normalize numbers with `roundTo` to SIMULATION_NUMBERS_DECIMAL_PLACES)
-* dates: store dates without minutes/seconds
-
-
-## new SimObjects / transaction class (#new #transaction)
-
-la classe Transaction accetta 2 tipi di classi:
-* NewSimObjects : {amount, metadata, etc}
-* DeltaSimObjects : {id, delta, etc}
-
-Ledger usa New/Delta per creare SimObjects che salva dentro Ledger.
-New/Delta vengono distinti da Ledger interrogando la presenza dei campi 'amount' o 'delta' nell'oggetto.
-
-
-## SimObject properties
-
-// not exported properties
-VersionId
-OldVersionId
-Quantity
-UnityOfMeasure
-
-
-## SimObject methods
-
-* plus/minus, to return squared delta  // internally use Big.js
-* setPrincipal {total, indefinite, plan[{day, amount}]}
-  if sum of indefinite+plan != from total, throw
-  return void
-  // internally use Big.js
-
-## Ledger/SimObject dates + export/dump to JSON (date UTC conversion)
-
-store dates in Ledger/SimObject as local dates, no UTC
-
-convert to UTC only when dumping the SimObject to JSON
-  sample code: const dateExportToJSON = new Date(Date.UTC(_d0.getFullYear(), _d0.getMonth(),_d0.getDate(), _d0.getHours(),_d0.getMinutes(), _d0.getSeconds(), _d0.getMilliseconds())).toJSON();
-
-*/
-//#endregion JS #ledger/#SimObject
-
-
 //#region SimulationInit (#SimulationInit)
 /*
 # commands
 
-* merge-input
+* merge-input ??? what is it ???
 * init-simulation
 
 ## main.js (#SimulationEngine)
@@ -225,11 +157,6 @@ for debug purposes, create an option in the setting module that set in all SimOb
 today()
 restituisce la data corrente di esecuzione
 
-/////
-
-normalizePrincipal {total, indefinite, plan[{day, amount}]}
-  return squared on last plan day if plan array is present, or on indefinite
-  // internally use Big.js, return numbers
  */
 //#endregion Ledger other minor methods (#other #minor #extra)
 
