@@ -20,6 +20,11 @@ i moduli
     * ogni giorno: elaborano i nuovi `SimObjects`
     * ogni giorno: interrogano i vecchi `SimObjects` su Ledger per vedere se è giunto il tempo di scaricarli
 
+    MODULE modules/new_credits_and_debits.js
+    per dividere crediti e debiti con piani di ammortamento preesistenti, poiché non tutti i piani nascono il 31.12.XXXX (o il 1/1/XXXX+1), dobbiamo rigenerare le date del piano dall'inizio, e ripartire con il calcolo della rata dalla data precedente a quella in cui comincia la dilazione del debito, per vedere la prossima rata quando sarà.
+    Esempio:
+    debito al 31/12/2022: 90.000 euro; inizio piano 15/11/2020, rata semestrale. Si rigenerano le date, si vede che la rata successiva al 31/12/2022 è il 15/05/2023, si genera il piano da quella data per la durata residua.
+
 Ledger
     * accetta transazioni
     * salva i `SimObjects`
@@ -137,7 +142,7 @@ A fine giornata, quando viene eseguito da ModuleRunner, Treasury interroga per o
 
 Infine, calcola gli interessi >treasuryModule_interestComputation_id20200827
 
-[1] i conti correnti di Treasury sono quelli "accesi da lei", di cui conosce il SimObjId, e che sono i conti di base delle Unit su cui si calcolano gli interessi (potrebbe bastare un solo conto per Unit). Se ne servono di più, modificare la logica del modulo di tesoreria.
+[1] i conti correnti di Treasury sono quelli accesi da Treasury stessa, di cui conosce il SimObjId, e che sono i conti di base delle Unit su cui si calcolano gli interessi (potrebbe bastare un solo conto per Unit). Se ne servono di più, modificare la logica del modulo di tesoreria.
 
 ## BS_BankAccount_FinancialAccount SimObjects
 
