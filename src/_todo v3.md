@@ -58,9 +58,9 @@ Sequenza delle attività di ModuleRunner:
     * modules method call `dailyModeling`
     * special constants calling, at the end of the day; ledger is still open here
         vanno chiamati in questo ordine logico (prima le tasse, poi i giri di cassa, poi il calcolo degli oneri finanziari)
-		* $$.TaxManager
-		* $$.CashManager
-		* $$.Treasury
+		* $.TaxManager
+		* $.CashManager
+		* $.Treasury
 		* etc
     * close ledger for the day
 * after ending the Simulation, without being able to change the accounting (Ledger is definitely "closed"):
@@ -118,7 +118,7 @@ Is a list of {Date, rate}, with the sequence of Euribor in the entire simulation
 # EBITDA module #EBITDA #constant
 #ebitda_const_id
 
-Registra const di simulazione `$$.EBITDA` che registra una funzione che restituisce l'EBITDA della Unit dell'anno fiscale (setting di Unit $.END_OF_THE_FISCAL_YEAR__MONTH o altro setting da esso derivato)
+Registra const di simulazione `$.EBITDA` che registra una funzione che restituisce l'EBITDA della Unit dell'anno fiscale (setting di Unit $.END_OF_THE_FISCAL_YEAR__MONTH o altro setting da esso derivato)
 
 Durante `beforeDailyModeling` calcola l'EBITDA interrogando ledger.
 
@@ -127,7 +127,7 @@ Durante `beforeDailyModeling` calcola l'EBITDA interrogando ledger.
 
 # Treasury module
 
-Registra const di simulazione `$$.Treasury`
+Registra const di simulazione `$.Treasury`
 
 ## movimenti di cassa di una certa Unit a fine giornata: chiusura delle partite di cassa aperte
 
@@ -158,7 +158,7 @@ Il modulo tesoreria, che calcola l'ammontare degli interessi passivi, deve avere
 
 # cash manager module (cash manager è un modulo differente da Tresury)
 
-Registra const di simulazione `$$.CashManager`
+Registra const di simulazione `$.CashManager`
 
 At EOD, transfer excess cash from Unit to Unit, following rules taken from some input tables.
 
@@ -167,7 +167,7 @@ Va eseguito prima di Treasury (in modo da consentire a Treasury il calcolo degli
 
 # tax manager module
 
-Registra const di simulazione `$$.TaxManager`
+Registra const di simulazione `$.TaxManager`
 
 ## tax manager settings
 
