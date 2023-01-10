@@ -6,7 +6,7 @@ import {
     assertEquals,
     assertFalse,
     assertThrows,
-} from 'https://deno.land/std/testing/asserts.ts';
+} from '../deps.js';
 import { pmt } from 'https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/financial.esm.js';
 
 Deno.test('test my loan code, with comparison with `financial` library', async (t) => {
@@ -78,6 +78,16 @@ Deno.test('test getMortgagePayments', async (t) => {
             numberOfPaymentsInAYear: 1,
             numberOfPayments: 4,
             gracePeriod: 1
+        }));
+    });
+
+    await t.step('test with interest zero', async () => {
+        console.log(getMortgagePaymentsOfAConstantPaymentLoan({
+            startDate: new Date(2022, 11, 25, 0, 0, 0),
+            startingPrincipal: 10_000,
+            annualInterestRate: 0,
+            numberOfPaymentsInAYear: 12,
+            numberOfPayments: 5
         }));
     });
 });

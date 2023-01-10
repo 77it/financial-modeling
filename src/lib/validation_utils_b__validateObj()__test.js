@@ -5,7 +5,7 @@ import {
   assert,
   assertFalse,
   assertThrows,
-} from 'https://deno.land/std/testing/asserts.ts';
+} from '../deps.js';
 
 Deno.test('test validateObj(), valid, simple object', () => {
   const objToValidate = { a: 'mamma', b: 99 };

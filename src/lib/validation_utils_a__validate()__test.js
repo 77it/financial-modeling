@@ -4,7 +4,7 @@ import {
   assert,
   assertFalse,
   assertThrows,
-} from 'https://deno.land/std/testing/asserts.ts';
+} from '../deps.js';
 
 Deno.test('test validate(), not valid, any type is undefined + personalized error message', () => {
   const objToValidate = undefined;

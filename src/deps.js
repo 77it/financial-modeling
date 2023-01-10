@@ -3,6 +3,9 @@ export { sanitize, sanitizeObj } from './lib/sanitization_utils.js';
 export { isInvalidDate, addMonths } from './lib/date_utils.js';
 
 
+export { assert, assertFalse, assertEquals, assertNotEquals, assertStrictEquals, assertThrows } from "https://deno.land/std@0.171.0/testing/asserts.ts";
+
+
 //#region number libraries
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
 // @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"

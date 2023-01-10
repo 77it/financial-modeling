@@ -6,7 +6,7 @@ import {
   assertEquals,
   assertFalse,
   assertThrows,
-} from 'https://deno.land/std/testing/asserts.ts';
+} from '../deps.js';
 
 Deno.test('test sanitizeObj()', async (t) => {
   await t.step('null, undefined and other non-objects are coerced to {}', async () => {

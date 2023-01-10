@@ -5,7 +5,7 @@ import {
   assertEquals,
   assertFalse,
   assertThrows,
-} from 'https://deno.land/std/testing/asserts.ts';
+} from '../deps.js';
 
 
 Deno.test('test sanitize()', async (t) => {

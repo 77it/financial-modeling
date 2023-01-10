@@ -1,6 +1,6 @@
 // run with `deno test --allow-read --allow-net THIS-FILE-NAME`
 
-import {assert, assertFalse, assertEquals, assertNotEquals} from "https://deno.land/std/testing/asserts.ts";
+import {assert, assertFalse, assertEquals, assertNotEquals} from '../../deps.js';
 
 import {ModulesLoader} from "./modules_loader.js";
 import {ModuleData} from "./module_data.js";
