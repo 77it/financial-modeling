@@ -20,7 +20,7 @@ number[] principalSchedule  // contains a list of numbers to split the payments 
 // # not exported properties
 /*
 * extras: property that contain a class or an object with all the extra properties specific to the SimObject
-* vsSimObjectId: is of the versus SimObject
+* vsSimObjectId: is of the versus SimObject  // this is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
 * versionId
 * previousVersionId
 * quantity
