@@ -269,3 +269,4 @@ ModelManifest.xml
 /.idea/deno.xml
 /zTemp/temp-test-code2.TS/package.json.bak
 /src/deno.lock
+*.exe

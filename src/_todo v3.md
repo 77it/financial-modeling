@@ -1,7 +1,6 @@
 # TODO
 
 main-treasury-temp.js
-    * scarica Converter.exe e deserializza
     * deserializza `modulesData` input
     * chiama engine.js passando modulesData[]
 
