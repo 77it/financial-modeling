@@ -1,5 +1,3 @@
-import {ValuesA2} from './modules_loader_test_module2.js';
-
 export class ValuesA {
   static value = "hello v0.1.3";
 }

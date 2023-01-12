@@ -1,4 +1,4 @@
-import * as S from './sanitization_utils.js';
+import * as S from '../../src/lib/sanitization_utils.js';
 
 import {
   assert,

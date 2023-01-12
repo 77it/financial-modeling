@@ -1,6 +1,6 @@
-import {isInvalidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate} from "./date_utils.js";
+import {isInvalidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate} from '../../src/lib/date_utils.js';
 
-import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from "https://deno.land/std@0.139.0/testing/asserts.ts";
+import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
 import {describe, it} from "https://deno.land/std@0.139.0/testing/bdd.ts";
 
 /**

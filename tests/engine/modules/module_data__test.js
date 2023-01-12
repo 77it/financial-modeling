@@ -2,7 +2,7 @@
 
 import {assert, assertFalse, assertEquals, assertNotEquals} from '../../deps.js';
 
-import {ModuleDataLoader} from "./module_data.js";
+import {ModuleDataLoader} from "../../../src/engine/modules/module_data.js";
 import { readLines } from "https://deno.land/std@0.152.0/io/mod.ts";
 
 Deno.test('read multiline file', async () => {

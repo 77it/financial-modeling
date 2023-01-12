@@ -1,8 +1,8 @@
 // from (with edits) https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/test.ts
 
-import {isInvalidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate} from "./date_utils.js";
+import { addMonths } from '../../src/lib/date_utils.js';
 
-import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from "https://deno.land/std@0.139.0/testing/asserts.ts";
+import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
 import {describe, it} from "https://deno.land/std@0.139.0/testing/bdd.ts";
 
 /**
@@ -15,8 +15,6 @@ assert.equal = assertEquals;
 assert.strictEqual = assertStrictEquals;
 assert.throws = assertThrows;
 const _describe = describe;  // replaced `describe` with `_describe` to prevent highlight of this file from Webstorm
-
-import { addMonths } from './date_utils.js'
 
 _describe('addMonths', () => {
     it('adds the given number of months', () => {

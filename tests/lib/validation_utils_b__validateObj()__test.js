@@ -1,5 +1,5 @@
-import { validateObj } from './validation_utils.js';
-import * as Validation from './validation_utils.js';
+import { validateObj } from '../../src/lib/validation_utils.js';
+import * as Validation from '../../src/lib/validation_utils.js';
 
 import {
   assert,
