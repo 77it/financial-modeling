@@ -1,7 +1,3 @@
-export class ValuesA {
-  static value = "hello v0.1.3";
-}
-
 export class Module {
   static valueX = "module v0.1.3";
   /** @param {{value: string, value2: string}} p */

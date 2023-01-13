@@ -19,9 +19,9 @@ class ValuesB2 {
 const modulesLoader = new ModulesLoader();
 
 //#region test import inside import
-// This test demonstrates that when a module named "modules_loader_test_module.js" of a specific version ("@v0.1.19") is imported,
+// This test demonstrates that when a module named "_ModulesLoader_test_module.js" of a specific version ("@v0.1.19") is imported,
 // any subsequent local imports (e.g. ./modules_loader_test_module2.js) from that module will also be of that version ("@v0.1.19").
-Deno.test("test import inside import", async () => {
+Deno.test("test versioned import inside import", async () => {
   {
     const _module = (await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.19/src/modules/_ModulesLoader_test_module.js"));
     assertEquals(_module.Module.valueX, "module v0.1.2");
@@ -48,7 +48,7 @@ Deno.test("test addClassFromObject, class defined here", () => {
   assert(modulesLoader.addClassFromObject({moduleName: "ValuesB2X", moduleEngineURI: _URI, classObj: ValuesB2}).success);
 
   const query = modulesLoader.get({moduleName: "ValuesB2X", moduleEngineURI: _URI});
-  assert(query != undefined);
+  assert(query !== undefined);
 
   const _ValuesB2X = query.class;
   const __ValuesB2X = new _ValuesB2X(8888)
@@ -72,7 +72,7 @@ Deno.test("test addClassFromURI, alongside module (using ModuleData)", async () 
   assert((await modulesLoader.addClassFromURI(_moduleData)).success);
 
   const query = modulesLoader.get(_moduleData);
-  assert(query != undefined);
+  assert(query !== undefined);
 
   const _ValuesB = query.class;
   const __ValuesB = new _ValuesB({value: 9999, value2: "bbb"});
@@ -86,7 +86,7 @@ Deno.test("test addClassFromURI, not-alongside module", async () => {
   assert((await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI})).success);
 
   const query = modulesLoader.get({moduleName: "ValuesB2", moduleEngineURI: _URI});
-  assert(query != undefined);
+  assert(query !== undefined);
 
   const _ValuesB2 = query.class;
   const __ValuesB2 = new _ValuesB2({value: 9999, value2: "bbb"});
@@ -100,7 +100,7 @@ Deno.test("test addClassFromURI, adding '.js' extension", async () => {
   assert((await modulesLoader.addClassFromURI({moduleName: "ValuesB", moduleEngineURI: _URI})).success);
 
   const query = modulesLoader.get({moduleName: "ValuesB", moduleEngineURI: _URI});
-  assert(query != undefined);
+  assert(query !== undefined);
 
   const _ValuesB = query.class;
   const __ValuesB = new _ValuesB({value: 9999, value2: "bbb"});
@@ -115,7 +115,7 @@ Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
   assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_spaces})).success);
 
   const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_spaces});
-  assert(query != undefined);
+  assert(query !== undefined);
 
   const _ValuesB = query.class;
   const __ValuesB = new _ValuesB({value: 9999, value2: "bbb"});
@@ -127,31 +127,31 @@ Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
   const _URI_backslash = " \\ ";
   assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_backslash})).success);
   const query_backslash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_backslash});
-  assert(query_backslash != undefined);
+  assert(query_backslash !== undefined);
   assertEquals(`./${_moduleName}.js`, query_backslash.cdnURI);
 
   const _URI_dotBackslash = " .\\ ";
   assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dotBackslash})).success);
   const query_dotBackslash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_dotBackslash});
-  assert(query_dotBackslash != undefined);
+  assert(query_dotBackslash !== undefined);
   assertEquals(`./${_moduleName}.js`, query_dotBackslash.cdnURI);
 
   const _URI_slash = " \/ ";
   assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_slash})).success);
   const query_slash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_slash});
-  assert(query_slash != undefined);
+  assert(query_slash !== undefined);
   assertEquals(`./${_moduleName}.js`, query_slash.cdnURI);
 
   const _URI_dotSlash = " .\/ ";
   assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dotSlash})).success);
   const query_dotSlash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_dotSlash});
-  assert(query_dotSlash != undefined);
+  assert(query_dotSlash !== undefined);
   assertEquals(`./${_moduleName}.js`, query_dotSlash.cdnURI);
 
   const _URI_dot = " . ";
   assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dot})).success);
   const query_dot = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_dot});
-  assert(query_dot != undefined);
+  assert(query_dot !== undefined);
   assertEquals(`./${_moduleName}.js`, query_dot.cdnURI);
   //#endregion
 });
@@ -172,7 +172,7 @@ Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => 
     //console.log(`DEBUG: testing ${_entry.uri}`)
     assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _entry.uri})).success);
     const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _entry.uri});
-    assert(query != undefined);
+    assert(query !== undefined);
     assertEquals(_entry.cdn, query.cdnURI);
   }
 });
@@ -188,7 +188,7 @@ Deno.test("test add from class, get it, and then from uri (skipped for same name
 
   // get the class
   const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI});
-  assert(query != undefined);
+  assert(query !== undefined);
   const _ValuesB = query.class;
   const __ValuesB = new _ValuesB(9999);
   assertEquals(__ValuesB.valueX, 9999);
@@ -198,7 +198,7 @@ Deno.test("test add from class, get it, and then from uri (skipped for same name
 
   // get the first class
   const query2 = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI});
-  assert(query2 != undefined);
+  assert(query2 !== undefined);
   const _ValuesB2 = query.class;
   const __ValuesB2 = new _ValuesB2(9999);
   assertEquals(__ValuesB2.valueX, 9999);

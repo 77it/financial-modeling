@@ -1,5 +1,3 @@
-cd tests
-
-deno test --no-check=remote --allow-net --allow-read --allow-write
+deno test --check --allow-net --allow-read --allow-write --config deno.json tests/
 
 pause
