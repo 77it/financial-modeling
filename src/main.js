@@ -77,43 +77,12 @@ Se in un filtro c'è il valore "" vuol dire che in assenza di tag si intende inc
 //#endregion SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesLoader, #ModulesData)
 
 
-//#region #Logger of debug, info, warning messages (defined inside Ledger)
-/*
-Ledger ha 3 metodi `logDebug`, `logInfo`, `logWarning`  per consentire ai moduli di scrivere messaggi di tipo:
-debug, info, warning.
-
-i messaggi sono scritti su 3 SimObject di tipo "debug_debug", "debug_info", "debug_warning"
-che portano nel campo SimObject.Description quel che si vuole loggare (tipo messaggio, valore messaggio, ecc);
-
-messaggi di errore non sono previsti, vedi >error
- */
-
-
-// report debug idea   #debug #idea
-/*
-for debug purposes, create an option in the setting module that set in all SimObjects.CommandGroup__DebugDescription the ModuleId from which the command group is created.
- */
-//#endregion #Logger of debug, info, warning messages (defined inside Ledger)
-
-
 //#region Ledger other minor methods (#other #minor #extra)
 /*
 today()
 restituisce la data corrente di esecuzione
  */
 //#endregion Ledger other minor methods (#other #minor #extra)
-
-
-//#region errore, interruzione dell'esecuzione (#error #fatal error #throw)
-/*
-Qualunque modulo che voglia interrompere l'esecuzione del programma per un errore fatale esegue un `throw new Error`,
-che viene intercettato con try catch da main.js, che:
-* scrive su >logger_messages_writer
-* scrive su SimObject di tipo "debug_error"
-* scrive su console
-* ovviamente interrompe l'esecuzione
- */
-//#endregion errore, interruzione dell'esecuzione (#error #fatal error #throw)
 
 
 //#region UI UX GUI idea  #UI #UX GUI idea

@@ -57,6 +57,19 @@ global/simulation namespace is "$$"; namespace can be null, undefined or "" mean
 </constants definition (#constants, #globals, #variables, #locks)>
 
 
+<errors>
+#error #fatal error #throw
+
+Qualunque modulo che voglia interrompere l'esecuzione del programma per un errore fatale esegue un `throw new Error`,
+che viene intercettato con try catch da ModuleRunner che registra un SimObject "debug_error" quindi esce in errore.
+
+Main comunque ha un try/catch che intercetta gli errori e:
+* scrive su >logger_error_writer
+* scrive su console
+* ovviamente interrompe l'esecuzione
+
+</errors>
+
 <#modules and #constants>
 
 # constants usage

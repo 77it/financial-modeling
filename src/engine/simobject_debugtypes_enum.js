@@ -1,0 +1,6 @@
+﻿export const simObjectDebugTypes_enum = {
+  DEBUG_DEBUG: "DEBUG_DEBUG",
+  DEBUG_INFO: "DEBUG_INFO",
+  DEBUG_WARNING: "DEBUG_WARNING",
+  DEBUG_ERROR: "DEBUG_ERROR"
+}
