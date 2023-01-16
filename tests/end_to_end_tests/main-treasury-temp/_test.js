@@ -1,3 +1,5 @@
+// run with --allow-read --allow-write --allow-net --allow-run
+
 //#region settings
 const OPTIONS = {};
 OPTIONS.FILES = {}
@@ -8,15 +10,16 @@ OPTIONS.FILES.CONVERTER2_EXEGZ_PATH = './converter2.exe';
 import { downloadAndDecompressGzip } from '../../../src/deno/downloadAndDecompressGzip.js';
 import { existSync } from '../../../src/deno/existSync.js';
 
+import {main} from '../../../src/main-treasury-temp2.js';
+
 import {assert, assertFalse, assertEquals, assertNotEquals} from '../../deps.js';
 
-if (!existSync(OPTIONS.FILES.CONVERTER2_EXEGZ_PATH))
-  await downloadAndDecompressGzip(
-    { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
-
-console.log('done');
-
 Deno.test('main-treasury-temp tests', async () => {
+  if (!existSync(OPTIONS.FILES.CONVERTER2_EXEGZ_PATH))
+    await downloadAndDecompressGzip(
+      { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
+
+  await main({input: './user_data.xlsx', output: './user_data.jsonl.tmp', errors: './errors.txt'});
   /*
 main-treasury-temp.js
     * deserializza `modulesData` input
@@ -49,4 +52,6 @@ Ledger
     * salva i `SimObjects`
     * fa un dump dei `SimObjects` dopo ogni transazione
    */
+
+  console.log('done test');
 });

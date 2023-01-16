@@ -1,23 +1,12 @@
-// * scarica Converter.exe e deserializza
-// * deserializza `modulesData` input
-// * chiama engine.js passando modulesData[]
+// run with
+// `deno run --allow-read --allow-write THIS-FILE.js --input INPUT --output OUTPUT --errors ERRORS`
 
-// gzip   https://medium.com/deno-the-complete-reference/zip-and-unzip-files-in-deno-ee282da7369f
-// https://developer.mozilla.org/en-US/docs/Web/API/DecompressionStream/DecompressionStream
-// https://deno.land/api@v1.21.3?s=DecompressionStream
+import { parse } from "https://deno.land/std@0.172.0/flags/mod.ts";
+import { main } from "./main-treasury-temp2.js";
 
-//#region settings
-const OPTIONS = {};
-OPTIONS.FILES = {}
-OPTIONS.FILES.CONVERTER_EXEGZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v1.0.6/Converter.exe.gz';
-OPTIONS.FILES.CONVERTER_EXEGZ_PATH = './converter.exe';
-//#endregion settings
+// parse command line arguments
+const args = parse(Deno.args)
 
-import { downloadAndDecompressGzip } from './deno/downloadAndDecompressGzip.js';
-import { existSync } from './deno/existSync.js';
-
-if (!existSync('./converter.exe'))
-  await downloadAndDecompressGzip(
-    { url: OPTIONS.FILES.CONVERTER_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER_EXEGZ_PATH });
+await main({input: args?.input, output: args?.output, errors: args?.errors});
 
 console.log('done');

@@ -8,7 +8,7 @@
 export async function downloadAndDecompressGzip ({url, path}) {
   // try to delete `path`  // see https://deno.land/api@v1.28.1?s=Deno.removeSync + https://www.woolha.com/tutorials/deno-delete-file-directory-examples + https://arjunphp.com/delete-file-deno/
   try {
-    Deno.removeSync('./converter.exe');
+    Deno.removeSync(path);
   } catch (_) { }
 
   const response = await fetch(url);

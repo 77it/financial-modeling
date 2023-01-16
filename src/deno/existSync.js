@@ -11,7 +11,7 @@ export function existSync (path) {
   // assert(existsSync('./converter.exe'));
 
   try {
-    const fileInfo = Deno.statSync('./converter.exe');  // throws if file does not exist
+    const fileInfo = Deno.statSync(path);  // throws if file does not exist
     if (fileInfo.isDirectory || fileInfo.isFile || fileInfo.isSymlink)
       return true;
     return false;
