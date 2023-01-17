@@ -271,3 +271,5 @@ ModelManifest.xml
 /src/deno.lock
 *.exe
 *.lock
+/.idea/runConfigurations
+/.run

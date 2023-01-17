@@ -20,9 +20,9 @@ Deno.test('main-treasury-temp tests', async () => {
       { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
 
   await main({input: './user_data.xlsx', output: './user_data.jsonl.tmp', errors: './errors.txt'});
+
   /*
 main-treasury-temp.js
-    * deserializza `modulesData` input
     * chiama engine.js passando modulesData[]
 
 engine.js
