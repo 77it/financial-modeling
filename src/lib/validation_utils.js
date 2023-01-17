@@ -28,6 +28,8 @@ const SUCCESS = '';
  * @param {*} p.value - Value to validate
  * @param {string} p.validation - Validation type
  * @param {string} [p.errorMsg] - Optional error message
+ * @throws Will throw an error if the validation fails
+ * @return {*} Validated value
  */
 // see https://github.com/iarna/aproba for inspiration
 function validate ({ value, validation, errorMsg }) {
@@ -44,6 +46,8 @@ function validate ({ value, validation, errorMsg }) {
 
   if (validationResult)
     throw new Error(`Validation error: ${validationResult}`);
+
+  return value;
 }
 
 /**
@@ -55,6 +59,8 @@ function validate ({ value, validation, errorMsg }) {
  * @param {*} p.obj - Object to validate
  * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}
  * @param {string} [p.errorMsg] - Optional error message
+ * @throws Will throw an error if the validation fails
+ * @return {*} Validated value
  */
 // see https://github.com/iarna/aproba for inspiration
 function validateObj ({ obj, validation, errorMsg }) {
@@ -76,6 +82,8 @@ function validateObj ({ obj, validation, errorMsg }) {
     else
       throw new Error(`${errorMsg}: ${validationResult}`);
   }
+
+  return obj;
 }
 
 /**

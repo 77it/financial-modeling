@@ -1,5 +1,6 @@
 export { sanitize, sanitizeObj };
 import { parseJSON, excelSerialDateToUTCDate } from './date_utils.js';
+import { validate, validateObj } from './validation_utils.js';
 
 //#region types
 export const ANY_TYPE = 'any';
@@ -39,15 +40,16 @@ OPTIONS.NUMBER_TO_DATE = OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
  * @param {string} p.sanitization - Sanitization string
+ * @param {boolean} [p.validation=false] - Optional validation flag
  * @return {*} Sanitized value
  */
-function sanitize ({ value, sanitization }) {
+function sanitize ({ value, sanitization, validation = false }) {
   if (typeof sanitization !== 'string')
     throw new Error(`'sanitization' parameter must be a string`);
 
   let optionalSanitization = false;
   let sanitizationType = sanitization.toString().trim().toLowerCase();
-  if (sanitization.trim().slice(-1) === '?') {
+  if (sanitization.trim().slice(-1) === '?') {  // set optional sanitization flag
     optionalSanitization = true;
     sanitizationType = sanitization.toString().
       trim().
@@ -59,31 +61,37 @@ function sanitize ({ value, sanitization }) {
     return value;
   }
 
+  let retValue;
+
   switch (sanitizationType.toLowerCase()) {  // switch sanitizations
     case ANY_TYPE:
-      return value;  // return value as is without sanitization
+      retValue = value;  // return value as is without sanitization
+      break;
     case STRING_TYPE:
       try {
         if (value instanceof Date)
-          return value.toISOString();
+          retValue = value.toISOString();
         else if (typeof value === 'number' && isFinite(value))
-          return String(value);
+          retValue = String(value);
         else
           // Set to '' when whitespaces, '', null, undefined, false, 0, -0, 0n, NaN.
           // First condition to check truthy (not: false, 0, -0, 0n, "", null, undefined, and NaN)
           // Second condition to check for whitespaces.
-          return !!(value && value.toString().trim()) ? String(value) : '';
+          retValue = !!(value && value.toString().trim()) ? String(value) : '';
       } catch (_) {
-        return '';
+        retValue = '';
       }
+      break;
     case NUMBER_TYPE:
       try {
-        return isFinite(Number(value)) ? Number(value) : 0;
+        retValue = isFinite(Number(value)) ? Number(value) : 0;
       } catch (_) {
-        return 0;
+        retValue = 0;
       }
+      break;
     case BOOLEAN_TYPE:
-      return Boolean(value);
+      retValue = Boolean(value);
+      break;
     case DATE_TYPE:
       try {
         let _value = value;
@@ -98,37 +106,55 @@ function sanitize ({ value, sanitization }) {
           else
             _value = new Date(0);
         }
-        return isNaN(new Date(_value).getTime())
+        retValue = isNaN(new Date(_value).getTime())
           ? new Date(0) : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJSON` can return a not valid date
       } catch (_) {
-        return new Date(0);
+        retValue = new Date(0);
       }
+      break;
     case ARRAY_TYPE:
       if (!Array.isArray(value))  // if `value` is not an array return a new array with `value` as first element
-        return [value];
-      return value;
+        retValue = [value];
+      else
+        retValue = value;
+      break;
     case ARRAY_OF_STRINGS_TYPE: {
-      return _sanitizeArray({ array: value, sanitization: STRING_TYPE });
+      retValue = _sanitizeArray({ array: value, sanitization: STRING_TYPE });
+      break;
     }
     case ARRAY_OF_NUMBERS_TYPE: {
-      return _sanitizeArray({ array: value, sanitization: NUMBER_TYPE });
+      retValue = _sanitizeArray({ array: value, sanitization: NUMBER_TYPE });
+      break;
     }
     case ARRAY_OF_BOOLEANS_TYPE: {
-      return _sanitizeArray({ array: value, sanitization: BOOLEAN_TYPE });
+      retValue = _sanitizeArray({ array: value, sanitization: BOOLEAN_TYPE });
+      break;
     }
     case ARRAY_OF_DATES_TYPE: {
-      return _sanitizeArray({ array: value, sanitization: DATE_TYPE });
+      retValue = _sanitizeArray({ array: value, sanitization: DATE_TYPE });
+      break;
     }
-    case OBJECT_TYPE:
-      return value;  // return value as is without sanitization
-    case FUNCTION_TYPE:
-      return value;  // return value as is without sanitization
-    case SYMBOL_TYPE:
-      return value;  // return value as is without sanitization
+    case OBJECT_TYPE: {
+      retValue = value;  // return value as is without sanitization
+      break;
+    }
+    case FUNCTION_TYPE: {
+      retValue = value;  // return value as is without sanitization
+      break;
+    }
+    case SYMBOL_TYPE: {
+      retValue = value;  // return value as is without sanitization
+      break;
+    }
     default:
       throw new Error(
         `sanitization error, ${sanitizationType} type is unrecognized`);
   }
+
+  if (validation)
+    return validate(retValue);
+  else
+    return retValue;
 
   /**
    * Internal sanitization function
@@ -162,22 +188,30 @@ function sanitize ({ value, sanitization }) {
  * @param {Object} p
  * @param {*} p.obj - Object to validate
  * @param {*} p.sanitization - Sanitization object {key1: 'string', key2: 'number?'}
+ * @param {boolean} [p.validation=false] - Optional validation flag
  * @return {*} Sanitized object
  */
-function sanitizeObj ({ obj, sanitization }) {
-  if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
-    return {};  // return an empty object if `obj` is not an object
-  if (sanitization == null || typeof sanitization !== 'object')  // double check, because typeof null is object
-    return obj;
+function sanitizeObj ({ obj, sanitization, validation = false }) {
+  let retValue;
 
-  if (Array.isArray(obj)) {
+  if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
+    retValue = {};  // return an empty object if `obj` is not an object
+  else if (sanitization == null || typeof sanitization !== 'object')  // double check, because typeof null is object
+    retValue = obj;
+  else if (Array.isArray(obj)) {
     for (const elem of obj) {
       for (let i = 0; i < obj.length; i++) {  // sanitize every element of the array
         obj[i] = _sanitizeObj2(obj[i]);
       }
     }
+    retValue = obj;
   } else
-    return _sanitizeObj2(obj);
+    retValue = _sanitizeObj2(obj);
+
+  if (validation)
+    return validateObj(retValue);
+  else
+    return retValue;
 
   /**
    * Internal validation function
