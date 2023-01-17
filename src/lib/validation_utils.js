@@ -18,6 +18,66 @@ export const SYMBOL_TYPE = 'symbol';
 
 const SUCCESS = '';
 
+
+/**
+ * Validate value, throw error for validation error.
+ * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
+ * For optional values (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
+ * As types you can use also exported const as 'ANY_TYPE'.
+ * @param {Object} p
+ * @param {*} p.value - Value to validate
+ * @param {string} p.validation - Validation type
+ * @param {string} [p.errorMsg] - Optional error message
+ */
+// see https://github.com/iarna/aproba for inspiration
+function validate ({ value, validation, errorMsg }) {
+  if (typeof validation !== 'string')
+    throw new Error(`'validation' parameter must be a string`);
+  if (errorMsg != null && typeof errorMsg !== 'string')
+    throw new Error(`'errorMsg' parameter must be null/undefined or string`);
+
+  const validationResult = _validateValue({
+    value: value,
+    validation: validation,
+    errorMsg: errorMsg
+  });
+
+  if (validationResult)
+    throw new Error(`Validation error: ${validationResult}`);
+}
+
+/**
+ * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
+ * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
+ * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
+ * As types, you can use also exported const as 'ANY_TYPE'.
+ * @param {Object} p
+ * @param {*} p.obj - Object to validate
+ * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}
+ * @param {string} [p.errorMsg] - Optional error message
+ */
+// see https://github.com/iarna/aproba for inspiration
+function validateObj ({ obj, validation, errorMsg }) {
+  if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
+    throw new Error(`'obj' parameter must be an object`);
+  if (validation == null || typeof validation !== 'object')  // double check, because typeof null is object
+    throw new Error(`'validation' parameter must be an object`);
+  if (errorMsg != null && typeof errorMsg !== 'string')
+    throw new Error(`'errorMsg' parameter must be null/undefined or string`);
+
+  const validationResult = _validateObj({
+    obj: obj,
+    validation: validation
+  });
+
+  if (validationResult) {
+    if (errorMsg == null)  // null or undefined
+      throw new Error(`Validation error: ${validationResult}`);
+    else
+      throw new Error(`${errorMsg}: ${validationResult}`);
+  }
+}
+
 /**
  @private
  * validation function of a single value
@@ -189,64 +249,5 @@ function _validateObj ({ obj, validation }) {
       });
       if (validationResult) errors.push(validationResult);
     }
-  }
-}
-
-/**
- * Validate value, throw error for validation error.
- * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
- * For optional values (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
- * As types you can use also exported const as 'ANY_TYPE'.
- * @param {Object} p
- * @param {*} p.value - Value to validate
- * @param {string} p.validation - Validation type
- * @param {string} [p.errorMsg] - Optional error message
- */
-// see https://github.com/iarna/aproba for inspiration
-function validate ({ value, validation, errorMsg }) {
-  if (typeof validation !== 'string')
-    throw new Error(`'validation' parameter must be a string`);
-  if (errorMsg != null && typeof errorMsg !== 'string')
-    throw new Error(`'errorMsg' parameter must be null/undefined or string`);
-
-  const validationResult = _validateValue({
-    value: value,
-    validation: validation,
-    errorMsg: errorMsg
-  });
-
-  if (validationResult)
-    throw new Error(`Validation error: ${validationResult}`);
-}
-
-/**
- * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
- * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
- * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
- * As types you can use also exported const as 'ANY_TYPE'.
- * @param {Object} p
- * @param {*} p.obj - Object to validate
- * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}
- * @param {string} [p.errorMsg] - Optional error message
- */
-// see https://github.com/iarna/aproba for inspiration
-function validateObj ({ obj, validation, errorMsg }) {
-  if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
-    throw new Error(`'obj' parameter must be an object`);
-  if (validation == null || typeof validation !== 'object')  // double check, because typeof null is object
-    throw new Error(`'validation' parameter must be an object`);
-  if (errorMsg != null && typeof errorMsg !== 'string')
-    throw new Error(`'errorMsg' parameter must be null/undefined or string`);
-
-  const validationResult = _validateObj({
-    obj: obj,
-    validation: validation
-  });
-
-  if (validationResult) {
-    if (errorMsg == null)  // null or undefined
-      throw new Error(`Validation error: ${validationResult}`);
-    else
-      throw new Error(`${errorMsg}: ${validationResult}`);
   }
 }
