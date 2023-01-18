@@ -139,12 +139,12 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
   validateObj(
     { obj:
         {
-          startDate: startDate,
-          startingPrincipal: startingPrincipal,
-          annualInterestRate: annualInterestRate,
-          numberOfPayments: numberOfPayments,
-          numberOfPaymentsInAYear: numberOfPaymentsInAYear,
-          gracePeriod: gracePeriod
+          startDate,
+          startingPrincipal,
+          annualInterestRate,
+          numberOfPayments,
+          numberOfPaymentsInAYear,
+          gracePeriod
         },
       validation:
         {
