@@ -10,7 +10,7 @@ OPTIONS.FILES.CONVERTER2_EXEGZ_PATH = './converter2.exe';
 import { downloadAndDecompressGzip } from '../../../src/deno/downloadAndDecompressGzip.js';
 import { existSync } from '../../../src/deno/existSync.js';
 
-import {main} from '../../../src/main-treasury-temp2.js';
+import {main} from '../../../src/main-treasury-temp.js';
 
 import {assert, assertFalse, assertEquals, assertNotEquals} from '../../deps.js';
 
@@ -20,16 +20,11 @@ Deno.test('main-treasury-temp tests', async () => {
     await downloadAndDecompressGzip(
       { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
 
-  await main({input: './user_data.xlsx', output: './user_data.jsonl.tmp', errors: './errors.txt'});
+  await main({input: './user_data.xlsx', output: './user_data.xlsx.trn_jsonl.tmp', errors: './errors.txt'});
 
-  /*
-main-treasury-temp.js
-    * chiama engine.js passando modulesData[]
-
+  /* TODO
 engine.js
-    inizializza `simulation context` che contiene:
-    * `Ledger`
-    inizializza `moduleRunner` passando `simulation context`
+  WIP
 
 moduleRunner
     inizializza al suo interno
