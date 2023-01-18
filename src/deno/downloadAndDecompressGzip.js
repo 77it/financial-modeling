@@ -11,12 +11,22 @@ export async function downloadAndDecompressGzip ({url, path}) {
     Deno.removeSync(path);
   } catch (_) { }
 
+  // see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#checking_that_the_fetch_was_successful
+  // see https://www.builder.io/blog/safe-data-fetching
   const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Bad fetch response')
+  }
 
   const dest = await Deno.open(path, {
     create: true,
     write: true,
   });
 
+  // gzip   https://medium.com/deno-the-complete-reference/zip-and-unzip-files-in-deno-ee282da7369f
+  // tar/untar   https://stackoverflow.com/questions/71365204/untar-from-a-fetch-reader-in-deno
+  // https://developer.mozilla.org/en-US/docs/Web/API/DecompressionStream/DecompressionStream
+  // https://deno.land/api@v1.21.3?s=DecompressionStream
   await response.body?.pipeThrough(new DecompressionStream('gzip'))?.pipeTo(dest.writable);
 }
