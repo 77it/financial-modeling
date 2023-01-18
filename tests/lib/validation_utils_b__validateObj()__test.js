@@ -2,10 +2,18 @@ import { validateObj } from '../../src/lib/validation_utils.js';
 import * as Validation from '../../src/lib/validation_utils.js';
 
 import {
-  assert,
+  assert, 
+  assertEquals,
   assertFalse,
   assertThrows,
 } from '../deps.js';
+
+Deno.test('test validateObj() return value', () => {
+  const objToValidate = { a: 'mamma', b: 99 };
+  const objToValidate2 = validateObj({ obj: objToValidate, validation: { a: 'string', b: 'number' } });
+
+  assertEquals(objToValidate2, objToValidate);
+});
 
 Deno.test('test validateObj(), valid, simple object', () => {
   const objToValidate = { a: 'mamma', b: 99 };

@@ -6,8 +6,9 @@ import {ModuleDataLoader} from "../../../src/engine/modules/module_data.js";
 import { readLines } from "https://deno.land/std@0.152.0/io/mod.ts";
 
 Deno.test('read multiline file', async () => {
-  //const filename = new URL("module_data__test_data.jsonl", import.meta.url);  // see https://github.com/denoland/deno/issues/1286#issuecomment-643624186
-  const fileReader = await Deno.open("./module_data__test_data.jsonl");
+  const filename = new URL("module_data__test_data.jsonl", import.meta.url);  // see https://github.com/denoland/deno/issues/1286#issuecomment-643624186
+  //const filename = "./module_data__test_data.jsonl";
+  const fileReader = await Deno.open(filename);
 
   const jsonLines = [];
 

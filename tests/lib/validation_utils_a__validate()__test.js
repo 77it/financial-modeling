@@ -2,11 +2,12 @@ import * as Validation from '../../src/lib/validation_utils.js';
 
 import {
   assert,
+  assertEquals,
   assertFalse,
   assertThrows,
 } from '../deps.js';
 
-Deno.test('test validate(), not valid, any type is undefined + personalized error message', () => {
+Deno.test('test validate(), not valid, `any` type is undefined + personalized error message', () => {
   const objToValidate = undefined;
   const validation = 'any';
 
@@ -20,7 +21,7 @@ Deno.test('test validate(), not valid, any type is undefined + personalized erro
   assert(_error.includes('ValX = undefined, must be !== null or undefined'));
 });
 
-Deno.test('test validate(), not valid, any type is null', () => {
+Deno.test('test validate(), not valid, `any` type is null', () => {
   const objToValidate = null;
   const validation = 'any';
 
@@ -32,6 +33,13 @@ Deno.test('test validate(), not valid, any type is null', () => {
   }
   console.log(_error);
   assert(_error.includes('Value = null, must be !== null or undefined'));
+});
+
+Deno.test('test validate() return value', () => {
+  const objToValidate = 'xyz';
+  const objToValidate2 = Validation.validate({ value: objToValidate, validation: 'string' });
+
+  assertEquals(objToValidate2, objToValidate);
 });
 
 Deno.test('test validate(), valid, all cases', () => {

@@ -15,6 +15,7 @@ import {main} from '../../../src/main-treasury-temp2.js';
 import {assert, assertFalse, assertEquals, assertNotEquals} from '../../deps.js';
 
 Deno.test('main-treasury-temp tests', async () => {
+  Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
   if (!existSync(OPTIONS.FILES.CONVERTER2_EXEGZ_PATH))
     await downloadAndDecompressGzip(
       { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
