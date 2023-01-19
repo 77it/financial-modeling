@@ -17,7 +17,8 @@ import { ModuleData } from './modules/module_data.js';
 function engine ({ input, appendTrnDump }) {
   console.dir(input);
 
-  appendTrnDump("ciao, messaggio di prova! " + new Date(Date.now()).toJSON()) // todo remove
+  appendTrnDump("ciao, messaggio di prova! " + new Date(Date.now()).toJSON() + "\n") // todo remove
+  appendTrnDump("ciao, secondo messaggio di prova! " + new Date(Date.now()).toJSON() + "\n") // todo remove
 
   // TODO  inizializza `simulation context` che contiene:
   //       * `Ledger`

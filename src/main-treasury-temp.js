@@ -12,6 +12,7 @@ OPTIONS.FILES.CONVERTER_EXEGZ_PATH = './converter.exe';
 
 import { parse } from "https://deno.land/std@0.172.0/flags/mod.ts";
 import { readLines } from 'https://deno.land/std@0.152.0/io/buffer.ts';
+import { writeAllSync } from "https://deno.land/std@0.173.0/streams/write_all.ts";
 
 import { downloadAndDecompressGzip } from './deno/downloadAndDecompressGzip.js';
 import { existSync } from './deno/existSync.js';
@@ -35,7 +36,7 @@ async function main ({ input, output, errors }) {
   // convert Excel input file to `modulesData`
   const moduleDataArray = await convertExcelToModuleDataArray({ input, errors });
 
-  const trnDumpFile = await Deno.open(output, {  // see https://deno.land/api@v1.29.1?s=Deno.open
+  const trnDumpFile = await Deno.open(output, {  // create/overwrite file   // see https://deno.land/api@v1.29.1?s=Deno.open
     create: true,
     write: true,
   });
@@ -45,7 +46,7 @@ async function main ({ input, output, errors }) {
     engine({
       input: moduleDataArray,
       appendTrnDump: function(dump) {
-        Deno.writeSync(trnDumpFile.rid, new TextEncoder().encode(dump));  // write dump to file // TODO cambiare metodo? è deprecato. e a cosa serve TextEncoder?
+        writeAllSync(trnDumpFile, new TextEncoder().encode(dump));  // function to write dump to file // see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
       }
     });
   }
