@@ -36,9 +36,10 @@ async function main ({ input, output, errors }) {
   // convert Excel input file to `modulesData`
   const moduleDataArray = await convertExcelToModuleDataArray({ input, errors });
 
-  const trnDumpFile = await Deno.open(output, {  // create/overwrite file   // see https://deno.land/api@v1.29.1?s=Deno.open
+  const trnDumpFileWriter = await Deno.open(output, {  // create/overwrite file   // see https://deno.land/api@v1.29.1?s=Deno.open
     create: true,
     write: true,
+    truncate: true
   });
 
   try {
@@ -46,12 +47,12 @@ async function main ({ input, output, errors }) {
     engine({
       input: moduleDataArray,
       appendTrnDump: function(dump) {
-        writeAllSync(trnDumpFile, new TextEncoder().encode(dump));  // function to write dump to file // see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
+        writeAllSync(trnDumpFileWriter, new TextEncoder().encode(dump));  // function to write dump to file // see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
       }
     });
   }
   finally {
-    trnDumpFile.close();
+    trnDumpFileWriter.close();
   }
 }
 

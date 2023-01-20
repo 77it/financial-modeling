@@ -22,6 +22,7 @@ export async function downloadAndDecompressGzip ({url, path}) {
   const dest = await Deno.open(path, {
     create: true,
     write: true,
+    truncate: true
   });
 
   // gzip   https://medium.com/deno-the-complete-reference/zip-and-unzip-files-in-deno-ee282da7369f
