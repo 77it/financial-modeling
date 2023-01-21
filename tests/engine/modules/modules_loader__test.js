@@ -67,7 +67,7 @@ Deno.test("test ERROR addClassFromURI, not existing URI", async () => {
 
 Deno.test("test addClassFromURI, alongside module (using ModuleData)", async () => {
   const _URI = "./modules_loader_test_module.js";
-  const _moduleDataParameters = {moduleName: "ValuesB", moduleEngineURI: _URI, moduleAlias: "", moduleSourceLocation: "", tables: [{tableName: "tab", table: {}}]};
+  const _moduleDataParameters = {moduleName: "ValuesB", moduleEngineURI: _URI, moduleAlias: "", moduleSourceLocation: "", tables: [{tableName: "tab", table: []}]};
   const _moduleData = new ModuleData(_moduleDataParameters);
   assert((await modulesLoader.addClassFromURI(_moduleData)).success);
 
