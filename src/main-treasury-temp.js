@@ -42,6 +42,12 @@ async function main ({ input, output, errors }) {
     truncate: true
   });
 
+  // TODO tutto in una sub: getEngine
+  // legge i moduli in input
+  // cerca Settings.Set $.$engine
+  // se la trova "import" online e se non la trova "import" ./engine/engine.js
+  const _engine = getEngine(moduleDataArray);
+
   try {
     // run simulation
     engine({
@@ -92,4 +98,27 @@ async function convertExcelToModuleDataArray ({ input, errors}) {
 
   // return `modulesData`
   return moduleDataArray;
+}
+
+
+/**
+ * @param {ModuleData[]} moduleDataArray
+ * @return {*} - Engine function
+ */
+function getEngine (moduleDataArray) {
+
+  for (const moduleData of moduleDataArray){
+    if (moduleData.moduleName === 'SETTINGS')
+      for (const _table of moduleData.tables){
+        if (_table.tableName === 'SET')
+          for (const row of _table.table){
+            if (row?.UNIT.toString().trim() === '$' && row?.NAME.toString().trim().toUpperCase() === '$ENGINE')
+              // TODO save URI
+              console.log(row?.VALUE.toString().trim());
+          }
+      }
+  }
+
+  // TODO
+  return null;
 }

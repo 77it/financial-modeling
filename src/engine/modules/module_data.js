@@ -22,7 +22,7 @@ export class ModuleData {
   moduleEngineURI;
   /** @type {string} */
   moduleSourceLocation;
-  /** @type {{tableName: string, table: Object}[]}} */
+  /** @type {{tableName: string, table: *[]}[]}} */
   tables;
 
   //#endregion
@@ -34,7 +34,7 @@ export class ModuleData {
    * @param {string} p.moduleAlias
    * @param {string} p.moduleEngineURI
    * @param {string} p.moduleSourceLocation
-   * @param {{tableName: string, table: Object}[]} p.tables
+   * @param {{tableName: string, table: *[]}[]} p.tables
    */
   constructor (p) {
     validateObj(
@@ -45,7 +45,7 @@ export class ModuleData {
           moduleAlias: 'string',
           moduleEngineURI: 'string',
           moduleSourceLocation: 'string',
-          tables: 'object',
+          tables: 'array[object]',
         },
         errorMsg: `validation of ModuleData ${p}`,
       });
@@ -54,7 +54,7 @@ export class ModuleData {
     validateObj(
       {
         obj: p.tables,
-        validation: { tableName: 'string', table: 'object' },
+        validation: { tableName: 'string', table: 'array[object]' },
         errorMsg: `validation of ModuleData.tables ${p}`
       });
 

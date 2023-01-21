@@ -13,6 +13,7 @@ export const ARRAY_OF_STRINGS_TYPE = 'array[string]';
 export const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
 export const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
 export const ARRAY_OF_DATES_TYPE = 'array[date]';
+export const ARRAY_OF_OBJECTS_TYPE = 'array[object]';
 export const OBJECT_TYPE = 'object';
 export const FUNCTION_TYPE = 'function';
 export const SYMBOL_TYPE = 'symbol';
@@ -132,6 +133,10 @@ function sanitize ({ value, sanitization, validation = false }) {
     }
     case ARRAY_OF_DATES_TYPE: {
       retValue = _sanitizeArray({ array: value, sanitization: DATE_TYPE });
+      break;
+    }
+    case ARRAY_OF_OBJECTS_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: OBJECT_TYPE });
       break;
     }
     case OBJECT_TYPE: {

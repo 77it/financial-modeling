@@ -11,6 +11,7 @@ export const ARRAY_OF_STRINGS_TYPE = 'array[string]';
 export const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
 export const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
 export const ARRAY_OF_DATES_TYPE = 'array[date]';
+export const ARRAY_OF_OBJECTS_TYPE = 'array[object]';
 export const OBJECT_TYPE = 'object';
 export const FUNCTION_TYPE = 'function';
 export const SYMBOL_TYPE = 'symbol';
@@ -159,6 +160,12 @@ function _validateValue ({ value, validation, errorMsg }) {
     }
     case ARRAY_OF_DATES_TYPE: {
       const validationResult = _validateArray({ array: value, validation: DATE_TYPE });
+      if (validationResult)
+        return `${errorMsg} array error, ${validationResult}`;
+      return SUCCESS;
+    }
+    case ARRAY_OF_OBJECTS_TYPE: {
+      const validationResult = _validateArray({ array: value, validation: OBJECT_TYPE });
       if (validationResult)
         return `${errorMsg} array error, ${validationResult}`;
       return SUCCESS;

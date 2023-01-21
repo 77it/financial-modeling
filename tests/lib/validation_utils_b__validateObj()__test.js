@@ -77,6 +77,7 @@ Deno.test('test validateObj(), valid, complex object', () => {
     arrNum: [ 99, 0, 55 ],
     arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ],
     arrBool: [ false, true ],
+    arrObj: [ {a: 0}, {b: 'b'} ],
     arrBoolEmpty: [ ],
     obj: { a: 999 },
     fun: () => {console.log('mamma');},
@@ -96,6 +97,7 @@ Deno.test('test validateObj(), valid, complex object', () => {
     arrDate: Validation.ARRAY_OF_DATES_TYPE,
     arrBool: Validation.ARRAY_OF_BOOLEANS_TYPE,
     arrBoolEmpty: Validation.ARRAY_OF_BOOLEANS_TYPE,
+    arrObj: Validation.ARRAY_OF_OBJECTS_TYPE,
     obj: Validation.OBJECT_TYPE,
     fun: Validation.FUNCTION_TYPE,
     symbol: Validation.SYMBOL_TYPE,
@@ -116,6 +118,7 @@ Deno.test('test validateObj(), valid, object with and without optional types and
     arrNum: 'array[number]?',
     arrDate: 'array[date]?',
     arrBool: 'array[boolean]?',
+    arrObj: 'array[object]?',
     obj: 'object?',
     fun: 'function?',
     any: 'any?',
@@ -133,6 +136,7 @@ Deno.test('test validateObj(), valid, object with and without optional types and
     arrNum: [ 99, 0, 55 ],
     arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ],
     arrBool: [ false, true ],
+    arrObj: [ {a: 0}, {b: 'b'} ],
     obj: { a: 999 },
     fun: () => {console.log('mamma');},
     symbol: Symbol(),
@@ -154,6 +158,7 @@ Deno.test('test validateObj(), valid, object with and without optional types and
     arrNum: null,
     arrDate: null,
     arrBool: null,
+    arrObj: null,
     obj: null,
     fun: null,
     symbol: null,
@@ -268,6 +273,7 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
     arrNum: [ 99, 0, 55, false ],
     arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59'), 99 ],
     arrBool: [ false, true, 99 ],
+    arrObj: [ {a: 0}, {b: 'b'} , 99 ],
   };
 
   const validation = {
@@ -276,6 +282,7 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
     arrNum: 'array[number]',
     arrDate: 'array[date]',
     arrBool: 'array[boolean]',
+    arrObj: 'array[object]',
   };
 
   let _error;
@@ -290,6 +297,7 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
   assert(_error.includes('"arrNum array error, [\\"Value = false, must be a valid number\\"]"'));
   assert(_error.includes('"arrDate array error, [\\"Value = 99, must be a valid date\\"]"'));
   assert(_error.includes('"arrBool array error, [\\"Value = 99, must be boolean\\"]"'));
+  assert(_error.includes('"arrObj array error, [\\"Value = 99, must be an object\\"]"'));
 });
 
 Deno.test('test validateObj(), not valid, null/undefined/not a str parameter', () => {
