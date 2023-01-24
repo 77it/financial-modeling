@@ -42,11 +42,8 @@ async function main ({ input, output, errors }) {
     truncate: true
   });
 
-  // TODO tutto in una sub: getEngine
-  // legge i moduli in input
-  // cerca Settings.Set $.$engine
-  // se la trova "import" online e se non la trova "import" ./engine/engine.js
-  const _engine = getEngine(moduleDataArray);
+  // get engine from `moduleDataArray` or from `./engine/engine.js` file
+  const _engine = await getEngine(moduleDataArray);
 
   try {
     // run simulation
@@ -102,10 +99,13 @@ async function convertExcelToModuleDataArray ({ input, errors}) {
 
 
 /**
+ * Returns engine function, from `moduleDataArray` or from `./engine/engine.js` file
  * @param {ModuleData[]} moduleDataArray
- * @return {*} - Engine function
+ * @return Promise<any> - Engine function
  */
-function getEngine (moduleDataArray) {
+async function getEngine (moduleDataArray) {
+
+  let engineUrl = null;
 
   for (const moduleData of moduleDataArray){
     if (moduleData.moduleName === 'SETTINGS')
@@ -113,12 +113,23 @@ function getEngine (moduleDataArray) {
         if (_table.tableName === 'SET')
           for (const row of _table.table){
             if (row?.UNIT.toString().trim() === '$' && row?.NAME.toString().trim().toUpperCase() === '$ENGINE')
-              // TODO save URI
-              console.log(row?.VALUE.toString().trim());
+              engineUrl = row?.VALUE.toString().trim();
           }
       }
   }
 
-  // TODO
-  return null;
+  if (engineUrl)
+  {
+    // TODO
+    // correggi moduleLoader
+    //  * estraendo function che converte un url github in un array di url qualsiasi (raw o no)
+    //  * estrendo function che legge un modulo, a partire da un url qualsiasi, tentando di leggere N url da un array della funzione precedente
+    //  * chiama qui la funzione che legge un modulo a partire da un url qualsiasi
+    const module = (await import(engineUrl));
+    if (module != null && module.engine != null)
+      return module.engine;
+  }
+
+  // fallback to local `engine`
+  return engine;
 }

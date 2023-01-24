@@ -72,6 +72,11 @@ Main comunque ha un try/catch che intercetta gli errori e:
 
 <#modules and #constants>
 
+Idea about modules
+https://chandoo.org/wp/modular-spreadsheet-development-a-thought-revolution/
+https://chandoo.org/wp/wp-content/uploads/2014/05/Modular-Spreadsheet-Development.pdf
+sample Excel https://mail.google.com/mail/u/0/#inbox/FMfcgzGrbRZwxrzFJgstZDcTfjDhwbbX
+
 # constants usage
 
 Non tutte le constants vengono chiamate da modulesRunner:
