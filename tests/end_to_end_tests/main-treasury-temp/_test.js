@@ -29,7 +29,7 @@ engine.js
 moduleRunner
     inizializza al suo interno
     * Drivers
-    * Contants
+    * SharedConstants
     chiama giorno per giorno i moduli
 
 i moduli
