@@ -16,26 +16,26 @@ class ValuesB2 {
   }
 }
 
-const modulesLoader = new ModulesLoader();
+const modulesLoader = new ModulesLoader({modulesLoaderResolver: undefined});
 
 //#region test import inside import
 // This test demonstrates that when a module named "_ModulesLoader_test_module.js" of a specific version ("@v0.1.19") is imported,
 // any subsequent local imports (e.g. ./modules_loader_test_module2.js) from that module will also be of that version ("@v0.1.19").
 Deno.test("test versioned import inside import", async () => {
   {
-    const _module = (await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.19/src/modules/_ModulesLoader_test_module.js"));
+    const _module = await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.19/src/modules/_ModulesLoader_test_module.js");
     assertEquals(_module.Module.valueX, "module v0.1.2");
     assertEquals(await _module.value_from_other_file__ValuesA2(), "tag v0.1.19");
   }
 
   {
-    const _module = (await import("https://raw.githubusercontent.com/77it/financial-modeling/v0.1.19/src/modules/_ModulesLoader_test_module.js"));
+    const _module = await import("https://raw.githubusercontent.com/77it/financial-modeling/v0.1.19/src/modules/_ModulesLoader_test_module.js");
     assertEquals(_module.Module.valueX, "module v0.1.2");
     assertEquals(await _module.value_from_other_file__ValuesA2(), "tag v0.1.19");
   }
 
   {
-    const _module = (await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.20/src/modules/_ModulesLoader_test_module.js"));
+    const _module = await import("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.20/src/modules/_ModulesLoader_test_module.js");
     assertEquals(_module.Module.valueX, "module v0.1.3");
     assertEquals(await _module.value_from_other_file__ValuesA2(), "tag v0.1.20");
   }
@@ -45,7 +45,7 @@ Deno.test("test versioned import inside import", async () => {
 //#region test addClassFromObject
 Deno.test("test addClassFromObject, class defined here", () => {
   const _URI = "";
-  assert(modulesLoader.addClassFromObject({moduleName: "ValuesB2X", moduleEngineURI: _URI, classObj: ValuesB2}).success);
+  modulesLoader.addClassFromObject({moduleName: "ValuesB2X", moduleEngineURI: _URI, classObj: ValuesB2});
 
   const query = modulesLoader.get({moduleName: "ValuesB2X", moduleEngineURI: _URI});
   assert(query !== undefined);
@@ -60,16 +60,21 @@ Deno.test("test addClassFromObject, class defined here", () => {
 //#region test addClassFromURI
 Deno.test("test ERROR addClassFromURI, not existing URI", async () => {
   const _URI = "https://this-uri-is-not-existing.com";
-  const _ret = (await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI}));
-  assertFalse(_ret.success);
-  assert(_ret.error?.includes("No such host is known."));
+  let _error;
+  try {
+    await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI});
+  }
+  catch (e) {
+    _error = e.toString();
+  }
+  assert(_error.includes("No such host is known"));
 });
 
 Deno.test("test addClassFromURI, alongside module (using ModuleData)", async () => {
   const _URI = "./modules_loader_test_module.js";
   const _moduleDataParameters = {moduleName: "ValuesB", moduleEngineURI: _URI, moduleAlias: "", moduleSourceLocation: "", tables: [{tableName: "tab", table: []}]};
   const _moduleData = new ModuleData(_moduleDataParameters);
-  assert((await modulesLoader.addClassFromURI(_moduleData)).success);
+  await modulesLoader.addClassFromURI(_moduleData);
 
   const query = modulesLoader.get(_moduleData);
   assert(query !== undefined);
@@ -83,7 +88,7 @@ Deno.test("test addClassFromURI, alongside module (using ModuleData)", async () 
 
 Deno.test("test addClassFromURI, not-alongside module", async () => {
   const _URI = "https://cdn.jsdelivr.net/gh/77it/financial-modeling@0.1.11/src/modules/z_test_module.js";
-  assert((await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI})).success);
+  await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI});
 
   const query = modulesLoader.get({moduleName: "ValuesB2", moduleEngineURI: _URI});
   assert(query !== undefined);
@@ -97,7 +102,7 @@ Deno.test("test addClassFromURI, not-alongside module", async () => {
 
 Deno.test("test addClassFromURI, adding '.js' extension", async () => {
   const _URI = "./modules_loader_test_module";
-  assert((await modulesLoader.addClassFromURI({moduleName: "ValuesB", moduleEngineURI: _URI})).success);
+  await modulesLoader.addClassFromURI({moduleName: "ValuesB", moduleEngineURI: _URI});
 
   const query = modulesLoader.get({moduleName: "ValuesB", moduleEngineURI: _URI});
   assert(query !== undefined);
@@ -112,7 +117,7 @@ Deno.test("test addClassFromURI, adding '.js' extension", async () => {
 Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
   const _URI_spaces = "  ";
   const _moduleName = "modules_loader_test_module";
-  assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_spaces})).success);
+  await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_spaces});
 
   const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_spaces});
   assert(query !== undefined);
@@ -125,31 +130,31 @@ Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
 
   //#region test other URI cases
   const _URI_backslash = " \\ ";
-  assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_backslash})).success);
+  await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_backslash});
   const query_backslash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_backslash});
   assert(query_backslash !== undefined);
   assertEquals(`./${_moduleName}.js`, query_backslash.cdnURI);
 
   const _URI_dotBackslash = " .\\ ";
-  assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dotBackslash})).success);
+  await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dotBackslash});
   const query_dotBackslash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_dotBackslash});
   assert(query_dotBackslash !== undefined);
   assertEquals(`./${_moduleName}.js`, query_dotBackslash.cdnURI);
 
   const _URI_slash = " \/ ";
-  assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_slash})).success);
+  await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_slash});
   const query_slash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_slash});
   assert(query_slash !== undefined);
   assertEquals(`./${_moduleName}.js`, query_slash.cdnURI);
 
   const _URI_dotSlash = " .\/ ";
-  assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dotSlash})).success);
+  await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dotSlash});
   const query_dotSlash = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_dotSlash});
   assert(query_dotSlash !== undefined);
   assertEquals(`./${_moduleName}.js`, query_dotSlash.cdnURI);
 
   const _URI_dot = " . ";
-  assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dot})).success);
+  await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI_dot});
   const query_dot = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI_dot});
   assert(query_dot !== undefined);
   assertEquals(`./${_moduleName}.js`, query_dot.cdnURI);
@@ -170,7 +175,7 @@ Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => 
 
   for (const _entry of _list){
     //console.log(`DEBUG: testing ${_entry.uri}`)
-    assert((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _entry.uri})).success);
+    await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _entry.uri});
     const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _entry.uri});
     assert(query !== undefined);
     assertEquals(_entry.cdn, query.cdnURI);
@@ -183,8 +188,8 @@ Deno.test("test add from class, get it, and then from uri (skipped for same name
   const _URI = "./modules_loader_test_module.js";
   const _moduleName = "duplicateModule";
 
-  // test add from class
-  assert(modulesLoader.addClassFromObject({moduleName: _moduleName, moduleEngineURI: _URI, classObj: ValuesB2}).success);
+  // add from class
+  modulesLoader.addClassFromObject({moduleName: _moduleName, moduleEngineURI: _URI, classObj: ValuesB2});
 
   // get the class
   const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI});
@@ -194,7 +199,15 @@ Deno.test("test add from class, get it, and then from uri (skipped for same name
   assertEquals(__ValuesB.valueX, 9999);
 
   // add from uri (skipped for same name)
-  assertFalse((await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI})).success);
+  let _error;
+  try {
+    await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _URI});
+  }
+  catch (e) {
+    _error = e.toString();
+  }
+  assert(_error.includes("moduleEngineURI/moduleName already exists"));
+
 
   // get the first class
   const query2 = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _URI});

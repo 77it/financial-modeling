@@ -6,6 +6,6 @@ export { modulesLoaderResolver };
  * @return {string[]} List of URL from which import a module
  */
 function modulesLoaderResolver (module) {
-  return null;
   // TODO to write
+  throw new Error('modulesLoaderResolver is not implemented');
 }
