@@ -64,70 +64,29 @@ class ModulesLoader {
     const repoKey = this.#repoKeyBuilder(p.moduleEngineURI, p.moduleName);
 
     if (this.#classesRepo.get(repoKey) === undefined) {
-      let _cdnURI = p.moduleEngineURI.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
-      if (_cdnURI === '' || _cdnURI === '.' || _cdnURI === '/' || _cdnURI === './')  // If moduleEngineURI is missing or . or /, is set to ./${p.moduleName}.js
-        _cdnURI = `./${p.moduleName}.js`;
-      else if (isGitHub(_cdnURI))  // If moduleEngineURI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
-        _cdnURI = gitHubURI2jsDelivr(_cdnURI);
+      let _URI = p.moduleEngineURI.trim();
+      if (['', '.', '/', './', '\\', '.\\'].includes(_URI))  // If moduleEngineURI is missing or . / /. \ \., is set to ./${p.moduleName}.js
+        _URI = `./${p.moduleName}.js`;
 
-      if (_cdnURI.slice(-3).toLowerCase() !== '.js')  // If it is missing the ".js" extension from the file, is added
-        _cdnURI = `${_cdnURI}.js`;
+      let _lastError = "";
 
       // DYNAMIC IMPORT (works with Deno and browser)
-      const _module = (await import(_cdnURI));
-      if (_module == null)
-        throw new Error(`error loading module: ${_cdnURI}`);
-      if (_module[this.#defaultClassName] == null)
-        throw new Error(`class ${this.#defaultClassName} not found in module: ${_cdnURI}`);
-      this.#classesRepo.set(repoKey, { class: _module[this.#defaultClassName], cdnURI: _cdnURI });
+      for (const _cdnURI of this.#modulesLoaderResolver(_URI)){
+        try {
+          const _module = (await import(_cdnURI));
+          if (_module != null && _module[this.#defaultClassName] != null)
+          {
+            this.#classesRepo.set(repoKey, { class: _module[this.#defaultClassName], cdnURI: _cdnURI });
+            return;
+          }
+        } catch (error) {
+          _lastError = error.stack?.toString() ?? error.toString();  // save the last error and go on with the loop trying the next cdnURI
+        }
+      }
+      throw new Error(`error loading module ${_URI}, error: ${_lastError}`);
     }
     else
       throw new Error(`moduleEngineURI/moduleName already exists: ${repoKey}`);
-
-    //#region local functions
-    /**
-     * @param {string} moduleEngineURI
-     * @return {boolean}
-     */
-    function isGitHub (moduleEngineURI) {
-      // regex from https://github.com/jsdelivr/www.jsdelivr.com/blob/b61fc52e3e828ce0579e510be1c480c7610ef076/src/views/pages/github.html
-      let pattern = /^https?:\/\/(?:github|raw\.githubusercontent)\.com\/([^/]+)\/([^/]+)(?:\/blob)?\/([^/]+)\/(.*)$/i;
-      let match = pattern.exec(moduleEngineURI);
-      return Boolean(match);
-    }
-
-    /**
-     * @param {string} moduleEngineURI
-     * @return {string}
-     */
-    function gitHubURI2jsDelivr (moduleEngineURI) {
-      // regex from https://github.com/jsdelivr/www.jsdelivr.com/blob/b61fc52e3e828ce0579e510be1c480c7610ef076/src/views/pages/github.html
-      let pattern = /^https?:\/\/(?:github|raw\.githubusercontent)\.com\/([^/]+)\/([^/]+)(?:\/blob)?\/([^/]+)\/(.*)$/i;
-      let match = pattern.exec(moduleEngineURI);
-
-      if (match) {
-        let [, user, repo, version, file] = match;
-
-        // tag/commit prefix
-        return buildJsDelivrURI({ user: user, repo: repo, version: version, path: file });
-      }
-
-      throw new Error(`can't convert GitHub URL ${moduleEngineURI} to JsDelivr URL`);
-
-      /**
-       * @param {{user: string, repo: string, version: string, path: string }} p
-       * @return {string}
-       */
-      function buildJsDelivrURI ({ user, repo, version, path }) {
-        if (version === 'latest') {
-          return `https://cdn.jsdelivr.net/gh/${user}/${repo}/${path}`;
-        }
-
-        return `https://cdn.jsdelivr.net/gh/${user}/${repo}@${version}/${path}`;
-      }
-    }
-
-    //#endregion local functions
   }
 
   /**
