@@ -35,7 +35,7 @@ if (Deno.args.length !== 0)
  */
 async function main ({ input, output, errors }) {
   // convert Excel input file to `modulesData`
-  const moduleDataArray = await convertExcelToModuleDataArray({ input, errors });
+  const moduleDataArray = await _convertExcelToModuleDataArray({ input, errors });
 
   const trnDumpFileWriter = await Deno.open(output, {  // create/overwrite file   // see https://deno.land/api@v1.29.1?s=Deno.open
     create: true,
@@ -44,7 +44,7 @@ async function main ({ input, output, errors }) {
   });
 
   // get engine from `moduleDataArray` or from `./engine/engine.js` file
-  const _engine = await getEngine(moduleDataArray);
+  const _engine = await _getEngine(moduleDataArray);
 
   try {
     // run simulation
@@ -62,12 +62,13 @@ async function main ({ input, output, errors }) {
 }
 
 /**
+ @private
  * @param {Object} p
  * @param {string} p.input - Excel file with user input
  * @param {string} p.errors - Text file created only if there are errors
  * @return {Promise<ModuleData[]>} - Array of `ModuleData` objects
  */
-async function convertExcelToModuleDataArray ({ input, errors}) {
+async function _convertExcelToModuleDataArray ({ input, errors}) {
   // download and decompress Converter.exe.gz
   if (!existSync(OPTIONS.FILES.CONVERTER_EXEGZ_PATH))
     await downloadAndDecompressGzip(
@@ -101,11 +102,12 @@ async function convertExcelToModuleDataArray ({ input, errors}) {
 
 
 /**
- * Returns engine function, from `moduleDataArray` or from `./engine/engine.js` file
+ @private
+ * Returns engine function, from `moduleDataArray` or from local engine file
  * @param {ModuleData[]} moduleDataArray
  * @return Promise<any> - Engine function
  */
-async function getEngine (moduleDataArray) {
+async function _getEngine (moduleDataArray) {
 
   let engineUrl = null;
 
@@ -122,14 +124,20 @@ async function getEngine (moduleDataArray) {
 
   if (engineUrl)
   {
-    // TODO
-    // correggi moduleLoader
-    //  * estraendo function che converte un url github in un array di url qualsiasi (raw o no)
-    //  * estrendo function che legge un modulo, a partire da un url qualsiasi, tentando di leggere N url da un array della funzione precedente
-    //  * chiama qui la funzione che legge un modulo a partire da un url qualsiasi
-    const module = (await import(engineUrl));
-    if (module != null && module.engine != null)
-      return module.engine;
+    // DYNAMIC IMPORT (works with Deno and browser)
+    let _lastImportError = "";
+    for (const _cdnURI of modulesLoaderResolver(engineUrl)){
+      try {
+        const _module = (await import(_cdnURI));
+        if (_module != null && _module['engine'] != null)
+        {
+          return _module['engine'];
+        }
+      } catch (error) {
+        _lastImportError = error.stack?.toString() ?? error.toString();  // save the last error and go on with the loop trying the next cdnURI
+      }
+    }
+    throw new Error(`error loading module ${engineUrl}, error: ${_lastImportError}`);
   }
 
   // fallback to local `engine`
