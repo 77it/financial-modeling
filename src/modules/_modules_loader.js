@@ -14,6 +14,7 @@ class ModulesLoader {
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
   #defaultClassName = 'Module';
+  /** @type {modulesLoaderResolver} */
   #modulesLoaderResolver;
 
   /**
@@ -25,6 +26,7 @@ class ModulesLoader {
     // if modulesLoaderResolver is null/undefined, assign to _modulesLoaderResolver
     this.#modulesLoaderResolver = p.modulesLoaderResolver ?? modulesLoaderResolver;
   }
+
 
   /**
    * Add classes from object to the repository.
@@ -48,6 +50,7 @@ class ModulesLoader {
     return { success: false, error: `module ${keyModule} already exists` };
   }
 
+
   /**
    * Load module from URI and add a class with default name {#defaultClassName} to the repository.
    * If 'URI/moduleName' already exists, it is not added.
@@ -58,11 +61,7 @@ class ModulesLoader {
    * @return {Promise<{success: boolean, error?: string}>} true if added, false if already exists
    */
   async addClassFromURI (p) {
-    const validation = {
-      moduleName: 'string',
-      moduleEngineURI: 'string'
-    };
-    validateObj({ obj: p, validation: validation });
+    validateObj({ obj: p, validation: { moduleName: 'string', moduleEngineURI: 'string' } });
 
     const keyModule = ModulesLoader.#repoKeyBuilder(p.moduleEngineURI, p.moduleName);
 
@@ -87,6 +86,7 @@ class ModulesLoader {
     }
     return { success: false, error: `module ${keyModule} already exists` };
 
+
     //#region local functions
     /**
      * @param {string} moduleEngineURI
@@ -98,6 +98,7 @@ class ModulesLoader {
       let match = pattern.exec(moduleEngineURI);
       return Boolean(match);
     }
+
 
     /**
      * @param {string} moduleEngineURI
@@ -133,12 +134,13 @@ class ModulesLoader {
     //#endregion local functions
   }
 
+
   /**
    Get a class from the repository. The returned class is not initialized and must be initialized with 'new'.
    If 'URI/moduleName' is non-existent, returns undefined.
    * @param {{moduleName: string, moduleEngineURI: string}} p
    * @return {undefined | {class: *, cdnURI: string}}
-   * */
+   */
   get (p) {
     const validation = {
       moduleName: 'string',

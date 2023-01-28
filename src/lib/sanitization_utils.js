@@ -58,7 +58,7 @@ function sanitize ({ value, sanitization, validation = false }) {
       slice(0, -1);
   }
 
-  if (value == null && optionalSanitization) {  // if value to validate is null/undefined and validation is optional, return value without sanitization
+  if (value == null && optionalSanitization) {  // if value to sanitize is null/undefined and sanitization is optional, return value without sanitization
     return value;
   }
 
@@ -191,7 +191,7 @@ function sanitize ({ value, sanitization, validation = false }) {
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
  * @param {Object} p
- * @param {*} p.obj - Object to validate
+ * @param {*} p.obj - Object to sanitize
  * @param {*} p.sanitization - Sanitization object {key1: 'string', key2: 'number?'}
  * @param {boolean} [p.validation=false] - Optional validation flag
  * @return {*} Sanitized object
@@ -219,8 +219,8 @@ function sanitizeObj ({ obj, sanitization, validation = false }) {
     return retValue;
 
   /**
-   * Internal validation function
-   * @param {*} _obj - Object to validate
+   * Internal sanitization function
+   * @param {*} _obj - Object to sanitize
    * @return {*} Sanitized object
    */
   function _sanitizeObj2 (_obj) {
@@ -228,7 +228,7 @@ function sanitizeObj ({ obj, sanitization, validation = false }) {
 
       const optionalSanitization = (sanitization[key].toString().trim().slice(-1) === '?');
 
-      // if validation key is missing in the object to validate and the validation is optional, skip validation
+      // if sanitization key is missing in the object to sanitize and the sanitization is optional, skip sanitization
       if (!(key in _obj) && optionalSanitization)
         continue;
 

@@ -1,9 +1,9 @@
 // run with `deno test --allow-read --allow-net THIS-FILE-NAME`
 
-import {assert, assertFalse, assertEquals, assertNotEquals} from '../../deps.js';
+import {assert, assertFalse, assertEquals, assertNotEquals} from '../deps.js';
 
-import {ModulesLoader} from "../../../src/modules/_modules_loader.js";
-import {ModuleData} from "../../../src/engine/modules/module_data.js";
+import {ModulesLoader} from "../../src/modules/_modules_loader.js";
+import {ModuleData} from "../../src/engine/modules/module_data.js";
 
 class ValuesB2 {
   valueX;
