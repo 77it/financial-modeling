@@ -1,15 +1,29 @@
-import { validateObj } from '../deps.js';
+export { ModulesLoader };
 
-export class ModulesLoader {
+import { validateObj } from '../deps.js';
+import { modulesLoaderResolver } from '../engine/modules/modules_loader_resolver.js';
+
+/**
+ * @callback modulesLoaderResolver
+ * @param {string} module - The module to resolve
+ * @return {string[]} List of URL from which import a module
+ */
+
+class ModulesLoader {
   /** Map containing id (URI/moduleName) as key and a {class: *, cdnURI: string} as value
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
   #defaultClassName = 'Module';
-  /** @type {string[]} */
-  errors = [];
+  #modulesLoaderResolver;
 
-  constructor () {
+  /**
+   * @param {{modulesLoaderResolver: modulesLoaderResolver}} p
+   */
+  constructor (p) {
     this.#classesRepo = new Map();
+
+    // if modulesLoaderResolver is null/undefined, assign to _modulesLoaderResolver
+    this.#modulesLoaderResolver = p.modulesLoaderResolver ?? modulesLoaderResolver;
   }
 
   /**
@@ -26,9 +40,9 @@ export class ModulesLoader {
     };
     validateObj({ obj: p, validation: validation });
 
-    const keyModule = ModulesLoader.#repoKeyBuilder(p.moduleEngineURI, p.moduleName)
+    const keyModule = ModulesLoader.#repoKeyBuilder(p.moduleEngineURI, p.moduleName);
     if (this.#classesRepo.get(keyModule) === undefined) {
-      this.#classesRepo.set(keyModule, {class: p.classObj, cdnURI: ""});
+      this.#classesRepo.set(keyModule, { class: p.classObj, cdnURI: '' });
       return { success: true };
     }
     return { success: false, error: `module ${keyModule} already exists` };
@@ -65,7 +79,7 @@ export class ModulesLoader {
 
         // DYNAMIC IMPORT (works with deno and browser)
         const _module = (await import(_cdnURI));
-        this.#classesRepo.set(keyModule, {class: _module[this.#defaultClassName], cdnURI: _cdnURI});
+        this.#classesRepo.set(keyModule, { class: _module[this.#defaultClassName], cdnURI: _cdnURI });
       } catch (error) {
         return { success: false, error: error.stack?.toString() ?? error.toString() };
       }
@@ -115,12 +129,13 @@ export class ModulesLoader {
         return `https://cdn.jsdelivr.net/gh/${user}/${repo}@${version}/${path}`;
       }
     }
+
     //#endregion local functions
   }
 
   /**
    Get a class from the repository. The returned class is not initialized and must be initialized with 'new'.
-   If 'URI/moduleName' is non existent, returns undefined.
+   If 'URI/moduleName' is non-existent, returns undefined.
    * @param {{moduleName: string, moduleEngineURI: string}} p
    * @return {undefined | {class: *, cdnURI: string}}
    * */
@@ -135,8 +150,8 @@ export class ModulesLoader {
     if (_ret === undefined)
       return undefined;
     if (_ret.class == null || _ret.cdnURI == null)
-      throw new Error("internal error, some property of the object loaded from the repo == null or undefined");
-    return {..._ret};  // return a shallow copy
+      throw new Error('internal error, some property of the object loaded from the repo == null or undefined');
+    return { ..._ret };  // return a shallow copy
   }
 
   /**

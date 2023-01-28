@@ -17,6 +17,7 @@ import { writeAllSync } from "https://deno.land/std@0.173.0/streams/write_all.ts
 import { downloadAndDecompressGzip } from './deno/downloadAndDecompressGzip.js';
 import { existSync } from './deno/existSync.js';
 import { ModuleData, ModuleDataLoader } from './engine/modules/module_data.js';
+import { modulesLoaderResolver } from './engine/modules/modules_loader_resolver.js';
 import { engine } from './engine/engine.js';
 
 // call `main` function only if there are command line arguments  (useful to not call `main` function with the following code when importing this file)
@@ -51,7 +52,8 @@ async function main ({ input, output, errors }) {
       input: moduleDataArray,
       appendTrnDump: function(dump) {
         writeAllSync(trnDumpFileWriter, new TextEncoder().encode(dump));  // function to write dump to file // see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
-      }
+      },
+      modulesResolver: modulesLoaderResolver
     });
   }
   finally {
