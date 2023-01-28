@@ -68,9 +68,8 @@ class ModulesLoader {
       if (['', '.', '/', './', '\\', '.\\'].includes(_URI))  // If moduleEngineURI is missing or . / /. \ \., is set to ./${p.moduleName}.js
         _URI = `./${p.moduleName}.js`;
 
-      let _lastError = "";
-
       // DYNAMIC IMPORT (works with Deno and browser)
+      let _lastImportError = "";
       for (const _cdnURI of this.#modulesLoaderResolver(_URI)){
         try {
           const _module = (await import(_cdnURI));
@@ -80,10 +79,10 @@ class ModulesLoader {
             return;
           }
         } catch (error) {
-          _lastError = error.stack?.toString() ?? error.toString();  // save the last error and go on with the loop trying the next cdnURI
+          _lastImportError = error.stack?.toString() ?? error.toString();  // save the last error and go on with the loop trying the next cdnURI
         }
       }
-      throw new Error(`error loading module ${_URI}, error: ${_lastError}`);
+      throw new Error(`error loading module ${_URI}, error: ${_lastImportError}`);
     }
     else
       throw new Error(`moduleEngineURI/moduleName already exists: ${repoKey}`);

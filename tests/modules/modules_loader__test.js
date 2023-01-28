@@ -161,7 +161,7 @@ Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
   //#endregion
 });
 
-Deno.test("test addClassFromURI, GitHub URI transformation to CDN", async () => {
+Deno.test("test addClassFromURI, GitHub URI transformation to CDN (raw and normal URL)", async () => {
   const _moduleName = "moduleXYZ";
   // list generated using this tool: https://www.jsdelivr.com/github
   const _list = [
