@@ -37,11 +37,11 @@ async function main ({ excelUserInput, output, errors }) {
   // convert Excel input file to `modulesData`
   const moduleDataArray = await _convertExcelToModuleDataArray({ excelUserInput, errors });
 
-  const trnDumpFileWriter = await Deno.open(output, {  // create/overwrite file   // see https://deno.land/api@v1.29.1?s=Deno.open
-    create: true,
-    write: true,
-    truncate: true
-  });
+  // create/overwrite trnDump file   // see https://deno.land/api@v1.29.1?s=Deno.open
+  const trnDumpFileWriter = await Deno.open(output, { create: true, write: true, truncate: true });
+
+  // create/overwrite errorsDump file
+  const errorsDumpFileWriter = await Deno.open(errors, { create: true, write: true, truncate: true });
 
   // get engine from `moduleDataArray` or from `./engine/engine.js` file
   const _engine = await _getEngine(moduleDataArray);
@@ -55,17 +55,13 @@ async function main ({ excelUserInput, output, errors }) {
       },
       modulesLoader_Resolve: modulesLoader_Resolve  // pass a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside engine.js
     });
-  } catch (e) {
-    // TODO error management
-    /*
-     Main ha un try/catch che intercetta gli errori e:
-    * scrive su >logger_error_writer
-    * scrive su console
-    * ovviamente interrompe l'esecuzione
-     */
-    console.log(e);
+  } catch (error) {
+    const _error = error.stack?.toString() ?? error.toString();
+    console.log(_error);
+    writeAllSync(errorsDumpFileWriter, new TextEncoder().encode(_error));
   } finally {
     trnDumpFileWriter.close();
+    errorsDumpFileWriter.close();
   }
 }
 
