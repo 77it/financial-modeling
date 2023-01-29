@@ -10,22 +10,21 @@ OPTIONS.FILES.CONVERTER_EXEGZ_URL = 'https://github.com/77it/financial-modeling-
 OPTIONS.FILES.CONVERTER_EXEGZ_PATH = './converter.exe';
 //#endregion settings
 
-import { parse } from "https://deno.land/std@0.172.0/flags/mod.ts";
+import { parse } from 'https://deno.land/std@0.172.0/flags/mod.ts';
 import { readLines } from 'https://deno.land/std@0.152.0/io/buffer.ts';
-import { writeAllSync } from "https://deno.land/std@0.173.0/streams/write_all.ts";
+import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts';
 
 import { downloadAndDecompressGzip } from './deno/downloadAndDecompressGzip.js';
 import { existSync } from './deno/existSync.js';
 import { ModuleData } from './engine/modules/module_data.js';
 import { moduleData_LoadFromJsonFile } from './engine/modules/module_data__load_from_json_file.js';
-import { modulesLoaderResolver } from './engine/modules/modules_loader_resolver.js';
+import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
 import { engine } from './engine/engine.js';
 
 // call `main` function only if there are command line arguments  (useful to not call `main` function with the following code when importing this file)
-if (Deno.args.length !== 0)
-{
-  const args = parse(Deno.args)  // parse command line arguments
-  await main({excelUserInput: args?.input, output: args?.output, errors: args?.errors});
+if (Deno.args.length !== 0) {
+  const args = parse(Deno.args);  // parse command line arguments
+  await main({ excelUserInput: args?.input, output: args?.output, errors: args?.errors });
 }
 
 /**
@@ -51,13 +50,12 @@ async function main ({ excelUserInput, output, errors }) {
     // run simulation
     engine({
       userInput: moduleDataArray,
-      appendTrnDump: function(dump) {
+      appendTrnDump: function (dump) {
         writeAllSync(trnDumpFileWriter, new TextEncoder().encode(dump));  // function to write dump to file // see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
       },
-      modulesLoaderResolver: modulesLoaderResolver
+      modulesLoader_Resolve: modulesLoader_Resolve  // pass a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside engine.js
     });
-  }
-  finally {
+  } finally {
     trnDumpFileWriter.close();
   }
 }
@@ -69,7 +67,7 @@ async function main ({ excelUserInput, output, errors }) {
  * @param {string} p.errors - Text file created only if there are errors
  * @return {Promise<ModuleData[]>} - Array of `ModuleData` objects
  */
-async function _convertExcelToModuleDataArray ({ excelUserInput, errors}) {
+async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
   // download and decompress Converter.exe.gz
   if (!existSync(OPTIONS.FILES.CONVERTER_EXEGZ_PATH))
     await downloadAndDecompressGzip(
@@ -101,7 +99,6 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors}) {
   return moduleDataArray;
 }
 
-
 /**
  @private
  * Returns engine function, from `moduleDataArray` or from local engine file
@@ -112,27 +109,25 @@ async function _getEngine (moduleDataArray) {
 
   let engineUrl = null;
 
-  for (const moduleData of moduleDataArray){
+  for (const moduleData of moduleDataArray) {
     if (moduleData.moduleName === 'SETTINGS')
-      for (const _table of moduleData.tables){
+      for (const _table of moduleData.tables) {
         if (_table.tableName === 'SET')
-          for (const row of _table.table){
+          for (const row of _table.table) {
             if (row?.UNIT.toString().trim() === '$' && row?.NAME.toString().trim().toUpperCase() === '$ENGINE')
               engineUrl = row?.VALUE.toString().trim();
           }
       }
   }
 
-  if (engineUrl)
-  {
+  if (engineUrl) {
     // DYNAMIC IMPORT (works with Deno and browser)
     // inspired to ModulesLoader.addClassFromURI
-    let _lastImportError = "";
-    for (const _cdnURI of modulesLoaderResolver(engineUrl)){
+    let _lastImportError = '';
+    for (const _cdnURI of modulesLoader_Resolve(engineUrl)) {
       try {
         const _module = (await import(_cdnURI));
-        if (_module != null && _module['engine'] != null)
-        {
+        if (_module != null && _module['engine'] != null) {
           return _module['engine'];
         }
       } catch (error) {

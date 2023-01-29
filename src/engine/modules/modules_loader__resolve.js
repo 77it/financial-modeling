@@ -1,11 +1,11 @@
-export { modulesLoaderResolver };
+export { modulesLoader_Resolve };
 
 /**
  * Function to get a list of URL from which import a module
  * @param {string} moduleUrl - The url of the module to resolve
  * @return {string[]} List of URL from which import a module
  */
-function modulesLoaderResolver (moduleUrl) {
+function modulesLoader_Resolve (moduleUrl) {
   let _cdnURI = moduleUrl.trim().replace(/\\/g, '/');  // trim & global replace of '\' with '/'
 
   const _ret = [];  // return array

@@ -4,7 +4,7 @@ import {assert, assertFalse, assertEquals, assertNotEquals} from '../deps.js';
 
 import {ModulesLoader} from "../../src/modules/_modules_loader.js";
 import {ModuleData} from "../../src/engine/modules/module_data.js";
-import {modulesLoaderResolver} from "../../src/engine/modules/modules_loader_resolver.js";
+import {modulesLoader_Resolve} from "../../src/engine/modules/modules_loader__resolve.js";
 
 class ValuesB2 {
   valueX;
@@ -17,7 +17,7 @@ class ValuesB2 {
   }
 }
 
-const modulesLoader = new ModulesLoader({modulesLoaderResolver: undefined});
+const modulesLoader = new ModulesLoader({modulesLoader_Resolve: undefined});
 
 //#region test import inside import
 // This test demonstrates that when a module named "_ModulesLoader_test_module.js" of a specific version ("@v0.1.19") is imported,
@@ -162,13 +162,13 @@ Deno.test("test addClassFromURI, module from GitHub URI, not not-alongside", asy
   assertEquals("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js", query.cdnURI);
 });
 
-Deno.test("test ModulesLoader with fake modulesLoaderResolver that returns the first 2 URI wrong/not existent", async () => {
+Deno.test("test ModulesLoader with fake modulesLoader_Resolve that returns the first 2 URI wrong/not existent", async () => {
 
   /**
    * @param {string} moduleUrl - The url of the module to resolve
    * @return {string[]} List of URL from which import a module with first 2 not existent; the third is the input `moduleUrl`
    */
-  function fakeModulesLoaderResolver(moduleUrl) {
+  function fake_modulesLoader_Resolve(moduleUrl) {
     return [
       'fake url, totally wrong',
       'https://cdn.jsdelivr.net/gh/fake2/financial-modeling@v0.1.11/src/modules/z_test_module.js',
@@ -176,7 +176,7 @@ Deno.test("test ModulesLoader with fake modulesLoaderResolver that returns the f
     ];
   }
 
-  const modulesLoader = new ModulesLoader({modulesLoaderResolver: fakeModulesLoaderResolver});
+  const modulesLoader = new ModulesLoader({modulesLoader_Resolve: fake_modulesLoader_Resolve});
 
   const _URI = "https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js";
   await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI});
@@ -191,10 +191,10 @@ Deno.test("test ModulesLoader with fake modulesLoaderResolver that returns the f
   assertEquals("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js", query.cdnURI);
 });
 
-Deno.test("test modulesLoaderResolver, GitHub URI transformation to CDN (raw and normal URL)", async () => {
+Deno.test("test modulesLoader_Resolve, GitHub URI transformation to CDN (raw and normal URL)", async () => {
   assertEquals(
     JSON.stringify(
-      modulesLoaderResolver('https://github.com/77it/financial-modeling/blob/v0.1.11/src/modules/z_test_module.js')),
+      modulesLoader_Resolve('https://github.com/77it/financial-modeling/blob/v0.1.11/src/modules/z_test_module.js')),
     JSON.stringify(
       [
         'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js',
@@ -206,7 +206,7 @@ Deno.test("test modulesLoaderResolver, GitHub URI transformation to CDN (raw and
 
   assertEquals(
     JSON.stringify(
-      modulesLoaderResolver('https://raw.githubusercontent.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js')),
+      modulesLoader_Resolve('https://raw.githubusercontent.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js')),
     JSON.stringify(
       [
         'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js',
@@ -218,7 +218,7 @@ Deno.test("test modulesLoaderResolver, GitHub URI transformation to CDN (raw and
 
   assertEquals(
     JSON.stringify(
-      modulesLoaderResolver('https://github.com/77it/financial-modeling/blob/master/src/engine/engine.js')),
+      modulesLoader_Resolve('https://github.com/77it/financial-modeling/blob/master/src/engine/engine.js')),
     JSON.stringify(
       [
         'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/engine/engine.js',
@@ -230,7 +230,7 @@ Deno.test("test modulesLoaderResolver, GitHub URI transformation to CDN (raw and
 
   assertEquals(
     JSON.stringify(
-      modulesLoaderResolver('https://raw.githubusercontent.com/77it/financial-modeling/master/src/engine/engine.js')),
+      modulesLoader_Resolve('https://raw.githubusercontent.com/77it/financial-modeling/master/src/engine/engine.js')),
     JSON.stringify(
       [
         'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/engine/engine.js',

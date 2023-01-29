@@ -12,7 +12,7 @@ import { Ledger } from './ledger/ledger.js';
  */
 
 /**
- * @callback modulesLoaderResolver
+ * @callback modulesLoader_Resolve
  * @param {string} module - The module to resolve
  * @return {string[]} List of URL from which import a module
  */
@@ -21,9 +21,9 @@ import { Ledger } from './ledger/ledger.js';
  * @param {Object} p
  * @param {ModuleData[]} p.userInput - Array of `ModuleData` objects
  * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
- * @param {modulesLoaderResolver} p.modulesLoaderResolver - Function to get a list of URL from which import a module
+ * @param {modulesLoader_Resolve} p.modulesLoader_Resolve - Function to get a list of URL from which import a module
  */
-function engine ({ userInput, appendTrnDump, modulesLoaderResolver }) {
+function engine ({ userInput, appendTrnDump, modulesLoader_Resolve }) {
   const ledger =  new Ledger({ appendTrnDump });
-  const modulesRunner =  new ModulesRunner({ userInput, modulesLoaderResolver, ledger });
+  const modulesRunner =  new ModulesRunner({ userInput, modulesLoader_Resolve, ledger });
 }

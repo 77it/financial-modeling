@@ -1,7 +1,7 @@
 export { ModulesLoader };
 
 import { validateObj } from '../deps.js';
-import { modulesLoaderResolver } from '../engine/modules/modules_loader_resolver.js';
+import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
 
 class ModulesLoader {
   /** Map to store classes: "URI/moduleName" as string key, {class: *, cdnURI: string} as value.
@@ -9,18 +9,18 @@ class ModulesLoader {
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
   #defaultClassName = 'Module';
-  /** @type {modulesLoaderResolver} */
-  #modulesLoaderResolver;
+  /** @type {modulesLoader_Resolve} */
+  #modulesLoader_Resolve;
 
   /**
    @param {Object} p
-   @param {modulesLoaderResolver} [p.modulesLoaderResolver] optional modulesLoaderResolver function
+   @param {modulesLoader_Resolve} [p.modulesLoader_Resolve] optional modulesLoader_Resolve function
    */
   constructor (p) {
     this.#classesRepo = new Map();
 
-    // if modulesLoaderResolver is null/undefined, assign to _modulesLoaderResolver
-    this.#modulesLoaderResolver = p.modulesLoaderResolver ?? modulesLoaderResolver;
+    // if modulesLoader_Resolve is null/undefined, assign to _modulesLoader_Resolve
+    this.#modulesLoader_Resolve = p.modulesLoader_Resolve ?? modulesLoader_Resolve;
   }
 
   /**
@@ -65,7 +65,7 @@ class ModulesLoader {
 
       // DYNAMIC IMPORT (works with Deno and browser)
       let _lastImportError = "";
-      for (const _cdnURI of this.#modulesLoaderResolver(_URI)){
+      for (const _cdnURI of this.#modulesLoader_Resolve(_URI)){
         try {
           const _module = (await import(_cdnURI));
           if (_module != null && _module[this.#defaultClassName] != null)
