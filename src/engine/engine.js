@@ -30,5 +30,5 @@ function engine ({ input, appendTrnDump, modulesLoaderResolver }) {
   // TODO  inizializza `simulation context` che contiene:
   //       * `Ledger`, passando `appendTrnDump`
 
-  // TODO  inizializza `moduleRunner` passando `simulation context`, `modulesLoaderResolver`
+  // TODO  inizializza `moduleRunner` passando `simulation context` + `modulesLoaderResolver`
 }
