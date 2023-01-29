@@ -11,6 +11,13 @@ There must be a way to tell - by the modules - to ModuleRunner that a module is 
  */
 
 /**
+ * Callback to dump the transactions
+ *
+ * @callback appendTrnDump
+ * @param {string} dump - The transactions dump
+ */
+
+/**
  * @callback modulesLoader_Resolve
  * @param {string} module - The module to resolve
  * @return {string[]} List of URL from which import a module
@@ -20,10 +27,12 @@ There must be a way to tell - by the modules - to ModuleRunner that a module is 
  @param {Object} p
  @param {ModuleData[]} p.userInput - Array of `ModuleData` objects
  @param {modulesLoader_Resolve} p.modulesLoader_Resolve Callback to dump the transactions
- @param {Ledger} p.ledger Ledger object, already initialized
+ @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
+ @throws Will throw an error if the execution fails
  */
-function runModules ({ userInput, modulesLoader_Resolve, ledger }) {
+function runModules ({ userInput, modulesLoader_Resolve, appendTrnDump }) {
     const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
+    const ledger =  new Ledger({ appendTrnDump });
 
     // TODO not implemented
     console.dir(userInput); // todo TOREMOVE
