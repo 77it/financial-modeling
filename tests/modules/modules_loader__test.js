@@ -4,6 +4,7 @@ import {assert, assertFalse, assertEquals, assertNotEquals} from '../deps.js';
 
 import {ModulesLoader} from "../../src/modules/_modules_loader.js";
 import {ModuleData} from "../../src/engine/modules/module_data.js";
+import {modulesLoaderResolver} from "../../src/engine/modules/modules_loader_resolver.js";
 
 class ValuesB2 {
   valueX;
@@ -161,25 +162,54 @@ Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
   //#endregion
 });
 
-Deno.test("test addClassFromURI, GitHub URI transformation to CDN (raw and normal URL)", async () => {
-  const _moduleName = "moduleXYZ";
-  // list generated using this tool: https://www.jsdelivr.com/github
-  const _list = [
-    {uri: 'https://github.com/77it/financial-modeling/blob/v0.1.11/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js'},
-    {uri: 'https://github.com/77it/financial-modeling/blob/latest/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling/src/modules/z_test_module.js'},
-    {uri: 'https://raw.githubusercontent.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js'},
-    {uri: 'https://raw.githubusercontent.com/77it/financial-modeling/latest/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling/src/modules/z_test_module.js'},
-    //removed, missing file online  //{uri: 'https://github.com/77it/financial-modeling/blob/master/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/modules/z_test_module.js'},
-    //removed, missing file online  //{uri: 'https://raw.githubusercontent.com/77it/financial-modeling/master/src/modules/z_test_module.js', cdn: 'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/modules/z_test_module.js'},
-  ];
+Deno.test("test modulesLoaderResolver, GitHub URI transformation to CDN (raw and normal URL)", async () => {
+  assertEquals(
+    JSON.stringify(
+      modulesLoaderResolver('https://github.com/77it/financial-modeling/blob/v0.1.11/src/modules/z_test_module.js')),
+    JSON.stringify(
+      [
+        'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js',
+        'https://rawcdn.githack.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
+        'https://cdn.statically.io/gh/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
+        'https://raw.githubusercontent.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js'
+      ]
+    ));
 
-  for (const _entry of _list){
-    //console.log(`DEBUG: testing ${_entry.uri}`)
-    await modulesLoader.addClassFromURI({moduleName: _moduleName, moduleEngineURI: _entry.uri});
-    const query = modulesLoader.get({moduleName: _moduleName, moduleEngineURI: _entry.uri});
-    assert(query !== undefined);
-    assertEquals(_entry.cdn, query.cdnURI);
-  }
+  assertEquals(
+    JSON.stringify(
+      modulesLoaderResolver('https://raw.githubusercontent.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js')),
+    JSON.stringify(
+      [
+        'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js',
+        'https://rawcdn.githack.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
+        'https://cdn.statically.io/gh/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
+        'https://raw.githubusercontent.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js'
+      ]
+    ));
+
+  assertEquals(
+    JSON.stringify(
+      modulesLoaderResolver('https://github.com/77it/financial-modeling/blob/master/src/engine/engine.js')),
+    JSON.stringify(
+      [
+        'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/engine/engine.js',
+        'https://rawcdn.githack.com/77it/financial-modeling/master/src/engine/engine.js',
+        'https://cdn.statically.io/gh/77it/financial-modeling/master/src/engine/engine.js',
+        'https://raw.githubusercontent.com/77it/financial-modeling/master/src/engine/engine.js'
+      ]
+    ));
+
+  assertEquals(
+    JSON.stringify(
+      modulesLoaderResolver('https://raw.githubusercontent.com/77it/financial-modeling/master/src/engine/engine.js')),
+    JSON.stringify(
+      [
+        'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/engine/engine.js',
+        'https://rawcdn.githack.com/77it/financial-modeling/master/src/engine/engine.js',
+        'https://cdn.statically.io/gh/77it/financial-modeling/master/src/engine/engine.js',
+        'https://raw.githubusercontent.com/77it/financial-modeling/master/src/engine/engine.js'
+      ]
+    ));
 });
 //#endregion addClassFromURI
 

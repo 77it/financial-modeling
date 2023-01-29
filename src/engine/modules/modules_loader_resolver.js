@@ -10,17 +10,14 @@ function modulesLoaderResolver (moduleUrl) {
 
   const _ret = [];  // return array
 
-  if (isGitHub(_cdnURI))  // If moduleEngineURI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
+  const splitGitHubURIParts = splitGitHubURI(_cdnURI);
+  if (splitGitHubURIParts)  // If _cdnURI is a GitHub path, is converted to a series of CDN path (e.g. jsdelivr)
   {
-    _ret.push(gitHubURI2jsDelivr(_cdnURI));
-    // TODO NOW add more cdn
-    /*
-    https://raw.githack.com/
-    https://statically.io/
-    Resolve restituisce come ultimo path anche github raw
-    */
-  }
-  else // If moduleEngineURI is not a GitHub path
+    _ret.push(buildJsDelivrURI(splitGitHubURIParts));
+    _ret.push(buildGithackURI(splitGitHubURIParts));
+    _ret.push(buildStaticallyIoURI(splitGitHubURIParts));
+    _ret.push(buildGitHubRawURI(splitGitHubURIParts));
+  } else // If moduleEngineURI is not a GitHub path
     _ret.push(_cdnURI);
 
   // loop return array: if some element is missing the ".js" extension from the url, add it
@@ -33,46 +30,61 @@ function modulesLoaderResolver (moduleUrl) {
 
   //#region local functions
   /**
-   * @param {string} moduleEngineURI
-   * @return {boolean}
+   * Split a GitHub URI in its components; returns null if URI is not a GitHub URI
+   * @param {string} URI
+   * @return {{user: string, repo: string, version: string, path: string } | null}
    */
-  function isGitHub (moduleEngineURI) {
+  function splitGitHubURI (URI) {
     // regex from https://github.com/jsdelivr/www.jsdelivr.com/blob/b61fc52e3e828ce0579e510be1c480c7610ef076/src/views/pages/github.html
     let pattern = /^https?:\/\/(?:github|raw\.githubusercontent)\.com\/([^/]+)\/([^/]+)(?:\/blob)?\/([^/]+)\/(.*)$/i;
-    let match = pattern.exec(moduleEngineURI);
-    return Boolean(match);
+    let match = pattern.exec(URI);
+
+    if (match) {
+      let [, user, repo, version, path] = match;
+      return { user, repo, version, path };
+    }
+
+    return null;
   }
 
   /**
-   * @param {string} moduleEngineURI
+   * Build a jsdelivr URI   https://www.jsdelivr.com/
+   * @param {{user: string, repo: string, version: string, path: string }} p
    * @return {string}
    */
-  function gitHubURI2jsDelivr (moduleEngineURI) {
-    // regex from https://github.com/jsdelivr/www.jsdelivr.com/blob/b61fc52e3e828ce0579e510be1c480c7610ef076/src/views/pages/github.html
-    let pattern = /^https?:\/\/(?:github|raw\.githubusercontent)\.com\/([^/]+)\/([^/]+)(?:\/blob)?\/([^/]+)\/(.*)$/i;
-    let match = pattern.exec(moduleEngineURI);
-
-    if (match) {
-      let [, user, repo, version, file] = match;
-
-      // tag/commit prefix
-      return buildJsDelivrURI({ user: user, repo: repo, version: version, path: file });
+  function buildJsDelivrURI ({ user, repo, version, path }) {
+    if (version === 'latest') {
+      return `https://cdn.jsdelivr.net/gh/${user}/${repo}/${path}`;
     }
 
-    throw new Error(`can't convert GitHub URL ${moduleEngineURI} to JsDelivr URL`);
-
-    /**
-     * @param {{user: string, repo: string, version: string, path: string }} p
-     * @return {string}
-     */
-    function buildJsDelivrURI ({ user, repo, version, path }) {
-      if (version === 'latest') {
-        return `https://cdn.jsdelivr.net/gh/${user}/${repo}/${path}`;
-      }
-
-      return `https://cdn.jsdelivr.net/gh/${user}/${repo}@${version}/${path}`;
-    }
+    return `https://cdn.jsdelivr.net/gh/${user}/${repo}@${version}/${path}`;
   }
 
+  /**
+   * Build a githack URI   https://raw.githack.com/
+   * @param {{user: string, repo: string, version: string, path: string }} p
+   * @return {string}
+   */
+  function buildGithackURI ({ user, repo, version, path }) {
+    return `https://rawcdn.githack.com/${user}/${repo}/${version}/${path}`;
+  }
+
+  /**
+   * Build a statically.io URI   https://statically.io/
+   * @param {{user: string, repo: string, version: string, path: string }} p
+   * @return {string}
+   */
+  function buildStaticallyIoURI ({ user, repo, version, path }) {
+    return `https://cdn.statically.io/gh/${user}/${repo}/${version}/${path}`;
+  }
+
+  /**
+   * Build a GitHub raw URI
+   * @param {{user: string, repo: string, version: string, path: string }} p
+   * @return {string}
+   */
+  function buildGitHubRawURI ({ user, repo, version, path }) {
+    return `https://raw.githubusercontent.com/${user}/${repo}/${version}/${path}`;
+  }
   //#endregion local functions
 }
