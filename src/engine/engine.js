@@ -1,7 +1,7 @@
 export { engine };
 
 import { ModuleData } from './modules/module_data.js';
-import { ModulesRunner } from './modules/modules_runner.js';
+import { runModules } from './modules/run_modules.js';
 import { Ledger } from './ledger/ledger.js';
 
 /**
@@ -18,6 +18,7 @@ import { Ledger } from './ledger/ledger.js';
  */
 
 /**
+ * Engine is the function that is loaded in a specific version by main; then, engine loads `ledger`, `runModules`, etc
  * @param {Object} p
  * @param {ModuleData[]} p.userInput - Array of `ModuleData` objects
  * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
@@ -25,5 +26,5 @@ import { Ledger } from './ledger/ledger.js';
  */
 function engine ({ userInput, appendTrnDump, modulesLoader_Resolve }) {
   const ledger =  new Ledger({ appendTrnDump });
-  const modulesRunner =  new ModulesRunner({ userInput, modulesLoader_Resolve, ledger });
+  runModules({ userInput, modulesLoader_Resolve, ledger });
 }

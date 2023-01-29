@@ -1,4 +1,4 @@
-export { ModulesRunner };
+export { runModules };
 
 import { Ledger } from '../ledger/ledger.js';
 import { ModulesLoader } from '../../modules/_modules_loader.js';
@@ -16,24 +16,16 @@ There must be a way to tell - by the modules - to ModuleRunner that a module is 
  * @return {string[]} List of URL from which import a module
  */
 
-class ModulesRunner {
-  #ledger;
-  #modulesLoader;
-  #userInput;
-
-  /**
-   @param {Object} p
-   @param {ModuleData[]} p.userInput - Array of `ModuleData` objects
-   @param {modulesLoader_Resolve} p.modulesLoader_Resolve Callback to dump the transactions
-   @param {Ledger} p.ledger Ledger object, already initialized
-   */
-  constructor ({ userInput, modulesLoader_Resolve, ledger }) {
-    this.#ledger = ledger;
-    this.#userInput = userInput;
-    this.#modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
+/**
+ @param {Object} p
+ @param {ModuleData[]} p.userInput - Array of `ModuleData` objects
+ @param {modulesLoader_Resolve} p.modulesLoader_Resolve Callback to dump the transactions
+ @param {Ledger} p.ledger Ledger object, already initialized
+ */
+function runModules ({ userInput, modulesLoader_Resolve, ledger }) {
+    const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
 
     // TODO not implemented
     console.dir(userInput); // todo TOREMOVE
     throw new Error('not implemented');
-  }
 }
