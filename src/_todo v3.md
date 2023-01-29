@@ -3,11 +3,11 @@
 </vault>
 
 
-<modulesRunner.js>
+<runModules.js run_modules.js>
 
 # Attività giornaliere  #ticktock #daily #activities #sequence
 
-Sequenza delle attività di ModuleRunner:
+Sequenza delle attività di runModules:
 * before starting the Simulation, without being able to change the accounting (Ledger is still "closed"):
     1) call all modules methods `oneTimeBeforeTheSimulationStarts`
        * to set the #sharedConstants
@@ -28,7 +28,7 @@ Sequenza delle attività di ModuleRunner:
 * after ending the Simulation, without being able to change the accounting (Ledger is definitely "closed"):
     * modules method call `oneTimeAfterTheSimulationEnds`
 
-</modulerunner>
+</runModules.js run_modules.js>
 
 
 <_sampleModule.js>
@@ -56,19 +56,6 @@ global/simulation namespace is "$$"; namespace can be null, undefined or "" mean
 
 </sharedConstants definition (#sharedConstants, #globals, #variables, #locks)>
 
-
-<errors>
-#error #fatal error #throw
-
-Qualunque modulo che voglia interrompere l'esecuzione del programma per un errore fatale esegue un `throw new Error`,
-che viene intercettato con try catch da ModuleRunner che registra un SimObject "debug_error" quindi esce in errore.
-
-Main comunque ha un try/catch che intercetta gli errori e:
-* scrive su >logger_error_writer
-* scrive su console
-* ovviamente interrompe l'esecuzione
-
-</errors>
 
 <#modules and #sharedConstants>
 
@@ -113,7 +100,7 @@ Registra const di simulazione `$.Treasury`
 
 I moduli muovono la cassa della Unit come vogliono, creando nuove voci del tipo `BS_BankAccount_FinancialAccount` con valore positivo o negativo.
 
-A fine giornata, quando viene eseguito da ModuleRunner, Treasury interroga per ogni Unit le voci `BS_BankAccount_FinancialAccount` in stato `alive` e chiude quelle non gestiti da lei trasferendo il saldo sui "suoi" conti correnti [1].
+A fine giornata, quando viene eseguito da runModules, Treasury interroga per ogni Unit le voci `BS_BankAccount_FinancialAccount` in stato `alive` e chiude quelle non gestiti da lei trasferendo il saldo sui "suoi" conti correnti [1].
 
 Infine, calcola gli interessi >treasuryModule_interestComputation_id20200827
 
