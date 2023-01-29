@@ -1,13 +1,8 @@
-<vault>
-#ledger   see ledger.js
-</vault>
-
-
-<runModules.js run_modules.js>
+<engine.js.js run_modules.js>
 
 # Attività giornaliere  #ticktock #daily #activities #sequence
 
-Sequenza delle attività di runModules:
+Sequenza delle attività di engine.js:
 * before starting the Simulation, without being able to change the accounting (Ledger is still "closed"):
     1) call all modules methods `oneTimeBeforeTheSimulationStarts`
        * to set the #sharedConstants
@@ -28,7 +23,7 @@ Sequenza delle attività di runModules:
 * after ending the Simulation, without being able to change the accounting (Ledger is definitely "closed"):
     * modules method call `oneTimeAfterTheSimulationEnds`
 
-</runModules.js run_modules.js>
+</engine.js.js run_modules.js>
 
 
 <_sampleModule.js>
@@ -100,7 +95,7 @@ Registra const di simulazione `$.Treasury`
 
 I moduli muovono la cassa della Unit come vogliono, creando nuove voci del tipo `BS_BankAccount_FinancialAccount` con valore positivo o negativo.
 
-A fine giornata, quando viene eseguito da runModules, Treasury interroga per ogni Unit le voci `BS_BankAccount_FinancialAccount` in stato `alive` e chiude quelle non gestiti da lei trasferendo il saldo sui "suoi" conti correnti [1].
+A fine giornata, quando viene eseguito da engine.js, Treasury interroga per ogni Unit le voci `BS_BankAccount_FinancialAccount` in stato `alive` e chiude quelle non gestiti da lei trasferendo il saldo sui "suoi" conti correnti [1].
 
 Infine, calcola gli interessi >treasuryModule_interestComputation_id20200827
 

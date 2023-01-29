@@ -56,27 +56,6 @@ Simulation init then:
 //#endregion SimulationInit (#SimulationInit)
 
 
-//#region SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesLoader, #ModulesData)
-/*
-#SimulationEngine accepts ModulesLoader (già inizializzato) and ModuleTables[] as input parameters
-SimulationEngine, nelle varie versioni, è sempre compatibile con le versioni precedenti
-
-#ModulesLoader
-accetta nell'init della classe 2 parametri:
-* modulesToLoadOnline: {string moduleName, string url}[]  // preso da modulesdata.jsonl
-* modulesToLoadFromObjects: {string moduleName, string url}[]  // SimulationInit valorizza con il metodo `loadModules`
-
-#ModulesRunner
-accetta nell'init della classe un parametro:
-# filter: {type, name, value, match}[]  // type: "+"|"-"; match: "equals" (or omitted)|"startsWith"|"includes"|"endsWith"  // match names from Javascript standard
-Per generare N simulazioni con diversi scenari (ogni riga può essere inclusa/esclusa)
-Crea possibilità di filtrare nei parametri iniziali di SimulationEngine comandi con blacklist/whitelist basati su tag.
-Se in un filtro c'è il valore "" vuol dire che in assenza di tag si intende incluso / escluso.
-
-*/
-//#endregion SimulationEngine (#SimulationEngine, #ModulesRunner, #ModulesLoader, #ModulesData)
-
-
 //#region Ledger other minor methods (#other #minor #extra)
 /*
 today()
