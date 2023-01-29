@@ -1,18 +1,9 @@
+export { ModuleData };
+
 import { validateObj } from '../../deps.js';
 
-/**
- * Returns a ModuleData from a JSON string
- * @param {string} json - ModuleData's Json
- * @return {ModuleData} deserialized ModuleData
- */
-export function ModuleDataLoader (json) {
-  const deserializedModuleData = JSON.parse(json);
-
-  return new ModuleData(deserializedModuleData);
-}
-
 // ModuleData is not immutable nor has the clone method, because the object is passed only to the modules that will use it
-export class ModuleData {
+class ModuleData {
   //#region public fields
   /** @type {string} */
   moduleName;

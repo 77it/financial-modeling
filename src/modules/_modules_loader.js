@@ -3,14 +3,8 @@ export { ModulesLoader };
 import { validateObj } from '../deps.js';
 import { modulesLoaderResolver } from '../engine/modules/modules_loader_resolver.js';
 
-/**
- * @callback modulesLoaderResolver
- * @param {string} module - The module to resolve
- * @return {string[]} List of URL from which import a module
- */
-
 class ModulesLoader {
-  /** Map containing string id "URI/moduleName" as key and a {class: *, cdnURI: string} as value.
+  /** Map to store classes: "URI/moduleName" as string key, {class: *, cdnURI: string} as value.
    * Beware: URI (the original module URI) is different from cdnURI (the URI from which the module is loaded)
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;

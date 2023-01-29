@@ -16,7 +16,8 @@ import { writeAllSync } from "https://deno.land/std@0.173.0/streams/write_all.ts
 
 import { downloadAndDecompressGzip } from './deno/downloadAndDecompressGzip.js';
 import { existSync } from './deno/existSync.js';
-import { ModuleData, ModuleDataLoader } from './engine/modules/module_data.js';
+import { ModuleData } from './engine/modules/module_data.js';
+import { moduleData_LoadFromJsonFile } from './engine/modules/module_data__load_from_json_file.js';
 import { modulesLoaderResolver } from './engine/modules/modules_loader_resolver.js';
 import { engine } from './engine/engine.js';
 
@@ -24,18 +25,18 @@ import { engine } from './engine/engine.js';
 if (Deno.args.length !== 0)
 {
   const args = parse(Deno.args)  // parse command line arguments
-  await main({input: args?.input, output: args?.output, errors: args?.errors});
+  await main({excelUserInput: args?.input, output: args?.output, errors: args?.errors});
 }
 
 /**
  * @param {Object} p
- * @param {string} p.input - Excel file with user input
+ * @param {string} p.excelUserInput - Excel file with user input
  * @param {string} p.output - JSONL file with simulation output (accounting writing transactions)
  * @param {string} p.errors - Text file created only if there are errors
  */
-async function main ({ input, output, errors }) {
+async function main ({ excelUserInput, output, errors }) {
   // convert Excel input file to `modulesData`
-  const moduleDataArray = await _convertExcelToModuleDataArray({ input, errors });
+  const moduleDataArray = await _convertExcelToModuleDataArray({ excelUserInput, errors });
 
   const trnDumpFileWriter = await Deno.open(output, {  // create/overwrite file   // see https://deno.land/api@v1.29.1?s=Deno.open
     create: true,
@@ -49,11 +50,11 @@ async function main ({ input, output, errors }) {
   try {
     // run simulation
     engine({
-      input: moduleDataArray,
+      userInput: moduleDataArray,
       appendTrnDump: function(dump) {
         writeAllSync(trnDumpFileWriter, new TextEncoder().encode(dump));  // function to write dump to file // see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
       },
-      modulesResolver: modulesLoaderResolver
+      modulesLoaderResolver: modulesLoaderResolver
     });
   }
   finally {
@@ -64,19 +65,19 @@ async function main ({ input, output, errors }) {
 /**
  @private
  * @param {Object} p
- * @param {string} p.input - Excel file with user input
+ * @param {string} p.excelUserInput - Excel file with user input
  * @param {string} p.errors - Text file created only if there are errors
  * @return {Promise<ModuleData[]>} - Array of `ModuleData` objects
  */
-async function _convertExcelToModuleDataArray ({ input, errors}) {
+async function _convertExcelToModuleDataArray ({ excelUserInput, errors}) {
   // download and decompress Converter.exe.gz
   if (!existSync(OPTIONS.FILES.CONVERTER_EXEGZ_PATH))
     await downloadAndDecompressGzip(
       { url: OPTIONS.FILES.CONVERTER_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER_EXEGZ_PATH });
 
   // convert Excel input file to JSONL `modulesData` calling Converter program  // see  https://deno.land/manual@v1.29.3/examples/subprocess
-  const jsonlExcelFilename = input + '.dump.jsonl.tmp';
-  const p = Deno.run({ cmd: [OPTIONS.FILES.CONVERTER_EXEGZ_PATH, 'excel-modules-to-jsonl-modules', '--input', input, '--output', jsonlExcelFilename, '--errors', errors] });
+  const jsonlExcelFilename = excelUserInput + '.dump.jsonl.tmp';
+  const p = Deno.run({ cmd: [OPTIONS.FILES.CONVERTER_EXEGZ_PATH, 'excel-modules-to-jsonl-modules', '--input', excelUserInput, '--output', jsonlExcelFilename, '--errors', errors] });
   await p.status();  // await its completion
   p.close();  // close the process
 
@@ -88,7 +89,7 @@ async function _convertExcelToModuleDataArray ({ input, errors}) {
   const fileReader = await Deno.open(jsonlExcelFilename);
   const moduleDataArray = [];
   for await (const line of readLines(fileReader))
-    moduleDataArray.push(ModuleDataLoader(line));
+    moduleDataArray.push(moduleData_LoadFromJsonFile(line));
   fileReader.close();
 
   // delete temporary file
@@ -125,6 +126,7 @@ async function _getEngine (moduleDataArray) {
   if (engineUrl)
   {
     // DYNAMIC IMPORT (works with Deno and browser)
+    // inspired to ModulesLoader.addClassFromURI
     let _lastImportError = "";
     for (const _cdnURI of modulesLoaderResolver(engineUrl)){
       try {

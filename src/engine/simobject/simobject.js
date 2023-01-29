@@ -1,3 +1,5 @@
+export { SimObject };
+
 // this is the SimObject stored in Ledger
 
 // TODO SimObject
@@ -27,3 +29,12 @@ number[] principalSchedule  // contains a list of numbers to split the payments 
 * unityOfMeasure
 */
 
+class SimObject {
+  /**
+   @param {Object} p
+   */
+  constructor (p) {
+    // TODO not implemented
+    throw new Error('not implemented');
+  }
+}

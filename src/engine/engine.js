@@ -1,6 +1,8 @@
 export { engine };
 
 import { ModuleData } from './modules/module_data.js';
+import { ModulesRunner } from './modules/modules_runner.js';
+import { Ledger } from './ledger/ledger.js';
 
 /**
  * Callback to dump the transactions
@@ -17,18 +19,11 @@ import { ModuleData } from './modules/module_data.js';
 
 /**
  * @param {Object} p
- * @param {ModuleData[]} p.input - Array of `ModuleData` objects
+ * @param {ModuleData[]} p.userInput - Array of `ModuleData` objects
  * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
- * @param {modulesResolver} p.modulesLoaderResolver - Function to get a list of URL from which import a module
+ * @param {modulesLoaderResolver} p.modulesLoaderResolver - Function to get a list of URL from which import a module
  */
-function engine ({ input, appendTrnDump, modulesLoaderResolver }) {
-  console.dir(input);
-
-  appendTrnDump("ciao, messaggio di prova! " + new Date(Date.now()).toJSON() + "\n") // todo remove
-  appendTrnDump("ciao, secondo messaggio di prova! " + new Date(Date.now()).toJSON() + "\n") // todo remove
-
-  // TODO  inizializza `simulation context` che contiene:
-  //       * `Ledger`, passando `appendTrnDump`
-
-  // TODO  inizializza `moduleRunner` passando `simulation context` + `modulesLoaderResolver`
+function engine ({ userInput, appendTrnDump, modulesLoaderResolver }) {
+  const ledger =  new Ledger({ appendTrnDump });
+  const modulesRunner =  new ModulesRunner({ userInput, modulesLoaderResolver, ledger });
 }
