@@ -87,20 +87,6 @@ Deno.test("test addClassFromURI, alongside module (using ModuleData)", async () 
   assertEquals(_URI, query.cdnURI);
 });
 
-Deno.test("test addClassFromURI, not-alongside module", async () => {
-  const _URI = "https://cdn.jsdelivr.net/gh/77it/financial-modeling@0.1.11/src/modules/z_test_module.js";
-  await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI});
-
-  const query = modulesLoader.get({moduleName: "ValuesB2", moduleEngineURI: _URI});
-  assert(query !== undefined);
-
-  const _ValuesB2 = query.class;
-  const __ValuesB2 = new _ValuesB2({value: 9999, value2: "bbb"});
-  assertEquals(__ValuesB2.value, 9999);
-  assertEquals(__ValuesB2.value2, "bbb");
-  assertEquals(_URI, query.cdnURI);
-});
-
 Deno.test("test addClassFromURI, adding '.js' extension", async () => {
   const _URI = "./modules_loader_test_module";
   await modulesLoader.addClassFromURI({moduleName: "ValuesB", moduleEngineURI: _URI});
@@ -160,6 +146,49 @@ Deno.test("test addClassFromURI, empty URI, meaningless URI", async () => {
   assert(query_dot !== undefined);
   assertEquals(`./${_moduleName}.js`, query_dot.cdnURI);
   //#endregion
+});
+
+Deno.test("test addClassFromURI, module from GitHub URI, not not-alongside", async () => {
+  const _URI = "https://github.com/77it/financial-modeling/blob/v0.1.11/src/modules/z_test_module.js";
+  await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI});
+
+  const query = modulesLoader.get({moduleName: "ValuesB2", moduleEngineURI: _URI});
+  assert(query !== undefined);
+
+  const _ValuesB2 = query.class;
+  const __ValuesB2 = new _ValuesB2({value: 9999, value2: "bbb"});
+  assertEquals(__ValuesB2.value, 9999);
+  assertEquals(__ValuesB2.value2, "bbb");
+  assertEquals("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js", query.cdnURI);
+});
+
+Deno.test("test ModulesLoader with fake modulesLoaderResolver that returns the first 2 URI wrong/not existent", async () => {
+
+  /**
+   * @param {string} moduleUrl - The url of the module to resolve
+   * @return {string[]} List of URL from which import a module with first 2 not existent; the third is the input `moduleUrl`
+   */
+  function fakeModulesLoaderResolver(moduleUrl) {
+    return [
+      'fake url, totally wrong',
+      'https://cdn.jsdelivr.net/gh/fake2/financial-modeling@v0.1.11/src/modules/z_test_module.js',
+      'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js'
+    ];
+  }
+
+  const modulesLoader = new ModulesLoader({modulesLoaderResolver: fakeModulesLoaderResolver});
+
+  const _URI = "https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js";
+  await modulesLoader.addClassFromURI({moduleName: "ValuesB2", moduleEngineURI: _URI});
+
+  const query = modulesLoader.get({moduleName: "ValuesB2", moduleEngineURI: _URI});
+  assert(query !== undefined);
+
+  const _ValuesB2 = query.class;
+  const __ValuesB2 = new _ValuesB2({value: 9999, value2: "bbb"});
+  assertEquals(__ValuesB2.value, 9999);
+  assertEquals(__ValuesB2.value2, "bbb");
+  assertEquals("https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js", query.cdnURI);
 });
 
 Deno.test("test modulesLoaderResolver, GitHub URI transformation to CDN (raw and normal URL)", async () => {

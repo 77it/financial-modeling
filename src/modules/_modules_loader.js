@@ -10,7 +10,8 @@ import { modulesLoaderResolver } from '../engine/modules/modules_loader_resolver
  */
 
 class ModulesLoader {
-  /** Map containing id (URI/moduleName) as key and a {class: *, cdnURI: string} as value
+  /** Map containing string id "URI/moduleName" as key and a {class: *, cdnURI: string} as value.
+   * Beware: URI (the original module URI) is different from cdnURI (the URI from which the module is loaded)
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
   #defaultClassName = 'Module';
@@ -89,7 +90,9 @@ class ModulesLoader {
   }
 
   /**
-   Get a class from the repository. The returned class is not initialized and must be initialized with 'new'.
+   Get {class, cdnURI} from the repository.
+   The returned class is not initialized and must be initialized with 'new'.
+   URI (the original module URI) is different from cdnURI (the URI from which the module is loaded).
    If 'URI/moduleName' is non-existent, returns undefined.
    * @param {{moduleName: string, moduleEngineURI: string}} p
    * @return {undefined | {class: *, cdnURI: string}}
