@@ -48,13 +48,17 @@ async function main ({ excelUserInput, output, errors }) {
 
   try {
     // run simulation
-    _engine({
+    /** @type {Result} */
+    const _engine_result = _engine({
       userInput: moduleDataArray,
       appendTrnDump: /** @param {string} dump */ function (dump) {
         writeAllSync(trnDumpFileWriter, new TextEncoder().encode(dump));  // function to write dump to file // see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
       },
       modulesLoader_Resolve: modulesLoader_Resolve  // pass a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside engine.js
     });
+
+    if (!_engine_result.success)
+      writeAllSync(errorsDumpFileWriter, new TextEncoder().encode(_engine_result.error));
   } catch (error) {
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
@@ -145,3 +149,8 @@ async function _getEngine (moduleDataArray) {
   // fallback to local `engine`
   return engine;
 }
+
+
+//#region types definitions
+/** @typedef {{success: true, value?: *} | {success:false, error: string}} Result */
+//#endregion types definitions

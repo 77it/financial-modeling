@@ -15,23 +15,30 @@ There must be a way to tell - by the modules - to engine.js that a module is no 
  @param {ModuleData[]} p.userInput - Array of `ModuleData` objects
  @param {modulesLoader_Resolve} p.modulesLoader_Resolve Callback to dump the transactions
  @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
- @throws Will throw an error if the execution fails
+ @return {Result}
  */
 function engine ({ userInput, modulesLoader_Resolve, appendTrnDump }) {
-  const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
-  const ledger =  new Ledger({ appendTrnDump });
+  try {
+    const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
+    const ledger =  new Ledger({ appendTrnDump });
 
-  // TODO load modules on _modulesLoader
+    // TODO load modules on _modulesLoader
 
-  // TODO not implemented
-  console.dir(userInput); // todo TOREMOVE
-  throw new Error('not implemented');
+    // TODO not implemented
+    console.dir(userInput); // todo TOREMOVE
+    throw new Error('not implemented');
 
-  // TODO implement error management
-  /*
-  Every module that wants to interrupt program execution for a fatal error throws a new Error;
-  this error is intercepted here, and will be recorded a 'debug_error' SimObject, then the execution ends with an error.
-   */
+  } catch (error) {
+    const _error = error.stack?.toString() ?? error.toString();
+    console.log(_error);
+    // TODO implement error management
+    /*
+    Every module that wants to interrupt program execution for a fatal error throws a new Error;
+    this error is intercepted here, and will be recorded a 'debug_error' SimObject, then the execution ends with an error.
+     */
+    return { success: false, error: _error };
+  }
+  return { success: true };
 }
 
 //#region types definitions
@@ -47,5 +54,5 @@ function engine ({ userInput, modulesLoader_Resolve, appendTrnDump }) {
  @return {string[]} List of URL from which import a module
  */
 
-/** @typedef {{success: boolean, value?: *, error?: string}} Result */
+/** @typedef {{success: true, value?: *} | {success:false, error: string}} Result */
 //#endregion types definitions
