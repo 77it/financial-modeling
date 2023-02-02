@@ -30,8 +30,9 @@ OPTIONS.NUMBER_TO_DATE = OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
 
 /**
  * Sanitize value.
- * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
+ * Accepted sanitization types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
  * For optional values (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol'.
+ * For enum sanitization use an array of values (values will be ignored, optionally validated).
  * As types you can use also exported const as 'ANY_TYPE'.
  * Any, object, function, class are ignored and returned as is.
  * Array are sanitized without cloning them.
@@ -40,13 +41,21 @@ OPTIONS.NUMBER_TO_DATE = OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
  * Number to dates are considered Excel serial dates (stripping hours, in UTC)
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
- * @param {string} p.sanitization - Sanitization string
+ * @param {string | [*]} p.sanitization - Sanitization type
  * @param {boolean} [p.validate=false] - Optional validation flag
  * @return {*} Sanitized value
  */
 function sanitize ({ value, sanitization, validate = false }) {
-  if (typeof sanitization !== 'string')
-    throw new Error(`'sanitization' parameter must be a string`);
+  if (typeof sanitization !== 'string' || !Array.isArray(value))
+    throw new Error(`'sanitization' parameter must be a string or an array`);
+
+  if (Array.isArray(sanitization))
+  {
+    if (validate)
+      return validateFunc({ value: value, validation: sanitization });
+    else
+      return value;
+  }
 
   let optionalSanitization = false;
   let sanitizationType = sanitization.toString().trim().toLowerCase();

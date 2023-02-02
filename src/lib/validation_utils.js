@@ -22,20 +22,21 @@ const SUCCESS = '';
 
 /**
  * Validate value, throw error for validation error.
- * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
+ * Accepted validation types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
  * For optional values (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
+ * For enum validation use an array of values.
  * As types you can use also exported const as 'ANY_TYPE'.
  * @param {Object} p
  * @param {*} p.value - Value to validate
- * @param {string} p.validation - Validation type
+ * @param {string | [*]} p.validation - Validation type
  * @param {string} [p.errorMsg] - Optional error message
  * @return {*} Validated value
  * @throws Will throw an error if the validation fails
  */
 // see https://github.com/iarna/aproba for inspiration
 function validate ({ value, validation, errorMsg }) {
-  if (typeof validation !== 'string')
-    throw new Error(`'validation' parameter must be a string`);
+  if (typeof validation !== 'string' || !Array.isArray(value))
+    throw new Error(`'validation' parameter must be a string or an array`);
   if (errorMsg != null && typeof errorMsg !== 'string')
     throw new Error(`'errorMsg' parameter must be null/undefined or string`);
 
@@ -92,17 +93,25 @@ function validateObj ({ obj, validation, errorMsg }) {
  * validation function of a single value
  * @param {Object} p
  * @param {*} p.value - Value to validate
- * @param {string} p.validation - Validation string
+ * @param {string | [*]} p.validation - Validation type
  * @param {string} [p.errorMsg] - Optional error message
  * @return {string} Return empty string for success; return error string for validation error.
  */
 function _validateValue ({ value, validation, errorMsg }) {
-  if (typeof validation !== 'string')
-    throw new Error(`'validation' parameter must be a string`);
+  if (typeof validation !== 'string' || !Array.isArray(value))
+    throw new Error(`'validation' parameter must be a string or an array`);
   if (errorMsg != null && typeof errorMsg !== 'string')
     throw new Error(`'errorMsg' parameter must be null/undefined or string`);
 
   if (errorMsg == null) errorMsg = 'Value';
+
+  if (Array.isArray(validation))
+  {
+    if (validation.includes(value))
+      return SUCCESS;
+
+    return `${errorMsg} = ${value}, must be one of ${validation}`;
+  }
 
   let optionalValidation = false;
   let validationType = validation.toString().trim().toLowerCase();
