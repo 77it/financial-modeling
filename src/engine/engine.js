@@ -11,19 +11,6 @@ There must be a way to tell - by the modules - to engine.js that a module is no 
  */
 
 /**
- * Callback to dump the transactions
- *
- * @callback appendTrnDump
- * @param {string} dump - The transactions dump
- */
-
-/**
- * @callback modulesLoader_Resolve
- * @param {string} module - The module to resolve
- * @return {string[]} List of URL from which import a module
- */
-
-/**
  @param {Object} p
  @param {ModuleData[]} p.userInput - Array of `ModuleData` objects
  @param {modulesLoader_Resolve} p.modulesLoader_Resolve Callback to dump the transactions
@@ -46,3 +33,19 @@ function engine ({ userInput, modulesLoader_Resolve, appendTrnDump }) {
   this error is intercepted here, and will be recorded a 'debug_error' SimObject, then the execution ends with an error.
    */
 }
+
+//#region types definitions
+/**
+ Callback to dump the transactions
+ @callback appendTrnDump
+ @param {string} dump - The transactions dump
+ */
+
+/**
+ @callback modulesLoader_Resolve
+ @param {string} module - The module to resolve
+ @return {string[]} List of URL from which import a module
+ */
+
+/** @typedef {{success: boolean, value?: *, error?: string}} Result */
+//#endregion types definitions

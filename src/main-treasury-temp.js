@@ -48,9 +48,9 @@ async function main ({ excelUserInput, output, errors }) {
 
   try {
     // run simulation
-    engine({
+    _engine({
       userInput: moduleDataArray,
-      appendTrnDump: function (dump) {
+      appendTrnDump: /** @param {string} dump */ function (dump) {
         writeAllSync(trnDumpFileWriter, new TextEncoder().encode(dump));  // function to write dump to file // see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
       },
       modulesLoader_Resolve: modulesLoader_Resolve  // pass a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside engine.js
@@ -108,7 +108,7 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
  @private
  * Returns engine function, from `moduleDataArray` or from local engine file
  * @param {ModuleData[]} moduleDataArray
- * @return Promise<any> - Engine function
+ * @return Promise<engine> - Engine function
  */
 async function _getEngine (moduleDataArray) {
 
