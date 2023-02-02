@@ -14,7 +14,7 @@ Deno.test('test sanitizeObj()', async (t) => {
       /**
        * @param {{value: string, value2: string}} p
        */
-      constructor({value, value2}) {
+      constructor ({ value, value2 }) {
         this.value = value;
         this.value2 = value2;
       }
@@ -36,7 +36,7 @@ Deno.test('test sanitizeObj()', async (t) => {
   });
 
   await t.step('`any` type', async () => {
-    const objToSanitize = { a: undefined, b: null, c:99 };
+    const objToSanitize = { a: undefined, b: null, c: 99 };
     const expObj = { a: undefined, b: null, c: 99 };
     const sanitization = { a: 'any', b: 'any', c: 'number' };
     assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
@@ -51,18 +51,19 @@ Deno.test('test sanitizeObj()', async (t) => {
       num: '123',
       bool: 0,
       date: '1999-12-31T23:59:59',
+      enum: 'mamma',
       arr: 999,
-      arrStr: [ 0, 'b' ],
+      arrStr: [0, 'b'],
       arrStr2: 0,
-      arrNum: [ '99', '0', 55 ],
+      arrNum: ['99', '0', 55],
       arrNum2: '99',
-      arrDate: [ '1999-12-31T23:59:59', new Date('2020-12-31T23:59:59') ],
+      arrDate: ['1999-12-31T23:59:59', new Date('2020-12-31T23:59:59')],
       arrDate2: '1999-12-31T23:59:59',
-      arrBool: [ 0, 'a' ],
+      arrBool: [0, 'a'],
       arrBool2: 0,
-      arrBoolEmpty: [ ],
-      arrObj: [ {a: 0}, {b: 'b'} ],
-      arrObj2: {a: 0},
+      arrBoolEmpty: [],
+      arrObj: [{ a: 0 }, { b: 'b' }],
+      arrObj2: { a: 0 },
       obj: { a: 999 },
       fun: _fun,
       any: 999,
@@ -74,18 +75,19 @@ Deno.test('test sanitizeObj()', async (t) => {
       num: 123,
       bool: false,
       date: parseJSON('1999-12-31T23:59:59'),
+      enum: 'mamma',
       arr: [999],
-      arrStr: [ '0', 'b' ],
-      arrStr2: [ '0' ],
-      arrNum: [ 99, 0, 55 ],
-      arrNum2: [ 99 ],
-      arrDate: [ parseJSON('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ],
-      arrDate2: [ parseJSON('1999-12-31T23:59:59') ],
-      arrBool: [ false, true ],
-      arrBool2: [ false ],
-      arrBoolEmpty: [ ],
-      arrObj: [ {a: 0}, {b: 'b'} ],
-      arrObj2: [ {a: 0} ],
+      arrStr: ['0', 'b'],
+      arrStr2: ['0'],
+      arrNum: [99, 0, 55],
+      arrNum2: [99],
+      arrDate: [parseJSON('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
+      arrDate2: [parseJSON('1999-12-31T23:59:59')],
+      arrBool: [false, true],
+      arrBool2: [false],
+      arrBoolEmpty: [],
+      arrObj: [{ a: 0 }, { b: 'b' }],
+      arrObj2: [{ a: 0 }],
       obj: { a: 999 },
       fun: _fun,
       any: 999,
@@ -101,6 +103,7 @@ Deno.test('test sanitizeObj()', async (t) => {
       num: S.NUMBER_TYPE,
       bool: S.BOOLEAN_TYPE,
       date: S.DATE_TYPE,
+      enum: ['mamma', 'pappa'],
       arr: S.ARRAY_TYPE,
       arrStr: S.ARRAY_OF_STRINGS_TYPE,
       arrStr2: S.ARRAY_OF_STRINGS_TYPE,
@@ -127,5 +130,9 @@ Deno.test('test sanitizeObj()', async (t) => {
     assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
 
     assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true }), expObj);
+
+    assertEquals(S.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true }), {});
+
+    assertThrows(() => S.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
   });
 });

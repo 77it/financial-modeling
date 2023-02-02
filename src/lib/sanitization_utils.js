@@ -41,7 +41,7 @@ OPTIONS.NUMBER_TO_DATE = OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
  * Number to dates are considered Excel serial dates (stripping hours, in UTC)
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
- * @param {string | [*]} p.sanitization - Sanitization type
+ * @param {*} p.sanitization - Sanitization type (string or array)
  * @param {boolean} [p.validate=false] - Optional validation flag
  * @return {*} Sanitized value
  */
@@ -195,6 +195,7 @@ function sanitize ({ value, sanitization, validate = false }) {
  * If obj is null/undefined or other non-objects returns empty object {}.
  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
  * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
+ * For enum sanitization use an array of values (values will be ignored, optionally validated).
  * As types you can use also exported const as 'ANY_TYPE'.
  * Any, object, function, class are ignored and returned as is.
  * Array are sanitized without cloning them.
@@ -234,10 +235,12 @@ function sanitizeObj ({ obj, sanitization, validate = false }) {
    */
   function _sanitizeObj2 (_obj) {
     for (const key of Object.keys(sanitization)) {
-
-      const optionalSanitization = (sanitization[key].toString().trim().slice(-1) === '?');
+      // skip enum sanitization
+      if (Array.isArray(sanitization[key]))
+        continue;
 
       // if sanitization key is missing in the object to sanitize and the sanitization is optional, skip sanitization
+      const optionalSanitization = (sanitization[key].toString().trim().slice(-1) === '?');
       if (!(key in _obj) && optionalSanitization)
         continue;
 

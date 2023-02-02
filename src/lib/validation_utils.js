@@ -19,7 +19,6 @@ export const SYMBOL_TYPE = 'symbol';
 
 const SUCCESS = '';
 
-
 /**
  * Validate value, throw error for validation error.
  * Accepted validation types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
@@ -28,7 +27,7 @@ const SUCCESS = '';
  * As types you can use also exported const as 'ANY_TYPE'.
  * @param {Object} p
  * @param {*} p.value - Value to validate
- * @param {string | [*]} p.validation - Validation type
+ * @param {*} p.validation - Validation type (string or array)
  * @param {string} [p.errorMsg] - Optional error message
  * @return {*} Validated value
  * @throws Will throw an error if the validation fails
@@ -93,7 +92,7 @@ function validateObj ({ obj, validation, errorMsg }) {
  * validation function of a single value
  * @param {Object} p
  * @param {*} p.value - Value to validate
- * @param {string | [*]} p.validation - Validation type
+ * @param {*} p.validation - Validation type (string or array)
  * @param {string} [p.errorMsg] - Optional error message
  * @return {string} Return empty string for success; return error string for validation error.
  */
@@ -103,14 +102,12 @@ function _validateValue ({ value, validation, errorMsg }) {
 
   if (errorMsg == null) errorMsg = 'Value';
 
-  if (Array.isArray(validation))
-  {
+  if (Array.isArray(validation)) {
     if (validation.includes(value))
       return SUCCESS;
 
     return `${errorMsg} = ${value}, must be one of ${validation}`;
-  }
-  else if (typeof validation === 'string') {
+  } else if (typeof validation === 'string') {
     let optionalValidation = false;
     let validationType = validation.toString().trim().toLowerCase();
     if (validation.trim().slice(-1) === '?') {
@@ -192,8 +189,7 @@ function _validateValue ({ value, validation, errorMsg }) {
       default:
         return `${errorMsg} type is unrecognized`;
     }
-  }
-  else
+  } else
     throw new Error(`'validation' parameter must be a string or an array`);
 
   /**
@@ -202,7 +198,7 @@ function _validateValue ({ value, validation, errorMsg }) {
    * @param {[*]} p.array - Array to validate
    * @param {string} p.validation - Validation string
    */
-  function _validateArray ({ array, validation}) {
+  function _validateArray ({ array, validation }) {
     /** @type {string[]} */
     const errors = [];
 
@@ -257,22 +253,31 @@ function _validateObj ({ obj, validation }) {
    */
   function _validateObj2 (_obj) {
     for (const key of Object.keys(validation)) {
+      // enum sanitization
+      if (Array.isArray(validation[key])) {
+        const validationResult = _validateValue({
+          value: _obj[key],
+          validation: validation[key],
+          errorMsg: key
+        });
+        if (validationResult) errors.push(validationResult);
+      } else {
+        const optionalValidation = (validation[key].toString().trim().slice(-1) === '?');
 
-      const optionalValidation = (validation[key].toString().trim().slice(-1) === '?');
-
-      if (!(key in _obj)) {  // if validation key is missing in the object to validate
-        if (!optionalValidation) {  // if validation is not optional
-          errors.push(`${key} is missing`);  // append validation error
+        if (!(key in _obj)) {  // if validation key is missing in the object to validate
+          if (!optionalValidation) {  // if validation is not optional
+            errors.push(`${key} is missing`);  // append validation error
+          }
+          continue;  // skip validation
         }
-        continue;  // skip validation
-      }
 
-      const validationResult = _validateValue({
-        value: _obj[key],
-        validation: validation[key].toString(),
-        errorMsg: key
-      });
-      if (validationResult) errors.push(validationResult);
+        const validationResult = _validateValue({
+          value: _obj[key],
+          validation: validation[key].toString(),
+          errorMsg: key
+        });
+        if (validationResult) errors.push(validationResult);
+      }
     }
   }
 }
