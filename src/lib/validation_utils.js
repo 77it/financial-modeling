@@ -35,7 +35,7 @@ const SUCCESS = '';
  */
 // see https://github.com/iarna/aproba for inspiration
 function validate ({ value, validation, errorMsg }) {
-  if (typeof validation !== 'string' || !Array.isArray(value))
+  if (typeof validation !== 'string' && !Array.isArray(validation))
     throw new Error(`'validation' parameter must be a string or an array`);
   if (errorMsg != null && typeof errorMsg !== 'string')
     throw new Error(`'errorMsg' parameter must be null/undefined or string`);
@@ -98,8 +98,6 @@ function validateObj ({ obj, validation, errorMsg }) {
  * @return {string} Return empty string for success; return error string for validation error.
  */
 function _validateValue ({ value, validation, errorMsg }) {
-  if (typeof validation !== 'string' || !Array.isArray(value))
-    throw new Error(`'validation' parameter must be a string or an array`);
   if (errorMsg != null && typeof errorMsg !== 'string')
     throw new Error(`'errorMsg' parameter must be null/undefined or string`);
 
@@ -112,88 +110,91 @@ function _validateValue ({ value, validation, errorMsg }) {
 
     return `${errorMsg} = ${value}, must be one of ${validation}`;
   }
+  else if (typeof validation === 'string') {
+    let optionalValidation = false;
+    let validationType = validation.toString().trim().toLowerCase();
+    if (validation.trim().slice(-1) === '?') {
+      optionalValidation = true;
+      validationType = validation.toString().trim().toLowerCase().slice(0, -1);
+    }
 
-  let optionalValidation = false;
-  let validationType = validation.toString().trim().toLowerCase();
-  if (validation.trim().slice(-1) === '?') {
-    optionalValidation = true;
-    validationType = validation.toString().trim().toLowerCase().slice(0, -1);
-  }
+    if (value == null && optionalValidation) {  // if value to validate is null/undefined and validation is optional, return success
+      return SUCCESS;
+    }
 
-  if (value == null && optionalValidation) {  // if value to validate is null/undefined and validation is optional, return success
-    return SUCCESS;
+    switch (validationType.toLowerCase()) {  // switch validations
+      case ANY_TYPE:
+        if (value == null)
+          return `${errorMsg} = ${value}, must be !== null or undefined`;
+        return SUCCESS;
+      case STRING_TYPE:
+        if (typeof value !== 'string')
+          return `${errorMsg} = ${value}, must be string`;
+        return SUCCESS;
+      case NUMBER_TYPE:
+        if (typeof value !== 'number' || !isFinite(value))
+          return `${errorMsg} = ${value}, must be a valid number`;
+        return SUCCESS;
+      case BOOLEAN_TYPE:
+        if (typeof value !== 'boolean')
+          return `${errorMsg} = ${value}, must be boolean`;
+        return SUCCESS;
+      case DATE_TYPE:
+        if (!(value instanceof Date) || isNaN(value.getTime()))
+          return `${errorMsg} = ${value}, must be a valid date`;
+        return SUCCESS;
+      case ARRAY_TYPE:
+        if (!Array.isArray(value))
+          return `${errorMsg} = ${value}, must be an array`;
+        return SUCCESS;
+      case ARRAY_OF_STRINGS_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: STRING_TYPE });
+        if (validationResult)
+          return `${errorMsg} array error, ${validationResult}`;
+        return SUCCESS;
+      }
+      case ARRAY_OF_NUMBERS_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: NUMBER_TYPE });
+        if (validationResult)
+          return `${errorMsg} array error, ${validationResult}`;
+        return SUCCESS;
+      }
+      case ARRAY_OF_BOOLEANS_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: BOOLEAN_TYPE });
+        if (validationResult)
+          return `${errorMsg} array error, ${validationResult}`;
+        return SUCCESS;
+      }
+      case ARRAY_OF_DATES_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: DATE_TYPE });
+        if (validationResult)
+          return `${errorMsg} array error, ${validationResult}`;
+        return SUCCESS;
+      }
+      case ARRAY_OF_OBJECTS_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: OBJECT_TYPE });
+        if (validationResult)
+          return `${errorMsg} array error, ${validationResult}`;
+        return SUCCESS;
+      }
+      case OBJECT_TYPE:
+        if (value == null || typeof value !== 'object')  // double check, because typeof null is object
+          return `${errorMsg} = ${value}, must be an object`;
+        return SUCCESS;
+      case FUNCTION_TYPE:
+        if (typeof value !== 'function')
+          return `${errorMsg} = ${value}, must be a function`;
+        return SUCCESS;
+      case SYMBOL_TYPE:
+        if (typeof value !== 'symbol')
+          return `${errorMsg} = ${value}, must be a symbol`;
+        return SUCCESS;
+      default:
+        return `${errorMsg} type is unrecognized`;
+    }
   }
-
-  switch (validationType.toLowerCase()) {  // switch validations
-    case ANY_TYPE:
-      if (value == null)
-        return `${errorMsg} = ${value}, must be !== null or undefined`;
-      return SUCCESS;
-    case STRING_TYPE:
-      if (typeof value !== 'string')
-        return `${errorMsg} = ${value}, must be string`;
-      return SUCCESS;
-    case NUMBER_TYPE:
-      if (typeof value !== 'number' || !isFinite(value))
-        return `${errorMsg} = ${value}, must be a valid number`;
-      return SUCCESS;
-    case BOOLEAN_TYPE:
-      if (typeof value !== 'boolean')
-        return `${errorMsg} = ${value}, must be boolean`;
-      return SUCCESS;
-    case DATE_TYPE:
-      if (!(value instanceof Date) || isNaN(value.getTime()))
-        return `${errorMsg} = ${value}, must be a valid date`;
-      return SUCCESS;
-    case ARRAY_TYPE:
-      if (!Array.isArray(value))
-        return `${errorMsg} = ${value}, must be an array`;
-      return SUCCESS;
-    case ARRAY_OF_STRINGS_TYPE: {
-      const validationResult = _validateArray({ array: value, validation: STRING_TYPE });
-      if (validationResult)
-        return `${errorMsg} array error, ${validationResult}`;
-      return SUCCESS;
-    }
-    case ARRAY_OF_NUMBERS_TYPE: {
-      const validationResult = _validateArray({ array: value, validation: NUMBER_TYPE });
-      if (validationResult)
-        return `${errorMsg} array error, ${validationResult}`;
-      return SUCCESS;
-    }
-    case ARRAY_OF_BOOLEANS_TYPE: {
-      const validationResult = _validateArray({ array: value, validation: BOOLEAN_TYPE });
-      if (validationResult)
-        return `${errorMsg} array error, ${validationResult}`;
-      return SUCCESS;
-    }
-    case ARRAY_OF_DATES_TYPE: {
-      const validationResult = _validateArray({ array: value, validation: DATE_TYPE });
-      if (validationResult)
-        return `${errorMsg} array error, ${validationResult}`;
-      return SUCCESS;
-    }
-    case ARRAY_OF_OBJECTS_TYPE: {
-      const validationResult = _validateArray({ array: value, validation: OBJECT_TYPE });
-      if (validationResult)
-        return `${errorMsg} array error, ${validationResult}`;
-      return SUCCESS;
-    }
-    case OBJECT_TYPE:
-      if (value == null || typeof value !== 'object')  // double check, because typeof null is object
-        return `${errorMsg} = ${value}, must be an object`;
-      return SUCCESS;
-    case FUNCTION_TYPE:
-      if (typeof value !== 'function')
-        return `${errorMsg} = ${value}, must be a function`;
-      return SUCCESS;
-    case SYMBOL_TYPE:
-      if (typeof value !== 'symbol')
-        return `${errorMsg} = ${value}, must be a symbol`;
-      return SUCCESS;
-    default:
-      return `${errorMsg} type is unrecognized`;
-  }
+  else
+    throw new Error(`'validation' parameter must be a string or an array`);
 
   /**
    * Internal validation function

@@ -46,7 +46,7 @@ OPTIONS.NUMBER_TO_DATE = OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
  * @return {*} Sanitized value
  */
 function sanitize ({ value, sanitization, validate = false }) {
-  if (typeof sanitization !== 'string' || !Array.isArray(value))
+  if (typeof sanitization !== 'string' && !Array.isArray(sanitization))
     throw new Error(`'sanitization' parameter must be a string or an array`);
 
   if (Array.isArray(sanitization))
