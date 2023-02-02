@@ -1,6 +1,6 @@
 export { sanitize, sanitizeObj };
 import { parseJSON, excelSerialDateToUTCDate } from './date_utils.js';
-import { validate, validateObj } from './validation_utils.js';
+import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
 
 //#region types
 export const ANY_TYPE = 'any';
@@ -41,10 +41,10 @@ OPTIONS.NUMBER_TO_DATE = OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
  * @param {string} p.sanitization - Sanitization string
- * @param {boolean} [p.validation=false] - Optional validation flag
+ * @param {boolean} [p.validate=false] - Optional validation flag
  * @return {*} Sanitized value
  */
-function sanitize ({ value, sanitization, validation = false }) {
+function sanitize ({ value, sanitization, validate = false }) {
   if (typeof sanitization !== 'string')
     throw new Error(`'sanitization' parameter must be a string`);
 
@@ -156,8 +156,8 @@ function sanitize ({ value, sanitization, validation = false }) {
         `sanitization error, ${sanitizationType} type is unrecognized`);
   }
 
-  if (validation)
-    return validate(retValue);
+  if (validate)
+    return validateFunc({ value: retValue, validation: sanitization });
   else
     return retValue;
 
@@ -193,10 +193,10 @@ function sanitize ({ value, sanitization, validation = false }) {
  * @param {Object} p
  * @param {*} p.obj - Object to sanitize
  * @param {*} p.sanitization - Sanitization object {key1: 'string', key2: 'number?'}
- * @param {boolean} [p.validation=false] - Optional validation flag
+ * @param {boolean} [p.validate=false] - Optional validation flag
  * @return {*} Sanitized object
  */
-function sanitizeObj ({ obj, sanitization, validation = false }) {
+function sanitizeObj ({ obj, sanitization, validate = false }) {
   let retValue;
 
   if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
@@ -213,8 +213,8 @@ function sanitizeObj ({ obj, sanitization, validation = false }) {
   } else
     retValue = _sanitizeObj2(obj);
 
-  if (validation)
-    return validateObj(retValue);
+  if (validate)
+    return validateObjFunc({ obj: retValue, validation: sanitization });
   else
     return retValue;
 

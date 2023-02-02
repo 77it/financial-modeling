@@ -262,4 +262,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(null, S.sanitize({value: null, sanitization: t2}));
     assertEquals(999, S.sanitize({value: 999, sanitization: t2}));
   });
+
+  await t.step('test sanitize() + validate()', () => {
+    assertEquals(S.sanitize({ value: '999', sanitization: 'number' , validate: true}), 999);
+    assertEquals(S.sanitize({ value: '999', sanitization: 'number?' , validate: true}), 999);
+    assertEquals(S.sanitize({ value: undefined, sanitization: 'number?' , validate: true}), undefined);
+  });
 });

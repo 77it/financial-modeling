@@ -42,7 +42,7 @@ Deno.test('test sanitizeObj()', async (t) => {
     assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
   });
 
-  await t.step('complex type', async () => {
+  await t.step('complex type + validate=true test', async () => {
     const _fun = () => {console.log('mamma');};
     const _sym = Symbol();
 
@@ -125,5 +125,7 @@ Deno.test('test sanitizeObj()', async (t) => {
     };
 
     assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
+
+    assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true }), expObj);
   });
 });
