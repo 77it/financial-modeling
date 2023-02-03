@@ -16,7 +16,7 @@ start a new transaction
 
 method addSO(array)  // add SimObject array to the transaction, keeping it open
 
-extinguishSO(): accetta un id, crea una scrittura con importo residuo di un SimObject; restituisce l’oggetto creato, con amount in formato Big. name from [1] https://www.iasplus.com/en/standards/ifric/ifric19
+extinguishSO(): accetta un id di un SO BalanceSheet, accoda alle transazioni una scrittura con: importo residuo di un SimObject + alive = false; return void. name from [1] https://www.iasplus.com/en/standards/ifric/ifric19
 
 deltaSO(): accetta un id e un importo delta (eventualmente precisando principal schedule e indefinite, altrimenti tutto su indefinite), crea una scrittura con una variazione del SimObject del delta indicato; restituisce l’oggetto creato, con amount in formato Big.
 
