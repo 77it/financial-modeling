@@ -70,6 +70,8 @@ Deno.test('test validateObj(), valid, complex object', () => {
     num: 123,
     bool: false,
     date: new Date('1999-12-31T23:59:59'),
+    enum: 'aaa',
+    //enumWithUndefined: missing, must pass because the array contains undefined
     arr: [
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }],
@@ -91,6 +93,8 @@ Deno.test('test validateObj(), valid, complex object', () => {
     num: Validation.NUMBER_TYPE,
     bool: Validation.BOOLEAN_TYPE,
     date: Validation.DATE_TYPE,
+    enum: [11, 'aa', 'aaa', 55],
+    enumWithUndefined: [11, undefined, 'aa', 'aaa', 55],
     arr: Validation.ARRAY_TYPE,
     arrStr: Validation.ARRAY_OF_STRINGS_TYPE,
     arrNum: Validation.ARRAY_OF_NUMBERS_TYPE,

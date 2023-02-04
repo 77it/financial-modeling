@@ -114,7 +114,7 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
  * Returns engine function, from `moduleDataArray` or from local engine file
  * @param {Object} p
  * @param {ModuleData[]} p.moduleDataArray
- * @param {boolean} p.debug - Debug flag
+ * @param {boolean} p.debug - Debug flag: when true, the engine function is returned from local engine file
  * @return Promise<engine> - Engine function
  */
 async function _getEngine ({ moduleDataArray, debug }) {

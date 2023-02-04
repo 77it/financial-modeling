@@ -47,6 +47,9 @@ Deno.test('test validate(), valid, all cases', () => {
   Validation.validate({ value: 123, validation: 'number' });
   Validation.validate({ value: false, validation: 'boolean' });
   Validation.validate({ value: new Date('1999-12-31T23:59:59'), validation: 'date' });
+  Validation.validate({ value: 999, validation: [11, 22, 999, 55] });  // enum
+  Validation.validate({ value: 'aaa', validation: [11, 'aa', 'aaa', 55] });  // enum
+  Validation.validate({ value: undefined, validation: [11, undefined, 'aa', 'aaa', 55] });  // enum
   Validation.validate({ value: [
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }], validation: 'array' });
@@ -149,6 +152,15 @@ Deno.test('test validate(), not valid, all cases', () => {
   }
   console.log(_error);
   assert(_error.includes('Value = 99, must be a valid date'));
+
+  // enum
+  try {
+    Validation.validate({ value: 'aaaX', validation: [11, 'aa', 'aaa', 55] });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Validation error: Value = aaaX, must be one of 11,aa,aaa,55'));
 
   try {
     Validation.validate({ value: 99, validation: 'array' });
