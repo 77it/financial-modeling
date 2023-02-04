@@ -50,8 +50,8 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
   try {
     // run simulation
     /** @type {Result} */
-    const _engine_result = _engine({
-      userInput: moduleDataArray,
+    const _engine_result = await _engine({
+      moduleDataArray: moduleDataArray,
       appendTrnDump: /** @param {string} dump */ function (dump) {
         writeAllSync(trnDumpFileWriter, new TextEncoder().encode(dump));  // function to write dump to file // see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
       },

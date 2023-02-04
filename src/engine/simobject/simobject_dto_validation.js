@@ -1,3 +1,4 @@
+// object used to validate simObjectDto
 export const simObjectDtoValidation = {
   type: 'string',
 

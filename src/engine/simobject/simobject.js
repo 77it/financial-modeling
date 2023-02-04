@@ -31,7 +31,7 @@ number[] principalSchedule  // contains a list of numbers to split the payments 
 
 class SimObject {
   /**
-   @param {Object} p
+   * @param {Object} p
    */
   constructor (p) {
     // TODO not implemented

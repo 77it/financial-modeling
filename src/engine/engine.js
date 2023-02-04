@@ -5,27 +5,36 @@ import { ModulesLoader } from './../modules/_modules_loader.js';
 import { ModuleData } from './modules/module_data.js';
 
 // TODO
-// closed/expired modules
 /*
+# closed/expired modules
 There must be a way to tell - by the modules - to engine.js that a module is no longer alive and should not be called anymore.
+
+# modules with undefined methods
+before calling a module method checks if the method is defined, otherwise it skips the call
  */
 
 /**
- @param {Object} p
- @param {ModuleData[]} p.userInput - Array of `ModuleData` objects
- @param {modulesLoader_Resolve} p.modulesLoader_Resolve Callback to dump the transactions
- @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
- @return {Result}
+ * @param {Object} p
+ * @param {ModuleData[]} p.moduleDataArray - Array of `ModuleData` objects
+ * @param {modulesLoader_Resolve} p.modulesLoader_Resolve - Callback to dump the transactions
+ * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
+ * @return {Promise<Result>}
  */
-function engine ({ userInput, modulesLoader_Resolve, appendTrnDump }) {
+async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }) {
   try {
     const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
-    const ledger =  new Ledger({ appendTrnDump });
+    const ledger = new Ledger({ appendTrnDump });
 
-    // TODO load modules on _modulesLoader
+    // load modules on _modulesLoader
+    await _loadModules({ modulesLoader: _modulesLoader, moduleDataArray });
 
-    // TODO not implemented
-    console.dir(userInput); // todo TOREMOVE
+    // TODO NOW
+    // inizializza al suo interno
+    // * Drivers
+    // * SharedConstants
+    // chiama giorno per giorno i moduli
+
+    console.dir(moduleDataArray); // todo TOREMOVE
     throw new Error('not implemented');
 
   } catch (error) {
@@ -39,19 +48,34 @@ function engine ({ userInput, modulesLoader_Resolve, appendTrnDump }) {
     return { success: false, error: _error };
   }
   return { success: true };
+
+  //#region local functions
+  /**
+   Load modules on modulesLoader reading moduleDataArray
+   * @param {Object} p
+   * @param {ModulesLoader} p.modulesLoader
+   * @param {ModuleData[]} p.moduleDataArray
+   */
+  async function _loadModules ({ modulesLoader, moduleDataArray }) {
+    for (const moduleData of moduleDataArray)
+      if (!modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI }))
+        await modulesLoader.addClassFromURI({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
+  }
+
+  //#endregion
 }
 
 //#region types definitions
 /**
- Callback to dump the transactions
- @callback appendTrnDump
- @param {string} dump - The transactions dump
+ * Callback to dump the transactions
+ * @callback appendTrnDump
+ * @param {string} dump - The transactions dump
  */
 
 /**
- @callback modulesLoader_Resolve
- @param {string} module - The module to resolve
- @return {string[]} List of URL from which import a module
+ * @callback modulesLoader_Resolve
+ * @param {string} module - The module to resolve
+ * @return {string[]} List of URL from which import a module
  */
 
 /** @typedef {{success: true, value?: *} | {success:false, error: string}} Result */

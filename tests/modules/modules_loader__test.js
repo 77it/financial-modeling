@@ -70,7 +70,7 @@ Deno.test('test ERROR addClassFromURI, not existing URI', async () => {
   assert(_error.includes('No such host is known'));
 });
 
-Deno.test('test addClassFromURI, alongside module (using ModuleData)', async () => {
+Deno.test('test addClassFromURI, alongside module (using ModuleData class)', async () => {
   const _URI = './modules_loader_test_module.js';
   const _moduleDataParameters = {
     moduleName: 'ValuesB',
@@ -107,49 +107,55 @@ Deno.test('test addClassFromURI, adding \'.js\' extension', async () => {
 });
 
 Deno.test('test addClassFromURI, empty URI, meaningless URI', async () => {
-  const _URI_spaces = '  ';
-  const _moduleName = 'modules_loader_test_module';
-  await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_spaces });
+  const _URI = '';
+  const _moduleName = 'MODULES_LOADER_TEST_MODULE';
+  await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI });
 
-  const query = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_spaces });
+  const query = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI });
   assert(query !== undefined);
 
   const _ValuesB = query.class;
   const __ValuesB = new _ValuesB({ value: 9999, value2: 'bbb' });
   assertEquals(__ValuesB.value, 9999);
   assertEquals(__ValuesB.value2, 'bbb');
-  assertEquals(`./${_moduleName}.js`, query.cdnURI);
+  assertEquals(`./${_moduleName.toLowerCase()}.js`, query.cdnURI);
 
   //#region test other URI cases
+  const _URI_spaces = '  ';
+  await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_spaces });
+  const query_spaces = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_spaces });
+  assert(query_spaces !== undefined);
+  assertEquals(`./${_moduleName.toLowerCase()}.js`, query_spaces.cdnURI);
+
   const _URI_backslash = ' \\ ';
   await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_backslash });
   const query_backslash = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_backslash });
   assert(query_backslash !== undefined);
-  assertEquals(`./${_moduleName}.js`, query_backslash.cdnURI);
+  assertEquals(`./${_moduleName.toLowerCase()}.js`, query_backslash.cdnURI);
 
   const _URI_dotBackslash = ' .\\ ';
   await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_dotBackslash });
   const query_dotBackslash = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_dotBackslash });
   assert(query_dotBackslash !== undefined);
-  assertEquals(`./${_moduleName}.js`, query_dotBackslash.cdnURI);
+  assertEquals(`./${_moduleName.toLowerCase()}.js`, query_dotBackslash.cdnURI);
 
   const _URI_slash = ' \/ ';
   await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_slash });
   const query_slash = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_slash });
   assert(query_slash !== undefined);
-  assertEquals(`./${_moduleName}.js`, query_slash.cdnURI);
+  assertEquals(`./${_moduleName.toLowerCase()}.js`, query_slash.cdnURI);
 
   const _URI_dotSlash = ' .\/ ';
   await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_dotSlash });
   const query_dotSlash = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_dotSlash });
   assert(query_dotSlash !== undefined);
-  assertEquals(`./${_moduleName}.js`, query_dotSlash.cdnURI);
+  assertEquals(`./${_moduleName.toLowerCase()}.js`, query_dotSlash.cdnURI);
 
   const _URI_dot = ' . ';
   await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_dot });
   const query_dot = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_dot });
   assert(query_dot !== undefined);
-  assertEquals(`./${_moduleName}.js`, query_dot.cdnURI);
+  assertEquals(`./${_moduleName.toLowerCase()}.js`, query_dot.cdnURI);
   //#endregion
 });
 

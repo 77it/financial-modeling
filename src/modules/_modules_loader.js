@@ -4,8 +4,9 @@ import { validateObj } from '../deps.js';
 import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
 
 class ModulesLoader {
-  /** Map to store classes: "URI/moduleName" as string key, {class: *, cdnURI: string} as value.
-   * Beware: URI (the original module URI) is different from cdnURI (the URI from which the module is loaded)
+  /**
+   Map to store classes: "URI/moduleName" as string key, {class: *, cdnURI: string} as value.
+   Beware: URI (the original module URI) is different from cdnURI (the URI from which the module is loaded)
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
   #defaultClassName = 'Module';
@@ -13,8 +14,8 @@ class ModulesLoader {
   #modulesLoader_Resolve;
 
   /**
-   @param {Object} p
-   @param {modulesLoader_Resolve} [p.modulesLoader_Resolve] optional modulesLoader_Resolve function
+   * @param {Object} p
+   * @param {modulesLoader_Resolve} [p.modulesLoader_Resolve] optional modulesLoader_Resolve function
    */
   constructor (p) {
     this.#classesRepo = new Map();
@@ -24,8 +25,8 @@ class ModulesLoader {
   }
 
   /**
-   * Add classes from object to the repository.
-   * If URI/moduleName already exists, it is not added.
+   Add classes from object to the repository.
+   If URI/moduleName already exists, it is not added.
    * @param {{moduleName: string, moduleEngineURI: string, classObj: *}} p
    * @throws Will throw an error if moduleEngineURI/moduleName already exists
    */
@@ -37,7 +38,9 @@ class ModulesLoader {
     };
     validateObj({ obj: p, validation: validation });
 
-    const repoKey = this.#repoKeyBuilder(p.moduleEngineURI, p.moduleName);
+    const _moduleName = p.moduleName.trim().toLowerCase();
+
+    const repoKey = this.#repoKeyBuilder(p.moduleEngineURI, _moduleName);
     if (this.#classesRepo.get(repoKey) === undefined)
       this.#classesRepo.set(repoKey, { class: p.classObj, cdnURI: '' });
     else
@@ -45,23 +48,25 @@ class ModulesLoader {
   }
 
   /**
-   * Load module from URI and add a class with default name {#defaultClassName} to the repository.
-   * If 'URI/moduleName' already exists, it is not added.
-   * If URI is "" or . or / or \, is set to ./${moduleName}.js
-   * If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
-   * If is missing the ".js" extension from the URI, the extension is added
+   Load module from URI and add a class with default name {#defaultClassName} to the repository.
+   If 'URI/moduleName' already exists, it is not added.
+   If URI is "" or . or / or \, is set to ./${moduleName.trim().toLowerCase()}.js
+   If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
+   If is missing the ".js" extension from the URI, the extension is added
    * @param {{moduleName: string, moduleEngineURI: string}} p
    * @throws Will throw an error if moduleEngineURI/moduleName already exists
    */
   async addClassFromURI (p) {
     validateObj({ obj: p, validation: { moduleName: 'string', moduleEngineURI: 'string' } });
 
-    const repoKey = this.#repoKeyBuilder(p.moduleEngineURI, p.moduleName);
+    const _moduleName = p.moduleName.trim().toLowerCase();
+
+    const repoKey = this.#repoKeyBuilder(p.moduleEngineURI, _moduleName);
 
     if (this.#classesRepo.get(repoKey) === undefined) {
       let _URI = p.moduleEngineURI.trim();
-      if (['', '.', '/', './', '\\', '.\\'].includes(_URI))  // If moduleEngineURI is missing or . / /. \ \., is set to ./${p.moduleName}.js
-        _URI = `./${p.moduleName}.js`;
+      if (['', '.', '/', './', '\\', '.\\'].includes(_URI))  // If moduleEngineURI is missing or . / /. \ \., is set to ./${_moduleName}.js
+        _URI = `./${_moduleName}.js`;
 
       // DYNAMIC IMPORT (works with Deno and browser)
       let _lastImportError = "";
@@ -98,7 +103,9 @@ class ModulesLoader {
     };
     validateObj({ obj: p, validation: validation });
 
-    const _ret = this.#classesRepo.get(this.#repoKeyBuilder(p.moduleEngineURI, p.moduleName));
+    const _moduleName = p.moduleName.trim().toLowerCase();
+
+    const _ret = this.#classesRepo.get(this.#repoKeyBuilder(p.moduleEngineURI, _moduleName));
     if (_ret === undefined)
       return undefined;
     if (_ret.class == null || _ret.cdnURI == null)

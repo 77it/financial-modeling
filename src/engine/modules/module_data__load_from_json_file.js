@@ -8,7 +8,5 @@ import { ModuleData } from './module_data.js';
  * @return {ModuleData} deserialized ModuleData
  */
 function moduleData_LoadFromJsonFile (json) {
-  const deserializedModuleData = JSON.parse(json);
-
-  return new ModuleData(deserializedModuleData);
+  return new ModuleData(JSON.parse(json));
 }

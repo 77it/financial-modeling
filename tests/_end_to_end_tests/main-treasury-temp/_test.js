@@ -20,14 +20,11 @@ Deno.test('main-treasury-temp tests', async () => {
     await downloadAndDecompressGzip(
       { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
 
-  await main({excelUserInput: './user_data.xlsx', output: './user_data.xlsx.trn_jsonl.tmp', errors: './errors.txt', debug: false});
+  await main({excelUserInput: './user_data.xlsx', output: './user_data.xlsx.trn_jsonl.tmp', errors: './errors.txt', debug: true});
 
   /* TODO NOW
 engine.js
-    inizializza al suo interno
-    * Drivers
-    * SharedConstants
-    chiama giorno per giorno i moduli
+  vedi codice
 
 i moduli
     * alla prima chiamata elaborano la tabella di input
