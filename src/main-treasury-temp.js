@@ -32,8 +32,9 @@ if (Deno.args.length !== 0) {
  * @param {string} p.excelUserInput - Excel file with user input
  * @param {string} p.output - JSONL file with simulation output (accounting writing transactions)
  * @param {string} p.errors - Text file created only if there are errors
+ * @param {boolean} [p.debug=false] - Optional debug flag
  */
-async function main ({ excelUserInput, output, errors }) {
+async function main ({ excelUserInput, output, errors, debug = false }) {
   // convert Excel input file to `modulesData`
   const moduleDataArray = await _convertExcelToModuleDataArray({ excelUserInput, errors });
 
@@ -44,7 +45,7 @@ async function main ({ excelUserInput, output, errors }) {
   const errorsDumpFileWriter = await Deno.open(errors, { create: true, write: true, truncate: true });
 
   // get engine from `moduleDataArray` or from `./engine/engine.js` file
-  const _engine = await _getEngine(moduleDataArray);
+  const _engine = await _getEngine({ moduleDataArray, debug });
 
   try {
     // run simulation
@@ -111,10 +112,15 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
 /**
  @private
  * Returns engine function, from `moduleDataArray` or from local engine file
- * @param {ModuleData[]} moduleDataArray
+ * @param {Object} p
+ * @param {ModuleData[]} p.moduleDataArray
+ * @param {boolean} p.debug - Debug flag
  * @return Promise<engine> - Engine function
  */
-async function _getEngine (moduleDataArray) {
+async function _getEngine ({ moduleDataArray, debug }) {
+
+  if (debug)
+    return engine;
 
   let engineUrl = null;
 
@@ -149,7 +155,6 @@ async function _getEngine (moduleDataArray) {
   // fallback to local `engine`
   return engine;
 }
-
 
 //#region types definitions
 /** @typedef {{success: true, value?: *} | {success:false, error: string}} Result */

@@ -20,7 +20,7 @@ Deno.test('main-treasury-temp tests', async () => {
     await downloadAndDecompressGzip(
       { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
 
-  await main({excelUserInput: './user_data.xlsx', output: './user_data.xlsx.trn_jsonl.tmp', errors: './errors.txt'});
+  await main({excelUserInput: './user_data.xlsx', output: './user_data.xlsx.trn_jsonl.tmp', errors: './errors.txt', debug: false});
 
   /* TODO NOW
 engine.js
