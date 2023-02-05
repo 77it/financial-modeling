@@ -1,7 +1,8 @@
 export { SimObject };
 
 import { validateObj } from '../../lib/validation_utils.js';
-import { simObject_Validation } from './simobject_validation.js';
+import { simObject_Validation } from './validations/simobject_validation.js';
+import { Big } from '../../deps.js';
 
 // this is the SimObject stored in Ledger
 
@@ -26,6 +27,30 @@ import { simObject_Validation } from './simobject_validation.js';
 class SimObject {
   /**
    * @param {*} p
+   * @param {string} p.type
+   * @param {string} p.id
+   * @param {date} p.dateTime
+   * @param {string} p.name
+   * @param {string} p.description
+   * @param {string} p.mutableDescription
+   * @param {string[]} p.metadata__Name
+   * @param {string[]} p.metadata__Value
+   * @param {Big[]} p.metadata__PercentageWeight
+   * @param {string} p.unitId
+   * @param {string} p.doubleEntrySide
+   * @param {string} p.currency
+   * @param {string} p.intercompanyInfo__VsUnitId
+   * @param {Big} p.value
+   * @param {Big} p.writingValue
+   * @param {boolean} p.alive
+   * @param {string} p.command__Id
+   * @param {string} p.command__DebugDescription
+   * @param {string} p.commandGroup__Id
+   * @param {string} p.commandGroup__DebugDescription
+   * @param {Big} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
+   * @param {date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+   * @param {Big[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
+   * @param {string} p.is_Link__SimObjId
    */
   constructor (p) {
     validateObj({ obj: p, validation: simObject_Validation });

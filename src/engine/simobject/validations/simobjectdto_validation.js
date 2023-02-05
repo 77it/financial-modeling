@@ -1,12 +1,17 @@
-// TODO align to SimObject
+export {simObjectDto_Validation}
 
-// object used to validate simObject
-export const simObject_Validation = {
+import {doubleEntrySide_enum} from '../enums/doubleentryside_enum.js'
+import { currency_enum } from '../enums/currency_enum.js';
+
+/**
+ object used to validate simObjectDto
+*/
+const simObjectDto_Validation = {
   type: 'string',
 
   id: 'string',
 
-  dateTime: 'Date',
+  dateTime: 'date',
 
   name: 'string',
   description: 'string',  // immutable, is used to generate Reports Detail
@@ -16,12 +21,12 @@ export const simObject_Validation = {
   metadata__Value: 'array[string]',
   metadata__PercentageWeight: 'array[number]',
 
-  unitId: 'array[string]',
+  unitId: 'string',
 
   // the values are always positive, also debts and costs, then this is the sign/side (debit/credit, left/right) and the type (BS/IS) of the voice
-  doubleEntrySide: '["BALANCESHEET_CREDIT", "BALANCESHEET_DEBIT", "INCOMESTATEMENT_CREDIT", "INCOMESTATEMENT_DEBIT", "MEMO"]',
+  doubleEntrySide: doubleEntrySide_enum,
 
-  currency: '["UNDEFINED", "EUR", "USD"]',
+  currency: currency_enum,
 
   intercompanyInfo__VsUnitId: 'string',
 
