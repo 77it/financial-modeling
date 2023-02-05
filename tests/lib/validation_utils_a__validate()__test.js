@@ -11,7 +11,7 @@ import { ARRAY_OF_BIGJS_TYPE } from '../../src/lib/validation_utils.js';
 
 Deno.test('test validate(), not valid, `any` type is undefined + personalized error message', () => {
   const objToValidate = undefined;
-  const validation = 'any';
+  const validation = Validation.ANY_TYPE;
 
   let _error;
   try {
@@ -25,7 +25,7 @@ Deno.test('test validate(), not valid, `any` type is undefined + personalized er
 
 Deno.test('test validate(), not valid, `any` type is null', () => {
   const objToValidate = null;
-  const validation = 'any';
+  const validation = Validation.ANY_TYPE;
 
   let _error;
   try {
@@ -39,23 +39,23 @@ Deno.test('test validate(), not valid, `any` type is null', () => {
 
 Deno.test('test validate() return value', () => {
   const objToValidate = 'xyz';
-  const objToValidate2 = Validation.validate({ value: objToValidate, validation: 'string' });
+  const objToValidate2 = Validation.validate({ value: objToValidate, validation: Validation.STRING_TYPE });
 
   assertEquals(objToValidate2, objToValidate);
 });
 
 Deno.test('test validate(), valid, all cases', () => {
-  Validation.validate({ value: 'string', validation: 'string' });
-  Validation.validate({ value: 123, validation: 'number' });
-  Validation.validate({ value: false, validation: 'boolean' });
-  Validation.validate({ value: new Date('1999-12-31T23:59:59'), validation: 'date' });
+  Validation.validate({ value: 'string', validation: Validation.STRING_TYPE });
+  Validation.validate({ value: 123, validation: Validation.NUMBER_TYPE  });
+  Validation.validate({ value: false, validation: Validation.BOOLEAN_TYPE });
+  Validation.validate({ value: new Date('1999-12-31T23:59:59'), validation: Validation.DATE_TYPE });
   Validation.validate({ value: 999, validation: [11, 22, 999, 55] });  // enum
   Validation.validate({ value: 'aaa', validation: [11, 'aa', 'aaa', 55] });  // enum
   Validation.validate({ value: undefined, validation: [11, undefined, 'aa', 'aaa', 55] });  // enum
   Validation.validate({ value: [
       { valA: 'aaa', valB: { a: 999 } },
-      { valA: 'aaaX', valB: { a: 9990 } }], validation: 'array' });
-  Validation.validate({ value: [ 'a', 'b' ], validation: 'array[string]' });
+      { valA: 'aaaX', valB: { a: 9990 } }], validation: Validation.ARRAY_TYPE });
+  Validation.validate({ value: [ 'a', 'b' ], validation: Validation.ARRAY_OF_STRINGS_TYPE });
   Validation.validate({ value: [ 99, 0, 55 ], validation: 'array[number]' });
   Validation.validate({ value: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ], validation: 'array[date]' });
   Validation.validate({ value: [ false, true ], validation: 'array[boolean]' });
@@ -66,18 +66,18 @@ Deno.test('test validate(), valid, all cases', () => {
   Validation.validate({ value: Symbol(), validation: Validation.SYMBOL_TYPE });
   Validation.validate({ value: new Big(10), validation: Validation.BIGJS_TYPE });
   Validation.validate({ value: [ new Big(10), Big(9), Big(0) ], validation: Validation.ARRAY_OF_BIGJS_TYPE });
-  Validation.validate({ value: 999, validation: 'any' });
+  Validation.validate({ value: 999, validation: Validation.ANY_TYPE });
 });
 
 Deno.test('test validate(), valid, all cases, with optional types', () => {
-  Validation.validate({ value: 'string', validation: 'string?' });
-  Validation.validate({ value: 123, validation: 'number?' });
-  Validation.validate({ value: false, validation: 'boolean?' });
-  Validation.validate({ value: new Date('1999-12-31T23:59:59'), validation: 'date?' });
+  Validation.validate({ value: 'string', validation: Validation.STRING_TYPE + '?' });
+  Validation.validate({ value: 123, validation: Validation.NUMBER_TYPE + '?' });
+  Validation.validate({ value: false, validation: Validation.BOOLEAN_TYPE + '?' });
+  Validation.validate({ value: new Date('1999-12-31T23:59:59'), validation: Validation.DATE_TYPE + '?' });
   Validation.validate({ value: [
       { valA: 'aaa', valB: { a: 999 } },
-      { valA: 'aaaX', valB: { a: 9990 } }], validation: 'array?' });
-  Validation.validate({ value: [ 'a', 'b' ], validation: 'array[string]?' });
+      { valA: 'aaaX', valB: { a: 9990 } }], validation: Validation.ARRAY_TYPE + '?' });
+  Validation.validate({ value: [ 'a', 'b' ], validation: Validation.ARRAY_OF_STRINGS_TYPE + '?' });
   Validation.validate({ value: [ 99, 0, 55 ], validation: 'array[number]?' });
   Validation.validate({ value: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ], validation: 'array[date]?' });
   Validation.validate({ value: [ false, true ], validation: 'array[boolean]?' });
@@ -91,12 +91,12 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   Validation.validate({ value: 999, validation: 'any?' });
 
   let nullOrUndefined = null;
-  Validation.validate({ value: nullOrUndefined, validation: 'string?' });
-  Validation.validate({ value: nullOrUndefined, validation: 'number?' });
-  Validation.validate({ value: nullOrUndefined, validation: 'boolean?' });
-  Validation.validate({ value: nullOrUndefined, validation: 'date?' });
-  Validation.validate({ value: nullOrUndefined, validation: 'array?' });
-  Validation.validate({ value: nullOrUndefined, validation: 'array[string]?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.STRING_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.NUMBER_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.BOOLEAN_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.DATE_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGS_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: 'array[number]?' });
   Validation.validate({ value: nullOrUndefined, validation: 'array[date]?' });
   Validation.validate({ value: nullOrUndefined, validation: 'array[boolean]?' });
@@ -110,12 +110,12 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   Validation.validate({ value: nullOrUndefined, validation: 'any?' });
 
   nullOrUndefined = undefined;
-  Validation.validate({ value: nullOrUndefined, validation: 'string?' });
-  Validation.validate({ value: nullOrUndefined, validation: 'number?' });
-  Validation.validate({ value: nullOrUndefined, validation: 'boolean?' });
-  Validation.validate({ value: nullOrUndefined, validation: 'date?' });
-  Validation.validate({ value: nullOrUndefined, validation: 'array?' });
-  Validation.validate({ value: nullOrUndefined, validation: 'array[string]?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.STRING_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.NUMBER_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.BOOLEAN_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.DATE_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGS_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: 'array[number]?' });
   Validation.validate({ value: nullOrUndefined, validation: 'array[date]?' });
   Validation.validate({ value: nullOrUndefined, validation: 'array[boolean]?' });
@@ -132,7 +132,7 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
 Deno.test('test validate(), not valid, all cases', () => {
   let _error;
   try {
-    Validation.validate({ value: 99, validation: 'string' });
+    Validation.validate({ value: 99, validation: Validation.STRING_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -141,7 +141,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 'aa', validation: 'number' });
+    Validation.validate({ value: 'aa', validation: Validation.NUMBER_TYPE  });
   } catch (error) {
     _error = error.message;
   }
@@ -150,7 +150,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: 'boolean' });
+    Validation.validate({ value: 99, validation: Validation.BOOLEAN_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -159,7 +159,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: 'date' });
+    Validation.validate({ value: 99, validation: Validation.DATE_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -178,7 +178,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: 'array' });
+    Validation.validate({ value: 99, validation: Validation.ARRAY_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -187,7 +187,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: 'array[string]' });
+    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_STRINGS_TYPE });
   } catch (error) {
     _error = error.message;
   }
