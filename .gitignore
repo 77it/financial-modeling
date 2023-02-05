@@ -273,3 +273,4 @@ ModelManifest.xml
 *.lock
 /.idea/runConfigurations
 /.run
+/tests/_end_to_end_tests/main-treasury-temp/errors.txt
