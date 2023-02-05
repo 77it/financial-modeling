@@ -3,6 +3,8 @@ export { engine };
 import { Ledger } from './ledger/ledger.js';
 import { ModulesLoader } from './../modules/_modules_loader.js';
 import { ModuleData } from './modules/module_data.js';
+import { Drivers } from './drivers/drivers.js';
+import { SharedConstants } from './sharedconstants/sharedconstants.js';
 
 // TODO
 /*
@@ -23,15 +25,14 @@ before calling a module method checks if the method is defined, otherwise it ski
 async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }) {
   try {
     const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
-    const ledger = new Ledger({ appendTrnDump });
+    const _ledger = new Ledger({ appendTrnDump });
+    const _drivers = new Drivers();
+    const _sharedConstants = new SharedConstants();
 
     // load modules on _modulesLoader
     await _loadModules({ modulesLoader: _modulesLoader, moduleDataArray });
 
     // TODO NOW
-    // inizializza al suo interno
-    // * Drivers
-    // * SharedConstants
     // chiama giorno per giorno i moduli
 
     console.dir(moduleDataArray); // todo TOREMOVE

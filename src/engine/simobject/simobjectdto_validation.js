@@ -1,5 +1,5 @@
 // object used to validate simObjectDto
-export const simObjectDtoValidation = {
+export const simObjectDto_Validation = {
   type: 'string',
 
   id: 'string',

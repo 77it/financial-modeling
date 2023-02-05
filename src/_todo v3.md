@@ -31,25 +31,12 @@ Sequenza delle attività di engine.js:
 # modules methods
 
 Standard module methods:
-* oneTimeBeforeTheSimulationStarts({listOfTables: any[], driversSet, sharedConstantsSet}): void;
-* beforeDailyModeling({driversGet, sharedConstantsGet}): void;
-* dailyModeling({driversGet, sharedConstantsGet}): void;
-* oneTimeAfterTheSimulationEnds({driversGet, sharedConstantsGet}): void;
+* oneTimeBeforeTheSimulationStarts({listOfTables: any[], driverSet, sharedConstantSet}): void;
+* beforeDailyModeling({driverGet, sharedConstantGet}): void;
+* dailyModeling({driverGet, sharedConstantGet}): void;
+* oneTimeAfterTheSimulationEnds({driverGet, sharedConstantGet}): void;
 
 </_sampleModule.js>
-
-
-<sharedConstants definition (#sharedConstants, #globals, #variables, #locks)>
-if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
-sharedConstants are immutable: when defined/set can't be redefined.
-
-method sharedConstantsGet({namespace: optional string, name:string})
-global/simulation namespace is "$$"; namespace can be null, undefined or "" meaning $$
-
-method sharedConstantsSet({namespace: optional string, name: string, value: any})
-global/simulation namespace is "$$"; namespace can be null, undefined or "" meaning $$
-
-</sharedConstants definition (#sharedConstants, #globals, #variables, #locks)>
 
 
 <#modules and #sharedConstants>
