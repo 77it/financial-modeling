@@ -11,6 +11,10 @@ class SharedConstants {
    * @type {Map<String, *>} */
   #sharedConstantsRepo;
 
+  constructor () {
+    this.#sharedConstantsRepo = new Map();
+  }
+
   /**
    * Set a SharedConstant
    * @param {Object} p

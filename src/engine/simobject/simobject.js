@@ -26,10 +26,10 @@ import { Big } from '../../deps.js';
 
 class SimObject {
   /**
-   * @param {*} p
+   * @param {Object} p
    * @param {string} p.type
    * @param {string} p.id
-   * @param {date} p.dateTime
+   * @param {Date} p.dateTime
    * @param {string} p.name
    * @param {string} p.description
    * @param {string} p.mutableDescription
@@ -48,7 +48,7 @@ class SimObject {
    * @param {string} p.commandGroup__Id
    * @param {string} p.commandGroup__DebugDescription
    * @param {Big} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
-   * @param {date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+   * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
    * @param {Big[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
    * @param {string} p.is_Link__SimObjId
    */
