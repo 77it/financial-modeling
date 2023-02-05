@@ -1,12 +1,12 @@
 export { simObject_Serialize };
-import { SimObject } from './simobject.js';
+import { SimObject } from '../simobject.js';
 
 // serialization
 /*
-# serialization of `principal`: convert it to numbers and dates
-number principalIndefinite
+# serialization of `principal`: convert it to string and dates
+string principalIndefinite
 
-number[] principalSchedule  // contains a list of numbers to split the payments until the end of the plan
+string[] principalSchedule
 
 Date[] principalScheduleDate  // dates can also be before today, because we can have a payment plan not regular with payments (overdue, etc.)
 
