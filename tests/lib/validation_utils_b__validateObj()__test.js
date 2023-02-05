@@ -1,5 +1,6 @@
-import { validateObj } from '../../src/lib/validation_utils.js';
+import { ARRAY_OF_BIGJS_TYPE, BIGJS_TYPE, validateObj } from '../../src/lib/validation_utils.js';
 import * as Validation from '../../src/lib/validation_utils.js';
+import { Big } from '../../src/deps.js';
 
 import {
   assert, 
@@ -85,6 +86,8 @@ Deno.test('test validateObj(), valid, complex object', () => {
     fun: () => {console.log('mamma');},
     any: 999,
     symbol: Symbol(),
+    big_js: new Big(10),
+    arrBig_js: [ new Big(10), new Big(9), Big(0) ],
     extraValueNotValidated: 999
   };
 
@@ -105,6 +108,8 @@ Deno.test('test validateObj(), valid, complex object', () => {
     obj: Validation.OBJECT_TYPE,
     fun: Validation.FUNCTION_TYPE,
     symbol: Validation.SYMBOL_TYPE,
+    big_js: Validation.BIGJS_TYPE,
+    arrBig_js: Validation.ARRAY_OF_BIGJS_TYPE,
     any: Validation.ANY_TYPE,
   };
 
@@ -125,6 +130,8 @@ Deno.test('test validateObj(), valid, object with and without optional types and
     arrObj: 'array[object]?',
     obj: 'object?',
     fun: 'function?',
+    big_js: 'big_js?',
+    arrBig_js: 'array[big_js]?',
     any: 'any?',
   };
 
@@ -278,6 +285,7 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
     arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59'), 99 ],
     arrBool: [ false, true, 99 ],
     arrObj: [ {a: 0}, {b: 'b'} , 99 ],
+    arrBig_js: [ new Big(10), 0, Big(0) ],
   };
 
   const validation = {
@@ -287,6 +295,7 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
     arrDate: 'array[date]',
     arrBool: 'array[boolean]',
     arrObj: 'array[object]',
+    arrBig_js: 'array[big_js]',
   };
 
   let _error;
@@ -302,6 +311,7 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
   assert(_error.includes('"arrDate array error, [\\"Value = 99, must be a valid date\\"]"'));
   assert(_error.includes('"arrBool array error, [\\"Value = 99, must be boolean\\"]"'));
   assert(_error.includes('"arrObj array error, [\\"Value = 99, must be an object\\"]"'));
+  assert(_error.includes('"arrBig_js array error, [\\"Value = 0, must be an instance of Big.js\\"]"'));
 });
 
 Deno.test('test validateObj(), not valid, null/undefined/not a str parameter', () => {
@@ -375,6 +385,29 @@ Deno.test('test validateObj(), not valid, null/undefined/not a date/invalid date
   }
   console.log(_error);
   assert(_error.includes('["date = null, must be a valid date","date2 = undefined, must be a valid date","date3 = 999, must be a valid date","date4 = Invalid Date, must be a valid date"]'));
+});
+
+Deno.test('test validateObj(), not valid, null/undefined/not Big.js parameter', () => {
+  const objToValidate = {
+    big: null,
+    big2: undefined,
+    big3: 999,
+  };
+
+  const validation = {
+    big: 'big_js',
+    big2: 'big_js',
+    big3: 'big_js',
+  };
+
+  let _error;
+  try {
+    validateObj({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('["big = null, must be an instance of Big.js","big2 = undefined, must be an instance of Big.js","big3 = 999, must be an instance of Big.js"]'));
 });
 
 Deno.test('test validateObj(), not valid, null/undefined/not a bool parameter', () => {

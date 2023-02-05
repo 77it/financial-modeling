@@ -1,5 +1,7 @@
 export { validate, validateObj };
 
+import { Big } from '../deps.js';
+
 //#region types
 export const ANY_TYPE = 'any';
 export const STRING_TYPE = 'string';
@@ -15,6 +17,8 @@ export const ARRAY_OF_OBJECTS_TYPE = 'array[object]';
 export const OBJECT_TYPE = 'object';
 export const FUNCTION_TYPE = 'function';
 export const SYMBOL_TYPE = 'symbol';
+export const BIGJS_TYPE = 'big_js';
+export const ARRAY_OF_BIGJS_TYPE = 'array[big_js]';
 //#endregion types
 
 const SUCCESS = '';
@@ -186,6 +190,16 @@ function _validateValue ({ value, validation, errorMsg }) {
         if (typeof value !== 'symbol')
           return `${errorMsg} = ${value}, must be a symbol`;
         return SUCCESS;
+      case BIGJS_TYPE:
+        if (!(value instanceof Big))
+          return `${errorMsg} = ${value}, must be an instance of Big.js`;
+        return SUCCESS;
+      case ARRAY_OF_BIGJS_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: BIGJS_TYPE });
+        if (validationResult)
+          return `${errorMsg} array error, ${validationResult}`;
+        return SUCCESS;
+      }
       default:
         return `${errorMsg} type is unrecognized`;
     }

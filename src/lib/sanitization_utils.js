@@ -1,6 +1,8 @@
 export { sanitize, sanitizeObj };
+
 import { parseJSON, excelSerialDateToUTCDate } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
+import { Big } from '../deps.js';
 
 //#region types
 export const ANY_TYPE = 'any';
@@ -17,6 +19,8 @@ export const ARRAY_OF_OBJECTS_TYPE = 'array[object]';
 export const OBJECT_TYPE = 'object';
 export const FUNCTION_TYPE = 'function';
 export const SYMBOL_TYPE = 'symbol';
+export const BIGJS_TYPE = 'big_js';
+export const ARRAY_OF_BIGJS_TYPE = 'array[big_js]';
 //#endregion types
 
 //#region settings
@@ -158,6 +162,18 @@ function sanitize ({ value, sanitization, validate = false }) {
     }
     case SYMBOL_TYPE: {
       retValue = value;  // return value as is without sanitization
+      break;
+    }
+    case BIGJS_TYPE: {
+      try {
+        retValue = (value instanceof Big) ? value : new Big(value);
+      } catch (_) {
+        retValue = new Big(0);
+      }
+      break;
+    }
+    case ARRAY_OF_BIGJS_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: BIGJS_TYPE });
       break;
     }
     default:

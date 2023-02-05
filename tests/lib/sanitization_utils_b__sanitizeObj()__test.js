@@ -1,5 +1,6 @@
 import * as S from '../../src/lib/sanitization_utils.js';
 import { parseJSON } from '../../src/lib/date_utils.js';
+import { Big } from '../../src/deps.js';
 
 import {
   assert,
@@ -20,7 +21,7 @@ Deno.test('test sanitizeObj()', async (t) => {
       }
     }
 
-    const sanitization = { a: 'string', b: 'number' };
+    const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
     assertEquals(S.sanitizeObj({ obj: null, sanitization: sanitization }), {});
     assertEquals(S.sanitizeObj({ obj: undefined, sanitization: sanitization }), {});
     assertEquals(S.sanitizeObj({ obj: 999, sanitization: sanitization }), {});
@@ -31,14 +32,14 @@ Deno.test('test sanitizeObj()', async (t) => {
   await t.step('simple object', async () => {
     const objToSanitize = { a: 'mamma', b: 99 };
     const expObj = { a: 'mamma', b: 99 };
-    const sanitization = { a: 'string', b: 'number' };
+    const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
     assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
   });
 
   await t.step('`any` type', async () => {
     const objToSanitize = { a: undefined, b: null, c: 99 };
     const expObj = { a: undefined, b: null, c: 99 };
-    const sanitization = { a: 'any', b: 'any', c: 'number' };
+    const sanitization = { a: S.ANY_TYPE, b: S.ANY_TYPE, c: S.NUMBER_TYPE };
     assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
   });
 
@@ -68,6 +69,8 @@ Deno.test('test sanitizeObj()', async (t) => {
       fun: _fun,
       any: 999,
       symbol: _sym,
+      big_js: 10,
+      arrBig_js: [ 10, '9', 0 ],
     };
 
     const expObj = {
@@ -92,6 +95,8 @@ Deno.test('test sanitizeObj()', async (t) => {
       fun: _fun,
       any: 999,
       symbol: _sym,
+      big_js: new Big(10),
+      arrBig_js: [ new Big(10), new Big(9), Big(0) ],
       extraValueMissingRequiredStr: '',
       extraValueMissingRequiredNum: 0,
       extraValueMissingRequiredBool: false,
@@ -119,6 +124,8 @@ Deno.test('test sanitizeObj()', async (t) => {
       obj: S.OBJECT_TYPE,
       fun: S.FUNCTION_TYPE,
       symbol: S.SYMBOL_TYPE,
+      big_js: S.BIGJS_TYPE,
+      arrBig_js: S.ARRAY_OF_BIGJS_TYPE,
       any: S.ANY_TYPE,
       extraValueMissingRequiredStr: S.STRING_TYPE,
       extraValueMissingRequiredNum: S.NUMBER_TYPE,
@@ -127,11 +134,11 @@ Deno.test('test sanitizeObj()', async (t) => {
       extraValueMissingNotRequired: S.STRING_TYPE + '?'
     };
 
-    assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
+    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization })), JSON.stringify(expObj));
 
-    assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true }), expObj);
+    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
 
-    assertEquals(S.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true }), {});
+    assertEquals(JSON.stringify(S.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
 
     assertThrows(() => S.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
   });

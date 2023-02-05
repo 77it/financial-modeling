@@ -1,3 +1,4 @@
+import { Big } from '../../src/deps.js';
 import * as S from '../../src/lib/sanitization_utils.js';
 
 import {
@@ -19,7 +20,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(999, S.sanitize({ value: 999, sanitization: t2 }));
-    assertEquals([999], S.sanitize({ value: [999], sanitization: t }));
+    assertEquals([999], S.sanitize({ value: [999], sanitization: t2 }));
   });
 
   await t.step('string type', async () => {
@@ -39,7 +40,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('999', S.sanitize({ value: 999, sanitization: t2 }));
   });
 
-  await t.step('number type', async () => {
+  await t.step('number type + validation', async () => {
     const t = S.NUMBER_TYPE;
     assertEquals(0, S.sanitize({ value: undefined, sanitization: t }));
     assertEquals(0, S.sanitize({ value: null, sanitization: t }));
@@ -53,6 +54,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(999, S.sanitize({ value: 999, sanitization: t2 }));
+
+    assertEquals(S.sanitize({ value: '999', sanitization: S.NUMBER_TYPE, validate: true }), 999);
+    assertEquals(S.sanitize({ value: '999', sanitization: S.NUMBER_TYPE + '?', validate: true }), 999);
+    assertEquals(S.sanitize({ value: undefined, sanitization: S.NUMBER_TYPE + '?', validate: true }), undefined);
   });
 
   await t.step('boolean type', async () => {
@@ -113,7 +118,7 @@ Deno.test('test sanitize()', async (t) => {
     S.OPTIONS.NUMBER_TO_DATE = S.OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
   });
 
-  await t.step('array (enum) type', async () => {
+  await t.step('array (enum) type + validation', async () => {
     assertEquals(999, S.sanitize({ value: 999, sanitization: [] }));
     assertEquals(999, S.sanitize({ value: 999, sanitization: [11, 22, 999, 55] }));
     assertEquals('aaa', S.sanitize({ value: 'aaa', sanitization: [11, 'aa', 'aaa', 55] }));
@@ -150,7 +155,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals([''], S.sanitize({ value: new Date(NaN), sanitization: t }));
 
     const t2 = t + '?';
-    assertEquals(['', '2', 'a'], S.sanitize({ value: [undefined, 2, 'a'], sanitization: t }));
+    assertEquals(['', '2', 'a'], S.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(['999'], S.sanitize({ value: 999, sanitization: t2 }));
@@ -168,7 +173,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals([0], S.sanitize({ value: new Date(NaN), sanitization: t }));
 
     const t2 = t + '?';
-    assertEquals([0, 2, 0], S.sanitize({ value: [undefined, 2, 'a'], sanitization: t }));
+    assertEquals([0, 2, 0], S.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals([999], S.sanitize({ value: 999, sanitization: t2 }));
@@ -186,7 +191,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals([true], S.sanitize({ value: new Date(NaN), sanitization: t }));
 
     const t2 = t + '?';
-    assertEquals([false, true, true], S.sanitize({ value: [undefined, 2, 'a'], sanitization: t }));
+    assertEquals([false, true, true], S.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals([true], S.sanitize({ value: 999, sanitization: t2 }));
@@ -210,12 +215,12 @@ Deno.test('test sanitize()', async (t) => {
     const t2 = t + '?';
     assertEquals([new Date(0), new Date(Date.UTC(2022, 11, 25, 0, 0, 0)), new Date(Date.UTC(2022, 11, 25, 0, 0, 0))], S.sanitize({
       value: [undefined, '2022-12-25T00:00:00.000Z', '2022-12-25'],
-      sanitization: t
+      sanitization: t2
     }));
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals([new Date(Date.UTC(2022, 11, 25))], S.sanitize({ value: 44920, sanitization: t2 }));
-    assertEquals([new Date(2022, 11, 25)], S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
+    assertEquals([new Date(2022, 11, 25)], S.sanitize({ value: new Date(2022, 11, 25), sanitization: t2 }));
   });
 
   await t.step('object type', async () => {
@@ -228,7 +233,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('abc', S.sanitize({ value: 'abc', sanitization: t }));
 
     const t2 = t + '?';
-    assertEquals(obj, S.sanitize({ value: obj, sanitization: t }));
+    assertEquals(obj, S.sanitize({ value: obj, sanitization: t2 }));
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(999, S.sanitize({ value: 999, sanitization: t2 }));
@@ -255,7 +260,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('abc', S.sanitize({ value: 'abc', sanitization: t }));
 
     const t2 = t + '?';
-    assertEquals(obj, S.sanitize({ value: obj, sanitization: t }));
+    assertEquals(obj, S.sanitize({ value: obj, sanitization: t2 }));
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(999, S.sanitize({ value: 999, sanitization: t2 }));
@@ -271,15 +276,55 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('abc', S.sanitize({ value: 'abc', sanitization: t }));
 
     const t2 = t + '?';
-    assertEquals(obj, S.sanitize({ value: obj, sanitization: t }));
+    assertEquals(obj, S.sanitize({ value: obj, sanitization: t2 }));
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(999, S.sanitize({ value: 999, sanitization: t2 }));
   });
 
-  await t.step('test sanitize() + validate()', () => {
-    assertEquals(S.sanitize({ value: '999', sanitization: 'number', validate: true }), 999);
-    assertEquals(S.sanitize({ value: '999', sanitization: 'number?', validate: true }), 999);
-    assertEquals(S.sanitize({ value: undefined, sanitization: 'number?', validate: true }), undefined);
+  await t.step('big.js type + validation', async () => {
+    const t = S.BIGJS_TYPE;
+    assertEquals(JSON.stringify(new Big(0)), JSON.stringify(S.sanitize({ value: undefined, sanitization: t })));
+    assertEquals(JSON.stringify(new Big(0)), JSON.stringify(S.sanitize({ value: null, sanitization: t })));
+    assertEquals(JSON.stringify(new Big(999)), JSON.stringify(S.sanitize({ value: 999, sanitization: t })));
+    assertEquals(JSON.stringify(new Big(0)), JSON.stringify(S.sanitize({ value: '', sanitization: t })));
+    assertEquals(JSON.stringify(new Big(0)), JSON.stringify(S.sanitize({ value: 'abc', sanitization: t })));
+    assertEquals(JSON.stringify(new Big(0)), JSON.stringify(S.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
+    assertEquals(JSON.stringify(new Big(0)), JSON.stringify(S.sanitize({ value: new Date(NaN), sanitization: t })));
+
+    const t2 = t + '?';
+    assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
+    assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
+    assertEquals(JSON.stringify(new Big(999)), JSON.stringify(S.sanitize({ value: 999, sanitization: t2 })));
+
+    // sanitize + validate
+    S.sanitize({ value: 0, sanitization: t, validate: true });
+    S.sanitize({ value: 999, sanitization: t, validate: true });
+    S.sanitize({ value: 'aaa', sanitization: t, validate: true });
+  });
+
+  await t.step('array of big.js type + validation', async () => {
+    const t = S.ARRAY_OF_BIGJS_TYPE;
+    assertEquals(JSON.stringify([new Big(1), new Big(2), new Big(0)]), JSON.stringify(S.sanitize({ value: [1, 2, 'a'], sanitization: t })));
+    assertEquals(JSON.stringify([new Big(0)]), JSON.stringify(S.sanitize({ value: undefined, sanitization: t })));
+    assertEquals(JSON.stringify([new Big(0)]), JSON.stringify(S.sanitize({ value: null, sanitization: t })));
+    assertEquals(JSON.stringify([new Big(999)]), JSON.stringify(S.sanitize({ value: 999, sanitization: t })));
+    assertEquals(JSON.stringify([new Big(0)]), JSON.stringify(S.sanitize({ value: '', sanitization: t })));
+    assertEquals(JSON.stringify([new Big(0)]), JSON.stringify(S.sanitize({ value: 'abc', sanitization: t })));
+    assertEquals(JSON.stringify([new Big(0)]), JSON.stringify(S.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
+    assertEquals(JSON.stringify([new Big(0)]), JSON.stringify(S.sanitize({ value: new Date(NaN), sanitization: t })));
+
+    const t2 = t + '?';
+    assertEquals(JSON.stringify([new Big(0), new Big(2), new Big(0)]), JSON.stringify(S.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 })));
+    assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
+    assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
+    assertEquals(JSON.stringify([new Big(999)]), JSON.stringify(S.sanitize({ value: 999, sanitization: t2 })));
+
+    // sanitize + validate
+    S.sanitize({ value: [undefined, 2, 'a'], sanitization: t, validate: true });
+    S.sanitize({ value: undefined, sanitization: t, validate: true });
+    S.sanitize({ value: null, sanitization: t, validate: true });
+    S.sanitize({ value: 999, sanitization: t, validate: true });
+    S.sanitize({ value: 'aaa', sanitization: t, validate: true });
   });
 });

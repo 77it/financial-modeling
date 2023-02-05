@@ -19,7 +19,7 @@ const simObjectDto_Validation = {
 
   metadata__Name: 'array[string]',
   metadata__Value: 'array[string]',
-  metadata__PercentageWeight: 'array[number]',
+  metadata__PercentageWeight: 'array[string]',  // converted from array of Big.js
 
   unitId: 'string',
 
@@ -30,8 +30,8 @@ const simObjectDto_Validation = {
 
   intercompanyInfo__VsUnitId: 'string',
 
-  value: 'number',
-  writingValue: 'number',
+  value: 'string',  // converted from Big.js
+  writingValue: 'string',  // converted from Big.js
 
   alive: 'boolean',
 
@@ -44,9 +44,9 @@ const simObjectDto_Validation = {
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: 'number',
+  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: 'string',  // converted from Big.js
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: 'array[date]',
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: 'array[number]',
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: 'array[string]',  // converted from array of Big.js
 
   is_Link__SimObjId: 'string'
   //#endregion properties common only to some kind of SimObjects

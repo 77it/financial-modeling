@@ -1,4 +1,5 @@
 import * as Validation from '../../src/lib/validation_utils.js';
+import { Big } from '../../src/deps.js';
 
 import {
   assert,
@@ -6,6 +7,7 @@ import {
   assertFalse,
   assertThrows,
 } from '../deps.js';
+import { ARRAY_OF_BIGJS_TYPE } from '../../src/lib/validation_utils.js';
 
 Deno.test('test validate(), not valid, `any` type is undefined + personalized error message', () => {
   const objToValidate = undefined;
@@ -62,6 +64,8 @@ Deno.test('test validate(), valid, all cases', () => {
   Validation.validate({ value: { a: 999 }, validation: 'object' });
   Validation.validate({ value: () => {console.log('mamma');}, validation: 'function' });
   Validation.validate({ value: Symbol(), validation: Validation.SYMBOL_TYPE });
+  Validation.validate({ value: new Big(10), validation: Validation.BIGJS_TYPE });
+  Validation.validate({ value: [ new Big(10), Big(9), Big(0) ], validation: Validation.ARRAY_OF_BIGJS_TYPE });
   Validation.validate({ value: 999, validation: 'any' });
 });
 
@@ -82,6 +86,8 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   Validation.validate({ value: { a: 999 }, validation: 'object?' });
   Validation.validate({ value: () => {console.log('mamma');}, validation: 'function?' });
   Validation.validate({ value: Symbol(), validation: Validation.SYMBOL_TYPE + '?' });
+  Validation.validate({ value: new Big(10), validation: Validation.BIGJS_TYPE + '?' });
+  Validation.validate({ value: [ new Big(10), Big(9), Big(0) ], validation: Validation.ARRAY_OF_BIGJS_TYPE + '?' });
   Validation.validate({ value: 999, validation: 'any?' });
 
   let nullOrUndefined = null;
@@ -99,6 +105,8 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   Validation.validate({ value: nullOrUndefined, validation: 'object?' });
   Validation.validate({ value: nullOrUndefined, validation: 'function?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.SYMBOL_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.BIGJS_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BIGJS_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: 'any?' });
 
   nullOrUndefined = undefined;
@@ -116,6 +124,8 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   Validation.validate({ value: nullOrUndefined, validation: 'object?' });
   Validation.validate({ value: nullOrUndefined, validation: 'function?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.SYMBOL_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.BIGJS_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BIGJS_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: 'any?' });
 });
 
@@ -129,6 +139,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value = 99, must be string'));
 
+  _error = '';
   try {
     Validation.validate({ value: 'aa', validation: 'number' });
   } catch (error) {
@@ -137,6 +148,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value = aa, must be a valid number'));
 
+  _error = '';
   try {
     Validation.validate({ value: 99, validation: 'boolean' });
   } catch (error) {
@@ -145,6 +157,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value = 99, must be boolean'));
 
+  _error = '';
   try {
     Validation.validate({ value: 99, validation: 'date' });
   } catch (error) {
@@ -154,6 +167,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   assert(_error.includes('Value = 99, must be a valid date'));
 
   // enum
+  _error = '';
   try {
     Validation.validate({ value: 'aaaX', validation: [11, 'aa', 'aaa', 55] });
   } catch (error) {
@@ -162,6 +176,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Validation error: Value = aaaX, must be one of 11,aa,aaa,55'));
 
+  _error = '';
   try {
     Validation.validate({ value: 99, validation: 'array' });
   } catch (error) {
@@ -170,6 +185,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value = 99, must be an array'));
 
+  _error = '';
   try {
     Validation.validate({ value: 99, validation: 'array[string]' });
   } catch (error) {
@@ -178,6 +194,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value array error, must be an array'));
 
+  _error = '';
   try {
     Validation.validate({ value: 99, validation: 'array[number]' });
   } catch (error) {
@@ -186,6 +203,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value array error, must be an array'));
 
+  _error = '';
   try {
     Validation.validate({ value: 99, validation: 'array[date]' });
   } catch (error) {
@@ -194,6 +212,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value array error, must be an array'));
 
+  _error = '';
   try {
     Validation.validate({ value: 99, validation: 'array[boolean]' });
   } catch (error) {
@@ -202,6 +221,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value array error, must be an array'));
 
+  _error = '';
   try {
     Validation.validate({ value: 99, validation: 'array[object]' });
   } catch (error) {
@@ -210,6 +230,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value array error, must be an array'));
 
+  _error = '';
   try {
     Validation.validate({ value: 99, validation: 'object' });
   } catch (error) {
@@ -218,6 +239,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value = 99, must be an object'));
 
+  _error = '';
   try {
     Validation.validate({ value: 99, validation: 'function' });
   } catch (error) {
@@ -226,11 +248,39 @@ Deno.test('test validate(), not valid, all cases', () => {
   console.log(_error);
   assert(_error.includes('Value = 99, must be a function'));
 
+  _error = '';
   try {
-    Validation.validate({ value: 99, validation: 'symbol' });
+    Validation.validate({ value: 99, validation: Validation.SYMBOL_TYPE });
   } catch (error) {
     _error = error.message;
   }
   console.log(_error);
   assert(_error.includes('Value = 99, must be a symbol'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: 99, validation: Validation.BIGJS_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value = 99, must be an instance of Big.js'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: 99, validation: ARRAY_OF_BIGJS_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value array error, must be an array'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: [ new Big(10), 0, Big(0) ], validation: ARRAY_OF_BIGJS_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value = 0, must be an instance of Big.js'));
 });
