@@ -66,7 +66,7 @@ input:
 // funzione per ricalcolo quote capitale con singole rate prese da Excel
 /*
 `CustomSchedule`
-  Funzione che consente di calcolare correttamente le quote di capitale a partire da piani le cui rate di capiale sono state prese su Excel.
+  Funzione che consente di calcolare correttamente le quote di capitale a partire da piani le cui rate di capitale sono state prese su Excel.
   Poiché la somma delle rate può essere imperfetta rispetto al capitale residuo, per evitare problemi ricalcoliamo con questa funzione le quote di ogni rata.
   Logica di funzionamento:
     il parametro `principalPayments` contiene un array principal, considerati come quote di `startingPrincipal`;
