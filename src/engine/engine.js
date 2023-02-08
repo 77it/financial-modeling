@@ -25,12 +25,14 @@ before calling a module method checks if the method is defined, otherwise it ski
 async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }) {
   try {
     const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
+    /** @type {[*]} */
+    const _modulesRepo = [];  // init new module classes array
     const _ledger = new Ledger({ appendTrnDump });
     const _drivers = new Drivers();
     const _sharedConstants = new SharedConstants();
 
-    // load modules on _modulesLoader
-    await _loadModules({ modulesLoader: _modulesLoader, moduleDataArray });
+    await _init_modules_classes_in_modulesRepo__loading_Modules_fromUri(
+      { modulesLoader: _modulesLoader, moduleDataArray, modulesRepo: _modulesRepo });
 
     // TODO NOW
     // chiama giorno per giorno i moduli
@@ -52,15 +54,21 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
 
   //#region local functions
   /**
-   Load modules on modulesLoader reading moduleDataArray
+   Load modules on modulesLoader reading moduleDataArray, then init the classes and store them in modulesRepo
    * @param {Object} p
    * @param {ModulesLoader} p.modulesLoader
    * @param {ModuleData[]} p.moduleDataArray
+   * @param {[*]} p.modulesRepo
    */
-  async function _loadModules ({ modulesLoader, moduleDataArray }) {
-    for (const moduleData of moduleDataArray)
-      if (!modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI }))
+  async function _init_modules_classes_in_modulesRepo__loading_Modules_fromUri ({ modulesLoader, moduleDataArray, modulesRepo }) {
+    for (const moduleData of moduleDataArray) {
+      let module = modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
+      if (!module) {
         await modulesLoader.addClassFromURI({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
+        module = modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
+      }
+      modulesRepo.push(new module.class());
+    }
   }
 
   //#endregion
