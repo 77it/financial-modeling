@@ -70,7 +70,9 @@ Deno.test('test sanitizeObj()', async (t) => {
       any: 999,
       symbol: _sym,
       big_js: 10,
+      big_js_number: 10,
       arrBig_js: [ 10, '9', 0 ],
+      arrBig_js_number: [ 10, '9', 0 ],
     };
 
     const expObj = {
@@ -96,7 +98,9 @@ Deno.test('test sanitizeObj()', async (t) => {
       any: 999,
       symbol: _sym,
       big_js: new Big(10),
+      big_js_number: new Big(10),
       arrBig_js: [ new Big(10), new Big(9), Big(0) ],
+      arrBig_js_number: [ new Big(10), new Big(9), Big(0) ],
       extraValueMissingRequiredStr: '',
       extraValueMissingRequiredNum: 0,
       extraValueMissingRequiredBool: false,
@@ -125,7 +129,9 @@ Deno.test('test sanitizeObj()', async (t) => {
       fun: S.FUNCTION_TYPE,
       symbol: S.SYMBOL_TYPE,
       big_js: S.BIGJS_TYPE,
+      big_js_number: S.BIGJS_NUMBER_TYPE,
       arrBig_js: S.ARRAY_OF_BIGJS_TYPE,
+      arrBig_js_number: S.ARRAY_OF_BIGJS_NUMBER_TYPE,
       any: S.ANY_TYPE,
       extraValueMissingRequiredStr: S.STRING_TYPE,
       extraValueMissingRequiredNum: S.NUMBER_TYPE,
@@ -138,8 +144,10 @@ Deno.test('test sanitizeObj()', async (t) => {
 
     assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
 
+    // test undefined with enum type
     assertEquals(JSON.stringify(S.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
 
+    // test enum type
     assertThrows(() => S.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
   });
 });

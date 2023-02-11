@@ -18,7 +18,9 @@ export const OBJECT_TYPE = 'object';
 export const FUNCTION_TYPE = 'function';
 export const SYMBOL_TYPE = 'symbol';
 export const BIGJS_TYPE = 'big_js';
+export const BIGJS_NUMBER_TYPE = 'big_js_number';
 export const ARRAY_OF_BIGJS_TYPE = 'array[big_js]';
+export const ARRAY_OF_BIGJS_NUMBER_TYPE = 'array[big_js_number]';
 //#endregion types
 
 const SUCCESS = '';
@@ -194,8 +196,20 @@ function _validateValue ({ value, validation, errorMsg }) {
         if (!(value instanceof Big))
           return `${errorMsg} = ${value}, must be an instance of Big.js`;
         return SUCCESS;
+      case BIGJS_NUMBER_TYPE:
+        if (!(value instanceof Big))
+          return `${errorMsg} = ${value}, must be an instance of Big.js`;
+        if (value.toString() !== value.toNumber().toString())
+          return `${errorMsg} = ${value}, is Big.js but the value is not a valid number`;
+        return SUCCESS;
       case ARRAY_OF_BIGJS_TYPE: {
         const validationResult = _validateArray({ array: value, validation: BIGJS_TYPE });
+        if (validationResult)
+          return `${errorMsg} array error, ${validationResult}`;
+        return SUCCESS;
+      }
+      case ARRAY_OF_BIGJS_NUMBER_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: BIGJS_NUMBER_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;

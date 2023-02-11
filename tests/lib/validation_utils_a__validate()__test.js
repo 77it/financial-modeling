@@ -7,7 +7,6 @@ import {
   assertFalse,
   assertThrows,
 } from '../deps.js';
-import { ARRAY_OF_BIGJS_TYPE } from '../../src/lib/validation_utils.js';
 
 Deno.test('test validate(), not valid, `any` type is undefined + personalized error message', () => {
   const objToValidate = undefined;
@@ -65,7 +64,9 @@ Deno.test('test validate(), valid, all cases', () => {
   Validation.validate({ value: () => {console.log('mamma');}, validation: Validation.FUNCTION_TYPE });
   Validation.validate({ value: Symbol(), validation: Validation.SYMBOL_TYPE });
   Validation.validate({ value: new Big(10), validation: Validation.BIGJS_TYPE });
+  Validation.validate({ value: new Big(10), validation: Validation.BIGJS_NUMBER_TYPE });
   Validation.validate({ value: [ new Big(10), Big(9), Big(0) ], validation: Validation.ARRAY_OF_BIGJS_TYPE });
+  Validation.validate({ value: [ new Big(10), Big(9), Big(0) ], validation: Validation.ARRAY_OF_BIGJS_NUMBER_TYPE });
   Validation.validate({ value: 999, validation: Validation.ANY_TYPE });
 });
 
@@ -87,7 +88,9 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   Validation.validate({ value: () => {console.log('mamma');}, validation: Validation.FUNCTION_TYPE + '?' });
   Validation.validate({ value: Symbol(), validation: Validation.SYMBOL_TYPE + '?' });
   Validation.validate({ value: new Big(10), validation: Validation.BIGJS_TYPE + '?' });
+  Validation.validate({ value: new Big(10), validation: Validation.BIGJS_NUMBER_TYPE + '?' });
   Validation.validate({ value: [ new Big(10), Big(9), Big(0) ], validation: Validation.ARRAY_OF_BIGJS_TYPE + '?' });
+  Validation.validate({ value: [ new Big(10), Big(9), Big(0) ], validation: Validation.ARRAY_OF_BIGJS_NUMBER_TYPE + '?' });
   Validation.validate({ value: 999, validation: Validation.ANY_TYPE + '?' });
 
   let nullOrUndefined = null;
@@ -106,7 +109,9 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   Validation.validate({ value: nullOrUndefined, validation: Validation.FUNCTION_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.SYMBOL_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.BIGJS_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.BIGJS_NUMBER_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BIGJS_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BIGJS_NUMBER_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ANY_TYPE + '?' });
 
   nullOrUndefined = undefined;
@@ -125,7 +130,9 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   Validation.validate({ value: nullOrUndefined, validation: Validation.FUNCTION_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.SYMBOL_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.BIGJS_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.BIGJS_NUMBER_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BIGJS_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BIGJS_NUMBER_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ANY_TYPE + '?' });
 });
 
@@ -268,7 +275,25 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: ARRAY_OF_BIGJS_TYPE });
+    Validation.validate({ value: 99, validation: Validation.BIGJS_NUMBER_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value = 99, must be an instance of Big.js'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: new Big("999999999999999999999"), validation: Validation.BIGJS_NUMBER_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value = 999999999999999999999, is Big.js but the value is not a valid number'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_BIGJS_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -277,10 +302,28 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: [ new Big(10), 0, Big(0) ], validation: ARRAY_OF_BIGJS_TYPE });
+    Validation.validate({ value: [ new Big(10), 0, Big(0) ], validation: Validation.ARRAY_OF_BIGJS_TYPE });
   } catch (error) {
     _error = error.message;
   }
   console.log(_error);
   assert(_error.includes('Value = 0, must be an instance of Big.js'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_BIGJS_NUMBER_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value array error, must be an array'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: [ new Big("999999999999999999999"), new Big(10), 0, Big(0) ], validation: Validation.ARRAY_OF_BIGJS_NUMBER_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('["Value = 999999999999999999999, is Big.js but the value is not a valid number","Value = 0, must be an instance of Big.js"]'));
 });
