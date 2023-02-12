@@ -1,6 +1,7 @@
 ﻿export { Ledger };
 
 import { SimObject } from '../simobject/simobject.js';
+import { Big } from '../../deps.js';
 
 // TODO
 
@@ -10,8 +11,6 @@ import { SimObject } from '../simobject/simobject.js';
 
 /*
 Js Ledger, metodi
-
-method add(SimObject)  // add SimObject array to the transaction, keeping it open; if the transaction is closed, open it
 
 extinguish(): accetta un id di un SO BalanceSheet, accoda alle transazioni una scrittura con: importo residuo di un SimObject + alive = false; return void. name from [1] https://www.iasplus.com/en/standards/ifric/ifric19
 
@@ -34,6 +33,16 @@ class Ledger {
   /** Map to store SimObjects: SimObject id as string key, SimObject as value.
    * @type {Map<String, SimObject>} */
   #simObjectsRepo;
+  /** @type {SimObject[]} */
+  #currentTransaction;
+  /** @type {Date} */
+  #today;
+  /** @type {number} */
+  #lastId;
+  /** @type {number} */
+  #lastCommandId
+  /** @type {number} */
+  #lastTransactionId
 
   /**
    @param {Object} p
@@ -41,11 +50,73 @@ class Ledger {
    */
   constructor ({ appendTrnDump }) {
     this.#simObjectsRepo = new Map();
+    this.#currentTransaction = [];
+    this.lastId = 0;
+    this.#lastCommandId = 0;
+    this.#lastTransactionId = 0;
 
     // TODO implementa altri metodi e togli codice sotto
     appendTrnDump('ciao, messaggio di prova! ' + new Date(Date.now()).toJSON() + '\n'); // todo TOREMOVE
     appendTrnDump('ciao, secondo messaggio di prova! ' + new Date(Date.now()).toJSON() + '\n'); // todo TOREMOVE
   }
+
+  //#region public methods
+  /**
+   * Add a SimObject to the transaction, keeping it open; if no transaction is currently open, open a new one.
+   @param {AddSimObjectDto} addSimObjectDto
+   */
+  add (addSimObjectDto) {
+    const simObject = new SimObject({
+      type: addSimObjectDto.type,
+      id: this.#getNextId().toString(),
+      dateTime: this.#today,
+      name: addSimObjectDto.name,
+      description: addSimObjectDto.description,
+      mutableDescription: addSimObjectDto.mutableDescription,
+      metadata__Name: [...addSimObjectDto.metadata__Name],
+      metadata__Value: [...addSimObjectDto.metadata__Value],
+      metadata__PercentageWeight: [...addSimObjectDto.metadata__PercentageWeight],
+      unitId: addSimObjectDto.unitId,
+      doubleEntrySide: addSimObjectDto.doubleEntrySide,
+      currency: addSimObjectDto.currency,
+      intercompanyInfo__VsUnitId: addSimObjectDto.intercompanyInfo__VsUnitId,
+      value: new Big(addSimObjectDto.value),
+      writingValue: new Big(addSimObjectDto.writingValue),
+      alive: addSimObjectDto.alive,
+      command__Id: this.#getNextCommandId().toString(),
+      command__DebugDescription: addSimObjectDto.command__DebugDescription,
+      commandGroup__Id: this.#getNextTransactionId().toString(),
+      commandGroup__DebugDescription: addSimObjectDto.commandGroup__DebugDescription,
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: new Big(addSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...addSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: addSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => new Big(number)),
+      is_Link__SimObjId: addSimObjectDto.is_Link__SimObjId,
+      vsSimObjectId: addSimObjectDto.vsSimObjectId,
+      versionId: 0,
+      extras: addSimObjectDto.extras
+    });
+
+    this.#currentTransaction.push(simObject);
+  }
+  //#endregion public methods
+
+  //#region private methods
+  //* @returns {number} */
+  #getNextId () {
+    return ++this.#lastId;
+  }
+  //* @returns {number} */
+  #getNextCommandId () {
+    return ++this.#lastCommandId;
+  }
+  //* @returns {number} */
+  #getNextTransactionId () {
+    // if #currentTransaction is empty, increment #lastTransactionId
+    if (this.#currentTransaction.length === 0)
+      this.#lastTransactionId++;
+    return this.#lastTransactionId;
+  }
+  //#endregion private methods
 }
 
 //#region types definitions

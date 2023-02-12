@@ -16,7 +16,7 @@ const simObject_Validation = {
 
   metadata__Name: 'array[string]',
   metadata__Value: 'array[string]',
-  metadata__PercentageWeight: 'array[big_js_number]',
+  metadata__PercentageWeight: 'array[number]',
 
   unitId: 'string',
 
@@ -50,8 +50,8 @@ const simObject_Validation = {
 
   //#region properties not exported to json dump
   vsSimObjectId: 'string',
-  versionId: 'string',
-  previousVersionId: 'string',
+  versionId: 'number',
+  //[REMOVED] //previousVersionId: 'string',
   extras: 'any',
   //#endregion properties not exported to json dump
 }

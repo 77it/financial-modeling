@@ -24,7 +24,7 @@ class SimObject {
    * @param {string} p.mutableDescription
    * @param {string[]} p.metadata__Name
    * @param {string[]} p.metadata__Value
-   * @param {Big[]} p.metadata__PercentageWeight
+   * @param {number[]} p.metadata__PercentageWeight
    * @param {string} p.unitId
    * @param {string} p.doubleEntrySide
    * @param {string} p.currency
@@ -41,7 +41,7 @@ class SimObject {
    * @param {Big[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
    * @param {string} p.is_Link__SimObjId
    * @param {string} p.vsSimObjectId [NOT EXPORTED TO JSON DUMP] This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
-   * @param {string} p.versionId [NOT EXPORTED TO JSON DUMP]
+   * @param {number} p.versionId [NOT EXPORTED TO JSON DUMP]
    * @param {*} p.extras [NOT EXPORTED TO JSON DUMP] Class or an object with all the extra properties specific to the SimObject
    // properties not implemented, can be included in `extras`
    //quantity: 'number',
@@ -130,7 +130,7 @@ class SimObject {
       mutableDescription: this.mutableDescription,
       metadata__Name: [...this.metadata__Name],
       metadata__Value: [...this.metadata__Value],
-      metadata__PercentageWeight: this.metadata__PercentageWeight.map((big) => big.toNumber()),
+      metadata__PercentageWeight: [...this.metadata__PercentageWeight],
       unitId: this.unitId,
       doubleEntrySide: this.doubleEntrySide,
       currency: this.currency,
@@ -166,7 +166,7 @@ class SimObject {
       mutableDescription: this.mutableDescription,
       metadata__Name: [...this.metadata__Name],
       metadata__Value: [...this.metadata__Value],
-      metadata__PercentageWeight: this.metadata__PercentageWeight.map((big) => big.toNumber()),
+      metadata__PercentageWeight: [...this.metadata__PercentageWeight],
       unitId: this.unitId,
       doubleEntrySide: this.doubleEntrySide,
       currency: this.currency,
