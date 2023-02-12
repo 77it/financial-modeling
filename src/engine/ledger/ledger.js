@@ -40,9 +40,9 @@ class Ledger {
   /** @type {number} */
   #lastId;
   /** @type {number} */
-  #lastCommandId
+  #lastCommandId;
   /** @type {number} */
-  #lastTransactionId
+  #lastTransactionId;
 
   /**
    @param {Object} p
@@ -98,6 +98,13 @@ class Ledger {
 
     this.#currentTransaction.push(simObject);
   }
+
+  /** @returns {boolean} */
+  transactionIsOpen () {
+    // returns true if #currentTransaction is not empty
+    return this.#currentTransaction.length !== 0;
+  }
+
   //#endregion public methods
 
   //#region private methods
@@ -105,17 +112,20 @@ class Ledger {
   #getNextId () {
     return ++this.#lastId;
   }
-  //* @returns {number} */
+
+  /** @returns {number} */
   #getNextCommandId () {
     return ++this.#lastCommandId;
   }
-  //* @returns {number} */
+
+  /** @returns {number} */
   #getNextTransactionId () {
     // if #currentTransaction is empty, increment #lastTransactionId
-    if (this.#currentTransaction.length === 0)
+    if (!this.transactionIsOpen())
       this.#lastTransactionId++;
     return this.#lastTransactionId;
   }
+
   //#endregion private methods
 }
 

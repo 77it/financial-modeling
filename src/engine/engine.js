@@ -5,6 +5,7 @@ import { ModulesLoader } from './../modules/_modules_loader.js';
 import { ModuleData } from './modules/module_data.js';
 import { Drivers } from './drivers/drivers.js';
 import { SharedConstants } from './sharedconstants/sharedconstants.js';
+import { Module } from "../modules/_sample_module.js";
 
 // TODO
 /*
@@ -25,8 +26,9 @@ before calling a module method checks if the method is defined, otherwise it ski
 async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }) {
   try {
     const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
-    /** @type {*[]} */
-    const _modulesRepo = [];  // init new module classes array
+    /** Array of module classes
+     * @type {Module[]} */
+    const _modulesRepo = [];
     const _ledger = new Ledger({ appendTrnDump });
     const _drivers = new Drivers();
     const _sharedConstants = new SharedConstants();
@@ -35,7 +37,12 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
       { modulesLoader: _modulesLoader, moduleDataArray, modulesRepo: _modulesRepo });
 
     // TODO NOW
-    // chiama giorno per giorno i moduli
+    // call all modules, every day, until the end of the simulation
+    for (let i = 0; i < _modulesRepo.length; i++) {
+      console.log(_modulesRepo[i].alive);
+      if (_ledger.transactionIsOpen())
+        throw new Error(`after calling module ${moduleDataArray[i].moduleName} ${moduleDataArray[i].moduleEngineURI}  a transaction is open`);
+    }
 
     console.dir(moduleDataArray); // todo TOREMOVE
     throw new Error('not implemented');
@@ -43,7 +50,7 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
   } catch (error) {
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
-    // TODO implement error management
+    // TODO NOW implement error management
     /*
     Every module that wants to interrupt program execution for a fatal error throws a new Error;
     this error is intercepted here, and will be recorded a 'debug_error' SimObject, then the execution ends with an error.
