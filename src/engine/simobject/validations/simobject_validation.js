@@ -54,9 +54,4 @@ const simObject_Validation = {
   previousVersionId: 'string',
   extras: 'any',
   //#endregion properties not exported to json dump
-
-  //#region properties not implemented, can be included in `extras`
-  //quantity: 'number',
-  //unityOfMeasure: 'string',
-  //#endregion properties not implemented, can be included in `extras`
 }

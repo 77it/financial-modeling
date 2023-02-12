@@ -27,10 +27,10 @@ class SimObjectDto {
    * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
    * @param {number[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
    * @param {string} p.is_Link__SimObjId
-   * @param {string} p.vsSimObjectId [NOT EXPORTED TO JSON DUMP] This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
-   * @param {string} p.versionId [NOT EXPORTED TO JSON DUMP]
-   * @param {string} p.previousVersionId [NOT EXPORTED TO JSON DUMP]
-   * @param {*} p.extras [NOT EXPORTED TO JSON DUMP] Class or an object with all the extra properties specific to the SimObject
+   * @param {string} p.vsSimObjectId This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
+   * @param {string} p.versionId
+   * @param {string} p.previousVersionId
+   * @param {*} p.extras Class or an object with all the extra properties specific to the SimObject
    */
   constructor (p) {
     this.type = p.type;
@@ -57,7 +57,6 @@ class SimObjectDto {
     this.bs_Principal__PrincipalToPay_AmortizationSchedule__Date = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date;
     this.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal;
     this.is_Link__SimObjId = p.is_Link__SimObjId;
-    // NOT EXPORTED TO JSON DUMP
     this.vsSimObjectId = p.vsSimObjectId;
     this.versionId = p.versionId;
     this.previousVersionId = p.previousVersionId;
