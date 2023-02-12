@@ -25,7 +25,7 @@ before calling a module method checks if the method is defined, otherwise it ski
 async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }) {
   try {
     const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
-    /** @type {[*]} */
+    /** @type {*[]} */
     const _modulesRepo = [];  // init new module classes array
     const _ledger = new Ledger({ appendTrnDump });
     const _drivers = new Drivers();
@@ -58,7 +58,7 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
    * @param {Object} p
    * @param {ModulesLoader} p.modulesLoader
    * @param {ModuleData[]} p.moduleDataArray
-   * @param {[*]} p.modulesRepo
+   * @param {*[]} p.modulesRepo
    */
   async function _init_modules_classes_in_modulesRepo__loading_Modules_fromUri ({ modulesLoader, moduleDataArray, modulesRepo }) {
     for (const moduleData of moduleDataArray) {
@@ -67,6 +67,8 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
         await modulesLoader.addClassFromURI({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
         module = modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
       }
+      if (!module)
+        throw new Error(`module ${moduleData.moduleName} not found`);
       modulesRepo.push(new module.class());
     }
   }

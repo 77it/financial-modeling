@@ -1,4 +1,4 @@
-export {simObjectDto_Validation}
+export {simObjectJsonDumpDto__Validation}
 
 import {doubleEntrySide_enum} from '../enums/doubleentryside_enum.js'
 import { currency_enum } from '../enums/currency_enum.js';
@@ -6,7 +6,7 @@ import { currency_enum } from '../enums/currency_enum.js';
 /**
  object used to validate simObjectDto
 */
-const simObjectDto_Validation = {
+const simObjectJsonDumpDto__Validation = {
   type: 'string',
 
   id: 'string',
@@ -19,7 +19,7 @@ const simObjectDto_Validation = {
 
   metadata__Name: 'array[string]',
   metadata__Value: 'array[string]',
-  metadata__PercentageWeight: 'array[string]',  // converted from array of Big.js
+  metadata__PercentageWeight: 'array[number]',  // converted from array of Big.js
 
   unitId: 'string',
 
@@ -30,8 +30,8 @@ const simObjectDto_Validation = {
 
   intercompanyInfo__VsUnitId: 'string',
 
-  value: 'string',  // converted from Big.js
-  writingValue: 'string',  // converted from Big.js
+  value: 'number',  // converted from Big.js
+  writingValue: 'number',  // converted from Big.js
 
   alive: 'boolean',
 
@@ -44,9 +44,9 @@ const simObjectDto_Validation = {
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: 'string',  // converted from Big.js
+  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: 'number',  // converted from Big.js
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: 'array[date]',
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: 'array[string]',  // converted from array of Big.js
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: 'array[number]',  // converted from array of Big.js
 
   is_Link__SimObjId: 'string'
   //#endregion properties common only to some kind of SimObjects

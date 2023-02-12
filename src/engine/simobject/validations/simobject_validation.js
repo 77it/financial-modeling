@@ -1,5 +1,3 @@
-// TODO align to SimObject
-
 export {simObject_Validation}
 
 import {doubleEntrySide_enum} from '../enums/doubleentryside_enum.js'
@@ -47,6 +45,18 @@ const simObject_Validation = {
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: 'array[date]',
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: 'array[big_js_number]',
 
-  is_Link__SimObjId: 'string'
+  is_Link__SimObjId: 'string',
   //#endregion properties common only to some kind of SimObjects
+
+  //#region properties not exported to json dump
+  vsSimObjectId: 'string',
+  versionId: 'string',
+  previousVersionId: 'string',
+  extras: 'any',
+  //#endregion properties not exported to json dump
+
+  //#region properties not implemented, can be included in `extras`
+  //quantity: 'number',
+  //unityOfMeasure: 'string',
+  //#endregion properties not implemented, can be included in `extras`
 }
