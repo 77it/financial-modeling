@@ -29,7 +29,6 @@ class SimObjectDto {
    * @param {string} p.is_Link__SimObjId
    * @param {string} p.vsSimObjectId This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
    * @param {string} p.versionId
-   * @param {string} p.previousVersionId
    * @param {*} p.extras Class or an object with all the extra properties specific to the SimObject
    */
   constructor (p) {
@@ -59,7 +58,6 @@ class SimObjectDto {
     this.is_Link__SimObjId = p.is_Link__SimObjId;
     this.vsSimObjectId = p.vsSimObjectId;
     this.versionId = p.versionId;
-    this.previousVersionId = p.previousVersionId;
     this.extras = p.extras;
   }
 }
