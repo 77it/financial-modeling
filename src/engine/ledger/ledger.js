@@ -1,7 +1,9 @@
 ﻿export { Ledger };
 
-import { SimObject } from '../simobject/simobject.js';
 import { Big } from '../../deps.js';
+import { validate, validation } from '../../deps.js';
+import { SimObject } from '../simobject/simobject.js';
+import { AddSimObjectDto } from './methods_params/add_simobjectdto.js';
 
 // TODO
 
@@ -51,9 +53,10 @@ class Ledger {
   constructor ({ appendTrnDump }) {
     this.#simObjectsRepo = new Map();
     this.#currentTransaction = [];
-    this.lastId = 0;
+    this.#lastId = 0;
     this.#lastCommandId = 0;
     this.#lastTransactionId = 0;
+    this.#today = new Date(0);
 
     // TODO implementa altri metodi e togli codice sotto
     appendTrnDump('ciao, messaggio di prova! ' + new Date(Date.now()).toJSON() + '\n'); // todo TOREMOVE
@@ -103,6 +106,12 @@ class Ledger {
   transactionIsOpen () {
     // returns true if #currentTransaction is not empty
     return this.#currentTransaction.length !== 0;
+  }
+
+  /** @param {Date} today */
+  setToday (today) {
+    validate({ value: today, validation: validation.DATE_TYPE });
+    this.#today = today;
   }
 
   //#endregion public methods
