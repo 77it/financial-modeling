@@ -8,8 +8,8 @@ Every module that wants to interrupt program execution for a fatal error throws 
 //#endregion
 
 export class Module {
+  name = '_sample_module';
   //#region private fields
-  /** @type {boolean} */
   #_alive;
 
   //#endregion
@@ -19,5 +19,4 @@ export class Module {
   }
 
   get alive () { return this.#_alive; }
-  set alive (value) { this.#_alive = value; }
 }

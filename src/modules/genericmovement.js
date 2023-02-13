@@ -14,5 +14,16 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 export class Module {
-  get alive () { return true; }
+  name = 'genericmovement';
+
+  //#region private fields
+  #_alive;
+
+  //#endregion
+
+  constructor () {
+    this.#_alive = true;
+  }
+
+  get alive () { return this.#_alive; }
 }
