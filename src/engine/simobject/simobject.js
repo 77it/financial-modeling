@@ -10,7 +10,10 @@ import { SimObjectJsonDumpDto } from './simobjectjsondumpdto.js';
 /*
 # about numbers and dates
 * numbers: stored with big.js http://mikemcl.github.io/big.js/
-* store dates in SimObject as local dates, no UTC  // dates can have hour/minutes/seconds if needed, won't be stripped/normalized
+* date:
+  * stored as local dates, no UTC
+  * dates can have hour/minutes/seconds if needed, won't be stripped/normalized
+  * dates will be converted to UTC when serialized
 */
 
 class SimObject {
@@ -160,7 +163,7 @@ class SimObject {
     return new SimObjectJsonDumpDto({
       type: this.type,
       id: this.id,
-      dateTime: this.dateTime,
+      dateTime: this.#convertDateToUTC(this.dateTime),
       name: this.name,
       description: this.description,
       mutableDescription: this.mutableDescription,
@@ -179,9 +182,20 @@ class SimObject {
       commandGroup__Id: this.commandGroup__Id,
       commandGroup__DebugDescription: this.commandGroup__DebugDescription,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.bs_Principal__PrincipalToPay_IndefiniteExpiryDate.toNumber(),
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...this.bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: this.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => this.#convertDateToUTC(date)),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => big.toNumber()),
       is_Link__SimObjId: this.is_Link__SimObjId,
     });
   }
+
+  //#region private methods
+  /** Convert date to UTC
+   * @param {Date} date
+   * @returns {Date}
+   */
+  #convertDateToUTC(date) {
+    // convert date to UTC
+    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
+  }
+  //#endregion
 }
