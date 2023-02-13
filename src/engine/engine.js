@@ -49,24 +49,26 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     // 2.b ask to each module the _startDate
 
     // TODO NOW: call module one time to do something
-    // call all modules, every day, until the end of the simulation
+    //#region call all modules, one time
     for (let i = 0; i < _modulesRepo.length; i++) {
       if (_modulesRepo[i].alive) {
-        // TODO NOW NOW NOW
+        // TODO NOW NOW NOW NOW NOW
       }
       checkOpenTransaction({ ledger: _ledger, moduleData: moduleDataArray[i] });
     }
+    //#endregion call all modules, one time
 
     // TODO NOW: call all modules, every day, until the end of the simulation
-    for (let i = 0; i < _modulesRepo.length; i++) {
-      // loop every day, from _startDate to _endDate
-      for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
+    //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
+    for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
+      for (let i = 0; i < _modulesRepo.length; i++) {
         if (_modulesRepo[i].alive) {
-          // TODO NOW NOW NOW
+          // TODO NOW NOW NOW NOW NOW
+          checkOpenTransaction({ ledger: _ledger, moduleData: moduleDataArray[i] });
         }
-        checkOpenTransaction({ ledger: _ledger, moduleData: moduleDataArray[i] });
       }
     }
+    //#endregion call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
 
     console.dir(moduleDataArray); // todo TOREMOVE
     throw new Error('not implemented');
