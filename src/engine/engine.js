@@ -5,7 +5,7 @@ import { ModulesLoader } from './../modules/_modules_loader.js';
 import { ModuleData } from './modules/module_data.js';
 import { Drivers } from './drivers/drivers.js';
 import { SharedConstants } from './sharedconstants/sharedconstants.js';
-import { Module } from "../modules/_sample_module.js";
+import { Module } from '../modules/_sample_module.js';
 
 // TODO
 /*
@@ -25,6 +25,7 @@ before calling a module method checks if the method is defined, otherwise it ski
  */
 async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }) {
   try {
+    //#region variables declaration
     const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
     /** Array of module classes
      * @type {Module[]} */
@@ -32,18 +33,39 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     const _ledger = new Ledger({ appendTrnDump });
     const _drivers = new Drivers();
     const _sharedConstants = new SharedConstants();
+    // set _startDate (mutable) to 10 years ago, at the start of the year
+    let _startDate = new Date(new Date().getFullYear() - 10, 0, 1);
+    // set _endDate (mutable) to 10 years from now, at the end of the year
+    const _endDate = new Date(new Date().getFullYear() + 10, 11, 31);
+    //#endregion variables declaration
 
     await _init_modules_classes_in_modulesRepo__loading_Modules_fromUri(
       { modulesLoader: _modulesLoader, moduleDataArray, modulesRepo: _modulesRepo });
 
-    // TODO NOW
+    // TODO set _startDate/_endDate:
+    // 1. call Settings module, one time, to get _endDate
+    // 2. call all modules, one time
+    // 2.a if 1. didn't set _endDate, ask to each module the _endDate
+    // 2.b ask to each module the _startDate
+
+    // TODO NOW: call module one time to do something
     // call all modules, every day, until the end of the simulation
     for (let i = 0; i < _modulesRepo.length; i++) {
-      if(_modulesRepo[i].alive){
-        // TODO NOW NOW
+      if (_modulesRepo[i].alive) {
+        // TODO NOW NOW NOW
       }
-      if (_ledger.transactionIsOpen())
-        throw new Error(`after calling module ${moduleDataArray[i].moduleName} ${moduleDataArray[i].moduleEngineURI}  a transaction is open`);
+      checkOpenTransaction({ ledger: _ledger, moduleData: moduleDataArray[i] });
+    }
+
+    // TODO NOW: call all modules, every day, until the end of the simulation
+    for (let i = 0; i < _modulesRepo.length; i++) {
+      // loop every day, from _startDate to _endDate
+      for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
+        if (_modulesRepo[i].alive) {
+          // TODO NOW NOW NOW
+        }
+        checkOpenTransaction({ ledger: _ledger, moduleData: moduleDataArray[i] });
+      }
     }
 
     console.dir(moduleDataArray); // todo TOREMOVE
@@ -62,6 +84,16 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
   return { success: true };
 
   //#region local functions
+  /** Check if a transaction is open, and if so, throw an error
+   * @param {Object} p
+   * @param {Ledger} p.ledger
+   * @param {ModuleData} p.moduleData
+   */
+  function checkOpenTransaction ({ ledger, moduleData }) {
+    if (ledger.transactionIsOpen())
+      throw new Error(`after calling module ${moduleData.moduleName} ${moduleData.moduleEngineURI}  a transaction is open`);
+  }
+
   /**
    Load modules on modulesLoader reading moduleDataArray, then init the classes and store them in modulesRepo
    * @param {Object} p
