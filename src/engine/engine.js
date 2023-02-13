@@ -39,7 +39,9 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     // TODO NOW
     // call all modules, every day, until the end of the simulation
     for (let i = 0; i < _modulesRepo.length; i++) {
-      console.log(_modulesRepo[i].alive);
+      if(_modulesRepo[i].alive){
+        // TODO NOW NOW
+      }
       if (_ledger.transactionIsOpen())
         throw new Error(`after calling module ${moduleDataArray[i].moduleName} ${moduleDataArray[i].moduleEngineURI}  a transaction is open`);
     }
