@@ -1,4 +1,4 @@
-import {isInvalidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate} from '../../src/lib/date_utils.js';
+import {isValidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate} from '../../src/lib/date_utils.js';
 
 import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
 import {describe, it} from "https://deno.land/std@0.139.0/testing/bdd.ts";
@@ -15,10 +15,10 @@ assert.throws = assertThrows;
 const _describe = describe;  // replaced `describe` with `_describe` to prevent highlight of this file from Webstorm
 
 
-_describe('isInvalidDate', () => {
+_describe('isValidDate', () => {
     it('test', () => {
-        assert(isInvalidDate(new Date('not a date')));
-        assertFalse(isInvalidDate(new Date(Date.UTC(2022, 11, 25))));
+        assertFalse(isValidDate(new Date('not a date')));
+        assert(isValidDate(new Date(Date.UTC(2022, 11, 25))));
     })
 })
 

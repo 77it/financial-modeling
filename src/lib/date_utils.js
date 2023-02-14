@@ -1,4 +1,4 @@
-export { isInvalidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate, addMonths };
+export { isValidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate, addMonths };
 
 /**
  * To check whether the date is valid
@@ -6,11 +6,11 @@ export { isInvalidDate, parseJSON, differenceInCalendarDays, differenceInUTCCale
  * @returns {boolean}
  */
 // see from https://stackoverflow.com/a/44198641/5288052 + https://stackoverflow.com/questions/643782/how-to-check-whether-an-object-is-a-date
-function isInvalidDate (value) {
+function isValidDate (value) {
   if (value instanceof Date) {
-    return isNaN(value.getTime());
+    return !(isNaN(value.getTime()));
   }
-  return true;  // is not a date
+  return false;  // is not a date
 }
 
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license);
