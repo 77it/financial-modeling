@@ -17,8 +17,12 @@ const _describe = describe;  // replaced `describe` with `_describe` to prevent 
 
 _describe('isValidDate', () => {
     it('test', () => {
-        assertFalse(isValidDate(new Date('not a date')));
         assert(isValidDate(new Date(Date.UTC(2022, 11, 25))));
+
+        assertFalse(isValidDate(new Date('not a date')));
+        assertFalse(isValidDate(undefined));
+        assertFalse(isValidDate(999));
+        assertFalse(isValidDate('2012-12-25'));
     })
 })
 
