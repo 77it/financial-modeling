@@ -3,8 +3,8 @@ export { deepFreeze };
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 /**
  * Deep freeze an object
- * @param {Object} object
- * @returns {Object}
+ * @param {*} object
+ * @returns {*}
  */
 function deepFreeze(object) {
   // Retrieve the property names defined on object

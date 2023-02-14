@@ -1,6 +1,6 @@
 export { AddSimObjectDto };
 
-  class AddSimObjectDto {
+class AddSimObjectDto {
   /**
    * @param {Object} p
    * @param {string} [p.type]

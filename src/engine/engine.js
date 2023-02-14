@@ -6,7 +6,7 @@ import { ModulesLoader } from './../modules/_modules_loader.js';
 import { Module } from '../modules/_sample_module.js';
 import { Drivers } from './drivers/drivers.js';
 import { SharedConstants } from './sharedconstants/sharedconstants.js';
-import { AddSimObjectDto } from './ledger/methods_params/add_simobjectdto.js';
+import { AddSimObjectDto } from './ledger/methods_params/addsimobjectdto.js';
 import { SIMOBJECTDEBUGTYPES_ENUM } from './simobject/simobject_debugtypes_enum.js';
 
 // TODO

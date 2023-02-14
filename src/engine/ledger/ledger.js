@@ -1,9 +1,9 @@
 ﻿export { Ledger };
 
 import { Big } from '../../deps.js';
-import { validate, validation } from '../../deps.js';
+import { validate, validation, sanitizeObj } from '../../deps.js';
 import { SimObject } from '../simobject/simobject.js';
-import { AddSimObjectDto } from './methods_params/add_simobjectdto.js';
+import { AddSimObjectDto } from './methods_params/addsimobjectdto.js';
 
 // TODO
 
@@ -31,6 +31,8 @@ Store, as a property of the SimObject, an object with custom properties, as the 
  */
 
 class Ledger {
+  /** @type {appendTrnDump} */
+  #appendTrnDump;
   /** Map to store SimObjects: SimObject id as string key, SimObject as value.
    * @type {Map<String, SimObject>} */
   #simObjectsRepo;
@@ -50,6 +52,7 @@ class Ledger {
    @param {appendTrnDump} p.appendTrnDump Callback to dump the transactions
    */
   constructor ({ appendTrnDump }) {
+    this.#appendTrnDump = appendTrnDump;
     this.#simObjectsRepo = new Map();
     this.#currentTransaction = [];
     this.#lastId = 0;
@@ -66,7 +69,7 @@ class Ledger {
    */
   commit () {
     if (this.#currentTransaction.length === 0) return;
-    appendTrnDump(JSON.stringify(this.#currentTransaction));
+    this.#appendTrnDump(JSON.stringify(this.#currentTransaction));
     this.#currentTransaction = [];  // reset the current transaction
 
     // TODO validate trn: errore se non quadra;
@@ -77,6 +80,8 @@ class Ledger {
    @param {AddSimObjectDto} addSimObjectDto
    */
   add (addSimObjectDto) {
+    sanitizeObj({ obj: addSimObjectDto, sanitization: addSimObjectDto_Validation })
+
     const simObject = new SimObject({
       type: addSimObjectDto.type,
       id: this.#getNextId().toString(),
