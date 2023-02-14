@@ -21,7 +21,6 @@ delta(): accetta un id e un importo delta (eventualmente precisando principal sc
 square(): input SimObjectType/SimObjectName or SimObjectId (es per cash o ammortamenti);
   aggiunge una scrittura di importo giusto per quadrare la transazione; restituisce l’oggetto creato, con amount in formato Big
 
-commit(): conclude la transazione; errore se non quadra; se non c'è una transazione in corso, non fare nulla (e non andare in errore)
  */
 
 // SimObjects storage and edits, #queue
@@ -56,14 +55,23 @@ class Ledger {
     this.#lastId = 0;
     this.#lastCommandId = 0;
     this.#lastTransactionId = 0;
-    this.#today = new Date(0);
-
-    // TODO implementa altri metodi e togli codice sotto
-    appendTrnDump('ciao, messaggio di prova! ' + new Date(Date.now()).toJSON() + '\n'); // todo TOREMOVE
-    appendTrnDump('ciao, secondo messaggio di prova! ' + new Date(Date.now()).toJSON() + '\n'); // todo TOREMOVE
+    const _today = new Date(0);
+    this.#today = new Date(_today.getFullYear(), _today.getMonth(), _today.getDate(), 0, 0, 0, 0);
   }
 
   //#region public methods
+  /**
+   * Commit the current transaction, if any.
+   * @throws {Error} If the transaction is not valid, not squared, etc.
+   */
+  commit () {
+    if (this.#currentTransaction.length === 0) return;
+    appendTrnDump(JSON.stringify(this.#currentTransaction));
+    this.#currentTransaction = [];  // reset the current transaction
+
+    // TODO validate trn: errore se non quadra;
+  }
+
   /**
    * Add a SimObject to the transaction, keeping it open; if no transaction is currently open, open a new one.
    @param {AddSimObjectDto} addSimObjectDto

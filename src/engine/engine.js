@@ -1,11 +1,13 @@
 export { engine };
 
 import { Ledger } from './ledger/ledger.js';
-import { ModulesLoader } from './../modules/_modules_loader.js';
 import { ModuleData } from './modules/module_data.js';
+import { ModulesLoader } from './../modules/_modules_loader.js';
+import { Module } from '../modules/_sample_module.js';
 import { Drivers } from './drivers/drivers.js';
 import { SharedConstants } from './sharedconstants/sharedconstants.js';
-import { Module } from '../modules/_sample_module.js';
+import { AddSimObjectDto } from './ledger/methods_params/add_simobjectdto.js';
+import { SIMOBJECTDEBUGTYPES_ENUM } from './simobject/simobject_debugtypes_enum.js';
 
 // TODO
 /*
@@ -24,13 +26,14 @@ before calling a module method checks if the method is defined, otherwise it ski
  * @return {Promise<Result>}
  */
 async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }) {
+  let _ledger = null;  // define _ledger here to be able to use it in the `finally` block
   try {
     //#region variables declaration
     const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
     /** Array of module classes
      * @type {Module[]} */
     const _modulesRepo = [];
-    const _ledger = new Ledger({ appendTrnDump });
+    _ledger = new Ledger({ appendTrnDump });
     const _drivers = new Drivers();
     const _sharedConstants = new SharedConstants();
     // set _startDate (mutable) to 10 years ago, at the start of the year
@@ -52,9 +55,9 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     //#region call all modules, one time
     for (let i = 0; i < _modulesRepo.length; i++) {
       if (_modulesRepo[i].alive) {
-        // TODO NOW NOW NOW NOW NOW
+        // TODO NOW NOW NOW NOW
+        checkOpenTransaction({ ledger: _ledger, moduleData: moduleDataArray[i] });
       }
-      checkOpenTransaction({ ledger: _ledger, moduleData: moduleDataArray[i] });
     }
     //#endregion call all modules, one time
 
@@ -63,7 +66,7 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
       for (let i = 0; i < _modulesRepo.length; i++) {
         if (_modulesRepo[i].alive) {
-          // TODO NOW NOW NOW NOW NOW
+          // TODO NOW NOW NOW NOW
           checkOpenTransaction({ ledger: _ledger, moduleData: moduleDataArray[i] });
         }
       }
@@ -76,6 +79,12 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
   } catch (error) {
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
+    _ledger?.add(new AddSimObjectDto({
+      type: SIMOBJECTDEBUGTYPES_ENUM.DEBUG_DEBUG,
+      description: _error,
+    }));
+    _ledger?.commit();
+
     // TODO NOW implement error management
     /*
     Every module that wants to interrupt program execution for a fatal error throws a new Error;
@@ -116,7 +125,7 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     }
   }
 
-  //#endregion
+  //#endregion local functions
 }
 
 //#region types definitions

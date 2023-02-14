@@ -1,6 +1,9 @@
-﻿export const simObjectDebugTypes_enum = {
+﻿import { deepFreeze } from '../../lib/obj_utils.js';
+
+export const SIMOBJECTDEBUGTYPES_ENUM = {
   DEBUG_DEBUG: "DEBUG_DEBUG",
   DEBUG_INFO: "DEBUG_INFO",
   DEBUG_WARNING: "DEBUG_WARNING",
   DEBUG_ERROR: "DEBUG_ERROR"
 }
+deepFreeze(SIMOBJECTDEBUGTYPES_ENUM);

@@ -26,19 +26,6 @@ Sequenza delle attività di engine.js:
 </engine.js.js run_modules.js>
 
 
-<_sampleModule.js>
-
-# modules methods
-
-Standard module methods:
-* oneTimeBeforeTheSimulationStarts({listOfTables: any[], driverSet, sharedConstantSet}): void;
-* beforeDailyModeling({driverGet, sharedConstantGet}): void;
-* dailyModeling({driverGet, sharedConstantGet}): void;
-* oneTimeAfterTheSimulationEnds({driverGet, sharedConstantGet}): void;
-
-</_sampleModule.js>
-
-
 <#modules and #sharedConstants>
 
 Idea about modules

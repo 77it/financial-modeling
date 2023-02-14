@@ -1,6 +1,7 @@
 export { UNIT_OBJECTS_NAMES };
 
-//#region UNIT_OBJECTS_NAMES
+import { deepFreeze } from '../../lib/obj_utils.js';
+
 const UNIT_OBJECTS_NAMES = {};
 UNIT_OBJECTS_NAMES.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT = 'cash_account_1';
-//#endregion UNIT_OBJECTS_NAMES
+deepFreeze(UNIT_OBJECTS_NAMES);
