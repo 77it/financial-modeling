@@ -2,52 +2,53 @@ export {simObjectJsonDumpDto__Validation}
 
 import {doubleEntrySide_enum} from '../enums/doubleentryside_enum.js'
 import { currency_enum } from '../enums/currency_enum.js';
+import { sanitization } from '../../../deps.js';
 
 /**
  object used to validate simObjectDto
 */
 const simObjectJsonDumpDto__Validation = {
-  type: 'string',
+  type: sanitization.STRING_TYPE,
 
-  id: 'string',
+  id: sanitization.STRING_TYPE,
 
-  dateTime: 'date',
+  dateTime: sanitization.DATE_TYPE,
 
-  name: 'string',
-  description: 'string',  // immutable, is used to generate Reports Detail
-  mutableDescription: 'string',  // unused during Reports generation, can be used for debug purpose (and in the future to be shown to the user during a Drill Down of reports voices)
+  name: sanitization.STRING_TYPE,
+  description: sanitization.STRING_TYPE,  // immutable, is used to generate Reports Detail
+  mutableDescription: sanitization.STRING_TYPE,  // unused during Reports generation, can be used for debug purpose (and in the future to be shown to the user during a Drill Down of reports voices)
 
-  metadata__Name: 'array[string]',
-  metadata__Value: 'array[string]',
-  metadata__PercentageWeight: 'array[number]',  // converted from array of Big.js
+  metadata__Name: sanitization.ARRAY_OF_STRINGS_TYPE,
+  metadata__Value: sanitization.ARRAY_OF_STRINGS_TYPE,
+  metadata__PercentageWeight: sanitization.ARRAY_OF_NUMBERS_TYPE,
 
-  unitId: 'string',
+  unitId: sanitization.STRING_TYPE,
 
   // the values are always positive, also debts and costs, then this is the sign/side (debit/credit, left/right) and the type (BS/IS) of the voice
   doubleEntrySide: doubleEntrySide_enum,
 
   currency: currency_enum,
 
-  intercompanyInfo__VsUnitId: 'string',
+  intercompanyInfo__VsUnitId: sanitization.STRING_TYPE,
 
-  value: 'number',  // converted from Big.js
-  writingValue: 'number',  // converted from Big.js
+  value: sanitization.NUMBER_TYPE,  // converted from Big.js
+  writingValue: sanitization.NUMBER_TYPE,  // converted from Big.js
 
-  alive: 'boolean',
+  alive: sanitization.BOOLEAN_TYPE,
 
   //#region command, command group properties
-  command__Id: 'string',
-  command__DebugDescription: 'string',
+  command__Id: sanitization.STRING_TYPE,
+  command__DebugDescription: sanitization.STRING_TYPE,
 
-  commandGroup__Id: 'string',
-  commandGroup__DebugDescription: 'string',
+  commandGroup__Id: sanitization.STRING_TYPE,
+  commandGroup__DebugDescription: sanitization.STRING_TYPE,
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: 'number',  // converted from Big.js
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: 'array[date]',
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: 'array[number]',  // converted from array of Big.js
+  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: sanitization.NUMBER_TYPE,  // converted from Big.js
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: sanitization.ARRAY_OF_DATES_TYPE,
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: sanitization.ARRAY_OF_NUMBERS_TYPE,  // converted from array of Big.js
 
-  is_Link__SimObjId: 'string'
+  is_Link__SimObjId: sanitization.STRING_TYPE,
   //#endregion properties common only to some kind of SimObjects
 }
