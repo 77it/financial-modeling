@@ -3,7 +3,12 @@
 import { Big } from '../../deps.js';
 import { validate, validation, sanitizeObj } from '../../deps.js';
 import { SimObject } from '../simobject/simobject.js';
-import { AddSimObjectDto } from './methods_params/addsimobjectdto.js';
+import { NewSimObjectDto } from './methods_objects/newsimobjectdto.js';
+import { newSimObjectDto_Validation } from './methods_objects/newsimobjectdto_validation.js';
+import { NewDebugSimObjectDto } from './methods_objects/newdebugsimobjectdto.js';
+import { newDebugSimObjectDto_Validation } from './methods_objects/newdebugsimobjectdto_validation.js';
+import { doubleEntrySide_enum } from '../simobject/enums/doubleentryside_enum.js';
+import { currency_enum } from '../simobject/enums/currency_enum.js';
 
 // TODO
 
@@ -72,44 +77,84 @@ class Ledger {
     this.#appendTrnDump(JSON.stringify(this.#currentTransaction));
     this.#currentTransaction = [];  // reset the current transaction
 
-    // TODO validate trn: errore se non quadra;
+    // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
   }
 
   /**
-   * Add a SimObject to the transaction, keeping it open; if no transaction is currently open, open a new one.
-   @param {AddSimObjectDto} addSimObjectDto
+   * Add a SimObject to the transaction, keeping it open
+   @param {NewSimObjectDto} newSimObjectDto
    */
-  add (addSimObjectDto) {
-    sanitizeObj({ obj: addSimObjectDto, sanitization: addSimObjectDto_Validation })
+  newSimObject (newSimObjectDto) {
+    sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Validation })
 
     const simObject = new SimObject({
-      type: addSimObjectDto.type,
+      type: newSimObjectDto.type,
       id: this.#getNextId().toString(),
       dateTime: this.#today,
-      name: addSimObjectDto.name,
-      description: addSimObjectDto.description,
-      mutableDescription: addSimObjectDto.mutableDescription,
-      metadata__Name: [...addSimObjectDto.metadata__Name],
-      metadata__Value: [...addSimObjectDto.metadata__Value],
-      metadata__PercentageWeight: [...addSimObjectDto.metadata__PercentageWeight],
-      unitId: addSimObjectDto.unitId,
-      doubleEntrySide: addSimObjectDto.doubleEntrySide,
-      currency: addSimObjectDto.currency,
-      intercompanyInfo__VsUnitId: addSimObjectDto.intercompanyInfo__VsUnitId,
-      value: new Big(addSimObjectDto.value),
-      writingValue: new Big(addSimObjectDto.writingValue),
-      alive: addSimObjectDto.alive,
+      name: newSimObjectDto.name ?? '',
+      description: newSimObjectDto.description ?? '',
+      mutableDescription: newSimObjectDto.mutableDescription ?? '',
+      metadata__Name: (newSimObjectDto.metadata__Name) ? [...newSimObjectDto.metadata__Name] : [],
+      metadata__Value: (newSimObjectDto.metadata__Value) ? [...newSimObjectDto.metadata__Value] : [],
+      metadata__PercentageWeight: (newSimObjectDto.metadata__PercentageWeight) ? [...newSimObjectDto.metadata__PercentageWeight] : [],
+      unitId: newSimObjectDto.unitId,
+      doubleEntrySide: newSimObjectDto.doubleEntrySide,
+      currency: newSimObjectDto.currency,
+      intercompanyInfo__VsUnitId: newSimObjectDto.intercompanyInfo__VsUnitId ?? '',
+      value: new Big(newSimObjectDto.value),
+      writingValue: new Big(newSimObjectDto.value),
+      alive: newSimObjectDto.alive,
       command__Id: this.#getNextCommandId().toString(),
-      command__DebugDescription: addSimObjectDto.command__DebugDescription,
+      command__DebugDescription: newSimObjectDto.command__DebugDescription ?? '',
       commandGroup__Id: this.#getNextTransactionId().toString(),
-      commandGroup__DebugDescription: addSimObjectDto.commandGroup__DebugDescription,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: new Big(addSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...addSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: addSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => new Big(number)),
-      is_Link__SimObjId: addSimObjectDto.is_Link__SimObjId,
-      vsSimObjectId: addSimObjectDto.vsSimObjectId,
+      commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription ?? '',
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: new Big(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => new Big(number)),
+      is_Link__SimObjId: newSimObjectDto.is_Link__SimObjId ?? '',
+      vsSimObjectId: newSimObjectDto.vsSimObjectId ?? '',
       versionId: 0,
-      extras: addSimObjectDto.extras
+      extras: newSimObjectDto.extras
+    });
+
+    this.#currentTransaction.push(simObject);
+  }
+
+  /**
+   * Add a Debug SimObject to the transaction, keeping it open
+   @param {NewDebugSimObjectDto} newDebugSimObjectDto
+   */
+  newDebugSimObject (newDebugSimObjectDto) {
+    sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Validation })
+
+    const simObject = new SimObject({
+      type: newDebugSimObjectDto.type,
+      id: this.#getNextId().toString(),
+      dateTime: this.#today,
+      name: '',
+      description: newDebugSimObjectDto.description,
+      mutableDescription: '',
+      metadata__Name: [],
+      metadata__Value: [],
+      metadata__PercentageWeight: [],
+      unitId: '',
+      doubleEntrySide: doubleEntrySide_enum.DEBUG,
+      currency: currency_enum.UNDEFINED,
+      intercompanyInfo__VsUnitId: '',
+      value: new Big(0),
+      writingValue: new Big(0),
+      alive: false,
+      command__Id: this.#getNextCommandId().toString(),
+      command__DebugDescription: '',
+      commandGroup__Id: this.#getNextTransactionId().toString(),
+      commandGroup__DebugDescription: '',
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: new Big(0),
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [],
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [],
+      is_Link__SimObjId: '',
+      vsSimObjectId: '',
+      versionId: 0,
+      extras: null
     });
 
     this.#currentTransaction.push(simObject);

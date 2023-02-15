@@ -45,7 +45,7 @@ class SimObject {
    * @param {string} p.is_Link__SimObjId
    * @param {string} p.vsSimObjectId [NOT EXPORTED TO JSON DUMP] This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
    * @param {number} p.versionId [NOT EXPORTED TO JSON DUMP]
-   * @param {*} p.extras [NOT EXPORTED TO JSON DUMP] Class or an object with all the extra properties specific to the SimObject
+   * @param {*} [p.extras] [NOT EXPORTED TO JSON DUMP] Class or an object with all the extra properties specific to the SimObject
    // properties not implemented, can be included in `extras`
    //quantity: 'number',
    //unityOfMeasure: 'string',

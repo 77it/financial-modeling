@@ -1,7 +1,7 @@
 export { simObject_Validation };
 
-import { doubleEntrySide_enum } from '../enums/doubleentryside_enum.js';
-import { currency_enum } from '../enums/currency_enum.js';
+import { doubleEntrySide_enum_validation } from '../enums/doubleentryside_enum.js';
+import { currency_enum_validation } from '../enums/currency_enum.js';
 import { sanitization } from '../../../deps.js';
 
 const simObject_Validation = {
@@ -22,9 +22,9 @@ const simObject_Validation = {
   unitId: sanitization.STRING_TYPE,
 
   // the values are always positive, also debts and costs, then this is the sign/side (debit/credit, left/right) and the type (BS/IS) of the voice
-  doubleEntrySide: doubleEntrySide_enum,
+  doubleEntrySide: doubleEntrySide_enum_validation,
 
-  currency: currency_enum,
+  currency: currency_enum_validation,
 
   intercompanyInfo__VsUnitId: sanitization.STRING_TYPE,
 
@@ -53,6 +53,6 @@ const simObject_Validation = {
   vsSimObjectId: sanitization.STRING_TYPE,
   versionId: sanitization.NUMBER_TYPE,
   //[REMOVED] //previousVersionId: sanitization.STRING_TYPE,
-  extras: sanitization.ANY_TYPE,
+  extras: sanitization.ANY_TYPE + '?',
   //#endregion properties not exported to json dump
 };

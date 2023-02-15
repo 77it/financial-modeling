@@ -6,7 +6,7 @@ import { ModulesLoader } from './../modules/_modules_loader.js';
 import { Module } from '../modules/_sample_module.js';
 import { Drivers } from './drivers/drivers.js';
 import { SharedConstants } from './sharedconstants/sharedconstants.js';
-import { AddSimObjectDto } from './ledger/methods_params/addsimobjectdto.js';
+import { NewDebugSimObjectDto } from './ledger/methods_objects/newdebugsimobjectdto.js';
 import { SIMOBJECTDEBUGTYPES_ENUM } from './simobject/simobject_debugtypes_enum.js';
 
 // TODO
@@ -79,8 +79,8 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
   } catch (error) {
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
-    _ledger?.add(new AddSimObjectDto({
-      type: SIMOBJECTDEBUGTYPES_ENUM.DEBUG_DEBUG,
+    _ledger?.newDebugSimObject(new NewDebugSimObjectDto({
+      type: SIMOBJECTDEBUGTYPES_ENUM.DEBUG_ERROR,
       description: _error,
     }));
     _ledger?.commit();

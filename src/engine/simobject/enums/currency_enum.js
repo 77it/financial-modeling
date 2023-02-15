@@ -1,3 +1,9 @@
-// the values are always positive, also debts and costs, then this is the sign/side (debit/credit, left/right) and the type (BS/IS) of the voice
 export const currency_enum =
-  ["UNDEFINED", "EUR", "USD"];
+  {
+    UNDEFINED: "UNDEFINED",
+    EUR: "EUR",
+    USD: "USD"
+  };
+
+// @ts-ignore
+export const currency_enum_validation = Object.keys(currency_enum).map(key => currency_enum[key]);
