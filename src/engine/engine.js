@@ -77,6 +77,11 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     throw new Error('not implemented');
 
   } catch (error) {
+    /*
+    Every module that wants to interrupt program execution for a fatal error throws a new Error;
+    this error is intercepted here, and will be recorded a 'debug_error' SimObject, then the execution ends with an error.
+     */
+
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
     _ledger?.newDebugSimObject(new NewDebugSimObjectDto({
@@ -85,11 +90,6 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     }));
     _ledger?.commit();
 
-    // TODO NOW implement error management
-    /*
-    Every module that wants to interrupt program execution for a fatal error throws a new Error;
-    this error is intercepted here, and will be recorded a 'debug_error' SimObject, then the execution ends with an error.
-     */
     return { success: false, error: _error };
   }
   return { success: true };

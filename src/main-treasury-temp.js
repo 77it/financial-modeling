@@ -47,6 +47,8 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
   // get engine from `moduleDataArray` or from `./engine/engine.js` file
   const _engine = await _getEngine({ moduleDataArray, debug });
 
+  let _exitCode = 0;
+
   try {
     // run simulation
     /** @type {Result} */
@@ -58,15 +60,19 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
       modulesLoader_Resolve: modulesLoader_Resolve  // pass a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside engine.js
     });
 
-    if (!_engine_result.success)
+    if (!_engine_result.success) {
       writeAllSync(errorsDumpFileWriter, new TextEncoder().encode(_engine_result.error));
+      _exitCode = 1;
+    }
   } catch (error) {
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
     writeAllSync(errorsDumpFileWriter, new TextEncoder().encode(_error));
+    _exitCode = 1;
   } finally {
     trnDumpFileWriter.close();
     errorsDumpFileWriter.close();
+    Deno.exit(_exitCode);
   }
 }
 
