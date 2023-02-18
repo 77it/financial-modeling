@@ -159,6 +159,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(['999'], S.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals([''], S.sanitize({ value: '', sanitization: t2 }));
   });
 
   await t.step('array of numbers type', async () => {
