@@ -55,27 +55,40 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
     const _engine_result = await _engine({
       moduleDataArray: moduleDataArray,
       appendTrnDump: /** @param {string} dump */ function (dump) {
-        writeAllSync(trnDumpFileWriter, new TextEncoder().encode(dump));  // function to write dump to file // see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
+        writeToStream(trnDumpFileWriter, dump);
       },
       modulesLoader_Resolve: modulesLoader_Resolve  // pass a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside engine.js
     });
 
     if (!_engine_result.success) {
-      writeAllSync(errorsDumpFileWriter, new TextEncoder().encode(_engine_result.error));
+      writeToStream(errorsDumpFileWriter, _engine_result.error);
       _exitCode = 1;
     }
   } catch (error) {
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
-    writeAllSync(errorsDumpFileWriter, new TextEncoder().encode(_error));
+    writeToStream(errorsDumpFileWriter, _error);
     _exitCode = 1;
   } finally {
     trnDumpFileWriter.close();
     errorsDumpFileWriter.close();
     Deno.exit(_exitCode);
   }
+
+  //#region local functions
+  /**
+   * Write text to stream
+   * see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
+   * @param {*} stream
+   * @param {string} text
+   */
+  function writeToStream (stream, text) {
+    writeAllSync(stream, new TextEncoder().encode(text));
+  }
+  //#endregion local functions
 }
 
+//#region private functions
 /**
  @private
  * @param {Object} p
@@ -161,6 +174,7 @@ async function _getEngine ({ moduleDataArray, debug }) {
   // fallback to local `engine`
   return engine;
 }
+//#endregion private functions
 
 //#region types definitions
 /** @typedef {{success: true, value?: *} | {success:false, error: string}} Result */

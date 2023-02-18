@@ -3,10 +3,10 @@
 import { Big } from '../../deps.js';
 import { validate, validation, sanitizeObj } from '../../deps.js';
 import { SimObject } from '../simobject/simobject.js';
-import { NewSimObjectDto } from './methods_objects/newsimobjectdto.js';
-import { newSimObjectDto_Validation } from './methods_objects/newsimobjectdto_validation.js';
-import { NewDebugSimObjectDto } from './methods_objects/newdebugsimobjectdto.js';
-import { newDebugSimObjectDto_Validation } from './methods_objects/newdebugsimobjectdto_validation.js';
+import { NewSimObjectDto } from './commands/newsimobjectdto.js';
+import { newSimObjectDto_Validation } from './commands/newsimobjectdto_validation.js';
+import { NewDebugSimObjectDto } from './commands/newdebugsimobjectdto.js';
+import { newDebugSimObjectDto_Validation } from './commands/newdebugsimobjectdto_validation.js';
 import { doubleEntrySide_enum } from '../simobject/enums/doubleentryside_enum.js';
 import { currency_enum } from '../simobject/enums/currency_enum.js';
 
