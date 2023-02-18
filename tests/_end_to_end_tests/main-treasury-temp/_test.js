@@ -43,5 +43,8 @@ Ledger
     * fa un dump dei `SimObjects` dopo ogni transazione
    */
 
+  // TODO use Converter2.exe [1] `excel-sheet-to-jsonl-ledger-trn` to read expected DTO, compare then end test
+  // [1] OPTIONS.FILES.CONVERTER2_EXEGZ_PATH
+
   console.log('done test');
 });
