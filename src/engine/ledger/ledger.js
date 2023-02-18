@@ -9,6 +9,7 @@ import { NewDebugSimObjectDto } from './commands/newdebugsimobjectdto.js';
 import { newDebugSimObjectDto_Validation } from './commands/newdebugsimobjectdto_validation.js';
 import { doubleEntrySide_enum } from '../simobject/enums/doubleentryside_enum.js';
 import { currency_enum } from '../simobject/enums/currency_enum.js';
+import { ModuleData } from '../modules/module_data.js';
 
 // TODO
 
@@ -51,6 +52,10 @@ class Ledger {
   #lastCommandId;
   /** @type {number} */
   #lastTransactionId;
+  /** @type {boolean} */
+  #debug;
+  /** @type {ModuleData} */
+  #currentModuleData;
 
   /**
    @param {Object} p
@@ -65,9 +70,34 @@ class Ledger {
     this.#lastTransactionId = 0;
     const _today = new Date(0);
     this.#today = new Date(_today.getFullYear(), _today.getMonth(), _today.getDate(), 0, 0, 0, 0);
+    this.#debug = false;
   }
 
   //#region public methods
+  /**
+   * Set the debug flag to true.
+   */
+  setDebug () {
+    this.#debug = true;
+  }
+
+  /** @param {Date} today */
+  setToday (today) {
+    validate({ value: today, validation: validation.DATE_TYPE });
+    this.#today = today;
+  }
+
+  /** @param {ModuleData} moduleData */
+  setCurrentModuleData (moduleData) {
+    this.#currentModuleData = moduleData;
+  }
+
+  /** @returns {boolean} */
+  transactionIsOpen () {
+    // returns true if #currentTransaction is not empty
+    return this.#currentTransaction.length !== 0;
+  }
+
   /**
    * Commit the current transaction, if any.
    * @throws {Error} If the transaction is not valid, not squared, etc.
@@ -86,6 +116,9 @@ class Ledger {
    */
   newSimObject (newSimObjectDto) {
     sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Validation })
+
+    const debug_moduleInfo = (this.#debug)
+      ? `moduleName: ${this.#currentModuleData?.moduleName}, moduleEngineURI: ${this.#currentModuleData?.moduleEngineURI}` : '';
 
     const simObject = new SimObject({
       type: newSimObjectDto.type,
@@ -107,7 +140,7 @@ class Ledger {
       command__Id: this.#getNextCommandId().toString(),
       command__DebugDescription: newSimObjectDto.command__DebugDescription ?? '',
       commandGroup__Id: this.#getNextTransactionId().toString(),
-      commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription ?? '',
+      commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription ?? debug_moduleInfo,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: new Big(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => new Big(number)),
@@ -127,6 +160,8 @@ class Ledger {
   newDebugSimObject (newDebugSimObjectDto) {
     sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Validation })
 
+    const debug_moduleInfo = `moduleName: ${this.#currentModuleData?.moduleName}, moduleEngineURI: ${this.#currentModuleData?.moduleEngineURI}`;
+
     const simObject = new SimObject({
       type: newDebugSimObjectDto.type,
       id: this.#getNextId().toString(),
@@ -145,9 +180,9 @@ class Ledger {
       writingValue: new Big(0),
       alive: false,
       command__Id: this.#getNextCommandId().toString(),
-      command__DebugDescription: '',
+      command__DebugDescription: newDebugSimObjectDto.command__DebugDescription ?? '',
       commandGroup__Id: this.#getNextTransactionId().toString(),
-      commandGroup__DebugDescription: '',
+      commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription ?? debug_moduleInfo,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: new Big(0),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [],
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [],
@@ -158,18 +193,6 @@ class Ledger {
     });
 
     this.#currentTransaction.push(simObject);
-  }
-
-  /** @returns {boolean} */
-  transactionIsOpen () {
-    // returns true if #currentTransaction is not empty
-    return this.#currentTransaction.length !== 0;
-  }
-
-  /** @param {Date} today */
-  setToday (today) {
-    validate({ value: today, validation: validation.DATE_TYPE });
-    this.#today = today;
   }
 
   //#endregion public methods

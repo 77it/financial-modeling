@@ -55,17 +55,22 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     //#region call all modules, one time
     for (let i = 0; i < _modulesRepo.length; i++) {
       if (_modulesRepo[i].alive) {
+        _ledger.setCurrentModuleData(moduleDataArray[i]);
         // TODO NOW NOW NOW NOW
         checkOpenTransaction({ ledger: _ledger, moduleData: moduleDataArray[i] });
       }
     }
     //#endregion call all modules, one time
 
+    // TODO setDebug, reading debug SHAREDCONSTANTS_RESERVEDNAMES.DEBUG
+    _ledger.setDebug();
+
     // TODO NOW: call all modules, every day, until the end of the simulation
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
     for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
       for (let i = 0; i < _modulesRepo.length; i++) {
         if (_modulesRepo[i].alive) {
+            _ledger.setCurrentModuleData(moduleDataArray[i]);
           // TODO NOW NOW NOW NOW
           checkOpenTransaction({ ledger: _ledger, moduleData: moduleDataArray[i] });
         }
