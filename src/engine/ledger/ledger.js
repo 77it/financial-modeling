@@ -4,9 +4,9 @@ import { Big } from '../../deps.js';
 import { validate, validation, sanitizeObj } from '../../deps.js';
 import { SimObject } from '../simobject/simobject.js';
 import { NewSimObjectDto } from './commands/newsimobjectdto.js';
-import { newSimObjectDto_Validation } from './commands/newsimobjectdto_validation.js';
+import { newSimObjectDto_Sanitization } from './commands/newsimobjectdto_sanitization.js';
 import { NewDebugSimObjectDto } from './commands/newdebugsimobjectdto.js';
-import { newDebugSimObjectDto_Validation } from './commands/newdebugsimobjectdto_validation.js';
+import { newDebugSimObjectDto_Sanitization } from './commands/newdebugsimobjectdto_sanitization.js';
 import { doubleEntrySide_enum } from '../simobject/enums/doubleentryside_enum.js';
 import { currency_enum } from '../simobject/enums/currency_enum.js';
 import { ModuleData } from '../modules/module_data.js';
@@ -54,7 +54,7 @@ class Ledger {
   #lastTransactionId;
   /** @type {boolean} */
   #debug;
-  /** @type {ModuleData} */
+  /** @type {null|ModuleData} */
   #currentModuleData;
 
   /**
@@ -68,9 +68,9 @@ class Ledger {
     this.#lastId = 0;
     this.#lastCommandId = 0;
     this.#lastTransactionId = 0;
-    const _today = new Date(0);
-    this.#today = new Date(_today.getFullYear(), _today.getMonth(), _today.getDate(), 0, 0, 0, 0);
+    this.#today = new Date(0);
     this.#debug = false;
+    this.#currentModuleData = null;
   }
 
   //#region public methods
@@ -115,7 +115,7 @@ class Ledger {
    @param {NewSimObjectDto} newSimObjectDto
    */
   newSimObject (newSimObjectDto) {
-    sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Validation })
+    sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Sanitization })
 
     const debug_moduleInfo = (this.#debug)
       ? `moduleName: ${this.#currentModuleData?.moduleName}, moduleEngineURI: ${this.#currentModuleData?.moduleEngineURI}` : '';
@@ -158,7 +158,7 @@ class Ledger {
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   newDebugSimObject (newDebugSimObjectDto) {
-    sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Validation })
+    sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Sanitization })
 
     const debug_moduleInfo = `moduleName: ${this.#currentModuleData?.moduleName}, moduleEngineURI: ${this.#currentModuleData?.moduleEngineURI}`;
 
