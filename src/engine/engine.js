@@ -62,7 +62,7 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     }
     //#endregion call all modules, one time
 
-    // TODO setDebug, reading debug SHAREDCONSTANTS_RESERVEDNAMES.DEBUG
+    // TODO setDebug, reading debug SHAREDCONSTANTS_RESERVEDNAMES.SIMULATION__DEBUG_FLAG
     _ledger.setDebug();
 
     // TODO NOW: call all modules, every day, until the end of the simulation
