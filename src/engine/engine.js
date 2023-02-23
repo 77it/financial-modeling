@@ -32,7 +32,8 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     const _modulesLoader = new ModulesLoader({ modulesLoader_Resolve });
     /** Array of module classes
      * @type {Module[]} */
-    const _modulesRepo = [];
+    const _modulesRepo = await _init_modules_classes_in_modulesRepo__loading_Modules_fromUri(
+      { modulesLoader: _modulesLoader, moduleDataArray: moduleDataArray });;
     _ledger = new Ledger({ appendTrnDump });
     const _drivers = new Drivers();
     const _sharedConstants = new SharedConstants();
@@ -41,9 +42,6 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
     // set _endDate (mutable) to 10 years from now, at the end of the year
     const _endDate = new Date(new Date().getFullYear() + 10, 11, 31);
     //#endregion variables declaration
-
-    await _init_modules_classes_in_modulesRepo__loading_Modules_fromUri(
-      { modulesLoader: _modulesLoader, moduleDataArray, modulesRepo: _modulesRepo });
 
     // TODO set _startDate/_endDate:
     // 1. call Settings module, one time, to get _endDate
@@ -115,9 +113,10 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
    * @param {Object} p
    * @param {ModulesLoader} p.modulesLoader
    * @param {ModuleData[]} p.moduleDataArray
-   * @param {*[]} p.modulesRepo
+   * @return {Promise<*[]>}  returns array of module classes
    */
-  async function _init_modules_classes_in_modulesRepo__loading_Modules_fromUri ({ modulesLoader, moduleDataArray, modulesRepo }) {
+  async function _init_modules_classes_in_modulesRepo__loading_Modules_fromUri ({ modulesLoader, moduleDataArray }) {
+    const _modulesRepo = [];
     for (const moduleData of moduleDataArray) {
       let module = modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
       if (!module) {
@@ -126,8 +125,9 @@ async function engine ({ moduleDataArray, modulesLoader_Resolve, appendTrnDump }
       }
       if (!module)
         throw new Error(`module ${moduleData.moduleName} not found`);
-      modulesRepo.push(new module.class());
+      _modulesRepo.push(new module.class());
     }
+    return _modulesRepo;
   }
 
   //#endregion local functions
