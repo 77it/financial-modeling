@@ -60,7 +60,6 @@ class ModulesLoader {
     validateObj({ obj: p, validation: { moduleName: 'string', moduleEngineURI: 'string' } });
 
     const _moduleName = p.moduleName.trim().toLowerCase();
-    console.log(_moduleName);
 
     const repoKey = this.#repoKeyBuilder(p.moduleEngineURI, _moduleName);
 
@@ -68,7 +67,6 @@ class ModulesLoader {
       let _URI = p.moduleEngineURI.trim();
       if (['', '.', '/', './', '\\', '.\\'].includes(_URI))  // If moduleEngineURI is missing or . / /. \ \., is set to ./${_moduleName}.js
         _URI = `./${_moduleName}.js`;
-      console.log(_URI);
 
       // DYNAMIC IMPORT (works with Deno and browser)
       let _lastImportError = "";
