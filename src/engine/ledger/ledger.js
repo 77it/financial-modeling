@@ -99,7 +99,7 @@ class Ledger {
   }
 
   /**
-   * BEWARE: this method must be called only by the engine, not by the modules.
+   * BEWARE: this method must be called only by the engine, then must not be exported to modules.
    * Commit the current transaction without any validation
    */
   forceCommitWithoutValidation () {
