@@ -14,13 +14,15 @@ import {main} from '../../../src/main-treasury-temp.js';
 
 import {assert, assertFalse, assertEquals, assertNotEquals} from '../../deps.js';
 
+const DEBUG_FLAG = true;
+
 Deno.test('main-treasury-temp tests', async () => {
   Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
   if (!existSync(OPTIONS.FILES.CONVERTER2_EXEGZ_PATH))
     await downloadAndDecompressGzip(
       { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
 
-  await main({excelUserInput: './user_data.xlsx', output: './user_data.xlsx.trn_jsonl.tmp', errors: './errors.txt', debug: true});
+  await main({excelUserInput: './user_data.xlsx', output: './user_data.xlsx.trn_jsonl.tmp', errors: './errors.txt', debug: DEBUG_FLAG});
 
   /* TODO NOW
 engine.js

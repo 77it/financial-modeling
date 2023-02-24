@@ -61,7 +61,7 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
 
     /** Array of module classes
      * @type {Module[]} */
-    const _modulesArray = await _init_modules_classes_in_modulesRepo__loading_Modules_fromUri(
+    const _modulesArray = await _init_modules_classes__loading_Modules_fromUri(
       { modulesLoader: _modulesLoader, moduleDataArray: _moduleDataArray });
 
     // get engine from `moduleDataArray` or from `./engine/engine.js` file
@@ -227,7 +227,7 @@ async function _getObject_FromUri_FromModuleDataArray ({
  * @param {ModuleData[]} p.moduleDataArray
  * @return {Promise<*[]>}  returns array of module classes
  */
-async function _init_modules_classes_in_modulesRepo__loading_Modules_fromUri ({ modulesLoader, moduleDataArray }) {
+async function _init_modules_classes__loading_Modules_fromUri ({ modulesLoader, moduleDataArray }) {
   const _modulesRepo = [];
   for (const moduleData of moduleDataArray) {
     let module = modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
