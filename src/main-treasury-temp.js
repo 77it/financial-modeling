@@ -16,7 +16,9 @@ import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts
 
 import { downloadAndDecompressGzip } from './deno/downloadAndDecompressGzip.js';
 import { existSync } from './deno/existSync.js';
+import { ModulesLoader } from './modules/_modules_loader.js';
 import { ModuleData } from './engine/modules/module_data.js';
+import { Module } from './modules/_sample_module.js';
 import { moduleData_LoadFromJsonFile } from './engine/modules/module_data__load_from_json_file.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
 import { engine } from './engine/engine.js';
@@ -35,29 +37,54 @@ if (Deno.args.length !== 0) {
  * @param {boolean} [p.debug=false] - Optional debug flag
  */
 async function main ({ excelUserInput, output, errors, debug = false }) {
-  // convert Excel input file to `modulesData`
-  const moduleDataArray = await _convertExcelToModuleDataArray({ excelUserInput, errors });
-
   // create/overwrite trnDump file   // see https://deno.land/api@v1.29.1?s=Deno.open
   const trnDumpFileWriter = await Deno.open(output, { create: true, write: true, truncate: true });
 
   // create/overwrite errorsDump file
   const errorsDumpFileWriter = await Deno.open(errors, { create: true, write: true, truncate: true });
 
-  // get engine from `moduleDataArray` or from `./engine/engine.js` file
-  const _engine = await _getEngine({ moduleDataArray, debug });
-
   let _exitCode = 0;
 
   try {
+    // convert Excel input file to an array of `moduleData`
+    const _moduleDataArray = await _convertExcelToModuleDataArray({ excelUserInput, errors });
+
+    // get ModulesLoader class from `moduleDataArray` or from `'./modules/_modules_loader.js'` file
+    const _modulesLoaderClass = await _getObject_FromUri_FromModuleDataArray({
+      moduleDataArray: _moduleDataArray,
+      moduleName: 'SETTINGS', tableName: 'SET', unitName: '$', settingName: '$MODULESLOADER',
+      objectName: 'ModulesLoader',
+      debug: debug, defaultDebugObject: ModulesLoader
+    });
+    // init the module loader passing a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside engine.js
+    const _modulesLoader = new _modulesLoaderClass({ modulesLoader_Resolve });
+
+    /** Array of module classes
+     * @type {Module[]} */
+    const _modulesArray = await _init_modules_classes_in_modulesRepo__loading_Modules_fromUri(
+      { modulesLoader: _modulesLoader, moduleDataArray: _moduleDataArray });
+
+    // get engine from `moduleDataArray` or from `./engine/engine.js` file
+    const _engine = await _getObject_FromUri_FromModuleDataArray({
+      moduleDataArray: _moduleDataArray,
+      moduleName: 'SETTINGS', tableName: 'SET', unitName: '$', settingName: '$ENGINE',
+      objectName: 'engine',
+      debug: debug, defaultDebugObject: engine
+    });
+
+    /**
+     * Callback to dump the transactions
+     * @param {string} dump */
+    const _appendTrnDump = function (dump) {
+      writeToStream(trnDumpFileWriter, dump);
+    };
+
     // run simulation
     /** @type {Result} */
     const _engine_result = await _engine({
-      moduleDataArray: moduleDataArray,
-      appendTrnDump: /** @param {string} dump */ function (dump) {
-        writeToStream(trnDumpFileWriter, dump);
-      },
-      modulesLoader_Resolve: modulesLoader_Resolve  // pass a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside engine.js
+      modulesData: _moduleDataArray,
+      modules: _modulesArray,
+      appendTrnDump: _appendTrnDump
     });
 
     if (!_engine_result.success) {
@@ -85,12 +112,14 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
   function writeToStream (stream, text) {
     writeAllSync(stream, new TextEncoder().encode(text));
   }
+
   //#endregion local functions
 }
 
 //#region private functions
 /**
  @private
+ Convert Excel input file to an array of `moduleData`
  * @param {Object} p
  * @param {string} p.excelUserInput - Excel file with user input
  * @param {string} p.errors - Text file created only if there are errors
@@ -133,26 +162,41 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
  * Returns engine function, from `moduleDataArray` or from local engine file
  * @param {Object} p
  * @param {ModuleData[]} p.moduleDataArray
+ * @param {string} p.moduleName
+ * @param {string} p.tableName
+ * @param {string} p.unitName
+ * @param {string} p.settingName
+ * @param {string} p.objectName
  * @param {boolean} p.debug - Debug flag: when true, the engine function is returned from local engine file
- * @return Promise<engine> - Engine function
+ * @param {*} p.defaultDebugObject - Default object to return when debug is true
+ * @return {Promise<*>} - Some object read from URI
  */
-async function _getEngine ({ moduleDataArray, debug }) {
+async function _getObject_FromUri_FromModuleDataArray ({
+  moduleDataArray,
+  moduleName,
+  tableName,
+  unitName,
+  settingName,
+  objectName,
+  debug,
+  defaultDebugObject
+}) {
 
   if (debug)
-    return engine;
+    return defaultDebugObject;
 
-  let engineUrl = null;
-
-  for (const moduleData of moduleDataArray) {
-    if (moduleData.moduleName === 'SETTINGS')
-      for (const _table of moduleData.tables) {
-        if (_table.tableName === 'SET')
-          for (const row of _table.table) {
-            if (row?.UNIT.toString().trim() === '$' && row?.NAME.toString().trim().toUpperCase() === '$ENGINE')
-              engineUrl = row?.VALUE.toString().trim();
-          }
-      }
-  }
+  const engineUrl = (() => {
+    for (const moduleData of moduleDataArray) {
+      if (moduleData.moduleName === moduleName)
+        for (const _table of moduleData.tables) {
+          if (_table.tableName === tableName)
+            for (const row of _table.table) {
+              if (row?.UNIT.toString().trim() === unitName.trim().toUpperCase() && row?.NAME.toString().trim().toUpperCase() === settingName.trim().toUpperCase())
+                return row?.VALUE.toString().trim();
+            }
+        }
+    }
+  })();
 
   if (engineUrl) {
     // DYNAMIC IMPORT (works with Deno and browser)
@@ -161,8 +205,8 @@ async function _getEngine ({ moduleDataArray, debug }) {
     for (const _cdnURI of modulesLoader_Resolve(engineUrl)) {
       try {
         const _module = (await import(_cdnURI));
-        if (_module != null && _module['engine'] != null) {
-          return _module['engine'];
+        if (_module != null && _module[objectName] != null) {
+          return _module[objectName];
         }
       } catch (error) {
         _lastImportError = error.stack?.toString() ?? error.toString();  // save the last error and go on with the loop trying the next cdnURI
@@ -174,6 +218,30 @@ async function _getEngine ({ moduleDataArray, debug }) {
   // fallback to local `engine`
   return engine;
 }
+
+/**
+ @private
+ * Load modules on modulesLoader reading moduleDataArray, then init the classes and store them in modulesRepo
+ * @param {Object} p
+ * @param {ModulesLoader} p.modulesLoader
+ * @param {ModuleData[]} p.moduleDataArray
+ * @return {Promise<*[]>}  returns array of module classes
+ */
+async function _init_modules_classes_in_modulesRepo__loading_Modules_fromUri ({ modulesLoader, moduleDataArray }) {
+  const _modulesRepo = [];
+  for (const moduleData of moduleDataArray) {
+    let module = modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
+    if (!module) {
+      await modulesLoader.addClassFromURI({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
+      module = modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
+    }
+    if (!module)
+      throw new Error(`module ${moduleData.moduleName} not found`);
+    _modulesRepo.push(new module.class());
+  }
+  return _modulesRepo;
+}
+
 //#endregion private functions
 
 //#region types definitions
