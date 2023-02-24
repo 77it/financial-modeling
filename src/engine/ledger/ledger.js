@@ -99,6 +99,16 @@ class Ledger {
   }
 
   /**
+   * BEWARE: this method must be called only by the engine, not by the modules.
+   * Commit the current transaction without any validation
+   */
+  forceCommitWithoutValidation () {
+    if (this.#currentTransaction.length === 0) return;
+    this.#appendTrnDump(JSON.stringify(this.#currentTransaction));
+    this.#currentTransaction = [];  // reset the current transaction
+  }
+
+  /**
    * Commit the current transaction, if any.
    * @throws {Error} If the transaction is not valid, not squared, etc.
    */

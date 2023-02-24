@@ -95,7 +95,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
       type: SIMOBJECTDEBUGTYPES_ENUM.DEBUG_ERROR,
       description: _error,
     }));
-    _ledger?.commit();
+    _ledger?.forceCommitWithoutValidation();
 
     return { success: false, error: _error };
   }
