@@ -56,7 +56,7 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
       objectName: 'ModulesLoader',
       debug: debug, defaultDebugObject: ModulesLoader
     });
-    // init the module loader passing a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside engine.js
+    // init the module loader passing a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside ModulesLoader
     const _modulesLoader = new _modulesLoaderClass({ modulesLoader_Resolve });
 
     /** Array of module classes
@@ -159,7 +159,7 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
 
 /**
  @private
- * Returns engine function, from `moduleDataArray` or from local engine file
+ * Returns an object, from `moduleDataArray` or from defaultDebugObject
  * @param {Object} p
  * @param {ModuleData[]} p.moduleDataArray
  * @param {string} p.moduleName
@@ -168,7 +168,7 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
  * @param {string} p.settingName
  * @param {string} p.objectName
  * @param {boolean} p.debug - Debug flag: when true, the engine function is returned from local engine file
- * @param {*} p.defaultDebugObject - Default object to return when debug is true
+ * @param {*} p.defaultObject - Default object to return when debug is true or when `settingName` is not found
  * @return {Promise<*>} - Some object read from URI
  */
 async function _getObject_FromUri_FromModuleDataArray ({
@@ -179,11 +179,11 @@ async function _getObject_FromUri_FromModuleDataArray ({
   settingName,
   objectName,
   debug,
-  defaultDebugObject
+  defaultObject
 }) {
 
   if (debug)
-    return defaultDebugObject;
+    return defaultObject;
 
   const engineUrl = (() => {
     for (const moduleData of moduleDataArray) {
@@ -215,8 +215,8 @@ async function _getObject_FromUri_FromModuleDataArray ({
     throw new Error(`error loading module ${engineUrl}, error: ${_lastImportError}`);
   }
 
-  // fallback to local `engine`
-  return engine;
+  // fallback to default object
+  return defaultObject;
 }
 
 /**
