@@ -54,7 +54,7 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
       moduleDataArray: _moduleDataArray,
       moduleName: 'SETTINGS', tableName: 'SET', unitName: '$', settingName: '$MODULESLOADER',
       objectName: 'ModulesLoader',
-      debug: debug, defaultDebugObject: ModulesLoader
+      debug: debug, defaultObject: ModulesLoader
     });
     // init the module loader passing a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside ModulesLoader
     const _modulesLoader = new _modulesLoaderClass({ modulesLoader_Resolve });
@@ -69,7 +69,7 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
       moduleDataArray: _moduleDataArray,
       moduleName: 'SETTINGS', tableName: 'SET', unitName: '$', settingName: '$ENGINE',
       objectName: 'engine',
-      debug: debug, defaultDebugObject: engine
+      debug: debug, defaultObject: engine
     });
 
     /**
@@ -159,7 +159,7 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
 
 /**
  @private
- * Returns an object, from `moduleDataArray` or from defaultDebugObject
+ * Returns an object, from `moduleDataArray` or from defaultObject
  * @param {Object} p
  * @param {ModuleData[]} p.moduleDataArray
  * @param {string} p.moduleName
