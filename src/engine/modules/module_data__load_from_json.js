@@ -1,4 +1,4 @@
-export { moduleData_LoadFromJsonFile };
+export { moduleData_LoadFromJson };
 
 import { ModuleData } from './module_data.js';
 
@@ -7,6 +7,6 @@ import { ModuleData } from './module_data.js';
  * @param {string} json - ModuleData's Json
  * @return {ModuleData} deserialized ModuleData
  */
-function moduleData_LoadFromJsonFile (json) {
+function moduleData_LoadFromJson (json) {
   return new ModuleData(JSON.parse(json));
 }

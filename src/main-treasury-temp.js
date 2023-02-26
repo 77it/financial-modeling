@@ -19,7 +19,7 @@ import { existSync } from './deno/existSync.js';
 import { ModulesLoader } from './modules/_modules_loader.js';
 import { ModuleData } from './engine/modules/module_data.js';
 import { Module } from './modules/_sample_module.js';
-import { moduleData_LoadFromJsonFile } from './engine/modules/module_data__load_from_json_file.js';
+import { moduleData_LoadFromJson } from './engine/modules/module_data__load_from_json.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
 import { engine } from './engine/engine.js';
 
@@ -145,7 +145,8 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
   const fileReader = await Deno.open(jsonlExcelFilename);
   const moduleDataArray = [];
   for await (const line of readLines(fileReader))
-    moduleDataArray.push(moduleData_LoadFromJsonFile(line));
+    if (line.trim())
+      moduleDataArray.push(moduleData_LoadFromJson(line));
   fileReader.close();
 
   // delete temporary file
