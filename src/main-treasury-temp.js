@@ -22,6 +22,8 @@ import { Module } from './modules/_sample_module.js';
 import { moduleData_LoadFromJson } from './engine/modules/module_data__load_from_json.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
 import { engine } from './engine/engine.js';
+import { NAMES as SETTINGS_NAMES } from './modules/settings.js';
+import * as STD_NAMES from './modules/_names/standardnames.js';
 
 // call `main` function only if there are command line arguments  (useful to not call `main` function with the following code when importing this file)
 if (Deno.args.length !== 0) {
@@ -52,7 +54,7 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
     // get ModulesLoader class from `moduleDataArray` or from `'./modules/_modules_loader.js'` file
     const _modulesLoaderClass = await _getObject_FromUri_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
-      moduleName: 'SETTINGS', tableName: 'SET', unitName: '$', settingName: '$MODULESLOADER',
+      moduleName: SETTINGS_NAMES.MODULE, tableName: SETTINGS_NAMES.TABLE, unitName: STD_NAMES.SIMULATION.NAME, settingName: SETTINGS_NAMES.SIM_MODULESLOADER_URI,
       objectName: 'ModulesLoader',
       debug: debug, defaultObject: ModulesLoader
     });
@@ -67,7 +69,7 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
     // get engine from `moduleDataArray` or from `./engine/engine.js` file
     const _engine = await _getObject_FromUri_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
-      moduleName: 'SETTINGS', tableName: 'SET', unitName: '$', settingName: '$ENGINE',
+      moduleName: SETTINGS_NAMES.MODULE, tableName: SETTINGS_NAMES.TABLE, unitName: STD_NAMES.SIMULATION.NAME, settingName: SETTINGS_NAMES.SIM_ENGINE_URI,
       objectName: 'engine',
       debug: debug, defaultObject: engine
     });
