@@ -211,9 +211,7 @@ async function _getObject_FromUri_FromModuleDataArray ({
       if (moduleData.moduleName === moduleName)
         for (const _tableObj of moduleData.tables) {
           if (_tableObj.tableName === tableName) {
-            // clone _table to avoid side effects
-            const _table = structuredClone(_tableObj.table);
-
+            const _table = structuredClone(_tableObj.table);  // clone _tableObj to avoid side effects
             sanitizeObj({
               obj: _table,
               sanitization: SETTINGS_NAMES.TABLES.SET.VALIDATION
