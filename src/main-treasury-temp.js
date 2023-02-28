@@ -61,9 +61,9 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
     const _modulesLoaderClass = await _getObject_FromUri_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
       moduleName: SETTINGS_NAMES.MODULE,
-      tableName: SETTINGS_NAMES.TABLE_SET,
-      unitName: SETTINGS_NAMES.TABLE_SET__SETTING__MODULESLOADER_URI__UNIT,
-      settingName: SETTINGS_NAMES.TABLE_SET__SETTING__MODULESLOADER_URI__VALUE,
+      tableName: SETTINGS_NAMES.TABLES.SET.NAME,
+      unitName: SETTINGS_NAMES.TABLES.SET.SETTINGS.MODULESLOADER_URI.UNIT,
+      settingName: SETTINGS_NAMES.TABLES.SET.SETTINGS.MODULESLOADER_URI.VALUE,
       objectName: 'ModulesLoader',
       debug: debug,
       defaultObject: ModulesLoader
@@ -80,9 +80,9 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
     const _engine = await _getObject_FromUri_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
       moduleName: SETTINGS_NAMES.MODULE,
-      tableName: SETTINGS_NAMES.TABLE_SET,
-      unitName: SETTINGS_NAMES.TABLE_SET__SETTING__ENGINE_URI__UNIT,
-      settingName: SETTINGS_NAMES.TABLE_SET__SETTING__ENGINE_URI__VALUE,
+      tableName: SETTINGS_NAMES.TABLES.SET.NAME,
+      unitName: SETTINGS_NAMES.TABLES.SET.SETTINGS.ENGINE_URI.UNIT,
+      settingName: SETTINGS_NAMES.TABLES.SET.SETTINGS.ENGINE_URI.VALUE,
       objectName: 'engine',
       debug: debug,
       defaultObject: engine
@@ -202,9 +202,9 @@ async function _getObject_FromUri_FromModuleDataArray ({
   if (debug)
     return defaultObject;
 
-  const _COL_UNIT = SETTINGS_NAMES.TABLE_SET__COL_UNIT;
-  const _COL_NAME = SETTINGS_NAMES.TABLE_SET__COL_NAME;
-  const _COL_VALUE = SETTINGS_NAMES.TABLE_SET__COL_VALUE;
+  const _COL_UNIT = SETTINGS_NAMES.TABLES.SET.COLUMNS.UNIT
+  const _COL_NAME = SETTINGS_NAMES.TABLES.SET.COLUMNS.NAME;
+  const _COL_VALUE = SETTINGS_NAMES.TABLES.SET.COLUMNS.VALUE;
 
   const engineUrl = (() => {
     for (const moduleData of moduleDataArray) {
@@ -213,10 +213,10 @@ async function _getObject_FromUri_FromModuleDataArray ({
           if (_table.tableName === tableName) {
             sanitizeObj({
               obj: _table.table,
-              sanitization: SETTINGS_NAMES.TABLE_SET__VALIDATION
+              sanitization: SETTINGS_NAMES.TABLES.SET.VALIDATION
             });
             for (const row of _table.table) {
-              if (row[_COL_UNIT].toString().trim() === unitName.trim().toUpperCase() && row[_COL_NAME].toString().trim().toUpperCase() === settingName.trim().toUpperCase())
+              if (row[_COL_UNIT].toString().trim().toUpperCase() === unitName.trim().toUpperCase() && row[_COL_NAME].toString().trim().toUpperCase() === settingName.trim().toUpperCase())
                 return row[_COL_VALUE].toString().trim();
             }
           }
