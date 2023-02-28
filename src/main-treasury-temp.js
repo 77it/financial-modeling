@@ -10,20 +10,26 @@ OPTIONS.FILES.CONVERTER_EXEGZ_URL = 'https://github.com/77it/financial-modeling-
 OPTIONS.FILES.CONVERTER_EXEGZ_PATH = './converter.exe';
 //#endregion settings
 
+//#region deno imports
 import { parse } from 'https://deno.land/std@0.172.0/flags/mod.ts';
 import { readLines } from 'https://deno.land/std@0.152.0/io/buffer.ts';
 import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts';
 
 import { downloadAndDecompressGzip } from './deno/downloadAndDecompressGzip.js';
 import { existSync } from './deno/existSync.js';
-import { ModulesLoader } from './modules/_modules_loader.js';
+//#endregion deno imports
+
+//#region local imports
+import { sanitizeObj } from './deps.js';
+
 import { ModuleData } from './engine/modules/module_data.js';
-import { Module } from './modules/_sample_module.js';
 import { moduleData_LoadFromJson } from './engine/modules/module_data__load_from_json.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
 import { engine } from './engine/engine.js';
+import { ModulesLoader } from './modules/_modules_loader.js';
+import { Module } from './modules/_sample_module.js';
 import { NAMES as SETTINGS_NAMES } from './modules/settings.js';
-import * as STD_NAMES from './modules/_names/standardnames.js';
+//#endregion local imports
 
 // call `main` function only if there are command line arguments  (useful to not call `main` function with the following code when importing this file)
 if (Deno.args.length !== 0) {
@@ -54,9 +60,13 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
     // get ModulesLoader class from `moduleDataArray` or from `'./modules/_modules_loader.js'` file
     const _modulesLoaderClass = await _getObject_FromUri_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
-      moduleName: SETTINGS_NAMES.MODULE, tableName: SETTINGS_NAMES.TABLE, unitName: STD_NAMES.SIMULATION.NAME, settingName: SETTINGS_NAMES.SIM_MODULESLOADER_URI,
+      moduleName: SETTINGS_NAMES.MODULE,
+      tableName: SETTINGS_NAMES.TABLE_SET,
+      unitName: SETTINGS_NAMES.SETTING__MODULESLOADER_URI__UNIT,
+      settingName: SETTINGS_NAMES.SETTING__MODULESLOADER_URI__VALUE,
       objectName: 'ModulesLoader',
-      debug: debug, defaultObject: ModulesLoader
+      debug: debug,
+      defaultObject: ModulesLoader
     });
     // init the module loader passing a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside ModulesLoader
     const _modulesLoader = new _modulesLoaderClass({ modulesLoader_Resolve });
@@ -69,9 +79,13 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
     // get engine from `moduleDataArray` or from `./engine/engine.js` file
     const _engine = await _getObject_FromUri_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
-      moduleName: SETTINGS_NAMES.MODULE, tableName: SETTINGS_NAMES.TABLE, unitName: STD_NAMES.SIMULATION.NAME, settingName: SETTINGS_NAMES.SIM_ENGINE_URI,
+      moduleName: SETTINGS_NAMES.MODULE,
+      tableName: SETTINGS_NAMES.TABLE_SET,
+      unitName: SETTINGS_NAMES.SETTING__ENGINE_URI__UNIT,
+      settingName: SETTINGS_NAMES.SETTING__ENGINE_URI__VALUE,
       objectName: 'engine',
-      debug: debug, defaultObject: engine
+      debug: debug,
+      defaultObject: engine
     });
 
     /**
@@ -192,11 +206,13 @@ async function _getObject_FromUri_FromModuleDataArray ({
     for (const moduleData of moduleDataArray) {
       if (moduleData.moduleName === moduleName)
         for (const _table of moduleData.tables) {
-          if (_table.tableName === tableName)
+          if (_table.tableName === tableName) {
+            sanitizeObj({ obj: _table.table, sanitization: { UNIT: 'string', NAME: 'string', VALUE: 'string' } });
             for (const row of _table.table) {
               if (row?.UNIT.toString().trim() === unitName.trim().toUpperCase() && row?.NAME.toString().trim().toUpperCase() === settingName.trim().toUpperCase())
                 return row?.VALUE.toString().trim();
             }
+          }
         }
     }
   })();
