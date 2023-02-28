@@ -1,6 +1,6 @@
 export { newSimObjectDto_Sanitization };
 
-import { doubleEntrySide_enum_validation } from '../../simobject/enums/doubleentryside_enum.js';
+import { DoubleEntrySide_enum_validation } from '../../simobject/enums/DoubleEntrySide_enum.js';
 import { currency_enum_validation } from '../../simobject/enums/currency_enum.js';
 import { sanitization } from '../../../deps.js';
 
@@ -21,7 +21,7 @@ const newSimObjectDto_Sanitization = {
   unitId: sanitization.STRING_TYPE,
 
   // the values are always positive, also debts and costs, then this is the sign/side (debit/credit, left/right) and the type (BS/IS) of the voice
-  doubleEntrySide: doubleEntrySide_enum_validation,
+  doubleEntrySide: DoubleEntrySide_enum_validation,
 
   currency: currency_enum_validation,
 
