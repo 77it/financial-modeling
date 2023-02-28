@@ -6,7 +6,7 @@ export { main };
 //#region settings
 const OPTIONS = {};
 OPTIONS.FILES = {};
-OPTIONS.FILES.CONVERTER_EXEGZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v1.0.6/Converter.exe.gz';
+OPTIONS.FILES.CONVERTER_EXEGZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter.exe.gz';
 OPTIONS.FILES.CONVERTER_EXEGZ_PATH = './converter.exe';
 //#endregion settings
 
@@ -62,8 +62,8 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
       moduleDataArray: _moduleDataArray,
       moduleName: SETTINGS_NAMES.MODULE,
       tableName: SETTINGS_NAMES.TABLE_SET,
-      unitName: SETTINGS_NAMES.SETTING__MODULESLOADER_URI__UNIT,
-      settingName: SETTINGS_NAMES.SETTING__MODULESLOADER_URI__VALUE,
+      unitName: SETTINGS_NAMES.TABLE_SET__SETTING__MODULESLOADER_URI__UNIT,
+      settingName: SETTINGS_NAMES.TABLE_SET__SETTING__MODULESLOADER_URI__VALUE,
       objectName: 'ModulesLoader',
       debug: debug,
       defaultObject: ModulesLoader
@@ -81,8 +81,8 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
       moduleDataArray: _moduleDataArray,
       moduleName: SETTINGS_NAMES.MODULE,
       tableName: SETTINGS_NAMES.TABLE_SET,
-      unitName: SETTINGS_NAMES.SETTING__ENGINE_URI__UNIT,
-      settingName: SETTINGS_NAMES.SETTING__ENGINE_URI__VALUE,
+      unitName: SETTINGS_NAMES.TABLE_SET__SETTING__ENGINE_URI__UNIT,
+      settingName: SETTINGS_NAMES.TABLE_SET__SETTING__ENGINE_URI__VALUE,
       objectName: 'engine',
       debug: debug,
       defaultObject: engine
@@ -202,15 +202,22 @@ async function _getObject_FromUri_FromModuleDataArray ({
   if (debug)
     return defaultObject;
 
+  const _COL_UNIT = SETTINGS_NAMES.TABLE_SET__COL_UNIT;
+  const _COL_NAME = SETTINGS_NAMES.TABLE_SET__COL_NAME;
+  const _COL_VALUE = SETTINGS_NAMES.TABLE_SET__COL_VALUE;
+
   const engineUrl = (() => {
     for (const moduleData of moduleDataArray) {
       if (moduleData.moduleName === moduleName)
         for (const _table of moduleData.tables) {
           if (_table.tableName === tableName) {
-            sanitizeObj({ obj: _table.table, sanitization: { UNIT: 'string', NAME: 'string', VALUE: 'string' } });
+            sanitizeObj({
+              obj: _table.table,
+              sanitization: SETTINGS_NAMES.TABLE_SET__VALIDATION
+            });
             for (const row of _table.table) {
-              if (row?.UNIT.toString().trim() === unitName.trim().toUpperCase() && row?.NAME.toString().trim().toUpperCase() === settingName.trim().toUpperCase())
-                return row?.VALUE.toString().trim();
+              if (row[_COL_UNIT].toString().trim() === unitName.trim().toUpperCase() && row[_COL_NAME].toString().trim().toUpperCase() === settingName.trim().toUpperCase())
+                return row[_COL_VALUE].toString().trim();
             }
           }
         }

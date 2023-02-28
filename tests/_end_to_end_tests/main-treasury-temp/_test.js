@@ -3,7 +3,7 @@
 //#region settings
 const OPTIONS = {};
 OPTIONS.FILES = {}
-OPTIONS.FILES.CONVERTER2_EXEGZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v1.0.6/Converter2.exe.gz';
+OPTIONS.FILES.CONVERTER2_EXEGZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter2.exe.gz';
 OPTIONS.FILES.CONVERTER2_EXEGZ_PATH = './converter2.exe';
 //#endregion settings
 
