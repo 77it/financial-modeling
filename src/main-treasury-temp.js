@@ -202,20 +202,23 @@ async function _getObject_FromUri_FromModuleDataArray ({
   if (debug)
     return defaultObject;
 
-  const _COL_UNIT = SETTINGS_NAMES.TABLES.SET.COLUMNS.UNIT
-  const _COL_NAME = SETTINGS_NAMES.TABLES.SET.COLUMNS.NAME;
-  const _COL_VALUE = SETTINGS_NAMES.TABLES.SET.COLUMNS.VALUE;
+    const _COL_UNIT = SETTINGS_NAMES.TABLES.SET.COLUMNS.UNIT
+    const _COL_NAME = SETTINGS_NAMES.TABLES.SET.COLUMNS.NAME;
+    const _COL_VALUE = SETTINGS_NAMES.TABLES.SET.COLUMNS.VALUE;
 
   const engineUrl = (() => {
     for (const moduleData of moduleDataArray) {
       if (moduleData.moduleName === moduleName)
-        for (const _table of moduleData.tables) {
-          if (_table.tableName === tableName) {
+        for (const _tableObj of moduleData.tables) {
+          if (_tableObj.tableName === tableName) {
+            // clone _table to avoid side effects
+            const _table = structuredClone(_tableObj.table);
+
             sanitizeObj({
-              obj: _table.table,
+              obj: _table,
               sanitization: SETTINGS_NAMES.TABLES.SET.VALIDATION
             });
-            for (const row of _table.table) {
+            for (const row of _table) {
               if (row[_COL_UNIT].toString().trim().toUpperCase() === unitName.trim().toUpperCase() && row[_COL_NAME].toString().trim().toUpperCase() === settingName.trim().toUpperCase())
                 return row[_COL_VALUE].toString().trim();
             }

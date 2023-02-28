@@ -14,7 +14,7 @@ import {main} from '../../../src/main-treasury-temp.js';
 
 import {assert, assertFalse, assertEquals, assertNotEquals} from '../../deps.js';
 
-const DEBUG_FLAG = true;
+const DEBUG_FLAG = false;
 
 Deno.test('main-treasury-temp tests', async () => {
   Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)

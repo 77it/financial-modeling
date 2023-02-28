@@ -8,7 +8,7 @@ NAMES.MODULE = 'settings';
 NAMES.TABLES = {};
 NAMES.TABLES.SET = {};
 NAMES.TABLES.SET.NAME = 'set';
-NAMES.TABLES.SET.VALIDATION = { UNIT: 'string', NAME: 'string', VALUE: 'string' };
+NAMES.TABLES.SET.VALIDATION = { unit: 'string', name: 'string', value: 'string' };
 NAMES.TABLES.SET.COLUMNS = { UNIT: 'unit', NAME: 'name', VALUE: 'value' };
 NAMES.TABLES.SET.SETTINGS = {
   MODULESLOADER_URI: { UNIT: STANDARD_NAMES.SIMULATION.NAME, VALUE: '$MODULESLOADER' },
