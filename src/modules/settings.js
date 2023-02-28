@@ -4,8 +4,8 @@ import { deepFreeze } from '../lib/obj_utils.js';
 import * as STANDARD_NAMES from './_names/standardnames.js';
 
 const NAMES = {
-  MODULE: 'SETTINGS',
-  TABLE_SET: 'SET',
+  MODULE: 'settings',
+  TABLE_SET: 'set',
   TABLE_SET__VALIDATION: { UNIT: 'string', NAME: 'string', VALUE: 'string' },
   TABLE_SET__COL_UNIT: 'unit',
   TABLE_SET__COL_NAME: 'name',
