@@ -8,7 +8,7 @@ import { newSimObjectDto_Sanitization } from './commands/newsimobjectdto_sanitiz
 import { NewDebugSimObjectDto } from './commands/newdebugsimobjectdto.js';
 import { newDebugSimObjectDto_Sanitization } from './commands/newdebugsimobjectdto_sanitization.js';
 import { DoubleEntrySide_enum } from '../simobject/enums/DoubleEntrySide_enum.js';
-import { currency_enum } from '../simobject/enums/currency_enum.js';
+import { Currency_enum } from '../simobject/enums/currency_enum.js';
 import { ModuleData } from '../modules/module_data.js';
 
 // TODO
@@ -188,7 +188,7 @@ class Ledger {
       metadata__PercentageWeight: [],
       unitId: '',
       doubleEntrySide: DoubleEntrySide_enum.DEBUG,
-      currency: currency_enum.UNDEFINED,
+      currency: Currency_enum.UNDEFINED,
       intercompanyInfo__VsUnitId: '',
       value: new Big(0),
       writingValue: new Big(0),

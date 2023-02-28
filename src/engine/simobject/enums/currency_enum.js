@@ -1,12 +1,12 @@
 import { deepFreeze } from '../../../lib/obj_utils.js';
 
-export const currency_enum =
+export const Currency_enum =
   {
     UNDEFINED: "UNDEFINED",
     EUR: "EUR",
     USD: "USD"
   };
-deepFreeze(currency_enum);
+deepFreeze(Currency_enum);
 
 // @ts-ignore
-export const currency_enum_validation = Object.keys(currency_enum).map(key => currency_enum[key]);
+export const Currency_enum_validation = Object.keys(Currency_enum).map(key => Currency_enum[key]);

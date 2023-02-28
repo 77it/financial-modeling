@@ -1,7 +1,7 @@
 export { simObjectJsonDumpDto_Validation };
 
 import { DoubleEntrySide_enum_validation } from '../enums/DoubleEntrySide_enum.js';
-import { currency_enum_validation } from '../enums/currency_enum.js';
+import { Currency_enum_validation } from '../enums/currency_enum.js';
 import { sanitization } from '../../../deps.js';
 
 /**
@@ -27,7 +27,7 @@ const simObjectJsonDumpDto_Validation = {
   // the values are always positive, also debts and costs, then this is the sign/side (debit/credit, left/right) and the type (BS/IS) of the voice
   doubleEntrySide: DoubleEntrySide_enum_validation,
 
-  currency: currency_enum_validation,
+  currency: Currency_enum_validation,
 
   intercompanyInfo__VsUnitId: sanitization.STRING_TYPE,
 
