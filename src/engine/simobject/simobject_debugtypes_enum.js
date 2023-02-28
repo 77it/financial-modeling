@@ -6,7 +6,7 @@ Because we took inspiration from the JavaScript console object, which has 4 meth
 console.debug, console.info, console.warn, console.error
 (see https://developer.mozilla.org/en-US/docs/Web/API/console)
  */
-export const SIMOBJECTDEBUGTYPES_ENUM = {
+export const SimObjectDebugTypes_enum = {
   DEBUG_DEBUG: "DEBUG_DEBUG",
   DEBUG_INFO: "DEBUG_INFO",
   DEBUG_WARNING: "DEBUG_WARNING",
@@ -18,7 +18,7 @@ export const SIMOBJECTDEBUGTYPES_ENUM = {
    */
   DEBUG_ERROR: "DEBUG_ERROR"
 }
-deepFreeze(SIMOBJECTDEBUGTYPES_ENUM);
+deepFreeze(SimObjectDebugTypes_enum);
 
 // @ts-ignore
-export const SIMOBJECTDEBUGTYPES_ENUM_VALIDATION = Object.keys(SIMOBJECTDEBUGTYPES_ENUM).map(key => SIMOBJECTDEBUGTYPES_ENUM[key]);
+export const SimObjectDebugTypes_enum_VALIDATION = Object.keys(SimObjectDebugTypes_enum).map(key => SimObjectDebugTypes_enum[key]);
