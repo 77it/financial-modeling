@@ -1,11 +1,11 @@
 ﻿import { deepFreeze } from '../../lib/obj_utils.js';
 
-export const SIMOBJECTTYPESEXCLUDEDFROMLEDGER_ENUM = {
+export const SimObjectTypesExcludedFromLedger_enum = {
   DEBUG: "DEBUG_",
   EXTRA: "EXTRA_"
 }
-deepFreeze(SIMOBJECTTYPESEXCLUDEDFROMLEDGER_ENUM);
+deepFreeze(SimObjectTypesExcludedFromLedger_enum);
 
 // @ts-ignore
-export const SIMOBJECTTYPESEXCLUDEDFROMLEDGER_ENUM_VALIDATION =
-  Object.keys(SIMOBJECTTYPESEXCLUDEDFROMLEDGER_ENUM).map(key => SIMOBJECTTYPESEXCLUDEDFROMLEDGER_ENUM[key]);
+export const SimObjectTypesExcludedFromLedger_enum_VALIDATION =
+  Object.keys(SimObjectTypesExcludedFromLedger_enum).map(key => SimObjectTypesExcludedFromLedger_enum[key]);
