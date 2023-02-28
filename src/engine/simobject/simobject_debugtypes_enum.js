@@ -21,4 +21,4 @@ export const SimObjectDebugTypes_enum = {
 deepFreeze(SimObjectDebugTypes_enum);
 
 // @ts-ignore
-export const SimObjectDebugTypes_enum_VALIDATION = Object.keys(SimObjectDebugTypes_enum).map(key => SimObjectDebugTypes_enum[key]);
+export const SimObjectDebugTypes_enum_validation = Object.keys(SimObjectDebugTypes_enum).map(key => SimObjectDebugTypes_enum[key]);

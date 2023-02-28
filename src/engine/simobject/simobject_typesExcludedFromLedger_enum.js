@@ -7,5 +7,5 @@ export const SimObjectTypesExcludedFromLedger_enum = {
 deepFreeze(SimObjectTypesExcludedFromLedger_enum);
 
 // @ts-ignore
-export const SimObjectTypesExcludedFromLedger_enum_VALIDATION =
+export const SimObjectTypesExcludedFromLedger_enum_validation =
   Object.keys(SimObjectTypesExcludedFromLedger_enum).map(key => SimObjectTypesExcludedFromLedger_enum[key]);

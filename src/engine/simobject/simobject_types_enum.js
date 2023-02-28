@@ -112,4 +112,4 @@ MEMO__DATAFROMSIMULATION_DIVIDENDSPAYOUT : "MEMO__DATAFROMSIMULATION_DIVIDENDSPA
 deepFreeze(SimObjectTypes_enum);
 
 // @ts-ignore
-export const SimObjectTypes_enum_VALIDATION = Object.keys(SimObjectTypes_enum).map(key => SimObjectTypes_enum[key]);
+export const SimObjectTypes_enum_validation = Object.keys(SimObjectTypes_enum).map(key => SimObjectTypes_enum[key]);
