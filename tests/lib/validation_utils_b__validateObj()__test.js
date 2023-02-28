@@ -65,32 +65,32 @@ Deno.test('test validateObj(), not valid, any type is null', () => {
   assert(_error.includes('a = null, must be !== null or undefined'));
 });
 
-Deno.test('test validateObj(), valid, complex object', () => {
+Deno.test('test validateObj(), valid, complex object, names with and without quotes', () => {
   const objToValidate = {
-    str: 'string',
-    num: 123,
-    bool: false,
-    date: new Date('1999-12-31T23:59:59'),
-    enum: 'aaa',
+    'str': 'string',
+    'num': 123,
+    'bool': false,
+    'date': new Date('1999-12-31T23:59:59'),
+    'enum': 'aaa',
     //enumWithUndefined: missing, must pass because the array contains undefined
-    arr: [
+    'arr': [
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }],
-    arrStr: [ 'a', 'b' ],
-    arrNum: [ 99, 0, 55 ],
-    arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ],
-    arrBool: [ false, true ],
-    arrObj: [ {a: 0}, {b: 'b'} ],
-    arrBoolEmpty: [ ],
-    obj: { a: 999 },
-    fun: () => {console.log('mamma');},
-    any: 999,
-    symbol: Symbol(),
-    big_js: new Big(10),
-    big_js_number: new Big(10),
-    arrBig_js: [ new Big(10), new Big(9), Big(0) ],
-    arrBig_js_number: [ new Big(10), new Big(9), Big(0) ],
-    extraValueNotValidated: 999
+    'arrStr': [ 'a', 'b' ],
+    'arrNum': [ 99, 0, 55 ],
+    'arrDate': [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ],
+    'arrBool': [ false, true ],
+    'arrObj': [ {a: 0}, {b: 'b'} ],
+    'arrBoolEmpty': [ ],
+    'obj': { a: 999 },
+    'fun': () => {console.log('mamma');},
+    'any': 999,
+    'symbol': Symbol(),
+    'big_js': new Big(10),
+    'big_js_number': new Big(10),
+    'arrBig_js': [ new Big(10), new Big(9), Big(0) ],
+    'arrBig_js_number': [ new Big(10), new Big(9), Big(0) ],
+    'extraValueNotValidated': 999
   };
 
   const validation = {
