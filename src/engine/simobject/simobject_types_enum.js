@@ -1,6 +1,6 @@
 ﻿import { deepFreeze } from '../../lib/obj_utils.js';
 
-export const SIMOBJECTTYPES_ENUM = {
+export const SimObjectTypes_enum = {
 //#region SimObjectTypes_All__codeid_EXTERNAL
 BS_CASH__BANKACCOUNT_FINANCIALACCOUNT : "BS_CASH__BANKACCOUNT_FINANCIALACCOUNT",  // (ITA) Depositi_bancari_e_postali
 BS_CREDIT__ACCRUALSCREDITS : "BS_CREDIT__ACCRUALSCREDITS",  // (ITA) Ratei_attivi
@@ -109,7 +109,7 @@ MEMO__DATAFROMSIMULATION_DIVIDENDSPAYOUT : "MEMO__DATAFROMSIMULATION_DIVIDENDSPA
 // skip
 //#endregion SimObjectTypes_All__codeid_EXTERNAL
 }
-deepFreeze(SIMOBJECTTYPES_ENUM);
+deepFreeze(SimObjectTypes_enum);
 
 // @ts-ignore
-export const SIMOBJECTTYPES_ENUM_VALIDATION = Object.keys(SIMOBJECTTYPES_ENUM).map(key => SIMOBJECTTYPES_ENUM[key]);
+export const SimObjectTypes_enum_VALIDATION = Object.keys(SimObjectTypes_enum).map(key => SimObjectTypes_enum[key]);
