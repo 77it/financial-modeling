@@ -98,7 +98,7 @@ Registra const di simulazione `$.CashManager`
 
 At EOD, transfer excess cash from Unit to Unit, following rules taken from some input tables.
 
-Va eseguito prima di Treasury (in modo da consentire a Treasury il calcolo degli interessi suoi conti correnti
+Va eseguito prima di Treasury (in modo da consentire a Treasury il calcolo degli interessi suoi conti correnti)
 
 
 # tax manager module
