@@ -34,6 +34,12 @@ _describe('addMonths', () => {
         assert.equal(result, new Date(2015, 1 /* Feb */, 28))
     })
 
+    it('[LEAP YEAR / anno bisestile] works well if the desired month has fewer days and the provided date is in the last day of a month', () => {
+        const date = new Date(2023, 11 /* Dec */, 31)
+        const result = addMonths(date, 2)
+        assert.equal(result, new Date(2024, 1 /* Feb */, 29))
+    })
+
     it('handles dates before 100 AD', () => {
         const initialDate = new Date(0)
         initialDate.setFullYear(0, 0 /* Jan */, 31)

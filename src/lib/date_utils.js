@@ -42,63 +42,83 @@ function isValidDate (value) {
  * Any other input type or invalid date strings will return an `Invalid Date`.
  *
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
+ * @param {*} [p] [p.asUTC=true] If true, the date will be parsed as UTC, otherwise as local time
  * @returns {Date} the parsed date in the local time zone
  */
-function parseJSON (argument) {
+function parseJSON (argument, p) {
+  const _asUTC = p?.asUTC ?? true;
+
+  // match YYYY-MM-DDTHH:MM:SS.MMMZ
   const parts = argument.trim().match(
     /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/
   );
+  // match YYYY-MM-DD
   const partsYYYYMMDD_minus = argument.trim().match(
     /^(\d{4})-(\d{2})-(\d{2})$/
   );
+  // match YYYY/MM/DD
   const partsYYYYMMDD_slash = argument.trim().match(
     /^(\d{4})\/(\d{2})\/(\d{2})$/
   );
+  // match YYYY.MM.DD
   const partsYYYYMMDD_dot = argument.trim().match(
     /^(\d{4})\.(\d{2})\.(\d{2})$/
   );
   if (parts) {
     // Group 8 matches the sign
-    return new Date(
-      Date.UTC(
-        +parts[1],
-        +parts[2] - 1,
-        +parts[3],
-        +parts[4] - (+parts[9] || 0) * (parts[8] === '-' ? -1 : 1),
-        +parts[5] - (+parts[10] || 0) * (parts[8] === '-' ? -1 : 1),
-        +parts[6],
-        +((parts[7] || '0') + '00').substring(0, 3)
-      )
+    return _newDate(
+      +parts[1],
+      +parts[2] - 1,
+      +parts[3],
+      +parts[4] - (+parts[9] || 0) * (parts[8] === '-' ? -1 : 1),
+      +parts[5] - (+parts[10] || 0) * (parts[8] === '-' ? -1 : 1),
+      +parts[6],
+      +((parts[7] || '0') + '00').substring(0, 3)
     );
   } else if (partsYYYYMMDD_minus) {
     // YYYY-MM-DD date
-    return new Date(
-      Date.UTC(
-        +partsYYYYMMDD_minus[1],
-        +partsYYYYMMDD_minus[2] - 1,
-        +partsYYYYMMDD_minus[3]
-      )
+    return _newDate(
+      +partsYYYYMMDD_minus[1],
+      +partsYYYYMMDD_minus[2] - 1,
+      +partsYYYYMMDD_minus[3]
     );
   } else if (partsYYYYMMDD_slash) {
     // YYYY/MM/DD date
-    return new Date(
-      Date.UTC(
-        +partsYYYYMMDD_slash[1],
-        +partsYYYYMMDD_slash[2] - 1,
-        +partsYYYYMMDD_slash[3]
-      )
+    return _newDate(
+      +partsYYYYMMDD_slash[1],
+      +partsYYYYMMDD_slash[2] - 1,
+      +partsYYYYMMDD_slash[3]
     );
   } else if (partsYYYYMMDD_dot) {
     // YYYY.MM.DD date
-    return new Date(
-      Date.UTC(
-        +partsYYYYMMDD_dot[1],
-        +partsYYYYMMDD_dot[2] - 1,
-        +partsYYYYMMDD_dot[3]
-      )
+    return _newDate(
+      +partsYYYYMMDD_dot[1],
+      +partsYYYYMMDD_dot[2] - 1,
+      +partsYYYYMMDD_dot[3]
     );
   }
   return new Date(NaN);
+
+  //#region local functions
+  /**
+   * @param {number} year
+   * @param {number} month
+   * @param {number} date
+   * @param {number} [hours=0]
+   * @param {number} [minutes=0]
+   * @param {number} [seconds=0]
+   * @param {number} [ms=0]
+   * @returns {Date}
+   * @private
+   */
+  function _newDate (year, month, date, hours = 0, minutes = 0, seconds = 0, ms = 0) {
+    if (_asUTC) {
+      return new Date(Date.UTC(year, month, date, hours, minutes, seconds, ms));
+    }
+    return new Date(year, month, date, hours, minutes, seconds, ms);
+  }
+
+  //#endregion local functions
 }
 
 // Inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/index.ts (MIT license)
@@ -229,7 +249,6 @@ function excelSerialDateToUTCDate (excelSerialDate) {
   }
 }
 
-
 // inspired to https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts
 /**
  * @name addMonths
@@ -244,11 +263,11 @@ function excelSerialDateToUTCDate (excelSerialDate) {
  * @returns {Date} the new date with the months added
  *
  * @example
- * // Add 5 months to 1 September 2014:
- * const result = addMonths(new Date(2014, 8, 1), 5)
- * //=> Sun Feb 01 2015 00:00:00
+ * Add 5 months to 2014/09/01 => 2015/02/01
+ * Add 2 months to 2014/12/31 => 2015/02/28
+ * Add 2 months to 2023/12/31 => 2024/02/29  // leap year
  */
-function addMonths(
+function addMonths (
   date,
   amount) {
   const _date = new Date(date);
