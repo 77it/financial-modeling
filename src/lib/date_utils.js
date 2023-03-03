@@ -1,4 +1,8 @@
-export { isValidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate, addMonths };
+export { isValidDate };
+export { parseJSON };
+export { differenceInCalendarDays, differenceInUTCCalendarDays };
+export { excelSerialDateToUTCDate, excelSerialDateToDate };
+export { addMonths };
 
 /**
  * To check whether the date is valid
@@ -244,6 +248,23 @@ function differenceInUTCCalendarDays (
 function excelSerialDateToUTCDate (excelSerialDate) {
   try {
     return new Date(Date.UTC(0, 0, excelSerialDate - 1));  // See https://stackoverflow.com/a/67130235/5288052
+  } catch (_) {
+    return new Date(NaN);
+  }
+}
+
+/**
+ * @description
+ * Convert Excel serial date (1900 date system) to date.
+ * If conversion fails, return an invalid date.
+ * See https://docs.microsoft.com/en-us/office/troubleshoot/excel/1900-and-1904-date-system
+ *
+ * @param {number} excelSerialDate
+ * @returns {Date} the converted date
+ */
+function excelSerialDateToDate (excelSerialDate) {
+  try {
+    return new Date(0, 0, excelSerialDate - 1);  // See https://stackoverflow.com/a/67130235/5288052
   } catch (_) {
     return new Date(NaN);
   }

@@ -1,4 +1,4 @@
-import {isValidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate} from '../../src/lib/date_utils.js';
+import {isValidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate, excelSerialDateToDate} from '../../src/lib/date_utils.js';
 
 import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
 import {describe, it} from "https://deno.land/std@0.139.0/testing/bdd.ts";
@@ -427,5 +427,15 @@ _describe('excelSerialDateToUTCDate', () => {
         assertEquals(excelSerialDateToUTCDate(28384), new Date(Date.UTC(1977, 8, 16, 0, 0, 0)));
         assertEquals(excelSerialDateToUTCDate(44920), new Date(Date.UTC(2022, 11, 25, 0, 0, 0)));
         assertEquals(excelSerialDateToUTCDate(NaN), new Date(NaN));
+    })
+})
+
+
+_describe('excelSerialDateToDate', () => {
+    it('tests', () => {
+        assertEquals(excelSerialDateToDate(367), new Date(1901, 0, 1, 0, 0, 0));
+        assertEquals(excelSerialDateToDate(28384), new Date(1977, 8, 16, 0, 0, 0));
+        assertEquals(excelSerialDateToDate(44920), new Date(2022, 11, 25, 0, 0, 0));
+        assertEquals(excelSerialDateToDate(NaN), new Date(NaN));
     })
 })
