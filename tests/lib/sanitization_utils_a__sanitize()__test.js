@@ -9,6 +9,9 @@ import {
 } from '../deps.js';
 
 Deno.test('test sanitize()', async (t) => {
+  // set sanitization option to UTC date
+  S.OPTIONS.DATE_UTC = true;
+
   await t.step('any type', async () => {
     const t = S.ANY_TYPE;
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t }));
@@ -76,7 +79,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(true, S.sanitize({ value: 999, sanitization: t2 }));
   });
 
-  await t.step('date type with default option number To Date (OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)', async () => {
+  await t.step('date type with default option number To UTC Date (OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)', async () => {
     const t = S.DATE_TYPE;
     assertEquals(new Date(0), S.sanitize({ value: undefined, sanitization: t }));
     assertEquals(new Date(0), S.sanitize({ value: null, sanitization: t }));
@@ -92,6 +95,24 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(new Date(Date.UTC(2022, 11, 25)), S.sanitize({ value: 44920, sanitization: t2 }));
+  });
+
+  await t.step('date type with default option number To local Date (OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)', async () => {
+    // set sanitization option to local date
+    S.OPTIONS.DATE_UTC = false;
+
+    const t = S.DATE_TYPE;
+    assertEquals(new Date(2022, 11, 25), S.sanitize({ value: 44920, sanitization: t }));
+    assertEquals(new Date(2022, 11, 25), S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
+    assertEquals(new Date(2022, 11, 25, 0, 0, 0), S.sanitize({ value: '2022-12-25T00:00:00.000Z', sanitization: t }));
+    assertEquals(new Date(2022, 11, 25, 0, 0, 0), S.sanitize({ value: '2022-12-25', sanitization: t }));
+    assertEquals(new Date(0), S.sanitize({ value: new Date(NaN), sanitization: t }));
+
+    const t2 = t + '?';
+    assertEquals(new Date(2022, 11, 25), S.sanitize({ value: 44920, sanitization: t2 }));
+
+    // reset sanitization option to UTC date
+    S.OPTIONS.DATE_UTC = true;
   });
 
   await t.step('date type with option number To Date OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE', async () => {
@@ -200,10 +221,12 @@ Deno.test('test sanitize()', async (t) => {
 
   await t.step('array of dates type', async () => {
     const t = S.ARRAY_OF_DATES_TYPE;
-    assertEquals([new Date(2022, 11, 25), new Date(Date.UTC(2022, 11, 25, 0, 0, 0)), new Date(Date.UTC(2022, 11, 25, 0, 0, 0))], S.sanitize({
-      value: [new Date(2022, 11, 25), '2022-12-25T00:00:00.000Z', '2022-12-25'],
-      sanitization: t
-    }));
+    assertEquals(
+      [new Date(2022, 11, 25), new Date(Date.UTC(2022, 11, 25, 0, 0, 0)), new Date(Date.UTC(2022, 11, 25, 0, 0, 0))],
+      S.sanitize({
+        value: [new Date(2022, 11, 25), '2022-12-25T00:00:00.000Z', '2022-12-25'],
+        sanitization: t
+      }));
     assertEquals([new Date(Date.UTC(2022, 11, 25)), new Date(Date.UTC(1975, 0, 1)), new Date(0)], S.sanitize({ value: [44920, 27395, 'a'], sanitization: t }));
     assertEquals([new Date(0)], S.sanitize({ value: undefined, sanitization: t }));
     assertEquals([new Date(0)], S.sanitize({ value: null, sanitization: t }));

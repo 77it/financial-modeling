@@ -1,6 +1,6 @@
 export { sanitize, sanitizeObj };
 
-import { parseJSON, excelSerialDateToUTCDate } from './date_utils.js';
+import { parseJSON, excelSerialDateToDate, excelSerialDateToUTCDate } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
 import { deepFreeze } from './obj_utils.js';
 import { Big } from '../deps.js';
@@ -33,6 +33,7 @@ OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE = 'NUMBER_TO_DATE__EXCEL_1900
 OPTIONS.NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE = 'NUMBER_TO_DATE__JS_SERIAL_DATE';
 OPTIONS.NUMBER_TO_DATE_OPTS.NO_CONVERSION = 'NUMBER_TO_DATE__NO_CONVERSION';
 OPTIONS.NUMBER_TO_DATE = OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
+OPTIONS.DATE_UTC = false;
 deepFreeze(OPTIONS.NUMBER_TO_DATE_OPTS);
 //#endregion settings
 
@@ -45,8 +46,8 @@ deepFreeze(OPTIONS.NUMBER_TO_DATE_OPTS);
  * Any, object, function, class are ignored and returned as is.
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
- * String to dates are parsed as JSON to UTC dates
- * Number to dates are considered Excel serial dates (stripping hours, in UTC)
+ * String to dates are parsed as JSON to dates (in local time or UTC, depending on OPTIONS.DATE_UTC).
+ * Number to dates are considered Excel serial dates (stripping hours)
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
  * @param {*} p.sanitization - Sanitization type (string or array)
@@ -113,12 +114,16 @@ function sanitize ({ value, sanitization, validate = false }) {
     case DATE_TYPE:
       try {
         let _value = value;
-        if (typeof value === 'string')  // if `value` is string, replace it with a UTC date from a parsed string
-          _value = parseJSON(value);
-        else if (typeof value === 'number')  // if `value` is number, convert it as Excel serial date
+        if (typeof value === 'string')  // if `value` is string, replace it with a date from a parsed string; date in local time or UTC
+          _value = parseJSON(value, {asUTC: OPTIONS.DATE_UTC});
+        else if (typeof value === 'number')  // if `value` is number, convert it as Excel serial date to date in local time or UTC
         {
-          if (OPTIONS.NUMBER_TO_DATE === OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE)
-            _value = excelSerialDateToUTCDate(value);
+          if (OPTIONS.NUMBER_TO_DATE === OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE) {
+            if (OPTIONS.DATE_UTC)
+              _value = excelSerialDateToUTCDate(value);
+            else
+              _value = excelSerialDateToDate(value);
+          }
           else if (OPTIONS.NUMBER_TO_DATE === OPTIONS.NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE)
             _value = new Date(value);
           else

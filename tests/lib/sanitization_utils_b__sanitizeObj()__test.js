@@ -43,6 +43,35 @@ Deno.test('test sanitizeObj()', async (t) => {
     assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
   });
 
+  await t.step('complex type, local date', async () => {
+    const objToSanitize = {
+      date: '1999-12-31T23:59:59',
+      arrDate: ['1999-12-31T23:59:59', new Date('2020-12-31T23:59:59')],
+      arrDate2: '1999-12-31T23:59:59',
+    };
+
+    const expObj = {
+      date: parseJSON('1999-12-31T23:59:59', {asUTC: false}),
+      arrDate: [parseJSON('1999-12-31T23:59:59', {asUTC: false}), new Date('2020-12-31T23:59:59')],
+      arrDate2: [parseJSON('1999-12-31T23:59:59', {asUTC: false})],
+      extraValueMissingRequiredDate: new Date(0),
+    };
+
+    const sanitization = {
+      date: S.DATE_TYPE,
+      arrDate: S.ARRAY_OF_DATES_TYPE,
+      arrDate2: S.ARRAY_OF_DATES_TYPE,
+      extraValueMissingRequiredDate: S.DATE_TYPE,
+    };
+
+    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization })), JSON.stringify(expObj));
+
+    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
+  });
+
+  // set sanitization option to UTC date
+  S.OPTIONS.DATE_UTC = true;
+
   await t.step('complex type + validate=true test', async () => {
     const _fun = () => {console.log('mamma');};
     const _sym = Symbol();
@@ -143,7 +172,9 @@ Deno.test('test sanitizeObj()', async (t) => {
     assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization })), JSON.stringify(expObj));
 
     assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
+  });
 
+  await t.step('enum type', async () => {
     // test undefined with enum type
     assertEquals(JSON.stringify(S.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
 
