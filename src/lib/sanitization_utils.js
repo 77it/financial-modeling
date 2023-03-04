@@ -1,4 +1,4 @@
-export { sanitize, sanitizeObj };
+export { sanitize, sanitizeObj, resetOptions };
 
 import { parseJSON, excelSerialDateToDate, excelSerialDateToUTCDate } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
@@ -39,6 +39,12 @@ OPTIONS.NUMBER_TO_DATE = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
 OPTIONS.DATE_UTC = false;  // if true, dates are converted to UTC
 
 //#endregion module options
+
+/** Reset module options to default values */
+function resetOptions () {
+  OPTIONS.NUMBER_TO_DATE = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
+  OPTIONS.DATE_UTC = false;
+}
 
 /**
  * Sanitize value.

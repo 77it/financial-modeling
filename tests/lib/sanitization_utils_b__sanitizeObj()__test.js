@@ -1,5 +1,5 @@
 import * as S from '../../src/lib/sanitization_utils.js';
-import { parseJSON } from '../../src/lib/date_utils.js';
+import { parseJSON, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
 import { Big } from '../../src/deps.js';
 
 import {
@@ -46,12 +46,18 @@ Deno.test('test sanitizeObj()', async (t) => {
   await t.step('complex type, local date', async () => {
     const objToSanitize = {
       date: '1999-12-31T23:59:59',
+      date2: '1999-12-31',
+      date3: '2022-12-25T00:00:00.000Z',
+      date4_fromExcelSerialDate: 44920,
       arrDate: ['1999-12-31T23:59:59', new Date('2020-12-31T23:59:59')],
       arrDate2: '1999-12-31T23:59:59',
     };
 
     const expObj = {
       date: parseJSON('1999-12-31T23:59:59', {asUTC: false}),
+      date2: parseJSON('1999-12-31', {asUTC: false}),
+      date3: parseJSON('2022-12-25T00:00:00.000Z', {asUTC: false}),
+      date4_fromExcelSerialDate: excelSerialDateToDate(44920),
       arrDate: [parseJSON('1999-12-31T23:59:59', {asUTC: false}), new Date('2020-12-31T23:59:59')],
       arrDate2: [parseJSON('1999-12-31T23:59:59', {asUTC: false})],
       extraValueMissingRequiredDate: new Date(0),
@@ -59,6 +65,9 @@ Deno.test('test sanitizeObj()', async (t) => {
 
     const sanitization = {
       date: S.DATE_TYPE,
+      date2: S.DATE_TYPE,
+      date3: S.DATE_TYPE,
+      date4_fromExcelSerialDate: S.DATE_TYPE,
       arrDate: S.ARRAY_OF_DATES_TYPE,
       arrDate2: S.ARRAY_OF_DATES_TYPE,
       extraValueMissingRequiredDate: S.DATE_TYPE,
@@ -69,10 +78,9 @@ Deno.test('test sanitizeObj()', async (t) => {
     assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
   });
 
-  // set sanitization option to UTC date
-  S.OPTIONS.DATE_UTC = true;
-
   await t.step('complex type + validate=true test', async () => {
+    S.OPTIONS.DATE_UTC = true;  // set sanitization option to UTC date
+
     const _fun = () => {console.log('mamma');};
     const _sym = Symbol();
 
@@ -81,6 +89,9 @@ Deno.test('test sanitizeObj()', async (t) => {
       num: '123',
       bool: 0,
       date: '1999-12-31T23:59:59',
+      date2: '1999-12-31',
+      date3: '2022-12-25T00:00:00.000Z',
+      date4_fromExcelSerialDate: 44920,
       enum: 'mamma',
       arr: 999,
       arrStr: [0, 'b'],
@@ -109,6 +120,9 @@ Deno.test('test sanitizeObj()', async (t) => {
       num: 123,
       bool: false,
       date: parseJSON('1999-12-31T23:59:59'),
+      date2: parseJSON('1999-12-31'),
+      date3: parseJSON('2022-12-25T00:00:00.000Z'),
+      date4_fromExcelSerialDate: excelSerialDateToUTCDate(44920),
       enum: 'mamma',
       arr: [999],
       arrStr: ['0', 'b'],
@@ -141,6 +155,9 @@ Deno.test('test sanitizeObj()', async (t) => {
       num: S.NUMBER_TYPE,
       bool: S.BOOLEAN_TYPE,
       date: S.DATE_TYPE,
+      date2: S.DATE_TYPE,
+      date3: S.DATE_TYPE,
+      date4_fromExcelSerialDate: S.DATE_TYPE,
       enum: ['mamma', 'pappa'],
       arr: S.ARRAY_TYPE,
       arrStr: S.ARRAY_OF_STRINGS_TYPE,
@@ -172,6 +189,8 @@ Deno.test('test sanitizeObj()', async (t) => {
     assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization })), JSON.stringify(expObj));
 
     assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
+
+    S.resetOptions();
   });
 
   await t.step('enum type', async () => {
