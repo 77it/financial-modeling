@@ -26,16 +26,19 @@ export const ARRAY_OF_BIGJS_TYPE = 'array[big_js]';
 export const ARRAY_OF_BIGJS_NUMBER_TYPE = 'array[big_js_number]';
 //#endregion types
 
-//#region settings
+export const NUMBER_TO_DATE_OPTS = {
+  EXCEL_1900_SERIAL_DATE: 'NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE',
+  JS_SERIAL_DATE: 'NUMBER_TO_DATE__JS_SERIAL_DATE',
+  NO_CONVERSION: 'NUMBER_TO_DATE__NO_CONVERSION'
+};
+deepFreeze(NUMBER_TO_DATE_OPTS);
+
+//#region module options
 export const OPTIONS = {};
-OPTIONS.NUMBER_TO_DATE_OPTS = {};
-OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE = 'NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE';
-OPTIONS.NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE = 'NUMBER_TO_DATE__JS_SERIAL_DATE';
-OPTIONS.NUMBER_TO_DATE_OPTS.NO_CONVERSION = 'NUMBER_TO_DATE__NO_CONVERSION';
-OPTIONS.NUMBER_TO_DATE = OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
-OPTIONS.DATE_UTC = false;
-deepFreeze(OPTIONS.NUMBER_TO_DATE_OPTS);
-//#endregion settings
+OPTIONS.NUMBER_TO_DATE = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
+OPTIONS.DATE_UTC = false;  // if true, dates are converted to UTC
+
+//#endregion module options
 
 /**
  * Sanitize value.
@@ -58,8 +61,7 @@ function sanitize ({ value, sanitization, validate = false }) {
   if (typeof sanitization !== 'string' && !Array.isArray(sanitization))
     throw new Error(`'sanitization' parameter must be a string or an array`);
 
-  if (Array.isArray(sanitization))
-  {
+  if (Array.isArray(sanitization)) {
     if (validate)
       return validateFunc({ value: value, validation: sanitization });
     else
@@ -70,10 +72,7 @@ function sanitize ({ value, sanitization, validate = false }) {
   let sanitizationType = sanitization.toString().trim().toLowerCase();
   if (sanitization.trim().slice(-1) === '?') {  // set optional sanitization flag
     optionalSanitization = true;
-    sanitizationType = sanitization.toString().
-      trim().
-      toLowerCase().
-      slice(0, -1);
+    sanitizationType = sanitization.toString().trim().toLowerCase().slice(0, -1);
   }
 
   if (value == null && optionalSanitization) {  // if value to sanitize is null/undefined and sanitization is optional, return value without sanitization
@@ -115,16 +114,15 @@ function sanitize ({ value, sanitization, validate = false }) {
       try {
         let _value = value;
         if (typeof value === 'string')  // if `value` is string, replace it with a date from a parsed string; date in local time or UTC
-          _value = parseJSON(value, {asUTC: OPTIONS.DATE_UTC});
+          _value = parseJSON(value, { asUTC: OPTIONS.DATE_UTC });
         else if (typeof value === 'number')  // if `value` is number, convert it as Excel serial date to date in local time or UTC
         {
-          if (OPTIONS.NUMBER_TO_DATE === OPTIONS.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE) {
+          if (OPTIONS.NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE) {
             if (OPTIONS.DATE_UTC)
               _value = excelSerialDateToUTCDate(value);
             else
               _value = excelSerialDateToDate(value);
-          }
-          else if (OPTIONS.NUMBER_TO_DATE === OPTIONS.NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE)
+          } else if (OPTIONS.NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE)
             _value = new Date(value);
           else
             _value = new Date(0);
