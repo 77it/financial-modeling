@@ -77,7 +77,7 @@ class Ledger {
   /**
    * Set the debug flag to true.
    */
-  setDebug () {
+  setDebugLevel () {
     this.#debug = true;
   }
 

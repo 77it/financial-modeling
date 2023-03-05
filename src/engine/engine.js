@@ -57,22 +57,22 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     //#region call all modules, one time
     for (let i = 0; i < _modulesArray.length; i++) {
       if (_modulesArray[i].alive) {
-        _ledger.setCurrentModuleData(_moduleDataArray[i]);
+        setCurrentModuleData({ moduleData: _moduleDataArray[i], ledger: _ledger, drivers: _drivers, sharedConstants: _sharedConstants });
         // TODO NOW NOW NOW NOW
         checkOpenTransaction({ ledger: _ledger, moduleData: _moduleDataArray[i] });
       }
     }
     //#endregion call all modules, one time
 
-    // TODO setDebug, reading debug SHAREDCONSTANTS_RESERVEDNAMES.SIMULATION__DEBUG_FLAG
-    _ledger.setDebug();
+    // TODO setDebugLevel, reading debug SHAREDCONSTANTS_RESERVEDNAMES.SIMULATION__DEBUG_FLAG
+    _ledger.setDebugLevel();
 
     // TODO NOW: call all modules, every day, until the end of the simulation
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
     for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
       for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
-          _ledger.setCurrentModuleData(_moduleDataArray[i]);
+          setCurrentModuleData({ moduleData: _moduleDataArray[i], ledger: _ledger, drivers: _drivers, sharedConstants: _sharedConstants });
           // TODO NOW NOW NOW NOW
           checkOpenTransaction({ ledger: _ledger, moduleData: _moduleDataArray[i] });
         }
@@ -110,6 +110,19 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
   function checkOpenTransaction ({ ledger, moduleData }) {
     if (ledger.transactionIsOpen())
       throw new Error(`after calling module ${moduleData.moduleName} ${moduleData.moduleEngineURI}  a transaction is open`);
+  }
+
+  /** Set the current module data
+   * @param {Object} p
+   * @param {ModuleData} p.moduleData
+   * @param {Ledger} p.ledger
+   * @param {Drivers} p.drivers
+   * @param {SharedConstants} p.sharedConstants
+   */
+  function setCurrentModuleData ({ moduleData, ledger, drivers, sharedConstants }) {
+    ledger.setCurrentModuleData(moduleData);
+    drivers.setCurrentModuleData(moduleData);
+    sharedConstants.setCurrentModuleData(moduleData);
   }
 
   //#endregion local functions

@@ -1,5 +1,8 @@
 ﻿export { SharedConstants };
 
+import { validateObj } from '../../deps.js';
+import { ModuleData } from '../modules/module_data.js';
+
 // TODO
 /*
 if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
@@ -10,9 +13,17 @@ class SharedConstants {
   /** Map to store SharedConstants: XXX id as string key, * as value.
    * @type {Map<String, *>} */
   #sharedConstantsRepo;
+  /** @type {null|ModuleData} */
+  #currentModuleData;
 
   constructor () {
     this.#sharedConstantsRepo = new Map();
+    this.#currentModuleData = null;
+  }
+
+  /** @param {ModuleData} moduleData */
+  setCurrentModuleData (moduleData) {
+    this.#currentModuleData = moduleData;
   }
 
   /**
@@ -23,6 +34,7 @@ class SharedConstants {
    * @param {*} p.value - SharedConstant value
    */
   sharedConstantSet ({ namespace = '$', name, value }) {
+    validateObj({ obj: { namespace, name, value }, validation: { namespace: 'string', name: 'string', value: 'function' } });
     // TODO not implemented
     throw new Error('not implemented');
   }
