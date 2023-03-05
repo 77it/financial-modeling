@@ -5,6 +5,7 @@ import { Big } from '../../src/deps.js';
 import {
   assert,
   assertEquals,
+  assertNotEquals,
   assertFalse,
   assertThrows,
 } from '../deps.js';
@@ -27,6 +28,28 @@ Deno.test('test sanitizeObj()', async (t) => {
     assertEquals(S.sanitizeObj({ obj: 999, sanitization: sanitization }), {});
     assertEquals(S.sanitizeObj({ obj: Symbol(), sanitization: sanitization }), {});
     assertEquals(S.sanitizeObj({ obj: TestClass, sanitization: sanitization }), {});
+  });
+
+  await t.step('FAILING can\'t sanitize single part of an object, only the entire object (can\'t sanitize a deconstructed object)', async () => {
+    const a = '0';
+    const b = '99';
+    const expObj = { a: 0, b: 99 };
+    const sanitization = { a: S.NUMBER_TYPE, b: S.NUMBER_TYPE };
+    /* `a` `b` are not sanitized */ S.sanitizeObj({ obj: { a, b }, sanitization: sanitization });
+    // @ts-ignore
+    /* FAILS */ assertNotEquals({ a, b }, expObj);
+
+    // to sanitize object parameters, there are two ways, construct another object or save the returned object
+    //
+    // 1. construct another object
+    const _p1 = { a, b };
+    S.sanitizeObj({ obj: _p1, sanitization: sanitization });
+    // @ts-ignore
+    assertEquals(_p1, expObj);
+    // 2. save the returned object
+    const _p2 = S.sanitizeObj({ obj: { a, b }, sanitization: sanitization });
+    assertEquals(_p2, expObj);
+
   });
 
   await t.step('simple object', async () => {
@@ -54,12 +77,12 @@ Deno.test('test sanitizeObj()', async (t) => {
     };
 
     const expObj = {
-      date: parseJSON('1999-12-31T23:59:59', {asUTC: false}),
-      date2: parseJSON('1999-12-31', {asUTC: false}),
-      date3: parseJSON('2022-12-25T00:00:00.000Z', {asUTC: false}),
+      date: parseJSON('1999-12-31T23:59:59', { asUTC: false }),
+      date2: parseJSON('1999-12-31', { asUTC: false }),
+      date3: parseJSON('2022-12-25T00:00:00.000Z', { asUTC: false }),
       date4_fromExcelSerialDate: excelSerialDateToDate(44920),
-      arrDate: [parseJSON('1999-12-31T23:59:59', {asUTC: false}), new Date('2020-12-31T23:59:59')],
-      arrDate2: [parseJSON('1999-12-31T23:59:59', {asUTC: false})],
+      arrDate: [parseJSON('1999-12-31T23:59:59', { asUTC: false }), new Date('2020-12-31T23:59:59')],
+      arrDate2: [parseJSON('1999-12-31T23:59:59', { asUTC: false })],
       extraValueMissingRequiredDate: new Date(0),
     };
 
@@ -111,8 +134,8 @@ Deno.test('test sanitizeObj()', async (t) => {
       symbol: _sym,
       big_js: 10,
       big_js_number: 10,
-      arrBig_js: [ 10, '9', 0 ],
-      arrBig_js_number: [ 10, '9', 0 ],
+      arrBig_js: [10, '9', 0],
+      arrBig_js_number: [10, '9', 0],
     };
 
     const expObj = {
@@ -142,8 +165,8 @@ Deno.test('test sanitizeObj()', async (t) => {
       symbol: _sym,
       big_js: new Big(10),
       big_js_number: new Big(10),
-      arrBig_js: [ new Big(10), new Big(9), Big(0) ],
-      arrBig_js_number: [ new Big(10), new Big(9), Big(0) ],
+      arrBig_js: [new Big(10), new Big(9), Big(0)],
+      arrBig_js_number: [new Big(10), new Big(9), Big(0)],
       extraValueMissingRequiredStr: '',
       extraValueMissingRequiredNum: 0,
       extraValueMissingRequiredBool: false,

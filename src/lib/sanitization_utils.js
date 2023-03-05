@@ -47,7 +47,7 @@ function resetOptions () {
 }
 
 /**
- * Sanitize value.
+ * Sanitize value returning a sanitized value without modifying the original value.
  * Accepted sanitization types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
  * For optional values (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol'.
  * For enum sanitization use an array of values (values will be ignored, optionally validated).
@@ -231,7 +231,7 @@ function sanitize ({ value, sanitization, validate = false }) {
 }
 
 /**
- * Sanitize Object.
+ * Sanitize Object, modifying it in place and returning the same object to allow chaining.
  * If obj is array, the sanitization is done on contained objects.
  * If obj is null/undefined or other non-objects returns empty object {}.
  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.

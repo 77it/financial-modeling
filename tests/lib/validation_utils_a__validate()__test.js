@@ -8,7 +8,7 @@ import {
   assertThrows,
 } from '../deps.js';
 
-Deno.test('test validate(), not valid, `any` type is undefined + personalized error message', () => {
+Deno.test('test validate(): undefined is not not valid `any` type + personalized error message', () => {
   const objToValidate = undefined;
   const validation = Validation.ANY_TYPE;
 
@@ -22,7 +22,7 @@ Deno.test('test validate(), not valid, `any` type is undefined + personalized er
   assert(_error.includes('ValX = undefined, must be !== null or undefined'));
 });
 
-Deno.test('test validate(), not valid, `any` type is null', () => {
+Deno.test('test validate(): null is not not valid `any` type + personalized error message', () => {
   const objToValidate = null;
   const validation = Validation.ANY_TYPE;
 

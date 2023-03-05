@@ -40,6 +40,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('0', S.sanitize({ value: 0, sanitization: t }));
     assertEquals('999', S.sanitize({ value: 999, sanitization: t }));
     assertEquals('', S.sanitize({ value: '', sanitization: t }));
+    assertEquals('', S.sanitize({ value: '    ', sanitization: t }));  // whitespaces are trimmed
     assertEquals('abc', S.sanitize({ value: 'abc', sanitization: t }));
     assertEquals('2022-12-24T23:00:00.000Z', S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals('', S.sanitize({ value: new Date(NaN), sanitization: t }));
@@ -48,6 +49,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals('999', S.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals('', S.sanitize({ value: '    ', sanitization: t2 }));  // whitespaces are trimmed
   });
 
   await t.step('number type + validation', async () => {

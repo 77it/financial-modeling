@@ -28,7 +28,7 @@ class Drivers {
    * @param {string} p.unit - Driver unit
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing will be set to new Date(0)
-   * @param {*} p.value - Driver value
+   * @param {number} p.value - Driver value
    */
   driverSet ({ scenario = 'base', unit, name, date, value }) {
     // TODO not implemented
@@ -42,10 +42,17 @@ class Drivers {
    * @param {string} p.unit - Driver unit
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing, returns first value
-   * @return {*} Driver
+   * @return {undefined|number} Driver; if not found, returns undefined
    */
   driverGet ({ scenario = 'base', unit, name, date }) {
     // TODO not implemented
     throw new Error('not implemented');
   }
+
+  //#region private methods
+  /** @returns {string} */
+  #getDebugModuleInfo () {
+    return `moduleName: '${this.#currentModuleData?.moduleName}', moduleEngineURI: '${this.#currentModuleData?.moduleEngineURI}', moduleSourceLocation: '${this.#currentModuleData?.moduleSourceLocation}'`;
+  }
+  //#endregion private methods
 }

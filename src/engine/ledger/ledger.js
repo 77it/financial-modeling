@@ -120,11 +120,6 @@ class Ledger {
     // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
   }
 
-  /** @returns {string} */
-  getDebugModuleInfo () {
-    return `moduleName: '${this.#currentModuleData?.moduleName}', moduleEngineURI: '${this.#currentModuleData?.moduleEngineURI}', moduleSourceLocation: '${this.#currentModuleData?.moduleSourceLocation}'`;
-  }
-
   /**
    * Add a SimObject to the transaction, keeping it open
    @param {NewSimObjectDto} newSimObjectDto
@@ -132,7 +127,7 @@ class Ledger {
   newSimObject (newSimObjectDto) {
     sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Sanitization });
 
-    const debug_moduleInfo = (this.#debug) ? this.getDebugModuleInfo() : '';
+    const debug_moduleInfo = (this.#debug) ? this.#getDebugModuleInfo() : '';
 
     const simObject = new SimObject({
       type: newSimObjectDto.type,
@@ -174,7 +169,7 @@ class Ledger {
   newDebugSimObject (newDebugSimObjectDto) {
     sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Sanitization });
 
-    const debug_moduleInfo = this.getDebugModuleInfo();
+    const debug_moduleInfo = this.#getDebugModuleInfo();
 
     const simObject = new SimObject({
       type: newDebugSimObjectDto.type,
@@ -212,6 +207,11 @@ class Ledger {
   //#endregion public methods
 
   //#region private methods
+  /** @returns {string} */
+  #getDebugModuleInfo () {
+    return `moduleName: '${this.#currentModuleData?.moduleName}', moduleEngineURI: '${this.#currentModuleData?.moduleEngineURI}', moduleSourceLocation: '${this.#currentModuleData?.moduleSourceLocation}'`;
+  }
+
   //* @returns {number} */
   #getNextId () {
     return ++this.#lastId;

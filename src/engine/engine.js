@@ -72,7 +72,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
       for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
-          setCurrentModuleData({ moduleData: _moduleDataArray[i], ledger: _ledger, drivers: _drivers, sharedConstants: _sharedConstants });
+          _ledger.setCurrentModuleData(_moduleDataArray[i]);
           // TODO NOW NOW NOW NOW
           checkOpenTransaction({ ledger: _ledger, moduleData: _moduleDataArray[i] });
         }

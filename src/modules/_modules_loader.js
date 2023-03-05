@@ -1,11 +1,14 @@
 export { ModulesLoader };
 
 import { validateObj } from '../deps.js';
+import { sanitizeObj } from '../deps.js';
 import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
 
 class ModulesLoader {
   /**
-   Map to store classes: "URI/moduleName" as string key, {class: *, cdnURI: string} as value.
+   Map to store classes:
+   keys are strings made of "moduleEngineURI/moduleName" (built with `classesRepoBuildKey` method),
+   values are {class: *, cdnURI: string}.
    Beware: URI (the original module URI) is different from cdnURI (the URI from which the module is loaded)
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
@@ -40,8 +43,8 @@ class ModulesLoader {
 
     const _moduleName = p.moduleName.trim().toLowerCase();
 
-    const repoKey = this.#repoKeyBuilder(p.moduleEngineURI, _moduleName);
-    if (this.#classesRepo.get(repoKey) === undefined)
+    const repoKey = this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: _moduleName });
+    if (this.#classesRepo.has(repoKey))
       this.#classesRepo.set(repoKey, { class: p.classObj, cdnURI: '' });
     else
       throw new Error(`moduleEngineURI/moduleName already exists: ${repoKey}`);
@@ -61,20 +64,19 @@ class ModulesLoader {
 
     const _moduleName = p.moduleName.trim().toLowerCase();
 
-    const repoKey = this.#repoKeyBuilder(p.moduleEngineURI, _moduleName);
+    const repoKey = this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: _moduleName });
 
-    if (this.#classesRepo.get(repoKey) === undefined) {
+    if (this.#classesRepo.has(repoKey)) {
       let _URI = p.moduleEngineURI.trim();
       if (['', '.', '/', './', '\\', '.\\'].includes(_URI))  // If moduleEngineURI is missing or . / /. \ \., is set to ./${_moduleName}.js
         _URI = `./${_moduleName}.js`;
 
       // DYNAMIC IMPORT (works with Deno and browser)
-      let _lastImportError = "";
-      for (const _cdnURI of this.#modulesLoader_Resolve(_URI)){
+      let _lastImportError = '';
+      for (const _cdnURI of this.#modulesLoader_Resolve(_URI)) {
         try {
           const _module = (await import(_cdnURI));
-          if (_module != null && _module[this.#defaultClassName] != null)
-          {
+          if (_module != null && _module[this.#defaultClassName] != null) {
             this.#classesRepo.set(repoKey, { class: _module[this.#defaultClassName], cdnURI: _cdnURI });
             return;
           }
@@ -83,8 +85,7 @@ class ModulesLoader {
         }
       }
       throw new Error(`error loading module ${_URI}, error: ${_lastImportError}`);
-    }
-    else
+    } else
       throw new Error(`moduleEngineURI/moduleName already exists: ${repoKey}`);
   }
 
@@ -105,7 +106,7 @@ class ModulesLoader {
 
     const _moduleName = p.moduleName.trim().toLowerCase();
 
-    const _ret = this.#classesRepo.get(this.#repoKeyBuilder(p.moduleEngineURI, _moduleName));
+    const _ret = this.#classesRepo.get(this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: _moduleName }));
     if (_ret === undefined)
       return undefined;
     if (_ret.class == null || _ret.cdnURI == null)
@@ -114,11 +115,13 @@ class ModulesLoader {
   }
 
   /**
-   * @param {string} moduleEngineURI
-   * @param {string} moduleName
+   * @param {Object} p
+   * @param {string} p.moduleEngineURI
+   * @param {string} p.moduleName
    * @return {string}
    */
-  #repoKeyBuilder (moduleEngineURI, moduleName) {
-    return `${moduleEngineURI}/${moduleName}`;
+  #classesRepoBuildKey ({ moduleEngineURI, moduleName }) {
+    const _p = sanitizeObj({ obj: { moduleEngineURI, moduleName }, sanitization: { moduleEngineURI: 'string', moduleName: 'string' } });
+    return `${_p.moduleEngineURI}/${_p.moduleName}`;
   }
 }
