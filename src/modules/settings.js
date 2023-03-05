@@ -2,6 +2,7 @@ export { NAMES };
 
 import { deepFreeze } from '../lib/obj_utils.js';
 import * as STANDARD_NAMES from './_names/standardnames.js';
+import { sanitization } from '../deps.js';
 
 const NAMES = {};
 NAMES.MODULE = 'settings';
@@ -10,9 +11,9 @@ NAMES.TABLES.SET = {};
 NAMES.TABLES.SET.NAME = 'set';
 NAMES.TABLES.SET.COLUMNS = { UNIT: 'unit', NAME: 'name', VALUE: 'value' };
 NAMES.TABLES.SET.VALIDATION = {
-  [NAMES.TABLES.SET.COLUMNS.UNIT]: 'string',
-  [NAMES.TABLES.SET.COLUMNS.NAME]: 'string',
-  [NAMES.TABLES.SET.COLUMNS.VALUE]: 'string'
+  [NAMES.TABLES.SET.COLUMNS.UNIT]: sanitization.STRING_TYPE,
+  [NAMES.TABLES.SET.COLUMNS.NAME]: sanitization.STRING_TYPE,
+  [NAMES.TABLES.SET.COLUMNS.VALUE]: sanitization.STRING_TYPE
 };
 NAMES.TABLES.SET.SETTINGS = {
   MODULESLOADER_URI: { UNIT: STANDARD_NAMES.SIMULATION.NAME, VALUE: '$MODULESLOADER' },

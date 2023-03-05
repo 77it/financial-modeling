@@ -1,6 +1,6 @@
 ﻿export { Drivers };
 
-import { ModuleData } from '../modules/module_data.js';
+import { sanitization, validation } from '../../deps.js';
 
 // TODO
 
@@ -8,17 +8,17 @@ class Drivers {
   /** Map to store Drivers: XXX id as string key, {date: date, value: *}[] array as value. Driver with only one element will have date = new Date(0).
    * @type {Map<String, *>} */
   #driversRepo;
-  /** @type {null|ModuleData} */
-  #currentModuleData;
+  /** @type {string} */
+  #currentDebugModuleInfo;
 
   constructor () {
     this.#driversRepo = new Map();
-    this.#currentModuleData = null;
+    this.#currentDebugModuleInfo = '';
   }
 
-  /** @param {ModuleData} moduleData */
-  setCurrentModuleData (moduleData) {
-    this.#currentModuleData = moduleData;
+  /** @param {string} debugModuleInfo */
+  setDebugModuleInfo (debugModuleInfo) {
+    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
   }
 
   /**
@@ -50,9 +50,5 @@ class Drivers {
   }
 
   //#region private methods
-  /** @returns {string} */
-  #getDebugModuleInfo () {
-    return `moduleName: '${this.#currentModuleData?.moduleName}', moduleEngineURI: '${this.#currentModuleData?.moduleEngineURI}', moduleSourceLocation: '${this.#currentModuleData?.moduleSourceLocation}'`;
-  }
   //#endregion private methods
 }

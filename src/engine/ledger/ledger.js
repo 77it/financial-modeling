@@ -1,7 +1,7 @@
 ﻿export { Ledger };
 
 import { Big } from '../../deps.js';
-import { validate, validation, sanitizeObj } from '../../deps.js';
+import { validation, sanitization } from '../../deps.js';
 import { SimObject } from '../simobject/simobject.js';
 import { NewSimObjectDto } from './commands/newsimobjectdto.js';
 import { newSimObjectDto_Sanitization } from './commands/newsimobjectdto_sanitization.js';
@@ -9,7 +9,6 @@ import { NewDebugSimObjectDto } from './commands/newdebugsimobjectdto.js';
 import { newDebugSimObjectDto_Sanitization } from './commands/newdebugsimobjectdto_sanitization.js';
 import { DoubleEntrySide_enum } from '../simobject/enums/DoubleEntrySide_enum.js';
 import { Currency_enum } from '../simobject/enums/currency_enum.js';
-import { ModuleData } from '../modules/module_data.js';
 
 // TODO
 
@@ -54,8 +53,8 @@ class Ledger {
   #lastTransactionId;
   /** @type {boolean} */
   #debug;
-  /** @type {null|ModuleData} */
-  #currentModuleData;
+  /** @type {string} */
+  #currentDebugModuleInfo;
 
   /**
    @param {Object} p
@@ -70,10 +69,15 @@ class Ledger {
     this.#lastTransactionId = 0;
     this.#today = new Date(0);
     this.#debug = false;
-    this.#currentModuleData = null;
+    this.#currentDebugModuleInfo = '';
   }
 
   //#region public methods
+  /** @param {string} debugModuleInfo */
+  setDebugModuleInfo (debugModuleInfo) {
+    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
+  }
+
   /**
    * Set the debug flag to true.
    */
@@ -83,13 +87,8 @@ class Ledger {
 
   /** @param {Date} today */
   setToday (today) {
-    validate({ value: today, validation: validation.DATE_TYPE });
+    validation.validate({ value: today, validation: validation.DATE_TYPE });
     this.#today = today;
-  }
-
-  /** @param {ModuleData} moduleData */
-  setCurrentModuleData (moduleData) {
-    this.#currentModuleData = moduleData;
   }
 
   /** @returns {boolean} */
@@ -125,9 +124,9 @@ class Ledger {
    @param {NewSimObjectDto} newSimObjectDto
    */
   newSimObject (newSimObjectDto) {
-    sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Sanitization });
+    sanitization.sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Sanitization });
 
-    const debug_moduleInfo = (this.#debug) ? this.#getDebugModuleInfo() : '';
+    const debug_moduleInfo = (this.#debug) ? this.#currentDebugModuleInfo : '';
 
     const simObject = new SimObject({
       type: newSimObjectDto.type,
@@ -167,9 +166,9 @@ class Ledger {
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   newDebugSimObject (newDebugSimObjectDto) {
-    sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Sanitization });
+    sanitization.sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Sanitization });
 
-    const debug_moduleInfo = this.#getDebugModuleInfo();
+    const debug_moduleInfo = this.#currentDebugModuleInfo;
 
     const simObject = new SimObject({
       type: newDebugSimObjectDto.type,
@@ -207,11 +206,6 @@ class Ledger {
   //#endregion public methods
 
   //#region private methods
-  /** @returns {string} */
-  #getDebugModuleInfo () {
-    return `moduleName: '${this.#currentModuleData?.moduleName}', moduleEngineURI: '${this.#currentModuleData?.moduleEngineURI}', moduleSourceLocation: '${this.#currentModuleData?.moduleSourceLocation}'`;
-  }
-
   //* @returns {number} */
   #getNextId () {
     return ++this.#lastId;

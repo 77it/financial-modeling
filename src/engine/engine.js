@@ -1,6 +1,6 @@
 export { engine };
 
-import { validateObj } from '../deps.js';
+import { validation } from '../deps.js';
 
 import { Ledger } from './ledger/ledger.js';
 import { ModuleData } from './modules/module_data.js';
@@ -29,9 +29,9 @@ before calling a module method checks if the method is defined, otherwise it ski
 async function engine ({ modulesData, modules, appendTrnDump }) {
   let _ledger = null;  // define _ledger here to be able to use it in the `finally` block
   try {
-    validateObj({
+    validation.validateObj({
       obj: { modulesData, modules, appendTrnDump },
-      validation: { modulesData: 'array', modules: 'array', appendTrnDump: 'function' }
+      validation: { modulesData: validation.ARRAY_TYPE, modules: validation.ARRAY_TYPE, appendTrnDump: validation.FUNCTION_TYPE }
     });
     if (modulesData.length !== modules.length) throw new Error('modulesData.length !== modules.length');
 
@@ -57,7 +57,9 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     //#region call all modules, one time
     for (let i = 0; i < _modulesArray.length; i++) {
       if (_modulesArray[i].alive) {
-        setCurrentModuleData({ moduleData: _moduleDataArray[i], ledger: _ledger, drivers: _drivers, sharedConstants: _sharedConstants });
+        _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
+        _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
+        _sharedConstants.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
         // TODO NOW NOW NOW NOW
         checkOpenTransaction({ ledger: _ledger, moduleData: _moduleDataArray[i] });
       }
@@ -72,7 +74,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
       for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
-          _ledger.setCurrentModuleData(_moduleDataArray[i]);
+          _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
           // TODO NOW NOW NOW NOW
           checkOpenTransaction({ ledger: _ledger, moduleData: _moduleDataArray[i] });
         }
@@ -102,6 +104,13 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
   return { success: true };
 
   //#region local functions
+  /** Return debug info about the current module, to be used in the ledger, drivers and sharedConstants
+   * @param {ModuleData} moduleData
+   */
+  function getDebugModuleInfo (moduleData) {
+    return `moduleName: '${moduleData?.moduleName}', moduleEngineURI: '${moduleData?.moduleEngineURI}', moduleSourceLocation: '${moduleData?.moduleSourceLocation}'`;
+  }
+
   /** Check if a transaction is open, and if so, throw an error
    * @param {Object} p
    * @param {Ledger} p.ledger
@@ -110,19 +119,6 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
   function checkOpenTransaction ({ ledger, moduleData }) {
     if (ledger.transactionIsOpen())
       throw new Error(`after calling module ${moduleData.moduleName} ${moduleData.moduleEngineURI}  a transaction is open`);
-  }
-
-  /** Set the current module data
-   * @param {Object} p
-   * @param {ModuleData} p.moduleData
-   * @param {Ledger} p.ledger
-   * @param {Drivers} p.drivers
-   * @param {SharedConstants} p.sharedConstants
-   */
-  function setCurrentModuleData ({ moduleData, ledger, drivers, sharedConstants }) {
-    ledger.setCurrentModuleData(moduleData);
-    drivers.setCurrentModuleData(moduleData);
-    sharedConstants.setCurrentModuleData(moduleData);
   }
 
   //#endregion local functions

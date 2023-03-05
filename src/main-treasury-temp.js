@@ -20,7 +20,7 @@ import { existSync } from './deno/existSync.js';
 //#endregion deno imports
 
 //#region local imports
-import { sanitizeObj } from './deps.js';
+import { sanitization } from './deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { moduleData_LoadFromJson } from './engine/modules/module_data__load_from_json.js';
@@ -212,7 +212,7 @@ async function _getObject_FromUri_FromModuleDataArray ({
         for (const _tableObj of moduleData.tables) {
           if (_tableObj.tableName === tableName) {
             const _table = structuredClone(_tableObj.table);  // clone _tableObj to avoid side effects
-            sanitizeObj({
+            sanitization.sanitizeObj({
               obj: _table,
               sanitization: SETTINGS_NAMES.TABLES.SET.VALIDATION
             });

@@ -1,6 +1,6 @@
 export { ModuleData };
 
-import { validateObj } from '../../deps.js';
+import { validation } from '../../deps.js';
 
 // ModuleData is not immutable nor has the clone method, because the object is passed only to the modules that will use it
 class ModuleData {
@@ -28,24 +28,24 @@ class ModuleData {
    * @param {{tableName: string, table: *[]}[]} p.tables
    */
   constructor (p) {
-    validateObj(
+    validation.validateObj(
       {
         obj: p,
         validation: {
-          moduleName: 'string',
-          moduleAlias: 'string',
-          moduleEngineURI: 'string',
-          moduleSourceLocation: 'string',
-          tables: 'array[object]',
+          moduleName: validation.STRING_TYPE,
+          moduleAlias: validation.STRING_TYPE,
+          moduleEngineURI: validation.STRING_TYPE,
+          moduleSourceLocation: validation.STRING_TYPE,
+          tables: validation.ARRAY_OF_OBJECTS_TYPE,
         },
         errorMsg: `validation of ModuleData ${p}`,
       });
 
     // validate table array
-    validateObj(
+    validation.validateObj(
       {
         obj: p.tables,
-        validation: { tableName: 'string', table: 'array[object]' },
+        validation: { tableName: validation.STRING_TYPE, table: validation.ARRAY_OF_OBJECTS_TYPE },
         errorMsg: `validation of ModuleData.tables ${p}`
       });
 

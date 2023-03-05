@@ -1,7 +1,6 @@
 export { ModulesLoader };
 
-import { validateObj } from '../deps.js';
-import { sanitizeObj } from '../deps.js';
+import { validation, sanitization } from '../deps.js';
 import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
 
 class ModulesLoader {
@@ -34,12 +33,12 @@ class ModulesLoader {
    * @throws Will throw an error if moduleEngineURI/moduleName already exists
    */
   addClassFromObject (p) {
-    const validation = {
-      moduleName: 'string',
-      moduleEngineURI: 'string',
-      classObj: 'any'
+    const _validation = {
+      moduleName: validation.STRING_TYPE,
+      moduleEngineURI: validation.STRING_TYPE,
+      classObj: validation.ANY_TYPE
     };
-    validateObj({ obj: p, validation: validation });
+    validation.validateObj({ obj: p, validation: _validation });
 
     const _moduleName = p.moduleName.trim().toLowerCase();
 
@@ -60,7 +59,10 @@ class ModulesLoader {
    * @throws Will throw an error if moduleEngineURI/moduleName already exists
    */
   async addClassFromURI (p) {
-    validateObj({ obj: p, validation: { moduleName: 'string', moduleEngineURI: 'string' } });
+    validation.validateObj({
+      obj: p,
+      validation: { moduleName: validation.STRING_TYPE, moduleEngineURI: validation.STRING_TYPE }
+    });
 
     const _moduleName = p.moduleName.trim().toLowerCase();
 
@@ -98,11 +100,11 @@ class ModulesLoader {
    * @return {undefined | {class: *, cdnURI: string}}
    */
   get (p) {
-    const validation = {
-      moduleName: 'string',
-      moduleEngineURI: 'string'
+    const _validation = {
+      moduleName: validation.STRING_TYPE,
+      moduleEngineURI: validation.STRING_TYPE
     };
-    validateObj({ obj: p, validation: validation });
+    validation.validateObj({ obj: p, validation: _validation });
 
     const _moduleName = p.moduleName.trim().toLowerCase();
 
@@ -121,7 +123,10 @@ class ModulesLoader {
    * @return {string}
    */
   #classesRepoBuildKey ({ moduleEngineURI, moduleName }) {
-    const _p = sanitizeObj({ obj: { moduleEngineURI, moduleName }, sanitization: { moduleEngineURI: 'string', moduleName: 'string' } });
+    const _p = sanitization.sanitizeObj({
+      obj: { moduleEngineURI, moduleName },
+      sanitization: { moduleEngineURI: sanitization.STRING_TYPE, moduleName: sanitization.STRING_TYPE }
+    });
     return `${_p.moduleEngineURI}/${_p.moduleName}`;
   }
 }

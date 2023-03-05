@@ -1,7 +1,6 @@
 ﻿export { SharedConstants };
 
-import { sanitizeObj, validateObj } from '../../deps.js';
-import { ModuleData } from '../modules/module_data.js';
+import { sanitization, validation } from '../../deps.js';
 import { SIMULATION } from '../../modules/_names/standardnames.js';
 
 /*
@@ -16,17 +15,17 @@ class SharedConstants {
    values are {constant: function_of_any_kind, debugModuleInfo: string}.
    * @type {Map<String, {constant: *, debugModuleInfo: string}>} */
   #sharedConstantsRepo;
-  /** @type {null|ModuleData} */
-  #currentModuleData;
+  /** @type {string} */
+  #currentDebugModuleInfo;
 
   constructor () {
     this.#sharedConstantsRepo = new Map();
-    this.#currentModuleData = null;
+    this.#currentDebugModuleInfo = '';
   }
 
-  /** @param {ModuleData} moduleData */
-  setCurrentModuleData (moduleData) {
-    this.#currentModuleData = moduleData;
+  /** @param {string} debugModuleInfo */
+  setDebugModuleInfo (debugModuleInfo) {
+    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
   }
 
   /**
@@ -38,11 +37,14 @@ class SharedConstants {
    * @return {boolean} true if SharedConstant is set, false if SharedConstant is already defined
    */
   set ({ namespace, name, value }) {
-    validateObj({ obj: { namespace, name, value }, validation: { namespace: 'string', name: 'string', value: 'function' } });
+    validation.validateObj({
+      obj: { namespace, name, value },
+      validation: { namespace: validation.STRING_TYPE, name: validation.STRING_TYPE, value: validation.FUNCTION_TYPE }
+    });
     const _key = this.#sharedConstantsRepoBuildKey({ namespace, name });
     if (this.#sharedConstantsRepo.has(_key))
       return false;
-    this.#sharedConstantsRepo.set(_key, { constant: value, debugModuleInfo: this.#getDebugModuleInfo() });
+    this.#sharedConstantsRepo.set(_key, { constant: value, debugModuleInfo: this.#currentDebugModuleInfo });
     return true;
   }
 
@@ -88,11 +90,6 @@ class SharedConstants {
   }
 
   //#region private methods
-  /** @returns {string} */
-  #getDebugModuleInfo () {
-    return `moduleName: '${this.#currentModuleData?.moduleName}', moduleEngineURI: '${this.#currentModuleData?.moduleEngineURI}', moduleSourceLocation: '${this.#currentModuleData?.moduleSourceLocation}'`;
-  }
-
   /**
    * @param {Object} p
    * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is SIMULATION.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
@@ -100,7 +97,10 @@ class SharedConstants {
    * @return {string}
    */
   #sharedConstantsRepoBuildKey ({ namespace, name }) {
-    const _p = sanitizeObj({ obj: { namespace, name }, sanitization: { namespace: 'string', name: 'string' } });
+    const _p = sanitization.sanitizeObj({
+      obj: { namespace, name },
+      sanitization: { namespace: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE }
+    });
     if (_p.namespace === '') _p.namespace = SIMULATION.NAME;
     return `${_p.namespace}/${_p.name}`;
   }
