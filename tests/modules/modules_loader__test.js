@@ -17,7 +17,7 @@ class ValuesB2 {
   }
 }
 
-const modulesLoader = new ModulesLoader({ modulesLoader_Resolve: undefined });
+const modulesLoader = new ModulesLoader({ });  // modulesLoader_Resolve: undefined
 
 //#region test import inside import
 // This test demonstrates that when a module named "_ModulesLoader_test_module.js" of a specific version ("@v0.1.19") is imported,
