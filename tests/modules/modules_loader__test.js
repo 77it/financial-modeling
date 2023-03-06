@@ -107,26 +107,20 @@ Deno.test('test addClassFromURI, adding \'.js\' extension', async () => {
 });
 
 Deno.test('test addClassFromURI, empty URI, meaningless URI', async () => {
-  const _URI = '';
+  const _URI_spaces = '  ';
   const _moduleName = 'MODULES_LOADER_TEST_MODULE';
-  await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI });
+  await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_spaces });
 
-  const query = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI });
-  assert(query !== undefined);
+  const query_spaces = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_spaces });
+  assert(query_spaces !== undefined);
 
-  const _ValuesB = query.class;
+  const _ValuesB = query_spaces.class;
   const __ValuesB = new _ValuesB({ value: 9999, value2: 'bbb' });
   assertEquals(__ValuesB.value, 9999);
   assertEquals(__ValuesB.value2, 'bbb');
-  assertEquals(`./${_moduleName.toLowerCase()}.js`, query.cdnURI);
-
-  //#region test other URI cases
-  const _URI_spaces = '  ';
-  await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_spaces });
-  const query_spaces = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_spaces });
-  assert(query_spaces !== undefined);
   assertEquals(`./${_moduleName.toLowerCase()}.js`, query_spaces.cdnURI);
 
+  //#region test other URI cases
   const _URI_backslash = ' \\ ';
   await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_backslash });
   const query_backslash = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_backslash });

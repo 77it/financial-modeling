@@ -43,7 +43,7 @@ class ModulesLoader {
     const _moduleName = p.moduleName.trim().toLowerCase();
 
     const repoKey = this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: _moduleName });
-    if (this.#classesRepo.has(repoKey))
+    if (!(this.#classesRepo.has(repoKey)))
       this.#classesRepo.set(repoKey, { class: p.classObj, cdnURI: '' });
     else
       throw new Error(`moduleEngineURI/moduleName already exists: ${repoKey}`);
@@ -68,7 +68,7 @@ class ModulesLoader {
 
     const repoKey = this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: _moduleName });
 
-    if (this.#classesRepo.has(repoKey)) {
+    if (!(this.#classesRepo.has(repoKey))) {
       let _URI = p.moduleEngineURI.trim();
       if (['', '.', '/', './', '\\', '.\\'].includes(_URI))  // If moduleEngineURI is missing or . / /. \ \., is set to ./${_moduleName}.js
         _URI = `./${_moduleName}.js`;
