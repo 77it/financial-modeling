@@ -12,22 +12,35 @@ import {
 
 Deno.test('test sanitizeObj()', async (t) => {
   await t.step('null, undefined and other non-objects are coerced to {}', async () => {
-    class TestClass {
-      /**
-       * @param {{value: string, value2: string}} p
-       */
-      constructor ({ value, value2 }) {
-        this.value = value;
-        this.value2 = value2;
-      }
-    }
-
     const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
     assertEquals(S.sanitizeObj({ obj: null, sanitization: sanitization }), {});
     assertEquals(S.sanitizeObj({ obj: undefined, sanitization: sanitization }), {});
     assertEquals(S.sanitizeObj({ obj: 999, sanitization: sanitization }), {});
     assertEquals(S.sanitizeObj({ obj: Symbol(), sanitization: sanitization }), {});
+  });
+
+  await t.step('class: class Type is coerced to {}, class instance is object and sanitized normally', async () => {
+    class TestClass {
+      /**
+       * @param {{a: string, b: string}} p
+       */
+      constructor ({ a, b }) {
+        this.a = a;
+        this.b = b;
+      }
+    }
+
+    const testClassInstance = new TestClass({ a: '0', b: '99' });
+    const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
+
+    // class Type is coerced to {}
     assertEquals(S.sanitizeObj({ obj: TestClass, sanitization: sanitization }), {});
+
+    // class instance is object and sanitized normally
+    assertEquals(
+      JSON.stringify(S.sanitizeObj({ obj: testClassInstance, sanitization: sanitization, validate: true })),
+      JSON.stringify({ a: '0', b: 99 })
+    );
   });
 
   await t.step('FAILING can\'t sanitize single part of an object, only the entire object (can\'t sanitize a deconstructed object)', async () => {

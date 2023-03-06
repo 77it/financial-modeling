@@ -21,6 +21,23 @@ Deno.test('test validateObj(), valid, simple object', () => {
   validateObj({ obj: objToValidate, validation: { a: Validation.STRING_TYPE, b: Validation.NUMBER_TYPE } });
 });
 
+Deno.test('test validateObj(), valid, class instance', () => {
+  class TestClass {
+    /**
+     * @param {{a: string, b: number}} p
+     */
+    constructor ({ a, b }) {
+      this.a = a;
+      this.b = b;
+    }
+  }
+
+  const testClassInstance = new TestClass({ a: '0', b: 99 });
+  const validation = { a: Validation.STRING_TYPE, b: Validation.NUMBER_TYPE };
+
+  validateObj({ obj: testClassInstance, validation: validation });
+});
+
 Deno.test('test validateObj(), valid, `any` type', () => {
   const objToValidate = { a: 'mamma', b: 99 };
   validateObj({ obj: objToValidate, validation: { a: Validation.ANY_TYPE, b: Validation.NUMBER_TYPE } });
