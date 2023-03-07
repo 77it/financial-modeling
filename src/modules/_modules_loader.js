@@ -23,7 +23,7 @@ class ModulesLoader {
     this.#classesRepo = new Map();
 
     // if modulesLoader_Resolve is null/undefined, assign to _modulesLoader_Resolve
-    this.#modulesLoader_Resolve = p.modulesLoader_Resolve ?? modulesLoader_Resolve;
+    this.#modulesLoader_Resolve = p?.modulesLoader_Resolve ?? modulesLoader_Resolve;
   }
 
   /**
