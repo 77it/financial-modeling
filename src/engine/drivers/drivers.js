@@ -57,28 +57,31 @@ class Drivers {
 
       if (_keysToAdd.has(_key)) {
         if (!(this.#driversRepo.has(_key))) {
-          this.#driversRepo.set(_key, [{ dateMilliseconds: _inputItem.date.getTime(), value: _inputItem.value }]);
+          this.#driversRepo.set(_key, [{ dateMilliseconds: _inputItem.date?.getTime() ?? 0, value: _inputItem.value }]);
         } else {
-          const _dateMilliseconds = _inputItem.date.getTime();
+          const _dateMilliseconds = _inputItem.date?.getTime() ?? 0;
           const _driver = this.#driversRepo.get(_key);
-          let _toAppendFlag = true;
-          // loop _driver array:
-          // 1) if the date is already present don't add it and set _toAppendFlag to false
-          // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
-          // 3) if _toAppendFlag is still true, append date and value at the end of the array
-          for (let i = 0; i < _driver.length; i++) {
-            if (_driver[i].dateMilliseconds === _dateMilliseconds){
-              _toAppendFlag = false;
-              break;
-            }
+          if (_driver)
+          {
+            let _toAppendFlag = true;
+            // loop _driver array:
+            // 1) if the date is already present don't add it and set _toAppendFlag to false
+            // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
+            // 3) if _toAppendFlag is still true, append date and value at the end of the array
+            for (let i = 0; i < _driver.length; i++) {
+              if (_driver[i].dateMilliseconds === _dateMilliseconds){
+                _toAppendFlag = false;
+                break;
+              }
 
-            if (_driver[i].dateMilliseconds > _dateMilliseconds){
-              _driver.splice(i, 0, { dateMilliseconds: _dateMilliseconds, value: _inputItem.value });
-              _toAppendFlag = false;
+              if (_driver[i].dateMilliseconds > _dateMilliseconds){
+                _driver.splice(i, 0, { dateMilliseconds: _dateMilliseconds, value: _inputItem.value });
+                _toAppendFlag = false;
+              }
             }
+            if (_toAppendFlag)
+              _driver.push({ dateMilliseconds: _dateMilliseconds, value: _inputItem.value });
           }
-          if (_toAppendFlag)
-            _driver.push({ dateMilliseconds: _dateMilliseconds, value: _inputItem.value });
         }
       }
     }
@@ -104,6 +107,9 @@ class Drivers {
       return undefined;
 
     const _driver = this.#driversRepo.get(_key);
+    if (!_driver)
+      return undefined;
+
     const _dateMilliseconds = _date.getTime();  // date to search for
     let _ret = undefined;
 
