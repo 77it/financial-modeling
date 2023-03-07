@@ -77,6 +77,7 @@ class Drivers {
               if (_driver[i].dateMilliseconds > _dateMilliseconds){
                 _driver.splice(i, 0, { dateMilliseconds: _dateMilliseconds, value: _inputItem.value });
                 _toAppendFlag = false;
+                break;
               }
             }
             if (_toAppendFlag)
@@ -85,8 +86,6 @@ class Drivers {
         }
       }
     }
-
-    throw new Error('This line should never be reached');
   }
 
   /**
@@ -99,6 +98,8 @@ class Drivers {
    * @return {undefined|number} Driver; if not found, returns undefined
    */
   get ({ scenario, unit, name, date }) {
+    const _dateIsMissing = (date === undefined || date === null);
+
     const _date = sanitization.sanitize({ value: date, sanitization: sanitization.DATE_TYPE });  // missing or invalid dates will be set to new Date(0)
 
     const _key = this.#driversRepoBuildKey({ scenario, unit, name });
@@ -109,6 +110,9 @@ class Drivers {
     const _driver = this.#driversRepo.get(_key);
     if (!_driver)
       return undefined;
+
+    if (_dateIsMissing)
+      return _driver[0].value;
 
     const _dateMilliseconds = _date.getTime();  // date to search for
     let _ret = undefined;
