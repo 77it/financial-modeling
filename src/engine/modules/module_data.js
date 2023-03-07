@@ -13,7 +13,7 @@ class ModuleData {
   moduleEngineURI;
   /** @type {string} */
   moduleSourceLocation;
-  /** @type {{tableName: string, table: *[]}[]}} */
+  /** @type {{tableName: string, table: *[]}[]} */
   tables;
 
   //#endregion

@@ -58,7 +58,7 @@ Registra const di simulazione `$.EBITDA` che registra una funzione che restituis
 
 Durante `beforeDailyModeling` calcola l'EBITDA interrogando ledger.
 
-[2] >come_ledger_passa_i_dati_ai_moduli_per_settare_i_drivers_id su "_todo2 JS simulation.OLD TOMERGE.md"
+[*] <2023-03-07>OLD INSPIRATION attualmente per settare drivers e locks/constants è semplice, si passano le funzioni ai moduli; per passare i dati di contabilità ai moduli che ne hanno bisogno per aggiornare EBITDA etc è sufficiente che interrogano i metodi di Ledger che restituiscono le voci movimentate ieri/oggi</2023-03-07> >come_ledger_passa_i_dati_ai_moduli_per_settare_i_drivers_id su "_todo2 JS simulation.OLD TOMERGE.md"
 
 
 # Treasury module

@@ -127,6 +127,6 @@ class ModulesLoader {
       obj: { moduleEngineURI, moduleName },
       sanitization: { moduleEngineURI: sanitization.STRING_TYPE, moduleName: sanitization.STRING_TYPE }
     });
-    return `${_p.moduleEngineURI}/${_p.moduleName}`;
+    return JSON.stringify({moduleEngineURI: _p.moduleEngineURI, moduleName: _p.moduleName});
   }
 }
