@@ -50,9 +50,15 @@ class Drivers {
     if (!(this.#driversRepo.has(_key))) {
       this.#driversRepo.set(_key, [{ date: _p.date.getTime(), value: _p.value }]);
     } else {
+      const _driver = this.#driversRepo.get(_key);
+      // loop driver entries to see if the date is already present; if so, don't add it and return false
+      for (const _d of _driver) {
+        if (_d.date === _p.date.getTime())
+          return false;
+      }
+
       // TODO
-      // If one driver is already set on a date, ignore it and return false
-      // It the date is not present, insert it before other dates
+      // loop _driver array and insert date and value at the right position between other dates
       throw new Error('not implemented');
     }
     return true;
