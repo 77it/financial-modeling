@@ -46,7 +46,7 @@ function isValidDate (value) {
  * Any other input type or invalid date strings will return an `Invalid Date`.
  *
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
- * @param {*} [opt] [p.asUTC=true] If true, the date will be parsed as UTC, otherwise as local time
+ * @param {*} [opt] {undefined | {asUTC?: boolean = true}} If true, the date will be parsed as UTC, otherwise as local time
  * @returns {Date} the parsed date in the local time zone
  */
 function parseJSON (argument, opt) {
