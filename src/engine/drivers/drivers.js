@@ -99,7 +99,11 @@ class Drivers {
       sanitization: { scenario: sanitization.STRING_TYPE, unit: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE }
     });
     if (_p.scenario === '') _p.scenario = STD_NAMES.SCENARIO.BASE;
-    return JSON.stringify({ scenario: _p.scenario, unit: _p.unit, name: _p.name });
+    return JSON.stringify({
+      scenario: _p.scenario.trim().toLowerCase(),
+      unit: _p.unit.trim().toLowerCase(),
+      name: _p.name.trim().toLowerCase()
+    });
   }
 
   //#endregion private methods

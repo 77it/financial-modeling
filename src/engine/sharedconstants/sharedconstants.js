@@ -102,7 +102,10 @@ class SharedConstants {
       sanitization: { namespace: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE }
     });
     if (_p.namespace === '') _p.namespace = SIMULATION.NAME;
-    return JSON.stringify({namespace: _p.namespace, name: _p.name});
+    return JSON.stringify({
+      namespace: _p.namespace.trim().toLowerCase(),
+      name: _p.name.trim().toLowerCase()
+    });
   }
 
   //#endregion private methods
