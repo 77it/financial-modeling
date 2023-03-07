@@ -10,7 +10,7 @@ class Drivers {
    Map to store Drivers:
    keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
    values are an array of {date: number [1], value: number}  [1] number obtained with `date.getTime()`
-   * @type {Map<String, {date: number, value: number}[]>} */
+   * @type {Map<String, {dateMilliseconds: number, value: number}[]>} */
   #driversRepo;
   /** @type {string} */
   #currentDebugModuleInfo;
@@ -48,20 +48,24 @@ class Drivers {
     });
     const _key = this.#driversRepoBuildKey({ scenario, unit, name });
     if (!(this.#driversRepo.has(_key))) {
-      this.#driversRepo.set(_key, [{ date: _p.date.getTime(), value: _p.value }]);
+      this.#driversRepo.set(_key, [{ dateMilliseconds: _p.date.getTime(), value: _p.value }]);
     } else {
       const _driver = this.#driversRepo.get(_key);
-      // loop driver entries to see if the date is already present; if so, don't add it and return false
-      for (const _d of _driver) {
-        if (_d.date === _p.date.getTime())
+      const _dateMilliseconds = _p.date.getTime();
+      // loop _driver array:
+      // 1) if the date is already present; if so, don't add it and return false.
+      // 2) if check 1) is false, insert date and value at the right position between other dates
+      for (let i = 0; i < _driver.length; i++) {
+        if (_driver[i].dateMilliseconds === _dateMilliseconds)
           return false;
-      }
 
-      // TODO
-      // loop _driver array and insert date and value at the right position between other dates
-      throw new Error('not implemented');
+        if (_driver[i].dateMilliseconds > _dateMilliseconds) {
+          _driver.splice(i, 0, { dateMilliseconds: _dateMilliseconds, value: _p.value });
+          return true;
+        }
+      }
     }
-    return true;
+    throw new Error('This line should never be reached');
   }
 
   /**
@@ -78,7 +82,7 @@ class Drivers {
     if (!this.#driversRepo.has(_key))
       return undefined;
     const _driver = this.#driversRepo.get(_key);
-    // TODO return the right value, with the date closest to the requested date
+    // TODO return the right value, with the date closest (but not greater) to the requested date
   }
 
   //#region private methods
