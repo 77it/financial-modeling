@@ -52,7 +52,7 @@ Deno.test('test validate(), valid, all cases', () => {
   Validation.validate({ value: 123, validation: Validation.NUMBER_TYPE });
   Validation.validate({ value: false, validation: Validation.BOOLEAN_TYPE });
   Validation.validate({ value: new Date('1999-12-31T23:59:59'), validation: Validation.DATE_TYPE });
-  Validation.validate({ value: 999, validation: [11, 22, 999, 55] });  // enum
+  Validation.validate({ value: 999, validation: [11, 22].concat([999, 55])  });  // enum
   Validation.validate({ value: 'aaa', validation: [11, 'aa', 'aaa', 55] });  // enum
   Validation.validate({ value: undefined, validation: [11, undefined, 'aa', 'aaa', 55] });  // enum
   Validation.validate({
