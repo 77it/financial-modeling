@@ -9,6 +9,7 @@ import { NewDebugSimObjectDto } from './commands/newdebugsimobjectdto.js';
 import { newDebugSimObjectDto_Sanitization } from './commands/newdebugsimobjectdto_sanitization.js';
 import { SimObjectTypes_enum_validation } from '../simobject/simobject_types_enum.js';
 import { SimObjectDebugTypes_enum, SimObjectDebugTypes_enum_validation } from '../simobject/simobject_debugtypes_enum.js';
+import { SimObjectErrorDebugTypes_enum, SimObjectErrorDebugTypes_enum_validation } from '../simobject/simobject_errordebugtypes_enum.js';
 import { DoubleEntrySide_enum } from '../simobject/enums/DoubleEntrySide_enum.js';
 import { Currency_enum } from '../simobject/enums/currency_enum.js';
 
@@ -193,7 +194,7 @@ class Ledger {
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   newDebugErrorSimObject (newDebugSimObjectDto) {
-    this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_ERROR, newDebugSimObjectDto);
+    this.#newDebugSimObject(SimObjectErrorDebugTypes_enum.DEBUG_ERROR, newDebugSimObjectDto);
   }
 
   //#endregion public methods
@@ -224,7 +225,7 @@ class Ledger {
    */
   #newDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
     sanitization.sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Sanitization });
-    validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation });
+    validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation.concat(SimObjectErrorDebugTypes_enum_validation) });
 
     const debug_moduleInfo = this.#currentDebugModuleInfo;
 
