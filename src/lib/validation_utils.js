@@ -281,7 +281,7 @@ function _validateObj ({ obj, validation }) {
    */
   function _validateObj2 (_obj) {
     for (const key of Object.keys(validation)) {
-      // enum sanitization
+      // enum validation
       if (Array.isArray(validation[key])) {
         const validationResult = _validateValue({
           value: _obj[key],
