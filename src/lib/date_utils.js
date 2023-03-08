@@ -3,6 +3,7 @@ export { parseJSON };
 export { differenceInCalendarDays, differenceInUTCCalendarDays };
 export { excelSerialDateToUTCDate, excelSerialDateToDate };
 export { addMonths };
+export { areDatesEqual };
 
 /**
  * To check whether the date is valid
@@ -329,4 +330,18 @@ function addMonths (
     );
     return _date;
   }
+}
+
+// inspired to https://stackoverflow.com/a/19054782 + https://stackoverflow.com/questions/492994/compare-two-dates-with-javascript
+/**
+ * Function that accept two dates and check if the dates are equal (ignoring time)
+ *
+ * @param {Date} date1
+ * @param {Date} date2
+ * @returns {boolean}
+ */
+function areDatesEqual (date1, date2) {
+  return date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate();
 }
