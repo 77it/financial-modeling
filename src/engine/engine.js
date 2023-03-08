@@ -93,10 +93,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
 
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
-    _ledger?.newDebugSimObject(new NewDebugSimObjectDto({
-      type: SimObjectDebugTypes_enum.DEBUG_ERROR,
-      description: _error,
-    }));
+    _ledger?.newDebugErrorSimObject(new NewDebugSimObjectDto({ description: _error }));
     _ledger?.forceCommitWithoutValidation();
 
     return { success: false, error: _error };

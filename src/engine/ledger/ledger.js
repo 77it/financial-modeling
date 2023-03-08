@@ -8,7 +8,7 @@ import { newSimObjectDto_Sanitization } from './commands/newsimobjectdto_sanitiz
 import { NewDebugSimObjectDto } from './commands/newdebugsimobjectdto.js';
 import { newDebugSimObjectDto_Sanitization } from './commands/newdebugsimobjectdto_sanitization.js';
 import { SimObjectTypes_enum_validation } from '../simobject/simobject_types_enum.js';
-import { SimObjectDebugTypes_enum_validation } from '../simobject/simobject_debugtypes_enum.js';
+import { SimObjectDebugTypes_enum, SimObjectDebugTypes_enum_validation } from '../simobject/simobject_debugtypes_enum.js';
 import { DoubleEntrySide_enum } from '../simobject/enums/DoubleEntrySide_enum.js';
 import { Currency_enum } from '../simobject/enums/currency_enum.js';
 
@@ -122,7 +122,7 @@ class Ledger {
   }
 
   /**
-   * Add a SimObject to the transaction, keeping it open
+   * Add a SimObject to the transaction
    @param {NewSimObjectDto} newSimObjectDto
    */
   newSimObject (newSimObjectDto) {
@@ -165,17 +165,71 @@ class Ledger {
   }
 
   /**
-   * Add a Debug SimObject to the transaction, keeping it open
+   * Add a DEBUG_DEBUG SimObject to the transaction
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
-  newDebugSimObject (newDebugSimObjectDto) {
+  newDebugDebugSimObject (newDebugSimObjectDto) {
+    this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_DEBUG, newDebugSimObjectDto);
+  }
+
+  /**
+   * Add a DEBUG_INFO SimObject to the transaction
+   @param {NewDebugSimObjectDto} newDebugSimObjectDto
+   */
+  newDebugInfoSimObject (newDebugSimObjectDto) {
+    this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_INFO, newDebugSimObjectDto);
+  }
+
+  /**
+   * Add a DEBUG_WARNING SimObject to the transaction
+   @param {NewDebugSimObjectDto} newDebugSimObjectDto
+   */
+  newDebugWarningSimObject (newDebugSimObjectDto) {
+    this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_WARNING, newDebugSimObjectDto);
+  }
+
+  /**
+   * Add a DEBUG_ERROR SimObject to the transaction
+   @param {NewDebugSimObjectDto} newDebugSimObjectDto
+   */
+  newDebugErrorSimObject (newDebugSimObjectDto) {
+    this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_ERROR, newDebugSimObjectDto);
+  }
+
+  //#endregion public methods
+
+  //#region private methods
+  //* @returns {number} */
+  #getNextId () {
+    return ++this.#lastId;
+  }
+
+  /** @returns {number} */
+  #getNextCommandId () {
+    return ++this.#lastCommandId;
+  }
+
+  /** @returns {number} */
+  #getNextTransactionId () {
+    // if #currentTransaction is empty, increment #lastTransactionId
+    if (!this.transactionIsOpen())
+      this.#lastTransactionId++;
+    return this.#lastTransactionId;
+  }
+
+  /**
+   * Add a Debug SimObject to the transaction
+   @param {string} simObjectDebugType
+   @param {NewDebugSimObjectDto} newDebugSimObjectDto
+   */
+  #newDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
     sanitization.sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Sanitization });
-    validation.validate({ value: newDebugSimObjectDto.type, validation: SimObjectDebugTypes_enum_validation });
+    validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation });
 
     const debug_moduleInfo = this.#currentDebugModuleInfo;
 
     const simObject = new SimObject({
-      type: newDebugSimObjectDto.type,
+      type: simObjectDebugType,
       id: this.#getNextId().toString(),
       dateTime: this.#today,
       name: '',
@@ -205,27 +259,6 @@ class Ledger {
     });
 
     this.#currentTransaction.push(simObject);
-  }
-
-  //#endregion public methods
-
-  //#region private methods
-  //* @returns {number} */
-  #getNextId () {
-    return ++this.#lastId;
-  }
-
-  /** @returns {number} */
-  #getNextCommandId () {
-    return ++this.#lastCommandId;
-  }
-
-  /** @returns {number} */
-  #getNextTransactionId () {
-    // if #currentTransaction is empty, increment #lastTransactionId
-    if (!this.transactionIsOpen())
-      this.#lastTransactionId++;
-    return this.#lastTransactionId;
   }
 
   //#endregion private methods
