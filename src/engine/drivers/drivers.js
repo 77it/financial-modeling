@@ -135,7 +135,8 @@ class Drivers {
   #driversRepoBuildKey ({ scenario, unit, name }) {
     const _p = sanitization.sanitizeObj({
       obj: { scenario, unit, name },
-      sanitization: { scenario: sanitization.STRING_TYPE, unit: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE }
+      sanitization: { scenario: sanitization.STRING_TYPE, unit: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE },
+      validate: true
     });
     if (_p.scenario === '') _p.scenario = STD_NAMES.Scenario.BASE;
     return JSON.stringify({

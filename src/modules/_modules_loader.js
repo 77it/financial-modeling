@@ -125,7 +125,8 @@ class ModulesLoader {
   #classesRepoBuildKey ({ moduleEngineURI, moduleName }) {
     const _p = sanitization.sanitizeObj({
       obj: { moduleEngineURI, moduleName },
-      sanitization: { moduleEngineURI: sanitization.STRING_TYPE, moduleName: sanitization.STRING_TYPE }
+      sanitization: { moduleEngineURI: sanitization.STRING_TYPE, moduleName: sanitization.STRING_TYPE },
+      validate: true
     });
     return JSON.stringify({moduleEngineURI: _p.moduleEngineURI, moduleName: _p.moduleName});
   }

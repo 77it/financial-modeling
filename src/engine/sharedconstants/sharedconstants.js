@@ -37,10 +37,7 @@ class SharedConstants {
    * @return {boolean} true if SharedConstant is set, false if SharedConstant is already defined
    */
   set ({ namespace, name, value }) {
-    validation.validateObj({
-      obj: { namespace, name, value },
-      validation: { namespace: validation.STRING_TYPE, name: validation.STRING_TYPE, value: validation.FUNCTION_TYPE }
-    });
+    validation.validate({ value: value, validation: validation.FUNCTION_TYPE });
     const _key = this.#sharedConstantsRepoBuildKey({ namespace, name });
     if (this.#sharedConstantsRepo.has(_key))
       return false;
@@ -99,7 +96,8 @@ class SharedConstants {
   #sharedConstantsRepoBuildKey ({ namespace, name }) {
     const _p = sanitization.sanitizeObj({
       obj: { namespace, name },
-      sanitization: { namespace: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE }
+      sanitization: { namespace: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE },
+      validate: true
     });
     if (_p.namespace === '') _p.namespace = STD_NAMES.Simulation.NAME;
     return JSON.stringify({
