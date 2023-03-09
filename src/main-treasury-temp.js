@@ -202,9 +202,9 @@ async function _getObject_FromUri_FromModuleDataArray ({
   if (debug)
     return defaultObject;
 
-    const _COL_UNIT = SETTINGS_NAMES.TABLES.SET.COLUMNS.UNIT
-    const _COL_NAME = SETTINGS_NAMES.TABLES.SET.COLUMNS.NAME;
-    const _COL_VALUE = SETTINGS_NAMES.TABLES.SET.COLUMNS.VALUE;
+  const _COL_UNIT = SETTINGS_NAMES.TABLES.SET.COLUMNS.UNIT;
+  const _COL_NAME = SETTINGS_NAMES.TABLES.SET.COLUMNS.NAME;
+  const _COL_VALUE = SETTINGS_NAMES.TABLES.SET.COLUMNS.VALUE;
 
   const engineUrl = (() => {
     for (const moduleData of moduleDataArray) {

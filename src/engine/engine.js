@@ -2,13 +2,15 @@ export { engine };
 
 import { validation } from '../deps.js';
 
+import { sanitization } from '../deps.js';
 import { Ledger } from './ledger/ledger.js';
 import { ModuleData } from './modules/module_data.js';
 import { Module } from '../modules/_sample_module.js';
 import { Drivers } from './drivers/drivers.js';
 import { SharedConstants } from './sharedconstants/sharedconstants.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
-import { SimObjectDebugTypes_enum } from './simobject/simobject_debugtypes_enum.js';
+import { SharedConstants_ReservedNames } from './sharedconstants/sharedConstants_reservedNames.js';
+import { SIMULATION } from '../modules/_names/standardnames.js';
 
 // TODO
 /*
@@ -27,7 +29,8 @@ before calling a module method checks if the method is defined, otherwise it ski
  * @return {Promise<Result>}
  */
 async function engine ({ modulesData, modules, appendTrnDump }) {
-  let _ledger = null;  // define _ledger here to be able to use it in the `finally` block
+  /** @type {Ledger} */
+  let _ledger = new Ledger({ appendTrnDump });  // define _ledger here to be able to use it in the `finally` block
   try {
     validation.validateObj({
       obj: { modulesData, modules, appendTrnDump },
@@ -38,7 +41,6 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     const _moduleDataArray = modulesData;
     const _modulesArray = modules;
     //#region variables declaration
-    _ledger = new Ledger({ appendTrnDump });
     const _drivers = new Drivers();
     const _sharedConstants = new SharedConstants();
     // set _startDate (mutable) to 10 years ago, at the start of the year
@@ -66,8 +68,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     }
     //#endregion call all modules, one time
 
-    // TODO setDebugLevel, reading debug SHAREDCONSTANTS_RESERVEDNAMES.SIMULATION__DEBUG_FLAG
-    _ledger.setDebugLevel();
+    setDebugLevel(_sharedConstants);
 
     // TODO NOW: call all modules, every day, until the end of the simulation
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
@@ -101,6 +102,22 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
   return { success: true };
 
   //#region local functions
+  /** setDebugLevel, reading SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG
+   * @param {SharedConstants} sharedConstants
+   */
+  function setDebugLevel (sharedConstants) {
+    if (!(sharedConstants.isDefined({ namespace: SIMULATION.NAME, name: SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG })))
+      return;
+
+    const _debugFlag = sanitization.sanitize({
+      value: sharedConstants.get({ namespace: SIMULATION.NAME, name: SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG })(),
+      sanitization: sanitization.BOOLEAN_TYPE
+    });
+
+    if (_debugFlag)
+      _ledger.setDebugLevel();
+  }
+
   /** Return debug info about the current module, to be used in the ledger, drivers and sharedConstants
    * @param {ModuleData} moduleData
    */

@@ -3,8 +3,6 @@
 import { sanitization } from '../../deps.js';
 import * as STD_NAMES from '../../modules/_names/standardnames.js';
 
-// TODO do tests
-
 class Drivers {
   /**
    Map to store Drivers:
