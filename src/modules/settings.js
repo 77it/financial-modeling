@@ -1,7 +1,7 @@
 export { NAMES };
 
 import { deepFreeze } from '../lib/obj_utils.js';
-import * as STANDARD_NAMES from './_names/standardnames.js';
+import * as STD_NAMES from './_names/standardnames.js';
 import { validation } from '../deps.js';
 
 const NAMES = {};
@@ -16,8 +16,8 @@ NAMES.TABLES.SET.VALIDATION = {
   [NAMES.TABLES.SET.COLUMNS.VALUE]: validation.STRING_TYPE
 };
 NAMES.TABLES.SET.SETTINGS = {
-  MODULESLOADER_URI: { UNIT: STANDARD_NAMES.SIMULATION.NAME, VALUE: '$MODULESLOADER' },
-  ENGINE_URI: { UNIT: STANDARD_NAMES.SIMULATION.NAME, VALUE: '$ENGINE' }
+    MODULESLOADER_URI: { UNIT: STD_NAMES.Simulation.NAME, VALUE: '$MODULESLOADER' },
+    ENGINE_URI: { UNIT: STD_NAMES.Simulation.NAME, VALUE: '$ENGINE' }
 };
 deepFreeze(NAMES);
 

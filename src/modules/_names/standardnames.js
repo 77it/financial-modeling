@@ -1,19 +1,19 @@
-export { UNIT_OBJECTS, SIMULATION, SCENARIO };
+export { UnitObjects, Simulation, Scenario };
 
 import { deepFreeze } from '../../lib/obj_utils.js';
 
-const SIMULATION = {
+const Simulation = {
   NAME: '$',
 };
-deepFreeze(SIMULATION);
+deepFreeze(Simulation);
 
-const UNIT_OBJECTS = {
+const UnitObjects = {
   BS_CASH__BANKACCOUNT_FINANCIALACCOUNT: 'cash_account_1',
 };
-deepFreeze(UNIT_OBJECTS);
+deepFreeze(UnitObjects);
 
-const SCENARIO = {
+const Scenario = {
   BASE: 'base',
 };
-deepFreeze(SCENARIO);
+deepFreeze(Scenario);
 

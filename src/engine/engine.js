@@ -10,7 +10,7 @@ import { Drivers } from './drivers/drivers.js';
 import { SharedConstants } from './sharedconstants/sharedconstants.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
 import { SharedConstants_ReservedNames } from './sharedconstants/sharedConstants_reservedNames.js';
-import { SIMULATION } from '../modules/_names/standardnames.js';
+import * as STD_NAMES from '../modules/_names/standardnames.js';
 
 // TODO
 /*
@@ -106,11 +106,11 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
    * @param {SharedConstants} sharedConstants
    */
   function setDebugLevel (sharedConstants) {
-    if (!(sharedConstants.isDefined({ namespace: SIMULATION.NAME, name: SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG })))
+    if (!(sharedConstants.isDefined({ namespace: STD_NAMES.Simulation.NAME, name: SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG })))
       return;
 
     const _debugFlag = sanitization.sanitize({
-      value: sharedConstants.get({ namespace: SIMULATION.NAME, name: SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG })(),
+      value: sharedConstants.get({ namespace: STD_NAMES.Simulation.NAME, name: SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG })(),
       sanitization: sanitization.BOOLEAN_TYPE
     });
 

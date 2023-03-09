@@ -1,7 +1,7 @@
 ﻿export { SharedConstants };
 
 import { sanitization, validation } from '../../deps.js';
-import { SIMULATION } from '../../modules/_names/standardnames.js';
+import * as STD_NAMES from '../../modules/_names/standardnames.js';
 
 /*
 if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
@@ -31,7 +31,7 @@ class SharedConstants {
   /**
    * Set a SharedConstant; a SharedConstant can be set only once
    * @param {Object} p
-   * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is SIMULATION.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
+   * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
    * @param {string} p.name - SharedConstant name
    * @param {*} p.value - SharedConstant value
    * @return {boolean} true if SharedConstant is set, false if SharedConstant is already defined
@@ -51,7 +51,7 @@ class SharedConstants {
   /**
    * Get a SharedConstant
    * @param {Object} p
-   * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is SIMULATION.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
+   * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
    * @param {string} p.name - SharedConstant name
    * @return {*} SharedConstant
    * @throws {Error} if SharedConstant is not defined, throws an error
@@ -66,7 +66,7 @@ class SharedConstants {
   /**
    * Get info on the module that defined a SharedConstant
    * @param {Object} p
-   * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is SIMULATION.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
+   * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
    * @param {string} p.name - SharedConstant name
    * @return {*} Info on the module that defined a SharedConstant
    * @throws {Error} if SharedConstant is not defined, throws an error
@@ -81,7 +81,7 @@ class SharedConstants {
   /**
    * Check if a SharedConstant is defined
    * @param {Object} p
-   * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is SIMULATION.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
+   * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
    * @param {string} p.name - SharedConstant name
    * @return {boolean}
    */
@@ -92,7 +92,7 @@ class SharedConstants {
   //#region private methods
   /**
    * @param {Object} p
-   * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is SIMULATION.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
+   * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
    * @param {string} p.name - SharedConstant name
    * @return {string}
    */
@@ -101,7 +101,7 @@ class SharedConstants {
       obj: { namespace, name },
       sanitization: { namespace: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE }
     });
-    if (_p.namespace === '') _p.namespace = SIMULATION.NAME;
+    if (_p.namespace === '') _p.namespace = STD_NAMES.Simulation.NAME;
     return JSON.stringify({
       namespace: _p.namespace.trim().toLowerCase(),
       name: _p.name.trim().toLowerCase()
