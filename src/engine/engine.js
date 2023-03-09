@@ -11,6 +11,7 @@ import { SharedConstants } from './sharedconstants/sharedconstants.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
 import { SharedConstants_ReservedNames } from './sharedconstants/sharedConstants_reservedNames.js';
 import * as STD_NAMES from '../modules/_names/standardnames.js';
+import { SimulationContextStart } from '../modules/_context/simulationcontext_start.js';
 
 // TODO
 /*
@@ -31,6 +32,7 @@ before calling a module method checks if the method is defined, otherwise it ski
 async function engine ({ modulesData, modules, appendTrnDump }) {
   /** @type {Ledger} */
   let _ledger = new Ledger({ appendTrnDump });  // define _ledger here to be able to use it in the `finally` block
+  let _startDate = new Date(0);
   try {
     validation.validateObj({
       obj: { modulesData, modules, appendTrnDump },
@@ -43,11 +45,17 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     //#region variables declaration
     const _drivers = new Drivers();
     const _sharedConstants = new SharedConstants();
-    // set _startDate (mutable) to 10 years ago, at the start of the year
-    let _startDate = new Date(new Date().getFullYear() - 10, 0, 1);
     // set _endDate (mutable) to 10 years from now, at the end of the year
-    const _endDate = new Date(new Date().getFullYear() + 10, 11, 31);
+    let _endDate = new Date(new Date().getFullYear() + 10, 11, 31);
     //#endregion variables declaration
+
+    //#region set contexts
+    const simulationContextStart = new SimulationContextStart({
+      setDriver: _drivers.set,
+      setSharedConstant: _sharedConstants.set,
+      setSimulationStartDate: setStartDate
+    });
+    //#endregion set contexts
 
     // TODO set _startDate/_endDate:
     // 1. call Settings module, one time, to get _endDate
@@ -102,6 +110,20 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
   return { success: true };
 
   //#region local functions
+  /**
+   * Set simulation start date for a modules; every module can call it, and the resulting start date will be the earliest date of all calls
+   * @param {Object} p
+   * @param {Date} p.date - Simulation start date
+   */
+  function setStartDate ({ date }) {
+    const _date = sanitization.sanitize({
+      value: date ,
+      sanitization: sanitization.DATE_TYPE,
+      validate: true
+    });
+    if (_date < _startDate) _startDate = _date;
+  }
+
   /** setDebugLevel, reading SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG
    * @param {SharedConstants} sharedConstants
    */

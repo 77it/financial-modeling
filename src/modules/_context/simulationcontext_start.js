@@ -14,21 +14,24 @@ export { SimulationContextStart };
 /**
  * Set a SharedConstant; a SharedConstant can be set only once
  * @callback setSharedConstant
- * @param {Object} p
- * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
- * @param {string} p.name - SharedConstant name
- * @param {*} p.value - SharedConstant value
+ * @param {{namespace?: string, name: string, value: *}} p
+ * namespace: optional; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
+ * name: sharedConstant name
+ * value: SharedConstant value
  * @return {boolean} true if SharedConstant is set, false if SharedConstant is already defined
  */
 
 /**
  * Set simulation start date for a modules; every module can call it, and the resulting start date will be the earliest date of all calls
  * @callback setSimulationStartDate
- * @param {Object} p
- * @param {string} p.date - Simulation start date
+ * @param {{date: Date}} p
  */
 
 class SimulationContextStart {
+  setDriver;
+  setSharedConstant;
+  setSimulationStartDate;
+
   /**
    * @param {Object} p
    * @param {setDriver} p.setDriver
