@@ -97,6 +97,10 @@ function sanitize ({ value, sanitization, validate = false }) {
           retValue = value.toISOString();
         else if (typeof value === 'number' && isFinite(value))
           retValue = String(value);
+        else if (value === true)
+          retValue = 'true';
+        else if (value === false)
+          retValue = 'false';
         else
           // Set to '' when whitespaces, '', null, undefined, false, 0, -0, 0n, NaN.
           // First condition to check truthy (not: false, 0, -0, 0n, "", null, undefined, and NaN)

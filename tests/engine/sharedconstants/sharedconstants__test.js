@@ -7,7 +7,8 @@ Deno.test('SharedConstants tests', async () => {
   const sharedConstants = new SharedConstants();
 
   // set
-  sharedConstants.set({ name: 'testFunc', value: testFunc });
+  assert(sharedConstants.set({ name: 'testFunc', value: testFunc }));
+  assertFalse(sharedConstants.set({ name: 'testFunc', value: testFunc }));
 
   // get without namespace
   assertEquals(sharedConstants.get({ name: 'testFunc' })(), 99);

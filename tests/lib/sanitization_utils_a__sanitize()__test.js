@@ -44,12 +44,16 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('abc', S.sanitize({ value: 'abc', sanitization: t }));
     assertEquals('2022-12-24T23:00:00.000Z', S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals('', S.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals('true', S.sanitize({ value: true, sanitization: t }));
+    assertEquals('false', S.sanitize({ value: false, sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals('999', S.sanitize({ value: 999, sanitization: t2 }));
     assertEquals('', S.sanitize({ value: '    ', sanitization: t2 }));  // whitespaces are trimmed
+    assertEquals('true', S.sanitize({ value: true, sanitization: t2 }));
+    assertEquals('false', S.sanitize({ value: false, sanitization: t2 }));
   });
 
   await t.step('number type + validation', async () => {
@@ -61,11 +65,15 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(0, S.sanitize({ value: 'abc', sanitization: t }));
     assertEquals(1671922800000, S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals(0, S.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals(1, S.sanitize({ value: true, sanitization: t }));
+    assertEquals(0, S.sanitize({ value: false, sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(999, S.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals(1, S.sanitize({ value: true, sanitization: t2 }));
+    assertEquals(0, S.sanitize({ value: false, sanitization: t2 }));
 
     assertEquals(S.sanitize({ value: '999', sanitization: S.NUMBER_TYPE, validate: true }), 999);
     assertEquals(S.sanitize({ value: '999', sanitization: S.NUMBER_TYPE + '?', validate: true }), 999);
@@ -81,11 +89,15 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(true, S.sanitize({ value: 'abc', sanitization: t }));
     assertEquals(true, S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals(true, S.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals(true, S.sanitize({ value: true, sanitization: t }));
+    assertEquals(false, S.sanitize({ value: false, sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(true, S.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals(true, S.sanitize({ value: true, sanitization: t2 }));
+    assertEquals(false, S.sanitize({ value: false, sanitization: t2 }));
   });
 
   await t.step('date type, with OPTIONS.DATE_UTC = true (UTC Date), default OPTIONS.NUMBER_TO_DATE = OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)', async () => {
@@ -101,11 +113,15 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(new Date(Date.UTC(2022, 11, 25, 0, 0, 0)), S.sanitize({ value: '2022-12-25T00:00:00.000Z', sanitization: t }));
     assertEquals(new Date(Date.UTC(2022, 11, 25, 0, 0, 0)), S.sanitize({ value: '2022-12-25', sanitization: t }));
     assertEquals(new Date(0), S.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals(new Date(1), S.sanitize({ value: true, sanitization: t }));
+    assertEquals(new Date(0), S.sanitize({ value: false, sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(new Date(Date.UTC(2022, 11, 25)), S.sanitize({ value: 44920, sanitization: t2 }));
+    assertEquals(new Date(1), S.sanitize({ value: true, sanitization: t2 }));
+    assertEquals(new Date(0), S.sanitize({ value: false, sanitization: t2 }));
 
     S.resetOptions();
   });
@@ -119,9 +135,13 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(new Date(2022, 11, 25, 0, 0, 0), S.sanitize({ value: '2022-12-25T00:00:00.000Z', sanitization: t }));
     assertEquals(new Date(2022, 11, 25, 0, 0, 0), S.sanitize({ value: '2022-12-25', sanitization: t }));
     assertEquals(new Date(0), S.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals(new Date(1), S.sanitize({ value: true, sanitization: t }));
+    assertEquals(new Date(0), S.sanitize({ value: false, sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(new Date(2022, 11, 25), S.sanitize({ value: 44920, sanitization: t2 }));
+    assertEquals(new Date(1), S.sanitize({ value: true, sanitization: t2 }));
+    assertEquals(new Date(0), S.sanitize({ value: false, sanitization: t2 }));
   });
 
   await t.step('date type with option number To Date OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE', async () => {
