@@ -1,16 +1,10 @@
 ﻿export { Settings };
 
-import { sanitization } from '../../deps.js';
-import * as STD_NAMES from '../../modules/_names/standardnames.js';
+import { sanitization, validation } from '../../deps.js';
+import * as STD_NAMES from '../../modules/_names/standard_names.js';
+import * as SETTINGS_NAMES from './settings_names.js';
 
-// TODO: settings starting with $ are immutable, can be definite in any moment and after definition can't be changed
 // TODO run tests
-
-// INFO
-/*
-# Immutable
-Settings starting with $ are immutable, can be definite in any moment and after definition can't be changed
- */
 
 class Settings {
   /**
@@ -19,12 +13,15 @@ class Settings {
    values are an array of {date: number [1], value: *}  [1] number obtained with `date.getTime()`
    * @type {Map<String, {dateMilliseconds: number, value: *}[]>} */
   #settingsRepo;
+  /** @type {Date} */
+  #today;
   /** @type {string} */
   #currentDebugModuleInfo;  // unused by now
 
   constructor () {
     this.#settingsRepo = new Map();
     this.#currentDebugModuleInfo = '';
+    this.#today = new Date(0);
   }
 
   /** @param {string} debugModuleInfo */
@@ -32,30 +29,38 @@ class Settings {
     this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
   }
 
+  /** @param {Date} today */
+  setToday (today) {
+    validation.validate({ value: today, validation: validation.DATE_TYPE });
+    this.#today = today;
+  }
+
   // TODO UPDATE
   /**
-   * Set drivers from an array of drivers dates and values
-   * @param {{scenario?: string, unit: string, name: string, date?: Date, value: number}[]} p
-   * scenario: optional; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
-   * unit: driver unit
-   * name: driver name
+   * Set Settings from an array of units, names, dates and values.
+   * Settings are immutable.
+   * If a date is already present, the second one will be ignored.
+   *
+   * @param {{unit?: string, name: string, date?: Date, value: number}[]} p
+   * unit: optional; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
+   * name: Setting name
    * date: optional; if missing will be set to new Date(0)
-   * value: driver value
+   * value: Setting value
    */
   set (p) {
     sanitization.sanitizeObj({
       obj: p,
       sanitization: {
         date: sanitization.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
-        value: sanitization.NUMBER_TYPE
+        value: sanitization.ANY_TYPE
       }
     });
 
     // loop all entries, saving in a set the keys of the drivers that are not already present
     const _keysToAdd = new Set();
     for (const _item of p) {
-      const _key = this.#driversRepoBuildKey({ scenario: _item.scenario, unit: _item.unit, name: _item.name });
-      if (!(this.#driversRepo.has(_key)))
+      const _key = this.#settingsRepoBuildKey({ unit: _item.unit, name: _item.name });
+      if (!(this.#settingsRepo.has(_key)))
         _keysToAdd.add(_key);
     }
 
@@ -73,7 +78,7 @@ class Settings {
           {
             let _toAppendFlag = true;
             // loop _driver array:
-            // 1) if the date is already present don't add it and set _toAppendFlag to false
+            // 1) if the date is already present don't add it (ignore it) and set _toAppendFlag to false
             // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
             // 3) if _toAppendFlag is still true, append date and value at the end of the array
             for (let i = 0; i < _driver.length; i++) {
@@ -106,10 +111,6 @@ class Settings {
    * @return {undefined|*} Setting; if not found, returns undefined
    */
   get ({ scenario, unit, name, date }) {
-    const _dateIsMissing = (date === undefined || date === null);
-
-    const _date = sanitization.sanitize({ value: date, sanitization: sanitization.DATE_TYPE });  // missing or invalid dates will be set to new Date(0)
-
     const _key = this.#driversRepoBuildKey({ scenario, unit, name });
 
     if (!this.#driversRepo.has(_key))
@@ -119,13 +120,15 @@ class Settings {
     if (!_driver)
       return undefined;
 
-    if (_dateIsMissing)
+    if ((date === undefined || date === null))
       return _driver[0].value;
+
+    const _date = sanitization.sanitize({ value: date, sanitization: sanitization.DATE_TYPE });  // missing or invalid dates will be set to new Date(0)
 
     const _dateMilliseconds = _date.getTime();  // date to search for
     let _ret = undefined;
 
-    // search for the right driver, saving the date closest (but not greater) to the requested date
+    // search for the right Setting, saving the date closest (but not greater) to the requested date
     for (const _item of _driver) {
       if (_item.dateMilliseconds <= _dateMilliseconds)
         _ret = _item.value;
@@ -134,20 +137,6 @@ class Settings {
     return _ret;
   }
 
-  // TODO UPDATE
-  /**
-   * Check if a SharedConstant is defined
-   * @param {Object} p
-   * @param {string} [p.unit] - Optional unit; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
-   * @param {string} p.name - Setting name
-   * @param {Date} [p.date] - Optional date; if missing, returns first value; if found returns the value closest (but not greater) to the requested date
-   * @return {boolean}
-   */
-  isDefined ({ unit, name }) {
-    return this.#sharedConstantsRepo.has(this.#sharedConstantsRepoBuildKey({ namespace, name }));
-  }
-
-  // TODO UPDATE
   //#region private methods
   /**
    * @param {Object} p
@@ -155,15 +144,14 @@ class Settings {
    * @param {string} p.name - Driver name
    * @return {string}
    */
-  #settingsRepoBuildKey ({ scenario, unit, name }) {
+  #settingsRepoBuildKey ({ unit, name }) {
     const _p = sanitization.sanitizeObj({
-      obj: { scenario, unit, name },
-      sanitization: { scenario: sanitization.STRING_TYPE, unit: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE },
+      obj: { unit, name },
+      sanitization: { unit: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE },
       validate: true
     });
-    if (_p.scenario === '') _p.scenario = STD_NAMES.Scenario.BASE;
+    if (_p.name === '') _p.name = STD_NAMES.Simulation.NAME;
     return JSON.stringify({
-      scenario: _p.scenario.trim().toLowerCase(),
       unit: _p.unit.trim().toLowerCase(),
       name: _p.name.trim().toLowerCase()
     });

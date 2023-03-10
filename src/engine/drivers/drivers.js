@@ -1,7 +1,7 @@
 ﻿export { Drivers };
 
-import { sanitization } from '../../deps.js';
-import * as STD_NAMES from '../../modules/_names/standardnames.js';
+import { sanitization, validation } from '../../deps.js';
+import * as STD_NAMES from '../../modules/_names/standard_names.js';
 
 class Drivers {
   /**
@@ -10,12 +10,15 @@ class Drivers {
    values are an array of {date: number [1], value: number}  [1] number obtained with `date.getTime()`
    * @type {Map<String, {dateMilliseconds: number, value: number}[]>} */
   #driversRepo;
+  /** @type {Date} */
+  #today;
   /** @type {string} */
   #currentDebugModuleInfo;  // unused by now
 
   constructor () {
     this.#driversRepo = new Map();
     this.#currentDebugModuleInfo = '';
+    this.#today = new Date(0);
   }
 
   /** @param {string} debugModuleInfo */
@@ -23,14 +26,23 @@ class Drivers {
     this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
   }
 
+  /** @param {Date} today */
+  setToday (today) {
+    validation.validate({ value: today, validation: validation.DATE_TYPE });
+    this.#today = today;
+  }
+
   /**
-   * Set drivers from an array of drivers dates and values
+   * Set Drivers from an array of scenarios, units, names, dates and value.
+   * Drivers are immutable.
+   * If a date is already present, the second one will be ignored.
+   *
    * @param {{scenario?: string, unit: string, name: string, date?: Date, value: number}[]} p
    * scenario: optional; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
-   * unit: driver unit
-   * name: driver name
+   * unit: Driver unit
+   * name: Driver name
    * date: optional; if missing will be set to new Date(0)
-   * value: driver value
+   * value: Driver value
    */
   set (p) {
     sanitization.sanitizeObj({
@@ -63,7 +75,7 @@ class Drivers {
           {
             let _toAppendFlag = true;
             // loop _driver array:
-            // 1) if the date is already present don't add it and set _toAppendFlag to false
+            // 1) if the date is already present don't add it (ignore it) and set _toAppendFlag to false
             // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
             // 3) if _toAppendFlag is still true, append date and value at the end of the array
             for (let i = 0; i < _driver.length; i++) {
@@ -96,10 +108,6 @@ class Drivers {
    * @return {undefined|number} Driver; if not found, returns undefined
    */
   get ({ scenario, unit, name, date }) {
-    const _dateIsMissing = (date === undefined || date === null);
-
-    const _date = sanitization.sanitize({ value: date, sanitization: sanitization.DATE_TYPE });  // missing or invalid dates will be set to new Date(0)
-
     const _key = this.#driversRepoBuildKey({ scenario, unit, name });
 
     if (!this.#driversRepo.has(_key))
@@ -109,13 +117,15 @@ class Drivers {
     if (!_driver)
       return undefined;
 
-    if (_dateIsMissing)
+    if (date === undefined || date === null)
       return _driver[0].value;
+
+    const _date = sanitization.sanitize({ value: date, sanitization: sanitization.DATE_TYPE });  // missing or invalid dates will be set to new Date(0)
 
     const _dateMilliseconds = _date.getTime();  // date to search for
     let _ret = undefined;
 
-    // search for the right driver, saving the date closest (but not greater) to the requested date
+    // search for the right Driver, saving the date closest (but not greater) to the requested date
     for (const _item of _driver) {
       if (_item.dateMilliseconds <= _dateMilliseconds)
         _ret = _item.value;

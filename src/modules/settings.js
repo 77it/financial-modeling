@@ -1,7 +1,7 @@
 export { NAMES };
 
 import { deepFreeze } from '../lib/obj_utils.js';
-import * as STD_NAMES from './_names/standardnames.js';
+import * as STD_NAMES from './_names/standard_names.js';
 import { validation } from '../deps.js';
 
 const NAMES = {};

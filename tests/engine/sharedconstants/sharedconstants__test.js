@@ -1,7 +1,7 @@
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../deps.js';
 
 import { SharedConstants } from '../../../src/engine/sharedconstants/sharedconstants.js';
-import * as STD_NAMES from '../../../src/modules/_names/standardnames.js';
+import * as STD_NAMES from '../../../src/modules/_names/standard_names.js';
 
 Deno.test('SharedConstants tests', async () => {
   const sharedConstants = new SharedConstants();

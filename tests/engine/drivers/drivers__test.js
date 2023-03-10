@@ -1,7 +1,7 @@
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../deps.js';
 
 import { Drivers } from '../../../src/engine/drivers/drivers.js';
-import * as STD_NAMES from '../../../src/modules/_names/standardnames.js';
+import * as STD_NAMES from '../../../src/modules/_names/standard_names.js';
 
 Deno.test('Drivers tests', async () => {
   const drivers = new Drivers();
@@ -58,6 +58,7 @@ Deno.test('Drivers tests', async () => {
   // #driver2 tests
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver ABC' }), 66);  // query without date
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver ABC', date: new Date(0) }), 66);  // query with date
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver ABC', date: new Date(2099, 0, 1) }), 66);  // query with date
 
   // #driver3[0] tests
   assertEquals(drivers.get({ unit: 'UnitA', name: 'driver XYZ' }), 77);  // query without date, missing scenario

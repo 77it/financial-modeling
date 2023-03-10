@@ -1,11 +1,10 @@
 ﻿export { SharedConstants };
 
 import { sanitization, validation } from '../../deps.js';
-import * as STD_NAMES from '../../modules/_names/standardnames.js';
+import * as STD_NAMES from '../../modules/_names/standard_names.js';
 
 /*
 if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
-sharedConstants are immutable: when defined/set can't be redefined.
  */
 
 class SharedConstants {
@@ -29,7 +28,7 @@ class SharedConstants {
   }
 
   /**
-   * Set a SharedConstant; a SharedConstant can be set only once
+   * Set a SharedConstant; SharedConstant are immutable.
    * @param {Object} p
    * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
    * @param {string} p.name - SharedConstant name

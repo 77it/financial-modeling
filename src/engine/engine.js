@@ -11,7 +11,7 @@ import { Settings } from './settings/settings.js';
 import { SharedConstants } from './sharedconstants/sharedconstants.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
 import { SharedConstants_ReservedNames } from './sharedconstants/sharedConstants_reservedNames.js';
-import * as STD_NAMES from '../modules/_names/standardnames.js';
+import * as STD_NAMES from '../modules/_names/standard_names.js';
 import { SimulationContextStart } from '../modules/_context/simulationcontext_start.js';
 
 // TODO
@@ -86,6 +86,10 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
     for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
       for (let i = 0; i < _modulesArray.length; i++) {
+        _ledger.setToday(date);
+        _settings.setToday(date);
+        _drivers.setToday(date);
+
         if (_modulesArray[i].alive) {
           _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
           // TODO NOW NOW NOW NOW
