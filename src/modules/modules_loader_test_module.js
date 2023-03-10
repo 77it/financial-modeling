@@ -8,6 +8,6 @@ export class Module {
 }
 
 export async function value_from_other_file__ValuesA2(){
-  const _module = (await import("./modules_loader_test_module2.js"));
+  const _module = await import("./modules_loader_test_module2.js");
   return _module.ValuesA2.value;
 }

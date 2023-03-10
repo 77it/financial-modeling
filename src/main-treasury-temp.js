@@ -231,7 +231,7 @@ async function _getObject_FromUri_FromModuleDataArray ({
     let _lastImportError = '';
     for (const _cdnURI of modulesLoader_Resolve(engineUrl)) {
       try {
-        const _module = (await import(_cdnURI));
+        const _module = await import(_cdnURI);
         if (_module != null && _module[objectName] != null) {
           return _module[objectName];
         }

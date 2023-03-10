@@ -77,7 +77,7 @@ class ModulesLoader {
       let _lastImportError = '';
       for (const _cdnURI of this.#modulesLoader_Resolve(_URI)) {
         try {
-          const _module = (await import(_cdnURI));
+          const _module = await import(_cdnURI);
           if (_module != null && _module[this.#defaultClassName] != null) {
             this.#classesRepo.set(repoKey, { class: _module[this.#defaultClassName], cdnURI: _cdnURI });
             return;
