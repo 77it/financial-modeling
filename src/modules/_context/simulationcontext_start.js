@@ -1,5 +1,17 @@
 export { SimulationContextStart };
 
+// TODO UPDATE
+/**
+ Set drivers from an array of drivers dates and values
+ @callback setSetting
+ @param {{scenario?: string, unit: string, name: string, date?: Date, value: number}[]} p
+ scenario: optional; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
+ unit: driver unit
+ name: driver name
+ date: optional; if missing will be set to new Date(0)
+ value: driver value
+ */
+
 /**
  Set drivers from an array of drivers dates and values
  @callback setDriver
@@ -28,17 +40,20 @@ export { SimulationContextStart };
  */
 
 class SimulationContextStart {
+  setSetting;
   setDriver;
   setSharedConstant;
   setSimulationStartDate;
 
   /**
    * @param {Object} p
+   * @param {setSetting} p.setSetting
    * @param {setDriver} p.setDriver
    * @param {setSharedConstant} p.setSharedConstant
    * @param {setSimulationStartDate} p.setSimulationStartDate
    */
-  constructor ({ setDriver, setSharedConstant, setSimulationStartDate }) {
+  constructor ({ setSetting, setDriver, setSharedConstant, setSimulationStartDate }) {
+    this.setSetting = setSetting;
     this.setDriver = setDriver;
     this.setSharedConstant = setSharedConstant;
     this.setSimulationStartDate = setSimulationStartDate;

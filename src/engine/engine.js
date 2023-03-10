@@ -7,6 +7,7 @@ import { Ledger } from './ledger/ledger.js';
 import { ModuleData } from './modules/module_data.js';
 import { Module } from '../modules/_sample_module.js';
 import { Drivers } from './drivers/drivers.js';
+import { Settings } from './settings/settings.js';
 import { SharedConstants } from './sharedconstants/sharedconstants.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
 import { SharedConstants_ReservedNames } from './sharedconstants/sharedConstants_reservedNames.js';
@@ -43,6 +44,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     const _moduleDataArray = modulesData;
     const _modulesArray = modules;
     //#region variables declaration
+    const _settings = new Settings();
     const _drivers = new Drivers();
     const _sharedConstants = new SharedConstants();
     // set _endDate (mutable) to 10 years from now, at the end of the year
@@ -51,6 +53,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
 
     //#region set contexts
     const simulationContextStart = new SimulationContextStart({
+      setSettings: _settings.set,
       setDriver: _drivers.set,
       setSharedConstant: _sharedConstants.set,
       setSimulationStartDate: setStartDate
@@ -68,6 +71,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     for (let i = 0; i < _modulesArray.length; i++) {
       if (_modulesArray[i].alive) {
         _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
+        _settings.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
         _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
         _sharedConstants.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
         // TODO NOW NOW NOW NOW
@@ -76,7 +80,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     }
     //#endregion call all modules, one time
 
-    setDebugLevel(_sharedConstants);
+      setDebugLevel(_settings);
 
     // TODO NOW: call all modules, every day, until the end of the simulation
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
@@ -124,11 +128,12 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     if (_date < _startDate) _startDate = _date;
   }
 
-  /** setDebugLevel, reading SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG
-   * @param {SharedConstants} sharedConstants
+// TODO update
+  /** setDebugLevel, reading Settings.Simulation.$DEBUG_FLAG
+   * @param {Settings} settings
    */
-  function setDebugLevel (sharedConstants) {
-    if (!(sharedConstants.isDefined({ namespace: STD_NAMES.Simulation.NAME, name: SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG })))
+  function setDebugLevel (settings) {
+    if (!(drivers.isDefined({ namespace: STD_NAMES.Simulation.NAME, name: SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG })))
       return;
 
     const _debugFlag = sanitization.sanitize({

@@ -1,20 +1,29 @@
-﻿export { Drivers };
+﻿export { Settings };
 
 import { sanitization } from '../../deps.js';
 import * as STD_NAMES from '../../modules/_names/standardnames.js';
 
-class Drivers {
+// TODO: settings starting with $ are immutable, can be definite in any moment and after definition can't be changed
+// TODO run tests
+
+// INFO
+/*
+# Immutable
+Settings starting with $ are immutable, can be definite in any moment and after definition can't be changed
+ */
+
+class Settings {
   /**
-   Map to store Drivers:
-   keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
-   values are an array of {date: number [1], value: number}  [1] number obtained with `date.getTime()`
-   * @type {Map<String, {dateMilliseconds: number, value: number}[]>} */
-  #driversRepo;
+   Map to store Settings:
+   keys are strings made of { unit, name } (built with `#settingsRepoBuildKey` method),
+   values are an array of {date: number [1], value: *}  [1] number obtained with `date.getTime()`
+   * @type {Map<String, {dateMilliseconds: number, value: *}[]>} */
+  #settingsRepo;
   /** @type {string} */
   #currentDebugModuleInfo;  // unused by now
 
   constructor () {
-    this.#driversRepo = new Map();
+    this.#settingsRepo = new Map();
     this.#currentDebugModuleInfo = '';
   }
 
@@ -23,6 +32,7 @@ class Drivers {
     this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
   }
 
+  // TODO UPDATE
   /**
    * Set drivers from an array of drivers dates and values
    * @param {{scenario?: string, unit: string, name: string, date?: Date, value: number}[]} p
@@ -86,14 +96,14 @@ class Drivers {
     }
   }
 
+  // TODO UPDATE
   /**
-   * Get a Driver
+   * Get a Setting
    * @param {Object} p
-   * @param {string} [p.scenario] - Optional scenario; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
-   * @param {string} p.unit - Driver unit
-   * @param {string} p.name - Driver name
+   * @param {string} [p.unit] - Optional unit; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
+   * @param {string} p.name - Setting name
    * @param {Date} [p.date] - Optional date; if missing, returns first value; if found returns the value closest (but not greater) to the requested date
-   * @return {undefined|number} Driver; if not found, returns undefined
+   * @return {undefined|*} Setting; if not found, returns undefined
    */
   get ({ scenario, unit, name, date }) {
     const _dateIsMissing = (date === undefined || date === null);
@@ -124,15 +134,28 @@ class Drivers {
     return _ret;
   }
 
+  // TODO UPDATE
+  /**
+   * Check if a SharedConstant is defined
+   * @param {Object} p
+   * @param {string} [p.unit] - Optional unit; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
+   * @param {string} p.name - Setting name
+   * @param {Date} [p.date] - Optional date; if missing, returns first value; if found returns the value closest (but not greater) to the requested date
+   * @return {boolean}
+   */
+  isDefined ({ unit, name }) {
+    return this.#sharedConstantsRepo.has(this.#sharedConstantsRepoBuildKey({ namespace, name }));
+  }
+
+  // TODO UPDATE
   //#region private methods
   /**
    * @param {Object} p
-   * @param {string} [p.scenario] - Optional scenario; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
-   * @param {string} p.unit - Driver unit
+   * @param {string} [p.unit] - Optional unit; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
    * @param {string} p.name - Driver name
    * @return {string}
    */
-  #driversRepoBuildKey ({ scenario, unit, name }) {
+  #settingsRepoBuildKey ({ scenario, unit, name }) {
     const _p = sanitization.sanitizeObj({
       obj: { scenario, unit, name },
       sanitization: { scenario: sanitization.STRING_TYPE, unit: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE },
