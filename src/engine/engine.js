@@ -8,9 +8,9 @@ import { ModuleData } from './modules/module_data.js';
 import { Module } from '../modules/_sample_module.js';
 import { Drivers } from './drivers/drivers.js';
 import { Settings } from './settings/settings.js';
-import { SharedConstants } from './sharedconstants/sharedconstants.js';
+import { TaskLocks } from './tasklocks/tasklocks.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
-import { SharedConstants_ReservedNames } from './sharedconstants/sharedConstants_reservedNames.js';
+import { TaskLocks_ReservedNames } from './tasklocks/tasklocks_reservednames.js';
 import * as SETTINGS_NAMES from './settings/settings_names.js';
 import * as STD_NAMES from '../modules/_names/standard_names.js';
 import { SimulationContextStart } from '../modules/_context/simulationcontext_start.js';
@@ -47,7 +47,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     //#region variables declaration
     const _settings = new Settings();
     const _drivers = new Drivers();
-    const _sharedConstants = new SharedConstants();
+    const _taskLocks = new TaskLocks();
     // set _endDate (mutable) to 10 years from now, at the end of the year
     let _endDate = new Date(new Date().getFullYear() + 10, 11, 31);
     //#endregion variables declaration
@@ -56,7 +56,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     const simulationContextStart = new SimulationContextStart({
       setSetting: _settings.set,
       setDriver: _drivers.set,
-      setSharedConstant: _sharedConstants.set,
+      setTaskLock: _taskLocks.set,
       setSimulationStartDate: setStartDate
     });
     //#endregion set contexts
@@ -74,7 +74,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
         _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
         _settings.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
         _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
-        _sharedConstants.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
+        _taskLocks.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
         // TODO NOW NOW NOW NOW
         checkOpenTransaction({ ledger: _ledger, moduleData: _moduleDataArray[i] });
       }
@@ -147,7 +147,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
       _ledger.setDebugLevel();
   }
 
-  /** Return debug info about the current module, to be used in the ledger, drivers and sharedConstants
+  /** Return debug info about the current module, to be used in the ledger, drivers and taskLocks
    * @param {ModuleData} moduleData
    */
   function getDebugModuleInfo (moduleData) {

@@ -1,13 +1,13 @@
-export { SharedConstants_ReservedNames };
+export { TaskLocks_ReservedNames };
 
 import { deepFreeze } from '../../lib/obj_utils.js';
 
-const SharedConstants_ReservedNames = {
+const TaskLocks_ReservedNames = {
   SIMULATION__INTERCOMPANY_TREASURY__DAILY_FUNCTION: 'SIMULATION__INTERCOMPANY_TREASURY__DAILY_FUNCTION',
   UNIT__TAXES__DAILY_FUNCTION: 'UNIT__TAXES__DAILY_FUNCTION',
   UNIT__TREASURY__DAILY_FUNCTION: 'UNIT__TREASURY__DAILY_FUNCTION',
 };
-deepFreeze(SharedConstants_ReservedNames);
+deepFreeze(TaskLocks_ReservedNames);
 
 // @ts-ignore
-export const SharedConstants_ReservedNames_validation = Object.keys(SharedConstants_ReservedNames).map(key => SharedConstants_ReservedNames[key]);
+export const TaskLocks_ReservedNames_validation = Object.keys(TaskLocks_ReservedNames).map(key => TaskLocks_ReservedNames[key]);

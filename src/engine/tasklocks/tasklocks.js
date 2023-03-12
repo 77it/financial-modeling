@@ -1,4 +1,4 @@
-﻿export { SharedConstants };
+﻿export { TaskLocks };
 
 import { sanitization, validation } from '../../deps.js';
 import * as STD_NAMES from '../../modules/_names/standard_names.js';
@@ -7,18 +7,18 @@ import * as STD_NAMES from '../../modules/_names/standard_names.js';
 if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
  */
 
-class SharedConstants {
+class TaskLocks {
   /**
-   Map to store SharedConstants:
-   keys are strings made of "namespace/name" (built with `sharedConstantsRepoBuildKey` method),
+   Map to store TaskLocks:
+   keys are strings made of "namespace/name" (built with `taskLocksRepoBuildKey` method),
    values are {constant: function_of_any_kind, debugModuleInfo: string}.
    * @type {Map<String, {constant: *, debugModuleInfo: string}>} */
-  #sharedConstantsRepo;
+  #taskLocksRepo;
   /** @type {string} */
   #currentDebugModuleInfo;
 
   constructor () {
-    this.#sharedConstantsRepo = new Map();
+    this.#taskLocksRepo = new Map();
     this.#currentDebugModuleInfo = '';
   }
 
@@ -28,71 +28,71 @@ class SharedConstants {
   }
 
   /**
-   * Set a SharedConstant; SharedConstant are immutable.
+   * Set a TaskLock; TaskLock are immutable.
    * @param {Object} p
    * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
-   * @param {string} p.name - SharedConstant name
-   * @param {*} p.value - SharedConstant value
-   * @return {boolean} true if SharedConstant is set, false if SharedConstant is already defined
+   * @param {string} p.name - TaskLock name
+   * @param {*} p.value - TaskLock value
+   * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
    */
   set ({ namespace, name, value }) {
     validation.validate({ value: value, validation: validation.FUNCTION_TYPE });
-    const _key = this.#sharedConstantsRepoBuildKey({ namespace, name });
-    if (this.#sharedConstantsRepo.has(_key))
+    const _key = this.#taskLocksRepoBuildKey({ namespace, name });
+    if (this.#taskLocksRepo.has(_key))
       return false;
-    this.#sharedConstantsRepo.set(_key, { constant: value, debugModuleInfo: this.#currentDebugModuleInfo });
+    this.#taskLocksRepo.set(_key, { constant: value, debugModuleInfo: this.#currentDebugModuleInfo });
     return true;
   }
 
   /**
-   * Get a SharedConstant
+   * Get a TaskLock
    * @param {Object} p
    * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
-   * @param {string} p.name - SharedConstant name
-   * @return {*} SharedConstant
-   * @throws {Error} if SharedConstant is not defined, throws an error
+   * @param {string} p.name - TaskLock name
+   * @return {*} TaskLock
+   * @throws {Error} if TaskLock is not defined, throws an error
    */
   get ({ namespace, name }) {
-    const _key = this.#sharedConstantsRepoBuildKey({ namespace, name });
-    if (!this.#sharedConstantsRepo.has(_key))
-      throw new Error(`SharedConstant '${_key}' is not defined.`);
-    return this.#sharedConstantsRepo.get(_key)?.constant;
+    const _key = this.#taskLocksRepoBuildKey({ namespace, name });
+    if (!this.#taskLocksRepo.has(_key))
+      throw new Error(`TaskLock '${_key}' is not defined.`);
+    return this.#taskLocksRepo.get(_key)?.constant;
   }
 
   /**
-   * Get info on the module that defined a SharedConstant
+   * Get info on the module that defined a TaskLock
    * @param {Object} p
    * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
-   * @param {string} p.name - SharedConstant name
-   * @return {*} Info on the module that defined a SharedConstant
-   * @throws {Error} if SharedConstant is not defined, throws an error
+   * @param {string} p.name - TaskLock name
+   * @return {*} Info on the module that defined a TaskLock
+   * @throws {Error} if TaskLock is not defined, throws an error
    */
   getDebugModuleInfo ({ namespace, name }) {
-    const _key = this.#sharedConstantsRepoBuildKey({ namespace, name });
-    if (!this.#sharedConstantsRepo.has(_key))
-      throw new Error(`SharedConstant '${_key}' is not defined.`);
-    return this.#sharedConstantsRepo.get(_key)?.debugModuleInfo;
+    const _key = this.#taskLocksRepoBuildKey({ namespace, name });
+    if (!this.#taskLocksRepo.has(_key))
+      throw new Error(`TaskLock '${_key}' is not defined.`);
+    return this.#taskLocksRepo.get(_key)?.debugModuleInfo;
   }
 
   /**
-   * Check if a SharedConstant is defined
+   * Check if a TaskLock is defined
    * @param {Object} p
    * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
-   * @param {string} p.name - SharedConstant name
+   * @param {string} p.name - TaskLock name
    * @return {boolean}
    */
   isDefined ({ namespace, name }) {
-    return this.#sharedConstantsRepo.has(this.#sharedConstantsRepoBuildKey({ namespace, name }));
+    return this.#taskLocksRepo.has(this.#taskLocksRepoBuildKey({ namespace, name }));
   }
 
   //#region private methods
   /**
    * @param {Object} p
    * @param {string} [p.namespace] - Optional namespace; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
-   * @param {string} p.name - SharedConstant name
+   * @param {string} p.name - TaskLock name
    * @return {string}
    */
-  #sharedConstantsRepoBuildKey ({ namespace, name }) {
+  #taskLocksRepoBuildKey ({ namespace, name }) {
     const _p = sanitization.sanitizeObj({
       obj: { namespace, name },
       sanitization: { namespace: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE },

@@ -1,5 +1,6 @@
 import { Big } from '../../src/deps.js';
 import * as S from '../../src/lib/sanitization_utils.js';
+import * as V from '../../src/lib/validation_utils.js';
 
 import {
   assert,
@@ -7,6 +8,27 @@ import {
   assertFalse,
   assertThrows,
 } from '../deps.js';
+
+Deno.test('test sanitization lib const definition', async (t) => {
+  assertEquals(S.ANY_TYPE, V.ANY_TYPE);
+  assertEquals(S.STRING_TYPE, V.STRING_TYPE);
+  assertEquals(S.NUMBER_TYPE, V.NUMBER_TYPE);
+  assertEquals(S.BOOLEAN_TYPE, V.BOOLEAN_TYPE);
+  assertEquals(S.DATE_TYPE, V.DATE_TYPE);
+  assertEquals(S.ARRAY_TYPE, V.ARRAY_TYPE);
+  assertEquals(S.ARRAY_OF_STRINGS_TYPE, V.ARRAY_OF_STRINGS_TYPE);
+  assertEquals(S.ARRAY_OF_NUMBERS_TYPE, V.ARRAY_OF_NUMBERS_TYPE);
+  assertEquals(S.ARRAY_OF_BOOLEANS_TYPE, V.ARRAY_OF_BOOLEANS_TYPE);
+  assertEquals(S.ARRAY_OF_DATES_TYPE, V.ARRAY_OF_DATES_TYPE);
+  assertEquals(S.ARRAY_OF_OBJECTS_TYPE, V.ARRAY_OF_OBJECTS_TYPE);
+  assertEquals(S.OBJECT_TYPE, V.OBJECT_TYPE);
+  assertEquals(S.FUNCTION_TYPE, V.FUNCTION_TYPE);
+  assertEquals(S.SYMBOL_TYPE, V.SYMBOL_TYPE);
+  assertEquals(S.BIGJS_TYPE, V.BIGJS_TYPE);
+  assertEquals(S.BIGJS_NUMBER_TYPE, V.BIGJS_NUMBER_TYPE);
+  assertEquals(S.ARRAY_OF_BIGJS_TYPE, V.ARRAY_OF_BIGJS_TYPE);
+  assertEquals(S.ARRAY_OF_BIGJS_NUMBER_TYPE, V.ARRAY_OF_BIGJS_NUMBER_TYPE);
+});
 
 Deno.test('test sanitize()', async (t) => {
   await t.step('test default options', async () => {

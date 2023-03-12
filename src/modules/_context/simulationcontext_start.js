@@ -24,13 +24,13 @@ export { SimulationContextStart };
  */
 
 /**
- * Set a SharedConstant; a SharedConstant can be set only once
- * @callback setSharedConstant
+ * Set a TaskLock; a TaskLock can be set only once
+ * @callback setTaskLock
  * @param {{namespace?: string, name: string, value: *}} p
  * namespace: optional; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
- * name: sharedConstant name
- * value: SharedConstant value
- * @return {boolean} true if SharedConstant is set, false if SharedConstant is already defined
+ * name: TaskLock name
+ * value: TaskLock value
+ * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
  */
 
 /**
@@ -42,20 +42,20 @@ export { SimulationContextStart };
 class SimulationContextStart {
   setSetting;
   setDriver;
-  setSharedConstant;
+  setTaskLock;
   setSimulationStartDate;
 
   /**
    * @param {Object} p
    * @param {setSetting} p.setSetting
    * @param {setDriver} p.setDriver
-   * @param {setSharedConstant} p.setSharedConstant
+   * @param {setTaskLock} p.setTaskLock
    * @param {setSimulationStartDate} p.setSimulationStartDate
    */
-  constructor ({ setSetting, setDriver, setSharedConstant, setSimulationStartDate }) {
+  constructor ({ setSetting, setDriver, setTaskLock, setSimulationStartDate }) {
     this.setSetting = setSetting;
     this.setDriver = setDriver;
-    this.setSharedConstant = setSharedConstant;
+    this.setTaskLock = setTaskLock;
     this.setSimulationStartDate = setSimulationStartDate;
   }
 }
