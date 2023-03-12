@@ -4,7 +4,7 @@ export { SimulationContextStart };
 /**
  Set drivers from an array of drivers dates and values
  @callback setSetting
- @param {{scenario?: string, unit: string, name: string, date?: Date, value: number}[]} p
+ @param {{unit?: string, name: string, date?: Date, value: number}[]} p
  scenario: optional; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
  unit: driver unit
  name: driver name

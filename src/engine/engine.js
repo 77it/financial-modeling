@@ -11,6 +11,7 @@ import { Settings } from './settings/settings.js';
 import { SharedConstants } from './sharedconstants/sharedconstants.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
 import { SharedConstants_ReservedNames } from './sharedconstants/sharedConstants_reservedNames.js';
+import * as SETTINGS_NAMES from './settings/settings_names.js';
 import * as STD_NAMES from '../modules/_names/standard_names.js';
 import { SimulationContextStart } from '../modules/_context/simulationcontext_start.js';
 
@@ -53,7 +54,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
 
     //#region set contexts
     const simulationContextStart = new SimulationContextStart({
-      setSettings: _settings.set,
+      setSetting: _settings.set,
       setDriver: _drivers.set,
       setSharedConstant: _sharedConstants.set,
       setSimulationStartDate: setStartDate
@@ -137,11 +138,8 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
    * @param {Settings} settings
    */
   function setDebugLevel (settings) {
-    if (!(drivers.isDefined({ namespace: STD_NAMES.Simulation.NAME, name: SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG })))
-      return;
-
     const _debugFlag = sanitization.sanitize({
-      value: sharedConstants.get({ namespace: STD_NAMES.Simulation.NAME, name: SharedConstants_ReservedNames.SIMULATION__DEBUG_FLAG })(),
+      value: settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
       sanitization: sanitization.BOOLEAN_TYPE
     });
 
