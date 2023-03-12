@@ -2,28 +2,29 @@ export { sanitize, sanitizeObj, resetOptions };
 
 import { parseJSON, excelSerialDateToDate, excelSerialDateToUTCDate } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
+import * as validationLib from './validation_utils.js';
 import { deepFreeze } from './obj_utils.js';
 import { Big } from '../deps.js';
 
 //#region types
-export const ANY_TYPE = 'any';
-export const STRING_TYPE = 'string';
-export const NUMBER_TYPE = 'number';
-export const BOOLEAN_TYPE = 'boolean';
-export const DATE_TYPE = 'date';
-export const ARRAY_TYPE = 'array';
-export const ARRAY_OF_STRINGS_TYPE = 'array[string]';
-export const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
-export const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
-export const ARRAY_OF_DATES_TYPE = 'array[date]';
-export const ARRAY_OF_OBJECTS_TYPE = 'array[object]';
-export const OBJECT_TYPE = 'object';
-export const FUNCTION_TYPE = 'function';
-export const SYMBOL_TYPE = 'symbol';
-export const BIGJS_TYPE = 'big_js';
-export const BIGJS_NUMBER_TYPE = 'big_js_number';
-export const ARRAY_OF_BIGJS_TYPE = 'array[big_js]';
-export const ARRAY_OF_BIGJS_NUMBER_TYPE = 'array[big_js_number]';
+export const ANY_TYPE = validationLib.ANY_TYPE;
+export const STRING_TYPE = validationLib.STRING_TYPE;
+export const NUMBER_TYPE = validationLib.NUMBER_TYPE;
+export const BOOLEAN_TYPE = validationLib.BOOLEAN_TYPE;
+export const DATE_TYPE = validationLib.DATE_TYPE;
+export const ARRAY_TYPE = validationLib.ARRAY_TYPE;
+export const ARRAY_OF_STRINGS_TYPE = validationLib.ARRAY_OF_STRINGS_TYPE;
+export const ARRAY_OF_NUMBERS_TYPE = validationLib.ARRAY_OF_NUMBERS_TYPE;
+export const ARRAY_OF_BOOLEANS_TYPE = validationLib.ARRAY_OF_BOOLEANS_TYPE;
+export const ARRAY_OF_DATES_TYPE = validationLib.ARRAY_OF_DATES_TYPE;
+export const ARRAY_OF_OBJECTS_TYPE = validationLib.ARRAY_OF_OBJECTS_TYPE;
+export const OBJECT_TYPE = validationLib.OBJECT_TYPE;
+export const FUNCTION_TYPE = validationLib.FUNCTION_TYPE;
+export const SYMBOL_TYPE = validationLib.SYMBOL_TYPE;
+export const BIGJS_TYPE = validationLib.BIGJS_TYPE;
+export const BIGJS_NUMBER_TYPE = validationLib.BIGJS_NUMBER_TYPE;
+export const ARRAY_OF_BIGJS_TYPE = validationLib.ARRAY_OF_BIGJS_TYPE;
+export const ARRAY_OF_BIGJS_NUMBER_TYPE = validationLib.ARRAY_OF_BIGJS_NUMBER_TYPE;
 //#endregion types
 
 export const NUMBER_TO_DATE_OPTS = {
