@@ -10,11 +10,11 @@ Deno.test('TaskLocks tests', async () => {
   assert(taskLocks.set({ name: 'testFunc', value: testFunc }));
   assertFalse(taskLocks.set({ name: 'testFunc', value: testFunc }));
 
-  // get without namespace
+  // get without unit
   assertEquals(taskLocks.get({ name: 'testFunc' })(), 99);
 
-  // get with namespace
-  assertEquals(taskLocks.get({ namespace: STD_NAMES.Simulation.NAME, name: 'testFunc' })(), 99);
+  // get with unit
+  assertEquals(taskLocks.get({ unit: STD_NAMES.Simulation.NAME, name: 'testFunc' })(), 99);
 });
 
 function testFunc() {

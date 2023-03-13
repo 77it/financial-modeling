@@ -26,8 +26,8 @@ export { SimulationContextStart };
 /**
  * Set a TaskLock; a TaskLock can be set only once
  * @callback setTaskLock
- * @param {{namespace?: string, name: string, value: *}} p
- * namespace: optional; global/simulation namespace is STD_NAMES.Simulation.NAME ('$' by now); namespace can be null, undefined or '' meaning '$'
+ * @param {{unit?: string, name: string, value: *}} p
+ * unit: optional; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
  * name: TaskLock name
  * value: TaskLock value
  * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
