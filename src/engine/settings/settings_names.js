@@ -1,8 +1,12 @@
+// names of Settings; strings values will be used in the Excel/Source File
+
 export { Simulation, Unit };
 
 import { deepFreeze } from '../../lib/obj_utils.js';
 
 const Simulation = {
+  $$MODULESLOADER_URI: '$$MODULESLOADER',
+  $$ENGINE_URI: '$$ENGINE',
   $$DEBUG_FLAG: '$$DEBUG_FLAG',
   $$SIMULATION_END_DATE: '$$SIMULATION_END_DATE',  // movements after SIMULATION_END_DATE are not processed by the simulation engine
   $$NUMBER_STRING_DECIMAL_SEPARATOR: '$$NUMBER_STRING_DECIMAL_SEPARATOR',  // dot as decimal separator | comma as decimal separator; used to interpret, on columns that should contain numbers, strings that need to be converted to numbers

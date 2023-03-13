@@ -28,7 +28,10 @@ import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.
 import { engine } from './engine/engine.js';
 import { ModulesLoader } from './modules/_modules_loader.js';
 import { Module } from './modules/_sample_module.js';
-import { NAMES as SETTINGS_NAMES } from './modules/settings.js';
+
+import { ModuleInfo as SETTINGS_MODULE_INFO } from './modules/settings.js';
+import * as SETTINGS_NAMES from './engine/settings/settings_names.js';
+import * as STD_NAMES from './modules/_names/standard_names.js';
 //#endregion local imports
 
 // call `main` function only if there are command line arguments  (useful to not call `main` function with the following code when importing this file)
@@ -60,10 +63,16 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
     // get ModulesLoader class from `moduleDataArray` or from `'./modules/_modules_loader.js'` file
     const _modulesLoaderClass = await _getObject_FromUri_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
-      moduleName: SETTINGS_NAMES.MODULE,
-      tableName: SETTINGS_NAMES.TABLES.SET.NAME,
-      unitName: SETTINGS_NAMES.TABLES.SET.SETTINGS.MODULESLOADER_URI.UNIT,
-      settingName: SETTINGS_NAMES.TABLES.SET.SETTINGS.MODULESLOADER_URI.VALUE,
+      moduleName: SETTINGS_MODULE_INFO.MODULE_NAME,
+      tableName: SETTINGS_MODULE_INFO.TablesInfo.Set.NAME,
+      tableSanitization: SETTINGS_MODULE_INFO.TablesInfo.Set.Validation,
+      tableColScenario: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.SCENARIO,
+      tableColUnit: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.UNIT,
+      tableColName: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.NAME,
+      tableColValue: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.VALUE,
+      scenarioName: STD_NAMES.Scenario.BASE,
+      unitName: STD_NAMES.Simulation.NAME,
+      settingName: SETTINGS_NAMES.Simulation.$$MODULESLOADER_URI,
       objectName: 'ModulesLoader',
       debug: debug,
       defaultObject: ModulesLoader
@@ -79,10 +88,16 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
     // get engine from `moduleDataArray` or from `./engine/engine.js` file
     const _engine = await _getObject_FromUri_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
-      moduleName: SETTINGS_NAMES.MODULE,
-      tableName: SETTINGS_NAMES.TABLES.SET.NAME,
-      unitName: SETTINGS_NAMES.TABLES.SET.SETTINGS.ENGINE_URI.UNIT,
-      settingName: SETTINGS_NAMES.TABLES.SET.SETTINGS.ENGINE_URI.VALUE,
+      moduleName: SETTINGS_MODULE_INFO.MODULE_NAME,
+      tableName: SETTINGS_MODULE_INFO.TablesInfo.Set.NAME,
+      tableSanitization: SETTINGS_MODULE_INFO.TablesInfo.Set.Validation,
+      tableColScenario: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.SCENARIO,
+      tableColUnit: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.UNIT,
+      tableColName: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.NAME,
+      tableColValue: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.VALUE,
+      scenarioName: STD_NAMES.Scenario.BASE,
+      unitName: STD_NAMES.Simulation.NAME,
+      settingName: SETTINGS_NAMES.Simulation.$$ENGINE_URI,
       objectName: 'engine',
       debug: debug,
       defaultObject: engine
@@ -181,6 +196,12 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
  * @param {ModuleData[]} p.moduleDataArray
  * @param {string} p.moduleName
  * @param {string} p.tableName
+ * @param {*} p.tableSanitization
+ * @param {string} p.tableColScenario
+ * @param {string} p.tableColUnit
+ * @param {string} p.tableColName
+ * @param {string} p.tableColValue
+ * @param {string} p.scenarioName
  * @param {string} p.unitName
  * @param {string} p.settingName
  * @param {string} p.objectName
@@ -192,6 +213,12 @@ async function _getObject_FromUri_FromModuleDataArray ({
   moduleDataArray,
   moduleName,
   tableName,
+  tableSanitization,
+  tableColScenario,
+  tableColUnit,
+  tableColName,
+  tableColValue,
+  scenarioName,
   unitName,
   settingName,
   objectName,
@@ -202,10 +229,6 @@ async function _getObject_FromUri_FromModuleDataArray ({
   if (debug)
     return defaultObject;
 
-  const _COL_UNIT = SETTINGS_NAMES.TABLES.SET.COLUMNS.UNIT;
-  const _COL_NAME = SETTINGS_NAMES.TABLES.SET.COLUMNS.NAME;
-  const _COL_VALUE = SETTINGS_NAMES.TABLES.SET.COLUMNS.VALUE;
-
   const engineUrl = (() => {
     for (const moduleData of moduleDataArray) {
       if (moduleData.moduleName === moduleName)
@@ -214,11 +237,15 @@ async function _getObject_FromUri_FromModuleDataArray ({
             const _table = structuredClone(_tableObj.table);  // clone _tableObj to avoid side effects
             sanitization.sanitizeObj({
               obj: _table,
-              sanitization: SETTINGS_NAMES.TABLES.SET.VALIDATION
+              sanitization: tableSanitization
             });
             for (const row of _table) {
-              if (row[_COL_UNIT].toString().trim().toUpperCase() === unitName.trim().toUpperCase() && row[_COL_NAME].toString().trim().toUpperCase() === settingName.trim().toUpperCase())
-                return row[_COL_VALUE].toString().trim();
+              if (
+                (row[tableColScenario].toString().trim().toUpperCase() === scenarioName.trim().toUpperCase() ||
+                  row[tableColScenario].toString().trim().toUpperCase() === '') &&
+                row[tableColUnit].toString().trim().toUpperCase() === unitName.trim().toUpperCase() &&
+                row[tableColName].toString().trim().toUpperCase() === settingName.trim().toUpperCase())
+                return row[tableColValue].toString().trim();
             }
           }
         }
