@@ -12,7 +12,7 @@ TablesInfo.Set.Validation = {
   [TablesInfo.Set.Columns.SCENARIO]: validation.STRING_TYPE,
   [TablesInfo.Set.Columns.UNIT]: validation.STRING_TYPE,
   [TablesInfo.Set.Columns.NAME]: validation.STRING_TYPE,
-  [TablesInfo.Set.Columns.VALUE]: validation.STRING_TYPE
+  [TablesInfo.Set.Columns.VALUE]: validation.ANY_TYPE
 };
 const ModuleInfo = {MODULE_NAME, TablesInfo}
 deepFreeze(ModuleInfo);

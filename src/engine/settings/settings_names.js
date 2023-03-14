@@ -5,8 +5,9 @@ export { Simulation, Unit };
 import { deepFreeze } from '../../lib/obj_utils.js';
 
 const Simulation = {
-  $$MODULESLOADER_URI: '$$MODULESLOADER',
-  $$ENGINE_URI: '$$ENGINE',
+  $$SCENARIOS: '$$SCENARIOS',
+  $$MODULESLOADER_URL: '$$MODULESLOADER',
+  $$ENGINE_URL: '$$ENGINE',
   $$DEBUG_FLAG: '$$DEBUG_FLAG',
   $$SIMULATION_END_DATE: '$$SIMULATION_END_DATE',  // movements after SIMULATION_END_DATE are not processed by the simulation engine
   $$NUMBER_STRING_DECIMAL_SEPARATOR: '$$NUMBER_STRING_DECIMAL_SEPARATOR',  // dot as decimal separator | comma as decimal separator; used to interpret, on columns that should contain numbers, strings that need to be converted to numbers
@@ -24,7 +25,7 @@ const Unit = {
   // mutable, could accept scenario and dates
   DEFAULT_DAY_PAYABLE: 'DEFAULT_DAY_PAYABLE',
 
-  // mutable: active Unit, VsUnit, etc; to work correctly should be set without scenario and dates.
+  // mutable: active Unit, VsUnit, etc.; to work correctly should be set without scenario and dates.
   ACTIVE__UNIT: 'ACTIVE__UNIT',
   ACTIVE__VSUNIT: 'ACTIVE__VSUNIT',
   ACTIVE__METADATA_TYPE: 'ACTIVE__METADATA_TYPE',

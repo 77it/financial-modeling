@@ -61,18 +61,13 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
     const _moduleDataArray = await _convertExcelToModuleDataArray({ excelUserInput, errors });
 
     // get ModulesLoader class from `moduleDataArray` or from `'./modules/_modules_loader.js'` file
-    const _modulesLoaderClass = await _getObject_FromUri_FromModuleDataArray({
+    const _$$MODULESLOADER_URL = _get_SimulationSetting_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
-      moduleName: SETTINGS_MODULE_INFO.MODULE_NAME,
-      tableName: SETTINGS_MODULE_INFO.TablesInfo.Set.NAME,
-      tableSanitization: SETTINGS_MODULE_INFO.TablesInfo.Set.Validation,
-      tableColScenario: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.SCENARIO,
-      tableColUnit: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.UNIT,
-      tableColName: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.NAME,
-      tableColValue: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.VALUE,
-      scenarioName: STD_NAMES.Scenario.BASE,
-      unitName: STD_NAMES.Simulation.NAME,
-      settingName: SETTINGS_NAMES.Simulation.$$MODULESLOADER_URI,
+      settingName: SETTINGS_NAMES.Simulation.$$MODULESLOADER_URL,
+      settingSanitization: sanitization.STRING_TYPE
+    });
+    const _modulesLoaderClass = await _getObject_FromUrl({
+      url: _$$MODULESLOADER_URL,
       objectName: 'ModulesLoader',
       debug: debug,
       defaultObject: ModulesLoader
@@ -86,18 +81,13 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
       { modulesLoader: _modulesLoader, moduleDataArray: _moduleDataArray });
 
     // get engine from `moduleDataArray` or from `./engine/engine.js` file
-    const _engine = await _getObject_FromUri_FromModuleDataArray({
+    const _$$ENGINE_URL = _get_SimulationSetting_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
-      moduleName: SETTINGS_MODULE_INFO.MODULE_NAME,
-      tableName: SETTINGS_MODULE_INFO.TablesInfo.Set.NAME,
-      tableSanitization: SETTINGS_MODULE_INFO.TablesInfo.Set.Validation,
-      tableColScenario: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.SCENARIO,
-      tableColUnit: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.UNIT,
-      tableColName: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.NAME,
-      tableColValue: SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.VALUE,
-      scenarioName: STD_NAMES.Scenario.BASE,
-      unitName: STD_NAMES.Simulation.NAME,
-      settingName: SETTINGS_NAMES.Simulation.$$ENGINE_URI,
+      settingName: SETTINGS_NAMES.Simulation.$$ENGINE_URL,
+      settingSanitization: sanitization.STRING_TYPE
+    });
+    const _engine = await _getObject_FromUrl({
+      url: _$$ENGINE_URL,
       objectName: 'engine',
       debug: debug,
       defaultObject: engine
@@ -194,42 +184,26 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
  * Returns an object, from `moduleDataArray` or from defaultObject
  * @param {Object} p
  * @param {ModuleData[]} p.moduleDataArray
- * @param {string} p.moduleName
- * @param {string} p.tableName
- * @param {*} p.tableSanitization
- * @param {string} p.tableColScenario
- * @param {string} p.tableColUnit
- * @param {string} p.tableColName
- * @param {string} p.tableColValue
- * @param {string} p.scenarioName
- * @param {string} p.unitName
  * @param {string} p.settingName
- * @param {string} p.objectName
- * @param {boolean} p.debug - Debug flag: when true, the engine function is returned from local engine file
- * @param {*} p.defaultObject - Default object to return when debug is true or when `settingName` is not found
- * @return {Promise<*>} - Some object read from URI
+ * @param {string} p.settingSanitization
+ * @return {*} - Setting read from `moduleDataArray`
  */
-async function _getObject_FromUri_FromModuleDataArray ({
+function _get_SimulationSetting_FromModuleDataArray ({
   moduleDataArray,
-  moduleName,
-  tableName,
-  tableSanitization,
-  tableColScenario,
-  tableColUnit,
-  tableColName,
-  tableColValue,
-  scenarioName,
-  unitName,
   settingName,
-  objectName,
-  debug,
-  defaultObject
+  settingSanitization
 }) {
+  const moduleName = SETTINGS_MODULE_INFO.MODULE_NAME;
+  const tableName = SETTINGS_MODULE_INFO.TablesInfo.Set.NAME;
+  const tableSanitization = SETTINGS_MODULE_INFO.TablesInfo.Set.Validation;
+  const tableColScenario = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.SCENARIO;
+  const tableColUnit = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.UNIT;
+  const tableColName = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.NAME;
+  const tableColValue = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.VALUE;
+  const scenarioName = STD_NAMES.Scenario.BASE;
+  const unitName = STD_NAMES.Simulation.NAME;
 
-  if (debug)
-    return defaultObject;
-
-  const engineUrl = (() => {
+  const _setting = (() => {
     for (const moduleData of moduleDataArray) {
       if (moduleData.moduleName === moduleName)
         for (const _tableObj of moduleData.tables) {
@@ -252,11 +226,34 @@ async function _getObject_FromUri_FromModuleDataArray ({
     }
   })();
 
-  if (engineUrl) {
+  return sanitization.sanitize({ value: _setting, sanitization: settingSanitization });
+}
+
+/**
+ @private
+ * Returns an object, from `moduleDataArray` or from defaultObject
+ * @param {Object} p
+ * @param {string} p.url
+ * @param {string} p.objectName
+ * @param {boolean} p.debug - Debug flag: when true, the engine function is returned from local engine file
+ * @param {*} p.defaultObject - Default object to return when debug is true or when `settingName` is not found
+ * @return {Promise<*>} - Some object read from URI
+ */
+async function _getObject_FromUrl ({
+  url,
+  objectName,
+  debug,
+  defaultObject
+}) {
+
+  if (debug)
+    return defaultObject;
+
+  if (url) {
     // DYNAMIC IMPORT (works with Deno and browser)
     // inspired to ModulesLoader.addClassFromURI
     let _lastImportError = '';
-    for (const _cdnURI of modulesLoader_Resolve(engineUrl)) {
+    for (const _cdnURI of modulesLoader_Resolve(url)) {
       try {
         const _module = await import(_cdnURI);
         if (_module != null && _module[objectName] != null) {
@@ -266,7 +263,7 @@ async function _getObject_FromUri_FromModuleDataArray ({
         _lastImportError = error.stack?.toString() ?? error.toString();  // save the last error and go on with the loop trying the next cdnURI
       }
     }
-    throw new Error(`error loading module ${engineUrl}, error: ${_lastImportError}`);
+    throw new Error(`error loading module ${url}, error: ${_lastImportError}`);
   }
 
   // fallback to default object
