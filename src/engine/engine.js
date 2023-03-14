@@ -28,10 +28,11 @@ before calling a module method checks if the method is defined, otherwise it ski
  * @param {Object} p
  * @param {ModuleData[]} p.modulesData - Array of `ModuleData` objects
  * @param {Module[]} p.modules - Array of module classes, in the same order of modulesData
+ * @param {string} p.scenario - Scenario name
  * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
  * @return {Promise<Result>}
  */
-async function engine ({ modulesData, modules, appendTrnDump }) {
+async function engine ({ modulesData, modules, scenario, appendTrnDump }) {
   /** @type {Ledger} */
   let _ledger = new Ledger({ appendTrnDump });  // define _ledger here to be able to use it in the `finally` block
   let _startDate = new Date(0);
@@ -45,6 +46,7 @@ async function engine ({ modulesData, modules, appendTrnDump }) {
     const _moduleDataArray = modulesData;
     const _modulesArray = modules;
     //#region variables declaration
+    console.log('scenario: ' + scenario); // TODO set `scenario` in Settings, Drivers
     const _settings = new Settings();
     const _drivers = new Drivers();
     const _taskLocks = new TaskLocks();

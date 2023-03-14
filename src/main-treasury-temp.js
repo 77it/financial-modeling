@@ -37,20 +37,21 @@ import * as STD_NAMES from './modules/_names/standard_names.js';
 // call `main` function only if there are command line arguments  (useful to not call `main` function with the following code when importing this file)
 if (Deno.args.length !== 0) {
   const args = parse(Deno.args);  // parse command line arguments
-  await main({ excelUserInput: args?.input, output: args?.output, errors: args?.errors });
+  await main({ excelUserInput: args?.input, outputFolder: args?.output, errors: args?.errors });
 }
+else
+  console.log('No command line arguments found, expected: --input EXCEL-INPUT-FILE --output OUTPUT-FOLDER --errors ERRORS-FILE . This file can also be imported and used as a module.');
 
 /**
+ * Run Simulation and write a series of output files - containing accounting writing transactions - in JSONL format in the `output` folder.
+ * Will be created a file for each scenario.
  * @param {Object} p
  * @param {string} p.excelUserInput - Excel file with user input
- * @param {string} p.output - JSONL file with simulation output (accounting writing transactions)
+ * @param {string} p.outputFolder - Output folder
  * @param {string} p.errors - Text file created only if there are errors
  * @param {boolean} [p.debug=false] - Optional debug flag
  */
-async function main ({ excelUserInput, output, errors, debug = false }) {
-  // create/overwrite trnDump file   // see https://deno.land/api@v1.29.1?s=Deno.open
-  const trnDumpFileWriter = await Deno.open(output, { create: true, write: true, truncate: true });
-
+async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
   // create/overwrite errorsDump file
   const errorsDumpFileWriter = await Deno.open(errors, { create: true, write: true, truncate: true });
 
@@ -93,32 +94,56 @@ async function main ({ excelUserInput, output, errors, debug = false }) {
       defaultObject: engine
     });
 
-    /**
-     * Callback to dump the transactions
-     * @param {string} dump */
-    const _appendTrnDump = function (dump) {
-      writeToStream(trnDumpFileWriter, dump);
-    };
-
-    // run simulation
-    /** @type {Result} */
-    const _engine_result = await _engine({
-      modulesData: _moduleDataArray,
-      modules: _modulesArray,
-      appendTrnDump: _appendTrnDump
+    // get scenarios from `moduleDataArray`
+    const _$$SCENARIOS_setting = _get_SimulationSetting_FromModuleDataArray({
+      moduleDataArray: _moduleDataArray,
+      settingName: SETTINGS_NAMES.Simulation.$$SCENARIOS
+    });
+    // TODO write lib to use JSON5; try/catch; if error, undefined
+    const _$$SCENARIOS_parsed_array = JSON.parse(_$$SCENARIOS_setting);
+    const _$$SCENARIOS = sanitization.sanitize({
+      value: _$$SCENARIOS_parsed_array,
+      sanitization: sanitization.ARRAY_OF_STRINGS_TYPE
     });
 
-    if (!_engine_result.success) {
-      writeToStream(errorsDumpFileWriter, _engine_result.error);
-      _exitCode = 1;
+    //#region loop scenarios
+    for (const _unsanitized_scenario of _$$SCENARIOS) {
+      const _scenario = (_unsanitized_scenario === '') ? STD_NAMES.Scenario.BASE : _unsanitized_scenario;
+
+      // create/overwrite output file   // see https://deno.land/api@v1.29.1?s=Deno.open
+      const _output = `${outputFolder}/${_scenario}.jsonl`;
+      const trnDumpFileWriter = await Deno.open(_output, { create: true, write: true, truncate: true });
+
+      /**
+       * Callback to dump the transactions
+       * @param {string} dump */
+      const _appendTrnDump = function (dump) {
+        writeToStream(trnDumpFileWriter, dump);
+      };
+
+      // run simulation
+      /** @type {Result} */
+      const _engine_result = await _engine({
+        modulesData: _moduleDataArray,
+        modules: _modulesArray,
+        scenario: _scenario,
+        appendTrnDump: _appendTrnDump
+      });
+
+      if (!_engine_result.success) {
+        writeToStream(errorsDumpFileWriter, _engine_result.error);
+        _exitCode = 1;
+      }
+
+      trnDumpFileWriter.close();
     }
+    //#endregion loop scenarios
   } catch (error) {
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
     writeToStream(errorsDumpFileWriter, _error);
     _exitCode = 1;
   } finally {
-    trnDumpFileWriter.close();
     errorsDumpFileWriter.close();
     Deno.exit(_exitCode);
   }
@@ -181,11 +206,11 @@ async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
 
 /**
  @private
- * Returns an object, from `moduleDataArray` or from defaultObject
+ * Returns a setting from `moduleDataArray`, optionally sanitizing it
  * @param {Object} p
  * @param {ModuleData[]} p.moduleDataArray
  * @param {string} p.settingName
- * @param {string} p.settingSanitization
+ * @param {string} [p.settingSanitization]
  * @return {*} - Setting read from `moduleDataArray`
  */
 function _get_SimulationSetting_FromModuleDataArray ({
@@ -226,12 +251,15 @@ function _get_SimulationSetting_FromModuleDataArray ({
     }
   })();
 
-  return sanitization.sanitize({ value: _setting, sanitization: settingSanitization });
+  if (settingSanitization)
+    return sanitization.sanitize({ value: _setting, sanitization: settingSanitization });
+  else
+    return _setting;
 }
 
 /**
  @private
- * Returns an object, from `moduleDataArray` or from defaultObject
+ * Returns an object from a URL or from defaultObject
  * @param {Object} p
  * @param {string} p.url
  * @param {string} p.objectName
