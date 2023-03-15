@@ -105,7 +105,7 @@ function sanitize ({ value, sanitization, validate = false }) {
           // Set to '' when whitespaces, '', null, undefined, false, 0, -0, 0n, NaN.
           // First condition to check truthy (not: false, 0, -0, 0n, "", null, undefined, and NaN)
           // Second condition to check for whitespaces.
-          retValue = !!(value && value.toString().trim()) ? String(value) : '';
+          retValue = (value && value.toString().trim()) ? String(value) : '';
       } catch (_) {
         retValue = '';
       }
