@@ -6,7 +6,7 @@ export { addMonths };
 export { areDatesEqual };
 
 /**
- * To check whether the date is valid
+ * Check whether the date is valid
  * @param {*} value
  * @returns {boolean}
  */

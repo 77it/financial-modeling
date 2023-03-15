@@ -1,6 +1,7 @@
 export * as validation from './lib/validation_utils.js';
 export * as sanitization from './lib/sanitization_utils.js';
 export { isValidDate, addMonths } from './lib/date_utils.js';
+export { isNullOrWhiteSpace } from './lib/string_utils.js';
 
 //#region number libraries
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
