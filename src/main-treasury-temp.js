@@ -22,6 +22,8 @@ import { existSync } from './deno/existSync.js';
 //#region local imports
 import { sanitization } from './deps.js';
 
+import { parseJSON5 } from './deps.js';
+
 import { ModuleData } from './engine/modules/module_data.js';
 import { moduleData_LoadFromJson } from './engine/modules/module_data__load_from_json.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
@@ -100,7 +102,7 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
       settingName: SETTINGS_NAMES.Simulation.$$SCENARIOS
     });
     // TODO write lib to use JSON5; try/catch; if error, undefined
-    const _$$SCENARIOS_parsed_array = JSON.parse(_$$SCENARIOS_setting);
+    const _$$SCENARIOS_parsed_array = parseJSON5(_$$SCENARIOS_setting);
     const _$$SCENARIOS = sanitization.sanitize({
       value: _$$SCENARIOS_parsed_array,
       sanitization: sanitization.ARRAY_OF_STRINGS_TYPE
@@ -244,7 +246,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
                   row[tableColScenario].toString().trim().toUpperCase() === '') &&
                 row[tableColUnit].toString().trim().toUpperCase() === unitName.trim().toUpperCase() &&
                 row[tableColName].toString().trim().toUpperCase() === settingName.trim().toUpperCase())
-                return row[tableColValue].toString().trim();
+                return row[tableColValue];
             }
           }
         }

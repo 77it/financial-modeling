@@ -4,7 +4,7 @@ import { deepFreeze } from '../../src/lib/obj_utils.js';
 
 import { assert, assertEquals, assertFalse, assertThrows } from '../deps.js';
 
-Deno.test('test deepFreeze()', async (t) => {
+Deno.test('test deepFreeze()', (t) => {
   const a = {};
   a.a = 99;
   a.b = 55;
