@@ -64,6 +64,7 @@ class DriversRepo {
    * value: Driver value
    */
   set (p) {
+    // sanitize the input array, only fields `date` and `value`
     sanitization.sanitizeObj({
       obj: p,
       sanitization: {
