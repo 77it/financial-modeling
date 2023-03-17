@@ -1,7 +1,6 @@
 ﻿export { DriversRepo };
 
 import { sanitization, validation } from '../deps.js';
-import * as STD_NAMES from '../modules/_names/standard_names.js';
 
 class DriversRepo {
   /**
@@ -10,12 +9,32 @@ class DriversRepo {
    values are an array of {date: number [1], value: number}  [1] number obtained with `date.getTime()`
    * @type {Map<String, {dateMilliseconds: number, value: number}[]>} */
   #driversRepo;
-  /** @type {Date} */
-  #today;
+  /** @type {string} */
+  #currentScenario;
+  /** @type {string} */
+  #baseScenario;
+  /** @type {string} */
+  #defaultUnit;
   /** @type {string} */
   #currentDebugModuleInfo;  // unused by now
+  /** @type {string} */
+  #typeForValueSanitization;
+  /** @type {Date} */
+  #today;
 
-  constructor () {
+  /**
+   * @param {Object} p
+   * @param {string} p.baseScenario
+   * @param {string} p.currentScenario
+   * @param {string} p.defaultUnit
+   * @param {string} p.typeForValueSanitization
+   */
+  constructor ({ baseScenario, currentScenario, defaultUnit, typeForValueSanitization }) {
+    this.#baseScenario = sanitization.sanitize({ value: baseScenario, sanitization: sanitization.STRING_TYPE });
+    this.#currentScenario = sanitization.sanitize({ value: currentScenario, sanitization: sanitization.STRING_TYPE });
+    this.#defaultUnit = sanitization.sanitize({ value: defaultUnit, sanitization: sanitization.STRING_TYPE });
+    this.#typeForValueSanitization = sanitization.sanitize({ value: typeForValueSanitization, sanitization: sanitization.STRING_TYPE });
+
     this.#driversRepo = new Map();
     this.#currentDebugModuleInfo = '';
     this.#today = new Date(0);
@@ -37,9 +56,9 @@ class DriversRepo {
    * Drivers are immutable.
    * If a date is already present, the second one will be ignored.
    *
-   * @param {{scenario?: string, unit: string, name: string, date?: Date, value: number}[]} p
-   * scenario: optional; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
-   * unit: Driver unit
+   * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
+   * scenario: Scenario name, optional; null, undefined or '' means `currentScenario` from constructor
+   * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * name: Driver name
    * date: optional; if missing will be set to new Date(0)
    * value: Driver value
@@ -49,7 +68,7 @@ class DriversRepo {
       obj: p,
       sanitization: {
         date: sanitization.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
-        value: sanitization.NUMBER_TYPE
+        value: this.#typeForValueSanitization
       }
     });
 
@@ -71,20 +90,19 @@ class DriversRepo {
         } else {
           const _dateMilliseconds = _inputItem.date?.getTime() ?? 0;
           const _driver = this.#driversRepo.get(_key);
-          if (_driver)
-          {
+          if (_driver) {
             let _toAppendFlag = true;
             // loop _driver array:
             // 1) if the date is already present don't add it (ignore it) and set _toAppendFlag to false
             // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
             // 3) if _toAppendFlag is still true, append date and value at the end of the array
             for (let i = 0; i < _driver.length; i++) {
-              if (_driver[i].dateMilliseconds === _dateMilliseconds){
+              if (_driver[i].dateMilliseconds === _dateMilliseconds) {
                 _toAppendFlag = false;
                 break;
               }
 
-              if (_driver[i].dateMilliseconds > _dateMilliseconds){
+              if (_driver[i].dateMilliseconds > _dateMilliseconds) {
                 _driver.splice(i, 0, { dateMilliseconds: _dateMilliseconds, value: _inputItem.value });
                 _toAppendFlag = false;
                 break;
@@ -101,10 +119,10 @@ class DriversRepo {
   /**
    * Get a Driver
    * @param {Object} p
-   * @param {string} [p.scenario] - Optional scenario; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
-   * @param {string} p.unit - Driver unit
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Driver name
-   * @param {Date} [p.date] - Optional date; if missing, returns first value; if found returns the value closest (but not greater) to the requested date
+   * @param {Date} [p.date] - Optional date; if missing is the date set with `setToday` method; if found returns the value closest (but not greater) to the requested date
    * @return {undefined|number} Driver; if not found, returns undefined
    */
   get ({ scenario, unit, name, date }) {
@@ -117,10 +135,8 @@ class DriversRepo {
     if (!_driver)
       return undefined;
 
-    if (date === undefined || date === null)
-      return _driver[0].value;
-
-    const _date = sanitization.sanitize({ value: date, sanitization: sanitization.DATE_TYPE });  // missing or invalid dates will be set to new Date(0)
+    let _date = (date === undefined || date === null) ? this.#today : date;
+    _date = sanitization.sanitize({ value: _date, sanitization: sanitization.DATE_TYPE });  // missing or invalid dates will be set to new Date(0)
 
     const _dateMilliseconds = _date.getTime();  // date to search for
     let _ret = undefined;
@@ -137,8 +153,8 @@ class DriversRepo {
   //#region private methods
   /**
    * @param {Object} p
-   * @param {string} [p.scenario] - Optional scenario; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
-   * @param {string} p.unit - Driver unit
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Driver name
    * @return {string}
    */
@@ -148,7 +164,10 @@ class DriversRepo {
       sanitization: { scenario: sanitization.STRING_TYPE, unit: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE },
       validate: true
     });
-    if (_p.scenario === '') _p.scenario = STD_NAMES.Scenario.BASE;
+
+    if (_p.scenario === '') _p.scenario = this.#currentScenario;
+    if (_p.unit === '') _p.unit = this.#defaultUnit;
+
     return JSON.stringify({
       scenario: _p.scenario.trim().toLowerCase(),
       unit: _p.unit.trim().toLowerCase(),

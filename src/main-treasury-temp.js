@@ -128,7 +128,7 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
       const _engine_result = await _engine({
         modulesData: _moduleDataArray,
         modules: _modulesArray,
-        scenario: _scenario,
+        scenarioName: _scenario,
         appendTrnDump: _appendTrnDump
       });
 

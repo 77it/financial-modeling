@@ -4,7 +4,7 @@ import { Drivers } from '../../../src/engine/drivers/drivers.js';
 import * as STD_NAMES from '../../../src/modules/_names/standard_names.js';
 
 Deno.test('Drivers tests', async () => {
-  const drivers = new Drivers();
+  const drivers = new Drivers({ defaultScenario: STD_NAMES.Scenario.BASE });
 
   const input = [
     { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 55 },  // #driver1[0]
@@ -15,6 +15,8 @@ Deno.test('Drivers tests', async () => {
     { unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 77 },  // #driver3[0]  missing scenario
     { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2), value: 7777 },  // #driver3[2]
     { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25), value: 777 },  // #driver3[1]
+
+    { name: 'driver XYZ2', date: new Date(2023, 1, 25), value: 777 },  // #driver4  missing scenario and unit
   ];
   drivers.set(input);
 
@@ -25,7 +27,7 @@ Deno.test('Drivers tests', async () => {
 
   // query with all parameters empty: undefined
   //@ts-ignore
-  assertEquals(drivers.get({ }), undefined);
+    assertEquals(drivers.get({ }), undefined);
 
   // throws if the query parameter is not an object
   //@ts-ignore

@@ -1,14 +1,20 @@
 ﻿export { Drivers };
 
 import { DriversRepo } from '../../lib/drivers_repo.js';
-import { sanitization, validation } from '../../deps.js';
+import { sanitization } from '../../deps.js';
 
 class Drivers {
   /** @type {DriversRepo} */
   #driversRepo;
 
-  constructor () {
-    this.#driversRepo = new DriversRepo();
+  /** @param {{baseScenario: string, currentScenario: string, defaultUnit: string}} p */
+  constructor ({ baseScenario, currentScenario, defaultUnit }) {
+    this.#driversRepo = new DriversRepo({
+      baseScenario,
+      currentScenario,
+      defaultUnit,
+      typeForValueSanitization: sanitization.NUMBER_TYPE
+    });
   }
 
   /** @param {string} debugModuleInfo */
@@ -26,9 +32,9 @@ class Drivers {
    * Drivers are immutable.
    * If a date is already present, the second one will be ignored.
    *
-   * @param {{scenario?: string, unit: string, name: string, date?: Date, value: number}[]} p
-   * scenario: optional; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
-   * unit: Driver unit
+   * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: number}[]} p
+   * scenario: optional; null, undefined or '' means `currentScenario` from constructor
+   * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * name: Driver name
    * date: optional; if missing will be set to new Date(0)
    * value: Driver value
@@ -40,8 +46,8 @@ class Drivers {
   /**
    * Get a Driver
    * @param {Object} p
-   * @param {string} [p.scenario] - Optional scenario; default is SCENARIO.BASE ('base' by now); scenario can be null, undefined or '' meaning 'base'
-   * @param {string} p.unit - Driver unit
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing, returns first value; if found returns the value closest (but not greater) to the requested date
    * @return {undefined|number} Driver; if not found, returns undefined

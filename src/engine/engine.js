@@ -28,11 +28,11 @@ before calling a module method checks if the method is defined, otherwise it ski
  * @param {Object} p
  * @param {ModuleData[]} p.modulesData - Array of `ModuleData` objects
  * @param {Module[]} p.modules - Array of module classes, in the same order of modulesData
- * @param {string} p.scenario - Scenario name
+ * @param {string} p.scenarioName - Scenario name
  * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
  * @return {Promise<Result>}
  */
-async function engine ({ modulesData, modules, scenario, appendTrnDump }) {
+async function engine ({ modulesData, modules, scenarioName, appendTrnDump }) {
   /** @type {Ledger} */
   let _ledger = new Ledger({ appendTrnDump });  // define _ledger here to be able to use it in the `finally` block
   let _startDate = new Date(0);
@@ -46,10 +46,9 @@ async function engine ({ modulesData, modules, scenario, appendTrnDump }) {
     const _moduleDataArray = modulesData;
     const _modulesArray = modules;
     //#region variables declaration
-    console.log('scenario: ' + scenario); // TODO set `scenario` in Settings, Drivers
-    const _settings = new Settings();
-    const _drivers = new Drivers();
-    const _taskLocks = new TaskLocks();
+    const _settings = new Settings(); // TODO set `scenario` etc in Settings
+    const _drivers = new Drivers({ currentScenario: scenarioName, baseScenario: STD_NAMES.Scenario.BASE, defaultUnit: STD_NAMES.Simulation.NAME });
+    const _taskLocks = new TaskLocks();  // TODO set STD_NAMES.Simulation.NAME and remove from internal usage
     // set _endDate (mutable) to 10 years from now, at the end of the year
     let _endDate = new Date(new Date().getFullYear() + 10, 11, 31);
     //#endregion variables declaration
@@ -83,7 +82,7 @@ async function engine ({ modulesData, modules, scenario, appendTrnDump }) {
     }
     //#endregion call all modules, one time
 
-      setDebugLevel(_settings);
+    setDebugLevel(_settings);
 
     // TODO NOW: call all modules, every day, until the end of the simulation
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
@@ -128,7 +127,7 @@ async function engine ({ modulesData, modules, scenario, appendTrnDump }) {
    */
   function setStartDate ({ date }) {
     const _date = sanitization.sanitize({
-      value: date ,
+      value: date,
       sanitization: sanitization.DATE_TYPE,
       validate: true
     });
