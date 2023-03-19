@@ -20,6 +20,8 @@ import { existSync } from './deno/existSync.js';
 //#endregion deno imports
 
 //#region local imports
+import { Result } from './deps.js';
+
 import { sanitization } from './deps.js';
 
 import { parseJSON5 } from './deps.js';
@@ -324,7 +326,3 @@ async function _init_modules_classes__loading_Modules_fromUri ({ modulesLoader, 
 }
 
 //#endregion private functions
-
-//#region types definitions
-/** @typedef {{success: true, value?: *} | {success:false, error: string}} Result */
-//#endregion types definitions

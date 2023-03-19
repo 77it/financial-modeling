@@ -19,6 +19,12 @@ class DriversRepo {
   #currentDebugModuleInfo;  // unused by now
   /** @type {string} */
   #typeForValueSanitization;
+  /** @type {string} */
+  #prefix__immutable_without_dates;
+  /** @type {string} */
+  #prefix__immutable_with_dates;
+  /** @type {boolean} */
+  #allowMutable;
   /** @type {Date} */
   #today;
 
@@ -28,12 +34,31 @@ class DriversRepo {
    * @param {string} p.currentScenario
    * @param {string} p.defaultUnit
    * @param {string} p.typeForValueSanitization
+   * @param {string} p.prefix__immutable_without_dates
+   * @param {string} p.prefix__immutable_with_dates
+   * @param {boolean} p.allowMutable
    */
-  constructor ({ baseScenario, currentScenario, defaultUnit, typeForValueSanitization }) {
+  constructor ({
+    baseScenario,
+    currentScenario,
+    defaultUnit,
+    typeForValueSanitization,
+    prefix__immutable_without_dates,
+    prefix__immutable_with_dates,
+    allowMutable
+  }) {
     this.#baseScenario = sanitization.sanitize({ value: baseScenario, sanitization: sanitization.STRING_TYPE });
     this.#currentScenario = sanitization.sanitize({ value: currentScenario, sanitization: sanitization.STRING_TYPE });
     this.#defaultUnit = sanitization.sanitize({ value: defaultUnit, sanitization: sanitization.STRING_TYPE });
     this.#typeForValueSanitization = sanitization.sanitize({ value: typeForValueSanitization, sanitization: sanitization.STRING_TYPE });
+
+    this.#prefix__immutable_without_dates = sanitization.sanitize({ value: prefix__immutable_without_dates, sanitization: sanitization.STRING_TYPE });
+    this.#prefix__immutable_with_dates = sanitization.sanitize({ value: prefix__immutable_with_dates, sanitization: sanitization.STRING_TYPE });
+    // test that prefix__immutable_with_dates does not start with prefix__immutable_without_dates
+    if (this.#prefix__immutable_with_dates.startsWith(this.#prefix__immutable_without_dates)) {
+      throw new Error(`prefix__immutable_with_dates (${this.#prefix__immutable_with_dates}) cannot start with prefix__immutable_without_dates (${this.#prefix__immutable_without_dates})`);
+    }
+    this.#allowMutable = sanitization.sanitize({ value: allowMutable, sanitization: sanitization.BOOLEAN_TYPE });
 
     this.#driversRepo = new Map();
     this.#currentDebugModuleInfo = '';
@@ -64,54 +89,79 @@ class DriversRepo {
    * value: Driver value
    */
   set (p) {
-    // sanitize the input array, only fields `date` and `value`
-    sanitization.sanitizeObj({
-      obj: p,
-      sanitization: {
-        date: sanitization.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
-        value: this.#typeForValueSanitization
-      }
-    });
-
     // loop all entries, saving in a set the keys of the drivers that are not already present
-    const _keysToAdd = new Set();
+    const _keysAlreadyDefinedBeforeSet = new Set();
     for (const _item of p) {
       const _key = this.#driversRepoBuildKey({ scenario: _item.scenario, unit: _item.unit, name: _item.name });
-      if (!(this.#driversRepo.has(_key)))
-        _keysToAdd.add(_key);
+      if (this.#driversRepo.has(_key))
+        _keysAlreadyDefinedBeforeSet.add(_key);
     }
 
     // loop all entries, adding only the drivers in the set
     for (const _inputItem of p) {
-      const _key = this.#driversRepoBuildKey({ scenario: _inputItem.scenario, unit: _inputItem.unit, name: _inputItem.name });
+      // shallow clone _inputItem
+      const _inputItemClone = { ..._inputItem };
 
-      if (_keysToAdd.has(_key)) {
-        if (!(this.#driversRepo.has(_key))) {
-          this.#driversRepo.set(_key, [{ dateMilliseconds: _inputItem.date?.getTime() ?? 0, value: _inputItem.value }]);
-        } else {
-          const _dateMilliseconds = _inputItem.date?.getTime() ?? 0;
-          const _driver = this.#driversRepo.get(_key);
-          if (_driver) {
-            let _toAppendFlag = true;
-            // loop _driver array:
-            // 1) if the date is already present don't add it (ignore it) and set _toAppendFlag to false
-            // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
-            // 3) if _toAppendFlag is still true, append date and value at the end of the array
-            for (let i = 0; i < _driver.length; i++) {
-              if (_driver[i].dateMilliseconds === _dateMilliseconds) {
-                _toAppendFlag = false;
-                break;
-              }
+      // sanitize the input object, only fields `date` and `value`
+      sanitization.sanitizeObj({
+        obj: _inputItemClone,
+        sanitization: {
+          date: sanitization.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
+          value: this.#typeForValueSanitization
+        }
+      });
 
-              if (_driver[i].dateMilliseconds > _dateMilliseconds) {
-                _driver.splice(i, 0, { dateMilliseconds: _dateMilliseconds, value: _inputItem.value });
-                _toAppendFlag = false;
-                break;
-              }
+      // determine if the current item is immutable or not
+      const _isImmutableWithoutDates = _inputItemClone.name.trim().startsWith(this.#prefix__immutable_without_dates);
+      /* unused flag, by now */
+      const _isImmutableWithDates = (!_isImmutableWithoutDates && _inputItemClone.name.startsWith(this.#prefix__immutable_with_dates));
+      const _isImmutable = _inputItemClone.name.trim().startsWith(this.#prefix__immutable_without_dates) || _inputItemClone.name.startsWith(this.#prefix__immutable_with_dates);
+      const _isMutable = !_isImmutable;
+
+      // if the driver is mutable and this is not allowed, skip loop cycle
+      if (_isMutable && !this.#allowMutable)
+        continue;
+
+      // if the driver has date different from Date(0) and this is not allowed, skip loop cycle
+      if (_isImmutableWithoutDates && _inputItemClone.date?.getTime() !== 0)
+        continue;
+
+      const _key = this.#driversRepoBuildKey({ scenario: _inputItemClone.scenario, unit: _inputItemClone.unit, name: _inputItemClone.name });
+
+      // if the driver is immutable and the key is already present in the repo, skip loop cycle
+      if (_isImmutable && _keysAlreadyDefinedBeforeSet.has(_key))
+        continue;
+
+      if (!(this.#driversRepo.has(_key))) {
+        this.#driversRepo.set(_key, [{ dateMilliseconds: _inputItemClone.date?.getTime() ?? 0, value: _inputItemClone.value }]);
+      } else {
+        const _dateMilliseconds = _inputItemClone.date?.getTime() ?? 0;
+        const _driver = this.#driversRepo.get(_key);
+        if (_driver) {
+          let _toAppendFlag = true;
+          // loop _driver array:
+          // 1) if the date is already present
+          //    1.1) if `_isImmutable` don't add it (ignore it) and set _toAppendFlag to false
+          //    1.2) if `_isMutable` replace the value and set _toAppendFlag to false
+          // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
+          // 3) if _toAppendFlag is still true, append date and value at the end of the array
+          for (let i = 0; i < _driver.length; i++) {
+            if (_driver[i].dateMilliseconds === _dateMilliseconds) {
+              if (_isMutable)
+                _driver[i].value = _inputItemClone.value;
+              _toAppendFlag = false;
+              break;
             }
-            if (_toAppendFlag)
-              _driver.push({ dateMilliseconds: _dateMilliseconds, value: _inputItem.value });
+
+            if (_driver[i].dateMilliseconds > _dateMilliseconds) {
+              _driver.splice(i, 0, { dateMilliseconds: _dateMilliseconds, value: _inputItemClone.value });
+              _toAppendFlag = false;
+              break;
+            }
           }
+
+          if (_toAppendFlag)
+            _driver.push({ dateMilliseconds: _dateMilliseconds, value: _inputItemClone.value });
         }
       }
     }

@@ -1,8 +1,8 @@
 export { engine };
 
 import { validation } from '../deps.js';
-
 import { sanitization } from '../deps.js';
+import { Result } from '../deps.js';
 import { Ledger } from './ledger/ledger.js';
 import { ModuleData } from './modules/module_data.js';
 import { Module } from '../modules/_sample_module.js';
@@ -47,7 +47,11 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump }) {
     const _modulesArray = modules;
     //#region variables declaration
     const _settings = new Settings(); // TODO set `scenario` etc in Settings
-    const _drivers = new Drivers({ currentScenario: scenarioName, baseScenario: STD_NAMES.Scenario.BASE, defaultUnit: STD_NAMES.Simulation.NAME });
+    const _drivers = new Drivers({
+      currentScenario: scenarioName, baseScenario: STD_NAMES.Scenario.BASE, defaultUnit: STD_NAMES.Simulation.NAME,
+      prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
+      prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES
+    });
     const _taskLocks = new TaskLocks();  // TODO set STD_NAMES.Simulation.NAME and remove from internal usage
     // set _endDate (mutable) to 10 years from now, at the end of the year
     let _endDate = new Date(new Date().getFullYear() + 10, 11, 31);
@@ -115,9 +119,9 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump }) {
     _ledger?.newDebugErrorSimObject(new NewDebugSimObjectDto({ description: _error }));
     _ledger?.forceCommitWithoutValidation();
 
-    return { success: false, error: _error };
+    return new Result({ success: false, error: _error });
   }
-  return { success: true };
+  return new Result({ success: true });
 
   //#region local functions
   /**
@@ -180,6 +184,4 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump }) {
  * @param {string} module - The module to resolve
  * @return {string[]} List of URL from which import a module
  */
-
-/** @typedef {{success: true, value?: *} | {success:false, error: string}} Result */
 //#endregion types definitions

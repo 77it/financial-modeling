@@ -10,17 +10,20 @@ Deno.test('Drivers tests', async () => {
     currentScenario: _currentScenario,
     baseScenario: STD_NAMES.Scenario.BASE,
     defaultUnit: STD_NAMES.Simulation.NAME,
-    typeForValueSanitization: sanitization.NUMBER_TYPE
+    typeForValueSanitization: sanitization.NUMBER_TYPE,
+    prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
+    prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
+    allowMutable: true
   });
 
   const input = [
-    { unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 55 },  // #driver1[0]  missing scenario
+    { unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), value: 55 },  // #driver1[0]  missing scenario
     { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver ABC', value: 66 },  //  #driver2   value without date, set to Date(0)
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2), value: '5555' },  // #driver1[2], string converted to number
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25), value: 555 },  // #driver1[1]
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2), value: '5555' },  // #driver1[2], string converted to number
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25), value: 555 },  // #driver1[1]
 
     { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 77 },  // #driver3[0]
-    { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2), value: 7_777 },  // #driver3[2]
+    { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2), value: 7_777 },  // #driver3[3]
     { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25), value: 777 },  // #driver3[1]
 
     { name: 'driver XYZ2', date: new Date(2023, 1, 25), value: 77_777 },  // #driver4  missing scenario and unit
@@ -29,10 +32,11 @@ Deno.test('Drivers tests', async () => {
   ];
   drivers.set(input);
 
-  const input_ignored = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 12, 25), value: 99 }
+  const input2 = [
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 99 },  // immutable, ignored
+    { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 25), value: 7_775 },  // #driver3[2]
   ];
-  drivers.set(input_ignored);
+  drivers.set(input2);
 
   // query with all parameters empty: undefined
   //@ts-ignore
@@ -44,27 +48,27 @@ Deno.test('Drivers tests', async () => {
 
 
   // query with wrong driver parameters: undefined
-  assertEquals(drivers.get({ scenario: 'SCENARIOAAA', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // wrong scenario
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitBBB', name: 'driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // wrong unit
+  assertEquals(drivers.get({ scenario: 'SCENARIOAAA', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // wrong scenario
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitBBB', name: '$driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // wrong unit
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver CCC', date: new Date(2022, 11, 24) }), undefined);  // wrong name
 
   // #driver1[0] tests
-  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: 'driver XYZ' }),undefined);  // query without date, will query Date(0)
-  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // undefined, query before set date
-  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25) }), 55);  // query with exact date
-  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 26) }), 55);  // query with first date after driver
-  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 24) }), 55);  // query with last date before next driver
-  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25) }), 55);  // query scenario with wrong case
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ' }),undefined);  // query without date, will query Date(0)
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // undefined, query before set date
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), 55);  // query with exact date
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 26) }), 55);  // query with first date after driver
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 24) }), 55);  // query with last date before next driver
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), 55);  // query scenario with wrong case
 
   // #driver1[1] tests
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25) }), 555);  // query with exact date
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 26) }), 555);  // query with first date after driver
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 1) }), 555);  // query with last date before next driver
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25) }), 555);  // query with exact date
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 26) }), 555);  // query with first date after driver
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 1) }), 555);  // query with last date before next driver
 
   // #driver1[2] tests
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2) }), 5555);  // query with exact date
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 3) }), 5555);  // query with first date after driver
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2099, 0, 1) }), 5555);  // query with a date long after driver
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2) }), 5555);  // query with exact date
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3) }), 5555);  // query with first date after driver
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2099, 0, 1) }), 5555);  // query with a date long after driver
 
   // #driver2 tests
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver ABC' }), 66);  // query without date
@@ -81,9 +85,14 @@ Deno.test('Drivers tests', async () => {
 
   // #driver3[1] tests
   assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25) }), 777);  // query with exact date
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 1) }), 777);  // query with last date before next driver
+  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 24) }), 777);  // query with last date before next driver
 
   // #driver3[2] tests
+  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 25) }), 7_775);  // query with exact date
+  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 31) }), 7_775);  // query with last date before next driver
+
+  // #driver3[3] tests
+  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 1) }), 7_775);  // query before set date
   assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2) }), 7_777);  // query with exact date
   assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2099, 0, 1) }), 7_777);  // query with a date long after driver
 

@@ -41,6 +41,10 @@ Deno.test('test sanitize()', async (t) => {
       throw new Error('default S.OPTIONS.NUMBER_TO_DATE must be S.NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE');
   });
 
+  await t.step('test wrong/unknown options', async () => {
+    assertThrows(() => S.sanitize({ value: 'aaaX', sanitization: 'wrong sanitization type' }));
+  });
+
   await t.step('any type', async () => {
     const t = S.ANY_TYPE;
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t }));

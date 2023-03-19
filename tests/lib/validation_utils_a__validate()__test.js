@@ -7,6 +7,11 @@ import {
   assertFalse,
   assertThrows,
 } from '../deps.js';
+import * as S from '../../src/lib/sanitization_utils.js';
+
+Deno.test('test validate(): wrong/unknown options', () => {
+  assertThrows(() => Validation.validate({ value: 'aaaX', validation: 'wrong validation type' }));
+});
 
 Deno.test('test validate(): undefined is not not valid `any` type + personalized error message', () => {
   const objToValidate = undefined;
