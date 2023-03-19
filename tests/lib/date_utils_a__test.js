@@ -1,4 +1,5 @@
-import {isValidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate, excelSerialDateToDate} from '../../src/lib/date_utils.js';
+import { isValidDate, parseJSON, differenceInCalendarDays, differenceInUTCCalendarDays, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
+import { toUTC, toDateYYYYMMDD, toStringYYYYMMDD } from '../../src/lib/date_utils.js';
 
 import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
 import {describe, it} from "https://deno.land/std@0.139.0/testing/bdd.ts";
@@ -437,5 +438,34 @@ _describe('excelSerialDateToDate', () => {
         assertEquals(excelSerialDateToDate(28384), new Date(1977, 8, 16, 0, 0, 0));
         assertEquals(excelSerialDateToDate(44920), new Date(2022, 11, 25, 0, 0, 0));
         assertEquals(excelSerialDateToDate(NaN), new Date(NaN));
+    })
+})
+
+
+_describe('toUTC', () => {
+    it('tests', () => {
+        const date = new Date(1977, 8, 16, 0, 0, 0);
+        const dateUTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
+
+        assertEquals(toUTC(date).getTime(), dateUTC.getTime());
+    })
+})
+
+
+_describe('toDateYYYYMMDD', () => {
+    it('tests', () => {
+        const date = new Date(1977, 8, 16, 10, 1, 5, 9);
+        const dateYYYYMMDD = new Date(1977, 8, 16, 0, 0, 0);
+
+        assertEquals(toDateYYYYMMDD(date).getTime(), dateYYYYMMDD.getTime());
+    })
+})
+
+
+_describe('toStringYYYYMMDD', () => {
+    it('tests', () => {
+        const date = new Date(1977, 8, 16, 10, 1, 5, 9);
+
+        assertEquals(toStringYYYYMMDD(date), '1977-09-16');
     })
 })

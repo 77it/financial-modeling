@@ -4,6 +4,7 @@ export { differenceInCalendarDays, differenceInUTCCalendarDays };
 export { excelSerialDateToUTCDate, excelSerialDateToDate };
 export { addMonths };
 export { areDatesEqual };
+export { toUTC, toStringYYYYMMDD, toDateYYYYMMDD };
 
 /**
  * Check whether the date is valid
@@ -344,4 +345,34 @@ function areDatesEqual (date1, date2) {
   return date1.getFullYear() === date2.getFullYear() &&
     date1.getMonth() === date2.getMonth() &&
     date1.getDate() === date2.getDate();
+}
+
+/**
+ * Function that convert a date to UTC
+ *
+ * @param {Date} date
+ * @returns {Date}
+ */
+function toUTC (date) {
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
+}
+
+/**
+ * Function that accept a string and return a string in the format YYYY-MM-DD
+ *
+ * @param {Date} date
+ * @returns {string}
+ */
+function toStringYYYYMMDD (date) {
+  return toUTC(date).toISOString().slice(0, 10);
+}
+
+/**
+ * Function that accept a date and return a date with only the year, month and day (stripping the time part)
+ *
+ * @param {Date} date
+ * @returns {Date}
+ */
+function toDateYYYYMMDD (date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }

@@ -1,7 +1,7 @@
 export { Result } from './lib/result.js';
 export * as validation from './lib/validation_utils.js';
 export * as sanitization from './lib/sanitization_utils.js';
-export { isValidDate, addMonths } from './lib/date_utils.js';
+export { isValidDate, addMonths, toUTC, toStringYYYYMMDD, toDateYYYYMMDD } from './lib/date_utils.js';
 export { isNullOrWhiteSpace } from './lib/string_utils.js';
 
 //#region number libraries

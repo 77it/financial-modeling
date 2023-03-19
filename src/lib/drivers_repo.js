@@ -1,6 +1,6 @@
 ﻿export { DriversRepo };
 
-import { sanitization, validation } from '../deps.js';
+import { sanitization, validation, toDateYYYYMMDD, toStringYYYYMMDD } from '../deps.js';
 
 class DriversRepo {
   /**
@@ -82,6 +82,7 @@ class DriversRepo {
    * If a date is already present, the second one will be ignored.
    *
    * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
+   * @returns {string[]} array of errors
    * scenario: Scenario name, optional; null, undefined or '' means `currentScenario` from constructor
    * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * name: Driver name
@@ -89,6 +90,9 @@ class DriversRepo {
    * value: Driver value
    */
   set (p) {
+    /** @type {string[]} */
+    const arrayOfErrors = [];
+
     // loop all entries, saving in a set the keys of the drivers that are not already present
     const _keysAlreadyDefinedBeforeSet = new Set();
     for (const _item of p) {
@@ -111,6 +115,12 @@ class DriversRepo {
         }
       });
 
+      // strip the time part from the date (if the date is != Date(0))
+      // (check for `_inputItemClone?.date` because typescript can't understand that `sanitizeObj` sanitize invalid dates)
+      _inputItemClone.date = (_inputItemClone?.date && _inputItemClone?.date.getTime() !== 0) ? toDateYYYYMMDD(_inputItemClone?.date) : new Date(0);
+
+      const _key = this.#driversRepoBuildKey({ scenario: _inputItemClone.scenario, unit: _inputItemClone.unit, name: _inputItemClone.name });
+
       // determine if the current item is immutable or not
       const _isImmutableWithoutDates = _inputItemClone.name.trim().startsWith(this.#prefix__immutable_without_dates);
       /* unused flag, by now */
@@ -119,18 +129,22 @@ class DriversRepo {
       const _isMutable = !_isImmutable;
 
       // if the driver is mutable and this is not allowed, skip loop cycle
-      if (_isMutable && !this.#allowMutable)
+      if (_isMutable && !this.#allowMutable) {
+        arrayOfErrors.push(`Driver ${_key} is mutable and this is not allowed`);
         continue;
+      }
 
       // if the driver has date different from Date(0) and this is not allowed, skip loop cycle
-      if (_isImmutableWithoutDates && _inputItemClone.date?.getTime() !== 0)
+      if (_isImmutableWithoutDates && _inputItemClone.date?.getTime() !== 0) {
+        arrayOfErrors.push(`Driver ${_key} is immutable without dates and the date is not Date(0)`);
         continue;
-
-      const _key = this.#driversRepoBuildKey({ scenario: _inputItemClone.scenario, unit: _inputItemClone.unit, name: _inputItemClone.name });
+      }
 
       // if the driver is immutable and the key is already present in the repo, skip loop cycle
-      if (_isImmutable && _keysAlreadyDefinedBeforeSet.has(_key))
+      if (_isImmutable && _keysAlreadyDefinedBeforeSet.has(_key)) {
+        arrayOfErrors.push(`Driver ${_key} is immutable and it is already present`);
         continue;
+      }
 
       if (!(this.#driversRepo.has(_key))) {
         this.#driversRepo.set(_key, [{ dateMilliseconds: _inputItemClone.date?.getTime() ?? 0, value: _inputItemClone.value }]);
@@ -149,6 +163,8 @@ class DriversRepo {
             if (_driver[i].dateMilliseconds === _dateMilliseconds) {
               if (_isMutable)
                 _driver[i].value = _inputItemClone.value;
+              else
+                arrayOfErrors.push(`Driver ${_key} is immutable and the date ${toStringYYYYMMDD(_inputItemClone.date)} is already present`);
               _toAppendFlag = false;
               break;
             }
@@ -165,6 +181,8 @@ class DriversRepo {
         }
       }
     }
+
+    return arrayOfErrors;
   }
 
   /**
@@ -187,7 +205,10 @@ class DriversRepo {
       return undefined;
 
     let _date = (date === undefined || date === null) ? this.#today : date;
-    _date = sanitization.sanitize({ value: _date, sanitization: sanitization.DATE_TYPE });  // missing or invalid dates will be set to new Date(0)
+    // missing or invalid dates will be set to new Date(0)
+    _date = sanitization.sanitize({ value: _date, sanitization: sanitization.DATE_TYPE });
+    // strip the time part from the date (if the date is != Date(0))
+    _date = (_date.getTime() !== 0) ? toDateYYYYMMDD(_date) : _date;
 
     const _dateMilliseconds = _date.getTime();  // date to search for
     let _ret = undefined;
