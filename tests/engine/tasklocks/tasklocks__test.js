@@ -4,7 +4,7 @@ import { TaskLocks } from '../../../src/engine/tasklocks/tasklocks.js';
 import * as STD_NAMES from '../../../src/modules/_names/standard_names.js';
 
 Deno.test('TaskLocks tests', async () => {
-  const taskLocks = new TaskLocks();
+  const taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
 
   // set
   assert(taskLocks.set({ name: 'testFunc', value: testFunc }));

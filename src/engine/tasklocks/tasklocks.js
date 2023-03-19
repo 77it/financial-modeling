@@ -1,7 +1,6 @@
 ﻿export { TaskLocks };
 
 import { sanitization, validation } from '../../deps.js';
-import * as STD_NAMES from '../../modules/_names/standard_names.js';
 
 /*
 if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
@@ -16,10 +15,18 @@ class TaskLocks {
   #taskLocksRepo;
   /** @type {string} */
   #currentDebugModuleInfo;
+  /** @type {string} */
+  #defaultUnit;
 
-  constructor () {
+  /**
+   * @param {Object} p
+   * @param {string} p.defaultUnit
+   */
+  constructor ({ defaultUnit }) {
     this.#taskLocksRepo = new Map();
     this.#currentDebugModuleInfo = '';
+
+    this.#defaultUnit = sanitization.sanitize({ value: defaultUnit, sanitization: sanitization.STRING_TYPE });
   }
 
   /** @param {string} debugModuleInfo */
@@ -30,7 +37,7 @@ class TaskLocks {
   /**
    * Set a TaskLock; TaskLock are immutable.
    * @param {Object} p
-   * @param {string} [p.unit] - Optional unit; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
    * @param {*} p.value - TaskLock value
    * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
@@ -47,7 +54,7 @@ class TaskLocks {
   /**
    * Get a TaskLock
    * @param {Object} p
-   * @param {string} [p.unit] - Optional unit; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
    * @return {*} TaskLock
    * @throws {Error} if TaskLock is not defined, throws an error
@@ -62,7 +69,7 @@ class TaskLocks {
   /**
    * Get info on the module that defined a TaskLock
    * @param {Object} p
-   * @param {string} [p.unit] - Optional unit; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
    * @return {*} Info on the module that defined a TaskLock
    * @throws {Error} if TaskLock is not defined, throws an error
@@ -77,7 +84,7 @@ class TaskLocks {
   /**
    * Check if a TaskLock is defined
    * @param {Object} p
-   * @param {string} [p.unit] - Optional unit; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
    * @return {boolean}
    */
@@ -88,7 +95,7 @@ class TaskLocks {
   //#region private methods
   /**
    * @param {Object} p
-   * @param {string} [p.unit] - Optional unit; global/simulation unit is STD_NAMES.Simulation.NAME ('$' by now); unit can be null, undefined or '' meaning '$'
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
    * @return {string}
    */
@@ -98,7 +105,7 @@ class TaskLocks {
       sanitization: { unit: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE },
       validate: true
     });
-    if (_p.unit === '') _p.unit = STD_NAMES.Simulation.NAME;
+    if (_p.unit === '') _p.unit = this.#defaultUnit;
     return JSON.stringify({
       unit: _p.unit.trim().toLowerCase(),
       name: _p.name.trim().toLowerCase()
