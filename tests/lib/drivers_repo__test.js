@@ -219,9 +219,17 @@ Deno.test('Advanced Drivers tests', async (t) => {
     drivers.set(input);
 
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC Unit', search: true }), 1);
-    assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Default Unit', search: true }), 2);
+
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Default Unit', search: true }), 2);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Default Unit', search: true }), 2);
+    assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Default Unit', search: true }), undefined);
+
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Base Simulation', search: true }), 3);
+    assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation', search: true }), 3);
+
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
+    assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
+    assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
   });
 });
