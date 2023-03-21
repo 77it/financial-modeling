@@ -13,7 +13,7 @@ class Drivers {
       baseScenario,
       currentScenario,
       defaultUnit,
-      typeForValueSanitization: sanitization.NUMBER_TYPE
+      sanitizationType: sanitization.NUMBER_TYPE
     });
   }
 

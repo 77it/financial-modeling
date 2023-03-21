@@ -10,7 +10,7 @@ Deno.test('Drivers tests', async () => {
     currentScenario: _currentScenario,
     baseScenario: STD_NAMES.Scenario.BASE,
     defaultUnit: STD_NAMES.Simulation.NAME,
-    typeForValueSanitization: sanitization.NUMBER_TYPE,
+    sanitizationType: sanitization.NUMBER_TYPE,
     prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
     prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
     allowMutable: true
@@ -68,12 +68,11 @@ Deno.test('Drivers tests', async () => {
 
   // query with all parameters empty: undefined
   //@ts-ignore
-  assertEquals(drivers.get({ }), undefined);
+  assertEquals(drivers.get({}), undefined);
 
   // throws if the query parameter is not an object
   //@ts-ignore
   assertThrows(() => drivers.get());
-
 
   // query with wrong driver parameters: undefined
   const _query1 = { scenario: 'SCENARIOAAA', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) };
@@ -84,7 +83,7 @@ Deno.test('Drivers tests', async () => {
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver CCC', date: new Date(2022, 11, 24) }), undefined);  // wrong name
 
   // #driver1[0] tests
-  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ' }),undefined);  // query without date, will query Date(0)
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ' }), undefined);  // query without date, will query Date(0)
   assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // undefined, query before set date
   assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25, 1, 1, 1, 1) }), 55);  // query with exact date; the time part is ignored
   assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 26) }), 55);  // query with first date after driver
@@ -138,9 +137,9 @@ Deno.test('Drivers tests', async () => {
   assertEquals(drivers.get({ name: 'driver XYZ2', date: new Date(2023, 1, 25) }), 77_777);  // query with exact date
 
   // #driver5 tests
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ3' }),88_888);  // query without date, will query Date(0)
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ3', date: new Date(0) }),88_888);
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ3', date: new Date(2023, 1, 25) }),88_888);
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ3' }), 88_888);  // query without date, will query Date(0)
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ3', date: new Date(0) }), 88_888);
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ3', date: new Date(2023, 1, 25) }), 88_888);
 });
 
 Deno.test('Advanced Drivers tests', async (t) => {
@@ -149,7 +148,7 @@ Deno.test('Advanced Drivers tests', async (t) => {
     currentScenario: _currentScenario,
     baseScenario: STD_NAMES.Scenario.BASE,
     defaultUnit: STD_NAMES.Simulation.NAME,
-    typeForValueSanitization: sanitization.ANY_TYPE,
+    sanitizationType: sanitization.ANY_TYPE,
     prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
     prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
     allowMutable: true
@@ -159,36 +158,70 @@ Deno.test('Advanced Drivers tests', async (t) => {
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', value: '{a: 99, b: false, c: [1, 2, \'3\', "4"]}' },
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2', value: 'false' },
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', value: '[1, 2, \'3\', "4"]' },
+
+    // 0, '', undefined, null tests
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ4', value: 0 },
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ5', value: '' },
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ6', value: undefined },
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ7', value: null },
   ];
   drivers.set(input);
 
-  await t.step('get() with parseAsJSON5', async () => {
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1'}), '{a: 99, b: false, c: [1, 2, \'3\', "4"]}');
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }), {a: 99, b: false, c: [1, 2, "3", '4']});
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).a, 99);
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).b, false);
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).c[2], "3");
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).c[3], "4");
+  await t.step('0, \'\', undefined, null tests', async () => {
+    // 0, '', undefined, null tests
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ4' }), 0);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ5' }), '');
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ6' }), undefined);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ7' }), null);
   });
 
-  await t.step('get() with typeForValueSanitization', async () => {
+  await t.step('get() with parseAsJSON5', async () => {
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1' }), '{a: 99, b: false, c: [1, 2, \'3\', "4"]}');
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }), { a: 99, b: false, c: [1, 2, '3', '4'] });
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).a, 99);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).b, false);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).c[2], '3');
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).c[3], '4');
+  });
+
+  await t.step('get() with sanitizationType', async () => {
+    // not existing driver is not sanitized
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', typeForValueSanitization: sanitization.NUMBER_TYPE}),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'THIS-DRIVER-DOES-NOT-EXIST', sanitizationType: sanitization.NUMBER_TYPE }),
+      undefined);
+    assertEquals(
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', sanitizationType: sanitization.NUMBER_TYPE }),
       0);
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', typeForValueSanitization: sanitization.STRING_TYPE}),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', sanitizationType: sanitization.STRING_TYPE }),
       '{a: 99, b: false, c: [1, 2, \'3\', "4"]}');
   });
 
-  await t.step('get() with parseAsJSON5 & typeForValueSanitization', async () => {
+  await t.step('get() with parseAsJSON5 & sanitizationType', async () => {
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2', parseAsJSON5: true, typeForValueSanitization: sanitization.BOOLEAN_TYPE }),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2', parseAsJSON5: true, sanitizationType: sanitization.BOOLEAN_TYPE }),
       false);
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', parseAsJSON5: true, typeForValueSanitization: sanitization.ANY_TYPE }),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', parseAsJSON5: true, sanitizationType: sanitization.ANY_TYPE }),
       [1, 2, '3', '4']);
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', parseAsJSON5: true, typeForValueSanitization: sanitization.ARRAY_OF_NUMBERS_TYPE }),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', parseAsJSON5: true, sanitizationType: sanitization.ARRAY_OF_NUMBERS_TYPE }),
       [1, 2, 3, 4]);
+  });
+
+  await t.step('get() with search', async () => {
+    const input = [
+      { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC Unit', value: 1 },
+      { scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Default Unit', value: 2 },
+      { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation', value: 3 },
+      { scenario: STD_NAMES.Scenario.BASE, unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Base Simulation, Default Unit', value: 4 },
+    ];
+    drivers.set(input);
+
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC Unit', search: true }), 1);
+    assertEquals(
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Default Unit', search: true }), 2);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Base Simulation', search: true }), 3);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
   });
 });

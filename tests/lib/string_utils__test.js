@@ -12,4 +12,6 @@ Deno.test('test isNullOrWhiteSpace()', (t) => {
     assertFalse(isNullOrWhiteSpace(99));
     assertFalse(isNullOrWhiteSpace({}));
     assertFalse(isNullOrWhiteSpace(Symbol()));
+    class C {}
+    assertFalse(isNullOrWhiteSpace(new C()));
 });

@@ -18,7 +18,7 @@ class DriversRepo {
   /** @type {string} */
   #currentDebugModuleInfo;  // unused by now
   /** @type {string} */
-  #typeForValueSanitization;
+  #sanitizationType;
   /** @type {string} */
   #prefix__immutable_without_dates;
   /** @type {string} */
@@ -33,7 +33,7 @@ class DriversRepo {
    * @param {string} p.baseScenario
    * @param {string} p.currentScenario
    * @param {string} p.defaultUnit
-   * @param {string} p.typeForValueSanitization
+   * @param {string} p.sanitizationType
    * @param {string} p.prefix__immutable_without_dates
    * @param {string} p.prefix__immutable_with_dates
    * @param {boolean} p.allowMutable
@@ -42,7 +42,7 @@ class DriversRepo {
     baseScenario,
     currentScenario,
     defaultUnit,
-    typeForValueSanitization,
+    sanitizationType,
     prefix__immutable_without_dates,
     prefix__immutable_with_dates,
     allowMutable
@@ -50,7 +50,7 @@ class DriversRepo {
     this.#baseScenario = sanitization.sanitize({ value: baseScenario, sanitization: sanitization.STRING_TYPE });
     this.#currentScenario = sanitization.sanitize({ value: currentScenario, sanitization: sanitization.STRING_TYPE });
     this.#defaultUnit = sanitization.sanitize({ value: defaultUnit, sanitization: sanitization.STRING_TYPE });
-    this.#typeForValueSanitization = sanitization.sanitize({ value: typeForValueSanitization, sanitization: sanitization.STRING_TYPE });
+    this.#sanitizationType = sanitization.sanitize({ value: sanitizationType, sanitization: sanitization.STRING_TYPE });
 
     this.#prefix__immutable_without_dates = sanitization.sanitize({ value: prefix__immutable_without_dates, sanitization: sanitization.STRING_TYPE });
     this.#prefix__immutable_with_dates = sanitization.sanitize({ value: prefix__immutable_with_dates, sanitization: sanitization.STRING_TYPE });
@@ -111,7 +111,7 @@ class DriversRepo {
         obj: _inputItemClone,
         sanitization: {
           date: sanitization.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
-          value: this.#typeForValueSanitization
+          value: this.#sanitizationType
         }
       });
 
@@ -193,14 +193,46 @@ class DriversRepo {
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing is the date set with `setToday` method; if found returns the value closest (but not greater) to the requested date
    * @param {boolean} [p.parseAsJSON5] - Optional flag to parse the value as JSON5
-   * @param {string} [p.typeForValueSanitization] - Optional type for value sanitization
+   * @param {string} [p.sanitizationType] - Optional type for value sanitization
+   * @param {boolean} [p.search] - Optional flag to search for recursive search of the driver:
+   * read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
+   * finally from Base Scenario and Default Unit (if Unit != Default and if if Scenario != Base)
    * @return {undefined|*} Driver; if not found, returns undefined
    */
-  get ({ scenario, unit, name, date, parseAsJSON5, typeForValueSanitization }) {
-    const _key = this.#driversRepoBuildKey({ scenario, unit, name });
+  get ({ scenario, unit, name, date, parseAsJSON5, sanitizationType, search }) {
+    let _key = this.#driversRepoBuildKey({ scenario, unit, name });
+    if (!this.#driversRepo.has(_key)) {
+      if (!search)
+        return undefined;
+      else {
+        const _baseScenario = this.#baseScenario;
+        const _defaultUnit = this.#defaultUnit;
+        let _foundFlag = false;
+        // search from Default Unit (if Unit != Default)
+        if (unit !== _defaultUnit) {
+          _key = this.#driversRepoBuildKey({ scenario, unit: _defaultUnit, name });
+          if (this.#driversRepo.has(_key))
+            _foundFlag = true;
+        }
 
-    if (!this.#driversRepo.has(_key))
-      return undefined;
+        // search from Base Scenario (if Scenario != Base) and same Unit
+        if (!_foundFlag && scenario !== _baseScenario) {
+          _key = this.#driversRepoBuildKey({ scenario: _baseScenario, unit, name });
+          if (this.#driversRepo.has(_key))
+            _foundFlag = true;
+        }
+
+        // search from Base Scenario and Default Unit (if Unit != Default and if if Scenario != Base)
+        if (!_foundFlag && scenario !== _baseScenario && unit !== _defaultUnit) {
+          _key = this.#driversRepoBuildKey({ scenario: _baseScenario, unit: _defaultUnit, name });
+          if (this.#driversRepo.has(_key))
+            _foundFlag = true;
+        }
+
+        if (!_foundFlag)
+          return undefined;
+      }
+    }
 
     const _driver = this.#driversRepo.get(_key);
     if (!_driver)
@@ -226,10 +258,10 @@ class DriversRepo {
     const _parsedValue = (parseAsJSON5) ? parseJSON5(_ret) : _ret;
 
     // sanitize the value if requested
-    if (isNullOrWhiteSpace(typeForValueSanitization))
+    if (isNullOrWhiteSpace(sanitizationType))
       return _parsedValue;
     else
-      return sanitization.sanitize({ value: _parsedValue, sanitization: typeForValueSanitization });
+      return sanitization.sanitize({ value: _parsedValue, sanitization: sanitizationType });
   }
 
   //#region private methods
