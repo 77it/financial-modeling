@@ -33,6 +33,7 @@ Deno.test('Drivers tests', async () => {
 
     { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ3', value: 88_888 },  // #driver5  missing date, set to Date(0)
   ];
+  const input_clone = structuredClone(input);
   const errors1 = drivers.set(input);
   assertEquals(
     errors1,
@@ -42,12 +43,14 @@ Deno.test('Drivers tests', async () => {
       'Driver {"scenario":"scenario1","unit":"unita","name":"$driver xyz"} is immutable and the date 2024-01-02 is already present',
     ]
   );
+  assertEquals(input, input_clone);  // input is not modified
 
   const input2 = [
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', value: 6655 },  //  #driver2; being already set, will be ignored
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 99 },  // immutable, ignored
     { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 25), value: 7_775 },  // #driver3[2]
   ];
+  const input2_clone = structuredClone(input2);
   const errors2 = drivers.set(input2);
   assertEquals(
     errors2,
@@ -56,6 +59,7 @@ Deno.test('Drivers tests', async () => {
       'Driver {"scenario":"scenario1","unit":"unita","name":"$driver xyz"} is immutable and it is already present'
     ]
   );
+  assertEquals(input2, input2_clone);  // input2 is not modified
 
   // query with all parameters empty: undefined
   //@ts-ignore
@@ -67,7 +71,10 @@ Deno.test('Drivers tests', async () => {
 
 
   // query with wrong driver parameters: undefined
-  assertEquals(drivers.get({ scenario: 'SCENARIOAAA', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // wrong scenario
+  const _query1 = { scenario: 'SCENARIOAAA', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) };
+  const _query_clone = structuredClone(_query1);
+  assertEquals(drivers.get(_query1), undefined);  // wrong scenario
+  assertEquals(_query1, _query_clone);  // _query1 is not modified
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitBBB', name: '$driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // wrong unit
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver CCC', date: new Date(2022, 11, 24) }), undefined);  // wrong name
 

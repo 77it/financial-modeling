@@ -204,8 +204,9 @@ class DriversRepo {
     if (!_driver)
       return undefined;
 
+    // missing dates will be set to this.#today
     let _date = (date === undefined || date === null) ? this.#today : date;
-    // missing or invalid dates will be set to new Date(0)
+    // invalid dates will be set to new Date(0)
     _date = sanitization.sanitize({ value: _date, sanitization: sanitization.DATE_TYPE });
     // strip the time part from the date (if the date is != Date(0))
     _date = (_date.getTime() !== 0) ? toDateYYYYMMDD(_date) : _date;
