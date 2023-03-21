@@ -1,6 +1,6 @@
 ﻿export { DriversRepo };
 
-import { sanitization, validation, toDateYYYYMMDD, toStringYYYYMMDD, parseJSON5 } from '../deps.js';
+import { sanitization, validation, toDateYYYYMMDD, toStringYYYYMMDD, parseJSON5, isNullOrWhiteSpace } from '../deps.js';
 
 class DriversRepo {
   /**
@@ -193,9 +193,10 @@ class DriversRepo {
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing is the date set with `setToday` method; if found returns the value closest (but not greater) to the requested date
    * @param {boolean} [p.parseAsJSON5] - Optional flag to parse the value as JSON5
+   * @param {string} [p.typeForValueSanitization] - Optional type for value sanitization
    * @return {undefined|*} Driver; if not found, returns undefined
    */
-  get ({ scenario, unit, name, date, parseAsJSON5 }) {
+  get ({ scenario, unit, name, date, parseAsJSON5, typeForValueSanitization }) {
     const _key = this.#driversRepoBuildKey({ scenario, unit, name });
 
     if (!this.#driversRepo.has(_key))
@@ -221,10 +222,14 @@ class DriversRepo {
         _ret = _item.value;
     }
 
-    if (parseAsJSON5)
-      return parseJSON5(_ret);
+    // parse as JSON5 if requested
+    const _parsedValue = (parseAsJSON5) ? parseJSON5(_ret) : _ret;
+
+    // sanitize the value if requested
+    if (isNullOrWhiteSpace(typeForValueSanitization))
+      return _parsedValue;
     else
-      return _ret;
+      return sanitization.sanitize({ value: _parsedValue, sanitization: typeForValueSanitization });
   }
 
   //#region private methods

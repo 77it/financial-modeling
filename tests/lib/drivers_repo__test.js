@@ -144,28 +144,51 @@ Deno.test('Drivers tests', async () => {
 });
 
 Deno.test('Advanced Drivers tests', async (t) => {
+  const _currentScenario = 'SCENARIO1';
+  const drivers = new DriversRepo({
+    currentScenario: _currentScenario,
+    baseScenario: STD_NAMES.Scenario.BASE,
+    defaultUnit: STD_NAMES.Simulation.NAME,
+    typeForValueSanitization: sanitization.ANY_TYPE,
+    prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
+    prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
+    allowMutable: true
+  });
+
+  const input = [
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', value: '{a: 99, b: false, c: [1, 2, \'3\', "4"]}' },
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2', value: 'false' },
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', value: '[1, 2, \'3\', "4"]' },
+  ];
+  drivers.set(input);
+
   await t.step('get() with parseAsJSON5', async () => {
-    const _currentScenario = 'SCENARIO1';
-    const drivers = new DriversRepo({
-      currentScenario: _currentScenario,
-      baseScenario: STD_NAMES.Scenario.BASE,
-      defaultUnit: STD_NAMES.Simulation.NAME,
-      typeForValueSanitization: sanitization.ANY_TYPE,
-      prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
-      prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
-      allowMutable: true
-    });
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1'}), '{a: 99, b: false, c: [1, 2, \'3\', "4"]}');
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }), {a: 99, b: false, c: [1, 2, "3", '4']});
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).a, 99);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).b, false);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).c[2], "3");
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).c[3], "4");
+  });
 
-    const input = [
-      { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', value: '{a: 99, b: false, c: [1, 2, \'3\', "4"]}' },
-    ];
-    drivers.set(input);
+  await t.step('get() with typeForValueSanitization', async () => {
+    assertEquals(
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', typeForValueSanitization: sanitization.NUMBER_TYPE}),
+      0);
+    assertEquals(
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', typeForValueSanitization: sanitization.STRING_TYPE}),
+      '{a: 99, b: false, c: [1, 2, \'3\', "4"]}');
+  });
 
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC'}), '{a: 99, b: false, c: [1, 2, \'3\', "4"]}');
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', parseAsJSON5: true }), {a: 99, b: false, c: [1, 2, "3", '4']});
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', parseAsJSON5: true }).a, 99);
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', parseAsJSON5: true }).b, false);
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', parseAsJSON5: true }).c[2], "3");
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', parseAsJSON5: true }).c[3], "4");
+  await t.step('get() with parseAsJSON5 & typeForValueSanitization', async () => {
+    assertEquals(
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2', parseAsJSON5: true, typeForValueSanitization: sanitization.BOOLEAN_TYPE }),
+      false);
+    assertEquals(
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', parseAsJSON5: true, typeForValueSanitization: sanitization.ANY_TYPE }),
+      [1, 2, '3', '4']);
+    assertEquals(
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', parseAsJSON5: true, typeForValueSanitization: sanitization.ARRAY_OF_NUMBERS_TYPE }),
+      [1, 2, 3, 4]);
   });
 });
