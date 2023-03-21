@@ -18,13 +18,18 @@ Deno.test('Drivers tests', async () => {
 
   const input = [
     { unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), value: 55 },  // #driver1[0]  missing scenario
+
+    // immutable without dates
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', date: new Date(2024, 0, 2), value: 6677 },  //  #driver2, immutable without date; having a date, this set will be ignored
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', value: 66 },  //  #driver2   value without date, set to Date(0)
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', value: 6655 },  //  #driver2; being already set, will be ignored
+
+    // immutable with dates
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2, 6, 2), value: '5555' },  // #driver1[2], string converted to number (after keeping only yyyy-mm-dd)
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2, 10, 30), value: '111' },  // date already present (after keeping only yyyy-mm-dd), ignored
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25), value: 555 },  // #driver1[1]
 
+    // mutable
     { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 77 },  // #driver3[0]
     { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2), value: 7_777 },  // #driver3[3]
     { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25), value: 777 },  // #driver3[1]
