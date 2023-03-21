@@ -4,9 +4,15 @@ import { assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, as
 
 Deno.test('JSON5 tests', (t) => {
   // parse will go in error (invalid string), then returns undefined
-  const txt3 = '[ciao, mamma]';
-  let parsed3 = JSON5.parse(txt3);
-  assertEquals(parsed3, undefined);
+  assertEquals(JSON5.parse('[ciao, mamma]'), undefined);
+
+  // parsing undefined returns undefined
+  //@ts-ignore
+  assertEquals(JSON5.parse(undefined), undefined);
+
+  // parsing null returns null
+  //@ts-ignore
+  assertEquals(JSON5.parse(null), null);
 
   const txt = '{\'m\':999.159, n: \'y88 x\'}';
   let parsed = JSON5.parse(txt);

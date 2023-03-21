@@ -1,6 +1,6 @@
 ﻿export { DriversRepo };
 
-import { sanitization, validation, toDateYYYYMMDD, toStringYYYYMMDD } from '../deps.js';
+import { sanitization, validation, toDateYYYYMMDD, toStringYYYYMMDD, parseJSON5 } from '../deps.js';
 
 class DriversRepo {
   /**
@@ -192,9 +192,10 @@ class DriversRepo {
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing is the date set with `setToday` method; if found returns the value closest (but not greater) to the requested date
-   * @return {undefined|number} Driver; if not found, returns undefined
+   * @param {boolean} [p.parseAsJSON5] - Optional flag to parse the value as JSON5
+   * @return {undefined|*} Driver; if not found, returns undefined
    */
-  get ({ scenario, unit, name, date }) {
+  get ({ scenario, unit, name, date, parseAsJSON5 }) {
     const _key = this.#driversRepoBuildKey({ scenario, unit, name });
 
     if (!this.#driversRepo.has(_key))
@@ -220,7 +221,10 @@ class DriversRepo {
         _ret = _item.value;
     }
 
-    return _ret;
+    if (parseAsJSON5)
+      return parseJSON5(_ret);
+    else
+      return _ret;
   }
 
   //#region private methods
