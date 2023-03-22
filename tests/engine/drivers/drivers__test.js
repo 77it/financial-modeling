@@ -4,7 +4,13 @@ import { Drivers } from '../../../src/engine/drivers/drivers.js';
 import * as STD_NAMES from '../../../src/modules/_names/standard_names.js';
 
 Deno.test('Drivers tests', async () => {
-  const drivers = new Drivers({ defaultScenario: STD_NAMES.Scenario.BASE });
+  const drivers = new Drivers({
+    baseScenario: STD_NAMES.Scenario.BASE,
+    currentScenario: 'SCENARIO1',
+    defaultUnit: STD_NAMES.Simulation.NAME,
+    prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
+    prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
+  });
 
   const input = [
     { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 55 },  // #driver1[0]

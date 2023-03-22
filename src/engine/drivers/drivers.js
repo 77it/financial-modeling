@@ -7,13 +7,23 @@ class Drivers {
   /** @type {DriversRepo} */
   #driversRepo;
 
-  /** @param {{baseScenario: string, currentScenario: string, defaultUnit: string}} p */
-  constructor ({ baseScenario, currentScenario, defaultUnit }) {
+  /**
+   * @param {Object} p
+   * @param {string} p.baseScenario
+   * @param {string} p.currentScenario
+   * @param {string} p.defaultUnit
+   * @param {string} p.prefix__immutable_without_dates
+   * @param {string} p.prefix__immutable_with_dates
+   */
+  constructor ({ baseScenario, currentScenario, defaultUnit, prefix__immutable_without_dates, prefix__immutable_with_dates }) {
     this.#driversRepo = new DriversRepo({
       baseScenario,
       currentScenario,
       defaultUnit,
-      sanitizationType: sanitization.NUMBER_TYPE
+      sanitizationType: sanitization.NUMBER_TYPE,
+      prefix__immutable_without_dates,
+      prefix__immutable_with_dates,
+      allowMutable: false
     });
   }
 
