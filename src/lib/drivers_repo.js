@@ -193,7 +193,7 @@ class DriversRepo {
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing is the date set with `setToday` method; if found returns the value closest (but not greater) to the requested date
    * @param {boolean} [p.parseAsJSON5] - Optional flag to parse the value as JSON5
-   * @param {string} [p.sanitizationType] - Optional type for value sanitization
+   * @param {string|string[]|Object} [p.sanitizationType] - Optional type for value sanitization (can be string, array of string, object)
    * @param {boolean} [p.search] - Optional flag to search for recursive search of the driver:
    * read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
    * finally from Base Scenario and Default Unit (if Unit != Default and if if Scenario != Base)
@@ -260,8 +260,10 @@ class DriversRepo {
     // sanitize the value if requested
     if (isNullOrWhiteSpace(sanitizationType))
       return _parsedValue;
-    else
+    else if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType))
       return sanitization.sanitize({ value: _parsedValue, sanitization: sanitizationType });
+    else
+      return sanitization.sanitizeObj({ obj: _parsedValue, sanitization: sanitizationType });
   }
 
   //#region private methods

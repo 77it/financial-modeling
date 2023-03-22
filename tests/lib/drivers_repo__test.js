@@ -184,7 +184,7 @@ Deno.test('Advanced Drivers tests', async (t) => {
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', parseAsJSON5: true }).c[3], '4');
   });
 
-  await t.step('get() with sanitizationType', async () => {
+  await t.step('get() with sanitizationType as string or array (then sanitize())', async () => {
     // not existing driver is not sanitized
     assertEquals(
       drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'THIS-DRIVER-DOES-NOT-EXIST', sanitizationType: sanitization.NUMBER_TYPE }),
@@ -195,9 +195,24 @@ Deno.test('Advanced Drivers tests', async (t) => {
     assertEquals(
       drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', sanitizationType: sanitization.STRING_TYPE }),
       '{a: 99, b: false, c: [1, 2, \'3\', "4"]}');
+    assertEquals(
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', sanitizationType: [999, 888, 'aaa'] }),  // array sanitization, ignored
+      '{a: 99, b: false, c: [1, 2, \'3\', "4"]}');
   });
 
-  await t.step('get() with parseAsJSON5 & sanitizationType', async () => {
+  await t.step('get() with parseAsJSON5 and sanitizationType as object (then sanitizeObj())', async () => {
+    assertEquals(
+      drivers.get({
+        scenario: 'SCENARIO1',
+        unit: 'UnitA',
+        name: '$$driverABC1',
+        parseAsJSON5: true,
+        sanitizationType: { a: sanitization.STRING_TYPE, b: sanitization.STRING_TYPE, c: sanitization.ARRAY_OF_NUMBERS_TYPE }
+      }),
+      { a: '99', b: 'false', c: [1, 2, 3, 4] });
+  });
+
+  await t.step('get() with parseAsJSON5 & sanitizationType as string', async () => {
     assertEquals(
       drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2', parseAsJSON5: true, sanitizationType: sanitization.BOOLEAN_TYPE }),
       false);
@@ -222,7 +237,12 @@ Deno.test('Advanced Drivers tests', async (t) => {
 
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Default Unit', search: true }), 2);
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Default Unit', search: true }), 2);
-    assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Default Unit', search: true }), undefined);
+    assertEquals(drivers.get({
+      scenario: STD_NAMES.Scenario.BASE,
+      unit: STD_NAMES.Simulation.NAME,
+      name: '$$driverABC2 Default Unit',
+      search: true
+    }), undefined);
 
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Base Simulation', search: true }), 3);
     assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation', search: true }), 3);
@@ -230,6 +250,11 @@ Deno.test('Advanced Drivers tests', async (t) => {
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
     assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
-    assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
+    assertEquals(drivers.get({
+      scenario: STD_NAMES.Scenario.BASE,
+      unit: STD_NAMES.Simulation.NAME,
+      name: '$$driverABC2 Base Simulation, Default Unit',
+      search: true
+    }), 4);
   });
 });
