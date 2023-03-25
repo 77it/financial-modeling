@@ -1,6 +1,6 @@
 ﻿export { Ledger };
 
-import { Big } from '../../deps.js';
+import { Big, isNullOrWhiteSpace } from '../../deps.js';
 import { validation, sanitization } from '../../deps.js';
 import { SimObject } from '../simobject/simobject.js';
 import { NewSimObjectDto } from './commands/newsimobjectdto.js';
@@ -116,10 +116,10 @@ class Ledger {
    */
   commit () {
     if (this.#currentTransaction.length === 0) return;
-    this.#appendTrnDump(JSON.stringify(this.#currentTransaction));
-    this.#currentTransaction = [];  // reset the current transaction
 
     // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
+    this.#appendTrnDump(JSON.stringify(this.#currentTransaction));
+    this.#currentTransaction = [];  // reset the current transaction
   }
 
   /**
@@ -151,7 +151,7 @@ class Ledger {
       alive: newSimObjectDto.alive,
       command__Id: this.#getNextCommandId().toString(),
       command__DebugDescription: newSimObjectDto.command__DebugDescription ?? '',
-      commandGroup__Id: this.#getNextTransactionId().toString(),
+      commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription ?? debug_moduleInfo,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: new Big(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
@@ -162,6 +162,7 @@ class Ledger {
       extras: newSimObjectDto.extras
     });
 
+    this.#addOrUpdateSimObject(simObject);
     this.#currentTransaction.push(simObject);
   }
 
@@ -189,6 +190,20 @@ class Ledger {
     this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_WARNING, newDebugSimObjectDto);
   }
 
+  /** Add a new transaction with a DEBUG_WARNING SimObject, if the input string or array of strings is not empty
+   @param {Object} p
+   @param {string} p.title
+   @param {string|string[]} p.message
+   */
+  newDebugWarningTrn ({ title, message }) {
+    if (Array.isArray(message) && message.length === 0) return;
+    if (isNullOrWhiteSpace(message)) return;
+
+    // create message: if message is an array, stringify it; otherwise, convert it to string
+    const _message = (Array.isArray(message)) ? `${title}: ${JSON.stringify(message)}` : `${title}: ${message.toString()}`;
+    this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_WARNING, new NewDebugSimObjectDto({ description: _message }));
+  }
+
   /**
    * Add a DEBUG_ERROR SimObject to the transaction
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
@@ -200,7 +215,18 @@ class Ledger {
   //#endregion public methods
 
   //#region private methods
-  //* @returns {number} */
+  /** Add or update a SimObject in the repository
+   * @param {SimObject} simObject
+   */
+  #addOrUpdateSimObject (simObject) {
+    if (this.#simObjectsRepo.has(simObject.id))
+      // update the existing SimObject
+      this.#simObjectsRepo[simObject.id] = simObject;
+    else
+      this.#simObjectsRepo.set(simObject.id, simObject);
+  }
+
+  /** @returns {number} */
   #getNextId () {
     return ++this.#lastId;
   }
@@ -210,8 +236,9 @@ class Ledger {
     return ++this.#lastCommandId;
   }
 
-  /** @returns {number} */
-  #getNextTransactionId () {
+  /** Returns the current transaction id (if there is an open transaction) or the next transaction id (if there is no open transaction)
+   * @returns {number} */
+  #getTransactionId () {
     // if #currentTransaction is empty, increment #lastTransactionId
     if (!this.transactionIsOpen())
       this.#lastTransactionId++;
@@ -248,7 +275,7 @@ class Ledger {
       alive: false,
       command__Id: this.#getNextCommandId().toString(),
       command__DebugDescription: newDebugSimObjectDto.command__DebugDescription ?? '',
-      commandGroup__Id: this.#getNextTransactionId().toString(),
+      commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription ?? debug_moduleInfo,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: new Big(0),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [],
