@@ -30,7 +30,7 @@ import { financial } from '../deps.js';
 /*
 aggiungi campi:
 * paymentDate: 'exactDate', 'startOfMonth', 'endOfMonth'  // optional; if omitted is 'exactDate' // vedi https://cdn.jsdelivr.net/npm/@danacita/loanjs@1.1.6/src/repaymentSchedule.ts per gestione anno bisestile
-* [OPZ] dp (number): The number of digits to appear after the decimal point. If this argument is omitted, is 4. [1] [2]
+* [OPZ] dp (number): The number of digits to appear after the decimal point (decimal places, precision). If this argument is omitted, is 4. [1] [2]
 output, array di:
 * data in UTC  // con 0 mostra la data di inizio piano
 * capitale residuo

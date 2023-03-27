@@ -106,6 +106,9 @@ class Ledger {
    */
   forceCommitWithoutValidation () {
     if (this.#currentTransaction.length === 0) return;
+
+    XXX; // errore: converti array to SimObjectJsonDumpDto e quindi stringify
+    XXX; // SimObjectJsonDumpDto: il dto deve contenere big invece di numbers, perché non possiamo sapere se il valore di una scrittura sarà superiore, in futuro...
     this.#appendTrnDump(JSON.stringify(this.#currentTransaction));
     this.#currentTransaction = [];  // reset the current transaction
   }
@@ -118,6 +121,7 @@ class Ledger {
     if (this.#currentTransaction.length === 0) return;
 
     // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
+    XXX; // errore: converti array to SimObjectJsonDumpDto e quindi stringify
     this.#appendTrnDump(JSON.stringify(this.#currentTransaction));
     this.#currentTransaction = [];  // reset the current transaction
   }
