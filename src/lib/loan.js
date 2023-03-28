@@ -37,7 +37,7 @@ output, array di:
 [1] Piano di ammortamento: internamente taglia a N decimali (default 4) quando scrivi i piani; l'ultimo sfrido di quadratura addebitalo sull'ultima rata.
 4 è scelto in quanto è usato anche nel formato "Fixed Decimal Number" https://learn.microsoft.com/en-us/power-bi/connect-data/desktop-data-types
 [2] // codice per troncare
-const message = Number(new Big(4.27777777).toFixed(4, 0));  // see http://mikemcl.github.io/big.js/#toF
+const message = Number(SOME-NUMBER.toFixed(4));  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed
 
 */
 // poi test: confrontalo con piani generati da excel

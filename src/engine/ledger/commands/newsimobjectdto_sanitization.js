@@ -27,8 +27,8 @@ const newSimObjectDto_Sanitization = {
 
   intercompanyInfo__VsUnitId: sanitization.STRING_TYPE + '?',
 
-  value: sanitization.NUMBER_TYPE,  // converted from Big.js
-  writingValue: sanitization.NUMBER_TYPE,  // converted from Big.js
+  value: sanitization.NUMBER_TYPE,
+  writingValue: sanitization.NUMBER_TYPE,
 
   alive: sanitization.BOOLEAN_TYPE,
 
@@ -41,9 +41,9 @@ const newSimObjectDto_Sanitization = {
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: sanitization.NUMBER_TYPE,  // converted from Big.js
+  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: sanitization.NUMBER_TYPE,
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: sanitization.ARRAY_OF_DATES_TYPE,
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: sanitization.ARRAY_OF_NUMBERS_TYPE,  // converted from array of Big.js
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: sanitization.ARRAY_OF_NUMBERS_TYPE,
 
   is_Link__SimObjId: sanitization.STRING_TYPE + '?',
   //#endregion properties common only to some kind of SimObjects
