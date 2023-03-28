@@ -1,6 +1,6 @@
 ﻿export { Ledger };
 
-import { Big, isNullOrWhiteSpace } from '../../deps.js';
+import { isNullOrWhiteSpace } from '../../deps.js';
 import { validation, sanitization } from '../../deps.js';
 import { SimObject } from '../simobject/simobject.js';
 import { NewSimObjectDto } from './commands/newsimobjectdto.js';
@@ -58,12 +58,18 @@ class Ledger {
   #debug;
   /** @type {string} */
   #currentDebugModuleInfo;
+  /** @type {number} */
+  #decimalPlaces;
+  /** @type {boolean} */
+  #roundingModeIsRound;
 
   /**
    @param {Object} p
    @param {appendTrnDump} p.appendTrnDump Callback to dump the transactions
+   @param {number} p.decimalPlaces Decimal places to store numbers
+   @param {'round'|'floor'} p.roundingMode Rounding mode, 0 = round, 1 = floor
    */
-  constructor ({ appendTrnDump }) {
+  constructor ({ appendTrnDump, decimalPlaces, roundingMode }) {
     this.#appendTrnDump = appendTrnDump;
     this.#simObjectsRepo = new Map();
     this.#currentTransaction = [];
@@ -73,6 +79,8 @@ class Ledger {
     this.#today = new Date(0);
     this.#debug = false;
     this.#currentDebugModuleInfo = '';
+    this.#decimalPlaces = decimalPlaces;
+    this.#roundingModeIsRound = (roundingMode === 'round');
   }
 
   //#region public methods
@@ -150,16 +158,16 @@ class Ledger {
       doubleEntrySide: newSimObjectDto.doubleEntrySide,
       currency: newSimObjectDto.currency,
       intercompanyInfo__VsUnitId: newSimObjectDto.intercompanyInfo__VsUnitId ?? '',
-      value: new Big(newSimObjectDto.value),
-      writingValue: new Big(newSimObjectDto.value),
+      value: this.#toBigInt(newSimObjectDto.value),
+      writingValue: this.#toBigInt(newSimObjectDto.value),
       alive: newSimObjectDto.alive,
       command__Id: this.#getNextCommandId().toString(),
       command__DebugDescription: newSimObjectDto.command__DebugDescription ?? '',
       commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription ?? debug_moduleInfo,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: new Big(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#toBigInt(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => new Big(number)),
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => this.#toBigInt(number)),
       is_Link__SimObjId: newSimObjectDto.is_Link__SimObjId ?? '',
       vsSimObjectId: newSimObjectDto.vsSimObjectId ?? '',
       versionId: 0,
@@ -274,14 +282,14 @@ class Ledger {
       doubleEntrySide: DoubleEntrySide_enum.DEBUG,
       currency: Currency_enum.UNDEFINED,
       intercompanyInfo__VsUnitId: '',
-      value: new Big(0),
-      writingValue: new Big(0),
+      value: this.#toBigInt(0),
+      writingValue: this.#toBigInt(0),
       alive: false,
       command__Id: this.#getNextCommandId().toString(),
       command__DebugDescription: newDebugSimObjectDto.command__DebugDescription ?? '',
       commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription ?? debug_moduleInfo,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: new Big(0),
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#toBigInt(0),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [],
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [],
       is_Link__SimObjId: '',
@@ -291,6 +299,16 @@ class Ledger {
     });
 
     this.#currentTransaction.push(simObject);
+  }
+
+  /**
+   * This function is used to convert a number to a BigInt, preserving a given number of decimal places.
+   @param {number} n - number to convert
+   @returns {BigInt}
+   */
+  #toBigInt (n) {
+    if (this.#roundingModeIsRound) return BigInt(Math.round(n * 10 ** this.#decimalPlaces));
+    return BigInt(Math.floor(n * 10 ** this.#decimalPlaces));
   }
 
   //#endregion private methods

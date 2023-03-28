@@ -16,16 +16,16 @@ class SimObjectJsonDumpDto {
    * @param {string} p.doubleEntrySide
    * @param {string} p.currency
    * @param {string} p.intercompanyInfo__VsUnitId
-   * @param {number} p.value
-   * @param {number} p.writingValue
+   * @param {string} p.value - Converted from BigInt
+   * @param {string} p.writingValue - Converted from BigInt
    * @param {boolean} p.alive
    * @param {string} p.command__Id
    * @param {string} p.command__DebugDescription
    * @param {string} p.commandGroup__Id
    * @param {string} p.commandGroup__DebugDescription
-   * @param {number} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
+   * @param {string} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate - Converted from BigInt
    * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
-   * @param {number[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
+   * @param {string[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal - Converted from array of BigInt
    * @param {string} p.is_Link__SimObjId
    */
   constructor (p) {

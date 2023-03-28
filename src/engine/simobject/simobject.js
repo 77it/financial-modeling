@@ -2,14 +2,13 @@ export { SimObject };
 
 import { validateObj } from '../../lib/validation_utils.js';
 import { simObject_Validation } from './validations/simobject_validation.js';
-import { Big } from '../../deps.js';
 import { SimObjectDto } from './simobjectdto.js';
 import { SimObjectJsonDumpDto } from './simobjectjsondumpdto.js';
 
 // info
 /*
 # about numbers and dates
-* numbers: stored with big.js http://mikemcl.github.io/big.js/
+* numbers: stored as BigInt
 * date:
   * stored as local dates, no UTC
   * dates can have hour/minutes/seconds if needed, won't be stripped/normalized
@@ -32,16 +31,16 @@ class SimObject {
    * @param {string} p.doubleEntrySide
    * @param {string} p.currency
    * @param {string} p.intercompanyInfo__VsUnitId
-   * @param {Big} p.value
-   * @param {Big} p.writingValue
+   * @param {BigInt} p.value
+   * @param {BigInt} p.writingValue
    * @param {boolean} p.alive
    * @param {string} p.command__Id
    * @param {string} p.command__DebugDescription
    * @param {string} p.commandGroup__Id
    * @param {string} p.commandGroup__DebugDescription
-   * @param {Big} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
+   * @param {BigInt} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
    * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
-   * @param {Big[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
+   * @param {BigInt[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
    * @param {string} p.is_Link__SimObjId
    * @param {string} p.vsSimObjectId [NOT EXPORTED TO JSON DUMP] This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
    * @param {number} p.versionId [NOT EXPORTED TO JSON DUMP]
@@ -138,16 +137,16 @@ class SimObject {
       doubleEntrySide: this.doubleEntrySide,
       currency: this.currency,
       intercompanyInfo__VsUnitId: this.intercompanyInfo__VsUnitId,
-      value: this.value.toNumber(),
-      writingValue: this.writingValue.toNumber(),
+      value: Number(this.value),
+      writingValue: Number(this.writingValue),
       alive: this.alive,
       command__Id: this.command__Id,
       command__DebugDescription: this.command__DebugDescription,
       commandGroup__Id: this.commandGroup__Id,
       commandGroup__DebugDescription: this.commandGroup__DebugDescription,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.bs_Principal__PrincipalToPay_IndefiniteExpiryDate.toNumber(),
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: Number(this.bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...this.bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => big.toNumber()),
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => Number(big)),
       is_Link__SimObjId: this.is_Link__SimObjId,
       vsSimObjectId: this.vsSimObjectId,
       versionId: this.versionId,
@@ -174,16 +173,16 @@ class SimObject {
       doubleEntrySide: this.doubleEntrySide,
       currency: this.currency,
       intercompanyInfo__VsUnitId: this.intercompanyInfo__VsUnitId,
-      value: this.value.toNumber(),
-      writingValue: this.writingValue.toNumber(),
+      value: this.value.toString(),
+      writingValue: this.writingValue.toString(),
       alive: this.alive,
       command__Id: this.command__Id,
       command__DebugDescription: this.command__DebugDescription,
       commandGroup__Id: this.commandGroup__Id,
       commandGroup__DebugDescription: this.commandGroup__DebugDescription,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.bs_Principal__PrincipalToPay_IndefiniteExpiryDate.toNumber(),
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.bs_Principal__PrincipalToPay_IndefiniteExpiryDate.toString(),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: this.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => this.#convertDateToUTC(date)),
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => big.toNumber()),
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => big.toString()),
       is_Link__SimObjId: this.is_Link__SimObjId,
     });
   }

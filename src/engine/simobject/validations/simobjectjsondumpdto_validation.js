@@ -31,8 +31,8 @@ const simObjectJsonDumpDto_Validation = {
 
   intercompanyInfo__VsUnitId: validation.STRING_TYPE,
 
-  value: validation.NUMBER_TYPE,  // converted from Big.js
-  writingValue: validation.NUMBER_TYPE,  // converted from Big.js
+  value: validation.STRING_TYPE,  // converted from BigInt
+  writingValue: validation.STRING_TYPE,  // converted from BigInt
 
   alive: validation.BOOLEAN_TYPE,
 
@@ -45,9 +45,9 @@ const simObjectJsonDumpDto_Validation = {
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: validation.NUMBER_TYPE,  // converted from Big.js
+  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: validation.STRING_TYPE,  // converted from BigInt
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: validation.ARRAY_OF_DATES_TYPE,
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: validation.ARRAY_OF_NUMBERS_TYPE,  // converted from array of Big.js
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: validation.ARRAY_OF_STRINGS_TYPE,  // converted from array of BigInt
 
   is_Link__SimObjId: validation.STRING_TYPE,
   //#endregion properties common only to some kind of SimObjects
