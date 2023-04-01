@@ -42,12 +42,12 @@ class Drivers {
    * Drivers are immutable.
    * If a date is already present, the second one will be ignored.
    *
-   * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: number}[]} p
+   * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
    * scenario: optional; null, undefined or '' means `currentScenario` from constructor
    * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * name: Driver name
    * date: optional; if missing will be set to new Date(0)
-   * value: Driver value
+   * value: Driver value, sanitized to number
    */
   set (p) {
     this.#driversRepo.set(p);
