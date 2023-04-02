@@ -59,10 +59,34 @@ class Drivers {
    * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Driver name
-   * @param {Date} [p.date] - Optional date; if missing, returns first value; if found returns the value closest (but not greater) to the requested date
+   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
+   * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
+   * @param {'sum'|'average'|'min'|'max'} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
    * @return {undefined|number} Driver; if not found, returns undefined
+   * if `endDate` is not defined, returns the value defined before or at `date`;
+   * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
    */
-  get ({ scenario, unit, name, date }) {
-    return this.#driversRepo.get({ scenario, unit, name, date });
+  get ({ scenario, unit, name, date, endDate, calc }) {
+    // if `endDate` is not defined, returns the value defined before or at `date`
+    if (endDate == null)
+      return this.#driversRepo.get({ scenario, unit, name, date });
+    // if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`
+    else {
+      /** @type {number[]} */
+      const _retArray = this.#driversRepo.get({ scenario, unit, name, date, endDate });
+      // switch on `calc`
+      switch (calc) {
+        case 'sum':
+          return _retArray.reduce((partialSum, a) => partialSum + a, 0);  // see https://stackoverflow.com/a/16751601
+        case 'average':
+          return _retArray.reduce((a, b) => a + b, 0) / _retArray.length;
+        case 'min':
+          return Math.min(..._retArray);  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min
+        case 'max':
+          return Math.max(..._retArray);  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/max
+        default:  // apply `sum` as default
+          return _retArray.reduce((a, b) => a + b, 0);
+      }
+    }
   }
 }

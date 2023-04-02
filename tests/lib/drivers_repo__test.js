@@ -74,7 +74,7 @@ Deno.test('Drivers tests', async () => {
   //@ts-ignore
   assertThrows(() => drivers.get());
 
-  // query with wrong driver parameters: undefined
+  // query with wrong parameters: undefined
   const _query1 = { scenario: 'SCENARIOAAA', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) };
   const _query_clone = structuredClone(_query1);
   assertEquals(drivers.get(_query1), undefined);  // wrong scenario
@@ -89,6 +89,10 @@ Deno.test('Drivers tests', async () => {
   assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 26) }), 55);  // query with first date after driver
   assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 24) }), 55);  // query with last date before next driver
   assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), 55);  // query scenario with wrong case
+  // get an array of drivers with `endDate` parameter (range of dates test)
+  assertThrows(() => drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2022, 11, 24) }));  // endDate < date
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2022, 11, 26) }), [55]);
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31) }), [55, 555, 5555]);
 
   // #driver1[1] tests
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25) }), 555);  // query with exact date

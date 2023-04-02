@@ -191,15 +191,18 @@ class DriversRepo {
    * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Driver name
-   * @param {Date} [p.date] - Optional date; if missing is the date set with `setToday` method; if found returns the value closest (but not greater) to the requested date
+   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
+   * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
    * @param {boolean} [p.parseAsJSON5] - Optional flag to parse the value as JSON5
    * @param {string|string[]|Object} [p.sanitizationType] - Optional type for value sanitization (can be string, array of string, object)
    * @param {boolean} [p.search] - Optional flag to search for recursive search of the driver:
    * read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
    * finally from Base Scenario and Default Unit (if Unit != Default and if if Scenario != Base)
-   * @return {undefined|*} Driver; if not found, returns undefined
+   * @return {undefined|*|*[]} Driver; if not found, returns undefined;
+   * if `endDate` is not defined, returns the value defined before or at `date`;
+   * if `endDate` is defined, returns an array of values defined between `date` and `endDate`.
    */
-  get ({ scenario, unit, name, date, parseAsJSON5, sanitizationType, search }) {
+  get ({ scenario, unit, name, date, endDate, parseAsJSON5, sanitizationType, search }) {
     let _key = this.#driversRepoBuildKey({ scenario, unit, name });
     if (!this.#driversRepo.has(_key)) {
       if (!search)
@@ -240,30 +243,65 @@ class DriversRepo {
 
     // missing dates will be set to this.#today
     let _date = (date === undefined || date === null) ? this.#today : date;
-    // invalid dates will be set to new Date(0)
+    // invalid date will be set to new Date(0)
     _date = sanitization.sanitize({ value: _date, sanitization: sanitization.DATE_TYPE });
     // strip the time part from the date (if the date is != Date(0))
     _date = (_date.getTime() !== 0) ? toDateYYYYMMDD(_date) : _date;
 
-    const _dateMilliseconds = _date.getTime();  // date to search for
-    let _ret = undefined;
+    // if `endDate` is not defined, returns the value defined before or at `date`
+    if (endDate === undefined || endDate === null) {
+      const _dateMilliseconds = _date.getTime();  // date to search for
+      let _ret = undefined;
 
-    // search for the right Driver, saving the date closest (but not greater) to the requested date
-    for (const _item of _driver) {
-      if (_item.dateMilliseconds <= _dateMilliseconds)
-        _ret = _item.value;
+      // search for the right Driver, saving the date closest (but not greater) to the requested date
+      for (const _item of _driver) {
+        if (_item.dateMilliseconds <= _dateMilliseconds)
+          _ret = _item.value;
+      }
+
+      // parse as JSON5 if requested
+      const _parsedValue = (parseAsJSON5) ? parseJSON5(_ret) : _ret;
+
+      // sanitize the value if requested
+      if (isNullOrWhiteSpace(sanitizationType))
+        return _parsedValue;
+      else if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
+        return sanitization.sanitize({ value: _parsedValue, sanitization: sanitizationType });
+      else
+        return sanitization.sanitizeObj({ obj: _parsedValue, sanitization: sanitizationType });
     }
+    // if `endDate` is defined, returns an array of values defined between `date` and `endDate`
+    else {
+      // invalid date will be set to new Date(0)
+      let _endDate = sanitization.sanitize({ value: endDate, sanitization: sanitization.DATE_TYPE });
+      // strip the time part from the date (if the date is != Date(0))
+      _endDate = (_endDate.getTime() !== 0) ? toDateYYYYMMDD(_endDate) : _endDate;
+      // if `endDate` is lower than `date`, throw
+      if (_endDate.getTime() < _date.getTime())
+        throw new Error(`Invalid parameters: 'endDate' (${_endDate}) is lower than 'date' (${_date})`);
 
-    // parse as JSON5 if requested
-    const _parsedValue = (parseAsJSON5) ? parseJSON5(_ret) : _ret;
+      const _dateMilliseconds = _date.getTime();  // date to search for
+      const _endDateMilliseconds = _endDate.getTime();  // date to search for
+      let _retArray = [];
 
-    // sanitize the value if requested
-    if (isNullOrWhiteSpace(sanitizationType))
-      return _parsedValue;
-    else if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType))
-      return sanitization.sanitize({ value: _parsedValue, sanitization: sanitizationType });
-    else
-      return sanitization.sanitizeObj({ obj: _parsedValue, sanitization: sanitizationType });
+      // save all drivers between `_dateMilliseconds` and `_endDateMilliseconds`
+      for (const _item of _driver) {
+        if (_item.dateMilliseconds >= _dateMilliseconds && _item.dateMilliseconds <= _endDateMilliseconds)
+          _retArray.push(_item.value);
+      }
+
+      // parse all elements contained in the _retArray as JSON5 if requested
+      if (parseAsJSON5)
+        _retArray = _retArray.map(_item => parseJSON5(_item));
+
+      // sanitize the value if requested
+      if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
+        _retArray = _retArray.map(_item => sanitization.sanitize({ value: _item, sanitization: sanitizationType }));
+      else if (typeof sanitizationType === 'object')
+        _retArray = _retArray.map(_item => sanitization.sanitizeObj({ obj: _item, sanitization: sanitizationType }));
+
+      return _retArray;
+    }
   }
 
   //#region private methods
