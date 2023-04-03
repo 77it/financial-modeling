@@ -103,10 +103,12 @@ Deno.test('test validateObj(), valid, complex object, names with and without quo
     'fun': () => {console.log('mamma');},
     'any': 999,
     'symbol': Symbol(),
+    'bigInt': BigInt(10),
+    'bigInt_number': BigInt(10),
+    'arrBigInt': [ BigInt(10), BigInt(9), BigInt(0) ],
+    'arrBigInt_number': [ BigInt(10), BigInt(9), BigInt(0) ],
     'big_js': new Big(10),
-    'big_js_number': new Big(10),
     'arrBig_js': [ new Big(10), new Big(9), Big(0) ],
-    'arrBig_js_number': [ new Big(10), new Big(9), Big(0) ],
     'extraValueNotValidated': 999
   };
 
@@ -127,10 +129,12 @@ Deno.test('test validateObj(), valid, complex object, names with and without quo
     obj: Validation.OBJECT_TYPE,
     fun: Validation.FUNCTION_TYPE,
     symbol: Validation.SYMBOL_TYPE,
-    big_js: Validation.BIGJS_TYPE,
-    big_js_number: Validation.BIGJS_NUMBER_TYPE,
-    arrBig_js: Validation.ARRAY_OF_BIGJS_TYPE,
-    arrBig_js_number: Validation.ARRAY_OF_BIGJS_NUMBER_TYPE,
+    bigInt: Validation.BIGINT_TYPE,
+    bigInt_number: Validation.BIGINT_NUMBER_TYPE,
+    arrBigInt: Validation.ARRAY_OF_BIGINT_TYPE,
+    arrBigInt_number: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE,
+    big_js: Big,
+    arrBig_js: [Big],
     any: Validation.ANY_TYPE,
   };
 
@@ -151,10 +155,10 @@ Deno.test('test validateObj(), valid, object with and without optional types and
     arrObj: Validation.ARRAY_OF_OBJECTS_TYPE + '?',
     obj: Validation.OBJECT_TYPE + '?',
     fun: Validation.FUNCTION_TYPE + '?',
-    big_js: Validation.BIGJS_TYPE + '?',
-    big_js_number: Validation.BIGJS_NUMBER_TYPE + '?',
-    arrBig_js: Validation.ARRAY_OF_BIGJS_TYPE + '?',
-    arrBig_js_number: Validation.ARRAY_OF_BIGJS_NUMBER_TYPE + '?',
+    bigInt: Validation.BIGINT_TYPE + '?',
+    bigInt_number: Validation.BIGINT_NUMBER_TYPE + '?',
+    arrBigInt: Validation.ARRAY_OF_BIGINT_TYPE + '?',
+    arrBigInt_number: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE + '?',
     any: 'any?',
   };
 
@@ -174,10 +178,10 @@ Deno.test('test validateObj(), valid, object with and without optional types and
     obj: { a: 999 },
     fun: () => {console.log('mamma');},
     symbol: Symbol(),
-    big_js: new Big(10),
-    big_js_number: new Big(10),
-    arrBig_js: [new Big(10), new Big(0)],
-    arrBig_js_number:  [new Big(10), new Big(0)],
+    bigInt: BigInt(10),
+    bigInt_number: BigInt(10),
+    arrBigInt: [BigInt(10), BigInt(0)],
+    arrBigInt_number: [BigInt(10), BigInt(0)],
     any: 999
   };
 
@@ -200,10 +204,10 @@ Deno.test('test validateObj(), valid, object with and without optional types and
     obj: null,
     fun: null,
     symbol: null,
-    big_js: null,
-    big_js_number: null,
-    arrBig_js: null,
-    arrBig_js_number: null,
+    bigInt: null,
+    bigInt_number: null,
+    arrBigInt: null,
+    arrBigInt_number: null,
     any: null
   };
   validateObj({ obj: nullObject, validation: validation });
@@ -316,8 +320,9 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
     arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59'), 99 ],
     arrBool: [ false, true, 99 ],
     arrObj: [ {a: 0}, {b: 'b'} , 99 ],
+    arrBigInt: [ BigInt(10), 0, BigInt(0) ],
+    arrBigInt_number: [ BigInt(10), 0, BigInt(0) ],
     arrBig_js: [ new Big(10), 0, Big(0) ],
-    arrBig_js_number: [ new Big(10), 0, Big(0) ],
   };
 
   const validation = {
@@ -327,8 +332,9 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
     arrDate: Validation.ARRAY_OF_DATES_TYPE,
     arrBool: Validation.ARRAY_OF_BOOLEANS_TYPE,
     arrObj: Validation.ARRAY_OF_OBJECTS_TYPE,
-    arrBig_js: Validation.ARRAY_OF_BIGJS_TYPE,
-    arrBig_js_number: Validation.ARRAY_OF_BIGJS_NUMBER_TYPE
+    arrBigInt: Validation.ARRAY_OF_BIGINT_TYPE,
+    arrBigInt_number: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE,
+    arrBig_js: [Big],
   };
 
   let _error;
@@ -344,8 +350,9 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
   assert(_error.includes('"arrDate array error, [\\"Value = 99, must be a valid date\\"]"'));
   assert(_error.includes('"arrBool array error, [\\"Value = 99, must be boolean\\"]"'));
   assert(_error.includes('"arrObj array error, [\\"Value = 99, must be an object\\"]"'));
-  assert(_error.includes('"arrBig_js array error, [\\"Value = 0, must be an instance of Big.js\\"]"'));
-  assert(_error.includes('"arrBig_js_number array error, [\\"Value = 0, must be an instance of Big.js\\"]"'));
+  assert(_error.includes('"arrBigInt array error, [\\"Value = 0, must be an instance of BigInt\\"]"'));
+  assert(_error.includes('"arrBigInt_number array error, [\\"Value = 0, must be an instance of BigInt\\"]"'));
+  assert(_error.includes('"arrBig_js array error, [\\"Value = 0, must be an instance of a function or class\\"]"'));
 });
 
 Deno.test('test validateObj(), not valid, null/undefined/not a str parameter', () => {
@@ -421,7 +428,15 @@ Deno.test('test validateObj(), not valid, null/undefined/not a date/invalid date
   assert(_error.includes('["date = null, must be a valid date","date2 = undefined, must be a valid date","date3 = 999, must be a valid date","date4 = Invalid Date, must be a valid date"]'));
 });
 
-Deno.test('test validateObj(), not valid, null/undefined/not Big.js parameter', () => {
+
+
+
+
+
+
+
+
+Deno.test('test validateObj(), not valid, null/undefined/not BigInt parameter', () => {
   const objToValidate = {
     big: null,
     big2: undefined,
@@ -429,9 +444,9 @@ Deno.test('test validateObj(), not valid, null/undefined/not Big.js parameter', 
   };
 
   const validation = {
-    big: Validation.BIGJS_TYPE,
-    big2: Validation.BIGJS_TYPE,
-    big3: Validation.BIGJS_TYPE,
+    big: Validation.BIGINT_TYPE,
+    big2: Validation.BIGINT_TYPE,
+    big3: Validation.BIGINT_TYPE,
   };
 
   let _error;
@@ -441,22 +456,22 @@ Deno.test('test validateObj(), not valid, null/undefined/not Big.js parameter', 
     _error = error.message;
   }
   console.log(_error);
-  assert(_error.includes('["big = null, must be an instance of Big.js","big2 = undefined, must be an instance of Big.js","big3 = 999, must be an instance of Big.js"]'));
+  assert(_error.includes('["big = null, must be an instance of BigInt","big2 = undefined, must be an instance of BigInt","big3 = 999, must be an instance of BigInt"]'));
 });
 
-Deno.test('test validateObj(), not valid, null/undefined/not Big.js number parameter', () => {
+Deno.test('test validateObj(), not valid, null/undefined/not BigInt number parameter', () => {
   const objToValidate = {
     big: null,
     big2: undefined,
     big3: 999,
-    big4: new Big("999999999999999999999")
+    big4: BigInt("999999999999999999999")
   };
 
   const validation2 = {
-    big: Validation.BIGJS_NUMBER_TYPE,
-    big2: Validation.BIGJS_NUMBER_TYPE,
-    big3: Validation.BIGJS_NUMBER_TYPE,
-    big4: Validation.BIGJS_NUMBER_TYPE,
+    big: Validation.BIGINT_NUMBER_TYPE,
+    big2: Validation.BIGINT_NUMBER_TYPE,
+    big3: Validation.BIGINT_NUMBER_TYPE,
+    big4: Validation.BIGINT_NUMBER_TYPE,
   };
 
   let _error='';
@@ -466,7 +481,30 @@ Deno.test('test validateObj(), not valid, null/undefined/not Big.js number param
     _error = error.message;
   }
   console.log(_error);
-  assert(_error.includes('["big = null, must be an instance of Big.js","big2 = undefined, must be an instance of Big.js","big3 = 999, must be an instance of Big.js","big4 = 999999999999999999999, is Big.js but the value is not a valid number"]'));
+  assert(_error.includes('["big = null, must be an instance of BigInt","big2 = undefined, must be an instance of BigInt","big3 = 999, must be an instance of BigInt","big4 = 999999999999999999999, is BigInt but the value is too big to be safely converted to a number"]'));
+});
+
+Deno.test('test validateObj(), not valid, null/undefined/not Big.js parameter', () => {
+  const objToValidate = {
+    big: null,
+    big2: undefined,
+    big3: 999,
+  };
+
+  const validation = {
+    big: Big,
+    big2: Big,
+    big3: Big,
+  };
+
+  let _error;
+  try {
+    validateObj({ obj: objToValidate, validation: validation });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('["big = null, must be an instance of a function or class","big2 = undefined, must be an instance of a function or class","big3 = 999, must be an instance of a function or class"]'));
 });
 
 Deno.test('test validateObj(), not valid, null/undefined/not a bool parameter', () => {

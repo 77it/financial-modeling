@@ -145,10 +145,12 @@ Deno.test('test sanitizeObj()', async (t) => {
       fun: _fun,
       any: 999,
       symbol: _sym,
+      bigInt: 10,
+      bigInt_number: 10,
+      arrBigInt: [10, '9', 0],
+      arrBigInt_number: [10, '9', 0],
       big_js: 10,
-      big_js_number: 10,
       arrBig_js: [10, '9', 0],
-      arrBig_js_number: [10, '9', 0],
     };
 
     const expObj = {
@@ -176,10 +178,12 @@ Deno.test('test sanitizeObj()', async (t) => {
       fun: _fun,
       any: 999,
       symbol: _sym,
+      bigInt: BigInt(10),
+      bigInt_number: BigInt(10),
+      arrBigInt: [BigInt(10), BigInt(9), BigInt(0)],
+      arrBigInt_number: [BigInt(10), BigInt(9), BigInt(0)],
       big_js: new Big(10),
-      big_js_number: new Big(10),
       arrBig_js: [new Big(10), new Big(9), Big(0)],
-      arrBig_js_number: [new Big(10), new Big(9), Big(0)],
       extraValueMissingRequiredStr: '',
       extraValueMissingRequiredNum: 0,
       extraValueMissingRequiredBool: false,
@@ -210,10 +214,12 @@ Deno.test('test sanitizeObj()', async (t) => {
       obj: S.OBJECT_TYPE,
       fun: S.FUNCTION_TYPE,
       symbol: S.SYMBOL_TYPE,
-      big_js: S.BIGJS_TYPE,
-      big_js_number: S.BIGJS_NUMBER_TYPE,
-      arrBig_js: S.ARRAY_OF_BIGJS_TYPE,
-      arrBig_js_number: S.ARRAY_OF_BIGJS_NUMBER_TYPE,
+      bigInt: S.BIGINT_TYPE,
+      bigInt_number: S.BIGINT_NUMBER_TYPE,
+      arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
+      arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
+      big_js: Big,
+      arrBig_js: [Big],
       any: S.ANY_TYPE,
       extraValueMissingRequiredStr: S.STRING_TYPE,
       extraValueMissingRequiredNum: S.NUMBER_TYPE,
@@ -222,9 +228,14 @@ Deno.test('test sanitizeObj()', async (t) => {
       extraValueMissingNotRequired: S.STRING_TYPE + '?'
     };
 
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization })), JSON.stringify(expObj));
+    // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
+    //@ts-ignore
+    const replacer = (key, value) =>
+      typeof value === "bigint" ? value.toString() : value;
 
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
+    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), replacer), JSON.stringify(expObj, replacer));
+
+    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true }), replacer), JSON.stringify(expObj, replacer));
 
     S.resetOptions();
   });

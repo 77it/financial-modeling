@@ -3,7 +3,6 @@ export { sanitize, sanitizeObj, resetOptions };
 import { parseJSON, excelSerialDateToDate, excelSerialDateToUTCDate } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
 import { deepFreeze } from './obj_utils.js';
-import { Big } from '../deps.js';
 
 //#region types
 export const ANY_TYPE = 'any';
@@ -20,10 +19,10 @@ export const ARRAY_OF_OBJECTS_TYPE = 'array[object]';
 export const OBJECT_TYPE = 'object';
 export const FUNCTION_TYPE = 'function';
 export const SYMBOL_TYPE = 'symbol';
-export const BIGJS_TYPE = 'big_js';
-export const BIGJS_NUMBER_TYPE = 'big_js_number';
-export const ARRAY_OF_BIGJS_TYPE = 'array[big_js]';
-export const ARRAY_OF_BIGJS_NUMBER_TYPE = 'array[big_js_number]';
+export const BIGINT_TYPE = 'bigint';
+export const BIGINT_NUMBER_TYPE = 'bigint_number';
+export const ARRAY_OF_BIGINT_TYPE = 'array[bigint]';
+export const ARRAY_OF_BIGINT_NUMBER_TYPE = 'array[bigint_number]';
 //#endregion types
 
 export const NUMBER_TO_DATE_OPTS = {
@@ -48,8 +47,10 @@ function resetOptions () {
 
 /**
  * Sanitize value returning a sanitized value without modifying the original value.
- * Accepted sanitization types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
- * For optional values (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol'.
+ * Accepted sanitization types are many: see exported strings; class is 'function', class instance is 'object'.
+ * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
+ * To sanitize a value to an instance of a class or a function pass the class or function as sanitization.
+ * For optional values (null/undefined are accepted) append '?' to the type.
  * For enum sanitization use an array of values (values will be ignored, optionally validated).
  * As types you can use also exported const as 'ANY_TYPE'.
  * Any, object, function, class are ignored and returned as is.
@@ -59,19 +60,37 @@ function resetOptions () {
  * Number to dates are considered Excel serial dates (stripping hours)
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
- * @param {*} p.sanitization - Sanitization type (string or array)
+ * @param {*} p.sanitization - Sanitization type (string, array of strings, class or function, array containing a class or function)
  * @param {boolean} [p.validate=false] - Optional validation flag
  * @return {*} Sanitized value
  */
 function sanitize ({ value, sanitization, validate = false }) {
-  if (typeof sanitization !== 'string' && !Array.isArray(sanitization))
+  if (typeof sanitization !== 'string' && !Array.isArray(sanitization) && typeof sanitization !== 'function')
     throw new Error(`'sanitization' parameter must be a string or an array`);
 
   if (Array.isArray(sanitization)) {
+    let _value = value;
+
+    // if sanitization[0] is a function, use it to sanitize the array
+    if (typeof sanitization[0] === 'function')
+      _value = _sanitizeArray({ array: _value, sanitization: sanitization[0] });
+
     if (validate)
-      return validateFunc({ value: value, validation: sanitization });
+      return validateFunc({ value: _value, validation: sanitization });
     else
-      return value;
+      return _value;
+  } else if (typeof sanitization === 'function') {
+    let _value;
+    try {
+      //@ts-ignore
+      _value = sanitization(value);
+    } catch (_) {
+      _value = value;
+    }
+    if (validate)
+      return validateFunc({ value: _value, validation: sanitization });
+    else
+      return _value;
   }
 
   let optionalSanitization = false;
@@ -181,28 +200,28 @@ function sanitize ({ value, sanitization, validate = false }) {
       retValue = value;  // return value as is without sanitization
       break;
     }
-    case BIGJS_TYPE: {
+    case BIGINT_TYPE: {
       try {
-        retValue = (value instanceof Big) ? value : new Big(value);
+        retValue = (typeof value === 'bigint') ? value : BigInt(value);
       } catch (_) {
-        retValue = new Big(0);
+        retValue = BigInt(0);
       }
       break;
     }
-    case BIGJS_NUMBER_TYPE: {
+    case BIGINT_NUMBER_TYPE: {
       try {
-        retValue = (value instanceof Big) ? value : new Big(value);
+        retValue = (typeof value === 'bigint') ? value : BigInt(value);
       } catch (_) {
-        retValue = new Big(0);
+        retValue = BigInt(0);
       }
       break;
     }
-    case ARRAY_OF_BIGJS_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: BIGJS_TYPE });
+    case ARRAY_OF_BIGINT_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: BIGINT_TYPE });
       break;
     }
-    case ARRAY_OF_BIGJS_NUMBER_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: BIGJS_NUMBER_TYPE });
+    case ARRAY_OF_BIGINT_NUMBER_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: BIGINT_NUMBER_TYPE });
       break;
     }
     default:
@@ -219,7 +238,7 @@ function sanitize ({ value, sanitization, validate = false }) {
    * Internal sanitization function
    * @param {Object} p
    * @param {[*]} p.array - Array to sanitize
-   * @param {string} p.sanitization - Sanitization string
+   * @param {string|function} p.sanitization - Sanitization string or function
    * @return {*} Sanitized array
    */
   function _sanitizeArray ({ array, sanitization }) {
@@ -281,11 +300,13 @@ function sanitizeObj ({ obj, sanitization, validate = false }) {
   function _sanitizeObj2 (_obj) {
     for (const key of Object.keys(sanitization)) {
       // skip enum sanitization
-      if (Array.isArray(sanitization[key]))
+      if (Array.isArray(sanitization[key]) && typeof sanitization[key][0] !== 'function')
         continue;
 
       // if sanitization key is missing in the object to sanitize and the sanitization is optional, skip sanitization
-      const optionalSanitization = (sanitization[key].toString().trim().slice(-1) === '?');
+      const optionalSanitization =
+        (typeof sanitization[key] === 'string') &&
+        (sanitization[key].toString().trim().slice(-1) === '?');
       if (!(key in _obj) && optionalSanitization)
         continue;
 
