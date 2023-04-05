@@ -5,10 +5,11 @@
 // deno & npm compatibility   https://deno.land/manual@v1.32.3/node
 //                            https://deno.land/manual@v1.32.3/node/npm_specifiers
 
-// usage guide
-// https://platform.openai.com/docs/guides/chat
+//
+// usage guide   https://platform.openai.com/docs/guides/chat
 //    chat format   https://platform.openai.com/docs/guides/chat/introduction
-// https://platform.openai.com/docs/api-reference/introduction?lang=node.js
+// API reference   https://platform.openai.com/docs/api-reference/introduction?lang=node.js
+// OpenAI Cookbook: improve reliability   https://github.com/openai/openai-cookbook/blob/main/techniques_to_improve_reliability.md
 
 
 // [Models]
@@ -36,6 +37,6 @@ console.log(completion.data.choices[0].text);
 const completion = await openai.createChatCompletion({
   model: "gpt-3.5-turbo",
   messages: [{"role": "user", "content": "Say this is a test!"}],
-  temperature: 0.7,
+  temperature: 0.2,  // For temperature, higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. [https://platform.openai.com/docs/guides/chat/instructing-chat-models]
 });
 console.log(completion.data.choices[0].message);
