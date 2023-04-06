@@ -31,7 +31,7 @@ Be precise and careful with the numbers, dates and JSON format.
 `;
 
 Deno.test('text-davinci-003 tests', async () => {
-  const forecast_type = 'forecast from 2025-01-01 to 2025-12-31. forecast a candy shop. 1 employee, 1 machine, 1 location, 1 kg of candies per day sold at 100 usd each.'
+  const forecast_type = 'please forecast a candy shop, from 2025-01-01 to 2025-12-31. 1 employee, 1 machine, 1 location, 1 kg of candies per day sold at 100 usd each.'
   //const forecast_type = 'forecast a candy shop.'
 
   const system_prefix = '\nSystem directive follows.\n';
@@ -41,7 +41,7 @@ Deno.test('text-davinci-003 tests', async () => {
 
   const model_input = {
     prompt: prompt,
-    temperature: 0.8,
+    temperature: 0.2,
     max_tokens: TEXT_DAVINCI_003__MAX_TOKENS
   };
 
@@ -55,7 +55,7 @@ Deno.test('text-davinci-003 tests', async () => {
 Deno.test('gpt-3.5-turbo tests', async () => {
   const model_input = {
     systemPrompt: financial_forecast__system_prompt,
-    temperature: 0.8
+    temperature: 0.2
   };
 
   console.log(await gpt_3_5_turbo__chat(model_input));
