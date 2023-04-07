@@ -2,7 +2,7 @@
 
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../deps.js';
 
-import { downloadAndDecompressGzip } from '../../src/deno/downloadAndDecompressGzip.js';
+import { downloadAndDecompressGzip } from '../../src/deno/download_and_decompress_gzip.js';
 
 Deno.test('downloadAndDecompressGzip tests', async () => {
   const url = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter.exe.gz';

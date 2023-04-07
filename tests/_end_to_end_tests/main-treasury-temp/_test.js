@@ -7,7 +7,7 @@ OPTIONS.FILES.CONVERTER2_EXEGZ_URL = 'https://github.com/77it/financial-modeling
 OPTIONS.FILES.CONVERTER2_EXEGZ_PATH = './converter2.exe';
 //#endregion settings
 
-import { downloadAndDecompressGzip } from '../../../src/deno/downloadAndDecompressGzip.js';
+import { downloadAndDecompressGzip } from '../../../src/deno/download_and_decompress_gzip.js';
 import { existSync } from '../../../src/deno/existSync.js';
 
 import {main} from '../../../src/main-treasury-temp.js';

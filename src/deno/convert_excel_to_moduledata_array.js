@@ -4,9 +4,9 @@ import { platform } from 'https://deno.land/std@0.171.0/node/process.ts';
 import { readLines } from 'https://deno.land/std@0.152.0/io/buffer.ts';
 
 import { moduleData_LoadFromJson } from '../engine/modules/module_data__load_from_json.js';
-
+  
 import { existSync } from './existSync.js';
-import { downloadAndDecompressGzip } from './downloadAndDecompressGzip.js';
+import { downloadAndDecompressGzip } from './download_and_decompress_gzip.js';
 
 //#region OPTIONS
 const OPTIONS__CONVERTER_EXEGZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter.exe.gz';

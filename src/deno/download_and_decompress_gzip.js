@@ -1,4 +1,4 @@
-// run with `deno run --allow-net --allow-read --allow-write src\deno\downloadAndDecompressGzip.js`
+// run with `deno run --allow-net --allow-read --allow-write src\deno\download_and_decompress_gzip.js`
 
 export { downloadAndDecompressGzip };
 
