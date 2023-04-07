@@ -1,6 +1,6 @@
 // run with   deno run --allow-env --allow-read --allow-net
 
-export { text_davinci_003__single_message, gpt_3_5_turbo__chat, TEXT_DAVINCI_003__MAX_TOKENS };
+export { text_davinci_003__single_message, gpt__chat, TEXT_DAVINCI_003__MAX_TOKENS, GPT_3_5_TURBO__MODEL, GPT_4__MODEL };
 
 // from https://platform.openai.com/docs/libraries
 // npm library https://www.npmjs.com/package/openai
@@ -28,6 +28,8 @@ export { text_davinci_003__single_message, gpt_3_5_turbo__chat, TEXT_DAVINCI_003
 import { Configuration, OpenAIApi } from 'npm:openai@3.2.1';
 
 const TEXT_DAVINCI_003__MAX_TOKENS = 2048;
+const GPT_3_5_TURBO__MODEL = 'gpt-3.5-turbo';
+const GPT_4__MODEL = 'gpt-4';
 
 const configuration = new Configuration({
   apiKey: Deno.env.get('OPENAI_API_KEY'),
@@ -60,11 +62,12 @@ async function text_davinci_003__single_message ({ prompt, temperature = 0.2, ma
 
 /**
  * @param {Object} p
+ * @param {GPT_3_5_TURBO__MODEL|GPT_4__MODEL} p.model - model for the AI
  * @param {string} p.systemPrompt - system prompt for the AI
  * @param {number} [p.temperature=0.2] - temperature for the AI, between 0 and 1, default 0.2; higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. [https://platform.openai.com/docs/guides/chat/instructing-chat-models]
  * @returns {Promise<string>} - the AI's response
  */
-async function gpt_3_5_turbo__chat ({ systemPrompt, temperature = 0.2 }) {
+async function gpt__chat ({ model, systemPrompt, temperature = 0.2 }) {
   // normalize temperature, constrained between 0 and 1
   const _temperature = Math.max(0, Math.min(1, temperature));
 
@@ -79,7 +82,7 @@ async function gpt_3_5_turbo__chat ({ systemPrompt, temperature = 0.2 }) {
   while (true) {
     // see https://platform.openai.com/docs/api-reference/chat/create
     const completion = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
+      model: model,
       messages: conversation,
       temperature: _temperature,  // For temperature, higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. [https://platform.openai.com/docs/guides/chat/instructing-chat-models]
     });

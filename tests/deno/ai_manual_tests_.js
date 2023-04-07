@@ -1,6 +1,6 @@
 // run with `deno test --allow-env --allow-read --allow-net`
 
-import { text_davinci_003__single_message, gpt_3_5_turbo__chat, TEXT_DAVINCI_003__MAX_TOKENS } from '../../src/deno/ai.js';
+import { text_davinci_003__single_message, gpt__chat, TEXT_DAVINCI_003__MAX_TOKENS, GPT_3_5_TURBO__MODEL, GPT_4__MODEL } from '../../src/deno/ai.js';
 
 import { toStringYYYYMMDD } from '../../src/lib/date_utils.js';
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../deps.js';
@@ -24,14 +24,18 @@ A sample json will be the following (start with \`\`\` and close it with \`\`\`)
   {"type":"loan", "description": "loan to purchase the pizza machine", "amount": 10000, "startDate": "2023-01-01", "numberOfPayments": 60},
   {"type":"revenue", "description": "sold pizza", "amount": 50, "date": "2023-01-01"},
   {"type":"revenue", "description": "sold pizza", "amount": 60, "date": "2023-02-15"},
-  {"type":"expense", "description": "wages", "amount": 25, "date": "2023-01-03"}
+  {"type":"revenue", "description": "consultancy services", "amount": 5, "date": "2023-03-01", "recurrence": "monthly"},
+  {"type":"expense", "description": "wages", "amount": 25, "date": "2023-01-03", "recurrence": "monthly"}
 ]
 \`\`\`
 Be precise and careful with the numbers, dates and JSON format.
+The "recurrence" field is optional and can contain only the strings "monthly" or "yearly".
+When you use the "recurrence" the movement will be simulated for each month automatically, then you don't need to repeat it for each month.
+Don't deviate from the JSON format, don't add extra fields, don't add extra objects.
 `;
 
 Deno.test('text-davinci-003 tests', async () => {
-  const forecast_type = 'please forecast a candy shop, from 2025-01-01 to 2025-12-31. 1 employee, 1 machine, 1 location, 1 kg of candies per day sold at 100 usd each.'
+  const forecast_type = 'please forecast a candy shop, from 2025-01-01 to 2025-12-31, detailing movements for each month. 1 employee, 1 machine, 1 location, 1 kg of candies per day sold at 100 usd each.'
   //const forecast_type = 'forecast a candy shop.'
 
   const system_prefix = '\nSystem directive follows.\n';
@@ -54,9 +58,23 @@ Deno.test('text-davinci-003 tests', async () => {
 
 Deno.test('gpt-3.5-turbo tests', async () => {
   const model_input = {
+    model: GPT_3_5_TURBO__MODEL,
     systemPrompt: financial_forecast__system_prompt,
     temperature: 0.2
   };
 
-  console.log(await gpt_3_5_turbo__chat(model_input));
+  console.log(await gpt__chat(model_input));
+});
+
+
+
+Deno.test('gpt-4 tests', async () => {
+  const model_input = {
+    model: GPT_4__MODEL,
+    systemPrompt: financial_forecast__system_prompt,
+    temperature: 0.2
+  };
+
+  console.log("SKIPPED TEST: gpt-4 tests");
+  //console.log(await gpt__chat(model_input));
 });
