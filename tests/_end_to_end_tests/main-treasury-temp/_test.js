@@ -8,7 +8,7 @@ OPTIONS.FILES.CONVERTER2_EXEGZ_PATH = './converter2.exe';
 //#endregion settings
 
 import { downloadAndDecompressGzip } from '../../../src/deno/download_and_decompress_gzip.js';
-import { existSync } from '../../../src/deno/existSync.js';
+import { existSync } from '../../../src/deno/exist_sync.js';
 
 import {main} from '../../../src/main-treasury-temp.js';
 
@@ -18,7 +18,7 @@ const DEBUG_FLAG = true;
 
 Deno.test('main-treasury-temp tests', async () => {
   Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
-  if (!existSync(OPTIONS.FILES.CONVERTER2_EXEGZ_PATH))
+    if (!existSync(OPTIONS.FILES.CONVERTER2_EXEGZ_PATH))
     await downloadAndDecompressGzip(
       { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
 

@@ -4,8 +4,8 @@ import { platform } from 'https://deno.land/std@0.171.0/node/process.ts';
 import { readLines } from 'https://deno.land/std@0.152.0/io/buffer.ts';
 
 import { moduleData_LoadFromJson } from '../engine/modules/module_data__load_from_json.js';
-  
-import { existSync } from './existSync.js';
+
+import { existSync } from './exist_sync.js';
 import { downloadAndDecompressGzip } from './download_and_decompress_gzip.js';
 
 //#region OPTIONS
@@ -25,7 +25,7 @@ async function convertExcelToModuleDataArray ({ excelUserInput, errors }) {
     throw new Error('platform not supported');
 
   // download and decompress Converter.exe.gz
-  if (!existSync(OPTIONS__CONVERTER_EXEGZ_PATH))
+    if (!existSync(OPTIONS__CONVERTER_EXEGZ_PATH))
     await downloadAndDecompressGzip(
       { url: OPTIONS__CONVERTER_EXEGZ_URL, path: OPTIONS__CONVERTER_EXEGZ_PATH });
 
@@ -36,7 +36,7 @@ async function convertExcelToModuleDataArray ({ excelUserInput, errors }) {
   p.close();  // close the process
 
   // throw error if there are errors
-  if (existSync(errors))
+    if (existSync(errors))
     throw new Error(`Errors during conversion of the Excel input file. See ${errors} file.`);
 
   // deserialize JSONL `modulesData`
