@@ -3,20 +3,11 @@
 
 export { main };
 
-//#region settings
-const OPTIONS = {};
-OPTIONS.FILES = {};
-OPTIONS.FILES.CONVERTER_EXEGZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter.exe.gz';
-OPTIONS.FILES.CONVERTER_EXEGZ_PATH = './converter.exe';
-//#endregion settings
-
 //#region deno imports
 import { parse } from 'https://deno.land/std@0.172.0/flags/mod.ts';
-import { readLines } from 'https://deno.land/std@0.152.0/io/buffer.ts';
 import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts';
 
-import { downloadAndDecompressGzip } from './deno/downloadAndDecompressGzip.js';
-import { existSync } from './deno/existSync.js';
+import { convertExcelToModuleDataArray } from './deno/convert_excel_to_moduledata_array.js';
 //#endregion deno imports
 
 //#region local imports
@@ -27,7 +18,6 @@ import { sanitization } from './deps.js';
 import { parseJSON5 } from './deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
-import { moduleData_LoadFromJson } from './engine/modules/module_data__load_from_json.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
 import { engine } from './engine/engine.js';
 import { ModulesLoader } from './modules/_modules_loader.js';
@@ -63,7 +53,7 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
 
   try {
     // convert Excel input file to an array of `moduleData`
-    const _moduleDataArray = await _convertExcelToModuleDataArray({ excelUserInput, errors });
+    const _moduleDataArray = await convertExcelToModuleDataArray({ excelUserInput, errors });
 
     // get ModulesLoader class from `moduleDataArray` or from `'./modules/_modules_loader.js'` file
     const _$$MODULESLOADER_URL = _get_SimulationSetting_FromModuleDataArray({
@@ -167,47 +157,6 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
 }
 
 //#region private functions
-/**
- @private
- Convert Excel input file to an array of `moduleData`
- * @param {Object} p
- * @param {string} p.excelUserInput - Excel file with user input
- * @param {string} p.errors - Text file created only if there are errors
- * @return {Promise<ModuleData[]>} - Array of `ModuleData` objects
- */
-async function _convertExcelToModuleDataArray ({ excelUserInput, errors }) {
-  // download and decompress Converter.exe.gz
-  if (!existSync(OPTIONS.FILES.CONVERTER_EXEGZ_PATH))
-    await downloadAndDecompressGzip(
-      { url: OPTIONS.FILES.CONVERTER_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER_EXEGZ_PATH });
-
-  // convert Excel input file to JSONL `modulesData` calling Converter program  // see  https://deno.land/manual@v1.29.3/examples/subprocess
-  const jsonlExcelFilename = excelUserInput + '.dump.jsonl.tmp';
-  const p = Deno.run({ cmd: [OPTIONS.FILES.CONVERTER_EXEGZ_PATH, 'excel-modules-to-jsonl-modules', '--input', excelUserInput, '--output', jsonlExcelFilename, '--errors', errors] });
-  await p.status();  // await its completion
-  p.close();  // close the process
-
-  // throw error if there are errors
-  if (existSync(errors))
-    throw new Error(`Errors during conversion of the Excel input file. See ${errors} file.`);
-
-  // deserialize JSONL `modulesData`
-  const fileReader = await Deno.open(jsonlExcelFilename);
-  const moduleDataArray = [];
-  for await (const line of readLines(fileReader))
-    if (line.trim())
-      moduleDataArray.push(moduleData_LoadFromJson(line));
-  fileReader.close();
-
-  // delete temporary file
-  try {
-    Deno.removeSync(jsonlExcelFilename);
-  } catch (_) { }
-
-  // return `modulesData`
-  return moduleDataArray;
-}
-
 /**
  @private
  * Returns a setting from `moduleDataArray`, optionally sanitizing it
