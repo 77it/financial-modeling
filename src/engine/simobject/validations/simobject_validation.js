@@ -28,8 +28,8 @@ const simObject_Validation = {
 
   intercompanyInfo__VsUnitId: validation.STRING_TYPE,
 
-  value: validation.BIGJS_NUMBER_TYPE,
-  writingValue: validation.BIGJS_NUMBER_TYPE,
+  value: validation.BIGINT_NUMBER_TYPE,
+  writingValue: validation.BIGINT_NUMBER_TYPE,
 
   alive: validation.BOOLEAN_TYPE,
 
@@ -42,9 +42,9 @@ const simObject_Validation = {
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: validation.BIGJS_NUMBER_TYPE,
+  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: validation.BIGINT_NUMBER_TYPE,
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: validation.ARRAY_OF_DATES_TYPE,
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: validation.ARRAY_OF_BIGJS_NUMBER_TYPE,
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: validation.ARRAY_OF_BIGINT_NUMBER_TYPE,
 
   is_Link__SimObjId: validation.STRING_TYPE,
   //#endregion properties common only to some kind of SimObjects

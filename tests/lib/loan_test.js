@@ -1,5 +1,10 @@
 import { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan } from '../../src/lib/loan.js';
-import { financial } from '../../src/deps.js';
+
+// home   https://github.com/lmammino/financial  // backup repository   https://github.com/77it/financial
+// npm   https://www.npmjs.com/package/financial/v/0.1.3
+// file index   https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/
+// @deno-types="https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/financial.d.ts"
+import * as financial from 'https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/financial.esm.js';
 
 import {
     assert,

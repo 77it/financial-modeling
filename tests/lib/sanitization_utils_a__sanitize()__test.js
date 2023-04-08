@@ -1,6 +1,9 @@
-import { Big } from '../../src/deps.js';
 import * as S from '../../src/lib/sanitization_utils.js';
 import * as V from '../../src/lib/validation_utils.js';
+
+// from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
+// @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
+import { Big } from 'https://cdn.jsdelivr.net/npm/big.js@6.2.1/big.min.mjs';
 
 import {
   assert,
