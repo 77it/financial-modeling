@@ -32,8 +32,7 @@ import * as STD_NAMES from './modules/_names/standard_names.js';
 if (Deno.args.length !== 0) {
   const args = parse(Deno.args);  // parse command line arguments
   await main({ excelUserInput: args?.input, outputFolder: args?.output, errors: args?.errors });
-}
-else
+} else
   console.log('No command line arguments found, expected: --input EXCEL-INPUT-FILE --output OUTPUT-FOLDER --errors ERRORS-FILE . This file can also be imported and used as a module.');
 
 /**
@@ -53,7 +52,7 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
 
   try {
     // convert Excel input file to an array of `moduleData`
-    const _moduleDataArray = await convertExcelToModuleDataArray({ excelUserInput, errors });
+    const _moduleDataArray = await convertExcelToModuleDataArray({ excelInput: excelUserInput });
 
     // get ModulesLoader class from `moduleDataArray` or from `'./modules/_modules_loader.js'` file
     const _$$MODULESLOADER_URL = _get_SimulationSetting_FromModuleDataArray({
