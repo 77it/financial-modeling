@@ -12,7 +12,7 @@ const simObjectJsonDumpDto_Validation = {
 
   id: validation.STRING_TYPE,
 
-  dateTime: validation.DATE_TYPE,
+  dateTime: validation.STRING_TYPE,
 
   name: validation.STRING_TYPE,
   description: validation.STRING_TYPE,  // immutable, is used to generate Reports Detail
@@ -46,7 +46,7 @@ const simObjectJsonDumpDto_Validation = {
 
   //#region properties common only to some kind of SimObjects
   bs_Principal__PrincipalToPay_IndefiniteExpiryDate: validation.STRING_TYPE,  // converted from BigInt
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: validation.ARRAY_OF_DATES_TYPE,
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: validation.ARRAY_OF_STRINGS_TYPE,
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: validation.ARRAY_OF_STRINGS_TYPE,  // converted from array of BigInt
 
   is_Link__SimObjId: validation.STRING_TYPE,

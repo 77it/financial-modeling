@@ -49,7 +49,7 @@ function resetOptions () {
  * Sanitize value returning a sanitized value without modifying the original value.
  * Accepted sanitization types are many: see exported strings; class is 'function', class instance is 'object'.
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
- * To sanitize a value to an instance of a class or a function pass the class or function as sanitization.
+ * To sanitize a value to an instance of a class or a function pass the class or function as sanitization: the function/class will be called with the value to sanitize as parameter.
  * For optional values (null/undefined are accepted) append '?' to the type.
  * For enum sanitization use an array of values (values will be ignored, optionally validated).
  * As types you can use also exported const as 'ANY_TYPE'.

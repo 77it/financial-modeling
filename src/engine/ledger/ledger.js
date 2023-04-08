@@ -64,10 +64,10 @@ class Ledger {
   #roundingModeIsRound;
 
   /**
-   @param {Object} p
-   @param {appendTrnDump} p.appendTrnDump Callback to dump the transactions
-   @param {number} p.decimalPlaces Decimal places to store numbers
-   @param {'round'|'floor'} p.roundingMode Rounding mode, 0 = round, 1 = floor
+   * @param {Object} p
+   * @param {appendTrnDump} p.appendTrnDump Callback to dump the transactions
+   * @param {number} p.decimalPlaces Decimal places to store numbers with in the ledger
+   * @param {'round'|'floor'} p.roundingMode Rounding mode, 0 = round, 1 = floor
    */
   constructor ({ appendTrnDump, decimalPlaces, roundingMode }) {
     this.#appendTrnDump = appendTrnDump;
