@@ -115,8 +115,7 @@ class Ledger {
   forceCommitWithoutValidation () {
     if (this.#currentTransaction.length === 0) return;
 
-    XXX; // errore: converti array to SimObjectJsonDumpDto e quindi stringify
-    XXX; // SimObjectJsonDumpDto: il dto deve contenere big invece di numbers, perché non possiamo sapere se il valore di una scrittura sarà superiore, in futuro...
+    XXX; // errore: converti this.#currentTransaction to SimObjectJsonDumpDto e quindi stringify
     this.#appendTrnDump(JSON.stringify(this.#currentTransaction));
     this.#currentTransaction = [];  // reset the current transaction
   }
@@ -148,28 +147,28 @@ class Ledger {
       type: newSimObjectDto.type,
       id: this.#getNextId().toString(),
       dateTime: this.#today,
-      name: newSimObjectDto.name ?? '',
-      description: newSimObjectDto.description ?? '',
-      mutableDescription: newSimObjectDto.mutableDescription ?? '',
-      metadata__Name: (newSimObjectDto.metadata__Name) ? [...newSimObjectDto.metadata__Name] : [],
-      metadata__Value: (newSimObjectDto.metadata__Value) ? [...newSimObjectDto.metadata__Value] : [],
-      metadata__PercentageWeight: (newSimObjectDto.metadata__PercentageWeight) ? [...newSimObjectDto.metadata__PercentageWeight] : [],
+      name: newSimObjectDto.name,
+      description: newSimObjectDto.description,
+      mutableDescription: newSimObjectDto.mutableDescription,
+      metadata__Name: (newSimObjectDto.metadata__Name),
+      metadata__Value: (newSimObjectDto.metadata__Value),
+      metadata__PercentageWeight: (newSimObjectDto.metadata__PercentageWeight),
       unitId: newSimObjectDto.unitId,
       doubleEntrySide: newSimObjectDto.doubleEntrySide,
       currency: newSimObjectDto.currency,
-      intercompanyInfo__VsUnitId: newSimObjectDto.intercompanyInfo__VsUnitId ?? '',
+      intercompanyInfo__VsUnitId: newSimObjectDto.intercompanyInfo__VsUnitId,
       value: this.#toBigInt(newSimObjectDto.value),
       writingValue: this.#toBigInt(newSimObjectDto.value),
       alive: newSimObjectDto.alive,
       command__Id: this.#getNextCommandId().toString(),
-      command__DebugDescription: newSimObjectDto.command__DebugDescription ?? '',
+      command__DebugDescription: newSimObjectDto.command__DebugDescription,
       commandGroup__Id: this.#getTransactionId().toString(),
-      commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription ?? debug_moduleInfo,
+      commandGroup__DebugDescription: (newSimObjectDto.commandGroup__DebugDescription !== '') ? newSimObjectDto.commandGroup__DebugDescription : debug_moduleInfo,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#toBigInt(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => this.#toBigInt(number)),
-      is_Link__SimObjId: newSimObjectDto.is_Link__SimObjId ?? '',
-      vsSimObjectId: newSimObjectDto.vsSimObjectId ?? '',
+      is_Link__SimObjId: newSimObjectDto.is_Link__SimObjId,
+      vsSimObjectId: newSimObjectDto.vsSimObjectId,
       versionId: 0,
       extras: newSimObjectDto.extras
     });
@@ -286,9 +285,9 @@ class Ledger {
       writingValue: this.#toBigInt(0),
       alive: false,
       command__Id: this.#getNextCommandId().toString(),
-      command__DebugDescription: newDebugSimObjectDto.command__DebugDescription ?? '',
+      command__DebugDescription: newDebugSimObjectDto.command__DebugDescription,
       commandGroup__Id: this.#getTransactionId().toString(),
-      commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription ?? debug_moduleInfo,
+      commandGroup__DebugDescription: (newDebugSimObjectDto.commandGroup__DebugDescription !== '') ? newDebugSimObjectDto.commandGroup__DebugDescription : debug_moduleInfo,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#toBigInt(0),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [],
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [],

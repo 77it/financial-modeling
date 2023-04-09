@@ -99,9 +99,9 @@ class SimObject {
     this.#name = p.name;
     this.#description = p.description;
     this.#mutableDescription = p.mutableDescription;
-    this.#metadata__Name = p.metadata__Name;
-    this.#metadata__Value = p.metadata__Value;
-    this.#metadata__PercentageWeight = p.metadata__PercentageWeight;
+    this.#metadata__Name = [...p.metadata__Name];
+    this.#metadata__Value = [...p.metadata__Value];
+    this.#metadata__PercentageWeight = [...p.metadata__PercentageWeight];
     this.#unitId = p.unitId;
     this.#doubleEntrySide = p.doubleEntrySide;
     this.#currency = p.currency;
@@ -114,13 +114,13 @@ class SimObject {
     this.#commandGroup__Id = p.commandGroup__Id;
     this.#commandGroup__DebugDescription = p.commandGroup__DebugDescription;
     this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate = p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate;
-    this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date;
-    this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal;
+    this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [...p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date];
+    this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [...p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal];
     this.#is_Link__SimObjId = p.is_Link__SimObjId;
     // NOT EXPORTED TO JSON DUMP
     this.#vsSimObjectId = p.vsSimObjectId;
     this.#versionId = p.versionId;
-    this.#extras = p.extras;
+    this.#extras = this.#StructuredCloneOrClone(p.extras);
   }
 
   /**
@@ -174,7 +174,7 @@ class SimObject {
       mutableDescription: this.#mutableDescription,
       metadata__Name: [...this.#metadata__Name],
       metadata__Value: [...this.#metadata__Value],
-      metadata__PercentageWeight: [...this.this.#metadata__PercentageWeight],
+      metadata__PercentageWeight: [...this.#metadata__PercentageWeight],
       unitId: this.#unitId,
       doubleEntrySide: this.#doubleEntrySide,
       currency: this.#currency,
@@ -215,16 +215,16 @@ class SimObject {
       doubleEntrySide: this.#doubleEntrySide,
       currency: this.#currency,
       intercompanyInfo__VsUnitId: this.#intercompanyInfo__VsUnitId,
-      value: this.#BigIntToStringNumberWithDecimals(this.#value),
-      writingValue: this.#BigIntToStringNumberWithDecimals(this.#writingValue),
+      value: this.#BigIntToStringWithDecimals(this.#value),
+      writingValue: this.#BigIntToStringWithDecimals(this.#writingValue),
       alive: this.#alive,
       command__Id: this.#command__Id,
       command__DebugDescription: this.#command__DebugDescription,
       commandGroup__Id: this.#commandGroup__Id,
       commandGroup__DebugDescription: this.#commandGroup__DebugDescription,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#BigIntToStringNumberWithDecimals(this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#BigIntToStringWithDecimals(this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => this.#DateToISOString(date)),
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => this.#BigIntToStringNumberWithDecimals(big)),
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => this.#BigIntToStringWithDecimals(big)),
       is_Link__SimObjId: this.#is_Link__SimObjId,
     });
   }
@@ -249,26 +249,25 @@ class SimObject {
 
   /** Convert Big to number, converting to a number with a fixed number of decimal places
    * @param {BigInt} big
-   * @returns {number}
+   * @returns {string}
    */
-  #BigIntToStringNumberWithDecimals (big) {
+  #BigIntToStringWithDecimals (big) {
     const str = big.toString();
     // insert a string on the right of str, on the `#decimalPlaces`th character from the right
     return str.slice(0, -this.#decimalPlaces) + '.' + str.slice(-this.#decimalPlaces);
   }
 
   /**
-   * Try to clone the extras object using structuredClone, if it fails, use the clone() method; if clone() fails, an exception is raised
+   * Try to clone the extras object using the clone() method; if the clone method is not defined, try cloning with structuredClone; cloning fails, an exception is raised
    * @param {*} obj
    * @returns {*}
-   * @throws {Error} if the clone() method fails
+   * @throws {Error} if clone() or structuredClone() fails
    */
   #StructuredCloneOrClone (obj) {
-    try {
-      return structuredClone(obj);
-    } catch (e) {
+    if (obj.clone)
       return obj.clone();
-    }
+    else
+      return structuredClone(obj);
   }
 
   //#endregion

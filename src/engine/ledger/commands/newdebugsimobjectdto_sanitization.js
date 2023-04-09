@@ -10,7 +10,7 @@ const newDebugSimObjectDto_Sanitization = {
 
   description: sanitization.STRING_TYPE,
 
-  command__DebugDescription: sanitization.STRING_TYPE + '?',
+  command__DebugDescription: sanitization.STRING_TYPE,
 
-  commandGroup__DebugDescription: sanitization.STRING_TYPE + '?',
+  commandGroup__DebugDescription: sanitization.STRING_TYPE,
 }

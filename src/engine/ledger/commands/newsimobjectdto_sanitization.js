@@ -10,13 +10,13 @@ import { sanitization } from '../../../deps.js';
 const newSimObjectDto_Sanitization = {
   type: sanitization.STRING_TYPE,
 
-  name: sanitization.STRING_TYPE + '?',
-  description: sanitization.STRING_TYPE + '?',
-  mutableDescription: sanitization.STRING_TYPE + '?',
+  name: sanitization.STRING_TYPE,
+  description: sanitization.STRING_TYPE,
+  mutableDescription: sanitization.STRING_TYPE,
 
-  metadata__Name: sanitization.ARRAY_OF_STRINGS_TYPE + '?',
-  metadata__Value: sanitization.ARRAY_OF_STRINGS_TYPE + '?',
-  metadata__PercentageWeight: sanitization.ARRAY_OF_NUMBERS_TYPE + '?',
+  metadata__Name: sanitization.ARRAY_OF_STRINGS_TYPE,
+  metadata__Value: sanitization.ARRAY_OF_STRINGS_TYPE,
+  metadata__PercentageWeight: sanitization.ARRAY_OF_NUMBERS_TYPE,
 
   unitId: sanitization.STRING_TYPE,
 
@@ -25,7 +25,7 @@ const newSimObjectDto_Sanitization = {
 
   currency: Currency_enum_validation,
 
-  intercompanyInfo__VsUnitId: sanitization.STRING_TYPE + '?',
+  intercompanyInfo__VsUnitId: sanitization.STRING_TYPE,
 
   value: sanitization.NUMBER_TYPE,
   writingValue: sanitization.NUMBER_TYPE,
@@ -34,10 +34,10 @@ const newSimObjectDto_Sanitization = {
 
   //#region command, command group properties
   command__Id: sanitization.STRING_TYPE,
-  command__DebugDescription: sanitization.STRING_TYPE + '?',
+  command__DebugDescription: sanitization.STRING_TYPE,
 
   commandGroup__Id: sanitization.STRING_TYPE,
-  commandGroup__DebugDescription: sanitization.STRING_TYPE + '?',
+  commandGroup__DebugDescription: sanitization.STRING_TYPE,
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
@@ -45,10 +45,10 @@ const newSimObjectDto_Sanitization = {
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: sanitization.ARRAY_OF_DATES_TYPE,
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: sanitization.ARRAY_OF_NUMBERS_TYPE,
 
-  is_Link__SimObjId: sanitization.STRING_TYPE + '?',
+  is_Link__SimObjId: sanitization.STRING_TYPE,
   //#endregion properties common only to some kind of SimObjects
 
-  vsSimObjectId: sanitization.STRING_TYPE + '?',
+  vsSimObjectId: sanitization.STRING_TYPE,
 
   extras: sanitization.ANY_TYPE + '?',
 };
