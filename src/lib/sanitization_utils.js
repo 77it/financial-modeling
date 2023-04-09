@@ -293,7 +293,7 @@ function sanitizeObj ({ obj, sanitization, validate = false }) {
     return retValue;
 
   /**
-   * Internal sanitization function
+   * Local sanitization function
    * @param {*} _obj - Object to sanitize
    * @return {*} Sanitized object
    */

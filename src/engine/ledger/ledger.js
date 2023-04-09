@@ -115,9 +115,12 @@ class Ledger {
   forceCommitWithoutValidation () {
     if (this.#currentTransaction.length === 0) return;
 
-    XXX; // errore: converti this.#currentTransaction to SimObjectJsonDumpDto e quindi stringify
-    this.#appendTrnDump(JSON.stringify(this.#currentTransaction));
-    this.#currentTransaction = [];  // reset the current transaction
+    // convert this.#currentTransaction to SimObjectJsonDumpDto, then stringify
+    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObject.toJsonDumpDto());
+    this.#appendTrnDump(JSON.stringify(simObjectJsonDumpDtoArray));
+
+    // reset the current transaction
+    this.#currentTransaction = [];
   }
 
   /**
@@ -128,9 +131,13 @@ class Ledger {
     if (this.#currentTransaction.length === 0) return;
 
     // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
-    XXX; // errore: converti array to SimObjectJsonDumpDto e quindi stringify
-    this.#appendTrnDump(JSON.stringify(this.#currentTransaction));
-    this.#currentTransaction = [];  // reset the current transaction
+
+    // convert this.#currentTransaction to SimObjectJsonDumpDto, then stringify
+    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObject.toJsonDumpDto());
+    this.#appendTrnDump(JSON.stringify(simObjectJsonDumpDtoArray));
+
+    // reset the current transaction
+    this.#currentTransaction = [];
   }
 
   /**
