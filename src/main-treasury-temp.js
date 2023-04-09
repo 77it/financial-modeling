@@ -92,7 +92,6 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
       moduleDataArray: _moduleDataArray,
       settingName: SETTINGS_NAMES.Simulation.$$SCENARIOS
     });
-    // TODO write lib to use JSON5; try/catch; if error, undefined
     const _$$SCENARIOS_parsed_array = parseJSON5(_$$SCENARIOS_setting);
     const _$$SCENARIOS = sanitization.sanitize({
       value: _$$SCENARIOS_parsed_array,
