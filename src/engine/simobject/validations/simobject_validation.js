@@ -5,7 +5,7 @@ import { Currency_enum_validation } from '../enums/currency_enum.js';
 import { validation } from '../../../deps.js';
 
 const simObject_Validation = {
-  decimalPlaces: validation.NUMBER_TYPE,
+  decimalPlaces: validation.NUMBER_TYPE,  // Decimal places to return numbers with
 
   type: validation.STRING_TYPE,
 

@@ -45,6 +45,37 @@ class SimObject {
   #versionId;
   #extras;
 
+  //#region getters, cloning properties with mutable structures
+  get decimalPlaces() { return this.#decimalPlaces; }
+  get type() { return this.#type; }
+  get id() { return this.#id; }
+  get dateTime() { return this.#dateTime; }
+  get name() { return this.#name; }
+  get description() { return this.#description; }
+  get mutableDescription() { return this.#mutableDescription; }
+  get metadata__Name() { return [...this.#metadata__Name]; }
+  get metadata__Value() { return [...this.#metadata__Value]; }
+  get metadata__PercentageWeight() { return [...this.#metadata__PercentageWeight]; }
+  get unitId() { return this.#unitId; }
+  get doubleEntrySide() { return this.#doubleEntrySide; }
+  get currency() { return this.#currency; }
+  get intercompanyInfo__VsUnitId() { return this.#intercompanyInfo__VsUnitId; }
+  get value() { return this.#value; }
+  get writingValue() { return this.#writingValue; }
+  get alive() { return this.#alive; }
+  get command__Id() { return this.#command__Id; }
+  get command__DebugDescription() { return this.#command__DebugDescription; }
+  get commandGroup__Id() { return this.#commandGroup__Id; }
+  get commandGroup__DebugDescription() { return this.#commandGroup__DebugDescription; }
+  get bs_Principal__PrincipalToPay_IndefiniteExpiryDate() { return this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate; }
+  get bs_Principal__PrincipalToPay_AmortizationSchedule__Date() { return [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date]; }
+  get bs_Principal__PrincipalToPay_AmortizationSchedule__Principal() { return [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]; }
+  get is_Link__SimObjId() { return this.#is_Link__SimObjId; }
+  get vsSimObjectId() { return this.#vsSimObjectId; }
+  get versionId() { return this.#versionId; }
+  get extras() { return this.#StructuredCloneOrClone(this.#extras); }
+  //#endregion getters
+
   /**
    * @param {Object} p
    * @param {number} p.decimalPlaces Decimal places to return numbers with
@@ -128,6 +159,7 @@ class SimObject {
    * @returns {SimObject}
    */
   clone () {
+    // don't clone Array and extras, because they are already cloned in the constructor
     return new SimObject({
       decimalPlaces: this.#decimalPlaces,
       type: this.#type,
@@ -136,9 +168,9 @@ class SimObject {
       name: this.#name,
       description: this.#description,
       mutableDescription: this.#mutableDescription,
-      metadata__Name: [...this.#metadata__Name],
-      metadata__Value: [...this.#metadata__Value],
-      metadata__PercentageWeight: [...this.#metadata__PercentageWeight],
+      metadata__Name: this.#metadata__Name,
+      metadata__Value: this.#metadata__Value,
+      metadata__PercentageWeight: this.#metadata__PercentageWeight,
       unitId: this.#unitId,
       doubleEntrySide: this.#doubleEntrySide,
       currency: this.#currency,
@@ -151,12 +183,79 @@ class SimObject {
       commandGroup__Id: this.#commandGroup__Id,
       commandGroup__DebugDescription: this.#commandGroup__DebugDescription,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal],
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
       is_Link__SimObjId: this.#is_Link__SimObjId,
       vsSimObjectId: this.#vsSimObjectId,
       versionId: this.#versionId,
-      extras: this.#StructuredCloneOrClone(this.#extras),
+      extras: this.#extras,
+    });
+  }
+
+  /**
+   Build a new SimObject using the method parameters and filling the missing ones with the current SimObject values
+   * @param {Object} [p]
+   * @param {number} [p.decimalPlaces]
+   * @param {string} [p.type]
+   * @param {string} [p.id]
+   * @param {Date} [p.dateTime]
+   * @param {string} [p.name]
+   * @param {string} [p.description]
+   * @param {string} [p.mutableDescription]
+   * @param {string[]} [p.metadata__Name]
+   * @param {string[]} [p.metadata__Value]
+   * @param {number[]} [p.metadata__PercentageWeight]
+   * @param {string} [p.unitId]
+   * @param {string} [p.doubleEntrySide]
+   * @param {string} [p.currency]
+   * @param {string} [p.intercompanyInfo__VsUnitId]
+   * @param {BigInt} [p.value]
+   * @param {BigInt} [p.writingValue]
+   * @param {boolean} [p.alive]
+   * @param {string} [p.command__Id]
+   * @param {string} [p.command__DebugDescription]
+   * @param {string} [p.commandGroup__Id]
+   * @param {string} [p.commandGroup__DebugDescription]
+   * @param {BigInt} [p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate]
+   * @param {Date[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date]
+   * @param {BigInt[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]
+   * @param {string} [p.is_Link__SimObjId]
+   * @param {string} [p.vsSimObjectId]
+   * @param {number} [p.versionId]
+   * @param {*} [p.extras]
+   * @returns {SimObject}
+   */
+  with(p) {
+    // don't clone Array and extras, because they are already cloned in the constructor
+    return new SimObject({
+      decimalPlaces: p.decimalPlaces ?? this.#decimalPlaces,
+      type: p.type ?? this.#type,
+      id: p.id ?? this.#id,
+      dateTime: p.dateTime ?? this.#dateTime,
+      name: p.name ?? this.#name,
+      description: p.description ?? this.#description,
+      mutableDescription: p.mutableDescription ?? this.#mutableDescription,
+      metadata__Name: p.metadata__Name ?? this.#metadata__Name,
+      metadata__Value: p.metadata__Value ?? this.#metadata__Value,
+      metadata__PercentageWeight: p.metadata__PercentageWeight ?? this.#metadata__PercentageWeight,
+      unitId: p.unitId ?? this.#unitId,
+      doubleEntrySide: p.doubleEntrySide ?? this.#doubleEntrySide,
+      currency: p.currency ?? this.#currency,
+      intercompanyInfo__VsUnitId: p.intercompanyInfo__VsUnitId ?? this.#intercompanyInfo__VsUnitId,
+      value: p.value ?? this.#value,
+      writingValue: p.writingValue ?? this.#writingValue,
+      alive: p.alive ?? this.#alive,
+      command__Id: p.command__Id ?? this.#command__Id,
+      command__DebugDescription: p.command__DebugDescription ?? this.#command__DebugDescription,
+      commandGroup__Id: p.commandGroup__Id ?? this.#commandGroup__Id,
+      commandGroup__DebugDescription: p.commandGroup__DebugDescription ?? this.#commandGroup__DebugDescription,
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate ?? this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date ?? this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal ?? this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
+      is_Link__SimObjId: p.is_Link__SimObjId ?? this.#is_Link__SimObjId,
+      vsSimObjectId: p.vsSimObjectId ?? this.#vsSimObjectId,
+      versionId: p.versionId ?? this.#versionId,
+      extras: p.extras ?? this.#extras,
     });
   }
 
