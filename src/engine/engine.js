@@ -46,12 +46,15 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump }) {
     const _moduleDataArray = modulesData;
     const _modulesArray = modules;
     //#region variables declaration
-    const _settings = new Settings(); // TODO set `scenario` etc in Settings
+    const _settings = new Settings({
+      currentScenario: scenarioName, baseScenario: STD_NAMES.Scenario.BASE, defaultUnit: STD_NAMES.Simulation.NAME,
+      prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
+      prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES
+    });
     const _drivers = new Drivers({
       currentScenario: scenarioName, baseScenario: STD_NAMES.Scenario.BASE, defaultUnit: STD_NAMES.Simulation.NAME,
       prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
-      prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
-      allowMutable: false
+      prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES
     });
     const _taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
     // set _endDate (mutable) to 10 years from now, at the end of the year

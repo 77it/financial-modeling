@@ -26,14 +26,15 @@ extinguish(): accetta un id di un SO BalanceSheet, accoda alle transazioni una s
 
 delta(): accetta un id e un importo delta (eventualmente precisando principal schedule e indefinite, altrimenti tutto su indefinite), crea una scrittura con una variazione del SimObject del delta indicato; restituisce l’oggetto creato, con amount in formato number.
 
-square(): input SimObjectType/SimObjectName or SimObjectId (es per cash o ammortamenti);
-  aggiunge una scrittura di importo giusto per quadrare la transazione; restituisce l’oggetto creato, con amount in formato Number
+deltaName(SimObjectType, SimObjectName, amount): se c'è un SimObject con nome+tipo corrispondente, lo modifica con delta(amount), altrimenti lo crea con amount(amount)
+
+square(Unit), return number: restituisce il valore della squadratura di un unità, ovvero la somma degli importi dei SO di tipo BalanceSheet e di tipo IncomeStatement che hanno come unità quella indicata. Se l’unità di conto non esiste, restituisce 0.
 
  */
 
 // SimObjects storage and edits, #queue
 /*
-Don't provide a queue of future movements, because a SimObject can be changed by other modules.
+Don't provide way to store a queue of future movements, because a SimObject can be changed by other modules.
 
 Store, as a property of the SimObject, an object with custom properties, as the payment plans, the interest, etc.
  */
@@ -181,7 +182,6 @@ class Ledger {
     });
 
     this.#addOrUpdateSimObject(simObject);
-    this.#currentTransaction.push(simObject);
   }
 
   /**
@@ -233,10 +233,17 @@ class Ledger {
   //#endregion public methods
 
   //#region private methods
-  /** Add or update a SimObject in the repository
+  /** Add or update a SimObject in the repository and add it to the current transaction
    * @param {SimObject} simObject
    */
   #addOrUpdateSimObject (simObject) {
+    // add the SimObject to the current transaction
+    this.#currentTransaction.push(simObject);
+
+    // if SimObject type is a debug type, return without adding it to the repository
+    if (SimObjectDebugTypes_enum_validation.includes(simObject.type)) return;
+
+    // add or update the SimObject in the repository
     if (this.#simObjectsRepo.has(simObject.id))
       // update the existing SimObject
       this.#simObjectsRepo[simObject.id] = simObject;
@@ -304,7 +311,7 @@ class Ledger {
       extras: null
     });
 
-    this.#currentTransaction.push(simObject);
+    this.#addOrUpdateSimObject(simObject);
   }
 
   /**
