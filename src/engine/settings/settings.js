@@ -1,63 +1,70 @@
 ﻿export { Settings };
 
-import { sanitization, validation } from '../../deps.js';
-
-// TODO run tests
+import { DriversRepo } from '../../lib/drivers_repo.js';
+import { sanitization } from '../../deps.js';
 
 class Settings {
-  /**
-   Map to store Settings:
-   keys are strings made of { unit, name } (built with `#settingsRepoBuildKey` method),
-   values are an array of {date: number [1], value: *}  [1] number obtained with `date.getTime()`
-   * @type {Map<String, {dateMilliseconds: number, value: *}[]>} */
-  #settingsRepo;
-  /** @type {Date} */
-  #today;
-  /** @type {string} */
-  #currentDebugModuleInfo;  // unused by now
+  /** @type {DriversRepo} */
+  #driversRepo;
 
-  constructor () {
-    this.#settingsRepo = new Map();
-    this.#currentDebugModuleInfo = '';
-    this.#today = new Date(0);
+  /**
+   * @param {Object} p
+   * @param {string} p.baseScenario
+   * @param {string} p.currentScenario
+   * @param {string} p.defaultUnit
+   * @param {string} p.prefix__immutable_without_dates
+   * @param {string} p.prefix__immutable_with_dates
+   */
+  constructor ({ baseScenario, currentScenario, defaultUnit, prefix__immutable_without_dates, prefix__immutable_with_dates }) {
+    this.#driversRepo = new DriversRepo({
+      baseScenario,
+      currentScenario,
+      defaultUnit,
+      sanitizationType: sanitization.ANY_TYPE,
+      prefix__immutable_without_dates,
+      prefix__immutable_with_dates,
+      allowMutable: true
+    });
   }
 
   /** @param {string} debugModuleInfo */
   setDebugModuleInfo (debugModuleInfo) {
-    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
+    this.#driversRepo.setDebugModuleInfo(debugModuleInfo);
   }
 
   /** @param {Date} today */
   setToday (today) {
-    validation.validate({ value: today, validation: validation.DATE_TYPE });
-    this.#today = today;
+    this.#driversRepo.setToday(today);
   }
 
-  // TODO UPDATE
   /**
-   * Set Settings from an array of units, names, dates and values.
-   * Settings are immutable.
+   * Set Settings from an array of scenarios, units, names, dates and value.
+   * Settings can be immutable and mutable.
    * If a date is already present, the second one will be ignored.
    *
-   * @param {{unit?: string, name: string, date?: Date, value: number}[]} p
-   * unit: optional
+   * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
+   * scenario: optional; null, undefined or '' means `currentScenario` from constructor
+   * unit: Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * name: Setting name
    * date: optional; if missing will be set to new Date(0)
    * value: Setting value
    */
   set (p) {
+    this.#driversRepo.set(p);
   }
 
-  // TODO UPDATE
   /**
    * Get a Setting
    * @param {Object} p
-   * @param {string} [p.unit] - Optional unit
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
+   * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Setting name
-   * @param {Date} [p.date] - Optional date; if missing, returns first value; if found returns the value closest (but not greater) to the requested date
+   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
    * @return {undefined|*} Setting; if not found, returns undefined
+   * if `endDate` is not defined, returns the value defined before or at `date`;
+   * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
    */
-  get ({ unit, name, date }) {
-    return 99;
+  get ({ scenario, unit, name, date }) {
+      return this.#driversRepo.get({ scenario, unit, name, date });
   }
 }

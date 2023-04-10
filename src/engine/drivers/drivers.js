@@ -47,7 +47,7 @@ class Drivers {
    * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * name: Driver name
    * date: optional; if missing will be set to new Date(0)
-   * value: Driver value, sanitized to number
+   * value: Driver value, will be sanitized to number
    */
   set (p) {
     this.#driversRepo.set(p);

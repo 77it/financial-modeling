@@ -26,10 +26,10 @@ Deno.test('Drivers tests', async () => {
   ];
   drivers.set(input);
 
-  const input_accepted = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 99 }
+  const input2 = [
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 9999 }  // #driver1 ignored, is immutable
   ];
-  drivers.set(input_accepted);
+  drivers.set(input2);
 
   // query with all parameters empty: undefined
   //@ts-ignore
