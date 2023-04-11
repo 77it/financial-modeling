@@ -71,6 +71,10 @@ class Ledger {
    * @param {'round'|'floor'} p.roundingMode Rounding mode, 0 = round, 1 = floor
    */
   constructor ({ appendTrnDump, decimalPlaces, roundingMode }) {
+    // check if decimalPlaces is an integer, otherwise raise exception
+    if (!Number.isInteger(decimalPlaces))
+      throw new Error(`decimalPlaces must be an integer, got ${decimalPlaces}`);
+
     this.#appendTrnDump = appendTrnDump;
     this.#simObjectsRepo = new Map();
     this.#currentTransaction = [];
@@ -151,7 +155,15 @@ class Ledger {
 
     const debug_moduleInfo = (this.#debug) ? this.#currentDebugModuleInfo : '';
 
+    const _value = this.#toBigInt(newSimObjectDto.value);
+    const _writingValue = _value;  // writingValue is equal to value
+    const _principalToPay_AmortizationSchedule__Principal = newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => this.#toBigInt(number));
+    const _principalToPay_IndefiniteExpiryDate =
+      (_principalToPay_AmortizationSchedule__Principal === [] && this.#toBigInt(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate) === 0n)
+        ? 0n : _value;  // if principal is not defined, set all value amount as 'IndefiniteExpiryDate'
+
     const simObject = new SimObject({
+      decimalPlaces: this.#decimalPlaces,
       type: newSimObjectDto.type,
       id: this.#getNextId().toString(),
       dateTime: this.#today,
@@ -165,16 +177,16 @@ class Ledger {
       doubleEntrySide: newSimObjectDto.doubleEntrySide,
       currency: newSimObjectDto.currency,
       intercompanyInfo__VsUnitId: newSimObjectDto.intercompanyInfo__VsUnitId,
-      value: this.#toBigInt(newSimObjectDto.value),
-      writingValue: this.#toBigInt(newSimObjectDto.value),
+      value: _value,
+      writingValue: _writingValue,
       alive: newSimObjectDto.alive,
       command__Id: this.#getNextCommandId().toString(),
       command__DebugDescription: newSimObjectDto.command__DebugDescription,
       commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: (newSimObjectDto.commandGroup__DebugDescription !== '') ? newSimObjectDto.commandGroup__DebugDescription : debug_moduleInfo,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#toBigInt(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: _principalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => this.#toBigInt(number)),
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: _principalToPay_AmortizationSchedule__Principal,
       is_Link__SimObjId: newSimObjectDto.is_Link__SimObjId,
       vsSimObjectId: newSimObjectDto.vsSimObjectId,
       versionId: 0,
@@ -282,6 +294,7 @@ class Ledger {
     const debug_moduleInfo = this.#currentDebugModuleInfo;
 
     const simObject = new SimObject({
+      decimalPlaces: this.#decimalPlaces,
       type: simObjectDebugType,
       id: this.#getNextId().toString(),
       dateTime: this.#today,
