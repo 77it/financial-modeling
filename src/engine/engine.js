@@ -1,8 +1,8 @@
 export { engine };
 
-import { validation } from '../deps.js';
-import { sanitization } from '../deps.js';
+import { validation, sanitization } from '../deps.js';
 import { Result } from '../deps.js';
+import { BOOLEAN_TRUE_STRING } from '../deps.js';
 import { Ledger } from './ledger/ledger.js';
 import { ModuleData } from './modules/module_data.js';
 import { Module } from '../modules/_sample_module.js';
@@ -10,7 +10,6 @@ import { Drivers } from './drivers/drivers.js';
 import { Settings } from './settings/settings.js';
 import { TaskLocks } from './tasklocks/tasklocks.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
-import { TaskLocks_ReservedNames } from './tasklocks/tasklocks_reservednames.js';
 import * as SETTINGS_NAMES from './settings/settings_names.js';
 import * as STD_NAMES from '../modules/_names/standard_names.js';
 import { SimulationContextStart } from '../modules/_context/simulationcontext_start.js';
@@ -151,10 +150,10 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
   function setDebugLevel (settings) {
     const _debugFlag = sanitization.sanitize({
       value: settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
-      sanitization: sanitization.BOOLEAN_TYPE
+      sanitization: sanitization.STRING_TYPE
     });
 
-    if (_debugFlag)
+    if (_debugFlag === BOOLEAN_TRUE_STRING)
       _ledger.setDebugLevel();
   }
 
