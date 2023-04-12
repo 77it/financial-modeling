@@ -67,13 +67,18 @@ class Ledger {
   /**
    * @param {Object} p
    * @param {appendTrnDump} p.appendTrnDump Callback to dump the transactions
-   * @param {number} p.decimalPlaces Decimal places to store numbers with in the ledger
-   * @param {'round'|'floor'} p.roundingMode Rounding mode, 0 = round, 1 = floor
+   * @param {number} p.decimalPlaces Decimal places to use when storing numbers in the ledger
+   * @param {boolean} p.roundingModeIsRound Rounding mode to use when storing numbers in the ledger; if true, use Math.round(), otherwise use Math.floor()
    */
-  constructor ({ appendTrnDump, decimalPlaces, roundingMode }) {
+  constructor ({ appendTrnDump, decimalPlaces, roundingModeIsRound }) {
+    const _p = sanitization.sanitizeObj({
+      obj: { decimalPlaces, roundingModeIsRound },
+      sanitization: {decimalPlaces: sanitization.NUMBER_TYPE, roundingModeIsRound: sanitization.BOOLEAN_TYPE}
+    });
+
     // check if decimalPlaces is an integer, otherwise raise exception
-    if (!Number.isInteger(decimalPlaces))
-      throw new Error(`decimalPlaces must be an integer, got ${decimalPlaces}`);
+    if (!Number.isInteger(_p.decimalPlaces))
+      throw new Error(`decimalPlaces must be an integer, got ${_p.decimalPlaces}`);
 
     this.#appendTrnDump = appendTrnDump;
     this.#simObjectsRepo = new Map();
@@ -84,8 +89,8 @@ class Ledger {
     this.#today = new Date(0);
     this.#debug = false;
     this.#currentDebugModuleInfo = '';
-    this.#decimalPlaces = decimalPlaces;
-    this.#roundingModeIsRound = (roundingMode === 'round');
+    this.#decimalPlaces = _p.decimalPlaces;
+    this.#roundingModeIsRound = _p.roundingModeIsRound;
   }
 
   //#region public methods
@@ -329,12 +334,14 @@ class Ledger {
 
   /**
    * This function is used to convert a number to a BigInt, preserving a given number of decimal places.
+   * If `#roundingModeIsRound` is true, the number is rounded to the given number of decimal places.
+   * If `#roundingModeIsRound` false, the number is truncated to the given number of decimal places.
    @param {number} n - number to convert
    @returns {BigInt}
    */
   #toBigInt (n) {
     if (this.#roundingModeIsRound) return BigInt(Math.round(n * 10 ** this.#decimalPlaces));
-    return BigInt(Math.floor(n * 10 ** this.#decimalPlaces));
+    return BigInt(Math.trunc(n * 10 ** this.#decimalPlaces));
   }
 
   //#endregion private methods

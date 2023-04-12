@@ -30,11 +30,13 @@ before calling a module method checks if the method is defined, otherwise it ski
  * @param {Module[]} p.modules - Array of module classes, in the same order of modulesData
  * @param {string} p.scenarioName - Scenario name
  * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
+ * @param {number} p.decimalPlaces - Function to append the transactions dump
+ * @param {boolean} p.roundingModeIsRound - Rounding mode to use when storing numbers in the ledger; if true, use Math.round(), otherwise use Math.floor()
  * @return {Promise<Result>}
  */
-async function engine ({ modulesData, modules, scenarioName, appendTrnDump }) {
+async function engine ({ modulesData, modules, scenarioName, appendTrnDump, decimalPlaces, roundingModeIsRound }) {
   /** @type {Ledger} */
-  let _ledger = new Ledger({ appendTrnDump });  // define _ledger here to be able to use it in the `finally` block
+  let _ledger = new Ledger({ appendTrnDump, decimalPlaces, roundingModeIsRound });  // define _ledger here to be able to use it in the `finally` block
   let _startDate = new Date(0);
   try {
     validation.validateObj({
