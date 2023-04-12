@@ -60,11 +60,11 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
       settingName: SETTINGS_NAMES.Simulation.$$MODULESLOADER_URL,
       settingSanitization: sanitization.STRING_TYPE
     });
-    const _modulesLoaderClass = await _getObject_FromUrl({
+    const _modulesLoaderClass = await _getFunctionFromUrl({
       url: _$$MODULESLOADER_URL,
-      objectName: 'ModulesLoader',
+      functionName: 'ModulesLoader',
       debug: debug,
-      defaultObject: ModulesLoader
+      defaultFunction: ModulesLoader
     });
     // init the module loader passing a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside ModulesLoader
     const _modulesLoader = new _modulesLoaderClass({ modulesLoader_Resolve });
@@ -80,11 +80,11 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
       settingName: SETTINGS_NAMES.Simulation.$$ENGINE_URL,
       settingSanitization: sanitization.STRING_TYPE
     });
-    const _engine = await _getObject_FromUrl({
+    const _engine = await _getFunctionFromUrl({
       url: _$$ENGINE_URL,
-      objectName: 'engine',
+      functionName: 'engine',
       debug: debug,
-      defaultObject: engine
+      defaultFunction: engine
     });
 
     // get scenarios from `moduleDataArray`
@@ -212,23 +212,23 @@ function _get_SimulationSetting_FromModuleDataArray ({
 
 /**
  @private
- * Returns an object from a URL or from defaultObject
+ * Returns an object from a URL or from defaultFunction
  * @param {Object} p
  * @param {string} p.url
- * @param {string} p.objectName
+ * @param {string} p.functionName
  * @param {boolean} p.debug - Debug flag: when true, the engine function is returned from local engine file
- * @param {*} p.defaultObject - Default object to return when debug is true or when `settingName` is not found
+ * @param {*} p.defaultFunction - Default object to return when debug is true or when `functionName` is not found
  * @return {Promise<*>} - Some object read from URI
  */
-async function _getObject_FromUrl ({
+async function _getFunctionFromUrl ({
   url,
-  objectName,
+  functionName,
   debug,
-  defaultObject
+  defaultFunction
 }) {
 
   if (debug)
-    return defaultObject;
+    return defaultFunction;
 
   if (url) {
     // DYNAMIC IMPORT (works with Deno and browser)
@@ -237,8 +237,8 @@ async function _getObject_FromUrl ({
     for (const _cdnURI of modulesLoader_Resolve(url)) {
       try {
         const _module = await import(_cdnURI);
-        if (_module != null && _module[objectName] != null) {
-          return _module[objectName];
+        if (_module != null && _module[functionName] != null) {
+          return _module[functionName];
         }
       } catch (error) {
         _lastImportError = error.stack?.toString() ?? error.toString();  // save the last error and go on with the loop trying the next cdnURI
@@ -248,7 +248,7 @@ async function _getObject_FromUrl ({
   }
 
   // fallback to default object
-  return defaultObject;
+  return defaultFunction;
 }
 
 /**
