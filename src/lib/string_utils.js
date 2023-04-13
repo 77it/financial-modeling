@@ -1,4 +1,4 @@
-export { isNullOrWhiteSpace, BOOLEAN_TRUE_STRING, BOOLEAN_FALSE_STRING };
+export { isNullOrWhiteSpace, lowerCaseCompare, BOOLEAN_TRUE_STRING, BOOLEAN_FALSE_STRING };
 
 const BOOLEAN_TRUE_STRING = 'true';
 const BOOLEAN_FALSE_STRING = 'false';
@@ -14,4 +14,14 @@ function isNullOrWhiteSpace (value) {
   } catch (e) {
     return false;
   }
+}
+
+/**
+ * Compare two strings, ignoring case
+ * @param {string} a
+ * @param {string} b
+ * @returns {boolean}
+ */
+function lowerCaseCompare (a, b) {
+  return (a.toLowerCase() === b.toLowerCase());
 }

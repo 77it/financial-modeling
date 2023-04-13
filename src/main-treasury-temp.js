@@ -12,10 +12,9 @@ import { convertExcelToModuleDataArray } from './deno/convert_excel_to_moduledat
 
 //#region local imports
 import { Result } from './deps.js';
-
 import { sanitization } from './deps.js';
-
 import { parseJSON5 } from './deps.js';
+import { isNullOrWhiteSpace } from './deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
@@ -230,7 +229,7 @@ async function _getFunctionFromUrl ({
   if (debug)
     return defaultFunction;
 
-  if (url) {
+  if (!isNullOrWhiteSpace(url)) {
     // DYNAMIC IMPORT (works with Deno and browser)
     // inspired to ModulesLoader.addClassFromURI
     let _lastImportError = '';

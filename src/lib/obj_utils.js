@@ -21,3 +21,5 @@ function deepFreeze(object) {
 
   return Object.freeze(object);
 }
+
+// see json5.js  // function objectKeysToLowerCase
