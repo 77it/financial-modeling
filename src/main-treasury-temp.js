@@ -14,7 +14,7 @@ import { convertExcelToModuleDataArray } from './deno/convert_excel_to_moduledat
 import { Result } from './deps.js';
 import { sanitization } from './deps.js';
 import { parseJSON5 } from './deps.js';
-import { isNullOrWhiteSpace } from './deps.js';
+import { isNullOrWhiteSpace, lowerCaseCompare } from './deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
@@ -170,21 +170,23 @@ function _get_SimulationSetting_FromModuleDataArray ({
   settingName,
   settingSanitization
 }) {
-  const moduleName = SETTINGS_MODULE_INFO.MODULE_NAME;
-  const tableName = SETTINGS_MODULE_INFO.TablesInfo.Set.NAME;
+  const _settingName = settingName.trim().toLowerCase();
+
+  const moduleName = SETTINGS_MODULE_INFO.MODULE_NAME.trim().toLowerCase();
+  const tableName = SETTINGS_MODULE_INFO.TablesInfo.Set.NAME.trim().toLowerCase();
   const tableSanitization = SETTINGS_MODULE_INFO.TablesInfo.Set.Validation;
-  const tableColScenario = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.SCENARIO;
-  const tableColUnit = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.UNIT;
-  const tableColName = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.NAME;
-  const tableColValue = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.VALUE;
-  const scenarioName = STD_NAMES.Scenario.BASE;
-  const unitName = STD_NAMES.Simulation.NAME;
+  const tableColScenario = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.SCENARIO.trim().toLowerCase();
+  const tableColUnit = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.UNIT.trim().toLowerCase();
+  const tableColName = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.NAME.trim().toLowerCase();
+  const tableColValue = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.VALUE.trim().toLowerCase();
+  const scenarioName = STD_NAMES.Scenario.BASE.trim().toLowerCase();
+  const unitName = STD_NAMES.Simulation.NAME.trim().toLowerCase();
 
   const _setting = (() => {
     for (const moduleData of moduleDataArray) {
-      if (moduleData.moduleName === moduleName)
+      if (moduleData.moduleName.trim().toLowerCase() === moduleName)
         for (const _tableObj of moduleData.tables) {
-          if (_tableObj.tableName === tableName) {
+          if (_tableObj.tableName.trim().toLowerCase() === tableName) {
             const _table = structuredClone(_tableObj.table);  // clone _tableObj to avoid side effects
             sanitization.sanitizeObj({
               obj: _table,
@@ -192,10 +194,10 @@ function _get_SimulationSetting_FromModuleDataArray ({
             });
             for (const row of _table) {
               if (
-                (row[tableColScenario].toString().trim().toUpperCase() === scenarioName.trim().toUpperCase() ||
-                  row[tableColScenario].toString().trim().toUpperCase() === '') &&
-                row[tableColUnit].toString().trim().toUpperCase() === unitName.trim().toUpperCase() &&
-                row[tableColName].toString().trim().toUpperCase() === settingName.trim().toUpperCase())
+                (row[tableColScenario].toString().trim().toLowerCase() === scenarioName ||
+                  row[tableColScenario].toString().trim().toLowerCase() === '') &&
+                row[tableColUnit].toString().trim().toLowerCase() === unitName &&
+                row[tableColName].toString().trim().toLowerCase() === _settingName)
                 return row[tableColValue];
             }
           }
@@ -203,7 +205,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
     }
   })();
 
-  if (settingSanitization)
+  if (!isNullOrWhiteSpace(settingSanitization))
     return sanitization.sanitize({ value: _setting, sanitization: settingSanitization });
   else
     return _setting;

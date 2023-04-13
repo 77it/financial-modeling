@@ -35,7 +35,7 @@ class TaskLocks {
   }
 
   /**
-   * Set a TaskLock; TaskLock are immutable.
+   * Set a TaskLock; TaskLocks are immutable.
    * @param {Object} p
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
