@@ -21,4 +21,12 @@ Deno.test('test lowerCaseCompare()', (t) => {
     assert(lowerCaseCompare('AaA', 'aAa'));  // AaA' = aAa
     assertFalse(lowerCaseCompare('a', 'á'));  // a != á
     assertFalse(lowerCaseCompare('a', 'b'));  // a != b
+    //@ts-ignore
+    assertFalse(lowerCaseCompare('a', null));
+    //@ts-ignore
+    assertFalse(lowerCaseCompare('a', 99));
+    //@ts-ignore
+    assertFalse(lowerCaseCompare(undefined, null));
+    //@ts-ignore
+    assertFalse(lowerCaseCompare(88, 99));
 });

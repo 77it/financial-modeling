@@ -26,11 +26,16 @@ function isNullOrWhiteSpace (value) {
  * @returns {boolean}
  */
 function lowerCaseCompare (a, b) {
-  /*
-  // sensitivity = 'accent' means": Only strings that differ in base letters or accents and other diacritic marks compare as unequal. Examples: a != b, a != à, a = A.
-  return typeof a === 'string' && typeof b === 'string'
-    ? a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0
-    : a === b;
-   */
-  return (a.toLowerCase() === b.toLowerCase());
+  try {
+    /*
+    // sensitivity = 'accent' means": Only strings that differ in base letters or accents and other diacritic marks compare as unequal. Examples: a != b, a != à, a = A.
+    return typeof a === 'string' && typeof b === 'string'
+      ? a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0
+      : a === b;
+     */
+    return (a.toLowerCase() === b.toLowerCase());
+  }
+  catch (e) {
+    return false;
+  }
 }

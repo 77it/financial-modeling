@@ -170,45 +170,50 @@ function _get_SimulationSetting_FromModuleDataArray ({
   settingName,
   settingSanitization
 }) {
-  const _settingName = settingName.trim().toLowerCase();
+  try {
+    const _settingName = settingName.trim().toLowerCase();
 
-  const moduleName = SETTINGS_MODULE_INFO.MODULE_NAME.trim().toLowerCase();
-  const tableName = SETTINGS_MODULE_INFO.TablesInfo.Set.NAME.trim().toLowerCase();
-  const tableSanitization = SETTINGS_MODULE_INFO.TablesInfo.Set.Validation;
-  const tableColScenario = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.SCENARIO.trim().toLowerCase();
-  const tableColUnit = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.UNIT.trim().toLowerCase();
-  const tableColName = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.NAME.trim().toLowerCase();
-  const tableColValue = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.VALUE.trim().toLowerCase();
-  const scenarioName = STD_NAMES.Scenario.BASE.trim().toLowerCase();
-  const unitName = STD_NAMES.Simulation.NAME.trim().toLowerCase();
+    const moduleName = SETTINGS_MODULE_INFO.MODULE_NAME.trim().toLowerCase();
+    const tableName = SETTINGS_MODULE_INFO.TablesInfo.Set.NAME.trim().toLowerCase();
+    const tableSanitization = SETTINGS_MODULE_INFO.TablesInfo.Set.Validation;
+    const tableColScenario = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.SCENARIO.trim().toLowerCase();
+    const tableColUnit = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.UNIT.trim().toLowerCase();
+    const tableColName = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.NAME.trim().toLowerCase();
+    const tableColValue = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.VALUE.trim().toLowerCase();
+    const scenarioName = STD_NAMES.Scenario.BASE.trim().toLowerCase();
+    const unitName = STD_NAMES.Simulation.NAME.trim().toLowerCase();
 
-  const _setting = (() => {
-    for (const moduleData of moduleDataArray) {
-      if (moduleData.moduleName.trim().toLowerCase() === moduleName)
-        for (const _tableObj of moduleData.tables) {
-          if (_tableObj.tableName.trim().toLowerCase() === tableName) {
-            const _table = structuredClone(_tableObj.table);  // clone _tableObj to avoid side effects
-            sanitization.sanitizeObj({
-              obj: _table,
-              sanitization: tableSanitization
-            });
-            for (const row of _table) {
-              if (
-                (row[tableColScenario].toString().trim().toLowerCase() === scenarioName ||
-                  row[tableColScenario].toString().trim().toLowerCase() === '') &&
-                row[tableColUnit].toString().trim().toLowerCase() === unitName &&
-                row[tableColName].toString().trim().toLowerCase() === _settingName)
-                return row[tableColValue];
+    const _setting = (() => {
+      for (const moduleData of moduleDataArray) {
+        if (moduleData.moduleName.trim().toLowerCase() === moduleName)
+          for (const _tableObj of moduleData.tables) {
+            if (_tableObj.tableName.trim().toLowerCase() === tableName) {
+              const _table = structuredClone(_tableObj.table);  // clone _tableObj to avoid side effects
+              sanitization.sanitizeObj({
+                obj: _table,
+                sanitization: tableSanitization
+              });
+              for (const row of _table) {
+                if (
+                  (row[tableColScenario].toString().trim().toLowerCase() === scenarioName ||
+                    row[tableColScenario].toString().trim().toLowerCase() === '') &&
+                  row[tableColUnit].toString().trim().toLowerCase() === unitName &&
+                  row[tableColName].toString().trim().toLowerCase() === _settingName)
+                  return row[tableColValue];
+              }
             }
           }
-        }
-    }
-  })();
+      }
+    })();
 
-  if (!isNullOrWhiteSpace(settingSanitization))
-    return sanitization.sanitize({ value: _setting, sanitization: settingSanitization });
-  else
-    return _setting;
+    if (!isNullOrWhiteSpace(settingSanitization))
+      return sanitization.sanitize({ value: _setting, sanitization: settingSanitization });
+    else
+      return _setting;
+  }
+  catch (e) {
+    return undefined;
+  }
 }
 
 /**
