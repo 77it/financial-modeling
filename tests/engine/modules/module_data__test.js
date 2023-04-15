@@ -24,3 +24,14 @@ Deno.test('moduleData test: read multiline file', async () => {
   console.log(json1.moduleName);
   assertEquals(json1.moduleName, 'settingsx');
 });
+
+
+Deno.test('moduleData test: malformed string, sanitized during object build', async () => {
+  const json0 = moduleData_LoadFromJson('{"tables":[]}');
+  console.log(json0);
+  assertEquals(JSON.stringify(json0), JSON.stringify({ moduleName: '', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '', tables: [] }));
+
+  const json1 = moduleData_LoadFromJson('{"tables":[{"table":[{}]}]}');
+  console.log(json1);
+  assertEquals(JSON.stringify(json1), JSON.stringify({ moduleName: '', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '', tables: [{table:[{}], tableName:''}] }));
+});

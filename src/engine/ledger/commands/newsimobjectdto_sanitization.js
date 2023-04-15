@@ -5,7 +5,7 @@ import { Currency_enum_validation } from '../../simobject/enums/currency_enum.js
 import { sanitization } from '../../../deps.js';
 
 /**
- object used to validate simObjectDto
+ object used to validate NewSimObjectDto
  */
 const newSimObjectDto_Sanitization = {
   type: sanitization.STRING_TYPE,

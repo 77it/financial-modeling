@@ -1,6 +1,6 @@
 export { ModuleData };
 
-import { validation } from '../../deps.js';
+import { sanitization } from '../../deps.js';
 
 // ModuleData is not immutable nor has the clone method, because the object is passed only to the modules that will use it
 class ModuleData {
@@ -28,25 +28,26 @@ class ModuleData {
    * @param {{tableName: string, table: *[]}[]} p.tables
    */
   constructor (p) {
-    validation.validateObj(
+    // sanitize and validate p
+    sanitization.sanitizeObj(
       {
         obj: p,
-        validation: {
-          moduleName: validation.STRING_TYPE,
-          moduleAlias: validation.STRING_TYPE,
-          moduleEngineURI: validation.STRING_TYPE,
-          moduleSourceLocation: validation.STRING_TYPE,
-          tables: validation.ARRAY_OF_OBJECTS_TYPE,
+        sanitization: {
+          moduleName: sanitization.STRING_TYPE,
+          moduleAlias: sanitization.STRING_TYPE,
+          moduleEngineURI: sanitization.STRING_TYPE,
+          moduleSourceLocation: sanitization.STRING_TYPE,
+          tables: sanitization.ARRAY_OF_OBJECTS_TYPE,
         },
-        errorMsg: `validation of ModuleData ${p}`,
+        validate: true
       });
 
-    // validate table array
-    validation.validateObj(
+    // validate tables array
+    sanitization.sanitizeObj(
       {
         obj: p.tables,
-        validation: { tableName: validation.STRING_TYPE, table: validation.ARRAY_OF_OBJECTS_TYPE },
-        errorMsg: `validation of ModuleData.tables ${p}`
+        sanitization: { tableName: sanitization.STRING_TYPE, table: sanitization.ARRAY_OF_OBJECTS_TYPE },
+        validate: true
       });
 
     this.moduleName = p.moduleName;
