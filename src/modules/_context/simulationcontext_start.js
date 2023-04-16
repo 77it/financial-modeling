@@ -33,29 +33,20 @@ export { SimulationContextStart };
  * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
  */
 
-/**
- * Set simulation start date for a modules; every module can call it, and the resulting start date will be the earliest date of all calls
- * @callback setSimulationStartDate
- * @param {{date: Date}} p
- */
-
 class SimulationContextStart {
   setSetting;
   setDriver;
   setTaskLock;
-  setSimulationStartDate;
 
   /**
    * @param {Object} p
    * @param {setSetting} p.setSetting
    * @param {setDriver} p.setDriver
    * @param {setTaskLock} p.setTaskLock
-   * @param {setSimulationStartDate} p.setSimulationStartDate
    */
-  constructor ({ setSetting, setDriver, setTaskLock, setSimulationStartDate }) {
+  constructor ({ setSetting, setDriver, setTaskLock }) {
     this.setSetting = setSetting;
     this.setDriver = setDriver;
     this.setTaskLock = setTaskLock;
-    this.setSimulationStartDate = setSimulationStartDate;
   }
 }

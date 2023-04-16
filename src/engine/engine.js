@@ -66,8 +66,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
     const simulationContextStart = new SimulationContextStart({
       setSetting: _settings.set,
       setDriver: _drivers.set,
-      setTaskLock: _taskLocks.set,
-      setSimulationStartDate: setStartDate
+      setTaskLock: _taskLocks.set
     });
     //#endregion set contexts
 
@@ -86,7 +85,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
         _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
         _taskLocks.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
         // TODO NOW NOW NOW NOW
-        checkOpenTransaction({ ledger: _ledger, moduleData: _moduleDataArray[i] });
+        ensureNoTransactionIsOpen({ ledger: _ledger, moduleData: _moduleDataArray[i] });
       }
     }
     //#endregion call all modules, one time
@@ -96,15 +95,15 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
     // TODO NOW: call all modules, every day, until the end of the simulation
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
     for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
-      for (let i = 0; i < _modulesArray.length; i++) {
-        _ledger.setToday(date);
-        _settings.setToday(date);
-        _drivers.setToday(date);
+      _ledger.setToday(date);
+      _settings.setToday(date);
+      _drivers.setToday(date);
 
+      for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
           _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
           // TODO NOW NOW NOW NOW
-          checkOpenTransaction({ ledger: _ledger, moduleData: _moduleDataArray[i] });
+          ensureNoTransactionIsOpen({ ledger: _ledger, moduleData: _moduleDataArray[i] });
         }
       }
     }
@@ -169,7 +168,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
    * @param {Ledger} p.ledger
    * @param {ModuleData} p.moduleData
    */
-  function checkOpenTransaction ({ ledger, moduleData }) {
+  function ensureNoTransactionIsOpen ({ ledger, moduleData }) {
     if (ledger.transactionIsOpen())
       throw new Error(`after calling module ${moduleData.moduleName} ${moduleData.moduleEngineURI}  a transaction is open`);
   }
