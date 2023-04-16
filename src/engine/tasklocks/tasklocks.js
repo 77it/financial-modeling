@@ -1,6 +1,6 @@
 ﻿export { TaskLocks };
 
-import { sanitization, validation } from '../../deps.js';
+import { sanitization, validation, isNullOrWhiteSpace } from '../../deps.js';
 
 /*
 if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
@@ -105,7 +105,7 @@ class TaskLocks {
       sanitization: { unit: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE },
       validate: true
     });
-    if (_p.unit === '') _p.unit = this.#defaultUnit;
+    if (isNullOrWhiteSpace(_p.unit)) _p.unit = this.#defaultUnit;
     return JSON.stringify({
       unit: _p.unit.trim().toLowerCase(),
       name: _p.name.trim().toLowerCase()

@@ -319,8 +319,8 @@ class DriversRepo {
       validate: true
     });
 
-    if (_p.scenario === '') _p.scenario = this.#currentScenario;
-    if (_p.unit === '') _p.unit = this.#defaultUnit;
+    if (isNullOrWhiteSpace(_p.scenario)) _p.scenario = this.#currentScenario;
+    if (isNullOrWhiteSpace(_p.unit)) _p.unit = this.#defaultUnit;
 
     return JSON.stringify({
       scenario: _p.scenario.trim().toLowerCase(),
