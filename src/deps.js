@@ -4,3 +4,4 @@ export * as sanitization from './lib/sanitization_utils.js';
 export { isValidDate, addMonths, toUTC, toStringYYYYMMDD, stripTime } from './lib/date_utils.js';
 export { isNullOrWhiteSpace, BOOLEAN_TRUE_STRING, BOOLEAN_FALSE_STRING, lowerCaseCompare } from './lib/string_utils.js';
 export { parseJSON5, parseJSON5Lowercased, objectKeysToLowerCase } from './lib/json5.js';
+export { deepFreeze } from './lib/obj_utils.js';

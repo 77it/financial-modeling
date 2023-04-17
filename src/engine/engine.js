@@ -8,9 +8,9 @@ import { Drivers } from './drivers/drivers.js';
 import { Settings } from './settings/settings.js';
 import { TaskLocks } from './tasklocks/tasklocks.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
-import * as SETTINGS_NAMES from './settings/settings_names.js';
-import * as STD_NAMES from '../modules/_names/standard_names.js';
-import { SimulationContextStart } from '../modules/_context/simulationcontext_start.js';
+import * as SETTINGS_NAMES from '../settings/settings_names.js';
+import * as STD_NAMES from '../settings/standard_names.js';
+import { SimulationContextStart } from './context/simulationcontext_start.js';
 
 // TODO
 /*

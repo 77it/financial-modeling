@@ -23,8 +23,8 @@ import { ModulesLoader } from './modules/_modules_loader.js';
 import { Module } from './modules/_sample_module.js';
 
 import { ModuleInfo as SETTINGS_MODULE_INFO } from './modules/settings.js';
-import * as SETTINGS_NAMES from './engine/settings/settings_names.js';
-import * as STD_NAMES from './modules/_names/standard_names.js';
+import * as SETTINGS_NAMES from './settings/settings_names.js';
+import * as STD_NAMES from './settings/standard_names.js';
 //#endregion local imports
 
 // call `main` function only if there are command line arguments  (useful to not call `main` function with the following code when importing this file)

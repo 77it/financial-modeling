@@ -2,7 +2,7 @@
 
 export { Simulation, Unit };
 
-import { deepFreeze } from '../../lib/obj_utils.js';
+import { deepFreeze } from '../deps.js';
 
 const Simulation = {
   $$SCENARIOS: '$$SCENARIOS',

@@ -1,6 +1,6 @@
 export { ImmutablePrefix, UnitObjects, Simulation, Scenario };
 
-import { deepFreeze } from '../../lib/obj_utils.js';
+import { deepFreeze } from '../deps.js';
 
 const ImmutablePrefix = {
   PREFIX__IMMUTABLE_WITHOUT_DATES: '$$',

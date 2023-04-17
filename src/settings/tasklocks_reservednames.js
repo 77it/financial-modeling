@@ -1,6 +1,6 @@
 export { TaskLocks_ReservedNames };
 
-import { deepFreeze } from '../../lib/obj_utils.js';
+import { deepFreeze } from '../deps.js';
 
 const TaskLocks_ReservedNames = {
   SIMULATION__INTERCOMPANY_TREASURY__DAILY_FUNCTION: 'SIMULATION__INTERCOMPANY_TREASURY__DAILY_FUNCTION',

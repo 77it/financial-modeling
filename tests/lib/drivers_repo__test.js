@@ -2,7 +2,7 @@ import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from
 import { sanitization } from '../deps.js';
 
 import { DriversRepo } from '../../src/lib/drivers_repo.js';
-import * as STD_NAMES from '../../src/modules/_names/standard_names.js';
+import * as STD_NAMES from '../../src/settings/standard_names.js';
 
 Deno.test('Drivers tests', async () => {
   const _currentScenario = 'SCENARIO1';

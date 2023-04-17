@@ -1,7 +1,7 @@
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../deps.js';
 
 import { Settings } from '../../../src/engine/settings/settings.js';
-import * as STD_NAMES from '../../../src/modules/_names/standard_names.js';
+import * as STD_NAMES from '../../../src/settings/standard_names.js';
 
 Deno.test('Settings tests', async () => {
   const drivers = new Settings({
