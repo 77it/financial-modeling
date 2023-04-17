@@ -1,8 +1,6 @@
 export { engine };
 
-import { validation, sanitization } from '../deps.js';
-import { Result } from '../deps.js';
-import { BOOLEAN_TRUE_STRING } from '../deps.js';
+import { validation, sanitization, stripTime, Result, BOOLEAN_TRUE_STRING } from '../deps.js';
 import { Ledger } from './ledger/ledger.js';
 import { ModuleData } from './modules/module_data.js';
 import { Module } from '../modules/_sample_module.js';
@@ -36,7 +34,8 @@ before calling a module method checks if the method is defined, otherwise it ski
 async function engine ({ modulesData, modules, scenarioName, appendTrnDump, decimalPlaces, roundingModeIsRound }) {
   /** @type {Ledger} */
   let _ledger = new Ledger({ appendTrnDump, decimalPlaces, roundingModeIsRound });  // define _ledger here to be able to use it in the `finally` block
-  let _startDate = new Date(0);
+  /** @type {Date} */
+  let _startDate = undefined;
   try {
     validation.validateObj({
       obj: { modulesData, modules, appendTrnDump },
@@ -129,17 +128,20 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
 
   //#region local functions
   /**
-   * Set simulation start date for a modules; every module can call it, and the resulting start date will be the earliest date of all calls
+   * Set/reset simulation start date; overwrite `_startDate` only if the new date is earlier than the current `_startDate` (or if `_startDate` is not set yet)
    * @param {Object} p
    * @param {Date} p.date - Simulation start date
    */
-  function setStartDate ({ date }) {
-    const _date = sanitization.sanitize({
+  function updateStartDate ({ date }) {
+    const _date = stripTime(sanitization.sanitize({
       value: date,
       sanitization: sanitization.DATE_TYPE,
       validate: true
-    });
-    if (_date < _startDate) _startDate = _date;
+    }));
+    if (_startDate == null)
+      _startDate = _date;
+    if (_date < _startDate)
+      _startDate = _date;
   }
 
 // TODO update

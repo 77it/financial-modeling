@@ -1,6 +1,6 @@
 ﻿export { DriversRepo };
 
-import { sanitization, validation, toDateYYYYMMDD, toStringYYYYMMDD, parseJSON5, isNullOrWhiteSpace } from '../deps.js';
+import { sanitization, validation, stripTime, toStringYYYYMMDD, parseJSON5, isNullOrWhiteSpace } from '../deps.js';
 
 class DriversRepo {
   /**
@@ -117,7 +117,7 @@ class DriversRepo {
 
       // strip the time part from the date (if the date is != Date(0))
       // (check for `_inputItemClone?.date` because typescript can't understand that `sanitizeObj` sanitize invalid dates)
-      _inputItemClone.date = (_inputItemClone?.date && _inputItemClone?.date.getTime() !== 0) ? toDateYYYYMMDD(_inputItemClone?.date) : new Date(0);
+      _inputItemClone.date = (_inputItemClone?.date && _inputItemClone?.date.getTime() !== 0) ? stripTime(_inputItemClone?.date) : new Date(0);
 
       const _key = this.#driversRepoBuildKey({ scenario: _inputItemClone.scenario, unit: _inputItemClone.unit, name: _inputItemClone.name });
 
@@ -246,7 +246,7 @@ class DriversRepo {
     // invalid date will be set to new Date(0)
     _date = sanitization.sanitize({ value: _date, sanitization: sanitization.DATE_TYPE });
     // strip the time part from the date (if the date is != Date(0))
-    _date = (_date.getTime() !== 0) ? toDateYYYYMMDD(_date) : _date;
+    _date = (_date.getTime() !== 0) ? stripTime(_date) : _date;
 
     // if `endDate` is not defined, returns the value defined before or at `date`
     if (endDate === undefined || endDate === null) {
@@ -275,7 +275,7 @@ class DriversRepo {
       // invalid date will be set to new Date(0)
       let _endDate = sanitization.sanitize({ value: endDate, sanitization: sanitization.DATE_TYPE });
       // strip the time part from the date (if the date is != Date(0))
-      _endDate = (_endDate.getTime() !== 0) ? toDateYYYYMMDD(_endDate) : _endDate;
+      _endDate = (_endDate.getTime() !== 0) ? stripTime(_endDate) : _endDate;
       // if `endDate` is lower than `date`, throw
       if (_endDate.getTime() < _date.getTime())
         throw new Error(`Invalid parameters: 'endDate' (${_endDate}) is lower than 'date' (${_date})`);

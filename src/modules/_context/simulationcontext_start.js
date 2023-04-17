@@ -1,6 +1,25 @@
 export { SimulationContextStart };
 
 // TODO UPDATE
+
+class SimulationContextStart {
+  setSetting;
+  setDriver;
+  setTaskLock;
+
+  /**
+   * @param {Object} p
+   * @param {setSetting} p.setSetting
+   * @param {setDriver} p.setDriver
+   * @param {setTaskLock} p.setTaskLock
+   */
+  constructor ({ setSetting, setDriver, setTaskLock }) {
+    this.setSetting = setSetting;
+    this.setDriver = setDriver;
+    this.setTaskLock = setTaskLock;
+  }
+}
+
 /**
  Set drivers from an array of drivers dates and values
  @callback setSetting
@@ -33,20 +52,3 @@ export { SimulationContextStart };
  * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
  */
 
-class SimulationContextStart {
-  setSetting;
-  setDriver;
-  setTaskLock;
-
-  /**
-   * @param {Object} p
-   * @param {setSetting} p.setSetting
-   * @param {setDriver} p.setDriver
-   * @param {setTaskLock} p.setTaskLock
-   */
-  constructor ({ setSetting, setDriver, setTaskLock }) {
-    this.setSetting = setSetting;
-    this.setDriver = setDriver;
-    this.setTaskLock = setTaskLock;
-  }
-}

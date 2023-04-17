@@ -4,7 +4,7 @@ export { differenceInCalendarDays, differenceInUTCCalendarDays };
 export { excelSerialDateToUTCDate, excelSerialDateToDate };
 export { addMonths };
 export { areDatesEqual };
-export { toUTC, toStringYYYYMMDD, toDateYYYYMMDD };
+export { toUTC, toStringYYYYMMDD, stripTime };
 
 /**
  * Check whether the date is valid
@@ -373,6 +373,6 @@ function toStringYYYYMMDD (date) {
  * @param {Date} date
  * @returns {Date}
  */
-function toDateYYYYMMDD (date) {
+function stripTime (date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }

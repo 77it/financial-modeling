@@ -63,6 +63,8 @@ class Ledger {
   #decimalPlaces;
   /** @type {boolean} */
   #roundingModeIsRound;
+  /** @type {boolean} */
+  #isLocked;
 
   /**
    * @param {Object} p
@@ -73,7 +75,7 @@ class Ledger {
   constructor ({ appendTrnDump, decimalPlaces, roundingModeIsRound }) {
     const _p = sanitization.sanitizeObj({
       obj: { decimalPlaces, roundingModeIsRound },
-      sanitization: {decimalPlaces: sanitization.NUMBER_TYPE, roundingModeIsRound: sanitization.BOOLEAN_TYPE}
+      sanitization: { decimalPlaces: sanitization.NUMBER_TYPE, roundingModeIsRound: sanitization.BOOLEAN_TYPE }
     });
 
     // check if decimalPlaces is an integer, otherwise raise exception
@@ -91,9 +93,11 @@ class Ledger {
     this.#currentDebugModuleInfo = '';
     this.#decimalPlaces = _p.decimalPlaces;
     this.#roundingModeIsRound = _p.roundingModeIsRound;
+
+    this.lock();  // lock the ledger
   }
 
-  //#region public methods
+  //#region SET methods
   /** @param {string} debugModuleInfo */
   setDebugModuleInfo (debugModuleInfo) {
     this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
@@ -112,32 +116,35 @@ class Ledger {
     this.#today = today;
   }
 
+  /** Lock the ledger, so that no transaction can be added. */
+  lock() {
+    this.#isLocked = true;
+  }
+
+  /** Unlock the ledger, so that transactions can be added. */
+  unlock() {
+    this.#isLocked = false;
+  }
+  //#endregion SET methods
+
+  //#region QUERY methods
   /** @returns {boolean} */
   transactionIsOpen () {
     // returns true if #currentTransaction is not empty
     return this.#currentTransaction.length !== 0;
   }
 
-  /**
-   * BEWARE: this method must be called only by the engine, then must not be exported to modules.
-   * Commit the current transaction without any validation
-   */
-  forceCommitWithoutValidation () {
-    if (this.#currentTransaction.length === 0) return;
+  //#endregion QUERY methods
 
-    // convert this.#currentTransaction to SimObjectJsonDumpDto, then stringify
-    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObject.toJsonDumpDto());
-    this.#appendTrnDump(JSON.stringify(simObjectJsonDumpDtoArray));
-
-    // reset the current transaction
-    this.#currentTransaction = [];
-  }
-
+  //#region COMMIT methods
   /**
    * Commit the current transaction, if any.
    * @throws {Error} If the transaction is not valid, not squared, etc.
    */
   commit () {
+    if (this.#isLocked)
+      throw new Error('Ledger is locked');
+
     if (this.#currentTransaction.length === 0) return;
 
     // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
@@ -150,6 +157,27 @@ class Ledger {
     this.#currentTransaction = [];
   }
 
+  /**
+   * BEWARE: this method must be called only by the engine, then must not be exported to modules.
+   * Commit the current transaction without any validation
+   */
+  forceCommitWithoutValidation () {
+    if (this.#isLocked)
+      throw new Error('Ledger is locked');
+
+    if (this.#currentTransaction.length === 0) return;
+
+    // convert this.#currentTransaction to SimObjectJsonDumpDto, then stringify
+    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObject.toJsonDumpDto());
+    this.#appendTrnDump(JSON.stringify(simObjectJsonDumpDtoArray));
+
+    // reset the current transaction
+    this.#currentTransaction = [];
+  }
+
+  //#endregion COMMIT methods
+
+  //#region SIMOBJECT methods
   /**
    * Add a SimObject to the transaction
    @param {NewSimObjectDto} newSimObjectDto
@@ -247,13 +275,16 @@ class Ledger {
     this.#newDebugSimObject(SimObjectErrorDebugTypes_enum.DEBUG_ERROR, newDebugSimObjectDto);
   }
 
-  //#endregion public methods
+  //#endregion SIMOBJECT methods
 
   //#region private methods
   /** Add or update a SimObject in the repository and add it to the current transaction
    * @param {SimObject} simObject
    */
   #addOrUpdateSimObject (simObject) {
+    if (this.#isLocked)
+      throw new Error('Ledger is locked');
+
     // add the SimObject to the current transaction
     this.#currentTransaction.push(simObject);
 
