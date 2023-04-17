@@ -23,6 +23,7 @@ export const BIGINT_TYPE = 'bigint';
 export const BIGINT_NUMBER_TYPE = 'bigint_number';
 export const ARRAY_OF_BIGINT_TYPE = 'array[bigint]';
 export const ARRAY_OF_BIGINT_NUMBER_TYPE = 'array[bigint_number]';
+export const OPTIONAL = '?';
 //#endregion types
 
 export const NUMBER_TO_DATE_OPTS = {

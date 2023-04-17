@@ -106,7 +106,7 @@ class Ledger {
   /**
    * Set the debug flag to true.
    */
-  setDebugLevel () {
+  setDebug () {
     this.#debug = true;
   }
 
@@ -214,9 +214,9 @@ class Ledger {
       writingValue: _writingValue,
       alive: newSimObjectDto.alive,
       command__Id: this.#getNextCommandId().toString(),
-      command__DebugDescription: newSimObjectDto.command__DebugDescription,
+      command__DebugDescription: (newSimObjectDto.command__DebugDescription !== '') ? newSimObjectDto.command__DebugDescription : debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
-      commandGroup__DebugDescription: (newSimObjectDto.commandGroup__DebugDescription !== '') ? newSimObjectDto.commandGroup__DebugDescription : debug_moduleInfo,
+      commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: _principalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: _principalToPay_AmortizationSchedule__Principal,
@@ -348,9 +348,9 @@ class Ledger {
       writingValue: this.#toBigInt(0),
       alive: false,
       command__Id: this.#getNextCommandId().toString(),
-      command__DebugDescription: newDebugSimObjectDto.command__DebugDescription,
+      command__DebugDescription: (newDebugSimObjectDto.command__DebugDescription !== '') ? newDebugSimObjectDto.command__DebugDescription : debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
-      commandGroup__DebugDescription: (newDebugSimObjectDto.commandGroup__DebugDescription !== '') ? newDebugSimObjectDto.commandGroup__DebugDescription : debug_moduleInfo,
+      commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#toBigInt(0),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [],
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [],

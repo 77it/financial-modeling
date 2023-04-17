@@ -25,8 +25,10 @@ export class Module {
     this.#_startDate = undefined;
   }
 
+  /** @returns {boolean} */
   get alive () { return this.#_alive; }
 
+  /** @returns {undefined|Date} */
   get startDate () { return this.#_startDate; }
 
   /**

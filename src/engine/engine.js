@@ -36,6 +36,9 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
   let _ledger = new Ledger({ appendTrnDump, decimalPlaces, roundingModeIsRound });  // define _ledger here to be able to use it in the `finally` block
   /** @type {Date} */
   let _startDate = undefined;
+  /** @type {Date} */
+  let _endDate = undefined;
+
   try {
     validation.validateObj({
       obj: { modulesData, modules, appendTrnDump },
@@ -57,8 +60,6 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
       prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES
     });
     const _taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
-    // set _endDate (mutable) to 10 years from now, at the end of the year
-    let _endDate = new Date(new Date().getFullYear() + 10, 11, 31);
     //#endregion variables declaration
 
     //#region set contexts
@@ -69,27 +70,36 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
     });
     //#endregion set contexts
 
-    // TODO set _startDate/_endDate:
-    // 1. call Settings module, one time, to get _endDate
-    // 2. call all modules, one time
-    // 2.a if 1. didn't set _endDate, ask to each module the _endDate
-    // 2.b ask to each module the _startDate
-
-    // TODO NOW: call module one time to do something
-    //#region call all modules, one time
+    //#region calling `oneTimeBeforeTheSimulationStarts`
     for (let i = 0; i < _modulesArray.length; i++) {
-      if (_modulesArray[i].alive) {
-        _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
-        _settings.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
-        _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
-        _taskLocks.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
-        // TODO NOW NOW NOW NOW
-        ensureNoTransactionIsOpen({ ledger: _ledger, moduleData: _moduleDataArray[i] });
-      }
+      _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));  // set debugModuleInfo on ledger because it's used from newDebugErrorSimObject() called while catching errors
+      _settings.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
+      _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
+      _taskLocks.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
+
+      _modulesArray[i]?.oneTimeBeforeTheSimulationStarts({ moduleData: _moduleDataArray[i], simulationContextStart });
     }
-    //#endregion call all modules, one time
+    //#endregion calling `oneTimeBeforeTheSimulationStarts`
 
     setDebugLevel(_settings);
+
+    //#region set _startDate/_endDate
+    for (let i = 0; i < _modulesArray.length; i++) {
+      updateStartDate(_modulesArray[i]?.startDate());  // set or update _startDate
+    }
+
+    const _settingEndDate = sanitization.sanitize({
+      value: _settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE }),
+      sanitization: sanitization.DATE_TYPE + sanitization.OPTIONAL
+    });
+
+    // if _startDate is still undefined, set it to default value (Date(0))
+    if (_startDate == null) _startDate = new Date(0);
+
+    // if _settingEndDate is undefined, set it to default value (to 10 years from now, at the end of the year)
+    (_settingEndDate != null) ? _endDate = _settingEndDate : _endDate = new Date(new Date().getFullYear() + 10, 11, 31);
+
+    //#endregion set _startDate/_endDate
 
     // TODO NOW: call all modules, every day, until the end of the simulation
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
@@ -129,22 +139,21 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
   //#region local functions
   /**
    * Set/reset simulation start date; overwrite `_startDate` only if the new date is earlier than the current `_startDate` (or if `_startDate` is not set yet)
-   * @param {Object} p
-   * @param {Date} p.date - Simulation start date
+   * @param {undefined|Date} date - Simulation start date
    */
-  function updateStartDate ({ date }) {
+  function updateStartDate (date) {
     const _date = stripTime(sanitization.sanitize({
       value: date,
-      sanitization: sanitization.DATE_TYPE,
-      validate: true
+      sanitization: sanitization.DATE_TYPE + sanitization.OPTIONAL
     }));
+    if (_date == null)
+      return;
     if (_startDate == null)
       _startDate = _date;
     if (_date < _startDate)
       _startDate = _date;
   }
 
-// TODO update
   /** setDebugLevel, reading Settings.Simulation.$DEBUG_FLAG
    * @param {Settings} settings
    */
@@ -155,7 +164,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
     });
 
     if (_debugFlag === BOOLEAN_TRUE_STRING)
-      _ledger.setDebugLevel();
+      _ledger.setDebug();
   }
 
   /** Return debug info about the current module, to be used in the ledger, drivers and taskLocks
