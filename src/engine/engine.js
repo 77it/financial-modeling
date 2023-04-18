@@ -11,6 +11,7 @@ import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js'
 import * as SETTINGS_NAMES from '../settings/settings_names.js';
 import * as STD_NAMES from '../settings/standard_names.js';
 import { SimulationContextStart } from './context/simulationcontext_start.js';
+import { DEFAULT_NUMBER_OF_YEARS_FROM_TODAY } from '../settings/engine.js';
 
 // TODO
 /*
@@ -83,23 +84,22 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
 
     setDebugLevel(_settings);
 
-    //#region set _startDate/_endDate
+    //#region set `_startDate`/`_endDate`
+    // set _startDate to the earliest startDate of all modules
     for (let i = 0; i < _modulesArray.length; i++) {
       updateStartDate(_modulesArray[i]?.startDate());  // set or update _startDate
     }
-
+    // read `$$SIMULATION_END_DATE` from settings
     const _settingEndDate = sanitization.sanitize({
       value: _settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE }),
       sanitization: sanitization.DATE_TYPE + sanitization.OPTIONAL
     });
-
-    // if _startDate is still undefined, set it to default value (Date(0))
+    // if `_startDate` is still undefined, set it to default value (Date(0))
     if (_startDate == null) _startDate = new Date(0);
+    // if `_settingEndDate` is undefined, set `_endDate` to default value (to 10 years from now, at the end of the year)
+    (_settingEndDate != null) ? _endDate = _settingEndDate : _endDate = new Date(new Date().getFullYear() + DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31);
 
-    // if _settingEndDate is undefined, set it to default value (to 10 years from now, at the end of the year)
-    (_settingEndDate != null) ? _endDate = _settingEndDate : _endDate = new Date(new Date().getFullYear() + 10, 11, 31);
-
-    //#endregion set _startDate/_endDate
+    //#endregion set `_startDate`/`_endDate`
 
     // TODO NOW: call all modules, every day, until the end of the simulation
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)

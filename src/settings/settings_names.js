@@ -1,4 +1,4 @@
-// names of Settings; strings values will be used in the Excel/Source File
+// default names of Settings; strings values will be used in the Excel/Source File
 
 export { Simulation, Unit };
 

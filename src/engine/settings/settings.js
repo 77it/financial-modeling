@@ -8,6 +8,7 @@ class Settings {
   #driversRepo;
 
   /**
+   * Class to store and retrieve Simulation Settings
    * @param {Object} p
    * @param {string} p.baseScenario
    * @param {string} p.currentScenario
