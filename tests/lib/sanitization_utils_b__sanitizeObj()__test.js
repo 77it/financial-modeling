@@ -287,6 +287,14 @@ Deno.test('test sanitizeObj()', async (t) => {
       bigInt_number: BigInt(0)
     };
 
+    const expObj_0Str = {
+      str: '0',
+      num: 0,
+      date: new Date('2025-12-31'),
+      bigInt: BigInt(0),
+      bigInt_number: BigInt(0)
+    };
+
     const sanitization = {
       str: S.STRING_TYPE,
       num: S.NUMBER_TYPE,
@@ -332,6 +340,11 @@ Deno.test('test sanitizeObj()', async (t) => {
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
     assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
+
+    wrongValue = '0';
+    //@ts-ignore
+    objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0Str, replacer));
 
     wrongValue = "";
     //@ts-ignore
