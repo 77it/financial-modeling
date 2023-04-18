@@ -127,14 +127,17 @@ class Ledger {
   }
   //#endregion SET methods
 
-  //#region QUERY methods
+  //#region GET/QUERY methods
   /** @returns {boolean} */
   transactionIsOpen () {
     // returns true if #currentTransaction is not empty
     return this.#currentTransaction.length !== 0;
   }
 
-  //#endregion QUERY methods
+  get isLocked() {
+    return this.#isLocked;
+  }
+  //#endregion GET/QUERY methods
 
   //#region COMMIT methods
   /**
