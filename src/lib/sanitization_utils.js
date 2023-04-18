@@ -1,5 +1,6 @@
-export { sanitize, sanitizeObj, resetOptions };
+export { sanitize, sanitizeObj };
 
+import { isEmptyOrWhiteSpace } from './string_utils.js';
 import { parseJSON, excelSerialDateToDate, excelSerialDateToUTCDate } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
 import { deepFreeze } from './obj_utils.js';
@@ -33,18 +34,15 @@ export const NUMBER_TO_DATE_OPTS = {
 };
 deepFreeze(NUMBER_TO_DATE_OPTS);
 
-//#region module options
-export const OPTIONS = {};
-OPTIONS.NUMBER_TO_DATE = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
-OPTIONS.DATE_UTC = false;  // if true, dates are converted to UTC
+//#region defaults
+const DEFAULT__NUMBER_TO_DATE = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
+const DEFAULT__DATE_UTC = false;  // if true, dates are converted to UTC
+const DEFAULT_STRING = '';
+const DEFAULT_NUMBER = 0;
+const DEFAULT_DATE = new Date(0);
+const DEFAULT_BIGINT = BigInt(0);
 
-//#endregion module options
-
-/** Reset module options to default values */
-function resetOptions () {
-  OPTIONS.NUMBER_TO_DATE = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
-  OPTIONS.DATE_UTC = false;
-}
+//#endregion defaults
 
 /**
  * Sanitize value returning a sanitized value without modifying the original value.
@@ -57,17 +55,27 @@ function resetOptions () {
  * Any, object, function, class are ignored and returned as is.
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
- * String to dates are parsed as JSON to dates (in local time or UTC, depending on OPTIONS.DATE_UTC).
+ * String to dates are parsed as JSON to dates (in local time or UTC, depending on options.dateUTC).
  * Number to dates are considered Excel serial dates (stripping hours)
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
  * @param {*} p.sanitization - Sanitization type (string, array of strings, class or function, array containing a class or function)
+ * @param {*} [p.options] - { numberToDate: one of NUMBER_TO_DATE_OPTS = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE, dateUTC: boolean = false, defaultString: * = '', defaultNumber * = 0, defaultDate * = new Date(0), defaultBigInt: * = BigInt(0) }
  * @param {boolean} [p.validate=false] - Optional validation flag
  * @return {*} Sanitized value
  */
-function sanitize ({ value, sanitization, validate = false }) {
+function sanitize ({ value, sanitization, options, validate = false }) {
   if (typeof sanitization !== 'string' && !Array.isArray(sanitization) && typeof sanitization !== 'function')
     throw new Error(`'sanitization' parameter must be a string or an array`);
+
+  if (options == null) options = {};  // sanitize options, otherwise the following code won't work
+  const _NUMBER_TO_DATE = ('numberToDate' in options) ? options.numberToDate : DEFAULT__NUMBER_TO_DATE;
+  validateFunc({ value: _NUMBER_TO_DATE, validation: Object.values(NUMBER_TO_DATE_OPTS) });
+  const _DATE_UTC = ('dateUTC' in options) ? options.dateUTC : DEFAULT__DATE_UTC;
+  const _DEFAULT_STRING = ('defaultString' in options) ? options.defaultString : DEFAULT_STRING;
+  const _DEFAULT_NUMBER = ('defaultNumber' in options) ? options.defaultNumber : DEFAULT_NUMBER;
+  const _DEFAULT_DATE = ('defaultDate' in options) ? options.defaultDate : DEFAULT_DATE;
+  const _DEFAULT_BIGINT = ('defaultBigInt' in options) ? options.defaultBigInt : DEFAULT_BIGINT;
 
   if (Array.isArray(sanitization)) {
     let _value = value;
@@ -113,28 +121,34 @@ function sanitize ({ value, sanitization, validate = false }) {
       break;
     case STRING_TYPE:
       try {
-        if (value instanceof Date)
+        if (isEmptyOrWhiteSpace(value))  // sanitize whitespace string to empty string (not to `_DEFAULT_STRING`)
+          retValue = '';
+        else if (typeof value === 'string')
+          retValue = value;
+        else if (value instanceof Date)
           retValue = value.toISOString();
-        else if (typeof value === 'number' && isFinite(value))
+        else if ((typeof value === 'number' && isFinite(value)) || typeof value === 'bigint')
           retValue = String(value);
         else if (value === true)
           retValue = 'true';
         else if (value === false)
           retValue = 'false';
+        else if (value == null || isNaN(value) || typeof value === 'object' || typeof value === 'function')
+          retValue = _DEFAULT_STRING;
         else
-          // Set to '' when whitespaces, '', null, undefined, false, 0, -0, 0n, NaN.
-          // First condition to check truthy (not: false, 0, -0, 0n, "", null, undefined, and NaN)
-          // Second condition to check for whitespaces.
-          retValue = (value && value.toString().trim()) ? String(value) : '';
+          retValue = String(value);
       } catch (_) {
-        retValue = '';
+        retValue = _DEFAULT_STRING;
       }
       break;
     case NUMBER_TYPE:
       try {
-        retValue = isFinite(Number(value)) ? Number(value) : 0;
+        if (value == null)
+          retValue = _DEFAULT_NUMBER;
+        else
+          retValue = isFinite(Number(value)) ? Number(value) : _DEFAULT_NUMBER;
       } catch (_) {
-        retValue = 0;
+        retValue = _DEFAULT_NUMBER;
       }
       break;
     case BOOLEAN_TYPE:
@@ -143,24 +157,26 @@ function sanitize ({ value, sanitization, validate = false }) {
     case DATE_TYPE:
       try {
         let _value = value;
-        if (typeof value === 'string')  // if `value` is string, replace it with a date from a parsed string; date in local time or UTC
-          _value = parseJSON(value, { asUTC: OPTIONS.DATE_UTC });
-        else if (typeof value === 'number')  // if `value` is number, convert it as Excel serial date to date in local time or UTC
-        {
-          if (OPTIONS.NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE) {
-            if (OPTIONS.DATE_UTC)
-              _value = excelSerialDateToUTCDate(value);
+        if (typeof value === 'string') {  // if `value` is string, replace it with a date from a parsed string; date in local time or UTC
+          _value = parseJSON(value, { asUTC: _DATE_UTC });
+        } else if (typeof value === 'number' || typeof value === 'bigint') {  // if `value` is number or BigInt, convert it as Excel serial date to date in local time or UTC
+          const _numValue = Number(value);
+          if (_NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE) {
+            if (_DATE_UTC)
+              _value = excelSerialDateToUTCDate(_numValue);
             else
-              _value = excelSerialDateToDate(value);
-          } else if (OPTIONS.NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE)
-            _value = new Date(value);
-          else
-            _value = new Date(0);
+              _value = excelSerialDateToDate(_numValue);
+          } else if (_NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE)
+            _value = new Date(_value);
+          else  // no conversion
+            _value = _DEFAULT_DATE;
+        } else if (value == null) {
+          _value = _DEFAULT_DATE;
         }
         retValue = isNaN(new Date(_value).getTime())
-          ? new Date(0) : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJSON` can return a not valid date
+          ? _DEFAULT_DATE : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJSON` can return a not valid date
       } catch (_) {
-        retValue = new Date(0);
+        retValue = _DEFAULT_DATE;
       }
       break;
     case ARRAY_TYPE:
@@ -205,7 +221,7 @@ function sanitize ({ value, sanitization, validate = false }) {
       try {
         retValue = (typeof value === 'bigint') ? value : BigInt(value);
       } catch (_) {
-        retValue = BigInt(0);
+        retValue = _DEFAULT_BIGINT;
       }
       break;
     }
@@ -213,7 +229,7 @@ function sanitize ({ value, sanitization, validate = false }) {
       try {
         retValue = (typeof value === 'bigint') ? value : BigInt(value);
       } catch (_) {
-        retValue = BigInt(0);
+        retValue = _DEFAULT_BIGINT;
       }
       break;
     }
@@ -244,10 +260,10 @@ function sanitize ({ value, sanitization, validate = false }) {
    */
   function _sanitizeArray ({ array, sanitization }) {
     if (!Array.isArray(array))  // if `value` is not an array return a new array with `value` as first element
-      return [sanitize({ value: array, sanitization: sanitization })];
+      return [sanitize({ value: array, sanitization: sanitization, options: options })];
 
     for (let i = 0; i < array.length; i++) {  // sanitize every element of the array
-      array[i] = sanitize({ value: array[i], sanitization: sanitization });
+      array[i] = sanitize({ value: array[i], sanitization: sanitization, options: options });
     }
 
     return array;
@@ -268,10 +284,11 @@ function sanitize ({ value, sanitization, validate = false }) {
  * @param {Object} p
  * @param {*} p.obj - Object to sanitize
  * @param {*} p.sanitization - Sanitization object {key1: 'string', key2: 'number?'}
+ * @param {*} [p.options] - { numberToDate: one of NUMBER_TO_DATE_OPTS = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE, dateUTC: boolean = false, defaultString: * = '', defaultNumber * = 0, defaultDate * = new Date(0), defaultBigInt: * = BigInt(0) }
  * @param {boolean} [p.validate=false] - Optional validation flag
  * @return {*} Sanitized object
  */
-function sanitizeObj ({ obj, sanitization, validate = false }) {
+function sanitizeObj ({ obj, sanitization, options, validate = false }) {
   let retValue;
 
   if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
@@ -311,7 +328,7 @@ function sanitizeObj ({ obj, sanitization, validate = false }) {
       if (!(key in _obj) && optionalSanitization)
         continue;
 
-      _obj[key] = sanitize({ value: _obj[key], sanitization: sanitization[key] });
+      _obj[key] = sanitize({ value: _obj[key], sanitization: sanitization[key], options: options });
     }
     return _obj;
   }

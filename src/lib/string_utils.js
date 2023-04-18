@@ -1,4 +1,4 @@
-export { isNullOrWhiteSpace, lowerCaseCompare, BOOLEAN_TRUE_STRING, BOOLEAN_FALSE_STRING };
+export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, BOOLEAN_TRUE_STRING, BOOLEAN_FALSE_STRING };
 
 const BOOLEAN_TRUE_STRING = 'true';
 const BOOLEAN_FALSE_STRING = 'false';
@@ -11,6 +11,21 @@ const BOOLEAN_FALSE_STRING = 'false';
 function isNullOrWhiteSpace (value) {
   try {
     return value === null || value === undefined || value === '' || value.toString().trim() === '';
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Check if a value is empty string or whitespace
+ * @param {*} value
+ * @returns {boolean}
+ */
+function isEmptyOrWhiteSpace  (value) {
+  try {
+    if (typeof value !== 'string')
+      return false;
+    return value === '' || value.toString().trim() === '';
   } catch (e) {
     return false;
   }

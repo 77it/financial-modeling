@@ -1,4 +1,4 @@
-import {isNullOrWhiteSpace, lowerCaseCompare} from '../../src/lib/string_utils.js';
+import {isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare} from '../../src/lib/string_utils.js';
 
 import {assert, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
 
@@ -14,6 +14,20 @@ Deno.test('test isNullOrWhiteSpace()', (t) => {
     assertFalse(isNullOrWhiteSpace(Symbol()));
     class C {}
     assertFalse(isNullOrWhiteSpace(new C()));
+});
+
+Deno.test('test isEmptyOrWhiteSpace()', (t) => {
+    assertFalse(isEmptyOrWhiteSpace(null));
+    assertFalse(isEmptyOrWhiteSpace(undefined));
+    assert(isEmptyOrWhiteSpace(''));
+    assert(isEmptyOrWhiteSpace('     '));
+
+    assertFalse(isEmptyOrWhiteSpace('a'));
+    assertFalse(isEmptyOrWhiteSpace(99));
+    assertFalse(isEmptyOrWhiteSpace({}));
+    assertFalse(isEmptyOrWhiteSpace(Symbol()));
+    class C {}
+    assertFalse(isEmptyOrWhiteSpace(new C()));
 });
 
 Deno.test('test lowerCaseCompare()', (t) => {
