@@ -1,4 +1,4 @@
-// engine settings
+// engine config
 
 export { DEFAULT_NUMBER_OF_YEARS_FROM_TODAY };
 

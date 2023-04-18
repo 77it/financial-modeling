@@ -1,7 +1,7 @@
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../deps.js';
 
 import { TaskLocks } from '../../../src/engine/tasklocks/tasklocks.js';
-import * as STD_NAMES from '../../../src/settings/standard_names.js';
+import * as STD_NAMES from '../../../src/config/standard_names.js';
 
 Deno.test('TaskLocks tests', async () => {
   const taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
