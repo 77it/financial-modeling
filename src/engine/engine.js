@@ -31,9 +31,10 @@ before calling a module method checks if the method is defined, otherwise it ski
  * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
  * @param {number} p.decimalPlaces - Function to append the transactions dump
  * @param {boolean} p.roundingModeIsRound - Rounding mode to use when storing numbers in the ledger; if true, use Math.round(), otherwise use Math.floor()
+ * @param {boolean} [p.debug=false] - Optional debug flag
  * @return {Promise<Result>}
  */
-async function engine ({ modulesData, modules, scenarioName, appendTrnDump, decimalPlaces, roundingModeIsRound }) {
+async function engine ({ modulesData, modules, scenarioName, appendTrnDump, decimalPlaces, roundingModeIsRound, debug }) {
   /** @type {Ledger} */
   let _ledger = new Ledger({ appendTrnDump, decimalPlaces, roundingModeIsRound });  // define _ledger here to be able to use it in the `finally` block
   /** @type {Date} */
@@ -83,7 +84,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
     }
     //#endregion calling `oneTimeBeforeTheSimulationStarts`
 
-    setDebugLevel(_settings);
+    setLedgerDebugLevel({ debugParameter: debug, settings: _settings });
 
     //#region set `_startDate`/`_endDate`
     // set _startDate to the earliest startDate of all modules
@@ -155,16 +156,19 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
       _startDate = _date;
   }
 
-  /** setDebugLevel, reading Settings.Simulation.$DEBUG_FLAG
-   * @param {Settings} settings
+  /** set Ledger debug level, if engine `debug` parameter or Settings.Simulation.$DEBUG_FLAG are true
+   * @param {Object} p
+   * @param {undefined|boolean} p.debugParameter
+   * @param {Settings} p.settings
    */
-  function setDebugLevel (settings) {
-    const _debugFlag = sanitization.sanitize({
+  function setLedgerDebugLevel ({ debugParameter, settings }) {
+    const _debugFlagFromParameter = sanitization.sanitize({ value: debugParameter, sanitization: sanitization.STRING_TYPE });
+    const _debugFlagFromSettings = sanitization.sanitize({
       value: settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
       sanitization: sanitization.STRING_TYPE
     });
 
-    if (_debugFlag === BOOLEAN_TRUE_STRING)
+    if (_debugFlagFromParameter === BOOLEAN_TRUE_STRING | _debugFlagFromSettings === BOOLEAN_TRUE_STRING)
       _ledger.setDebug();
   }
 

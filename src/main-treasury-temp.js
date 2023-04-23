@@ -120,7 +120,8 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
         scenarioName: _scenario,
         appendTrnDump: _appendTrnDump,
         decimalPlaces: 4,
-        roundingModeIsRound: true
+        roundingModeIsRound: true,
+        debug: debug
       });
 
       if (!_engine_result.success) {
