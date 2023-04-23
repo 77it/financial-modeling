@@ -60,7 +60,13 @@ const DEFAULT_BIGINT = BigInt(0);
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
  * @param {*} p.sanitization - Sanitization type (string, array of strings, class or function, array containing a class or function)
- * @param {*} [p.options] - { numberToDate: one of NUMBER_TO_DATE_OPTS = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE, dateUTC: boolean = false, defaultString: * = '', defaultNumber * = 0, defaultDate * = new Date(0), defaultBigInt: * = BigInt(0) }
+ * @param {Object} [p.options]
+ * @param {string} [p.options.numberToDate=NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
+ * @param {boolean} [p.options.dateUTC=false]
+ * @param {*} [p.options.defaultString='']
+ * @param {*} [p.options.defaultNumber=0]
+ * @param {*} [p.options.defaultDate=new Date(0)]
+ * @param {*} [p.options.defaultBigInt=BigInt(0)]
  * @param {boolean} [p.validate=false] - Optional validation flag
  * @return {*} Sanitized value
  */
@@ -71,7 +77,8 @@ function sanitize ({ value, sanitization, options, validate = false }) {
   if (options == null) options = {};  // sanitize options, otherwise the following code won't work
   const _NUMBER_TO_DATE = ('numberToDate' in options) ? options.numberToDate : DEFAULT__NUMBER_TO_DATE;
   validateFunc({ value: _NUMBER_TO_DATE, validation: Object.values(NUMBER_TO_DATE_OPTS) });
-  const _DATE_UTC = ('dateUTC' in options) ? options.dateUTC : DEFAULT__DATE_UTC;
+  /** @type {boolean} */
+  const _DATE_UTC = options?.dateUTC ?? DEFAULT__DATE_UTC;
   const _DEFAULT_STRING = ('defaultString' in options) ? options.defaultString : DEFAULT_STRING;
   const _DEFAULT_NUMBER = ('defaultNumber' in options) ? options.defaultNumber : DEFAULT_NUMBER;
   const _DEFAULT_DATE = ('defaultDate' in options) ? options.defaultDate : DEFAULT_DATE;
@@ -284,7 +291,13 @@ function sanitize ({ value, sanitization, options, validate = false }) {
  * @param {Object} p
  * @param {*} p.obj - Object to sanitize
  * @param {*} p.sanitization - Sanitization object {key1: 'string', key2: 'number?'}
- * @param {*} [p.options] - { numberToDate: one of NUMBER_TO_DATE_OPTS = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE, dateUTC: boolean = false, defaultString: * = '', defaultNumber * = 0, defaultDate * = new Date(0), defaultBigInt: * = BigInt(0) }
+ * @param {Object} [p.options]
+ * @param {string} [p.options.numberToDate=NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
+ * @param {boolean} [p.options.dateUTC=false]
+ * @param {*} [p.options.defaultString='']
+ * @param {*} [p.options.defaultNumber=0]
+ * @param {*} [p.options.defaultDate=new Date(0)]
+ * @param {*} [p.options.defaultBigInt=BigInt(0)]
  * @param {boolean} [p.validate=false] - Optional validation flag
  * @return {*} Sanitized object
  */
