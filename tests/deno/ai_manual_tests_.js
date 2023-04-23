@@ -1,6 +1,6 @@
 // run with `deno test --allow-env --allow-read --allow-net`
 
-import { text_davinci_003__single_message, gpt__chat, TEXT_DAVINCI_003__MAX_TOKENS, GPT_3_5_TURBO__MODEL, GPT_4__MODEL } from '../../src/deno/ai.js';
+import { text_davinci_003__single_message, gpt__chat, TEXT_DAVINCI__MODEL, TEXT_DAVINCI_003__MAX_TOKENS, GPT_3_5_TURBO__MODEL, GPT_4__MODEL } from '../../src/deno/ai.js';
 
 import { toStringYYYYMMDD } from '../../src/lib/date_utils.js';
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../deps.js';
@@ -44,6 +44,7 @@ Deno.test('text-davinci-003 tests', async () => {
   const prompt = `${system_prefix}${financial_forecast__system_prompt}${forecast_prefix}${forecast_type}`;
 
   const model_input = {
+    model: TEXT_DAVINCI__MODEL,
     prompt: prompt,
     temperature: 0.2,
     max_tokens: TEXT_DAVINCI_003__MAX_TOKENS
