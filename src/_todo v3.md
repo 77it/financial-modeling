@@ -41,9 +41,18 @@ Non tutte le taskLocks vengono chiamate da modulesRunner:
 * altre ancora possono essere usate solo come traccia di qualche funzionalità che non deve essere portata avanti da altri (un modulo che vuole offrire una funzionalità cerca di aprire una const; se è già aperta va in errore e non fa quella azione che avrebbe voluto fare - eventualmente loggando un warning)
 
 
-# CCN module (nome provvisorio)
-
+# NetWorkingCapital module (NWC, CCN)
+  
 Moduli che scaricano i crediti/debiti commerciali a fine giornata appena si manifestano, o ne impostano il valore perché sia sempre una certa soglia (in relazione ai ricavi/costi, ad esempio).
+
+Sono una categoria di crediti/debiti/magazzino, identificata con nomi specifici: "floating credits", "floating debts", "floating inventories".
+
+Il modulo se trova questi nomi li elabora considerandoli legati al valore di ricavi/crediti, acquisti+servizi/debiti, ricavi/magazzino.
+
+Ogni giorno si leggono i costi e ricavi del giorno, creano un anno modello con n/365|366 giorni e un pezzo del nuovo e un pezzo del vecchio, e determinano quanti crediti e debiti e magazzino sono giusti muovendoli di conseguenza.
+Se l'anno bisestile è quello del bilancio chiuso è irrilevante, la proporzione di crediti/magazzino/debiti è sempre crediti/ricavi, che sia su 365 o 366 giorni.
+Il modello è rolling, nel senso che ogni giorno si perde un pezzo del precedente e si prende un pezzo del nuovo anno.
+Se tra data inizio e data fine è presente un anno bisestile la base è 366 giorni, che scorrendo diventa 365 appena ci si lascia alle spalle febbraio.
 
 
 # RATE_EURIBOR constant
