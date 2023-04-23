@@ -2,7 +2,7 @@ export { engine };
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as STD_NAMES from '../config/standard_names.js';
-import { DEFAULT_NUMBER_OF_YEARS_FROM_TODAY } from '../config/engine.js';
+import * as ENGINE_CFG from '../config/engine.js';
 
 import { validation, sanitization, stripTime, Result, BOOLEAN_TRUE_STRING } from '../deps.js';
 import { Ledger } from './ledger/ledger.js';
@@ -29,14 +29,12 @@ before calling a module method checks if the method is defined, otherwise it ski
  * @param {Module[]} p.modules - Array of module classes, in the same order of modulesData
  * @param {string} p.scenarioName - Scenario name
  * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
- * @param {number} p.decimalPlaces - Function to append the transactions dump
- * @param {boolean} p.roundingModeIsRound - Rounding mode to use when storing numbers in the ledger; if true, use Math.round(), otherwise use Math.floor()
  * @param {boolean} [p.debug=false] - Optional debug flag
  * @return {Promise<Result>}
  */
-async function engine ({ modulesData, modules, scenarioName, appendTrnDump, decimalPlaces, roundingModeIsRound, debug }) {
+async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debug }) {
   /** @type {Ledger} */
-  let _ledger = new Ledger({ appendTrnDump, decimalPlaces, roundingModeIsRound });  // define _ledger here to be able to use it in the `finally` block
+  let _ledger = new Ledger({ appendTrnDump, decimalPlaces: ENGINE_CFG.DECIMAL_PLACES, roundingModeIsRound: ENGINE_CFG.ROUNDING_MODE });  // define _ledger here to be able to use it in the `finally` block
   /** @type {Date} */
   let _startDate = undefined;
   /** @type {Date} */
@@ -99,7 +97,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, deci
     // if `_startDate` is still undefined, set it to default value (Date(0))
     if (_startDate == null) _startDate = new Date(0);
     // if `_settingEndDate` is undefined, set `_endDate` to default value (to 10 years from now, at the end of the year)
-    (_settingEndDate != null) ? _endDate = _settingEndDate : _endDate = new Date(new Date().getFullYear() + DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31);
+    (_settingEndDate != null) ? _endDate = _settingEndDate : _endDate = new Date(new Date().getFullYear() + ENGINE_CFG.DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31);
 
     //#endregion set `_startDate`/`_endDate`
 

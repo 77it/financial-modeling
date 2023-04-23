@@ -119,8 +119,6 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
         modules: _modulesArray,
         scenarioName: _scenario,
         appendTrnDump: _appendTrnDump,
-        decimalPlaces: 4,
-        roundingModeIsRound: true,
         debug: debug
       });
 
