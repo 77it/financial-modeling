@@ -5,23 +5,15 @@ import * as STD_NAMES from '../config/standard_names.js';
 import * as CFG from '../config/engine.js';
 
 import { validation, sanitization, stripTime, Result, BOOLEAN_TRUE_STRING } from '../deps.js';
+
 import { Ledger } from './ledger/ledger.js';
+import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
 import { ModuleData } from './modules/module_data.js';
 import { Module } from '../modules/_sample_module.js';
 import { Drivers } from './drivers/drivers.js';
 import { Settings } from './settings/settings.js';
 import { TaskLocks } from './tasklocks/tasklocks.js';
-import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
 import { SimulationContextStart } from './context/simulationcontext_start.js';
-
-// TODO
-/*
-# closed/expired modules
-There must be a way to tell - by the modules - to engine.js that a module is no longer alive and should not be called anymore.
-
-# modules with undefined methods
-before calling a module method checks if the method is defined, otherwise it skips the call
- */
 
 /**
  * @param {Object} p

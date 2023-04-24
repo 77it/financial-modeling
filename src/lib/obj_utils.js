@@ -2,7 +2,7 @@ export { deepFreeze };
 
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 /**
- * Deep freeze an object (recursively freeze all properties).
+ * Deep freeze an object or an array (recursively freeze all properties, also nested objects and arrays).
  * @param {*} object
  * @returns {*}
  */
