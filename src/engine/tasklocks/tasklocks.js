@@ -82,6 +82,25 @@ class TaskLocks {
   }
 
   /**
+   * Get a list of units where the TaskLock is defined
+   * @param {Object} p
+   * @param {string} p.name - TaskLock name
+   * @return {string[]} list of units where the TaskLock is defined
+   */
+  listUnit ({ name }) {
+    const _ret = [];
+
+    // loop all keys of the #taskLocksRepo, deserialize the key, if the name matches add the unit to the return array
+    for (const _key of this.#taskLocksRepo.keys()) {
+      const _keyObj = JSON.parse(_key);
+      if (_keyObj?.name === name)
+        _ret.push(_keyObj.unit);
+    }
+
+    return _ret;
+  }
+
+  /**
    * Check if a TaskLock is defined
    * @param {Object} p
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor

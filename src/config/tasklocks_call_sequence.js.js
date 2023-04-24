@@ -1,17 +1,29 @@
-export {taskLocksBeforeDailyModeling, taskLocksAfterDailyModeling, taskLocksAfterSimulationEnds}
+export { taskLocksBeforeDailyModeling, taskLocksAfterDailyModeling, taskLocksAfterSimulationEnds };
 
-const taskLocksBeforeDailyModeling = [...new Set([
-  // write here the names of the TaskLocks from `TaskLocks_Names`
-])];
+import { TaskLocks_Names } from './tasklocks_names.js';
+
+/** @type {taskLocksRawCallSequenceEntry[]} */
+const taskLocksBeforeDailyModeling = [
+  { isSimulation: false, name: TaskLocks_Names.SIMULATION__EBITDA__DAILY_INFO },
+];
 Object.freeze(taskLocksBeforeDailyModeling);
 
-const taskLocksAfterDailyModeling = [...new Set([
-  // write here the names of the TaskLocks from `TaskLocks_Names`
-])];
+/** @type {taskLocksRawCallSequenceEntry[]} */
+const taskLocksAfterDailyModeling = [
+  { isSimulation: true, name: TaskLocks_Names.SIMULATION__INTERCOMPANY_CASHMANAGER__DAILY_ACTIVITY },
+  { isSimulation: false, name: TaskLocks_Names.UNIT__NWC__DAILY_ACTIVITY },
+  { isSimulation: false, name: TaskLocks_Names.UNIT__TAXES_PAYMENT__DAILY_ACTIVITY },
+  { isSimulation: false, name: TaskLocks_Names.UNIT__TREASURY__DAILY_ACTIVITY },
+  { isSimulation: false, name: TaskLocks_Names.UNIT__TAXES_COMPUTATION__DAILY_ACTIVITY },
+];
 Object.freeze(taskLocksAfterDailyModeling);
 
-const taskLocksAfterSimulationEnds = [...new Set([
-  // write here the names of the TaskLocks from `TaskLocks_Names`
-])];
+/** @type {taskLocksRawCallSequenceEntry[]} */
+const taskLocksAfterSimulationEnds = [];
 Object.freeze(taskLocksAfterSimulationEnds);
 
+/**
+ @typedef {Object} taskLocksRawCallSequenceEntry
+ @property {boolean} isSimulation
+ @property {string} name
+ */

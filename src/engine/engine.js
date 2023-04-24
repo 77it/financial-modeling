@@ -14,6 +14,7 @@ import { Drivers } from './drivers/drivers.js';
 import { Settings } from './settings/settings.js';
 import { TaskLocks } from './tasklocks/tasklocks.js';
 import { SimulationContextStart } from './context/simulationcontext_start.js';
+import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
 
 /**
  * @param {Object} p
@@ -27,6 +28,8 @@ import { SimulationContextStart } from './context/simulationcontext_start.js';
 async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debug }) {
   /** @type {Ledger} */
   let _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });  // define _ledger here to be able to use it in the `finally` block
+  /** @type {TaskLocks} */
+  const _taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
   /** @type {Date} */
   let _startDate = undefined;
   /** @type {Date} */
@@ -52,7 +55,6 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
       prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES
     });
-    const _taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
     //#endregion variables declaration
 
     //#region set contexts
@@ -62,6 +64,9 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       setTaskLock: _taskLocks.set
     });
     //#endregion set contexts
+
+    // lock Ledger
+    _ledger.lock();
 
     //#region calling `oneTimeBeforeTheSimulationStarts`
     for (let i = 0; i < _modulesArray.length; i++) {
@@ -93,13 +98,26 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
 
     //#endregion set `_startDate`/`_endDate`
 
-    // TODO NOW: call all modules, every day, until the end of the simulation
+    //#region build taskLocks sequence arrays
+    const _taskLocksBeforeDailyModeling = buildTaskLocksSequenceArray(TASKLOCKS_SEQUENCE.taskLocksBeforeDailyModeling);
+    const _taskLocksAfterDailyModeling = buildTaskLocksSequenceArray(TASKLOCKS_SEQUENCE.taskLocksAfterDailyModeling);
+    const _taskLocksAfterSimulationEnds = buildTaskLocksSequenceArray(TASKLOCKS_SEQUENCE.taskLocksAfterSimulationEnds);
+    //#endregion build taskLocks sequence arrays
+
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
     for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
       _ledger.setToday(date);
       _settings.setToday(date);
       _drivers.setToday(date);
 
+      //#region calling `taskLocksBeforeDailyModeling`
+      _taskLocksBeforeDailyModeling.forEach(taskLockEntry => {
+        _ledger.setDebugModuleInfo(taskLockEntry.debugModuleInfo);
+        taskLockEntry.taskLock();  // call taskLock
+      });
+      //#endregion calling `taskLocksBeforeDailyModeling`
+
+      //#region calling XXX
       for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
           _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
@@ -107,6 +125,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
           ensureNoTransactionIsOpen({ ledger: _ledger, moduleData: _moduleDataArray[i] });
         }
       }
+      //#endregion calling XXX
     }
     //#endregion call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
 
@@ -179,6 +198,32 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       throw new Error(`after calling module ${moduleData.moduleName} ${moduleData.moduleEngineURI}  a transaction is open`);
   }
 
+  /** Build an array of taskLocks sequence entries
+   * @param {taskLocksRawCallSequenceEntry[]} taskLocksRawCallSequence
+   * @return {taskLocksCallSequenceEntry[]}
+   */
+  function buildTaskLocksSequenceArray (taskLocksRawCallSequence) {
+    /** @type {taskLocksCallSequenceEntry[]} */
+    const _taskLocksSequenceArray = [];
+
+    // loop `taskLocksRawCallSequence`
+    for (let i = 0; i < taskLocksRawCallSequence.length; i++) {
+      const _isSimulation = sanitization.sanitize({ value: p.isSimulation, sanitization: sanitization.BOOLEAN_TYPE });
+      const _name = sanitization.sanitize({ value: p.name, sanitization: sanitization.STRING_TYPE });
+
+      if (_isSimulation) {
+        if (_taskLocks.isDefined({ name: _name }))
+          _taskLocksSequenceArray.push({ taskLock: _taskLocks.get({ name: _name }), debugModuleInfo: _taskLocks.getDebugModuleInfo({ name: _name }) });
+      } else {  // if not simulation, search in all Units
+        // query TaskLocks to see in which Units the taskLock name is defined, then loop the Units, query TaskLocks again to get the taskLock & debugModuleInfo and push them in the array
+        _taskLocks.listUnit({ name: _name }).forEach(unit => {
+          _taskLocksSequenceArray.push({ taskLock: _taskLocks.get({ name: _name, unit }), debugModuleInfo: _taskLocks.getDebugModuleInfo({ name: _name, unit }) });
+        });
+      }
+    }
+    return _taskLocksSequenceArray;
+  }
+
   //#endregion local functions
 }
 
@@ -193,5 +238,17 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
  * @callback modulesLoader_Resolve
  * @param {string} module - The module to resolve
  * @return {string[]} List of URL from which import a module
+ */
+
+/**
+ @typedef {Object} taskLocksCallSequenceEntry
+ @property {*} taskLock
+ @property {string} debugModuleInfo
+ */
+
+/**
+ @typedef {Object} taskLocksRawCallSequenceEntry
+ @property {boolean} isSimulation
+ @property {string} name
  */
 //#endregion types definitions
