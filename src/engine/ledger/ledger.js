@@ -100,7 +100,8 @@ class Ledger {
   }
 
   //#region SET methods
-  /** @param {string} debugModuleInfo */
+  /** Set the debug module info, used when debug mode is on.
+   * @param {string} debugModuleInfo */
   setDebugModuleInfo (debugModuleInfo) {
     this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
   }
@@ -136,6 +137,7 @@ class Ledger {
     return this.#currentTransaction.length !== 0;
   }
 
+  /** @returns {boolean} */
   get isLocked() {
     return this.#isLocked;
   }
@@ -185,7 +187,7 @@ class Ledger {
   //#region SIMOBJECT methods
   /**
    * Add a SimObject to the transaction
-   @param {NewSimObjectDto} newSimObjectDto
+   * @param {NewSimObjectDto} newSimObjectDto
    */
   newSimObject (newSimObjectDto) {
     sanitization.sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Sanitization });
@@ -258,12 +260,13 @@ class Ledger {
     this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_WARNING, newDebugSimObjectDto);
   }
 
-  /** Add a new transaction with a DEBUG_WARNING SimObject, if the input string or array of strings is not empty
+  /**
+   * Add a DEBUG_WARNING SimObject to the transaction if the input string or array of strings is not empty
    @param {Object} p
    @param {string} p.title
    @param {string|string[]} p.message
    */
-  newDebugWarningTrn ({ title, message }) {
+  newDebugWarningSimObjectFromErrorString ({ title, message }) {
     if (Array.isArray(message) && message.length === 0) return;
     if (isNullOrWhiteSpace(message)) return;
 
@@ -273,6 +276,7 @@ class Ledger {
   }
 
   /**
+   * BEWARE: this method must be called only by the engine, then must not be exported to modules.
    * Add a DEBUG_ERROR SimObject to the transaction
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */

@@ -42,7 +42,6 @@ class Settings {
    * Set Settings from an array of scenarios, units, names, dates and value.
    * Settings can be immutable and mutable.
    * If a date is already present, the second one will be ignored.
-   *
    * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
    * scenario: optional; null, undefined or '' means `currentScenario` from constructor
    * unit: Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor

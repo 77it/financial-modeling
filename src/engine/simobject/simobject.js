@@ -45,7 +45,7 @@ class SimObject {
   #versionId;
   #extras;
 
-  //#region getters, cloning properties with mutable structures
+  //#region getters, cloning properties made of mutable objects
   get decimalPlaces() { return this.#decimalPlaces; }
   get type() { return this.#type; }
   get id() { return this.#id; }
