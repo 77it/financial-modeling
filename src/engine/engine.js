@@ -28,12 +28,6 @@ import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
 async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debug }) {
   /** @type {Ledger} */
   let _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });  // define _ledger here to be able to use it in the `finally` block
-  /** @type {TaskLocks} */
-  const _taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
-  /** @type {Date} */
-  let _startDate = undefined;
-  /** @type {Date} */
-  let _endDate = undefined;
 
   try {
     validation.validateObj({
@@ -42,9 +36,13 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     });
     if (modulesData.length !== modules.length) throw new Error('modulesData.length !== modules.length');
 
+    //#region variables declaration
+    /** @type {Date} */
+    let _startDate = undefined;
+    /** @type {Date} */
+    let _endDate = undefined;
     const _moduleDataArray = modulesData;
     const _modulesArray = modules;
-    //#region variables declaration
     const _settings = new Settings({
       currentScenario: scenarioName, baseScenario: STD_NAMES.Scenario.BASE, defaultUnit: STD_NAMES.Simulation.NAME,
       prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
@@ -55,6 +53,9 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
       prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES
     });
+
+    /** @type {TaskLocks} */
+    const _taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
     //#endregion variables declaration
 
     //#region set contexts
@@ -65,8 +66,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     });
     //#endregion set contexts
 
-    // lock Ledger
-    _ledger.lock();
+    _ledger.lock();  // lock Ledger before starting the Simulation
 
     //#region calling `oneTimeBeforeTheSimulationStarts`
     for (let i = 0; i < _modulesArray.length; i++) {
@@ -84,7 +84,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     //#region set `_startDate`/`_endDate`
     // set _startDate to the earliest startDate of all modules
     for (let i = 0; i < _modulesArray.length; i++) {
-      updateStartDate(_modulesArray[i]?.startDate());  // set or update _startDate
+      _startDate = updateStartDate( {actualDate: _startDate, newDate: _modulesArray[i]?.startDate()} );  // set or update _startDate
     }
     // read `$$SIMULATION_END_DATE` from settings
     const _settingEndDate = sanitization.sanitize({
@@ -106,6 +106,8 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
 
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
     for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
+      _ledger.lock();  // lock Ledger
+
       _ledger.setToday(date);
       _settings.setToday(date);
       _drivers.setToday(date);
@@ -132,6 +134,54 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     console.dir(_moduleDataArray); // todo TOREMOVE
     throw new Error('not implemented');
 
+    //#region local function inside try() section
+
+    /**
+     * Set/reset simulation start date; overwrite `_startDate` only if the new date is earlier than the current `_startDate` (or if `_startDate` is not set yet)
+     * @param {Object} p
+     * @param {undefined|Date} p.actualDate - Actual simulation start date
+     * @param {undefined|Date} p.newDate - New simulation start date
+     * @return {Date} - Return the updated simulation start date
+     */
+    function updateStartDate ({ actualDate, newDate }) {
+      const _newDate = stripTime(sanitization.sanitize({
+        value: newDate,
+        sanitization: sanitization.DATE_TYPE + sanitization.OPTIONAL
+      }));
+      if (_newDate == null)
+        return actualDate;
+      if (actualDate == null)
+        return _newDate;
+      if (_newDate < actualDate)
+        return _newDate;
+    }
+
+    /** Build an array of taskLocks sequence entries
+     * @param {taskLocksRawCallSequenceEntry[]} taskLocksRawCallSequence
+     * @return {taskLocksCallSequenceEntry[]}
+     */
+    function buildTaskLocksSequenceArray (taskLocksRawCallSequence) {
+      /** @type {taskLocksCallSequenceEntry[]} */
+      const _taskLocksSequenceArray = [];
+
+      // loop `taskLocksRawCallSequence`
+      for (let i = 0; i < taskLocksRawCallSequence.length; i++) {
+        const _isSimulation = sanitization.sanitize({ value: p.isSimulation, sanitization: sanitization.BOOLEAN_TYPE });
+        const _name = sanitization.sanitize({ value: p.name, sanitization: sanitization.STRING_TYPE });
+
+        if (_isSimulation) {
+          if (_taskLocks.isDefined({ name: _name }))
+            _taskLocksSequenceArray.push({ taskLock: _taskLocks.get({ name: _name }), debugModuleInfo: _taskLocks.getDebugModuleInfo({ name: _name }) });
+        } else {  // if not simulation, search in all Units
+          // query TaskLocks to see in which Units the taskLock name is defined, then loop the Units, query TaskLocks again to get the taskLock & debugModuleInfo and push them in the array
+          _taskLocks.listUnit({ name: _name }).forEach(unit => {
+            _taskLocksSequenceArray.push({ taskLock: _taskLocks.get({ name: _name, unit }), debugModuleInfo: _taskLocks.getDebugModuleInfo({ name: _name, unit }) });
+          });
+        }
+      }
+      return _taskLocksSequenceArray;
+    }
+    //#endregion local function inside try() section
   } catch (error) {
     /*
     Every module that wants to interrupt program execution for a fatal error throws a new Error;
@@ -148,23 +198,6 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
   return new Result({ success: true });
 
   //#region local functions
-  /**
-   * Set/reset simulation start date; overwrite `_startDate` only if the new date is earlier than the current `_startDate` (or if `_startDate` is not set yet)
-   * @param {undefined|Date} date - Simulation start date
-   */
-  function updateStartDate (date) {
-    const _date = stripTime(sanitization.sanitize({
-      value: date,
-      sanitization: sanitization.DATE_TYPE + sanitization.OPTIONAL
-    }));
-    if (_date == null)
-      return;
-    if (_startDate == null)
-      _startDate = _date;
-    if (_date < _startDate)
-      _startDate = _date;
-  }
-
   /** set Ledger debug level, if engine `debug` parameter or Settings.Simulation.$DEBUG_FLAG are true
    * @param {Object} p
    * @param {undefined|boolean} p.debugParameter
@@ -196,32 +229,6 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
   function ensureNoTransactionIsOpen ({ ledger, moduleData }) {
     if (ledger.transactionIsOpen())
       throw new Error(`after calling module ${moduleData.moduleName} ${moduleData.moduleEngineURI}  a transaction is open`);
-  }
-
-  /** Build an array of taskLocks sequence entries
-   * @param {taskLocksRawCallSequenceEntry[]} taskLocksRawCallSequence
-   * @return {taskLocksCallSequenceEntry[]}
-   */
-  function buildTaskLocksSequenceArray (taskLocksRawCallSequence) {
-    /** @type {taskLocksCallSequenceEntry[]} */
-    const _taskLocksSequenceArray = [];
-
-    // loop `taskLocksRawCallSequence`
-    for (let i = 0; i < taskLocksRawCallSequence.length; i++) {
-      const _isSimulation = sanitization.sanitize({ value: p.isSimulation, sanitization: sanitization.BOOLEAN_TYPE });
-      const _name = sanitization.sanitize({ value: p.name, sanitization: sanitization.STRING_TYPE });
-
-      if (_isSimulation) {
-        if (_taskLocks.isDefined({ name: _name }))
-          _taskLocksSequenceArray.push({ taskLock: _taskLocks.get({ name: _name }), debugModuleInfo: _taskLocks.getDebugModuleInfo({ name: _name }) });
-      } else {  // if not simulation, search in all Units
-        // query TaskLocks to see in which Units the taskLock name is defined, then loop the Units, query TaskLocks again to get the taskLock & debugModuleInfo and push them in the array
-        _taskLocks.listUnit({ name: _name }).forEach(unit => {
-          _taskLocksSequenceArray.push({ taskLock: _taskLocks.get({ name: _name, unit }), debugModuleInfo: _taskLocks.getDebugModuleInfo({ name: _name, unit }) });
-        });
-      }
-    }
-    return _taskLocksSequenceArray;
   }
 
   //#endregion local functions
