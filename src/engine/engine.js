@@ -14,6 +14,7 @@ import { Drivers } from './drivers/drivers.js';
 import { Settings } from './settings/settings.js';
 import { TaskLocks } from './tasklocks/tasklocks.js';
 import { SimulationContextStart } from './context/simulationcontext_start.js';
+import { SimulationContextDaily } from './context/simulationcontext_daily.js';
 import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
 
 /**
@@ -26,9 +27,6 @@ import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
  * @return {Promise<Result>}
  */
 async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debug }) {
-  /** @type {Ledger} */
-  let _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });  // define _ledger here to be able to use it in the `finally` block
-
   try {
     validation.validateObj({
       obj: { modulesData, modules, appendTrnDump },
@@ -41,8 +39,11 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     let _startDate = undefined;
     /** @type {Date} */
     let _endDate = undefined;
+
     const _moduleDataArray = modulesData;
     const _modulesArray = modules;
+
+    let _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });  // define _ledger here to be able to use it in the `finally` block
     const _settings = new Settings({
       currentScenario: scenarioName, baseScenario: STD_NAMES.Scenario.BASE, defaultUnit: STD_NAMES.Simulation.NAME,
       prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
@@ -53,8 +54,6 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
       prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES
     });
-
-    /** @type {TaskLocks} */
     const _taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
     //#endregion variables declaration
 
@@ -65,7 +64,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       setTaskLock: _taskLocks.set
     });
 
-    const SimulationContextDaily = new SimulationContextDaily({
+    const simulationContextDaily = new SimulationContextDaily({
       setSetting: _settings.set,
       getSetting: _settings.get,
       getDriver: _drivers.get,
@@ -85,8 +84,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
 
     //# call `oneTimeBeforeTheSimulationStarts`
     for (let i = 0; i < _modulesArray.length; i++) {
-      _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
-      _settings.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
+      setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
       _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
       _taskLocks.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
 
@@ -129,34 +127,67 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
 
       // call `taskLocksBeforeDailyModeling`
       _taskLocksBeforeDailyModeling.forEach(taskLockEntry => {
-        _ledger.setDebugModuleInfo(taskLockEntry.debugModuleInfo);
-        _settings.setDebugModuleInfo(taskLockEntry.debugModuleInfo);
+        setDebugModuleInfoForLedgerAndSettings(taskLockEntry.debugModuleInfo);
         taskLockEntry.taskLock();
       });
 
       //# call `beforeDailyModeling`
       for (let i = 0; i < _modulesArray.length; i++) {
-        _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
-        _settings.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
-        _modulesArray[i]?.beforeDailyModeling({ moduleData: _moduleDataArray[i], simulationContextDaily });
-      }
-
-      //#region calling XXX
-      for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
-          _ledger.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
-          // TODO NOW NOW NOW NOW
-          ensureNoTransactionIsOpen({ ledger: _ledger, moduleData: _moduleDataArray[i] });
+          setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
+          _modulesArray[i]?.beforeDailyModeling({ moduleData: _moduleDataArray[i], simulationContextDaily });
         }
       }
-      //#endregion calling XXX
+
+      _ledger.unlock();  // unlock Ledger before calling `dailyModeling`
+
+      //# call `dailyModeling`
+      for (let i = 0; i < _modulesArray.length; i++) {
+        if (_modulesArray[i].alive) {
+          setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
+          _modulesArray[i]?.dailyModeling({ moduleData: _moduleDataArray[i], simulationContextDaily });
+          ensureNoTransactionIsOpen();
+        }
+      }
+
+      // call `_taskLocksAfterDailyModeling`
+      _taskLocksAfterDailyModeling.forEach(taskLockEntry => {
+        setDebugModuleInfoForLedgerAndSettings(taskLockEntry.debugModuleInfo);
+        taskLockEntry.taskLock();
+        ensureNoTransactionIsOpen();
+      });
     }
     //#endregion call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
+
+    //# call `oneTimeAfterTheSimulationEnds`
+    for (let i = 0; i < _modulesArray.length; i++) {
+      if (_modulesArray[i].alive) {
+        setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
+        _modulesArray[i]?.oneTimeAfterTheSimulationEnds({ moduleData: _moduleDataArray[i], simulationContextDaily });
+        ensureNoTransactionIsOpen();
+      }
+    }
+
+    // call `_taskLocksAfterSimulationEnds`
+    _taskLocksAfterSimulationEnds.forEach(taskLockEntry => {
+      setDebugModuleInfoForLedgerAndSettings(taskLockEntry.debugModuleInfo);
+      taskLockEntry.taskLock();
+      ensureNoTransactionIsOpen();
+    });
+
+    _ledger.lock();  // lock Ledger at the end of the simulation
 
     console.dir(_moduleDataArray); // todo TOREMOVE
     throw new Error('not implemented');
 
     //#region local function inside try() section
+
+    /** Return debug info about the current module, to be used in the ledger, drivers and taskLocks
+     * @param {ModuleData} moduleData
+     */
+    function getDebugModuleInfo (moduleData) {
+      return `moduleName: '${moduleData?.moduleName}', moduleEngineURI: '${moduleData?.moduleEngineURI}', moduleSourceLocation: '${moduleData?.moduleSourceLocation}'`;
+    }
 
     /**
      * Set/reset simulation start date; overwrite `_startDate` only if the new date is earlier than the current `_startDate` (or if `_startDate` is not set yet)
@@ -207,6 +238,36 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       return _taskLocksSequenceArray;
     }
 
+    /** set Ledger debug level, if engine `debug` parameter or Settings.Simulation.$DEBUG_FLAG are true
+     * @param {Object} p
+     * @param {undefined|boolean} p.debugParameter
+     * @param {Settings} p.settings
+     */
+    function setDebugLevelOnLedger ({ debugParameter, settings }) {
+      const _debugFlagFromParameter = sanitization.sanitize({ value: debugParameter, sanitization: sanitization.STRING_TYPE });
+      const _debugFlagFromSettings = sanitization.sanitize({
+        value: settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
+        sanitization: sanitization.STRING_TYPE
+      });
+
+      if (_debugFlagFromParameter === BOOLEAN_TRUE_STRING | _debugFlagFromSettings === BOOLEAN_TRUE_STRING)
+        _ledger.setDebug();
+    }
+
+    /** Set debugModuleInfo for Ledger and Settings
+     * @param {string} debugModuleInfo
+     */
+    function setDebugModuleInfoForLedgerAndSettings (debugModuleInfo) {
+      _ledger.setDebugModuleInfo(debugModuleInfo);
+      _settings.setDebugModuleInfo(debugModuleInfo);
+    }
+
+    /** Check if a transaction is open, and if so, throw an error */
+    function ensureNoTransactionIsOpen () {
+      if (_ledger.transactionIsOpen())
+        throw new Error(`FATAL ERROR: after calling module ${_ledger.getDebugModuleInfo()} a transaction is open`);
+    }
+
     //#endregion local function inside try() section
   } catch (error) {
     /*
@@ -222,42 +283,6 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     return new Result({ success: false, error: _error });
   }
   return new Result({ success: true });
-
-  //#region local functions
-  /** set Ledger debug level, if engine `debug` parameter or Settings.Simulation.$DEBUG_FLAG are true
-   * @param {Object} p
-   * @param {undefined|boolean} p.debugParameter
-   * @param {Settings} p.settings
-   */
-  function setDebugLevelOnLedger ({ debugParameter, settings }) {
-    const _debugFlagFromParameter = sanitization.sanitize({ value: debugParameter, sanitization: sanitization.STRING_TYPE });
-    const _debugFlagFromSettings = sanitization.sanitize({
-      value: settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
-      sanitization: sanitization.STRING_TYPE
-    });
-
-    if (_debugFlagFromParameter === BOOLEAN_TRUE_STRING | _debugFlagFromSettings === BOOLEAN_TRUE_STRING)
-      _ledger.setDebug();
-  }
-
-  /** Return debug info about the current module, to be used in the ledger, drivers and taskLocks
-   * @param {ModuleData} moduleData
-   */
-  function getDebugModuleInfo (moduleData) {
-    return `moduleName: '${moduleData?.moduleName}', moduleEngineURI: '${moduleData?.moduleEngineURI}', moduleSourceLocation: '${moduleData?.moduleSourceLocation}'`;
-  }
-
-  /** Check if a transaction is open, and if so, throw an error
-   * @param {Object} p
-   * @param {Ledger} p.ledger
-   * @param {ModuleData} p.moduleData
-   */
-  function ensureNoTransactionIsOpen ({ ledger, moduleData }) {
-    if (ledger.transactionIsOpen())
-      throw new Error(`after calling module ${moduleData.moduleName} ${moduleData.moduleEngineURI}  a transaction is open`);
-  }
-
-  //#endregion local functions
 }
 
 //#region types definitions

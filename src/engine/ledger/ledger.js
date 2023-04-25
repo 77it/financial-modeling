@@ -14,7 +14,6 @@ import { newSimObjectDto_Sanitization } from './commands/newsimobjectdto_sanitiz
 import { NewDebugSimObjectDto } from './commands/newdebugsimobjectdto.js';
 import { newDebugSimObjectDto_Sanitization } from './commands/newdebugsimobjectdto_sanitization.js';
 
-
 // TODO
 
 // init
@@ -120,17 +119,23 @@ class Ledger {
   }
 
   /** Lock the ledger, so that no transaction can be added. */
-  lock() {
+  lock () {
     this.#isLocked = true;
   }
 
   /** Unlock the ledger, so that transactions can be added. */
-  unlock() {
+  unlock () {
     this.#isLocked = false;
   }
+
   //#endregion SET methods
 
   //#region GET/QUERY methods
+  /** @returns {string} */
+  getDebugModuleInfo () {
+    return this.#currentDebugModuleInfo;
+  }
+
   /** @returns {boolean} */
   transactionIsOpen () {
     // returns true if #currentTransaction is not empty
@@ -138,9 +143,10 @@ class Ledger {
   }
 
   /** @returns {boolean} */
-  get isLocked() {
+  get isLocked () {
     return this.#isLocked;
   }
+
   //#endregion GET/QUERY methods
 
   //#region COMMIT methods
