@@ -29,8 +29,8 @@ import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
 async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debug }) {
   try {
     validation.validateObj({
-      obj: { modulesData, modules, appendTrnDump },
-      validation: { modulesData: validation.ARRAY_TYPE, modules: validation.ARRAY_TYPE, appendTrnDump: validation.FUNCTION_TYPE }
+      obj: { modulesData, modules, scenarioName, appendTrnDump, debug },
+      validation: { modulesData: validation.ARRAY_TYPE, modules: validation.ARRAY_TYPE, scenarioName: validation.STRING_TYPE, appendTrnDump: validation.FUNCTION_TYPE, debug: validation.BOOLEAN_TYPE + validation.OPTIONAL }
     });
     if (modulesData.length !== modules.length) throw new Error('modulesData.length !== modules.length');
 

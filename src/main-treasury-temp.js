@@ -99,7 +99,7 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
 
     //#region loop scenarios
     for (const _unsanitized_scenario of _$$SCENARIOS) {
-      const _scenario = (_unsanitized_scenario === '') ? STD_NAMES.Scenario.BASE : _unsanitized_scenario;
+      const _scenario = (isNullOrWhiteSpace(_unsanitized_scenario)) ? STD_NAMES.Scenario.BASE : _unsanitized_scenario;
 
       // create/overwrite output file   // see https://deno.land/api@v1.29.1?s=Deno.open
       const _output = `${outputFolder}/${_scenario}.jsonl`;
@@ -195,7 +195,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
               for (const row of _table) {
                 if (
                   (row[tableColScenario].toString().trim().toLowerCase() === scenarioName ||
-                    row[tableColScenario].toString().trim().toLowerCase() === '') &&
+                    isNullOrWhiteSpace(row[tableColScenario].toString().trim().toLowerCase())) &&
                   row[tableColUnit].toString().trim().toLowerCase() === unitName &&
                   row[tableColName].toString().trim().toLowerCase() === _settingName)
                   return row[tableColValue];
