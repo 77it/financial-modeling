@@ -1,4 +1,6 @@
-export { deepFreeze };
+export { deepFreeze, ensureArrayValuesAreUnique };
+
+// see json5.js  // function objectKeysToLowerCase
 
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 /**
@@ -22,4 +24,16 @@ function deepFreeze(object) {
   return Object.freeze(object);
 }
 
-// see json5.js  // function objectKeysToLowerCase
+/**
+ * Ensure that array values are unique. Returns the same array if values are unique, without modifying it.
+ * @param {any[]} array
+ * @returns {any[]} the same array, if values are unique
+ * @throws {Error} if array values are not unique
+ */
+function ensureArrayValuesAreUnique(array) {
+  const set = new Set(array);
+  if (set.size !== array.length) {
+    throw new Error("array values are not unique");
+  }
+  return array;
+}
