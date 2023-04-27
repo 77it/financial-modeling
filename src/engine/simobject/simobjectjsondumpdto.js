@@ -5,7 +5,7 @@ class SimObjectJsonDumpDto {
    * @param {Object} p
    * @param {string} p.type
    * @param {string} p.id
-   * @param {Date} p.dateTime
+   * @param {string} p.dateTime
    * @param {string} p.name
    * @param {string} p.description
    * @param {string} p.mutableDescription
@@ -24,7 +24,7 @@ class SimObjectJsonDumpDto {
    * @param {string} p.commandGroup__Id
    * @param {string} p.commandGroup__DebugDescription
    * @param {string} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate - Converted from BigInt
-   * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+   * @param {string[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
    * @param {string[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal - Converted from array of BigInt
    * @param {string} p.is_Link__SimObjId
    */

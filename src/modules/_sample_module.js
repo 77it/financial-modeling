@@ -10,6 +10,8 @@ Every module that wants to interrupt program execution for a fatal error throws 
 
 //#endregion
 
+import { ModuleData, SimulationContextDaily, SimulationContextStart } from '../deps.js';
+
 export class Module {
   name = '_sample_module';
   //#region private fields
@@ -34,8 +36,9 @@ export class Module {
   /**
    * Set Drivers, SharedConstants, startDate.
    * Called only one time, before the simulation starts.
-   * @param {ModuleData} moduleData
-   * @param {SimulationContextStart} simulationContextStart
+   * @param {Object} p
+   * @param {ModuleData} p.moduleData
+   * @param {SimulationContextStart} p.simulationContextStart
    * @returns {void}
    */
   oneTimeBeforeTheSimulationStarts ({ moduleData, simulationContextStart }) {
@@ -44,7 +47,8 @@ export class Module {
 
   /**
    * Called daily, as first step of daily modeling.
-   * @param {SimulationContextDaily} simulationContextDaily
+   * @param {Object} p
+   * @param {SimulationContextDaily} p.simulationContextDaily
    * @returns {void}
    */
   beforeDailyModeling ({ simulationContextDaily }) {
@@ -53,7 +57,8 @@ export class Module {
 
   /**
    * Called daily, after `beforeDailyModeling`
-   * @param {SimulationContextDaily} simulationContextDaily
+   * @param {Object} p
+   * @param {SimulationContextDaily} p.simulationContextDaily
    * @returns {void}
    */
   dailyModeling ({ simulationContextDaily }) {
@@ -62,7 +67,8 @@ export class Module {
 
   /**
    * Called only one time, after the simulation ends.
-   * @param {SimulationContextDaily} simulationContextDaily
+   * @param {Object} p
+   * @param {SimulationContextDaily} p.simulationContextDaily
    * @returns {void}
    */
   oneTimeAfterTheSimulationEnds ({ simulationContextDaily }) {

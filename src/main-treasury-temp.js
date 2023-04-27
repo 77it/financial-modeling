@@ -123,7 +123,7 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
       });
 
       if (!_engine_result.success) {
-        writeToStream(errorsDumpFileWriter, _engine_result.error);
+        writeToStream(errorsDumpFileWriter, _engine_result?.error ?? 'Unknown error');
         _exitCode = 1;
       }
 
