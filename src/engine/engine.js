@@ -98,17 +98,17 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     // set _startDate to the earliest startDate of all modules
     // loop _modulesArray with foreach
     _modulesArray.forEach(module => {
-      _startDate = updateStartDate({ actualDate: _startDate, newDate: module?.startDate() });  // set or update _startDate
+      _startDate = updateStartDate({ actualDate: _startDate, newDate: module?.startDate });  // set or update _startDate
     });
     // read `$$SIMULATION_END_DATE` from settings
-    const _settingEndDate = sanitization.sanitize({
+    _endDate = sanitization.sanitize({
       value: _settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE }),
       sanitization: sanitization.DATE_TYPE + sanitization.OPTIONAL
     });
     // if `_startDate` is still undefined, set it to default value (Date(0))
     if (_startDate == null) _startDate = new Date(0);
-    // if `_settingEndDate` is still undefined, set `_endDate` to default value (to 10 years from now, at the end of the year)
-    (_settingEndDate != null) ? _endDate = _settingEndDate : _endDate = new Date(new Date().getFullYear() + CFG.DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31);
+    // if `_endDate` is still undefined, set it to default value (to 10 years from now, at the end of the year)
+    if (_endDate == null) _endDate = new Date(new Date().getFullYear() + CFG.DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31);
 
     //#endregion set `_startDate`/`_endDate`
 
@@ -136,7 +136,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
-          _modulesArray[i]?.beforeDailyModeling({ moduleData: _moduleDataArray[i], simulationContextDaily });
+          _modulesArray[i]?.beforeDailyModeling({ simulationContextDaily });
         }
       }
 
@@ -146,7 +146,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
-          _modulesArray[i]?.dailyModeling({ moduleData: _moduleDataArray[i], simulationContextDaily });
+          _modulesArray[i]?.dailyModeling({ simulationContextDaily });
           ensureNoTransactionIsOpen();
         }
       }
@@ -164,7 +164,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     for (let i = 0; i < _modulesArray.length; i++) {
       if (_modulesArray[i].alive) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
-        _modulesArray[i]?.oneTimeAfterTheSimulationEnds({ moduleData: _moduleDataArray[i], simulationContextDaily });
+        _modulesArray[i]?.oneTimeAfterTheSimulationEnds({ simulationContextDaily });
         ensureNoTransactionIsOpen();
       }
     }
@@ -195,7 +195,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
      * @param {Object} p
      * @param {undefined|Date} p.actualDate - Actual simulation start date
      * @param {undefined|Date} p.newDate - New simulation start date
-     * @return {Date} - Return the updated simulation start date
+     * @return {undefined|Date} - Return the updated simulation start date
      */
     function updateStartDate ({ actualDate, newDate }) {
       const _newDate = stripTime(sanitization.sanitize({
@@ -251,7 +251,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
         sanitization: sanitization.STRING_TYPE
       });
 
-      if (_debugFlagFromParameter === BOOLEAN_TRUE_STRING | _debugFlagFromSettings === BOOLEAN_TRUE_STRING)
+      if (_debugFlagFromParameter === BOOLEAN_TRUE_STRING || _debugFlagFromSettings === BOOLEAN_TRUE_STRING)
         _ledger.setDebug();
     }
 

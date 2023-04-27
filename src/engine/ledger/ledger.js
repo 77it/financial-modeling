@@ -94,8 +94,7 @@ class Ledger {
     this.#currentDebugModuleInfo = '';
     this.#decimalPlaces = _p.decimalPlaces;
     this.#roundingModeIsRound = _p.roundingModeIsRound;
-
-    this.lock();  // lock the ledger
+    this.#isLocked = true;  // lock the ledger
   }
 
   //#region SET methods
@@ -143,7 +142,7 @@ class Ledger {
   }
 
   /** @returns {boolean} */
-  get isLocked () {
+  isLocked () {
     return this.#isLocked;
   }
 
@@ -205,7 +204,7 @@ class Ledger {
     const _writingValue = _value;  // writingValue is equal to value
     const _principalToPay_AmortizationSchedule__Principal = newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => this.#toBigInt(number));
     const _principalToPay_IndefiniteExpiryDate =
-      (_principalToPay_AmortizationSchedule__Principal === [] && this.#toBigInt(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate) === 0n)
+      (_principalToPay_AmortizationSchedule__Principal.length === 0 && this.#toBigInt(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate) === 0n)
         ? 0n : _value;  // if principal is not defined, set all value amount as 'IndefiniteExpiryDate'
 
     const simObject = new SimObject({
@@ -213,28 +212,28 @@ class Ledger {
       type: newSimObjectDto.type,
       id: this.#getNextId().toString(),
       dateTime: this.#today,
-      name: newSimObjectDto.name,
-      description: newSimObjectDto.description,
-      mutableDescription: newSimObjectDto.mutableDescription,
-      metadata__Name: (newSimObjectDto.metadata__Name),
-      metadata__Value: (newSimObjectDto.metadata__Value),
-      metadata__PercentageWeight: (newSimObjectDto.metadata__PercentageWeight),
+      name: newSimObjectDto.name ?? '',
+      description: newSimObjectDto.description ?? '',
+      mutableDescription: newSimObjectDto.mutableDescription ?? '',
+      metadata__Name: newSimObjectDto.metadata__Name ?? [],
+      metadata__Value: newSimObjectDto.metadata__Value ?? [],
+      metadata__PercentageWeight: newSimObjectDto.metadata__PercentageWeight ?? [],
       unitId: newSimObjectDto.unitId,
       doubleEntrySide: newSimObjectDto.doubleEntrySide,
       currency: newSimObjectDto.currency,
-      intercompanyInfo__VsUnitId: newSimObjectDto.intercompanyInfo__VsUnitId,
+      intercompanyInfo__VsUnitId: newSimObjectDto.intercompanyInfo__VsUnitId ?? '',
       value: _value,
       writingValue: _writingValue,
       alive: newSimObjectDto.alive,
       command__Id: this.#getNextCommandId().toString(),
-      command__DebugDescription: (newSimObjectDto.command__DebugDescription !== '') ? newSimObjectDto.command__DebugDescription : debug_moduleInfo,
+      command__DebugDescription: (!isNullOrWhiteSpace(newSimObjectDto.command__DebugDescription)) ? (newSimObjectDto.command__DebugDescription ?? '') : debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
-      commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription,
+      commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription ?? '',
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: _principalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: _principalToPay_AmortizationSchedule__Principal,
-      is_Link__SimObjId: newSimObjectDto.is_Link__SimObjId,
-      vsSimObjectId: newSimObjectDto.vsSimObjectId,
+      is_Link__SimObjId: newSimObjectDto.is_Link__SimObjId ?? '',
+      vsSimObjectId: newSimObjectDto.vsSimObjectId ?? '',
       versionId: 0,
       extras: newSimObjectDto.extras
     });
@@ -307,11 +306,7 @@ class Ledger {
     if (SimObjectDebugTypes_enum_validation.includes(simObject.type)) return;
 
     // add or update the SimObject in the repository
-    if (this.#simObjectsRepo.has(simObject.id))
-      // update the existing SimObject
-      this.#simObjectsRepo[simObject.id] = simObject;
-    else
-      this.#simObjectsRepo.set(simObject.id, simObject);
+    this.#simObjectsRepo.set(simObject.id, simObject);
   }
 
   /** @returns {number} */
@@ -363,9 +358,9 @@ class Ledger {
       writingValue: this.#toBigInt(0),
       alive: false,
       command__Id: this.#getNextCommandId().toString(),
-      command__DebugDescription: (newDebugSimObjectDto.command__DebugDescription !== '') ? newDebugSimObjectDto.command__DebugDescription : debug_moduleInfo,
+      command__DebugDescription: (!isNullOrWhiteSpace(newDebugSimObjectDto.command__DebugDescription)) ? (newDebugSimObjectDto.command__DebugDescription ?? '') : debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
-      commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription,
+      commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription ?? '',
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#toBigInt(0),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [],
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [],
