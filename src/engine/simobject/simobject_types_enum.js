@@ -1,4 +1,4 @@
-﻿import { deepFreeze } from '../../lib/obj_utils.js';
+﻿import { deepFreeze, ensureArrayValuesAreUnique } from '../../lib/obj_utils.js';
 
 export const SimObjectTypes_enum = {
 //#region SimObjectTypes_All__codeid_EXTERNAL
@@ -111,5 +111,4 @@ MEMO__DATAFROMSIMULATION_DIVIDENDSPAYOUT : "MEMO__DATAFROMSIMULATION_DIVIDENDSPA
 }
 deepFreeze(SimObjectTypes_enum);
 
-// @ts-ignore
-export const SimObjectTypes_enum_validation = Object.keys(SimObjectTypes_enum).map(key => SimObjectTypes_enum[key]);
+export const SimObjectTypes_enum_validation = ensureArrayValuesAreUnique(Object.values(SimObjectTypes_enum));

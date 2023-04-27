@@ -1,4 +1,4 @@
-﻿import { deepFreeze } from '../../lib/obj_utils.js';
+﻿import { deepFreeze, ensureArrayValuesAreUnique } from '../../lib/obj_utils.js';
 
 export const SimObjectConsolidationTypes_enum = {
   BS_CONSOLIDATION: "BS_CONSOLIDATION",
@@ -6,5 +6,4 @@ export const SimObjectConsolidationTypes_enum = {
 }
 deepFreeze(SimObjectConsolidationTypes_enum);
 
-// @ts-ignore
-export const SimObjectConsolidationTypes_enum_validation = Object.keys(SimObjectConsolidationTypes_enum).map(key => SimObjectConsolidationTypes_enum[key]);
+export const SimObjectConsolidationTypes_enum_validation = ensureArrayValuesAreUnique(Object.values(SimObjectConsolidationTypes_enum));

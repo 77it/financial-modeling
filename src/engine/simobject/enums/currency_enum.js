@@ -1,4 +1,4 @@
-import { deepFreeze } from '../../../lib/obj_utils.js';
+import { deepFreeze, ensureArrayValuesAreUnique } from '../../../lib/obj_utils.js';
 
 export const Currency_enum =
   {
@@ -8,5 +8,4 @@ export const Currency_enum =
   };
 deepFreeze(Currency_enum);
 
-// @ts-ignore
-export const Currency_enum_validation = Object.keys(Currency_enum).map(key => Currency_enum[key]);
+export const Currency_enum_validation = ensureArrayValuesAreUnique(Object.values(Currency_enum));

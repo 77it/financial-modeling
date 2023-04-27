@@ -1,4 +1,4 @@
-﻿import { deepFreeze } from '../../lib/obj_utils.js';
+﻿import { deepFreeze, ensureArrayValuesAreUnique } from '../../lib/obj_utils.js';
 
 /*
 Why do we have 4 debug types?  // DEBUG_ERROR type is on another file
@@ -13,5 +13,4 @@ export const SimObjectDebugTypes_enum = {
 }
 deepFreeze(SimObjectDebugTypes_enum);
 
-// @ts-ignore
-export const SimObjectDebugTypes_enum_validation = Object.keys(SimObjectDebugTypes_enum).map(key => SimObjectDebugTypes_enum[key]);
+export const SimObjectDebugTypes_enum_validation = ensureArrayValuesAreUnique(Object.values(SimObjectDebugTypes_enum));

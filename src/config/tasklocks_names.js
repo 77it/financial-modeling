@@ -2,7 +2,7 @@
 
 export { TaskLocks_Names };
 
-import { deepFreeze } from '../deps.js';
+import { deepFreeze, ensureArrayValuesAreUnique } from '../lib/obj_utils.js';
 
 const TaskLocks_Names = {
   SIMULATION__INTERCOMPANY_CASHMANAGER__DAILY_ACTIVITY: 'SIMULATION__INTERCOMPANY_CASHMANAGER__DAILY_ACTIVITY',
@@ -15,6 +15,4 @@ const TaskLocks_Names = {
   UNIT__NWC__DAILY_ACTIVITY: 'UNIT__NWC__DAILY_ACTIVITY',
 };
 deepFreeze(TaskLocks_Names);
-
-// @ts-ignore
-export const TaskLocks_ReservedNames_validation = Object.keys(TaskLocks_Names).map(key => TaskLocks_Names[key]);
+ensureArrayValuesAreUnique(Object.values(TaskLocks_Names));

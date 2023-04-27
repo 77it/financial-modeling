@@ -2,7 +2,7 @@
 
 export { Simulation, Unit };
 
-import { deepFreeze } from '../deps.js';
+import { deepFreeze, ensureArrayValuesAreUnique } from '../lib/obj_utils.js';
 
 const Simulation = {
   $$SCENARIOS: '$$SCENARIOS',
@@ -16,6 +16,7 @@ const Simulation = {
   $$END_OF_THE_FISCAL_YEAR__MONTH: '$$END_OF_THE_FISCAL_YEAR__MONTH',
 };
 deepFreeze(Simulation);
+ensureArrayValuesAreUnique(Object.values(Simulation));
 
 const Unit = {
   $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE: '$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE',
@@ -36,3 +37,4 @@ const Unit = {
   ACTIVE__PASSIVE_INTEREST_ON_OVERDRAFTS: 'ACTIVE__PASSIVE_INTEREST_ON_OVERDRAFTS',
 };
 deepFreeze(Unit);
+ensureArrayValuesAreUnique(Object.values(Unit));

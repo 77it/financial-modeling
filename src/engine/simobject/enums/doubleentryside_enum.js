@@ -1,4 +1,4 @@
-import { deepFreeze } from '../../../lib/obj_utils.js';
+import { deepFreeze, ensureArrayValuesAreUnique } from '../../../lib/obj_utils.js';
 
 // the values are always positive, also debts and costs, then this is the sign/side (debit/credit, left/right) and the type (BS/IS) of the voice
 export const DoubleEntrySide_enum =
@@ -13,5 +13,4 @@ export const DoubleEntrySide_enum =
   };
 deepFreeze(DoubleEntrySide_enum);
 
-// @ts-ignore
-export const DoubleEntrySide_enum_validation = Object.keys(DoubleEntrySide_enum).map(key => DoubleEntrySide_enum[key]);
+export const DoubleEntrySide_enum_validation = ensureArrayValuesAreUnique(Object.values(DoubleEntrySide_enum));

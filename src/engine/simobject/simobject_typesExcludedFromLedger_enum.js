@@ -1,4 +1,4 @@
-﻿import { deepFreeze } from '../../lib/obj_utils.js';
+﻿import { deepFreeze, ensureArrayValuesAreUnique } from '../../lib/obj_utils.js';
 
 export const SimObjectTypesExcludedFromLedger_enum = {
   DEBUG: "DEBUG_",
@@ -6,6 +6,4 @@ export const SimObjectTypesExcludedFromLedger_enum = {
 }
 deepFreeze(SimObjectTypesExcludedFromLedger_enum);
 
-// @ts-ignore
-export const SimObjectTypesExcludedFromLedger_enum_validation =
-  Object.keys(SimObjectTypesExcludedFromLedger_enum).map(key => SimObjectTypesExcludedFromLedger_enum[key]);
+export const SimObjectTypesExcludedFromLedger_enum_validation = ensureArrayValuesAreUnique(Object.values(SimObjectTypesExcludedFromLedger_enum));
