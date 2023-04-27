@@ -1,6 +1,7 @@
 export { SimulationContextDaily };
 
-// TODO WRITE SimulationContextDaily
+import { NewSimObjectDto } from '../ledger/commands/newsimobjectdto.js';
+import { NewDebugSimObjectDto } from '../ledger/commands/newdebugsimobjectdto.js';
 
 class SimulationContextDaily {
   #setSetting;
@@ -49,6 +50,14 @@ class SimulationContextDaily {
    * @param {getSetting} p.getSetting
    * @param {getDriver} p.getDriver
    * @param {getTaskLock} p.getTaskLock
+   * @param {transactionIsOpen} p.transactionIsOpen
+   * @param {ledgerIsLocked} p.ledgerIsLocked
+   * @param {commit} p.commit
+   * @param {newSimObject} p.newSimObject
+   * @param {newDebugDebugSimObject} p.newDebugDebugSimObject
+   * @param {newDebugInfoSimObject} p.newDebugInfoSimObject
+   * @param {newDebugWarningSimObject} p.newDebugWarningSimObject
+   * @param {newDebugWarningSimObjectFromErrorString} p.newDebugWarningSimObjectFromErrorString
    */
   constructor ({
     setSetting,

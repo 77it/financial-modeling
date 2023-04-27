@@ -27,6 +27,8 @@ import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
  * @return {Promise<Result>}
  */
 async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debug }) {
+  const _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });  // define _ledger here to be able to use it in the `finally` block
+
   try {
     validation.validateObj({
       obj: { modulesData, modules, scenarioName, appendTrnDump, debug },
@@ -35,15 +37,14 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     if (modulesData.length !== modules.length) throw new Error('modulesData.length !== modules.length');
 
     //#region variables declaration
-    /** @type {Date} */
+    /** @type {undefined|Date} */
     let _startDate = undefined;
-    /** @type {Date} */
+    /** @type {undefined|Date} */
     let _endDate = undefined;
 
     const _moduleDataArray = modulesData;
     const _modulesArray = modules;
 
-    let _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });  // define _ledger here to be able to use it in the `finally` block
     const _settings = new Settings({
       currentScenario: scenarioName, baseScenario: STD_NAMES.Scenario.BASE, defaultUnit: STD_NAMES.Simulation.NAME,
       prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
@@ -218,9 +219,9 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       const _taskLocksSequenceArray = [];
 
       // loop `taskLocksRawCallSequence`
-      for (let i = 0; i < taskLocksRawCallSequence.length; i++) {
-        const _isSimulation = sanitization.sanitize({ value: p.isSimulation, sanitization: sanitization.BOOLEAN_TYPE });
-        const _name = sanitization.sanitize({ value: p.name, sanitization: sanitization.STRING_TYPE });
+      taskLocksRawCallSequence.forEach(_entry => {
+        const _isSimulation = sanitization.sanitize({ value: _entry.isSimulation, sanitization: sanitization.BOOLEAN_TYPE });
+        const _name = sanitization.sanitize({ value: _entry.name, sanitization: sanitization.STRING_TYPE });
 
         if (_isSimulation) {
           if (_taskLocks.isDefined({ name: _name }))
@@ -234,7 +235,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
             });
           });
         }
-      }
+      });
       return _taskLocksSequenceArray;
     }
 
