@@ -383,7 +383,7 @@ class Ledger {
    * If `#roundingModeIsRound` is true, the number is rounded to the given number of decimal places.
    * If `#roundingModeIsRound` false, the number is truncated to the given number of decimal places.
    @param {number} n - number to convert
-   @returns {BigInt}
+   @returns {bigint}
    */
   #toBigInt (n) {
     if (this.#roundingModeIsRound) return BigInt(Math.round(n * 10 ** this.#decimalPlaces));

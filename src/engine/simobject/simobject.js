@@ -92,16 +92,16 @@ class SimObject {
    * @param {string} p.doubleEntrySide
    * @param {string} p.currency
    * @param {string} p.intercompanyInfo__VsUnitId
-   * @param {BigInt} p.value
-   * @param {BigInt} p.writingValue
+   * @param {bigint} p.value
+   * @param {bigint} p.writingValue
    * @param {boolean} p.alive
    * @param {string} p.command__Id
    * @param {string} p.command__DebugDescription
    * @param {string} p.commandGroup__Id
    * @param {string} p.commandGroup__DebugDescription
-   * @param {BigInt} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
+   * @param {bigint} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
    * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
-   * @param {BigInt[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
+   * @param {bigint[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
    * @param {string} p.is_Link__SimObjId
    * @param {string} p.vsSimObjectId [NOT EXPORTED TO JSON DUMP] This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
    * @param {number} p.versionId [NOT EXPORTED TO JSON DUMP]
@@ -209,16 +209,16 @@ class SimObject {
    * @param {string} [p.doubleEntrySide]
    * @param {string} [p.currency]
    * @param {string} [p.intercompanyInfo__VsUnitId]
-   * @param {BigInt} [p.value]
-   * @param {BigInt} [p.writingValue]
+   * @param {bigint} [p.value]
+   * @param {bigint} [p.writingValue]
    * @param {boolean} [p.alive]
    * @param {string} [p.command__Id]
    * @param {string} [p.command__DebugDescription]
    * @param {string} [p.commandGroup__Id]
    * @param {string} [p.commandGroup__DebugDescription]
-   * @param {BigInt} [p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate]
+   * @param {bigint} [p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate]
    * @param {Date[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date]
-   * @param {BigInt[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]
+   * @param {bigint[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]
    * @param {string} [p.is_Link__SimObjId]
    * @param {string} [p.vsSimObjectId]
    * @param {number} [p.versionId]
@@ -339,7 +339,7 @@ class SimObject {
   }
 
   /** Convert Big to number, converting to a number with a fixed number of decimal places
-   * @param {BigInt} big
+   * @param {bigint} big
    * @returns {number}
    */
   #BigIntToNumberWithDecimals (big) {
@@ -347,7 +347,7 @@ class SimObject {
   }
 
   /** Convert Big to number, converting to a number with a fixed number of decimal places
-   * @param {BigInt} big
+   * @param {bigint} big
    * @returns {string}
    */
   #BigIntToStringWithDecimals (big) {
