@@ -110,5 +110,4 @@ MEMO__DATAFROMSIMULATION_DIVIDENDSPAYOUT : "MEMO__DATAFROMSIMULATION_DIVIDENDSPA
 //#endregion SimObjectTypes_All__codeid_EXTERNAL
 }
 deepFreeze(SimObjectTypes_enum);
-
 export const SimObjectTypes_enum_validation = ensureArrayValuesAreUnique(Object.values(SimObjectTypes_enum));

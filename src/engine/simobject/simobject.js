@@ -351,9 +351,12 @@ class SimObject {
    * @returns {string}
    */
   #BigIntToStringWithDecimals (big) {
-    const str = big.toString();
+    // convert big to string, padding the string with zeros to the left to reach the desired number of decimal places + 1
+    // example #1: decimalPlaces = 2, big = 123, padding = '123'
+    // example #2: decimalPlaces = 4, big = 123, padding = '00123'
+    const _str = big.toString().padStart(this.#decimalPlaces + 1, '0');
     // insert a string on the right of str, on the `#decimalPlaces`th character from the right
-    return str.slice(0, -this.#decimalPlaces) + '.' + str.slice(-this.#decimalPlaces);
+    return _str.slice(0, -this.#decimalPlaces) + '.' + _str.slice(-this.#decimalPlaces);
   }
 
   /**

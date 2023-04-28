@@ -6,7 +6,7 @@ import { SimObject } from '../simobject/simobject.js';
 import { SimObjectTypes_enum_validation } from '../simobject/simobject_types_enum.js';
 import { SimObjectDebugTypes_enum, SimObjectDebugTypes_enum_validation } from '../simobject/simobject_debugtypes_enum.js';
 import { SimObjectErrorDebugTypes_enum, SimObjectErrorDebugTypes_enum_validation } from '../simobject/simobject_errordebugtypes_enum.js';
-import { DoubleEntrySide_enum } from '../simobject/enums/DoubleEntrySide_enum.js';
+import { DoubleEntrySide_enum } from '../simobject/enums/doubleentryside_enum.js';
 import { Currency_enum } from '../simobject/enums/currency_enum.js';
 
 import { NewSimObjectDto } from './commands/newsimobjectdto.js';
@@ -200,11 +200,11 @@ class Ledger {
 
     const debug_moduleInfo = (this.#debug) ? this.#currentDebugModuleInfo : '';
 
-    const _value = this.#toBigInt(newSimObjectDto.value);
+    const _value = this.toBigInt(newSimObjectDto.value);
     const _writingValue = _value;  // writingValue is equal to value
-    const _principalToPay_AmortizationSchedule__Principal = newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => this.#toBigInt(number));
+    const _principalToPay_AmortizationSchedule__Principal = newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => this.toBigInt(number));
     const _principalToPay_IndefiniteExpiryDate =
-      (_principalToPay_AmortizationSchedule__Principal.length === 0 && this.#toBigInt(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate) === 0n)
+      (_principalToPay_AmortizationSchedule__Principal.length === 0 && this.toBigInt(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate) === 0n)
         ? 0n : _value;  // if principal is not defined, set all value amount as 'IndefiniteExpiryDate'
 
     const simObject = new SimObject({
@@ -354,14 +354,14 @@ class Ledger {
       doubleEntrySide: DoubleEntrySide_enum.DEBUG,
       currency: Currency_enum.UNDEFINED,
       intercompanyInfo__VsUnitId: '',
-      value: this.#toBigInt(0),
-      writingValue: this.#toBigInt(0),
+      value: this.toBigInt(0),
+      writingValue: this.toBigInt(0),
       alive: false,
       command__Id: this.#getNextCommandId().toString(),
       command__DebugDescription: (!isNullOrWhiteSpace(newDebugSimObjectDto.command__DebugDescription)) ? (newDebugSimObjectDto.command__DebugDescription ?? '') : debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription ?? '',
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#toBigInt(0),
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.toBigInt(0),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [],
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [],
       is_Link__SimObjId: '',
@@ -380,7 +380,7 @@ class Ledger {
    @param {number} n - number to convert
    @returns {bigint}
    */
-  #toBigInt (n) {
+  toBigInt (n) {
     if (this.#roundingModeIsRound) return BigInt(Math.round(n * 10 ** this.#decimalPlaces));
     return BigInt(Math.trunc(n * 10 ** this.#decimalPlaces));
   }

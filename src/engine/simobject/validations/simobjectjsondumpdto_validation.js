@@ -1,6 +1,6 @@
 export { simObjectJsonDumpDto_Validation };
 
-import { DoubleEntrySide_enum_validation } from '../enums/DoubleEntrySide_enum.js';
+import { DoubleEntrySide_enum_validation } from '../enums/doubleentryside_enum.js';
 import { Currency_enum_validation } from '../enums/currency_enum.js';
 import { validation } from '../../../deps.js';
 
