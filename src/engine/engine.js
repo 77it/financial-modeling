@@ -27,6 +27,14 @@ import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
  * @return {Promise<Result>}
  */
 async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debug }) {
+  /*
+     _____   _____   __  __   _    _   _                   _______   _____    ____    _   _             _____   _______              _____    _______
+    / ____| |_   _| |  \/  | | |  | | | |          /\     |__   __| |_   _|  / __ \  | \ | |           / ____| |__   __|     /\     |  __ \  |__   __|
+   | (___     | |   | \  / | | |  | | | |         /  \       | |      | |   | |  | | |  \| |  ______  | (___      | |       /  \    | |__) |    | |
+    \___ \    | |   | |\/| | | |  | | | |        / /\ \      | |      | |   | |  | | | . ` | |______|  \___ \     | |      / /\ \   |  _  /     | |
+    ____) |  _| |_  | |  | | | |__| | | |____   / ____ \     | |     _| |_  | |__| | | |\  |           ____) |    | |     / ____ \  | | \ \     | |
+   |_____/  |_____| |_|  |_|  \____/  |______| /_/    \_\    |_|    |_____|  \____/  |_| \_|          |_____/     |_|    /_/    \_\ |_|  \_\    |_|
+   */
   const _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });  // define _ledger here to be able to use it in the `finally` block
 
   try {
@@ -189,9 +197,25 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     _ledger.lock();  // lock Ledger at the end of the simulation
 
     console.dir(_moduleDataArray); // todo TOREMOVE
-    throw new Error('not implemented');
+    throw new Error('not implemented'); // todo TOREMOVE
+    /*
+       _____   _____   __  __   _    _   _                   _______   _____    ____    _   _             ______   _   _   _____
+      / ____| |_   _| |  \/  | | |  | | | |          /\     |__   __| |_   _|  / __ \  | \ | |           |  ____| | \ | | |  __ \
+     | (___     | |   | \  / | | |  | | | |         /  \       | |      | |   | |  | | |  \| |  ______   | |__    |  \| | | |  | |
+      \___ \    | |   | |\/| | | |  | | | |        / /\ \      | |      | |   | |  | | | . ` | |______|  |  __|   | . ` | | |  | |
+      ____) |  _| |_  | |  | | | |__| | | |____   / ____ \     | |     _| |_  | |__| | | |\  |           | |____  | |\  | | |__| |
+     |_____/  |_____| |_|  |_|  \____/  |______| /_/    \_\    |_|    |_____|  \____/  |_| \_|           |______| |_| \_| |_____/
+     */
 
     //#region local function inside try() section
+    /*
+      _         ____     _____              _          ______   _    _   _   _    _____   _______   _____    ____    _   _    _____
+     | |       / __ \   / ____|     /\     | |        |  ____| | |  | | | \ | |  / ____| |__   __| |_   _|  / __ \  | \ | |  / ____|
+     | |      | |  | | | |         /  \    | |        | |__    | |  | | |  \| | | |         | |      | |   | |  | | |  \| | | (___
+     | |      | |  | | | |        / /\ \   | |        |  __|   | |  | | | . ` | | |         | |      | |   | |  | | | . ` |  \___ \
+     | |____  | |__| | | |____   / ____ \  | |____    | |      | |__| | | |\  | | |____     | |     _| |_  | |__| | | |\  |  ____) |
+     |______|  \____/   \_____| /_/    \_\ |______|   |_|       \____/  |_| \_|  \_____|    |_|    |_____|  \____/  |_| \_| |_____/
+     */
 
     /** Return debug info about the current module, to be used in the ledger, drivers and taskLocks
      * @param {ModuleData} moduleData
@@ -282,6 +306,15 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     //#endregion local function inside try() section
   } catch (error) {
     /*
+     _____              _______    _____   _    _
+    / ____|     /\     |__   __|  / ____| | |  | |
+   | |         /  \       | |    | |      | |__| |
+   | |        / /\ \      | |    | |      |  __  |
+   | |____   / ____ \     | |    | |____  | |  | |
+    \_____| /_/    \_\    |_|     \_____| |_|  |_|
+     */
+
+    /*
     Every module that wants to interrupt program execution for a fatal error throws a new Error;
     this error is intercepted here, and will be recorded a 'debug_error' SimObject, then the execution ends with an error.
      */
@@ -294,6 +327,14 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
 
     return new Result({ success: false, error: `${_ledger.getDebugModuleInfo()}\n${_error}\n` });
   }
+  /*
+    _____    ______   _______   _    _   _____    _   _      _____   _    _    _____    _____   ______    _____    _____
+   |  __ \  |  ____| |__   __| | |  | | |  __ \  | \ | |    / ____| | |  | |  / ____|  / ____| |  ____|  / ____|  / ____|
+   | |__) | | |__       | |    | |  | | | |__) | |  \| |   | (___   | |  | | | |      | |      | |__    | (___   | (___
+   |  _  /  |  __|      | |    | |  | | |  _  /  | . ` |    \___ \  | |  | | | |      | |      |  __|    \___ \   \___ \
+   | | \ \  | |____     | |    | |__| | | | \ \  | |\  |    ____) | | |__| | | |____  | |____  | |____   ____) |  ____) |
+   |_|  \_\ |______|    |_|     \____/  |_|  \_\ |_| \_|   |_____/   \____/   \_____|  \_____| |______| |_____/  |_____/
+   */
   return new Result({ success: true });
 }
 
