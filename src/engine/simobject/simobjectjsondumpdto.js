@@ -5,7 +5,7 @@ class SimObjectJsonDumpDto {
    * @param {Object} p
    * @param {string} p.type
    * @param {string} p.id
-   * @param {string} p.dateTime
+   * @param {string} p.date
    * @param {string} p.name
    * @param {string} p.description
    * @param {string} p.mutableDescription
@@ -31,7 +31,7 @@ class SimObjectJsonDumpDto {
   constructor (p) {
     this.type = p.type;
     this.id = p.id;
-    this.dateTime = p.dateTime;
+    this.date = p.date;
     this.name = p.name;
     this.description = p.description;
     this.mutableDescription = p.mutableDescription;

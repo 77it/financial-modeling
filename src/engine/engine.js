@@ -121,9 +121,9 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       sanitization: sanitization.DATE_TYPE + sanitization.OPTIONAL
     });
     // if `_startDate` is still undefined, set it to default value (Date(0))
-    if (_startDate == null) _startDate = new Date(0);
+    if (_startDate == null) _startDate = stripTime(new Date(0));
     // if `_endDate` is still undefined, set it to default value (to 10 years from now, at the end of the year)
-    if (_endDate == null) _endDate = new Date(new Date().getFullYear() + CFG.DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31);
+    if (_endDate == null) _endDate = stripTime(new Date(new Date().getFullYear() + CFG.DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31));
 
     //#endregion set `_startDate`/`_endDate`
 

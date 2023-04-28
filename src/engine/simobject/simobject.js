@@ -303,7 +303,7 @@ class SimObject {
     return new SimObjectJsonDumpDto({
       type: this.#type,
       id: this.#id,
-      dateTime: this.#DateToISOString(this.#dateTime),
+      date: this.#DateToISOString(this.#dateTime),
       name: this.#name,
       description: this.#description,
       mutableDescription: this.#mutableDescription,
