@@ -243,7 +243,7 @@ class Ledger {
 
   /**
    * Add a DEBUG_DEBUG SimObject to the transaction
-   @param {NewDebugSimObjectDto} newDebugSimObjectDto
+   * @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   newDebugDebugSimObject (newDebugSimObjectDto) {
     this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_DEBUG, newDebugSimObjectDto);
@@ -251,7 +251,7 @@ class Ledger {
 
   /**
    * Add a DEBUG_INFO SimObject to the transaction
-   @param {NewDebugSimObjectDto} newDebugSimObjectDto
+   * @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   newDebugInfoSimObject (newDebugSimObjectDto) {
     this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_INFO, newDebugSimObjectDto);
@@ -259,7 +259,7 @@ class Ledger {
 
   /**
    * Add a DEBUG_WARNING SimObject to the transaction
-   @param {NewDebugSimObjectDto} newDebugSimObjectDto
+   * @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   newDebugWarningSimObject (newDebugSimObjectDto) {
     this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_WARNING, newDebugSimObjectDto);
@@ -267,9 +267,9 @@ class Ledger {
 
   /**
    * Add a DEBUG_WARNING SimObject to the transaction if the input string or array of strings is not empty
-   @param {Object} p
-   @param {string} p.title
-   @param {string|string[]} p.message
+   * @param {Object} p
+   * @param {string} p.title
+   * @param {string|string[]} p.message
    */
   newDebugWarningSimObjectFromErrorString ({ title, message }) {
     if (Array.isArray(message) && message.length === 0) return;
@@ -283,7 +283,7 @@ class Ledger {
   /**
    * BEWARE: this method must be called only by the engine, then must not be exported to modules.
    * Add a DEBUG_ERROR SimObject to the transaction
-   @param {NewDebugSimObjectDto} newDebugSimObjectDto
+   * @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   newDebugErrorSimObject (newDebugSimObjectDto) {
     this.#newDebugSimObject(SimObjectErrorDebugTypes_enum.DEBUG_ERROR, newDebugSimObjectDto);

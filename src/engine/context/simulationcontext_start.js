@@ -51,9 +51,9 @@ class SimulationContextStart {
 /**
  * @callback setTaskLock
  * Set a TaskLock; TaskLocks are immutable.
- * @param {Object} p
- * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
- * @param {string} p.name - TaskLock name
- * @param {*} p.value - TaskLock value
+ * @param {{unit?: string, name: string, value: *}} p
+ * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+ * name: TaskLock name
+ * value: TaskLock value
  * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
  */

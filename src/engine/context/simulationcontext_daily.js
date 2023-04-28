@@ -104,11 +104,11 @@ class SimulationContextDaily {
 /**
  * @callback getSetting
  * Get a Setting
- * @param {Object} p
- * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
- * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
- * @param {string} p.name - Setting name
- * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
+ * @param {{scenario?: string, unit?: string, name: string, date?: Date}} p
+ * scenario: Optional scenario; null, undefined or '' means `currentScenario` from constructor
+ * unit: Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
+ * name: Setting name
+ * date: Optional date; if missing is set with the value of `setToday` method
  * @return {undefined|*} Setting; if not found, returns undefined
  * if `endDate` is not defined, returns the value defined before or at `date`;
  * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
@@ -117,13 +117,13 @@ class SimulationContextDaily {
 /**
  * @callback getDriver
  * Get a Driver
- * @param {Object} p
- * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
- * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
- * @param {string} p.name - Driver name
- * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
- * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
- * @param {'sum'|'average'|'min'|'max'} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
+ * @param {{scenario?: string, unit?: string, name: string, date?: Date, endDate?: Date, calc?: 'sum'|'average'|'min'|'max'}} p
+ * scenario: Optional scenario; null, undefined or '' means `currentScenario` from constructor
+ * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+ * name: Driver name
+ * date: Optional date; if missing is set with the value of `setToday` method
+ * endDate: Optional end date; if missing the search is done only for `date`
+ * calc: Optional calculation to be applied to the values found; default is 'sum'
  * @return {undefined|number} Driver; if not found, returns undefined
  * if `endDate` is not defined, returns the value defined before or at `date`;
  * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
@@ -132,9 +132,9 @@ class SimulationContextDaily {
 /**
  * @callback getTaskLock
  * Get a TaskLock
- * @param {Object} p
- * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
- * @param {string} p.name - TaskLock name
+ * @param {{unit?: string, name: string}} p
+ * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+ * name: TaskLock name
  * @return {*} TaskLock
  * @throws {Error} if TaskLock is not defined, throws an error
  */
@@ -164,25 +164,23 @@ class SimulationContextDaily {
 /**
  * @callback newDebugDebugSimObject
  * Add a DEBUG_DEBUG SimObject to the transaction
- @param {NewDebugSimObjectDto} newDebugSimObjectDto
+ * @param {NewDebugSimObjectDto} newDebugSimObjectDto
  */
 
 /**
  * @callback newDebugInfoSimObject
  * Add a DEBUG_INFO SimObject to the transaction
- @param {NewDebugSimObjectDto} newDebugSimObjectDto
+ * @param {NewDebugSimObjectDto} newDebugSimObjectDto
  */
 
 /**
  * @callback newDebugWarningSimObject
  * Add a DEBUG_WARNING SimObject to the transaction
- @param {NewDebugSimObjectDto} newDebugSimObjectDto
+ * @param {NewDebugSimObjectDto} newDebugSimObjectDto
  */
 
 /**
  * @callback newDebugWarningSimObjectFromErrorString
  * Add a DEBUG_WARNING SimObject to the transaction if the input string or array of strings is not empty
- @param {Object} p
- @param {string} p.title
- @param {string|string[]} p.message
+ * @param {{title: string, message: string|string[]}} p
  */
