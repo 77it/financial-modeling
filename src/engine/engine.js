@@ -32,7 +32,13 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
   try {
     validation.validateObj({
       obj: { modulesData, modules, scenarioName, appendTrnDump, debug },
-      validation: { modulesData: validation.ARRAY_TYPE, modules: validation.ARRAY_TYPE, scenarioName: validation.STRING_TYPE, appendTrnDump: validation.FUNCTION_TYPE, debug: validation.BOOLEAN_TYPE + validation.OPTIONAL }
+      validation: {
+        modulesData: validation.ARRAY_TYPE,
+        modules: validation.ARRAY_TYPE,
+        scenarioName: validation.STRING_TYPE,
+        appendTrnDump: validation.FUNCTION_TYPE,
+        debug: validation.BOOLEAN_TYPE + validation.OPTIONAL
+      }
     });
     if (modulesData.length !== modules.length) throw new Error('modulesData.length !== modules.length');
 
@@ -89,7 +95,8 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
       _taskLocks.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
 
-      _modulesArray[i]?.oneTimeBeforeTheSimulationStarts({ moduleData: _moduleDataArray[i], simulationContextStart });
+      if (_modulesArray[i]?.oneTimeBeforeTheSimulationStarts != null)
+        _modulesArray[i]?.oneTimeBeforeTheSimulationStarts({ moduleData: _moduleDataArray[i], simulationContextStart });
     }
 
     setDebugLevelOnLedger({ debugParameter: debug, settings: _settings });
@@ -136,7 +143,8 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
-          _modulesArray[i]?.beforeDailyModeling({ simulationContextDaily });
+          if (_modulesArray[i]?.beforeDailyModeling != null)
+            _modulesArray[i]?.beforeDailyModeling({ simulationContextDaily });
         }
       }
 
@@ -146,7 +154,8 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
-          _modulesArray[i]?.dailyModeling({ simulationContextDaily });
+          if (_modulesArray[i]?.dailyModeling != null)
+            _modulesArray[i]?.dailyModeling({ simulationContextDaily });
           ensureNoTransactionIsOpen();
         }
       }
@@ -164,7 +173,8 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
     for (let i = 0; i < _modulesArray.length; i++) {
       if (_modulesArray[i].alive) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
-        _modulesArray[i]?.oneTimeAfterTheSimulationEnds({ simulationContextDaily });
+        if (_modulesArray[i]?.oneTimeAfterTheSimulationEnds != null)
+          _modulesArray[i]?.oneTimeAfterTheSimulationEnds({ simulationContextDaily });
         ensureNoTransactionIsOpen();
       }
     }
@@ -187,7 +197,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
      * @param {ModuleData} moduleData
      */
     function getDebugModuleInfo (moduleData) {
-      return `moduleName: '${moduleData?.moduleName}', moduleEngineURI: '${moduleData?.moduleEngineURI}', moduleSourceLocation: '${moduleData?.moduleSourceLocation}'`;
+      return `scenario: '${scenarioName}', moduleName: '${moduleData?.moduleName}', moduleEngineURI: '${moduleData?.moduleEngineURI}', moduleSourceLocation: '${moduleData?.moduleSourceLocation}'`;
     }
 
     /**
@@ -278,10 +288,11 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
 
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
+    _ledger.unlock();
     _ledger?.newDebugErrorSimObject(new NewDebugSimObjectDto({ description: _error }));
     _ledger?.forceCommitWithoutValidation();
 
-    return new Result({ success: false, error: _error });
+    return new Result({ success: false, error: `${_ledger.getDebugModuleInfo()}\n${_error}\n` });
   }
   return new Result({ success: true });
 }

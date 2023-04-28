@@ -375,5 +375,8 @@ function toStringYYYYMMDD (date) {
  * @returns {Date}
  */
 function stripTime (date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  if (isValidDate(date))
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  else
+    return date;
 }

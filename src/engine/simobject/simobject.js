@@ -363,7 +363,7 @@ class SimObject {
    * @throws {Error} if clone() or structuredClone() fails
    */
   #StructuredCloneOrClone (obj) {
-    if (obj.clone)
+    if (obj?.clone)
       return obj.clone();
     else
       return structuredClone(obj);
