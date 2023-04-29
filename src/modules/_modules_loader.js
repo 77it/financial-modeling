@@ -3,6 +3,8 @@ export { ModulesLoader };
 import { validation, sanitization } from '../deps.js';
 import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
 
+const DEFAULT_CLASSNAME = 'Module';
+
 class ModulesLoader {
   /**
    Map to store classes:
@@ -11,7 +13,6 @@ class ModulesLoader {
    Beware: URI (the original module URI) is different from cdnURI (the URI from which the module is loaded)
    * @type {Map<String, {class: *, cdnURI: string}>} */
   #classesRepo;
-  #defaultClassName = 'Module';
   /** @type {modulesLoader_Resolve} */
   #modulesLoader_Resolve;
 
@@ -50,11 +51,11 @@ class ModulesLoader {
   }
 
   /**
-   Load module from URI and add a class with default name {#defaultClassName} to the repository.
-   If 'URI/moduleName' already exists, it is not added.
+   Load module from URI and add a class with default name {DEFAULT_CLASSNAME} to the repository.
+   If 'URI/moduleName' already exists, it is not loaded/added.
    If URI is "" or . or / or \, is set to ./${moduleName.trim().toLowerCase()}.js
    If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
-   If is missing the ".js" extension from the URI, the extension is added
+   If URI is missing the ".js" extension, the extension is added
    * @param {{moduleName: string, moduleEngineURI: string}} p
    * @throws Will throw an error if moduleEngineURI/moduleName already exists
    */
@@ -78,8 +79,8 @@ class ModulesLoader {
       for (const _cdnURI of this.#modulesLoader_Resolve(_URI)) {
         try {
           const _module = await import(_cdnURI);
-          if (_module != null && _module[this.#defaultClassName] != null) {
-            this.#classesRepo.set(repoKey, { class: _module[this.#defaultClassName], cdnURI: _cdnURI });
+          if (_module != null && _module[DEFAULT_CLASSNAME] != null) {
+            this.#classesRepo.set(repoKey, { class: _module[DEFAULT_CLASSNAME], cdnURI: _cdnURI });
             return;
           }
         } catch (error) {

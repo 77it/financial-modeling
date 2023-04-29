@@ -17,13 +17,34 @@ import {assert, assertFalse, assertEquals, assertNotEquals} from '../../deps.js'
 const DEBUG_FLAG = true;
 
 Deno.test('main-treasury-temp tests', async () => {
+  const ERROR_FILE = './errors.txt';
+
   Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
     if (!existSync(OPTIONS.FILES.CONVERTER2_EXEGZ_PATH))
     await downloadAndDecompressGzip(
       { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
 
-  await main({excelUserInput: './user_data.xlsx', outputFolder: '.', errors: './errors.txt', debug: DEBUG_FLAG});
-  await main({excelUserInput: './user_data__no_settings.xlsx', outputFolder: '.', errors: './errors.txt', debug: DEBUG_FLAG});
+  await main({
+    excelUserInput: './user_data__non_existent_module.xlsx', outputFolder: '.', errors: ERROR_FILE,
+    moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
+  });
+  const _errors = Deno.readTextFileSync(ERROR_FILE)
+  assert(_errors.includes(`error loading module`));
+  assert(_errors.includes(`xxxyyy99___non_existent_module__888_missingmissing`));
+
+  await main({
+    excelUserInput: './user_data.xlsx', outputFolder: '.', errors: ERROR_FILE,
+    moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
+  });
+  if (existSync(ERROR_FILE)) throw new Error(`Error file ${ERROR_FILE} should not exist`);
+  // TODO use Converter2.exe [1] `excel-sheet-to-jsonl-ledger-trn` to read expected DTO, compare then end test
+
+  await main({
+    excelUserInput: './user_data__no_settings.xlsx', outputFolder: '.', errors: ERROR_FILE,
+    moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
+  });
+  if (existSync(ERROR_FILE)) throw new Error(`Error file ${ERROR_FILE} should not exist`);
+  // TODO use Converter2.exe [1] `excel-sheet-to-jsonl-ledger-trn` to read expected DTO, compare then end test
 
   /* TODO NOW
 engine.js

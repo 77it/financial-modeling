@@ -1,7 +1,7 @@
 export { modulesLoader_Resolve };
 
 /**
- * Function to get a list of URL from which import a module
+ * Function to resolve a module URI to a list of CDN URI from which import the module; if the URI is not a GitHub path, the URI is returned as is
  * @param {string} moduleUrl - The url of the module to resolve
  * @return {string[]} List of URL from which import a module
  */
@@ -17,7 +17,7 @@ function modulesLoader_Resolve (moduleUrl) {
     _ret.push(buildGithackURI(splitGitHubURIParts));
     _ret.push(buildStaticallyIoURI(splitGitHubURIParts));
     _ret.push(buildGitHubRawURI(splitGitHubURIParts));
-  } else // If moduleEngineURI is not a GitHub path
+  } else // If moduleEngineURI is not a GitHub path, return the original URI
     _ret.push(_cdnURI);
 
   // loop return array: if some element is missing the ".js" extension from the url, add it

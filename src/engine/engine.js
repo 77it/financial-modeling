@@ -23,10 +23,10 @@ import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
  * @param {Module[]} p.modules - Array of module classes, in the same order of modulesData
  * @param {string} p.scenarioName - Scenario name
  * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
- * @param {boolean} [p.debug=false] - Optional debug flag
+ * @param {boolean} [p.ledgerDebug=false] - Optional ledgerDebug flag
  * @return {Promise<Result>}
  */
-async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debug }) {
+async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebug }) {
   /*
      _____   _____   __  __   _    _   _                   _______   _____    ____    _   _             _____   _______              _____    _______
     / ____| |_   _| |  \/  | | |  | | | |          /\     |__   __| |_   _|  / __ \  | \ | |           / ____| |__   __|     /\     |  __ \  |__   __|
@@ -39,13 +39,13 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
 
   try {
     validation.validateObj({
-      obj: { modulesData, modules, scenarioName, appendTrnDump, debug },
+      obj: { modulesData, modules, scenarioName, appendTrnDump, ledgerDebug },
       validation: {
         modulesData: validation.ARRAY_TYPE,
         modules: validation.ARRAY_TYPE,
         scenarioName: validation.STRING_TYPE,
         appendTrnDump: validation.FUNCTION_TYPE,
-        debug: validation.BOOLEAN_TYPE + validation.OPTIONAL
+        ledgerDebug: validation.BOOLEAN_TYPE + validation.OPTIONAL
       }
     });
     if (modulesData.length !== modules.length) throw new Error('modulesData.length !== modules.length');
@@ -104,10 +104,10 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       _taskLocks.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
 
       if (_modulesArray[i]?.oneTimeBeforeTheSimulationStarts != null)
-        _modulesArray[i]?.oneTimeBeforeTheSimulationStarts({ moduleData: _moduleDataArray[i], simulationContextStart });
+        _modulesArray[i]?.oneTimeBeforeTheSimulationStarts({ moduleData: structuredClone(_moduleDataArray[i]), simulationContextStart });
     }
 
-    setDebugLevelOnLedger({ debugParameter: debug, settings: _settings });
+    setDebugLevelOnLedger({ debugParameter: ledgerDebug, settings: _settings });
 
     //#region set `_startDate`/`_endDate`
     // set _startDate to the earliest startDate of all modules
@@ -273,7 +273,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
       return _taskLocksSequenceArray;
     }
 
-    /** set Ledger debug level, if engine `debug` parameter or Settings.Simulation.$DEBUG_FLAG are true
+    /** set Ledger debug level, if engine `ledgerDebug` parameter or Settings.Simulation.$DEBUG_FLAG are true
      * @param {Object} p
      * @param {undefined|boolean} p.debugParameter
      * @param {Settings} p.settings
@@ -320,7 +320,6 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, debu
      */
 
     const _error = error.stack?.toString() ?? error.toString();
-    console.log(_error);
     _ledger.unlock();
     _ledger?.newDebugErrorSimObject(new NewDebugSimObjectDto({ description: _error }));
     _ledger?.forceCommitWithoutValidation();

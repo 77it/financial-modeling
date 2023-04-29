@@ -38,12 +38,21 @@ if (Deno.args.length !== 0) {
  * Run Simulation and write a series of output files - containing accounting writing transactions - in JSONL format in the `output` folder.
  * Will be created a file for each scenario.
  * @param {Object} p
- * @param {string} p.excelUserInput - Excel file with user input
+ * @param {string} p.excelUserInput - Path of the Excel file with user input
  * @param {string} p.outputFolder - Output folder
- * @param {string} p.errors - Text file created only if there are errors
- * @param {boolean} [p.debug=false] - Optional debug flag
+ * @param {string} p.errors - Path of the error file, created only if there are errors
+ * @param {boolean} [p.moduleResolverDebugFlag=false] - When true, Engine and ModuleLoader are returned from local file
+ * @param {boolean} [p.ledgerDebugFlag=false] - Ledger debug flag
+ * @param {boolean} [p.continueExecutionAfterSimulationDebugFlag=false] - Continue execution after simulation debug flag
  */
-async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
+async function main ({
+  excelUserInput,
+  outputFolder,
+  errors,
+  moduleResolverDebugFlag = false,
+  ledgerDebugFlag = false,
+  continueExecutionAfterSimulationDebugFlag = false
+}) {
   // create/overwrite errorsDump file
   const errorsDumpFileWriter = await Deno.open(errors, { create: true, write: true, truncate: true });
 
@@ -62,7 +71,7 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
     const _modulesLoaderClass = await _getFunctionFromUrl({
       url: _$$MODULESLOADER_URL,
       functionName: 'ModulesLoader',
-      debug: debug,
+      debug: moduleResolverDebugFlag,
       defaultFunction: ModulesLoader
     });
     // init the module loader passing a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside ModulesLoader
@@ -82,7 +91,7 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
     const _engine = await _getFunctionFromUrl({
       url: _$$ENGINE_URL,
       functionName: 'engine',
-      debug: debug,
+      debug: moduleResolverDebugFlag,
       defaultFunction: engine
     });
 
@@ -119,10 +128,11 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
         modules: _modulesArray,
         scenarioName: _scenario,
         appendTrnDump: _appendTrnDump,
-        debug: debug
+        ledgerDebug: ledgerDebugFlag
       });
 
       if (!_engine_result.success) {
+        console.log(_engine_result?.error ?? 'Unknown error');
         writeToStream(errorsDumpFileWriter, _engine_result?.error ?? 'Unknown error');
         _exitCode = 1;
       }
@@ -137,7 +147,9 @@ async function main ({ excelUserInput, outputFolder, errors, debug = false }) {
     _exitCode = 1;
   } finally {
     errorsDumpFileWriter.close();
-    Deno.exit(_exitCode);
+    // continue execution after simulation if debug flag is true
+    if (!continueExecutionAfterSimulationDebugFlag)
+      Deno.exit(_exitCode);
   }
 
   //#region local functions
@@ -209,8 +221,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
       return sanitization.sanitize({ value: _setting, sanitization: settingSanitization });
     else
       return _setting;
-  }
-  catch (e) {
+  } catch (e) {
     return undefined;
   }
 }
@@ -221,7 +232,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
  * @param {Object} p
  * @param {string} p.url
  * @param {string} p.functionName
- * @param {boolean} p.debug - Debug flag: when true, the engine function is returned from local engine file
+ * @param {boolean} p.debug - debug flag: when true, the function is returned from defaultFunction
  * @param {*} p.defaultFunction - Default object to return when debug is true or when `functionName` is not found
  * @return {Promise<*>} - Some object read from URI
  */
@@ -263,17 +274,22 @@ async function _getFunctionFromUrl ({
  * @param {ModulesLoader} p.modulesLoader
  * @param {ModuleData[]} p.moduleDataArray
  * @return {Promise<*[]>}  returns array of module classes
+ * @throws {Error} If module is not founds
  */
 async function _init_modules_classes__loading_Modules_fromUri ({ modulesLoader, moduleDataArray }) {
   const _modulesRepo = [];
   for (const moduleData of moduleDataArray) {
+    // try to get the module from modulesLoader
     let module = modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
+    // if not found, load it from URI and try to get it again
     if (!module) {
       await modulesLoader.addClassFromURI({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
       module = modulesLoader.get({ moduleName: moduleData.moduleName, moduleEngineURI: moduleData.moduleEngineURI });
     }
+    // if module is still not found, throw an error
     if (!module)
-      throw new Error(`module ${moduleData.moduleName} not found`);
+      throw new Error(`module '${moduleData.moduleName}' not found`);
+    // if module is found, init the class and push it to _modulesRepo
     _modulesRepo.push(new module.class());
   }
   return _modulesRepo;
