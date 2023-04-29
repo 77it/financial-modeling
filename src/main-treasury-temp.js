@@ -185,12 +185,13 @@ function _get_SimulationSetting_FromModuleDataArray ({
     const _settingName = settingName.trim().toLowerCase();
 
     const moduleName = SETTINGS_MODULE_INFO.MODULE_NAME.trim().toLowerCase();
-    const tableName = SETTINGS_MODULE_INFO.TablesInfo.Set.NAME.trim().toLowerCase();
-    const tableSanitization = SETTINGS_MODULE_INFO.TablesInfo.Set.Validation;
-    const tableColScenario = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.SCENARIO.trim().toLowerCase();
-    const tableColUnit = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.UNIT.trim().toLowerCase();
-    const tableColName = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.NAME.trim().toLowerCase();
-    const tableColValue = SETTINGS_MODULE_INFO.TablesInfo.Set.Columns.VALUE.trim().toLowerCase();
+    const table = SETTINGS_MODULE_INFO.tablesInfo.set;
+    const tableName = table.name.trim().toLowerCase();
+    const tableSanitization = table.validation;
+    const tableColScenario = table.columns.scenario.trim().toLowerCase();
+    const tableColUnit = table.columns.unit.trim().toLowerCase();
+    const tableColName = table.columns.name.trim().toLowerCase();
+    const tableColValue = table.columns.value.trim().toLowerCase();
     const scenarioName = STD_NAMES.Scenario.BASE.trim().toLowerCase();
     const unitName = STD_NAMES.Simulation.NAME.trim().toLowerCase();
 

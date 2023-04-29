@@ -13,17 +13,71 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
+
+import { ModuleData, SimulationContextDaily, SimulationContextStart } from '../deps.js';
+
 export class Module {
-  name = 'genericmovement';
+  #name = 'genericmovement';
 
   //#region private fields
-  #_alive;
+  /** @type {boolean} */
+  #alive;
+  /** @type {undefined|Date} */
+  #startDate;
 
-  //#endregion
+  //#endregion private fields
 
   constructor () {
-    this.#_alive = true;
+    this.#alive = true;
+    this.#startDate = undefined;
   }
 
-  get alive () { return this.#_alive; }
+  get name () { return this.#name; }
+
+  get alive () { return this.#alive; }
+
+  /** @returns {undefined|Date} */
+  get startDate () { return this.#startDate; }
+
+  /**
+   * Set Drivers, SharedConstants, startDate.
+   * Called only one time, before the simulation starts.
+   * @param {Object} p
+   * @param {ModuleData} p.moduleData
+   * @param {SimulationContextStart} p.simulationContextStart
+   * @returns {void}
+   */
+  oneTimeBeforeTheSimulationStarts ({ moduleData, simulationContextStart }) {
+    // do something: using `moduleData` set Drivers, Settings, TaskLocks, this.#startDate
+  }
+
+  /**
+   * Called daily, as first step of daily modeling.
+   * @param {Object} p
+   * @param {SimulationContextDaily} p.simulationContextDaily
+   * @returns {void}
+   */
+  beforeDailyModeling ({ simulationContextDaily }) {
+    // do something
+  }
+
+  /**
+   * Called daily, after `beforeDailyModeling`
+   * @param {Object} p
+   * @param {SimulationContextDaily} p.simulationContextDaily
+   * @returns {void}
+   */
+  dailyModeling ({ simulationContextDaily }) {
+    // do something
+  }
+
+  /**
+   * Called only one time, after the simulation ends.
+   * @param {Object} p
+   * @param {SimulationContextDaily} p.simulationContextDaily
+   * @returns {void}
+   */
+  oneTimeAfterTheSimulationEnds ({ simulationContextDaily }) {
+    // do something
+  }
 }

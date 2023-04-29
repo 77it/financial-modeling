@@ -13,25 +13,27 @@ Every module that wants to interrupt program execution for a fatal error throws 
 import { ModuleData, SimulationContextDaily, SimulationContextStart } from '../deps.js';
 
 export class Module {
-  name = '_sample_module';
+  #name = '_sample_module';
+
   //#region private fields
   /** @type {boolean} */
-  #_alive;
+  #alive;
   /** @type {undefined|Date} */
-  #_startDate;
+  #startDate;
 
-  //#endregion
+  //#endregion private fields
 
   constructor () {
-    this.#_alive = true;
-    this.#_startDate = undefined;
+    this.#alive = true;
+    this.#startDate = undefined;
   }
 
-  /** @returns {boolean} */
-  get alive () { return this.#_alive; }
+  get name () { return this.#name; }
+
+  get alive () { return this.#alive; }
 
   /** @returns {undefined|Date} */
-  get startDate () { return this.#_startDate; }
+  get startDate () { return this.#startDate; }
 
   /**
    * Set Drivers, SharedConstants, startDate.
@@ -42,7 +44,7 @@ export class Module {
    * @returns {void}
    */
   oneTimeBeforeTheSimulationStarts ({ moduleData, simulationContextStart }) {
-    // do something: using `moduleData` set Drivers, Settings, TaskLocks, this.#_startDate
+    // do something: using `moduleData` set Drivers, Settings, TaskLocks, this.#startDate
   }
 
   /**
