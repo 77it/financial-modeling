@@ -10,3 +10,9 @@ Ogni giorno si leggono i costi e ricavi del giorno, creano un anno modello con n
 Se l'anno bisestile è quello del bilancio chiuso è irrilevante, la proporzione di crediti/magazzino/debiti è sempre crediti/ricavi, che sia su 365 o 366 giorni.
 Il modello è rolling, nel senso che ogni giorno si perde un pezzo del precedente e si prende un pezzo del nuovo anno.
 Se tra data inizio e data fine è presente un anno bisestile la base è 366 giorni, che scorrendo diventa 365 appena ci si lascia alle spalle febbraio.
+
+/////
+
+NWC ogni giorno scarica crediti e debiti commerciali alive con scadenza:
+* scarica crediti e debiti commerciali alive da Ledger chiamando `getAliveBsSimObjectsWithPrincipalToPay()`
+* le scadenze dell'array dei SO e scarica quelli con scadenza <= today.

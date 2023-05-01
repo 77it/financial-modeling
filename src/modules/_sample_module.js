@@ -50,20 +50,22 @@ export class Module {
   /**
    * Called daily, as first step of daily modeling.
    * @param {Object} p
+   * @param {Date} p.today
    * @param {SimulationContextDaily} p.simulationContextDaily
    * @returns {void}
    */
-  beforeDailyModeling ({ simulationContextDaily }) {
+  beforeDailyModeling ({ today, simulationContextDaily }) {
     // do something
   }
 
   /**
    * Called daily, after `beforeDailyModeling`
    * @param {Object} p
+   * @param {Date} p.today
    * @param {SimulationContextDaily} p.simulationContextDaily
    * @returns {void}
    */
-  dailyModeling ({ simulationContextDaily }) {
+  dailyModeling ({ today, simulationContextDaily }) {
     // do something
   }
 

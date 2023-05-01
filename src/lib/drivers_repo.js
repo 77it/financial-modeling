@@ -115,7 +115,7 @@ class DriversRepo {
         }
       });
 
-      // strip the time part from the date (if the date is != Date(0))
+      // if date is not present, set it to new Date(0); if date is present, strip the time part from the date (if the date is != Date(0))
       // (check for `_inputItemClone?.date` because typescript can't understand that `sanitizeObj` sanitize invalid dates)
       _inputItemClone.date = (_inputItemClone?.date && _inputItemClone?.date.getTime() !== 0) ? stripTime(_inputItemClone?.date) : new Date(0);
 

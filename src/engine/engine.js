@@ -97,7 +97,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
 
     _ledger.lock();  // lock Ledger before starting the Simulation
 
-    //# call `oneTimeBeforeTheSimulationStarts`
+    //# call `oneTimeBeforeTheSimulationStarts` passing a cloned `moduleData` and `simulationContextStart` to each module
     for (let i = 0; i < _modulesArray.length; i++) {
       setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
       _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
@@ -134,12 +134,12 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     //#endregion build taskLocks sequence arrays
 
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
-    for (let date = _startDate; date <= _endDate; date.setDate(date.getDate() + 1)) {
+    for (let today = _startDate; today <= _endDate; today.setDate(today.getDate() + 1)) {
       _ledger.lock();  // lock Ledger at the beginning of each day
 
-      _ledger.setToday(date);
-      _settings.setToday(date);
-      _drivers.setToday(date);
+      _ledger.setToday(today);
+      _settings.setToday(today);
+      _drivers.setToday(today);
 
       // call `taskLocksBeforeDailyModeling`
       _taskLocksBeforeDailyModeling.forEach(taskLockEntry => {
@@ -152,7 +152,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
           if (_modulesArray[i]?.beforeDailyModeling != null)
-            _modulesArray[i]?.beforeDailyModeling({ simulationContextDaily });
+            _modulesArray[i]?.beforeDailyModeling({ today, simulationContextDaily });
         }
       }
 
@@ -163,7 +163,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
           if (_modulesArray[i]?.dailyModeling != null)
-            _modulesArray[i]?.dailyModeling({ simulationContextDaily });
+            _modulesArray[i]?.dailyModeling({ today, simulationContextDaily });
           ensureNoTransactionIsOpen();
         }
       }
@@ -174,6 +174,8 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
         taskLockEntry.taskLock();
         ensureNoTransactionIsOpen();
       });
+
+      _ledger.eod();  // Ledger end of the day actions
     }
     //#endregion call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
 
@@ -195,6 +197,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     });
 
     _ledger.lock();  // lock Ledger at the end of the simulation
+    _ledger.eod();  // Ledger end of the day actions
 
     console.dir(_moduleDataArray); // todo TOREMOVE
     throw new Error('not implemented'); // todo TOREMOVE

@@ -146,6 +146,20 @@ class Ledger {
     return this.#isLocked;
   }
 
+  /**
+   * @param {Object} p
+   * @param {string} [p.type] - SimObject type. If missing, retrieve all, if present retrieve only the specified type.
+   * @returns {SimObject[]} */
+  getAliveBsSimObjectsWithExpiredPrincipalToPay ({ type }) {
+    // TODO return a list of SO
+    // * alive BS SimObjects
+    // * with principal to pay (date of a payment is <= today)
+    // * for all Units
+    // all SO are cloned before being returned
+    //@ts-ignore
+    return null;
+  }
+
   //#endregion GET/QUERY methods
 
   //#region COMMIT methods
@@ -188,6 +202,18 @@ class Ledger {
   }
 
   //#endregion COMMIT methods
+
+  //#region EOD methods
+  /**
+   * End of day activities. Can be called more than one time, and must not go in error.
+   * Do some cleanups, squaring, but must not commit any transaction.
+   * Must work even if the ledger is locked.
+   */
+  eod () {
+    // TODO nothing to do for now
+  }
+
+  //#endregion EOD methods
 
   //#region SIMOBJECT methods
   /**
@@ -307,6 +333,9 @@ class Ledger {
 
     // add or update the SimObject in the repository
     this.#simObjectsRepo.set(simObject.id, simObject);
+
+    // TODO registra il SO in un oggetto con una proprietà Map per ogni tutti i SO BS alive.  // IS e altri non possono essere alive.
+    // Dopo ogni movimento di SO elimina i BS non più alive.
   }
 
   /** @returns {number} */

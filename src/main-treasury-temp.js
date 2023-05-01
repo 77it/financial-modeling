@@ -185,9 +185,9 @@ function _get_SimulationSetting_FromModuleDataArray ({
     const _settingName = settingName.trim().toLowerCase();
 
     const moduleName = SETTINGS_MODULE_INFO.MODULE_NAME.trim().toLowerCase();
-    const table = SETTINGS_MODULE_INFO.tablesInfo.set;
-    const tableName = table.name.trim().toLowerCase();
-    const tableSanitization = table.validation;
+    const table = SETTINGS_MODULE_INFO.tablesInfo.Set;
+    const tableName = table.tableName.trim().toLowerCase();
+    const tableSanitization = table.sanitization;
     const tableColScenario = table.columns.scenario.trim().toLowerCase();
     const tableColUnit = table.columns.unit.trim().toLowerCase();
     const tableColName = table.columns.name.trim().toLowerCase();

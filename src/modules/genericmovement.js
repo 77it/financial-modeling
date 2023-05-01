@@ -14,22 +14,45 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { ModuleData, SimulationContextDaily, SimulationContextStart } from '../deps.js';
+import { deepFreeze, validation, ModuleData, SimulationContextDaily, SimulationContextStart, sanitization } from '../deps.js';
+import { sanitizeModuleData } from './_utils/utils.js';
+
+const MODULE_NAME = 'genericmovement';
+const tablesInfo = {};
+tablesInfo.Settings = {};
+tablesInfo.Settings.tableName = 'settings';
+tablesInfo.Settings.columns = { name: 'name', value: 'value' };
+tablesInfo.Settings.sanitization = {
+  [tablesInfo.Settings.columns.name]: sanitization.STRING_TYPE,
+  [tablesInfo.Settings.columns.value]: sanitization.ANY_TYPE
+};
+tablesInfo.Set = {};
+tablesInfo.Set.tableName = 'set';
+tablesInfo.Set.columns = { categoria: 'categoria', category: 'category' };
+tablesInfo.Set.sanitization = {
+  [tablesInfo.Set.columns.categoria]: sanitization.STRING_TYPE,
+  [tablesInfo.Set.columns.category]: sanitization.STRING_TYPE
+};
+const ModuleInfo = { MODULE_NAME, tablesInfo };
+deepFreeze(ModuleInfo);
 
 export class Module {
-  #name = 'genericmovement';
+  #name = MODULE_NAME;
 
   //#region private fields
   /** @type {boolean} */
   #alive;
   /** @type {undefined|Date} */
   #startDate;
+  /** @type {undefined|ModuleData} */
+  #moduleData;
 
   //#endregion private fields
 
   constructor () {
     this.#alive = true;
     this.#startDate = undefined;
+    this.#moduleData = undefined;
   }
 
   get name () { return this.#name; }
@@ -48,7 +71,8 @@ export class Module {
    * @returns {void}
    */
   oneTimeBeforeTheSimulationStarts ({ moduleData, simulationContextStart }) {
-    // do something: using `moduleData` set Drivers, Settings, TaskLocks, this.#startDate
+    // save moduleData, after sanitizing it
+    this.#moduleData = sanitizeModuleData({moduleData, moduleSanitization: Object.values(tablesInfo)});
   }
 
   /**
@@ -68,7 +92,15 @@ export class Module {
    * @returns {void}
    */
   dailyModeling ({ simulationContextDaily }) {
-    // do something
+    // loop all tables
+    for (const table in this.#moduleData?.tables) {
+      // if tableName == tablesInfo.Set.name, loop all rows and create a setting for each entry
+      if (table === tablesInfo.Set.tableName) {
+        for (const row of table) {
+          //TODO create ledger entry
+        }
+      }
+    }
   }
 
   /**
