@@ -1,18 +1,18 @@
-export { convertExcelToModuleDataArray };
+export { convertExcelToLedgerTrnArray };
 
 import { platform } from 'https://deno.land/std@0.171.0/node/process.ts';
 import { readLines } from 'https://deno.land/std@0.152.0/io/buffer.ts';
 import { win32 } from "https://deno.land/std@0.182.0/path/mod.ts";
 
-import { ModuleData } from '../engine/modules/module_data.js';
+import { SimObject } from '../engine/simobject/simobject.js';
 import { moduleData_LoadFromJson } from './module_data_array__load_from_jsonl_file.js';
 
 import { existSync } from './exist_sync.js';
 import { downloadAndDecompressGzip } from './download_and_decompress_gzip.js';
 
 //#region OPTIONS
-const OPTIONS__CONVERTER_EXE_GZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter.exe.gz';
-const OPTIONS__CONVERTER_EXE_NAME = 'converter.exe';
+const OPTIONS__CONVERTER_EXE_GZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter2.exe.gz';
+const OPTIONS__CONVERTER_EXE_NAME = './converter2.exe';
 
 //#endregion OPTIONS
 
@@ -20,9 +20,9 @@ const OPTIONS__CONVERTER_EXE_NAME = 'converter.exe';
  * Convert Excel file to an array of `moduleData`
  * @param {Object} p
  * @param {string} p.excelInput - Excel file with user input
- * @return {Promise<ModuleData[]>} - Array of `ModuleData` objects
+ * @return {Promise<SimObject[]>} - Array of `SimObject` objects
  */
-async function convertExcelToModuleDataArray ({ excelInput}) {
+async function convertExcelToLedgerTrnArray ({ excelInput}) {
   if (!platformIsWindows)
     throw new Error('platform not supported');
 
@@ -39,7 +39,7 @@ async function convertExcelToModuleDataArray ({ excelInput}) {
 
   // convert Excel input file to JSONL `modulesData` calling Converter program  // see  https://deno.land/manual@v1.29.3/examples/subprocess
   const jsonlExcelFilename = excelInput + '.dump.jsonl.tmp';
-  const p = Deno.run({ cmd: [converterExePath, 'excel-modules-to-jsonl-modules', '--input', excelInput, '--output', jsonlExcelFilename, '--errors', tempErrorsFilePath] });
+  const p = Deno.run({ cmd: [converterExePath, 'excel-sheet-to-jsonl-ledger-trn', '--input', excelInput, '--output', jsonlExcelFilename, '--errors', tempErrorsFilePath] });
   await p.status();  // await its completion
   p.close();  // close the process
 

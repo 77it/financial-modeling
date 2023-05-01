@@ -75,6 +75,12 @@ export class Module {
     this.#moduleData = sanitizeModuleData({moduleData, moduleSanitization: Object.values(tablesInfo)});
   }
 
+  // TODO oneTimeBeforeTheSimulationStartsGetInfo, with context with only
+  //#getSetting;
+  //#getDriver;
+  //#getTaskLock;
+  // legge da Settings Unit Historical end e ne salva il valore
+
   /**
    * Called daily, as first step of daily modeling.
    * @param {Object} p
@@ -98,6 +104,7 @@ export class Module {
       if (table === tablesInfo.Set.tableName) {
         for (const row of table) {
           //TODO create ledger entry
+          //in base al valore di Setting Unit Historical end, per capire se muovere vs cash o vs PN.
         }
       }
     }

@@ -1,18 +1,11 @@
 // run with --allow-read --allow-write --allow-net --allow-run
 
-//#region settings
-const OPTIONS = {};
-OPTIONS.FILES = {}
-OPTIONS.FILES.CONVERTER2_EXEGZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter2.exe.gz';
-OPTIONS.FILES.CONVERTER2_EXEGZ_PATH = './converter2.exe';
-//#endregion settings
-
-import { downloadAndDecompressGzip } from '../../../src/deno/download_and_decompress_gzip.js';
 import { existSync } from '../../../src/deno/exist_sync.js';
 
-import {main} from '../../../src/main-treasury-temp.js';
+import { main } from '../../../src/main-treasury-temp.js';
 
-import {assert, assertFalse, assertEquals, assertNotEquals} from '../../deps.js';
+import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
+import { convertExcelToLedgerTrnArray } from '../../../src/deno/convert_excel_to_ledger_trn_array.js';
 
 const DEBUG_FLAG = true;
 
@@ -20,15 +13,12 @@ Deno.test('main-treasury-temp tests', async () => {
   const ERROR_FILE = './errors.txt';
 
   Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
-    if (!existSync(OPTIONS.FILES.CONVERTER2_EXEGZ_PATH))
-    await downloadAndDecompressGzip(
-      { url: OPTIONS.FILES.CONVERTER2_EXEGZ_URL, path: OPTIONS.FILES.CONVERTER2_EXEGZ_PATH });
 
   await main({
     excelUserInput: './user_data__non_existent_module.xlsx', outputFolder: '.', errors: ERROR_FILE,
     moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
   });
-  const _errors = Deno.readTextFileSync(ERROR_FILE)
+  const _errors = Deno.readTextFileSync(ERROR_FILE);
   assert(_errors.includes(`error loading module`));
   assert(_errors.includes(`xxxyyy99___non_existent_module__888_missingmissing`));
 
@@ -37,6 +27,7 @@ Deno.test('main-treasury-temp tests', async () => {
     moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
   });
   if (existSync(ERROR_FILE)) throw new Error(`Error file ${ERROR_FILE} should not exist`);
+  const _trnArray = await convertExcelToLedgerTrnArray({ excelInput: './user_data__expected_trn.xlsx' });
   // TODO use Converter2.exe [1] `excel-sheet-to-jsonl-ledger-trn` to read expected DTO, compare then end test
 
   await main({
