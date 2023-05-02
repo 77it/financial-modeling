@@ -2,8 +2,6 @@ export { SimObject };
 
 import { validateObj } from '../../lib/validation_utils.js';
 import { simObject_Validation } from './validations/simobject_validation.js';
-import { SimObjectDto } from './simobjectdto.js';
-import { SimObjectJsonDumpDto } from './simobjectjsondumpdto.js';
 
 // info
 /*
@@ -46,34 +44,62 @@ class SimObject {
   #extras;
 
   //#region getters, cloning properties made of mutable objects
-  get decimalPlaces() { return this.#decimalPlaces; }
-  get type() { return this.#type; }
-  get id() { return this.#id; }
-  get dateTime() { return this.#dateTime; }
-  get name() { return this.#name; }
-  get description() { return this.#description; }
-  get mutableDescription() { return this.#mutableDescription; }
-  get metadata__Name() { return [...this.#metadata__Name]; }
-  get metadata__Value() { return [...this.#metadata__Value]; }
-  get metadata__PercentageWeight() { return [...this.#metadata__PercentageWeight]; }
-  get unitId() { return this.#unitId; }
-  get doubleEntrySide() { return this.#doubleEntrySide; }
-  get currency() { return this.#currency; }
-  get intercompanyInfo__VsUnitId() { return this.#intercompanyInfo__VsUnitId; }
-  get value() { return this.#value; }
-  get writingValue() { return this.#writingValue; }
-  get alive() { return this.#alive; }
-  get command__Id() { return this.#command__Id; }
-  get command__DebugDescription() { return this.#command__DebugDescription; }
-  get commandGroup__Id() { return this.#commandGroup__Id; }
-  get commandGroup__DebugDescription() { return this.#commandGroup__DebugDescription; }
-  get bs_Principal__PrincipalToPay_IndefiniteExpiryDate() { return this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate; }
-  get bs_Principal__PrincipalToPay_AmortizationSchedule__Date() { return [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date]; }
-  get bs_Principal__PrincipalToPay_AmortizationSchedule__Principal() { return [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]; }
-  get is_Link__SimObjId() { return this.#is_Link__SimObjId; }
-  get vsSimObjectId() { return this.#vsSimObjectId; }
-  get versionId() { return this.#versionId; }
-  get extras() { return this.#StructuredCloneOrClone(this.#extras); }
+  get decimalPlaces () { return this.#decimalPlaces; }
+
+  get type () { return this.#type; }
+
+  get id () { return this.#id; }
+
+  get dateTime () { return this.#dateTime; }
+
+  get name () { return this.#name; }
+
+  get description () { return this.#description; }
+
+  get mutableDescription () { return this.#mutableDescription; }
+
+  get metadata__Name () { return [...this.#metadata__Name]; }
+
+  get metadata__Value () { return [...this.#metadata__Value]; }
+
+  get metadata__PercentageWeight () { return [...this.#metadata__PercentageWeight]; }
+
+  get unitId () { return this.#unitId; }
+
+  get doubleEntrySide () { return this.#doubleEntrySide; }
+
+  get currency () { return this.#currency; }
+
+  get intercompanyInfo__VsUnitId () { return this.#intercompanyInfo__VsUnitId; }
+
+  get value () { return this.#value; }
+
+  get writingValue () { return this.#writingValue; }
+
+  get alive () { return this.#alive; }
+
+  get command__Id () { return this.#command__Id; }
+
+  get command__DebugDescription () { return this.#command__DebugDescription; }
+
+  get commandGroup__Id () { return this.#commandGroup__Id; }
+
+  get commandGroup__DebugDescription () { return this.#commandGroup__DebugDescription; }
+
+  get bs_Principal__PrincipalToPay_IndefiniteExpiryDate () { return this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate; }
+
+  get bs_Principal__PrincipalToPay_AmortizationSchedule__Date () { return [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date]; }
+
+  get bs_Principal__PrincipalToPay_AmortizationSchedule__Principal () { return [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]; }
+
+  get is_Link__SimObjId () { return this.#is_Link__SimObjId; }
+
+  get vsSimObjectId () { return this.#vsSimObjectId; }
+
+  get versionId () { return this.#versionId; }
+
+  get extras () { return this.#StructuredCloneOrClone(this.#extras); }
+
   //#endregion getters
 
   /**
@@ -225,7 +251,7 @@ class SimObject {
    * @param {*} [p.extras]
    * @returns {SimObject}
    */
-  with(p) {
+  with (p) {
     // don't clone Array and extras, because they are already cloned in the constructor
     return new SimObject({
       decimalPlaces: p?.decimalPlaces ?? this.#decimalPlaces,
@@ -259,106 +285,7 @@ class SimObject {
     });
   }
 
-  /**
-   * Convert the SimObject to a SimObjectDto
-   * @returns {SimObjectDto}
-   */
-  toDto () {
-    return new SimObjectDto({
-      type: this.#type,
-      id: this.#id,
-      dateTime: this.#dateTime,
-      name: this.#name,
-      description: this.#description,
-      mutableDescription: this.#mutableDescription,
-      metadata__Name: [...this.#metadata__Name],
-      metadata__Value: [...this.#metadata__Value],
-      metadata__PercentageWeight: [...this.#metadata__PercentageWeight],
-      unitId: this.#unitId,
-      doubleEntrySide: this.#doubleEntrySide,
-      currency: this.#currency,
-      intercompanyInfo__VsUnitId: this.#intercompanyInfo__VsUnitId,
-      value: this.#BigIntToNumberWithDecimals(this.#value),
-      writingValue: this.#BigIntToNumberWithDecimals(this.#writingValue),
-      alive: this.#alive,
-      command__Id: this.#command__Id,
-      command__DebugDescription: this.#command__DebugDescription,
-      commandGroup__Id: this.#commandGroup__Id,
-      commandGroup__DebugDescription: this.#commandGroup__DebugDescription,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#BigIntToNumberWithDecimals(this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => this.#BigIntToNumberWithDecimals(big)),
-      is_Link__SimObjId: this.#is_Link__SimObjId,
-      vsSimObjectId: this.#vsSimObjectId,
-      versionId: this.#versionId,
-      extras: this.#StructuredCloneOrClone(this.#extras),
-    });
-  }
-
-  /**
-   * Convert the SimObject to a SimObjectJsonDumpDto
-   * @returns {SimObjectJsonDumpDto}
-   */
-  toJsonDumpDto () {
-    return new SimObjectJsonDumpDto({
-      type: this.#type,
-      id: this.#id,
-      date: this.#DateToISOString(this.#dateTime),
-      name: this.#name,
-      description: this.#description,
-      mutableDescription: this.#mutableDescription,
-      metadata__Name: [...this.#metadata__Name],
-      metadata__Value: [...this.#metadata__Value],
-      metadata__PercentageWeight: [...this.#metadata__PercentageWeight],
-      unitId: this.#unitId,
-      doubleEntrySide: this.#doubleEntrySide,
-      currency: this.#currency,
-      intercompanyInfo__VsUnitId: this.#intercompanyInfo__VsUnitId,
-      value: this.#BigIntToStringWithDecimals(this.#value),
-      writingValue: this.#BigIntToStringWithDecimals(this.#writingValue),
-      alive: this.#alive,
-      command__Id: this.#command__Id,
-      command__DebugDescription: this.#command__DebugDescription,
-      commandGroup__Id: this.#commandGroup__Id,
-      commandGroup__DebugDescription: this.#commandGroup__DebugDescription,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#BigIntToStringWithDecimals(this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate),
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => this.#DateToISOString(date)),
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => this.#BigIntToStringWithDecimals(big)),
-      is_Link__SimObjId: this.#is_Link__SimObjId,
-    });
-  }
-
   //#region private methods
-  /** Convert date to ISO string with the current time zone as if it were UTC
-   * @param {Date} date
-   * @returns {string}
-   */
-  #DateToISOString (date) {
-    // build an UTC date with parts of the date, then convert to ISO string
-    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds())).toISOString();
-  }
-
-  /** Convert Big to number, converting to a number with a fixed number of decimal places
-   * @param {bigint} big
-   * @returns {number}
-   */
-  #BigIntToNumberWithDecimals (big) {
-    return Number(big) / (10 ** this.#decimalPlaces);
-  }
-
-  /** Convert Big to number, converting to a number with a fixed number of decimal places
-   * @param {bigint} big
-   * @returns {string}
-   */
-  #BigIntToStringWithDecimals (big) {
-    // convert big to string, padding the string with zeros to the left to reach the desired number of decimal places + 1
-    // example #1: decimalPlaces = 2, big = 123, padding = '123'
-    // example #2: decimalPlaces = 4, big = 123, padding = '00123'
-    const _str = big.toString().padStart(this.#decimalPlaces + 1, '0');
-    // insert a string on the right of str, on the `#decimalPlaces`th character from the right
-    return _str.slice(0, -this.#decimalPlaces) + '.' + _str.slice(-this.#decimalPlaces);
-  }
-
   /**
    * Try to clone the extras object using the clone() method; if the clone method is not defined, try cloning with structuredClone; cloning fails, an exception is raised
    * @param {*} obj

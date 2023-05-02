@@ -1,12 +1,12 @@
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../deps.js';
 
 import { SimObject } from '../../../src/engine/simobject/simobject.js';
+import { simObjectToJsonDumpDto, toBigInt } from '../../../src/engine/simobject/utils/simobject_utils.js';
 import { SimObjectTypes_enum } from '../../../src/engine/simobject/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../src/engine/simobject/enums/doubleentryside_enum.js';
-import { Ledger } from '../../../src/engine/ledger/ledger.js';
 
-//@ts-ignore
-const _ledger = new Ledger( {appendTrnDump: null, decimalPlaces: 4, roundingModeIsRound: true});
+const decimalPlaces = 4;
+const roundingModeIsRound = true;
 
 const _so = new SimObject({
   decimalPlaces: 4,
@@ -23,28 +23,19 @@ const _so = new SimObject({
   doubleEntrySide: DoubleEntrySide_enum.BALANCESHEET_CREDIT,
   currency: 'EUR',
   intercompanyInfo__VsUnitId: '',
-  value: _ledger.toBigInt(19),
-  writingValue: _ledger.toBigInt(19),
+  value: toBigInt(19, decimalPlaces, roundingModeIsRound),
+  writingValue: toBigInt(19, decimalPlaces, roundingModeIsRound),
   alive: true,
   command__Id: '1',
   command__DebugDescription: '',
   commandGroup__Id: '1',
   commandGroup__DebugDescription: '',
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: _ledger.toBigInt(18.9),
+  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: toBigInt(18.9, decimalPlaces, roundingModeIsRound),
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '',
   vsSimObjectId: '',
   versionId: 1
-});
-
-Deno.test('Ledger.toBigInt() tests', async () => {
-  assertEquals(_ledger.toBigInt(19), 190000n);
-  assertEquals(_ledger.toBigInt(19.1), 191000n);
-  assertEquals(_ledger.toBigInt(19.1234), 191234n);
-  assertEquals(_ledger.toBigInt(19.12345), 191234n);
-  assertEquals(_ledger.toBigInt(19.123456), 191235n);
-  assertEquals(_ledger.toBigInt(19.12344000001), 191234n);
 });
 
 Deno.test('SimObject.toJsonDumpDto() tests', async () => {
@@ -75,5 +66,5 @@ Deno.test('SimObject.toJsonDumpDto() tests', async () => {
     is_Link__SimObjId: ''
   };
 
-  assertEquals(JSON.stringify(_so.toJsonDumpDto()), JSON.stringify(_soJsonDump_Expected));
+  assertEquals(JSON.stringify(simObjectToJsonDumpDto(_so)), JSON.stringify(_soJsonDump_Expected));
 });

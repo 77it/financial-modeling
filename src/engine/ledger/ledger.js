@@ -3,6 +3,7 @@
 import { isNullOrWhiteSpace, validation, sanitization } from '../../deps.js';
 
 import { SimObject } from '../simobject/simobject.js';
+import { simObjectToDto, simObjectToJsonDumpDto, splitPrincipal, toBigInt } from '../simobject/utils/simobject_utils.js';
 import { SimObjectTypes_enum_validation } from '../simobject/simobject_types_enum.js';
 import { SimObjectDebugTypes_enum, SimObjectDebugTypes_enum_validation } from '../simobject/simobject_debugtypes_enum.js';
 import { SimObjectErrorDebugTypes_enum, SimObjectErrorDebugTypes_enum_validation } from '../simobject/simobject_errordebugtypes_enum.js';
@@ -176,7 +177,7 @@ class Ledger {
     // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
 
     // convert this.#currentTransaction to SimObjectJsonDumpDto, then stringify
-    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObject.toJsonDumpDto());
+    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObjectToJsonDumpDto(simObject));
     this.#appendTrnDump(JSON.stringify(simObjectJsonDumpDtoArray));
 
     // reset the current transaction
@@ -194,7 +195,7 @@ class Ledger {
     if (this.#currentTransaction.length === 0) return;
 
     // convert this.#currentTransaction to SimObjectJsonDumpDto, then stringify
-    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObject.toJsonDumpDto());
+    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObjectToJsonDumpDto(simObject));
     this.#appendTrnDump(JSON.stringify(simObjectJsonDumpDtoArray));
 
     // reset the current transaction
@@ -226,12 +227,14 @@ class Ledger {
 
     const debug_moduleInfo = (this.#debug) ? this.#currentDebugModuleInfo : '';
 
-    const _value = this.toBigInt(newSimObjectDto.value);
+    const _value = toBigInt(newSimObjectDto.value, this.#decimalPlaces, this.#roundingModeIsRound);
     const _writingValue = _value;  // writingValue is equal to value
-    const _principalToPay_AmortizationSchedule__Principal = newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => this.toBigInt(number));
-    const _principalToPay_IndefiniteExpiryDate =
-      (_principalToPay_AmortizationSchedule__Principal.length === 0 && this.toBigInt(newSimObjectDto.bs_Principal__PrincipalToPay_IndefiniteExpiryDate) === 0n)
-        ? 0n : _value;  // if principal is not defined, set all value amount as 'IndefiniteExpiryDate'
+
+    const { principalIndefiniteExpiryDate, principalAmortizationSchedule } = splitPrincipal(
+      newSimObjectDto, {
+        decimalPlaces: this.#decimalPlaces,
+        roundingModeIsRound: this.#roundingModeIsRound
+      });
 
     const simObject = new SimObject({
       decimalPlaces: this.#decimalPlaces,
@@ -255,9 +258,9 @@ class Ledger {
       command__DebugDescription: (!isNullOrWhiteSpace(newSimObjectDto.command__DebugDescription)) ? (newSimObjectDto.command__DebugDescription ?? '') : debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription ?? '',
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: _principalToPay_IndefiniteExpiryDate,
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: principalIndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: newSimObjectDto.bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: _principalToPay_AmortizationSchedule__Principal,
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: principalAmortizationSchedule,
       is_Link__SimObjId: newSimObjectDto.is_Link__SimObjId ?? '',
       vsSimObjectId: newSimObjectDto.vsSimObjectId ?? '',
       versionId: 0,
@@ -383,14 +386,14 @@ class Ledger {
       doubleEntrySide: DoubleEntrySide_enum.DEBUG,
       currency: Currency_enum.UNDEFINED,
       intercompanyInfo__VsUnitId: '',
-      value: this.toBigInt(0),
-      writingValue: this.toBigInt(0),
+      value: toBigInt(0, this.#decimalPlaces, this.#roundingModeIsRound),
+      writingValue: toBigInt(0, this.#decimalPlaces, this.#roundingModeIsRound),
       alive: false,
       command__Id: this.#getNextCommandId().toString(),
       command__DebugDescription: (!isNullOrWhiteSpace(newDebugSimObjectDto.command__DebugDescription)) ? (newDebugSimObjectDto.command__DebugDescription ?? '') : debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription ?? '',
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.toBigInt(0),
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: toBigInt(0, this.#decimalPlaces, this.#roundingModeIsRound),
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [],
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [],
       is_Link__SimObjId: '',
@@ -400,18 +403,6 @@ class Ledger {
     });
 
     this.#addOrUpdateSimObject(simObject);
-  }
-
-  /**
-   * This function is used to convert a number to a BigInt, preserving a given number of decimal places.
-   * If `#roundingModeIsRound` is true, the number is rounded to the given number of decimal places.
-   * If `#roundingModeIsRound` false, the number is truncated to the given number of decimal places.
-   @param {number} n - number to convert
-   @returns {bigint}
-   */
-  toBigInt (n) {
-    if (this.#roundingModeIsRound) return BigInt(Math.round(n * 10 ** this.#decimalPlaces));
-    return BigInt(Math.trunc(n * 10 ** this.#decimalPlaces));
   }
 
   //#endregion private methods
