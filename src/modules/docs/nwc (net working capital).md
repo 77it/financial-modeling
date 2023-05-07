@@ -6,6 +6,9 @@ Modulo di Simulation, ogni giorno scarica crediti e debiti commerciali alive con
 * scarica crediti e debiti alive da Ledger chiamando `getAliveBsSimObjectsWithExpiredPrincipalToPay()`
 * scarica gli SO per le scadenze maturate (che hanno un piano di ammortamento scaduto a fine giornata)
 * definisce su /config/nwc la lista dei tipi di accounting da scaricare
+* se ha scaricato un SO, e questo SO ha un vsSimObjectId, lo scarica per lo stesso importo, nella stessa transazione.
+  se il vsSimObjectId aveva una scadenza maturata scarica quella, a seguire Indefinite, a seguire il resto di schedule;
+  se il vsSimObjectId non ha un importo capiente, estinguilo; se già a zero, non fare nulla.
 
 Viene caricato automaticamente da Engine se il lock non è definito.
 
