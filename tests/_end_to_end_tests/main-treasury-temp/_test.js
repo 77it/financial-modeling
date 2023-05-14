@@ -5,7 +5,8 @@ import { existSync } from '../../../src/deno/exist_sync.js';
 import { main } from '../../../src/main-treasury-temp.js';
 
 import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
-import { convertExcelToLedgerTrnArray } from '../../../src/deno/convert_excel_to_ledger_trn_array.js';
+import { convertExcelSheetToLedgerTrnJsonlFile } from '../../../src/deno/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
+import { compareTwoTextFiles } from '../../../src/deno/compare_two_text_files.js';
 
 const DEBUG_FLAG = true;
 
@@ -27,8 +28,13 @@ Deno.test('main-treasury-temp tests', async () => {
     moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
   });
   if (existSync(ERROR_FILE)) throw new Error(`Error file ${ERROR_FILE} should not exist`);
-  const _trnArray = await convertExcelToLedgerTrnArray({ excelInput: './user_data__expected_trn.xlsx' });
-  // TODO use Converter2.exe [1] `excel-sheet-to-jsonl-ledger-trn` to read expected DTO, compare then end test
+  await convertExcelSheetToLedgerTrnJsonlFile({
+    excelInput: './user_data__expected_trn.xlsx',
+    sheetName: 'DTO',
+    jsonlOutput: './user_data__expected_trn.jsonl.tmp',
+  });
+  compareTwoTextFiles('./a.jsonl', './user_data__expected_trn.jsonl.tmp');
+  Deno.removeSync('./user_data__expected_trn.jsonl.tmp');
 
   await main({
     excelUserInput: './user_data__no_settings.xlsx', outputFolder: '.', errors: ERROR_FILE,

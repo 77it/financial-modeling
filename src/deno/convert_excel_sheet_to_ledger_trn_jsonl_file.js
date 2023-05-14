@@ -1,11 +1,10 @@
-export { convertExcelToLedgerTrnArray };
+export { convertExcelSheetToLedgerTrnJsonlFile };
 
 import { platform } from 'https://deno.land/std@0.171.0/node/process.ts';
 import { readLines } from 'https://deno.land/std@0.152.0/io/buffer.ts';
-import { win32 } from "https://deno.land/std@0.182.0/path/mod.ts";
+import { win32 } from 'https://deno.land/std@0.182.0/path/mod.ts';
 
 import { SimObject } from '../engine/simobject/simobject.js';
-import { moduleData_LoadFromJson } from './module_data_array__load_from_jsonl_file.js';
 
 import { existSync } from './exist_sync.js';
 import { downloadAndDecompressGzip } from './download_and_decompress_gzip.js';
@@ -17,12 +16,14 @@ const OPTIONS__CONVERTER_EXE_NAME = './converter2.exe';
 //#endregion OPTIONS
 
 /**
- * Convert Excel file to an array of `moduleData`
+ * Convert Excel file to a JSONL file with ledger transactions
  * @param {Object} p
  * @param {string} p.excelInput - Excel file with user input
- * @return {Promise<SimObject[]>} - Array of `SimObject` objects
+ * @param {string} p.jsonlOutput - JSONL file with ledger transactions
+ * @param {string} p.sheetName - Excel sheet name
+ * @returns {Promise<void>}
  */
-async function convertExcelToLedgerTrnArray ({ excelInput}) {
+async function convertExcelSheetToLedgerTrnJsonlFile ({ excelInput, jsonlOutput, sheetName }) {
   if (!platformIsWindows)
     throw new Error('platform not supported');
 
@@ -32,38 +33,29 @@ async function convertExcelToLedgerTrnArray ({ excelInput}) {
   // create temporary file to store errors
   const tempErrorsFilePath = await Deno.makeTempFile();
 
-  // download and decompress Converter.exe.gz
+  // download and decompress OPTIONS__CONVERTER_EXE_GZ_URL
   if (!existSync(converterExePath))
     await downloadAndDecompressGzip(
       { url: OPTIONS__CONVERTER_EXE_GZ_URL, path: converterExePath });
 
-  // convert Excel input file to JSONL `modulesData` calling Converter program  // see  https://deno.land/manual@v1.29.3/examples/subprocess
-  const jsonlExcelFilename = excelInput + '.dump.jsonl.tmp';
-  const p = Deno.run({ cmd: [converterExePath, 'excel-sheet-to-jsonl-ledger-trn', '--input', excelInput, '--output', jsonlExcelFilename, '--errors', tempErrorsFilePath] });
+  // convert Excel input file to JSONL file with ledger transactions  // see  https://deno.land/manual@v1.29.3/examples/subprocess
+  const p = Deno.run({
+    cmd: [
+      converterExePath, 'excel-sheet-to-jsonl-ledger-trn',
+      '--input', excelInput,
+      '--sheetname', sheetName,
+      '--output', jsonlOutput,
+      '--errors', tempErrorsFilePath
+    ]
+  });
   await p.status();  // await its completion
   p.close();  // close the process
 
   // throw error if there are errors
-  if (existSync(tempErrorsFilePath)){
+  if (existSync(tempErrorsFilePath)) {
     const errorsText = Deno.readTextFileSync(tempErrorsFilePath);  // see https://deno.land/api@v1.29.4?s=Deno.readTextFileSync
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }
-
-  // deserialize JSONL `modulesData`
-  const fileReader = await Deno.open(jsonlExcelFilename);
-  const moduleDataArray = [];
-  for await (const line of readLines(fileReader))
-    if (line.trim())
-      moduleDataArray.push(moduleData_LoadFromJson(line));
-  fileReader.close();
-
-  // delete temporary file
-  try {
-    Deno.removeSync(jsonlExcelFilename);
-  } catch (_) { }
-
-  // return `modulesData`
-  return moduleDataArray;
 }
 
 //#region private functions

@@ -236,6 +236,11 @@ class Ledger {
         roundingModeIsRound: this.#roundingModeIsRound
       });
 
+    // if the SimObject is IS, then is forced to be Alive = false
+    const _alive = (newSimObjectDto.doubleEntrySide === DoubleEntrySide_enum.INCOMESTATEMENT_CREDIT
+      || newSimObjectDto.doubleEntrySide === DoubleEntrySide_enum.INCOMESTATEMENT_DEBIT)
+      ? false : newSimObjectDto.alive;
+
     const simObject = new SimObject({
       decimalPlaces: this.#decimalPlaces,
       type: newSimObjectDto.type,
@@ -253,7 +258,7 @@ class Ledger {
       intercompanyInfo__VsUnitId: newSimObjectDto.intercompanyInfo__VsUnitId ?? '',
       value: _value,
       writingValue: _writingValue,
-      alive: newSimObjectDto.alive,
+      alive: _alive,
       command__Id: this.#getNextCommandId().toString(),
       command__DebugDescription: (!isNullOrWhiteSpace(newSimObjectDto.command__DebugDescription)) ? (newSimObjectDto.command__DebugDescription ?? '') : debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
