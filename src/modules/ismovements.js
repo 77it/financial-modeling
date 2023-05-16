@@ -1,23 +1,11 @@
 // TODO to implement
 
-// IMPLEMENTATION NOTES
-/*
-# describe as JSON5 loan as start date, end date, tasso iniziale, tasso attuale + capitale residuo a fine periodo (es fine anno, 25 mln)
-
-Calcola piano #1 con capitale 1.000.000 e precisione 4, tasso 1,5%
-Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
-* Scadenze future con le rate dalla successiva alla data di bilancio alla fine
-* Quota capitale nuove rate: capitale singola scadenza piano #1 / 1mln * 25mln
-* Capitale residuo: ricalcolato rata per rata con la nuova quota capitale (capitale rata precedente - capitale calcolato al punto precedente)
-* Interessi nuove rate: interessi singola scadenza piano #1 / 1,5 * 2,3 / capitale residuo #1 * capitale residuo #2
-
-Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
- */
+import * as SETTINGS_NAMES from '../config/settings_names.js';
 
 import { deepFreeze, validation, ModuleData, SimulationContextDaily, SimulationContextStart, sanitization } from '../deps.js';
 import { sanitizeModuleData } from './_utils/utils.js';
 
-const MODULE_NAME = 'genericmovement';
+const MODULE_NAME = 'ismovements';
 const tablesInfo = {};
 tablesInfo.Settings = {};
 tablesInfo.Settings.tableName = 'settings';
@@ -63,41 +51,45 @@ export class Module {
   get startDate () { return this.#startDate; }
 
   /**
-   * Set Drivers, SharedConstants, startDate.
-   * Called only one time, before the simulation starts.
+   * Save Context, save ModuleData, set Locks.
    * @param {Object} p
    * @param {ModuleData} p.moduleData
-   * @param {SimulationContextStart} p.simulationContextStart
-   * @returns {void}
+   * @param {SimulationContext} p.simulationContext
    */
-  oneTimeBeforeTheSimulationStarts ({ moduleData, simulationContextStart }) {
+  init ({ moduleData, simulationContext }) {
     // save moduleData, after sanitizing it
     this.#moduleData = sanitizeModuleData({moduleData, moduleSanitization: Object.values(tablesInfo)});
+    // save simulationContext
+    this.#simulationContext = simulationContext;
   }
 
-  // TODO oneTimeBeforeTheSimulationStartsGetInfo, with context with only
-  //#getSetting;
-  //#getDriver;
-  //#getTaskLock;
-  // legge da Settings Unit Historical end e ne salva il valore
+  /** Set Settings and Drivers */
+  setBeforeTheSimulationStarts () {
+    // do something
+  }
+
+  /** Get info from settings and drivers, and save them for later reuse */
+  getBeforeTheSimulationStarts () {
+    // read from Settings Unit Historical end and save the value
+    this.#ACTIVE_UNIT = simulationContextDaily.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
+    this.#SIMULATION_START_DATE = simulationContextDaily.getSetting({ unit: _ACTIVE_UNIT, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE });
+  }
 
   /**
    * Called daily, as first step of daily modeling.
    * @param {Object} p
-   * @param {SimulationContextDaily} p.simulationContextDaily
-   * @returns {void}
+   * @param {Date} p.today
    */
-  beforeDailyModeling ({ simulationContextDaily }) {
+  beforeDailyModeling ({ today }) {
     // do something
   }
 
   /**
    * Called daily, after `beforeDailyModeling`
    * @param {Object} p
-   * @param {SimulationContextDaily} p.simulationContextDaily
-   * @returns {void}
+   * @param {Date} p.today
    */
-  dailyModeling ({ simulationContextDaily }) {
+  dailyModeling ({ today }) {
     // loop all tables
     for (const table in this.#moduleData?.tables) {
       // if tableName == tablesInfo.Set.name, loop all rows and create a setting for each entry
@@ -111,12 +103,8 @@ export class Module {
   }
 
   /**
-   * Called only one time, after the simulation ends.
-   * @param {Object} p
-   * @param {SimulationContextDaily} p.simulationContextDaily
-   * @returns {void}
-   */
-  oneTimeAfterTheSimulationEnds ({ simulationContextDaily }) {
+   * Called only one time, after the simulation ends.  */
+  oneTimeAfterTheSimulationEnds () {
     // do something
   }
 }

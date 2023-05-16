@@ -261,4 +261,33 @@ Deno.test('Advanced Drivers tests', async (t) => {
       search: true
     }), 4);
   });
+
+  await t.step('Scenario = undefined, Unit = undefined', async () => {
+    // undefined scenario = _currentScenario
+    drivers.set([{ scenario: undefined, unit: 'UnitA', name: '$$undefinedDriver1', value: 12345671 }]);
+    assertEquals(drivers.get({ scenario: undefined, unit: 'UnitA', name: '$$undefinedDriver1' }), 12345671);
+    assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$$undefinedDriver1' }), 12345671);
+    // omitted scenario = _currentScenario
+    drivers.set([{ unit: 'UnitA', name: '$$undefinedDriver1b', value: 123456711 }]);
+    assertEquals(drivers.get({ unit: 'UnitA', name: '$$undefinedDriver1b' }), 123456711);
+    assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$$undefinedDriver1b' }), 123456711);
+
+    // undefined unit = STD_NAMES.Simulation.NAME
+    drivers.set([{ scenario: 'SCENARIO1', unit: undefined, name: '$$undefinedDriver2', value: 12345672 }]);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: undefined, name: '$$undefinedDriver2' }), 12345672);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$undefinedDriver2' }), 12345672);
+    // omitted unit = STD_NAMES.Simulation.NAME
+    drivers.set([{ scenario: 'SCENARIO1', name: '$$undefinedDriver2b', value: 123456722 }]);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', name: '$$undefinedDriver2b' }), 123456722);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$undefinedDriver2b' }), 123456722);
+
+    // undefined scenario & undefined unit = _currentScenario & STD_NAMES.Simulation.NAME
+    drivers.set([{ scenario: undefined, unit: undefined, name: '$$undefinedDriver3', value: 12345673 }]);
+    assertEquals(drivers.get({ scenario: undefined, unit: undefined, name: '$$undefinedDriver3' }), 12345673);
+    assertEquals(drivers.get({ scenario: _currentScenario, unit: STD_NAMES.Simulation.NAME, name: '$$undefinedDriver3' }), 12345673);
+    // omitted scenario & omitted unit = _currentScenario & STD_NAMES.Simulation.NAME
+    drivers.set([{ name: '$$undefinedDriver3b', value: 123456733 }]);
+    assertEquals(drivers.get({ name: '$$undefinedDriver3b' }), 123456733);
+    assertEquals(drivers.get({ scenario: _currentScenario, unit: STD_NAMES.Simulation.NAME, name: '$$undefinedDriver3b' }), 123456733);
+  });
 });

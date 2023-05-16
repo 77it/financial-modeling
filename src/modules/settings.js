@@ -1,5 +1,6 @@
 export { ModuleInfo };
 
+import { SettingsSanitization, SettingsSanitizationOptions } from '../config/settings_names.js';
 import { deepFreeze, sanitization, ModuleData, SimulationContextDaily, SimulationContextStart } from '../deps.js';
 import { sanitizeModuleData } from './_utils/utils.js';
 
@@ -29,12 +30,15 @@ export class Module {
   #alive;
   /** @type {undefined|Date} */
   #startDate;
+  /** @type {undefined|ModuleData} */
+  #moduleData;
 
   //#endregion private fields
 
   constructor () {
     this.#alive = true;
     this.#startDate = undefined;
+    this.#moduleData = undefined;
   }
 
   get name () { return this.#name; }
@@ -53,26 +57,29 @@ export class Module {
    * @returns {void}
    */
   oneTimeBeforeTheSimulationStarts ({ moduleData, simulationContextStart }) {
-    sanitizeModuleData({moduleData, moduleSanitization: Object.values(tablesInfo)});
+    // save moduleData, after sanitizing it
+    this.#moduleData = sanitizeModuleData({moduleData, moduleSanitization: Object.values(tablesInfo)});
 
     // loop all tables
-    for (const table in moduleData.tables) {
+    for (const table in this.#moduleData.tables) {
       // if tableName == tablesInfo.Set.name, loop all rows and create a setting for each entry
       if (table === tablesInfo.Set.tableName) {
         for (const row of table) {
-          // create setting
-          simulationContextStart.setSetting({
-            //@ts-ignore
-            scenario: row[tablesInfo.Set.columns.scenario],
-            //@ts-ignore
-            unit: row[tablesInfo.Set.columns.unit],
-            //@ts-ignore
-            name: row[tablesInfo.Set.columns.name],
-            //@ts-ignore
-            date: row[tablesInfo.Set.columns.date],
-            //@ts-ignore
-            value: row[tablesInfo.Set.columns.value]
+          // sanitize setting value
+          const _value = sanitization.sanitize({
+            value: row[tablesInfo.Set.columns.value],
+            sanitization: SettingsSanitization[row[tablesInfo.Set.columns.name]],
+            options: SettingsSanitizationOptions
           });
+
+          // create setting
+          simulationContextStart.setSetting([{
+            scenario: row[tablesInfo.Set.columns.scenario],
+            unit: row[tablesInfo.Set.columns.unit],
+            name: row[tablesInfo.Set.columns.name],
+            date: row[tablesInfo.Set.columns.date],
+            value: _value
+          }]);
         }
       }
     }

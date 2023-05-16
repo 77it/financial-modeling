@@ -4,21 +4,25 @@ class SimulationContextStart {
   #setSetting;
   #setDriver;
   #setTaskLock;
+  #isDefinedLock;
 
   get setSetting() { return this.#setSetting; }
   get setDriver() { return this.#setDriver; }
   get setTaskLock() { return this.#setTaskLock; }
+  get isDefinedLock() { return this.#isDefinedLock; }
 
   /**
    * @param {Object} p
    * @param {setSetting} p.setSetting
    * @param {setDriver} p.setDriver
    * @param {setTaskLock} p.setTaskLock
+   * @param {isDefinedLock} p.isDefinedLock
    */
-  constructor ({ setSetting, setDriver, setTaskLock }) {
+  constructor ({ setSetting, setDriver, setTaskLock, isDefinedLock }) {
     this.#setSetting = setSetting;
     this.#setDriver = setDriver;
     this.#setTaskLock = setTaskLock;
+    this.#isDefinedLock = isDefinedLock;
   }
 }
 
@@ -56,4 +60,13 @@ class SimulationContextStart {
  * name: TaskLock name
  * value: TaskLock value
  * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
+ */
+
+/**
+ * @callback isDefinedLock
+ * Check if a TaskLock is defined
+ * @param {{unit?: string, name: string}} p
+ * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+ * name: TaskLock name
+ * @return {boolean}
  */

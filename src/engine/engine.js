@@ -76,7 +76,8 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     const simulationContextStart = new SimulationContextStart({
       setSetting: _settings.set,
       setDriver: _drivers.set,
-      setTaskLock: _taskLocks.set
+      setTaskLock: _taskLocks.set,
+      isDefinedLock: _taskLocks.isDefined
     });
 
     const simulationContextDaily = new SimulationContextDaily({
