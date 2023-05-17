@@ -1,7 +1,14 @@
-export { taskLocksBeforeDailyModeling, taskLocksAfterDailyModeling, taskLocksAfterSimulationEnds };
+export { taskLocksBeforeEverythingElse, taskLocksBeforeDailyModeling, taskLocksAfterDailyModeling, taskLocksAfterSimulationEnds };
 
 import { TaskLocks_Names } from './tasklocks_names.js';
 import { deepFreeze, ensureArrayValuesAreUnique } from '../lib/obj_utils.js';
+
+/** @type {taskLocksRawCallSequenceEntry[]} */
+const taskLocksBeforeEverythingElse = [
+  { isSimulation: false, name: TaskLocks_Names.SIMULATION__SETTINGS },
+];
+deepFreeze(taskLocksBeforeEverythingElse);
+ensureArrayValuesAreUnique(Object.values(taskLocksBeforeEverythingElse));
 
 /** @type {taskLocksRawCallSequenceEntry[]} */
 const taskLocksBeforeDailyModeling = [
@@ -28,6 +35,6 @@ ensureArrayValuesAreUnique(Object.values(taskLocksAfterSimulationEnds));
 
 /**
  @typedef {Object} taskLocksRawCallSequenceEntry
- @property {boolean} isSimulation
- @property {string} name
+ @property {boolean} isSimulation - true if the taskLock is defined in simulation, false if it is defined in unit
+ @property {string} name - the name of the taskLock
  */
