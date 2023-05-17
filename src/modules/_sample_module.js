@@ -10,7 +10,7 @@ Every module that wants to interrupt program execution for a fatal error throws 
 
 //#endregion
 
-import { ModuleData, SimulationContextDaily, SimulationContextStart } from '../deps.js';
+import { ModuleData, SimulationContext, SimulationContextStart } from '../deps.js';
 
 export class Module {
   #name = '_sample_module';
@@ -51,7 +51,7 @@ export class Module {
    * Called daily, as first step of daily modeling.
    * @param {Object} p
    * @param {Date} p.today
-   * @param {SimulationContextDaily} p.simulationContextDaily
+   * @param {SimulationContext} p.simulationContextDaily
    * @returns {void}
    */
   beforeDailyModeling ({ today, simulationContextDaily }) {
@@ -62,7 +62,7 @@ export class Module {
    * Called daily, after `beforeDailyModeling`
    * @param {Object} p
    * @param {Date} p.today
-   * @param {SimulationContextDaily} p.simulationContextDaily
+   * @param {SimulationContext} p.simulationContextDaily
    * @returns {void}
    */
   dailyModeling ({ today, simulationContextDaily }) {
@@ -72,7 +72,7 @@ export class Module {
   /**
    * Called only one time, after the simulation ends.
    * @param {Object} p
-   * @param {SimulationContextDaily} p.simulationContextDaily
+   * @param {SimulationContext} p.simulationContextDaily
    * @returns {void}
    */
   oneTimeAfterTheSimulationEnds ({ simulationContextDaily }) {

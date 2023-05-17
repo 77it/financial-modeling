@@ -2,7 +2,7 @@
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 
-import { deepFreeze, validation, ModuleData, SimulationContextDaily, SimulationContextStart, sanitization } from '../deps.js';
+import { deepFreeze, validation, ModuleData, SimulationContext, sanitization, lowerCaseCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/utils.js';
 
 const MODULE_NAME = 'ismovements';
@@ -34,6 +34,8 @@ export class Module {
   #startDate;
   /** @type {undefined|ModuleData} */
   #moduleData;
+  /** @type {undefined|SimulationContext} */
+  #simulationContext;
 
   //#endregion private fields
 
@@ -41,6 +43,7 @@ export class Module {
     this.#alive = true;
     this.#startDate = undefined;
     this.#moduleData = undefined;
+    this.#simulationContext = undefined;
   }
 
   get name () { return this.#name; }
@@ -93,7 +96,7 @@ export class Module {
     // loop all tables
     for (const table in this.#moduleData?.tables) {
       // if tableName == tablesInfo.Set.name, loop all rows and create a setting for each entry
-      if (table === tablesInfo.Set.tableName) {
+      if (lowerCaseCompare(table, tablesInfo.Set.tableName)) {
         for (const row of table) {
           //TODO create ledger entry
           //in base al valore di Setting Unit Historical end, per capire se muovere vs cash o vs PN.

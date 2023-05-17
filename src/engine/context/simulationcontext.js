@@ -1,13 +1,16 @@
-export { SimulationContextDaily };
+export { SimulationContext };
 
 import { NewSimObjectDto } from '../ledger/commands/newsimobjectdto.js';
 import { NewDebugSimObjectDto } from '../ledger/commands/newdebugsimobjectdto.js';
 
-class SimulationContextDaily {
+class SimulationContext {
   #setSetting;
   #getSetting;
+  #setDriver;
   #getDriver;
+  #setTaskLock;
   #getTaskLock;
+  #isDefinedLock;
   #transactionIsOpen;
   #ledgerIsLocked;
   #commit;
@@ -22,9 +25,15 @@ class SimulationContextDaily {
 
   get getSetting () { return this.#getSetting; }
 
+  get setDriver() { return this.#setDriver; }
+
   get getDriver () { return this.#getDriver; }
 
+  get setTaskLock() { return this.#setTaskLock; }
+
   get getTaskLock () { return this.#getTaskLock; }
+
+  get isDefinedLock() { return this.#isDefinedLock; }
 
   get transactionIsOpen () { return this.#transactionIsOpen; }
 
@@ -48,8 +57,11 @@ class SimulationContextDaily {
    * @param {Object} p
    * @param {setSetting} p.setSetting
    * @param {getSetting} p.getSetting
+   * @param {setDriver} p.setDriver
    * @param {getDriver} p.getDriver
+   * @param {setTaskLock} p.setTaskLock
    * @param {getTaskLock} p.getTaskLock
+   * @param {isDefinedLock} p.isDefinedLock
    * @param {transactionIsOpen} p.transactionIsOpen
    * @param {ledgerIsLocked} p.ledgerIsLocked
    * @param {commit} p.commit
@@ -62,8 +74,11 @@ class SimulationContextDaily {
   constructor ({
     setSetting,
     getSetting,
+    setDriver,
     getDriver,
+    setTaskLock,
     getTaskLock,
+    isDefinedLock,
     transactionIsOpen,
     ledgerIsLocked,
     commit,
@@ -75,8 +90,11 @@ class SimulationContextDaily {
   }) {
     this.#setSetting = setSetting;
     this.#getSetting = getSetting;
+    this.#setDriver = setDriver;
     this.#getDriver = getDriver;
+    this.#setTaskLock = setTaskLock;
     this.#getTaskLock = getTaskLock;
+    this.#isDefinedLock = isDefinedLock;
     this.#transactionIsOpen = transactionIsOpen;
     this.#ledgerIsLocked = ledgerIsLocked;
     this.#commit = commit;
@@ -115,6 +133,19 @@ class SimulationContextDaily {
  */
 
 /**
+ * @callback setDriver
+ * Set Drivers from an array of scenarios, units, names, dates and value.
+ * Drivers are immutable.
+ * If a date is already present, the second one will be ignored.
+ * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
+ * scenario: optional; null, undefined or '' means `currentScenario` from constructor
+ * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+ * name: Driver name
+ * date: optional; if missing will be set to new Date(0)
+ * value: Driver value, will be sanitized to number
+ */
+
+/**
  * @callback getDriver
  * Get a Driver
  * @param {{scenario?: string, unit?: string, name: string, date?: Date, endDate?: Date, calc?: 'sum'|'average'|'min'|'max'}} p
@@ -130,6 +161,16 @@ class SimulationContextDaily {
  */
 
 /**
+ * @callback setTaskLock
+ * Set a TaskLock; TaskLocks are immutable.
+ * @param {{unit?: string, name: string, value: *}} p
+ * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+ * name: TaskLock name
+ * value: TaskLock value
+ * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
+ */
+
+/**
  * @callback getTaskLock
  * Get a TaskLock
  * @param {{unit?: string, name: string}} p
@@ -137,6 +178,15 @@ class SimulationContextDaily {
  * name: TaskLock name
  * @return {*} TaskLock
  * @throws {Error} if TaskLock is not defined, throws an error
+ */
+
+/**
+ * @callback isDefinedLock
+ * Check if a TaskLock is defined
+ * @param {{unit?: string, name: string}} p
+ * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+ * name: TaskLock name
+ * @return {boolean}
  */
 
 /**

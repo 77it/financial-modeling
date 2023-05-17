@@ -6,6 +6,5 @@ export { isNullOrWhiteSpace, BOOLEAN_TRUE_STRING, BOOLEAN_FALSE_STRING, lowerCas
 export { parseJSON5, parseJSON5Lowercased, objectKeysToLowerCase } from './lib/json5.js';
 export { deepFreeze, ensureArrayValuesAreUnique } from './lib/obj_utils.js';
 
-export { SimulationContextDaily } from './engine/context/simulationcontext_daily.js';
-export { SimulationContextStart } from './engine/context/simulationcontext_start.js';
+export { SimulationContext } from './engine/context/simulationcontext.js';
 export { ModuleData } from './engine/modules/module_data.js';

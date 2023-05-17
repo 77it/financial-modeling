@@ -17,7 +17,7 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   // loop moduleData tables
   for (const table of moduleData.tables) {
     // if table.tableName is found in moduleSanitization keys, sanitize with moduleSanitization.sanitization
-    if (moduleSanitizationMap.has(table.tableName)) {
+    if (moduleSanitizationMap.has(table.tableName.toLowerCase())) {
       sanitization.sanitizeObj(
         {
           obj: table.table,
@@ -28,7 +28,6 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   }
   return moduleData;
 }
-
 
 // TODO funzione di modules/utils che crea una voce di cassa a completamento dello sbilancio corrente (es VsCash)
 // con nome e tipo di default, presi da Config.

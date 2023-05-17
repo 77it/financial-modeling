@@ -13,8 +13,7 @@ import { Module } from '../modules/_sample_module.js';
 import { Drivers } from './drivers/drivers.js';
 import { Settings } from './settings/settings.js';
 import { TaskLocks } from './tasklocks/tasklocks.js';
-import { SimulationContextStart } from './context/simulationcontext_start.js';
-import { SimulationContextDaily } from './context/simulationcontext_daily.js';
+import { SimulationContext } from './context/simulationcontext.js';
 import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
 
 /**
@@ -72,19 +71,15 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     const _taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
     //#endregion variables declaration
 
-    //#region set contexts
-    const simulationContextStart = new SimulationContextStart({
-      setSetting: _settings.set,
-      setDriver: _drivers.set,
-      setTaskLock: _taskLocks.set,
-      isDefinedLock: _taskLocks.isDefined
-    });
-
-    const simulationContextDaily = new SimulationContextDaily({
+    //#region set context
+    const simulationContext = new SimulationContext({
       setSetting: _settings.set,
       getSetting: _settings.get,
+      setDriver: _drivers.set,
       getDriver: _drivers.get,
+      setTaskLock: _taskLocks.set,
       getTaskLock: _taskLocks.get,
+      isDefinedLock: _taskLocks.isDefined
       transactionIsOpen: _ledger.transactionIsOpen,
       ledgerIsLocked: _ledger.isLocked,
       commit: _ledger.commit,
@@ -94,7 +89,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
       newDebugWarningSimObject: _ledger.newDebugWarningSimObject,
       newDebugWarningSimObjectFromErrorString: _ledger.newDebugWarningSimObjectFromErrorString
     });
-    //#endregion set contexts
+    //#endregion set context
 
     _ledger.lock();  // lock Ledger before starting the Simulation
 
@@ -153,7 +148,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
           if (_modulesArray[i]?.beforeDailyModeling != null)
-            _modulesArray[i]?.beforeDailyModeling({ today, simulationContextDaily });
+            _modulesArray[i]?.beforeDailyModeling({ today, simulationContext });
         }
       }
 
@@ -164,7 +159,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
           if (_modulesArray[i]?.dailyModeling != null)
-            _modulesArray[i]?.dailyModeling({ today, simulationContextDaily });
+            _modulesArray[i]?.dailyModeling({ today, simulationContext });
           ensureNoTransactionIsOpen();
         }
       }
@@ -185,7 +180,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
       if (_modulesArray[i].alive) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
         if (_modulesArray[i]?.oneTimeAfterTheSimulationEnds != null)
-          _modulesArray[i]?.oneTimeAfterTheSimulationEnds({ simulationContextDaily });
+          _modulesArray[i]?.oneTimeAfterTheSimulationEnds({ simulationContext });
         ensureNoTransactionIsOpen();
       }
     }

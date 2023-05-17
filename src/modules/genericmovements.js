@@ -14,7 +14,7 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, validation, ModuleData, SimulationContextDaily, SimulationContextStart, sanitization } from '../deps.js';
+import { deepFreeze, validation, ModuleData, SimulationContext, SimulationContextStart, sanitization, lowerCaseCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/utils.js';
 
 const MODULE_NAME = 'genericmovements';
@@ -85,7 +85,7 @@ export class Module {
    * Called daily, as first step of daily modeling.
    * @param {Object} p
    * @param {Date} p.today
-   * @param {SimulationContextDaily} p.simulationContextDaily
+   * @param {SimulationContext} p.simulationContextDaily
    * @returns {void}
    */
   beforeDailyModeling ({ today, simulationContextDaily }) {
@@ -96,14 +96,14 @@ export class Module {
    * Called daily, after `beforeDailyModeling`
    * @param {Object} p
    * @param {Date} p.today
-   * @param {SimulationContextDaily} p.simulationContextDaily
+   * @param {SimulationContext} p.simulationContextDaily
    * @returns {void}
    */
   dailyModeling ({ today, simulationContextDaily }) {
     // loop all tables
     for (const table in this.#moduleData?.tables) {
       // if tableName == tablesInfo.Set.name
-      if (table === tablesInfo.Set.tableName) {
+      if (lowerCaseCompare(table, tablesInfo.Set.tableName)) {
         for (const row of table) {
           //TODO create ledger entry
           //if `date` = `today`
@@ -116,7 +116,7 @@ export class Module {
   /**
    * Called only one time, after the simulation ends.
    * @param {Object} p
-   * @param {SimulationContextDaily} p.simulationContextDaily
+   * @param {SimulationContext} p.simulationContextDaily
    * @returns {void}
    */
   oneTimeAfterTheSimulationEnds ({ simulationContextDaily }) {
