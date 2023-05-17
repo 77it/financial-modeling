@@ -8,10 +8,11 @@ class Drivers {
   #driversRepo;
 
   /**
+   * Class to store and retrieve Drivers
    * @param {Object} p
    * @param {string} p.baseScenario
    * @param {string} p.currentScenario
-   * @param {string} p.defaultUnit
+   * @param {string} p.defaultUnit - The Simulation Unit
    * @param {string} p.prefix__immutable_without_dates
    * @param {string} p.prefix__immutable_with_dates
    */

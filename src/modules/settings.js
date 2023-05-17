@@ -1,7 +1,8 @@
 export { ModuleInfo };
 
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
-import { SettingsSanitization, SettingsSanitizationOptions } from '../config/settings_names.js';
+import { SettingsDefaultValues } from '../config/settings_default_values.js';
+import { SettingsSanitization, SettingsSanitizationOptions } from '../config/settings_sanitization.js';
 import { deepFreeze, sanitization, ModuleData, SimulationContext, lowerCaseCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/utils.js';
 
@@ -79,6 +80,7 @@ export class Module {
 
     // set simulation lock
     this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SETTINGS, value: this.#setSimulationSettings });
+    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__DEFAULT_ACTIVE_SETTINGS, value: this.#setSettingsDefaultValues });
   }
 
   /** Set Settings and Drivers */
@@ -98,12 +100,16 @@ export class Module {
       // if tableName == tablesInfo.Set.name, loop all rows and create a setting for each entry
       if (lowerCaseCompare(table, tablesInfo.Set.tableName)) {
         for (const row of table) {
+          let _value = row[tablesInfo.Set.columns.value];
+
           // sanitize setting value taking the sanitization settings from SettingsSanitization object (the setting name is the key of the object)
-          const _value = sanitization.sanitize({
-            value: row[tablesInfo.Set.columns.value],
-            sanitization: SettingsSanitization[row[tablesInfo.Set.columns.name]],
-            options: SettingsSanitizationOptions
-          });
+          if (SettingsSanitization[row[tablesInfo.Set.columns.name]] != null) {
+            _value = sanitization.sanitize({
+              value: row[tablesInfo.Set.columns.value],
+              sanitization: SettingsSanitization[row[tablesInfo.Set.columns.name]],
+              options: SettingsSanitizationOptions
+            });
+          }
 
           // create setting
           this.#simulationContext.setSetting([{
@@ -115,6 +121,19 @@ export class Module {
           }]);
         }
       }
+    }
+  }
+
+  /** Set Settings Default Values, only if they don't have a value already defined */
+  #setSettingsDefaultValues () {
+    // loop `SettingsDefaultValues` keys and set a new Setting only if it doesn't exist
+    for (const settingDefault_Key of Object.keys(SettingsDefaultValues)) {
+      if (this.#simulationContext.getSetting({name: settingDefault_Key}) != null) continue;
+
+      this.#simulationContext.setSetting([{
+        name: settingDefault_Key,
+        value: SettingsDefaultValues[settingDefault_Key]
+      }]);
     }
   }
 

@@ -20,7 +20,7 @@ class TaskLocks {
 
   /**
    * @param {Object} p
-   * @param {string} p.defaultUnit
+   * @param {string} p.defaultUnit - The Simulation Unit
    */
   constructor ({ defaultUnit }) {
     this.#taskLocksRepo = new Map();
