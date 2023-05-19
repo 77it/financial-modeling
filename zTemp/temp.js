@@ -4,6 +4,4 @@ const replaceStr = (str, char, replacer) => {
     return replaced
 }
 
-module = {};
-
-module.exports = { replaceStr }
+exports = { replaceStr };
