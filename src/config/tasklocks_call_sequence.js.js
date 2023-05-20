@@ -13,7 +13,7 @@ ensureArrayValuesAreUnique(Object.values(taskLocksBeforeEverythingElse));
 
 /** @type {taskLocksRawCallSequenceEntry[]} */
 const taskLocksBeforeDailyModeling = [
-  { isSimulation: false, name: TaskLocks_Names.SIMULATION__EBITDA__DAILY_INFO },
+  { isSimulation: true, name: TaskLocks_Names.SIMULATION__EBITDA__DAILY_INFO },
 ];
 deepFreeze(taskLocksBeforeDailyModeling);
 ensureArrayValuesAreUnique(Object.values(taskLocksBeforeDailyModeling));

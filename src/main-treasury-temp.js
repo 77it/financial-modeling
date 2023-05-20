@@ -106,9 +106,13 @@ async function main ({
       sanitization: sanitization.ARRAY_OF_STRINGS_TYPE
     });
 
+    if(isNullOrWhiteSpace(_$$SCENARIOS[0]))  // if first scenario is empty, set it to base scenario
+      _$$SCENARIOS[0] = STD_NAMES.Scenario.BASE;
+
     //#region loop scenarios
     for (const _unsanitized_scenario of _$$SCENARIOS) {
-      const _scenario = (isNullOrWhiteSpace(_unsanitized_scenario)) ? STD_NAMES.Scenario.BASE : _unsanitized_scenario;
+      if (isNullOrWhiteSpace(_unsanitized_scenario))  // skip empty scenarios
+        continue;
 
       // create/overwrite output file   // see https://deno.land/api@v1.29.1?s=Deno.open
       const _output = `${outputFolder}/${_scenario}.jsonl`;
