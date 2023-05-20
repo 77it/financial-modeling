@@ -95,14 +95,54 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
 
     _ledger.lock();  // lock Ledger before starting the Simulation
 
-    //# call `oneTimeBeforeTheSimulationStarts` passing a cloned `moduleData` and `simulationContextStart` to each module
+    //# call `init()` passing a cloned `moduleData` and `simulationContext` to each module
     for (let i = 0; i < _modulesArray.length; i++) {
       setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
       _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
       _taskLocks.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
 
-      if (_modulesArray[i]?.oneTimeBeforeTheSimulationStarts != null)
-        _modulesArray[i]?.oneTimeBeforeTheSimulationStarts({ moduleData: structuredClone(_moduleDataArray[i]), simulationContextStart });
+      if (_modulesArray[i]?.init != null)
+        _modulesArray[i]?.init({ moduleData: structuredClone(_moduleDataArray[i]), simulationContext });
+    }
+
+    //# call `setTaskLocksBeforeTheSimulationStarts()`
+    for (let i = 0; i < _modulesArray.length; i++) {
+      if (_modulesArray[i].alive) {
+        setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
+        if (_modulesArray[i]?.setTaskLocksBeforeTheSimulationStarts != null)
+          _modulesArray[i]?.setTaskLocksBeforeTheSimulationStarts();
+      }
+    }
+
+    //#region build taskLocks sequence arrays
+    const _taskLocksBeforeEverythingElse = buildTaskLocksSequenceArray(TASKLOCKS_SEQUENCE.taskLocksBeforeEverythingElse);
+    const _taskLocksBeforeDailyModeling = buildTaskLocksSequenceArray(TASKLOCKS_SEQUENCE.taskLocksBeforeDailyModeling);
+    const _taskLocksAfterDailyModeling = buildTaskLocksSequenceArray(TASKLOCKS_SEQUENCE.taskLocksAfterDailyModeling);
+    const _taskLocksAfterSimulationEnds = buildTaskLocksSequenceArray(TASKLOCKS_SEQUENCE.taskLocksAfterSimulationEnds);
+    //#endregion build taskLocks sequence arrays
+
+    // call `_taskLocksBeforeEverythingElse`
+    _taskLocksBeforeEverythingElse.forEach(taskLockEntry => {
+      setDebugModuleInfoForLedgerAndSettings(taskLockEntry.debugModuleInfo);
+      taskLockEntry.taskLock();
+    });
+
+    //# call `setDriversAndSettingsBeforeTheSimulationStarts()`
+    for (let i = 0; i < _modulesArray.length; i++) {
+      if (_modulesArray[i].alive) {
+        setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
+        if (_modulesArray[i]?.setDriversAndSettingsBeforeTheSimulationStarts != null)
+          _modulesArray[i]?.setDriversAndSettingsBeforeTheSimulationStarts();
+      }
+    }
+
+    //# call `getInfoBeforeTheSimulationStarts()`
+    for (let i = 0; i < _modulesArray.length; i++) {
+      if (_modulesArray[i].alive) {
+        setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
+        if (_modulesArray[i]?.getInfoBeforeTheSimulationStarts != null)
+          _modulesArray[i]?.getInfoBeforeTheSimulationStarts();
+      }
     }
 
     setDebugLevelOnLedger({ debugParameter: ledgerDebug, settings: _settings });
@@ -125,12 +165,6 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
 
     //#endregion set `_startDate`/`_endDate`
 
-    //#region build taskLocks sequence arrays
-    const _taskLocksBeforeDailyModeling = buildTaskLocksSequenceArray(TASKLOCKS_SEQUENCE.taskLocksBeforeDailyModeling);
-    const _taskLocksAfterDailyModeling = buildTaskLocksSequenceArray(TASKLOCKS_SEQUENCE.taskLocksAfterDailyModeling);
-    const _taskLocksAfterSimulationEnds = buildTaskLocksSequenceArray(TASKLOCKS_SEQUENCE.taskLocksAfterSimulationEnds);
-    //#endregion build taskLocks sequence arrays
-
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
     for (let today = _startDate; today <= _endDate; today.setDate(today.getDate() + 1)) {
       _ledger.lock();  // lock Ledger at the beginning of each day
@@ -145,7 +179,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
         taskLockEntry.taskLock();
       });
 
-      //# call `beforeDailyModeling`
+      //# call `beforeDailyModeling()`
       for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
@@ -156,7 +190,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
 
       _ledger.unlock();  // unlock Ledger before calling `dailyModeling`
 
-      //# call `dailyModeling`
+      //# call `dailyModeling()`
       for (let i = 0; i < _modulesArray.length; i++) {
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
@@ -177,7 +211,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     }
     //#endregion call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
 
-    //# call `oneTimeAfterTheSimulationEnds`
+    //# call `oneTimeAfterTheSimulationEnds()`
     for (let i = 0; i < _modulesArray.length; i++) {
       if (_modulesArray[i].alive) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));

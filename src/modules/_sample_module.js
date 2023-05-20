@@ -10,7 +10,9 @@ Every module that wants to interrupt program execution for a fatal error throws 
 
 //#endregion
 
-import { ModuleData, SimulationContext, SimulationContextStart } from '../deps.js';
+import * as SETTINGS_NAMES from '../config/settings_names.js';
+import { deepFreeze, sanitization, ModuleData, SimulationContext, lowerCaseCompare } from '../deps.js';
+import { sanitizeModuleData } from './_utils/utils.js';
 
 export class Module {
   #name = '_sample_module';
@@ -20,12 +22,25 @@ export class Module {
   #alive;
   /** @type {undefined|Date} */
   #startDate;
+  /** @type {undefined|ModuleData} */
+  #moduleData;
+  /** @type {undefined|SimulationContext} */
+  #simulationContext;
+  /** @type {string} */
+  #ACTIVE_UNIT;
+  /** @type {Date} */
+  #SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE;
 
   //#endregion private fields
 
   constructor () {
     this.#alive = true;
     this.#startDate = undefined;
+    this.#moduleData = undefined;
+    this.#simulationContext = undefined;
+
+    this.#ACTIVE_UNIT = '';
+    this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = new Date(0);
   }
 
   get name () { return this.#name; }
@@ -36,25 +51,44 @@ export class Module {
   get startDate () { return this.#startDate; }
 
   /**
-   * Set Drivers, SharedConstants, startDate.
-   * Called only one time, before the simulation starts.
+   * Get SimulationContext and ModuleData, save them.
    * @param {Object} p
    * @param {ModuleData} p.moduleData
-   * @param {SimulationContextStart} p.simulationContextStart
-   * @returns {void}
+   * @param {SimulationContext} p.simulationContext
    */
-  oneTimeBeforeTheSimulationStarts ({ moduleData, simulationContextStart }) {
-    // do something: using `moduleData` set Drivers, Settings, TaskLocks, this.#startDate
+  init ({ moduleData, simulationContext }) {
+    // save moduleData, after sanitizing it
+    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization: Object.values(tablesInfo) });
+    // save simulationContext
+    this.#simulationContext = simulationContext;
+  }
+
+  /** Set TaskLocks */
+  setTaskLocksBeforeTheSimulationStarts () {
+    // set TaskLocks
+  }
+
+  /** Set Settings and Drivers */
+  setDriversAndSettingsBeforeTheSimulationStarts () {
+    // set Settings and Drivers
+  }
+
+  /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse */
+  getInfoBeforeTheSimulationStarts () {
+    // read from Settings Unit Historical end and save the value
+    this.#ACTIVE_UNIT = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
+    this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = this.#simulationContext.getSetting({
+      unit: this.#ACTIVE_UNIT,
+      name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
+    });
   }
 
   /**
    * Called daily, as first step of daily modeling.
    * @param {Object} p
    * @param {Date} p.today
-   * @param {SimulationContext} p.simulationContextDaily
-   * @returns {void}
    */
-  beforeDailyModeling ({ today, simulationContextDaily }) {
+  beforeDailyModeling ({ today }) {
     // do something
   }
 
@@ -62,20 +96,14 @@ export class Module {
    * Called daily, after `beforeDailyModeling`
    * @param {Object} p
    * @param {Date} p.today
-   * @param {SimulationContext} p.simulationContextDaily
-   * @returns {void}
    */
-  dailyModeling ({ today, simulationContextDaily }) {
+  dailyModeling ({ today }) {
     // do something
   }
 
   /**
-   * Called only one time, after the simulation ends.
-   * @param {Object} p
-   * @param {SimulationContext} p.simulationContextDaily
-   * @returns {void}
-   */
-  oneTimeAfterTheSimulationEnds ({ simulationContextDaily }) {
+   * Called only one time, after the simulation ends.  */
+  oneTimeAfterTheSimulationEnds () {
     // do something
   }
 }

@@ -67,7 +67,7 @@ export class Module {
   get startDate () { return this.#startDate; }
 
   /**
-   * Save Context, save ModuleData, set Locks.
+   * Get SimulationContext and ModuleData, save them.
    * @param {Object} p
    * @param {ModuleData} p.moduleData
    * @param {SimulationContext} p.simulationContext
@@ -77,19 +77,45 @@ export class Module {
     this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization: Object.values(tablesInfo) });
     // save simulationContext
     this.#simulationContext = simulationContext;
+  }
 
-    // set simulation lock
+  /** Set TaskLocks */
+  setTaskLocksBeforeTheSimulationStarts () {
     this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SETTINGS, value: this.#setSimulationSettings });
     this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__DEFAULT_ACTIVE_SETTINGS, value: this.#setSettingsDefaultValues });
   }
 
   /** Set Settings and Drivers */
-  setBeforeTheSimulationStarts () {
+  setDriversAndSettingsBeforeTheSimulationStarts () {
     this.#setActiveSettings();
   }
 
-  /** Get info from settings and drivers, and save them for later reuse */
-  getBeforeTheSimulationStarts () {
+  /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse */
+  getInfoBeforeTheSimulationStarts () {
+    this.#setActiveSettings();
+  }
+
+  /**
+   * Called daily, as first step of daily modeling.
+   * @param {Object} p
+   * @param {Date} p.today
+   */
+  beforeDailyModeling ({ today }) {
+    this.#setActiveSettings();
+  }
+
+  /**
+   * Called daily, after `beforeDailyModeling`
+   * @param {Object} p
+   * @param {Date} p.today
+   */
+  dailyModeling ({ today }) {
+    this.#setActiveSettings();
+  }
+
+  /**
+   * Called only one time, after the simulation ends.  */
+  oneTimeAfterTheSimulationEnds () {
     this.#setActiveSettings();
   }
 
@@ -128,7 +154,7 @@ export class Module {
   #setSettingsDefaultValues () {
     // loop `SettingsDefaultValues` keys and set a new Setting only if it doesn't exist
     for (const settingDefault_Key of Object.keys(SettingsDefaultValues)) {
-      if (this.#simulationContext.getSetting({name: settingDefault_Key}) != null) continue;
+      if (this.#simulationContext.getSetting({ name: settingDefault_Key }) != null) continue;
 
       this.#simulationContext.setSetting([{
         name: settingDefault_Key,

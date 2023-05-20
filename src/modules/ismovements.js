@@ -1,8 +1,7 @@
 // TODO to implement
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-
-import { deepFreeze, validation, ModuleData, SimulationContext, sanitization, lowerCaseCompare } from '../deps.js';
+import { deepFreeze, sanitization, ModuleData, SimulationContext, lowerCaseCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/utils.js';
 
 const MODULE_NAME = 'ismovements';
@@ -36,6 +35,10 @@ export class Module {
   #moduleData;
   /** @type {undefined|SimulationContext} */
   #simulationContext;
+  /** @type {string} */
+  #ACTIVE_UNIT;
+  /** @type {Date} */
+  #SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE;
 
   //#endregion private fields
 
@@ -44,6 +47,9 @@ export class Module {
     this.#startDate = undefined;
     this.#moduleData = undefined;
     this.#simulationContext = undefined;
+
+    this.#ACTIVE_UNIT = '';
+    this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = new Date(0);
   }
 
   get name () { return this.#name; }
@@ -54,28 +60,26 @@ export class Module {
   get startDate () { return this.#startDate; }
 
   /**
-   * Save Context, save ModuleData, set Locks.
+   * Get SimulationContext and ModuleData, save them.
    * @param {Object} p
    * @param {ModuleData} p.moduleData
    * @param {SimulationContext} p.simulationContext
    */
   init ({ moduleData, simulationContext }) {
     // save moduleData, after sanitizing it
-    this.#moduleData = sanitizeModuleData({moduleData, moduleSanitization: Object.values(tablesInfo)});
+    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization: Object.values(tablesInfo) });
     // save simulationContext
     this.#simulationContext = simulationContext;
   }
 
-  /** Set Settings and Drivers */
-  setBeforeTheSimulationStarts () {
-    // do something
-  }
-
-  /** Get info from settings and drivers, and save them for later reuse */
-  getBeforeTheSimulationStarts () {
+  /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse */
+  getInfoBeforeTheSimulationStarts () {
     // read from Settings Unit Historical end and save the value
-    this.#ACTIVE_UNIT = simulationContextDaily.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
-    this.#SIMULATION_START_DATE = simulationContextDaily.getSetting({ unit: _ACTIVE_UNIT, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE });
+    this.#ACTIVE_UNIT = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
+    this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = this.#simulationContext.getSetting({
+      unit: this.#ACTIVE_UNIT,
+      name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
+    });
   }
 
   /**
