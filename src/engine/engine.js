@@ -261,12 +261,12 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
         if (_isSimulation) {
           if (_taskLocks.isDefined({ name: _name }))
             _taskLocksSequenceArray.push({ taskLock: _taskLocks.get({ name: _name }), debugModuleInfo: _taskLocks.getDebugModuleInfo({ name: _name }) });
-        } else {  // if not simulation, search in all Units
-          // query TaskLocks to see in which Units the taskLock name is defined, then loop the Units, query TaskLocks again to get the taskLock & debugModuleInfo and push them in the array
-          _taskLocks.listUnit({ name: _name }).forEach(unit => {
+        } else {  // if not simulation, search in all Units different from default
+          // get the list of Locks with a specific name NOT defined on default Unit, then push them in the array
+          _taskLocks.getListOfNotDefaultUnitLocks({ name: _name }).forEach(entry => {
             _taskLocksSequenceArray.push({
-              taskLock: _taskLocks.get({ name: _name, unit }),
-              debugModuleInfo: _taskLocks.getDebugModuleInfo({ name: _name, unit })
+              taskLock: entry.taskLock,
+              debugModuleInfo: entry.debugModuleInfo
             });
           });
         }

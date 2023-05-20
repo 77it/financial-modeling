@@ -10,8 +10,8 @@ class TaskLocks {
   /**
    Map to store TaskLocks:
    keys are strings made of "unit/name" (built with `taskLocksRepoBuildKey` method),
-   values are {constant: function_of_any_kind, debugModuleInfo: string}.
-   * @type {Map<String, {constant: *, debugModuleInfo: string}>} */
+   values are {taskLock: function_of_any_kind, debugModuleInfo: string}.
+   * @type {Map<String, {taskLock: *, debugModuleInfo: string}>} */
   #taskLocksRepo;
   /** @type {string} */
   #currentDebugModuleInfo;
@@ -47,7 +47,7 @@ class TaskLocks {
     const _key = this.#taskLocksRepoBuildKey({ unit, name });
     if (this.#taskLocksRepo.has(_key))
       return false;
-    this.#taskLocksRepo.set(_key, { constant: value, debugModuleInfo: this.#currentDebugModuleInfo });
+    this.#taskLocksRepo.set(_key, { taskLock: value, debugModuleInfo: this.#currentDebugModuleInfo });
     return true;
   }
 
@@ -63,7 +63,7 @@ class TaskLocks {
     const _key = this.#taskLocksRepoBuildKey({ unit, name });
     if (!this.#taskLocksRepo.has(_key))
       throw new Error(`TaskLock '${_key}' is not defined.`);
-    return this.#taskLocksRepo.get(_key)?.constant;
+    return this.#taskLocksRepo.get(_key)?.taskLock;
   }
 
   /**
@@ -82,19 +82,20 @@ class TaskLocks {
   }
 
   /**
-   * Get a list of units where the TaskLock is defined
+   * Get a list of all TaskLocks not defined in the default unit
    * @param {Object} p
    * @param {string} p.name - TaskLock name
-   * @return {string[]} list of units where the TaskLock is defined
+   * @return {{unit: string, taskLock: *, debugModuleInfo: string}[]} array of unit names, TaskLocks and debugModuleInfo
    */
-  listUnit ({ name }) {
+  getListOfNotDefaultUnitLocks ({ name }) {
     const _ret = [];
 
-    // loop all keys of the #taskLocksRepo, deserialize the key, if the name matches add the unit to the return array
-    for (const _key of this.#taskLocksRepo.keys()) {
-      const _keyObj = JSON.parse(_key);
-      if (_keyObj?.name === name)
-        _ret.push(_keyObj.unit);
+    // loop over keys and values of this.#taskLocksRepo
+    // deserialize the key, if the name matches and Unit name is not the default unit, return the Lock
+    for (const [_key, _value] of this.#taskLocksRepo.entries()) {
+      const _keyObj = JSON.parse(_key);  // parse key to {unit: string, name: string}
+      if (_keyObj?.name === name && _keyObj?.unit !== this.#defaultUnit)  // if Lock name matches and Unit name is not the default unit
+        _ret.push({ unit: _keyObj.unit, lock: _value.taskLock, debugModuleInfo: _value?.debugModuleInfo });
     }
 
     return _ret;
