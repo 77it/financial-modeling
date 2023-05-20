@@ -81,7 +81,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
       getDriver: _drivers.get,
       setTaskLock: _taskLocks.set,
       getTaskLock: _taskLocks.get,
-      isDefinedLock: _taskLocks.isDefined
+      isDefinedLock: _taskLocks.isDefined,
       transactionIsOpen: _ledger.transactionIsOpen,
       ledgerIsLocked: _ledger.isLocked,
       commit: _ledger.commit,
