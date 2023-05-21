@@ -59,9 +59,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('0', S.sanitize({ value: 0, sanitization: t }));
     assertEquals('999', S.sanitize({ value: 999, sanitization: t }));
     assertEquals('', S.sanitize({ value: '', sanitization: t }));
-    assertEquals('', S.sanitize({ value: '    ', sanitization: t }));  // whitespaces are trimmed
+    assertEquals('', S.sanitize({ value: '    ', sanitization: t }));  // whitespaces are trimmed if the string is empty
     assertEquals('abc', S.sanitize({ value: 'abc', sanitization: t }));
-    assertEquals('2022-12-24T23:00:00.000Z', S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
+    assertEquals('  abc  ', S.sanitize({ value: '  abc  ', sanitization: t }));    // whitespaces are not trimmed if the string is not empty
+    assertEquals('2022-12-25T00:00:00.000Z', S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals('', S.sanitize({ value: new Date(NaN), sanitization: t }));
     assertEquals('true', S.sanitize({ value: true, sanitization: t }));
     assertEquals('false', S.sanitize({ value: false, sanitization: t }));
@@ -214,7 +215,7 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(['999'], S.sanitize({ value: 999, sanitization: t }));
     assertEquals([''], S.sanitize({ value: '', sanitization: t }));
     assertEquals(['abc'], S.sanitize({ value: 'abc', sanitization: t }));
-    assertEquals(['2022-12-24T23:00:00.000Z'], S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
+    assertEquals(['2022-12-25T00:00:00.000Z'], S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals([''], S.sanitize({ value: new Date(NaN), sanitization: t }));
 
     const t2 = t + '?';

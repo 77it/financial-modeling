@@ -1,6 +1,6 @@
 export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
-import { validation } from '../deps.js';
-import { addMonths } from '../deps.js';
+import { validation } from '../../deps.js';
+import { addMonths } from '../../deps.js';
 
 // info about loans
 /*

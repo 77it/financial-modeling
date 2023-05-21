@@ -1,7 +1,7 @@
 export { sanitize, sanitizeObj };
 
 import { isEmptyOrWhiteSpace } from './string_utils.js';
-import { parseJSON, excelSerialDateToDate, excelSerialDateToUTCDate } from './date_utils.js';
+import { parseJSON, excelSerialDateToDate, excelSerialDateToUTCDate, toUTC } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
 import { deepFreeze } from './obj_utils.js';
 
@@ -36,7 +36,7 @@ deepFreeze(NUMBER_TO_DATE_OPTS);
 
 //#region defaults
 const DEFAULT__NUMBER_TO_DATE = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
-const DEFAULT__DATE_UTC = false;  // if true, dates are converted to UTC
+const DEFAULT__DATE_UTC = false;  // if true, conversion from string or number to dates return UTC dates
 const DEFAULT_STRING = '';
 const DEFAULT_NUMBER = 0;
 const DEFAULT_DATE = new Date(0);
@@ -134,7 +134,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
         else if (typeof value === 'string')
           retValue = value;
         else if (value instanceof Date)
-          retValue = value.toISOString();
+          retValue = toUTC(value).toISOString();
         else if ((typeof value === 'number' && isFinite(value)) || typeof value === 'bigint')
           retValue = String(value);
         else if (value === true)

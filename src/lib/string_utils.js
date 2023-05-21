@@ -1,4 +1,6 @@
-export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, BOOLEAN_TRUE_STRING, BOOLEAN_FALSE_STRING };
+export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, toStringLowerCaseTrimCompare, BOOLEAN_TRUE_STRING, BOOLEAN_FALSE_STRING };
+
+import * as sanitization from './sanitization_utils.js';
 
 const BOOLEAN_TRUE_STRING = 'true';
 const BOOLEAN_FALSE_STRING = 'false';
@@ -49,6 +51,28 @@ function lowerCaseCompare (a, b) {
       : a === b;
      */
     return (a.toLowerCase() === b.toLowerCase());
+  }
+  catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Compare two values of any kind; if not string, convert them to string; then lowercase and trim before compare.
+ * @param {*} a
+ * @param {*} b
+ * @returns {boolean}
+ */
+function toStringLowerCaseTrimCompare (a, b) {
+  try {
+    let _a = a;
+    let _b = b;
+    if (typeof _a !== 'string')
+      _a = sanitization.sanitize({ value: _a, sanitization: sanitization.STRING_TYPE });
+    if (typeof _b !== 'string')
+      _b = sanitization.sanitize({ value: _b, sanitization: sanitization.STRING_TYPE });
+
+    return (_a.toLowerCase().trim() === _b.toLowerCase().trim());
   }
   catch (e) {
     return false;

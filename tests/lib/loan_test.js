@@ -1,4 +1,4 @@
-import { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan } from '../../src/lib/loan.js';
+import { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan } from '../../src/modules/_utils/loan.js';
 
 // home   https://github.com/lmammino/financial  // backup repository   https://github.com/77it/financial
 // npm   https://www.npmjs.com/package/financial/v/0.1.3

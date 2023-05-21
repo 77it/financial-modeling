@@ -1,6 +1,10 @@
 ﻿export { DriversRepo };
 
-import { sanitization, validation, stripTime, toStringYYYYMMDD, parseJSON5, isNullOrWhiteSpace } from '../deps.js';
+import * as sanitization from './sanitization_utils.js';
+import * as validation from './validation_utils.js';
+import { stripTime, toStringYYYYMMDD } from './date_utils.js';
+import { parseJSON5 } from './json5.js';
+import { isNullOrWhiteSpace } from './string_utils.js';
 
 class DriversRepo {
   /**

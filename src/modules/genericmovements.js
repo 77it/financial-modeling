@@ -14,8 +14,9 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, validation, ModuleData, SimulationContext, sanitization, lowerCaseCompare } from '../deps.js';
+import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
+import { tableLookup } from './_utils/search_utils.js';
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 
 const MODULE_NAME = 'genericmovements';
@@ -53,6 +54,16 @@ export class Module {
   #ACTIVE_UNIT;
   /** @type {Date} */
   #SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE;
+
+  //#region data from modules
+  /** @type {undefined|string} */
+  #accounting_type;
+  #accounting_type_xlookup = {lookup_value: 'type', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
+  /** @type {undefined|string} */
+  #value_column;
+  /** @type {undefined|string} */
+  #accounting_opposite_type;
+  //#endregion data from modules
 
   //#endregion private fields
 
@@ -96,9 +107,7 @@ export class Module {
       name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     });
 
-    // TODO call a utility function to search in table Settings, column Name (case insensitive), get value from column Value, sanitize it
-    // xlookup()
-    xxx;
+    this.#accounting_type = tableLookup(this.#moduleData, this.#accounting_type_xlookup);
   }
 
   /**

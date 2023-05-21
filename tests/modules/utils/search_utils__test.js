@@ -1,7 +1,8 @@
 import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
 import { sanitization } from '../../deps.js';
+import { ModuleData } from '../../../src/engine/modules/module_data.js';
 
-import { xlookup } from '../../../src/modules/_utils/search_utils.js';
+import { xlookup, tableLookup } from '../../../src/modules/_utils/search_utils.js';
 
 Deno.test('xlookup test: undefined', async () => {
   /** @type {*} */
@@ -26,24 +27,31 @@ Deno.test('xlookup test: undefined', async () => {
 });
 
 Deno.test('xlookup test: test search', async () => {
-  const lookup_array = [999, 1, 'two', 3, 'four', 999, 'five', 6, 'seven'];
-  const return_array = ['nineninenine', 'one', 2, 'three', 4, 'NINENINENINE', 5, 'six', 7];
+  const lookup_array = [99, 1, 'two', 3, 'four', 99, ' FiVe ', 6, 'seven'];
+  const return_array = ['ninenine', 'one', 2, 'three', 4, 'NINENINE', 5, 'six', 7];
 
   /** @type {*} */
   let p = null;
 
   // {lookup_value: *, lookup_array: *[], return_array: *[], return_first_match: boolean, sanitization?: string, sanitizationOptions?: Object }
 
-  p = { lookup_value: 999, lookup_array, return_array };
-  assertEquals(xlookup(p), 'nineninenine');  // return_first_match default = true;
-  p = { lookup_value: 999, lookup_array, return_array, return_first_match: true };
-  assertEquals(xlookup(p), 'nineninenine');
-  p = { lookup_value: 999, lookup_array, return_array, return_first_match: false };
-  assertEquals(xlookup(p), 'NINENINENINE');
+  p = { lookup_value: 99, lookup_array, return_array };
+  assertEquals(xlookup(p), 'ninenine');  // return_first_match default = true;
+  p = { lookup_value: 99, lookup_array, return_array, return_first_match: true };
+  assertEquals(xlookup(p), 'ninenine');
+  p = { lookup_value: 99, lookup_array, return_array, return_first_match: false };
+  assertEquals(xlookup(p), 'NINENINE');
 
-  p = { lookup_value: 'five', lookup_array, return_array, return_first_match: false };
+  p = { lookup_value: '   FIVE   ', lookup_array, return_array, return_first_match: false };  // automatic string conversion, trim and lowercase
   assertEquals(xlookup(p), 5);
-  p = { lookup_value: 6, lookup_array, return_array, return_first_match: false };
+  p = { lookup_value: '   FIVE   ', lookup_array, return_array, return_first_match: false, string_insensitive_match: false };  // DISABLING automatic string conversion, trim and lowercase
+  assertEquals(xlookup(p), undefined);
+  p = { lookup_value: ' FiVe ', lookup_array, return_array, return_first_match: false, string_insensitive_match: false };  // DISABLING automatic string conversion, trim and lowercase
+  assertEquals(xlookup(p), 5);
+
+  p = { lookup_value: 'five', lookup_array, return_array, return_first_match: false };  // automatic string conversion, trim and lowercase
+  assertEquals(xlookup(p), 5);
+  p = { lookup_value: '6', lookup_array, return_array, return_first_match: false };  // automatic string conversion, trim and lowercase
   assertEquals(xlookup(p), 'six');
 
   // with sanitization
@@ -53,6 +61,84 @@ Deno.test('xlookup test: test search', async () => {
   assertEquals(xlookup(p), 0);
 
   // with sanitization and sanitizationOptions
-  p = { lookup_value: 6, lookup_array, return_array, return_first_match: false, sanitization: sanitization.NUMBER_TYPE, sanitizationOptions: {defaultNumber: 123} };
+  p = {
+    lookup_value: 6,
+    lookup_array,
+    return_array,
+    return_first_match: false,
+    sanitization: sanitization.NUMBER_TYPE,
+    sanitizationOptions: { defaultNumber: 123 }
+  };
   assertEquals(xlookup(p), 123);
+});
+
+Deno.test('tableLookup test: test search', async () => {
+  const tableB_data = [
+    { name: 99, value: 'ninenine' },
+    { name: 1, value: 'one' },
+    { name: 'two', value: 2 },
+    { name: 3, value: 'three' },
+    { name: 'four', value: 4 },
+    { name: 99, value: 'NINENINE' },
+    { name: ' FiVe ', value: 5 },
+    { name: 6, value: 'six' },
+    { name: 'seven', value: 7 },
+  ];
+
+  const moduleData = new ModuleData({
+    moduleName: 'xxx', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
+    tables: [
+      { tableName: 'tabA', table: [] },
+      { tableName: 'tabB', table: tableB_data }
+    ]
+  });
+
+  /** @type {*} */
+  let p = null;
+
+  // {lookup_value: *, lookup_array: *[], return_array: *[], return_first_match: boolean, sanitization?: string, sanitizationOptions?: Object }
+
+  // rest undefined return
+  p = { lookup_value: null, lookup_key: 'name', return_key: 'value', return_first_match: false };
+  assertEquals(tableLookup(moduleData, p), undefined);
+  p = { lookup_value: undefined, lookup_key: 'name', return_key: 'value', return_first_match: false };
+  assertEquals(tableLookup(moduleData, p), undefined);
+
+  p = { tableName: 'tabB', lookup_key: 'name', return_key: 'value' };
+
+  //@ts-ignore
+  assertEquals(tableLookup(null, p), undefined);
+
+  p.lookup_value = 99;
+  assertEquals(tableLookup(moduleData, p), 'ninenine');  // return_first_match default = true;
+  p.return_first_match = true;
+  assertEquals(tableLookup(moduleData, p), 'ninenine');
+  p.return_first_match = false;
+  assertEquals(tableLookup(moduleData, p), 'NINENINE');
+
+  p.lookup_value = '   FIVE   ';
+  p.return_first_match = false;
+  assertEquals(tableLookup(moduleData, p), 5);  // automatic string conversion, trim and lowercase
+  p.string_insensitive_match = false;
+  assertEquals(tableLookup(moduleData, p), undefined);  // DISABLING automatic string conversion, trim and lowercase
+  p.lookup_value = ' FiVe ';
+  assertEquals(tableLookup(moduleData, p), 5);  // DISABLING automatic string conversion, trim and lowercase
+
+  p.lookup_value = 'five';
+  p.string_insensitive_match = true;
+  assertEquals(tableLookup(moduleData, p), 5);  // automatic string conversion, trim and lowercase
+  p.lookup_value = '6';
+  assertEquals(tableLookup(moduleData, p), 'six');  // automatic string conversion, trim and lowercase
+
+  // with sanitization
+  p.lookup_value = 'five';
+  p.sanitization = sanitization.STRING_TYPE;
+  assertEquals(tableLookup(moduleData, p), '5');
+  p.lookup_value = 6;
+  p.sanitization = sanitization.NUMBER_TYPE;
+  assertEquals(tableLookup(moduleData, p), 0);
+
+  // with sanitization and sanitizationOptions
+  p.sanitizationOptions = { defaultNumber: 123 };
+  assertEquals(tableLookup(moduleData, p), 123);
 });
