@@ -220,8 +220,6 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     _ledger.lock();  // lock Ledger at the end of the simulation
     _ledger.eod();  // Ledger end of the day actions
 
-    console.dir(_moduleDataArray); // todo TOREMOVE
-    throw new Error('not implemented'); // todo TOREMOVE
     /*
        _____   _____   __  __   _    _   _                   _______   _____    ____    _   _             ______   _   _   _____
       / ____| |_   _| |  \/  | | |  | | | |          /\     |__   __| |_   _|  / __ \  | \ | |           |  ____| | \ | | |  __ \

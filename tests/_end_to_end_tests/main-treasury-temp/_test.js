@@ -6,7 +6,6 @@ import { main } from '../../../src/main-treasury-temp.js';
 
 import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
 import { convertExcelSheetToLedgerTrnJsonlFile } from '../../../src/deno/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
-import { compareTwoTextFiles } from '../../../src/deno/compare_two_text_files.js';
 
 const DEBUG_FLAG = true;
 
@@ -20,34 +19,56 @@ Deno.test('main-treasury-temp tests with ./user_data__non_existent_module.xlsx',
     excelUserInput: './user_data__non_existent_module.xlsx', outputFolder: '.', errors: ERROR_FILE,
     moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
   });
+
   const _errors = Deno.readTextFileSync(ERROR_FILE);
   //console.log(_errors);
+
   assert(_errors.includes(`error loading module`));
   assert(_errors.includes(`xxxyyy99___non_existent_module__888_missingmissing`));
 });
 
 Deno.test('main-treasury-temp tests with ./user_data.xlsx', async () => {
+  const BASE_TEST_FILENAME = 'user_data';
+  const JSONL_OUTPUT = 'a.jsonl';
+
   await main({
-    excelUserInput: './user_data.xlsx', outputFolder: '.', errors: ERROR_FILE,
+    excelUserInput: `./${BASE_TEST_FILENAME}.xlsx`, outputFolder: '.', errors: ERROR_FILE,
     moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
   });
+
   if (existSync(ERROR_FILE)) throw new Error(`Error file ${ERROR_FILE} should not exist`);
+
   await convertExcelSheetToLedgerTrnJsonlFile({
-    excelInput: './user_data__expected_trn.xlsx',
+    excelInput: `./${BASE_TEST_FILENAME}__expected_trn.xlsx`,
     sheetName: 'DTO',
-    jsonlOutput: './user_data__expected_trn.jsonl.tmp',
+    jsonlOutput: `./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`,
   });
-  compareTwoTextFiles('./a.jsonl', './user_data__expected_trn.jsonl.tmp');
-  Deno.removeSync('./user_data__expected_trn.jsonl.tmp');
+
+  assertEquals(Deno.readTextFileSync(`./${JSONL_OUTPUT}`), Deno.readTextFileSync(`./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`));
+
+  Deno.removeSync(`./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`);
 });
 
 Deno.test('main-treasury-temp tests with ./user_data__no_settings.xlsx', async () => {
+  const BASE_TEST_FILENAME = 'user_data__no_settings';
+  const JSONL_OUTPUT = 'base.jsonl';
+
   await main({
-    excelUserInput: './user_data__no_settings.xlsx', outputFolder: '.', errors: ERROR_FILE,
+    excelUserInput: `./${BASE_TEST_FILENAME}.xlsx`, outputFolder: '.', errors: ERROR_FILE,
     moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
   });
+
   if (existSync(ERROR_FILE)) throw new Error(`Error file ${ERROR_FILE} should not exist`);
-  // TODO use Converter2.exe [1] `excel-sheet-to-jsonl-ledger-trn` to read expected DTO, compare then end test
+
+  await convertExcelSheetToLedgerTrnJsonlFile({
+    excelInput: `./${BASE_TEST_FILENAME}__expected_trn.xlsx`,
+    sheetName: 'DTO',
+    jsonlOutput: `./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`,
+  });
+
+  assertEquals(Deno.readTextFileSync(`./${JSONL_OUTPUT}`), Deno.readTextFileSync(`./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`));
+
+  Deno.removeSync(`./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`);
 });
 
   /* TODO NOW

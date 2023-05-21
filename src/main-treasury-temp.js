@@ -7,6 +7,7 @@ export { main };
 import { parse } from 'https://deno.land/std@0.172.0/flags/mod.ts';
 import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts';
 
+import { existSync } from './deno/exist_sync.js';
 import { convertExcelToModuleDataArray } from './deno/convert_excel_to_moduledata_array.js';
 //#endregion deno imports
 
@@ -151,6 +152,9 @@ async function main ({
     _exitCode = 1;
   } finally {
     errorsDumpFileWriter.close();
+    // if exit code is 0, delete errors file
+    if (_exitCode === 0 && existSync(errors))
+      Deno.removeSync(errors);
     // continue execution after simulation if debug flag is true
     if (!continueExecutionAfterSimulationDebugFlag)
       Deno.exit(_exitCode);
