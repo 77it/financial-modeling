@@ -2,7 +2,7 @@ import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.j
 import { sanitization } from '../../deps.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
 
-import { xlookup, tableLookup } from '../../../src/modules/_utils/search_utils.js';
+import { xlookup, moduleDataLookup } from '../../../src/modules/_utils/search_utils.js';
 
 Deno.test('xlookup test: undefined', async () => {
   /** @type {*} */
@@ -72,7 +72,7 @@ Deno.test('xlookup test: test search', async () => {
   assertEquals(xlookup(p), 123);
 });
 
-Deno.test('tableLookup test: test search', async () => {
+Deno.test('moduleDataLookup test: test search', async () => {
   const tableB_data = [
     { name: 99, value: 'ninenine' },
     { name: 1, value: 'one' },
@@ -100,45 +100,45 @@ Deno.test('tableLookup test: test search', async () => {
 
   // rest undefined return
   p = { lookup_value: null, lookup_key: 'name', return_key: 'value', return_first_match: false };
-  assertEquals(tableLookup(moduleData, p), undefined);
+  assertEquals(moduleDataLookup(moduleData, p), undefined);
   p = { lookup_value: undefined, lookup_key: 'name', return_key: 'value', return_first_match: false };
-  assertEquals(tableLookup(moduleData, p), undefined);
+  assertEquals(moduleDataLookup(moduleData, p), undefined);
 
   p = { tableName: 'tabB', lookup_key: 'name', return_key: 'value' };
 
   //@ts-ignore
-  assertEquals(tableLookup(null, p), undefined);
+  assertEquals(moduleDataLookup(null, p), undefined);
 
   p.lookup_value = 99;
-  assertEquals(tableLookup(moduleData, p), 'ninenine');  // return_first_match default = true;
+  assertEquals(moduleDataLookup(moduleData, p), 'ninenine');  // return_first_match default = true;
   p.return_first_match = true;
-  assertEquals(tableLookup(moduleData, p), 'ninenine');
+  assertEquals(moduleDataLookup(moduleData, p), 'ninenine');
   p.return_first_match = false;
-  assertEquals(tableLookup(moduleData, p), 'NINENINE');
+  assertEquals(moduleDataLookup(moduleData, p), 'NINENINE');
 
   p.lookup_value = '   FIVE   ';
   p.return_first_match = false;
-  assertEquals(tableLookup(moduleData, p), 5);  // automatic string conversion, trim and lowercase
+  assertEquals(moduleDataLookup(moduleData, p), 5);  // automatic string conversion, trim and lowercase
   p.string_insensitive_match = false;
-  assertEquals(tableLookup(moduleData, p), undefined);  // DISABLING automatic string conversion, trim and lowercase
+  assertEquals(moduleDataLookup(moduleData, p), undefined);  // DISABLING automatic string conversion, trim and lowercase
   p.lookup_value = ' FiVe ';
-  assertEquals(tableLookup(moduleData, p), 5);  // DISABLING automatic string conversion, trim and lowercase
+  assertEquals(moduleDataLookup(moduleData, p), 5);  // DISABLING automatic string conversion, trim and lowercase
 
   p.lookup_value = 'five';
   p.string_insensitive_match = true;
-  assertEquals(tableLookup(moduleData, p), 5);  // automatic string conversion, trim and lowercase
+  assertEquals(moduleDataLookup(moduleData, p), 5);  // automatic string conversion, trim and lowercase
   p.lookup_value = '6';
-  assertEquals(tableLookup(moduleData, p), 'six');  // automatic string conversion, trim and lowercase
+  assertEquals(moduleDataLookup(moduleData, p), 'six');  // automatic string conversion, trim and lowercase
 
   // with sanitization
   p.lookup_value = 'five';
   p.sanitization = sanitization.STRING_TYPE;
-  assertEquals(tableLookup(moduleData, p), '5');
+  assertEquals(moduleDataLookup(moduleData, p), '5');
   p.lookup_value = 6;
   p.sanitization = sanitization.NUMBER_TYPE;
-  assertEquals(tableLookup(moduleData, p), 0);
+  assertEquals(moduleDataLookup(moduleData, p), 0);
 
   // with sanitization and sanitizationOptions
   p.sanitizationOptions = { defaultNumber: 123 };
-  assertEquals(tableLookup(moduleData, p), 123);
+  assertEquals(moduleDataLookup(moduleData, p), 123);
 });

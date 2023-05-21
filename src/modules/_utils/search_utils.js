@@ -1,4 +1,4 @@
-export { xlookup, tableLookup };
+export { xlookup, moduleDataLookup };
 
 import { ModuleData, isNullOrWhiteSpace, toStringLowerCaseTrimCompare, sanitization as sanitizationUtils, lowerCaseCompare } from '../../deps.js';
 
@@ -12,7 +12,7 @@ import { ModuleData, isNullOrWhiteSpace, toStringLowerCaseTrimCompare, sanitizat
  * sanitizationOptions if missing, no sanitizationOptions are passed to sanitization.
  * @returns {*}
  * */
-function tableLookup (moduleData, { tableName, lookup_value, lookup_key, return_key, return_first_match, string_insensitive_match, sanitization, sanitizationOptions }) {
+function moduleDataLookup (moduleData, { tableName, lookup_value, lookup_key, return_key, return_first_match, string_insensitive_match, sanitization, sanitizationOptions }) {
   if (moduleData == null) return undefined;
   if (lookup_value == null) return undefined;
   if (isNullOrWhiteSpace(lookup_key)) return undefined;

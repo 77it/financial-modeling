@@ -16,7 +16,7 @@ Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a 
 
 import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
-import { tableLookup } from './_utils/search_utils.js';
+import { moduleDataLookup } from './_utils/search_utils.js';
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 
 const MODULE_NAME = 'genericmovements';
@@ -107,7 +107,7 @@ export class Module {
       name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     });
 
-    this.#accounting_type = tableLookup(this.#moduleData, this.#accounting_type_xlookup);
+    this.#accounting_type = moduleDataLookup(this.#moduleData, this.#accounting_type_xlookup);
   }
 
   /**
