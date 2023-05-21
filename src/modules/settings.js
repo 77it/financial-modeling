@@ -121,7 +121,7 @@ export class Module {
   }
 
   /** Set Simulation Settings */
-  #setSimulationSettings () {
+  #setSimulationSettings = () => {
     if (this.#moduleData?.tables == null) return;
 
     // loop all tables
@@ -154,7 +154,7 @@ export class Module {
   }
 
   /** Set Settings Default Values, only if they don't have a value already defined */
-  #setSettingsDefaultValues () {
+  #setSettingsDefaultValues = () => {
     // loop `SettingsDefaultValues` keys and set a new Setting only if it doesn't exist
     for (const settingDefault_Key of Object.keys(SettingsDefaultValues)) {
       if (this.#simulationContext.getSetting({ name: settingDefault_Key }) != null) continue;

@@ -38,12 +38,12 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
       { url: OPTIONS__CONVERTER_EXE_GZ_URL, path: converterExePath });
 
   // convert Excel input file to JSONL `modulesData` calling Converter program  // see  https://deno.land/manual@v1.29.3/examples/subprocess
-  const jsonlExcelFilename = excelInput + '.dump.jsonl.tmp';
+  const jsonlOutput = excelInput + '.dump.jsonl.tmp';
   const p = Deno.run({
     cmd: [
       converterExePath, 'excel-modules-to-jsonl-modules',
       '--input', excelInput,
-      '--output', jsonlExcelFilename,
+      '--output', jsonlOutput,
       '--errors', tempErrorsFilePath
     ]
   });
@@ -56,12 +56,18 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }
 
-  // load `jsonlExcelFilename` JSONL file to `moduleData` array
-  const moduleDataArray = moduleDataArray_LoadFromJsonlFile(jsonlExcelFilename);
+  // throw error if output file does not exist
+  if (!existSync(jsonlOutput)) {
+    const errorsText = Deno.readTextFileSync(tempErrorsFilePath);  // see https://deno.land/api@v1.29.4?s=Deno.readTextFileSync
+    throw new Error(`Errors during conversion of the Excel input file: output file ${jsonlOutput} does not exist`);
+  }
+
+  // load `jsonlOutput` JSONL file to `moduleData` array
+  const moduleDataArray = await moduleDataArray_LoadFromJsonlFile(jsonlOutput);
 
   // delete temporary file
   try {
-    Deno.removeSync(jsonlExcelFilename);
+    Deno.removeSync(jsonlOutput);
   } catch (_) { }
 
   // return `modulesData`

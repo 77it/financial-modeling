@@ -75,21 +75,10 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
 
     //#region set context
     const simulationContext = new SimulationContext({
-      setSetting: _settings.set,
-      getSetting: _settings.get,
-      setDriver: _drivers.set,
-      getDriver: _drivers.get,
-      setTaskLock: _taskLocks.set,
-      getTaskLock: _taskLocks.get,
-      isDefinedLock: _taskLocks.isDefined,
-      transactionIsOpen: _ledger.transactionIsOpen,
-      ledgerIsLocked: _ledger.isLocked,
-      commit: _ledger.commit,
-      newSimObject: _ledger.newSimObject,
-      newDebugDebugSimObject: _ledger.newDebugDebugSimObject,
-      newDebugInfoSimObject: _ledger.newDebugInfoSimObject,
-      newDebugWarningSimObject: _ledger.newDebugWarningSimObject,
-      newDebugWarningSimObjectFromErrorString: _ledger.newDebugWarningSimObjectFromErrorString
+      drivers: _drivers,
+      settings: _settings,
+      taskLocks: _taskLocks,
+      ledger: _ledger
     });
     //#endregion set context
 

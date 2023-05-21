@@ -56,6 +56,12 @@ async function convertExcelSheetToLedgerTrnJsonlFile ({ excelInput, jsonlOutput,
     const errorsText = Deno.readTextFileSync(tempErrorsFilePath);  // see https://deno.land/api@v1.29.4?s=Deno.readTextFileSync
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }
+
+  // throw error if output file does not exist
+  if (!existSync(jsonlOutput)) {
+    const errorsText = Deno.readTextFileSync(tempErrorsFilePath);  // see https://deno.land/api@v1.29.4?s=Deno.readTextFileSync
+    throw new Error(`Errors during conversion of the Excel input file: output file ${jsonlOutput} does not exist`);
+  }
 }
 
 //#region private functions
