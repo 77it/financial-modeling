@@ -1,6 +1,6 @@
 export { SettingsDefaultValues };
 
-import { Simulation } from './settings_names';
+import { Simulation } from './settings_names.js';
 import { SimObjectTypes_enum } from '../engine/simobject/simobject_types_enum.js';
 import { deepFreeze } from '../lib/obj_utils.js';
 

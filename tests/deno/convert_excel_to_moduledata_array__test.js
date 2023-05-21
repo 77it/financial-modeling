@@ -4,6 +4,8 @@ import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from
 
 import { convertExcelToModuleDataArray } from '../../src/deno/convert_excel_to_moduledata_array.js';
 
+Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
+
 Deno.test('convertExcelToModuleDataArray tests', async () => {
   const _moduleDataArray = await convertExcelToModuleDataArray({excelInput: './assets/user_data.xlsx'});
 

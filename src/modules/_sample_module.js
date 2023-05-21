@@ -14,8 +14,11 @@ import * as SETTINGS_NAMES from '../config/settings_names.js';
 import { deepFreeze, sanitization, ModuleData, SimulationContext, lowerCaseCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/utils.js';
 
+const MODULE_NAME = '_sample_module';
+const tablesInfo = {};
+
 export class Module {
-  #name = '_sample_module';
+  #name = MODULE_NAME;
 
   //#region private fields
   /** @type {boolean} */
@@ -24,7 +27,7 @@ export class Module {
   #startDate;
   /** @type {undefined|ModuleData} */
   #moduleData;
-  /** @type {undefined|SimulationContext} */
+  /** @type {SimulationContext} */
   #simulationContext;
   /** @type {string} */
   #ACTIVE_UNIT;
@@ -37,6 +40,7 @@ export class Module {
     this.#alive = true;
     this.#startDate = undefined;
     this.#moduleData = undefined;
+    //@ts-ignore
     this.#simulationContext = undefined;
 
     this.#ACTIVE_UNIT = '';

@@ -110,8 +110,8 @@ async function main ({
       _$$SCENARIOS[0] = STD_NAMES.Scenario.BASE;
 
     //#region loop scenarios
-    for (const _unsanitized_scenario of _$$SCENARIOS) {
-      if (isNullOrWhiteSpace(_unsanitized_scenario))  // skip empty scenarios
+    for (const _scenario of _$$SCENARIOS) {
+      if (isNullOrWhiteSpace(_scenario))  // skip empty scenarios
         continue;
 
       // create/overwrite output file   // see https://deno.land/api@v1.29.1?s=Deno.open

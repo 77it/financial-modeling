@@ -184,7 +184,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
           if (_modulesArray[i]?.beforeDailyModeling != null)
-            _modulesArray[i]?.beforeDailyModeling({ today, simulationContext });
+            _modulesArray[i]?.beforeDailyModeling({ today });
         }
       }
 
@@ -195,7 +195,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
         if (_modulesArray[i].alive) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
           if (_modulesArray[i]?.dailyModeling != null)
-            _modulesArray[i]?.dailyModeling({ today, simulationContext });
+            _modulesArray[i]?.dailyModeling({ today });
           ensureNoTransactionIsOpen();
         }
       }
@@ -216,7 +216,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
       if (_modulesArray[i].alive) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
         if (_modulesArray[i]?.oneTimeAfterTheSimulationEnds != null)
-          _modulesArray[i]?.oneTimeAfterTheSimulationEnds({ simulationContext });
+          _modulesArray[i]?.oneTimeAfterTheSimulationEnds();
         ensureNoTransactionIsOpen();
       }
     }

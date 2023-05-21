@@ -47,7 +47,7 @@ export class Module {
   #startDate;
   /** @type {undefined|ModuleData} */
   #moduleData;
-  /** @type {undefined|SimulationContext} */
+  /** @type {SimulationContext} */
   #simulationContext;
   /** @type {string} */
   #ACTIVE_UNIT;
@@ -60,6 +60,7 @@ export class Module {
     this.#alive = true;
     this.#startDate = undefined;
     this.#moduleData = undefined;
+    //@ts-ignore
     this.#simulationContext = undefined;
 
     this.#ACTIVE_UNIT = '';
@@ -102,11 +103,13 @@ export class Module {
    * @param {Date} p.today
    */
   dailyModeling ({ today }) {
+    if (this.#moduleData?.tables == null) return;
+
     // loop all tables
-    for (const table in this.#moduleData?.tables) {
+    for (const _table of this.#moduleData.tables) {
       // if tableName == tablesInfo.Set.name
-      if (lowerCaseCompare(table, tablesInfo.Set.tableName)) {
-        for (const row of table) {
+      if (lowerCaseCompare(_table.tableName, tablesInfo.Set.tableName)) {
+        for (const row of _table.table) {
           //TODO create ledger entry
           //if `date` = `today`
           //in base al valore di Setting Unit Historical end, per capire se muovere vs cash o vs PN.

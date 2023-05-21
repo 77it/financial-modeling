@@ -95,7 +95,7 @@ class TaskLocks {
     for (const [_key, _value] of this.#taskLocksRepo.entries()) {
       const _keyObj = JSON.parse(_key);  // parse key to {unit: string, name: string}
       if (_keyObj?.name === name && _keyObj?.unit !== this.#defaultUnit)  // if Lock name matches and Unit name is not the default unit
-        _ret.push({ unit: _keyObj.unit, lock: _value.taskLock, debugModuleInfo: _value?.debugModuleInfo });
+        _ret.push({ unit: _keyObj.unit, taskLock: _value.taskLock, debugModuleInfo: _value?.debugModuleInfo });
     }
 
     return _ret;

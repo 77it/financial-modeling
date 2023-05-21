@@ -5,7 +5,9 @@ import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from
 import { convertExcelSheetToLedgerTrnJsonlFile } from '../../src/deno/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
 import { compareTwoTextFiles } from '../../src/deno/compare_two_text_files.js';
 
-Deno.test('convertExcelToModuleDataArray tests', async () => {
+Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
+
+Deno.test('convertExcelSheetToLedgerTrnJsonlFile tests', async () => {
   await convertExcelSheetToLedgerTrnJsonlFile({
     excelInput: './assets/ledger_transactions.xlsx',
     sheetName: 'DTO',

@@ -10,19 +10,23 @@ import { compareTwoTextFiles } from '../../../src/deno/compare_two_text_files.js
 
 const DEBUG_FLAG = true;
 
-Deno.test('main-treasury-temp tests', async () => {
-  const ERROR_FILE = './errors.txt';
+const ERROR_FILE = './errors.txt';
+if (existSync(ERROR_FILE)) Deno.removeSync(ERROR_FILE);
 
-  Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
+Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
 
+Deno.test('main-treasury-temp tests with ./user_data__non_existent_module.xlsx', async () => {
   await main({
     excelUserInput: './user_data__non_existent_module.xlsx', outputFolder: '.', errors: ERROR_FILE,
     moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
   });
   const _errors = Deno.readTextFileSync(ERROR_FILE);
+  //console.log(_errors);
   assert(_errors.includes(`error loading module`));
   assert(_errors.includes(`xxxyyy99___non_existent_module__888_missingmissing`));
+});
 
+Deno.test('main-treasury-temp tests with ./user_data.xlsx', async () => {
   await main({
     excelUserInput: './user_data.xlsx', outputFolder: '.', errors: ERROR_FILE,
     moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
@@ -35,13 +39,16 @@ Deno.test('main-treasury-temp tests', async () => {
   });
   compareTwoTextFiles('./a.jsonl', './user_data__expected_trn.jsonl.tmp');
   Deno.removeSync('./user_data__expected_trn.jsonl.tmp');
+});
 
+Deno.test('main-treasury-temp tests with ./user_data__no_settings.xlsx', async () => {
   await main({
     excelUserInput: './user_data__no_settings.xlsx', outputFolder: '.', errors: ERROR_FILE,
     moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
   });
   if (existSync(ERROR_FILE)) throw new Error(`Error file ${ERROR_FILE} should not exist`);
   // TODO use Converter2.exe [1] `excel-sheet-to-jsonl-ledger-trn` to read expected DTO, compare then end test
+});
 
   /* TODO NOW
 engine.js
@@ -66,5 +73,4 @@ Ledger
   // TODO use Converter2.exe [1] `excel-sheet-to-jsonl-ledger-trn` to read expected DTO, compare then end test
   // [1] OPTIONS.FILES.CONVERTER2_EXEGZ_PATH
 
-  console.log('done test');
-});
+console.log('done test');

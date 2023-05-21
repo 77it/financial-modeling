@@ -2,7 +2,7 @@
 
 export { SettingsSanitization, SettingsSanitizationOptions };
 
-import { Simulation } from './settings_names';
+import { Simulation } from './settings_names.js';
 import { deepFreeze } from '../lib/obj_utils.js';
 import * as sanitization from '../lib/sanitization_utils.js';
 

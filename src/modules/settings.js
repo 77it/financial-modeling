@@ -47,7 +47,7 @@ export class Module {
   #startDate;
   /** @type {undefined|ModuleData} */
   #moduleData;
-  /** @type {undefined|SimulationContext} */
+  /** @type {SimulationContext} */
   #simulationContext;
 
   //#endregion private fields
@@ -56,6 +56,7 @@ export class Module {
     this.#alive = true;
     this.#startDate = undefined;
     this.#moduleData = undefined;
+    //@ts-ignore
     this.#simulationContext = undefined;
   }
 
@@ -121,11 +122,13 @@ export class Module {
 
   /** Set Simulation Settings */
   #setSimulationSettings () {
+    if (this.#moduleData?.tables == null) return;
+
     // loop all tables
-    for (const table in this.#moduleData.tables) {
+    for (const _table of this.#moduleData.tables) {
       // if tableName == tablesInfo.Set.name, loop all rows and create a setting for each entry
-      if (lowerCaseCompare(table, tablesInfo.Set.tableName)) {
-        for (const row of table) {
+      if (lowerCaseCompare(_table.tableName, tablesInfo.Set.tableName)) {
+        for (const row of _table.table) {
           let _value = row[tablesInfo.Set.columns.value];
 
           // sanitize setting value taking the sanitization settings from SettingsSanitization object (the setting name is the key of the object)
@@ -165,11 +168,13 @@ export class Module {
 
   /** Set Active Settings */
   #setActiveSettings () {
+    if (this.#moduleData?.tables == null) return;
+
     // loop all tables
-    for (const table in this.#moduleData.tables) {
+    for (const _table of this.#moduleData.tables) {
       // if tableName == tablesInfo.ActiveSet.name, loop all rows and create a setting for each entry
-      if (lowerCaseCompare(table, tablesInfo.ActiveSet.tableName)) {
-        for (const row of table) {
+      if (lowerCaseCompare(_table.tableName, tablesInfo.ActiveSet.tableName)) {
+        for (const row of _table.table) {
           // sanitize setting value taking the sanitization settings from SettingsSanitization object (the setting name is the key of the object)
           const _value = sanitization.sanitize({
             value: row[tablesInfo.ActiveSet.columns.value],
