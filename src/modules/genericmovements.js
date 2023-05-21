@@ -88,7 +88,7 @@ export class Module {
   }
 
   /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse */
-  getInfoBeforeTheSimulationStarts () {
+  prepareDataForDailyModeling () {
     // read from Settings Unit Historical end and save the value
     this.#ACTIVE_UNIT = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
     this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = this.#simulationContext.getSetting({

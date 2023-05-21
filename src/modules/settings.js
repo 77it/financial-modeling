@@ -92,7 +92,7 @@ export class Module {
   }
 
   /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse */
-  getInfoBeforeTheSimulationStarts () {
+  prepareDataForDailyModeling () {
     this.#setActiveSettings();
   }
 

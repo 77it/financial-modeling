@@ -125,12 +125,12 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
       }
     }
 
-    //# call `getInfoBeforeTheSimulationStarts()`
+    //# call `prepareDataForDailyModeling()`
     for (let i = 0; i < _modulesArray.length; i++) {
       if (_modulesArray[i].alive) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
-        if (_modulesArray[i]?.getInfoBeforeTheSimulationStarts != null)
-          _modulesArray[i]?.getInfoBeforeTheSimulationStarts();
+        if (_modulesArray[i]?.prepareDataForDailyModeling != null)
+          _modulesArray[i]?.prepareDataForDailyModeling();
       }
     }
 
