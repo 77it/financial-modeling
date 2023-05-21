@@ -2,7 +2,7 @@
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import { deepFreeze, sanitization, ModuleData, SimulationContext, lowerCaseCompare } from '../deps.js';
-import { sanitizeModuleData } from './_utils/utils.js';
+import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 const MODULE_NAME = 'ismovements';
 const tablesInfo = {};

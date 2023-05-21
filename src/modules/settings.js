@@ -4,7 +4,7 @@ import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
 import { SettingsSanitization, SettingsSanitizationOptions } from '../config/settings_sanitization.js';
 import { deepFreeze, sanitization, ModuleData, SimulationContext, lowerCaseCompare } from '../deps.js';
-import { sanitizeModuleData } from './_utils/utils.js';
+import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 const MODULE_NAME = 'settings';
 const tablesInfo = {};
@@ -122,35 +122,7 @@ export class Module {
 
   /** Set Simulation Settings */
   #setSimulationSettings = () => {
-    if (this.#moduleData?.tables == null) return;
-
-    // loop all tables
-    for (const _table of this.#moduleData.tables) {
-      // if tableName == tablesInfo.Set.name, loop all rows and create a setting for each entry
-      if (lowerCaseCompare(_table.tableName, tablesInfo.Set.tableName)) {
-        for (const row of _table.table) {
-          let _value = row[tablesInfo.Set.columns.value];
-
-          // sanitize setting value taking the sanitization settings from SettingsSanitization object (the setting name is the key of the object)
-          if (SettingsSanitization[row[tablesInfo.Set.columns.name]] != null) {
-            _value = sanitization.sanitize({
-              value: row[tablesInfo.Set.columns.value],
-              sanitization: SettingsSanitization[row[tablesInfo.Set.columns.name]],
-              options: SettingsSanitizationOptions
-            });
-          }
-
-          // create setting
-          this.#simulationContext.setSetting([{
-            scenario: row[tablesInfo.Set.columns.scenario],
-            unit: row[tablesInfo.Set.columns.unit],
-            name: row[tablesInfo.Set.columns.name],
-            date: row[tablesInfo.Set.columns.date],
-            value: _value
-          }]);
-        }
-      }
-    }
+    this.#setSettingsFromATable(tablesInfo.Set);
   }
 
   /** Set Settings Default Values, only if they don't have a value already defined */
@@ -168,26 +140,37 @@ export class Module {
 
   /** Set Active Settings */
   #setActiveSettings () {
+    this.#setSettingsFromATable(tablesInfo.ActiveSet);
+  }
+
+  /** Set Settings from a table, sanitizing values
+   * @param {{tableName: string, columns: { scenario: string, unit: string, name: string, date: string, value: string }}} table
+   * */
+  #setSettingsFromATable = (table) => {
     if (this.#moduleData?.tables == null) return;
 
     // loop all tables
     for (const _table of this.#moduleData.tables) {
-      // if tableName == tablesInfo.ActiveSet.name, loop all rows and create a setting for each entry
-      if (lowerCaseCompare(_table.tableName, tablesInfo.ActiveSet.tableName)) {
+      // if tableName == table.name, loop all rows and create a setting for each entry
+      if (lowerCaseCompare(_table.tableName, table.tableName)) {
         for (const row of _table.table) {
+          let _value = row[table.columns.value];
+
           // sanitize setting value taking the sanitization settings from SettingsSanitization object (the setting name is the key of the object)
-          const _value = sanitization.sanitize({
-            value: row[tablesInfo.ActiveSet.columns.value],
-            sanitization: SettingsSanitization[row[tablesInfo.ActiveSet.columns.name]],
-            options: SettingsSanitizationOptions
-          });
+          if (SettingsSanitization[row[table.columns.name]] != null) {
+            _value = sanitization.sanitize({
+              value: row[table.columns.value],
+              sanitization: SettingsSanitization[row[table.columns.name]],
+              options: SettingsSanitizationOptions
+            });
+          }
 
           // create setting
           this.#simulationContext.setSetting([{
-            scenario: row[tablesInfo.ActiveSet.columns.scenario],
-            unit: row[tablesInfo.ActiveSet.columns.unit],
-            name: row[tablesInfo.ActiveSet.columns.name],
-            date: row[tablesInfo.ActiveSet.columns.date],
+            scenario: row[table.columns.scenario],
+            unit: row[table.columns.unit],
+            name: row[table.columns.name],
+            date: row[table.columns.date],
             value: _value
           }]);
         }

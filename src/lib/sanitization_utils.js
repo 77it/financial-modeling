@@ -48,18 +48,18 @@ const DEFAULT_BIGINT = BigInt(0);
  * Sanitize value returning a sanitized value without modifying the original value.
  * Accepted sanitization types are many: see exported strings; class is 'function', class instance is 'object'.
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
- * To sanitize a value to an instance of a class or a function pass the class or function as sanitization: the function/class will be called with the value to sanitize as parameter.
+ * To sanitize a value with a function pass the function as sanitization type: the function will be called with the value to sanitize as parameter.
  * For optional values (null/undefined are accepted) append '?' to the type.
  * For enum sanitization use an array of values (values will be ignored, optionally validated).
- * As types you can use also exported const as 'ANY_TYPE'.
- * Any, object, function, class are ignored and returned as is.
+ * As types, you can use also exported const as 'ANY_TYPE'.
+ * Sanitization types ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
  * String to dates are parsed as JSON to dates (in local time or UTC, depending on options.dateUTC).
  * Number to dates are considered Excel serial dates (stripping hours)
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
- * @param {*} p.sanitization - Sanitization type (string, array of strings, class or function, array containing a class or function)
+ * @param {*} p.sanitization - Sanitization type (string, array of strings, function, array containing a function)
  * @param {Object} [p.options]
  * @param {string} [p.options.numberToDate=NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
  * @param {boolean} [p.options.dateUTC=false]
@@ -122,6 +122,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
 
   let retValue;
 
+  // from now on sanitization can be only a string
   switch (sanitizationType.toLowerCase()) {  // switch sanitizations
     case ANY_TYPE:
       retValue = value;  // return value as is without sanitization

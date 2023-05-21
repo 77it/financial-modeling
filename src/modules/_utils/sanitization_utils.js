@@ -9,6 +9,9 @@ import { ModuleData, sanitization } from '../../deps.js';
  * @param {{tableName: string, sanitization: *, sanitizationOptions?: *}[]} p.moduleSanitization
  */
 function sanitizeModuleData ({ moduleData, moduleSanitization }) {
+  if (moduleData?.tables == null) return moduleData;
+  if (moduleSanitization == null) return moduleData;
+
   // convert `moduleSanitization` to a map with `tableName` as key and `sanitization` as value
   const moduleSanitizationMap = new Map();
   for (const _sanitization of moduleSanitization)
@@ -28,7 +31,3 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   }
   return moduleData;
 }
-
-// TODO funzione di modules/utils che crea una voce di cassa a completamento dello sbilancio corrente (es VsCash)
-// con nome e tipo di default, presi da Config.
-// Parametri: ledger, unitName

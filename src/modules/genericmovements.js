@@ -15,7 +15,7 @@ Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a 
  */
 
 import { deepFreeze, validation, ModuleData, SimulationContext, sanitization, lowerCaseCompare } from '../deps.js';
-import { sanitizeModuleData } from './_utils/utils.js';
+import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 
 const MODULE_NAME = 'genericmovements';
@@ -95,6 +95,10 @@ export class Module {
       unit: this.#ACTIVE_UNIT,
       name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     });
+
+    // TODO call a utility function to search in table Settings, column Name (case insensitive), get value from column Value, sanitize it
+    // xlookup()
+    xxx;
   }
 
   /**

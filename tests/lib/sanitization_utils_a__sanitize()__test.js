@@ -452,7 +452,7 @@ Deno.test('test sanitize()', async (t) => {
     S.sanitize({ value: 'aaa', sanitization: t, validate: true });
   });
 
-  await t.step('big.js type + validation', async () => {
+  await t.step('big.js type + validation (use the Big function to sanitize the value)', async () => {
     const t = Big;
     assertEquals(JSON.stringify(undefined), JSON.stringify(S.sanitize({ value: undefined, sanitization: t })));
     assertEquals(JSON.stringify(null), JSON.stringify(S.sanitize({ value: null, sanitization: t })));
@@ -469,7 +469,7 @@ Deno.test('test sanitize()', async (t) => {
     S.sanitize({ value: 999, sanitization: t, validate: true });
   });
 
-  await t.step('array of big.js type + validation', async () => {
+  await t.step('array of big.js type + validation (use the Big function to sanitize the value)', async () => {
     const t = [Big];
     assertEquals(JSON.stringify([new Big(1), new Big(2), 'a']), JSON.stringify(S.sanitize({ value: [1, 2, 'a'], sanitization: t })));
     assertEquals(JSON.stringify([undefined]), JSON.stringify(S.sanitize({ value: undefined, sanitization: t })));
