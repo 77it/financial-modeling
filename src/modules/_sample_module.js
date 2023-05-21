@@ -25,7 +25,7 @@ export class Module {
   #alive;
   /** @type {undefined|Date} */
   #startDate;
-  /** @type {undefined|ModuleData} */
+  /** @type {ModuleData} */
   #moduleData;
   /** @type {SimulationContext} */
   #simulationContext;
@@ -39,6 +39,7 @@ export class Module {
   constructor () {
     this.#alive = true;
     this.#startDate = undefined;
+    //@ts-ignore
     this.#moduleData = undefined;
     //@ts-ignore
     this.#simulationContext = undefined;
