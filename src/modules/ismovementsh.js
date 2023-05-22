@@ -2,6 +2,6 @@
 
 // empty module
 export class Module {
-  name = 'ismovementshorizontaldates';
+  name = 'ismovementsh';
   alive = false;
 }
