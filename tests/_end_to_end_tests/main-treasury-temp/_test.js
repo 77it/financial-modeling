@@ -71,6 +71,11 @@ Deno.test('main-treasury-temp tests with ./user_data__no_settings.xlsx', async (
   Deno.removeSync(`./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`);
 });
 
+
+Deno.test('engine test with deno deploy (calling online function)', async () => {
+  assertEquals(1, 0);
+});
+
   /* TODO NOW
 engine.js
   vedi codice
