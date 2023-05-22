@@ -18,8 +18,9 @@ import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompa
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup } from './_utils/search_utils.js';
 import * as SETTINGS_NAMES from '../config/settings_names.js';
+import * as MODULES_CONFIG from '../config/modules.js';
 
-const MODULE_NAME = 'genericmovements';
+const MODULE_NAME = 'genericmovementsh';
 const tablesInfo = {};
 tablesInfo.Settings = {};
 tablesInfo.Settings.tableName = 'settings';
@@ -60,11 +61,8 @@ export class Module {
   #accounting_type;
   #accounting_type_moduleDataLookup = {lookup_value: 'type', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
   /** @type {undefined|string} */
-  #value_column;
-  #value_column_moduleDataLookup = {lookup_value: 'value column', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
-  /** @type {undefined|string} */
   #accounting_opposite_type;
-  #accounting_opposite_type_moduleDataLookup = {lookup_value: 'opposite type', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
+  #accounting_opposite_type_moduleDataLookup = {lookup_value: 'vs type', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
   //#endregion data from modules
 
   //#endregion private fields
@@ -112,7 +110,6 @@ export class Module {
 
     this.#accounting_type = moduleDataLookup(this.#moduleData, this.#accounting_type_moduleDataLookup);
     this.#accounting_opposite_type = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type_moduleDataLookup);
-    this.#value_column = moduleDataLookup(this.#moduleData, this.#value_column_moduleDataLookup);
   }
 
   /**
@@ -129,6 +126,8 @@ export class Module {
       if (lowerCaseCompare(_table.tableName, tablesInfo.Set.tableName)) {
         for (const row of _table.table) {
           //TODO create ledger entry
+          // data columns are all columns starting with MODULES_CONFIG.DATA_COLUMN_MARKER, with date in format YYYY-MM-DD or something similar
+
           //if `date` = `today`
           //in base al valore di Setting Unit Historical end, per capire se muovere vs cash o vs PN.
         }
