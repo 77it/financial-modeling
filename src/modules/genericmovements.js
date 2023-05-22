@@ -58,13 +58,13 @@ export class Module {
   //#region data from modules
   /** @type {undefined|string} */
   #accounting_type;
-  #accounting_type_xlookup = {lookup_value: 'type', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
+  #accounting_type_moduleDataLookup = {lookup_value: 'type', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
   /** @type {undefined|string} */
   #value_column;
-  #value_column_xlookup = {lookup_value: 'value column', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
+  #value_column_moduleDataLookup = {lookup_value: 'value column', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
   /** @type {undefined|string} */
   #accounting_opposite_type;
-  #accounting_opposite_type_xlookup = {lookup_value: 'opposite type', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
+  #accounting_opposite_type_moduleDataLookup = {lookup_value: 'opposite type', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
   //#endregion data from modules
 
   //#endregion private fields
@@ -110,9 +110,9 @@ export class Module {
       name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     });
 
-    this.#accounting_type = moduleDataLookup(this.#moduleData, this.#accounting_type_xlookup);
-    this.#accounting_opposite_type = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type_xlookup);
-    this.#value_column = moduleDataLookup(this.#moduleData, this.#value_column_xlookup);
+    this.#accounting_type = moduleDataLookup(this.#moduleData, this.#accounting_type_moduleDataLookup);
+    this.#accounting_opposite_type = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type_moduleDataLookup);
+    this.#value_column = moduleDataLookup(this.#moduleData, this.#value_column_moduleDataLookup);
   }
 
   /**

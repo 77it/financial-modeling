@@ -83,8 +83,8 @@ export class Module {
 
   /** Set TaskLocks */
   setTaskLocksBeforeTheSimulationStarts () {
-    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SETTINGS, value: this.#setSimulationSettings });
-    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__DEFAULT_ACTIVE_SETTINGS, value: this.#setSettingsDefaultValues });
+    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SET_SIMULATION_SETTINGS, value: this.#setSimulationSettings });
+    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SET_DEFAULT_SETTINGS_VALUE, value: this.#setSettingsDefaultValues });
   }
 
   /** Set Settings and Drivers */
