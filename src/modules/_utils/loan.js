@@ -75,9 +75,9 @@ input:
   oppure calcolati con i parametri di tasso da Execl, alimentando la funzione `getInterestPayments`).
 parametri:
 * numero: startingPrincipal
-* date[]: dates  // array di date
+* dates: Date[]  // array di date
 * number[]: principalPayments
-return {date[]: dates, number[]: principalPayments}
+return {dates: Date[], principalPayments: number[]}
  */
 //#endregion TODO
 

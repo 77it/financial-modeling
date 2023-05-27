@@ -11,7 +11,7 @@ class TaskLocks {
    Map to store TaskLocks:
    keys are strings made of "unit/name" (built with `taskLocksRepoBuildKey` method),
    values are {taskLock: function_of_any_kind, debugModuleInfo: string}.
-   * @type {Map<String, {taskLock: *, debugModuleInfo: string}>} */
+   * @type {Map<string, {taskLock: *, debugModuleInfo: string}>} */
   #taskLocksRepo;
   /** @type {string} */
   #currentDebugModuleInfo;

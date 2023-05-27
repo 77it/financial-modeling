@@ -11,7 +11,7 @@ class ModulesLoader {
    keys are strings made of "moduleEngineURI/moduleName" (built with `classesRepoBuildKey` method),
    values are {class: *, cdnURI: string}.
    Beware: URI (the original module URI) is different from cdnURI (the URI from which the module is loaded)
-   * @type {Map<String, {class: *, cdnURI: string}>} */
+   * @type {Map<string, {class: *, cdnURI: string}>} */
   #classesRepo;
   /** @type {modulesLoader_Resolve} */
   #modulesLoader_Resolve;
