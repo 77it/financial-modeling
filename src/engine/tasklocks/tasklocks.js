@@ -37,7 +37,7 @@ class TaskLocks {
   /**
    * Set a TaskLock; TaskLocks are immutable.
    * @param {Object} p
-   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} [p.unit] - TaskLock unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
    * @param {*} p.value - TaskLock value
    * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
@@ -54,7 +54,7 @@ class TaskLocks {
   /**
    * Get a TaskLock
    * @param {Object} p
-   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} [p.unit] - TaskLock unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
    * @return {*} TaskLock
    * @throws {Error} if TaskLock is not defined, throws an error
@@ -69,7 +69,7 @@ class TaskLocks {
   /**
    * Get info on the module that defined a TaskLock
    * @param {Object} p
-   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} [p.unit] - TaskLock unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
    * @return {*} Info on the module that defined a TaskLock
    * @throws {Error} if TaskLock is not defined, throws an error
@@ -104,7 +104,7 @@ class TaskLocks {
   /**
    * Check if a TaskLock is defined
    * @param {Object} p
-   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} [p.unit] - TaskLock unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
    * @return {boolean}
    */
@@ -115,7 +115,7 @@ class TaskLocks {
   //#region private methods
   /**
    * @param {Object} p
-   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} [p.unit] - TaskLock unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - TaskLock name
    * @return {string}
    */
