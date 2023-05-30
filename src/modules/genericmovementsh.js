@@ -14,7 +14,7 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare } from '../deps.js';
+import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare, isNullOrWhiteSpace } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup } from './_utils/search_utils.js';
 import * as SETTINGS_NAMES from '../config/settings_names.js';
@@ -59,10 +59,26 @@ export class Module {
   //#region data from modules
   /** @type {undefined|string} */
   #accounting_type;
-  #accounting_type_moduleDataLookup = {lookup_value: 'type', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
+  #accounting_type_moduleDataLookup = {
+    lookup_value: 'type',
+    sanitization: sanitization.STRING_TYPE,
+    tableName: tablesInfo.Settings.tableName,
+    lookup_key: tablesInfo.Settings.columns.name,
+    return_key: tablesInfo.Settings.columns.value,
+    return_first_match: false,
+    string_insensitive_match: true
+  };
   /** @type {undefined|string} */
   #accounting_opposite_type;
-  #accounting_opposite_type_moduleDataLookup = {lookup_value: 'vs type', sanitization: sanitization.STRING_TYPE, tableName: tablesInfo.Settings.tableName, lookup_key: tablesInfo.Settings.columns.name, return_key: tablesInfo.Settings.columns.value, return_first_match: false, string_insensitive_match: true};
+  #accounting_opposite_type_moduleDataLookup = {
+    lookup_value: 'vs type',
+    sanitization: sanitization.STRING_TYPE,
+    tableName: tablesInfo.Settings.tableName,
+    lookup_key: tablesInfo.Settings.columns.name,
+    return_key: tablesInfo.Settings.columns.value,
+    return_first_match: false,
+    string_insensitive_match: true
+  };
   //#endregion data from modules
 
   //#endregion private fields
@@ -110,6 +126,8 @@ export class Module {
 
     this.#accounting_type = moduleDataLookup(this.#moduleData, this.#accounting_type_moduleDataLookup);
     this.#accounting_opposite_type = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type_moduleDataLookup);
+    if (isNullOrWhiteSpace(this.#accounting_opposite_type))
+      this.#accounting_opposite_type = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE });
   }
 
   /**
@@ -129,7 +147,7 @@ export class Module {
           // data columns are all columns starting with MODULES_CONFIG.DATA_COLUMN_MARKER, with date in format YYYY-MM-DD or something similar
 
           //if `date` = `today`
-          //in base al valore di Setting Unit Historical end, per capire se muovere vs cash o vs PN.
+          //scrivi accounting e vs accounting da this.#accounting_opposite_type
         }
       }
     }
