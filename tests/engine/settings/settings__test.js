@@ -49,6 +49,7 @@ Deno.test('Settings tests', async () => {
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 25) }), 55);  // mutable, accepted
 
   // #setting1[0] tests
+  assertEquals(drivers.isDefined({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ' }), true);
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // undefined, query before set date
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), '55');  // query with exact date
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 26) }), '55');  // query with first date after driver
@@ -104,4 +105,6 @@ Deno.test('Settings tests', async () => {
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 26) }), 5555);  // #setting0[0], later
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 27) }), { a:888, b:[555] });  // #setting0[1], exact date
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 28) }), { a:888, b:[555] });  // #setting0[1], later
+
+  assertEquals(drivers.isDefined({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2 99999' }), false);  // non-existing setting
 });

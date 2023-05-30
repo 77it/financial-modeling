@@ -83,6 +83,7 @@ Deno.test('Drivers tests', async () => {
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver CCC', date: new Date(2022, 11, 24) }), undefined);  // wrong name
 
   // #driver1[0] tests
+  assertEquals(drivers.isDefined({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ' }), true);
   assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ' }), undefined);  // query without date, will query Date(0)
   assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // undefined, query before set date
   assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25, 1, 1, 1, 1) }), 55);  // query with exact date; the time part is ignored
@@ -176,6 +177,8 @@ Deno.test('Advanced Drivers tests', async (t) => {
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ4' }), 0);
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ5' }), '');
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ6' }), undefined);
+    assertEquals(drivers.isDefined({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ6' }), true);
+    assertEquals(drivers.isDefined({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ69999' }), false);  // non-existing driver
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverXYZ7' }), null);
   });
 

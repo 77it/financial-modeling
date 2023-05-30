@@ -67,4 +67,16 @@ class Settings {
   get ({ scenario, unit, name, date }) {
       return this.#driversRepo.get({ scenario, unit, name, date });
   }
+
+  /**
+   * Check if a Setting is defined
+   * @param {Object} p
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
+   * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} p.name - Setting name
+   * @return {boolean}
+   */
+  isDefined ({ scenario, unit, name }) {
+    return this.#driversRepo.isDefined({ scenario, unit, name });
+  }
 }

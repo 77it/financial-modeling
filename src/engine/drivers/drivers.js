@@ -89,4 +89,16 @@ class Drivers {
       }
     }
   }
+
+  /**
+   * Check if a Driver is defined
+   * @param {Object} p
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} p.name - Driver name
+   * @return {boolean}
+   */
+  isDefined ({ scenario, unit, name }) {
+    return this.#driversRepo.isDefined({ scenario, unit, name });
+  }
 }
