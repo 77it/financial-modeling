@@ -4,7 +4,7 @@ import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as STD_NAMES from '../config/standard_names.js';
 import * as CFG from '../config/engine.js';
 
-import { validation, sanitization, stripTime, Result, BOOLEAN_TRUE_STRING } from '../deps.js';
+import { validation, sanitization, stripTime, Result, isStringOrBooleanTrue } from '../deps.js';
 
 import { Ledger } from './ledger/ledger.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
@@ -301,13 +301,13 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
      * @param {Settings} p.settings
      */
     function setDebugLevelOnLedger ({ debugParameter, settings }) {
-      const _debugFlagFromParameter = sanitization.sanitize({ value: debugParameter, sanitization: sanitization.STRING_TYPE });
+      const _debugFlagFromParameter = sanitization.sanitize({ value: debugParameter, sanitization: sanitization.STRING_TYPE }).toLowerCase();
       const _debugFlagFromSettings = sanitization.sanitize({
         value: settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
         sanitization: sanitization.STRING_TYPE
-      });
+      }).toLowerCase();
 
-      if (_debugFlagFromParameter === BOOLEAN_TRUE_STRING || _debugFlagFromSettings === BOOLEAN_TRUE_STRING)
+      if (isStringOrBooleanTrue(_debugFlagFromParameter) || isStringOrBooleanTrue(_debugFlagFromSettings))
         _ledger.setDebug();
     }
 

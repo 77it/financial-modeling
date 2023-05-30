@@ -359,10 +359,11 @@ function toUTC (date) {
 }
 
 /**
- * Function that accept a string and return a string in the format YYYY-MM-DD
+ * Function that accept a string and return a string in the format YYYY-MM-DD, stripping the time part
  *
  * @param {Date} date
  * @returns {string}
+ * @throws {Error} if the date is not valid
  */
 function toStringYYYYMMDD (date) {
   return toUTC(date).toISOString().slice(0, 10);

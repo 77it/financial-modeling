@@ -45,7 +45,7 @@ class Ledger {
   /** @type {appendTrnDump} */
   #appendTrnDump;
   /** Map to store SimObjects: SimObject id as string key, SimObject as value.
-   * @type {Map<String, SimObject>} */
+   * @type {Map<string, SimObject>} */
   #simObjectsRepo;
   /** @type {SimObject[]} */
   #currentTransaction;

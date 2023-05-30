@@ -1,9 +1,6 @@
-export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, toStringLowerCaseTrimCompare, BOOLEAN_TRUE_STRING, BOOLEAN_FALSE_STRING };
+export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, toStringLowerCaseTrimCompare };
 
 import * as sanitization from './sanitization_utils.js';
-
-const BOOLEAN_TRUE_STRING = 'true';
-const BOOLEAN_FALSE_STRING = 'false';
 
 /**
  * Check if a value is null, undefined, empty string or whitespace

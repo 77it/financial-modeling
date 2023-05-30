@@ -11,7 +11,7 @@ class DriversRepo {
    Map to store Drivers:
    keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
    values are an array of {date: number [1], value: number}  [1] number obtained with `date.getTime()`
-   * @type {Map<String, {dateMilliseconds: number, value: number}[]>} */
+   * @type {Map<string, {dateMilliseconds: number, value: number}[]>} */
   #driversRepo;
   /** @type {string} */
   #currentScenario;
