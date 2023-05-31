@@ -268,7 +268,6 @@ class Ledger {
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: principalAmortizationSchedule,
       is_Link__SimObjId: newSimObjectDto.is_Link__SimObjId ?? '',
       vsSimObjectId: newSimObjectDto.vsSimObjectId ?? '',
-      versionId: 0,
       extras: newSimObjectDto.extras
     });
 
@@ -403,7 +402,6 @@ class Ledger {
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [],
       is_Link__SimObjId: '',
       vsSimObjectId: '',
-      versionId: 0,
       extras: null
     });
 
