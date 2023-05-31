@@ -130,7 +130,6 @@ class SimObject {
    * @param {bigint[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
    * @param {string} p.is_Link__SimObjId
    * @param {string} p.vsSimObjectId [NOT EXPORTED TO JSON DUMP] This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
-   * @param {number} p.versionId [NOT EXPORTED TO JSON DUMP]
    * @param {*} [p.extras] [NOT EXPORTED TO JSON DUMP] Class or an object with all the extra properties specific to the SimObject
    // properties not implemented, can be included in `extras`
    //quantity: 'number',
@@ -149,6 +148,10 @@ class SimObject {
     if (!Number.isInteger(p.decimalPlaces))
       throw new Error(`decimalPlaces must be an integer, got ${p.decimalPlaces}`);
 
+    // set default values
+    this.#versionId = 0;
+
+    // set properties from input
     this.#decimalPlaces = p.decimalPlaces;
     this.#type = p.type;
     this.#id = p.id;
@@ -176,7 +179,6 @@ class SimObject {
     this.#is_Link__SimObjId = p.is_Link__SimObjId;
     // NOT EXPORTED TO JSON DUMP
     this.#vsSimObjectId = p.vsSimObjectId;
-    this.#versionId = p.versionId;
     this.#extras = this.#StructuredCloneOrClone(p.extras);
   }
 
@@ -247,7 +249,6 @@ class SimObject {
    * @param {bigint[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]
    * @param {string} [p.is_Link__SimObjId]
    * @param {string} [p.vsSimObjectId]
-   * @param {number} [p.versionId]
    * @param {*} [p.extras]
    * @returns {SimObject}
    */
@@ -280,7 +281,7 @@ class SimObject {
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: p?.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal ?? this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
       is_Link__SimObjId: p?.is_Link__SimObjId ?? this.#is_Link__SimObjId,
       vsSimObjectId: p?.vsSimObjectId ?? this.#vsSimObjectId,
-      versionId: p?.versionId ?? this.#versionId,
+      versionId: this.#versionId + 1,
       extras: p?.extras ?? this.#extras,
     });
   }
