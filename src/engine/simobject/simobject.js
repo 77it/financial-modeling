@@ -130,6 +130,7 @@ class SimObject {
    * @param {bigint[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
    * @param {string} p.is_Link__SimObjId
    * @param {string} p.vsSimObjectId [NOT EXPORTED TO JSON DUMP] This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
+   * @param {number} p.versionId [NOT EXPORTED TO JSON DUMP]
    * @param {*} [p.extras] [NOT EXPORTED TO JSON DUMP] Class or an object with all the extra properties specific to the SimObject
    // properties not implemented, can be included in `extras`
    //quantity: 'number',
@@ -147,9 +148,6 @@ class SimObject {
     // check if decimalPlaces is an integer, otherwise raise exception
     if (!Number.isInteger(p.decimalPlaces))
       throw new Error(`decimalPlaces must be an integer, got ${p.decimalPlaces}`);
-
-    // set default values
-    this.#versionId = 0;
 
     // set properties from input
     this.#decimalPlaces = p.decimalPlaces;
@@ -179,6 +177,7 @@ class SimObject {
     this.#is_Link__SimObjId = p.is_Link__SimObjId;
     // NOT EXPORTED TO JSON DUMP
     this.#vsSimObjectId = p.vsSimObjectId;
+    this.#versionId = p.versionId;
     this.#extras = this.#StructuredCloneOrClone(p.extras);
   }
 
@@ -223,20 +222,20 @@ class SimObject {
   /**
    Build a new SimObject using the method parameters and filling the missing ones with the current SimObject values
    * @param {Object} [p]
-   * @param {number} [p.decimalPlaces]
-   * @param {string} [p.type]
-   * @param {string} [p.id]
+   //* @param {number} [p.decimalPlaces]
+   //* @param {string} [p.type]
+   //* @param {string} [p.id]
    * @param {Date} [p.dateTime]
-   * @param {string} [p.name]
-   * @param {string} [p.description]
+   //* @param {string} [p.name]
+   //* @param {string} [p.description]
    * @param {string} [p.mutableDescription]
-   * @param {string[]} [p.metadata__Name]
-   * @param {string[]} [p.metadata__Value]
-   * @param {number[]} [p.metadata__PercentageWeight]
-   * @param {string} [p.unitId]
-   * @param {string} [p.doubleEntrySide]
-   * @param {string} [p.currency]
-   * @param {string} [p.intercompanyInfo__VsUnitId]
+   //* @param {string[]} [p.metadata__Name]
+   //* @param {string[]} [p.metadata__Value]
+   //* @param {number[]} [p.metadata__PercentageWeight]
+   //* @param {string} [p.unitId]
+   //* @param {string} [p.doubleEntrySide]
+   //* @param {string} [p.currency]
+   //* @param {string} [p.intercompanyInfo__VsUnitId]
    * @param {bigint} [p.value]
    * @param {bigint} [p.writingValue]
    * @param {boolean} [p.alive]
@@ -247,28 +246,28 @@ class SimObject {
    * @param {bigint} [p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate]
    * @param {Date[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date]
    * @param {bigint[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]
-   * @param {string} [p.is_Link__SimObjId]
-   * @param {string} [p.vsSimObjectId]
+   //* @param {string} [p.is_Link__SimObjId]
+   //* @param {string} [p.vsSimObjectId]
    * @param {*} [p.extras]
    * @returns {SimObject}
    */
   with (p) {
     // don't clone Array and extras, because they are already cloned in the constructor
     return new SimObject({
-      decimalPlaces: p?.decimalPlaces ?? this.#decimalPlaces,
-      type: p?.type ?? this.#type,
-      id: p?.id ?? this.#id,
+      decimalPlaces: this.#decimalPlaces,
+      type: this.#type,
+      id: this.#id,
       dateTime: p?.dateTime ?? this.#dateTime,
-      name: p?.name ?? this.#name,
-      description: p?.description ?? this.#description,
+      name: this.#name,
+      description: this.#description,
       mutableDescription: p?.mutableDescription ?? this.#mutableDescription,
-      metadata__Name: p?.metadata__Name ?? this.#metadata__Name,
-      metadata__Value: p?.metadata__Value ?? this.#metadata__Value,
-      metadata__PercentageWeight: p?.metadata__PercentageWeight ?? this.#metadata__PercentageWeight,
-      unitId: p?.unitId ?? this.#unitId,
-      doubleEntrySide: p?.doubleEntrySide ?? this.#doubleEntrySide,
-      currency: p?.currency ?? this.#currency,
-      intercompanyInfo__VsUnitId: p?.intercompanyInfo__VsUnitId ?? this.#intercompanyInfo__VsUnitId,
+      metadata__Name: this.#metadata__Name,
+      metadata__Value: this.#metadata__Value,
+      metadata__PercentageWeight: this.#metadata__PercentageWeight,
+      unitId: this.#unitId,
+      doubleEntrySide: this.#doubleEntrySide,
+      currency: this.#currency,
+      intercompanyInfo__VsUnitId: this.#intercompanyInfo__VsUnitId,
       value: p?.value ?? this.#value,
       writingValue: p?.writingValue ?? this.#writingValue,
       alive: p?.alive ?? this.#alive,
@@ -279,8 +278,8 @@ class SimObject {
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: p?.bs_Principal__PrincipalToPay_IndefiniteExpiryDate ?? this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: p?.bs_Principal__PrincipalToPay_AmortizationSchedule__Date ?? this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: p?.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal ?? this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
-      is_Link__SimObjId: p?.is_Link__SimObjId ?? this.#is_Link__SimObjId,
-      vsSimObjectId: p?.vsSimObjectId ?? this.#vsSimObjectId,
+      is_Link__SimObjId: this.#is_Link__SimObjId,
+      vsSimObjectId: this.#vsSimObjectId,
       versionId: this.#versionId + 1,
       extras: p?.extras ?? this.#extras,
     });

@@ -48,13 +48,13 @@ const simObject_Validation = {
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: validation.ARRAY_OF_DATES_TYPE,
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: validation.ARRAY_OF_BIGINT_NUMBER_TYPE,
 
-  is_Link__SimObjId: validation.STRING_TYPE,
+  is_Link__SimObjId: validation.STRING_TYPE,  // for IS SimObjects, is the id of the BS SimObject that is the counterpart of this IS SimObject
   //#endregion properties common only to some kind of SimObjects
 
   //#region properties not exported to json dump
-  vsSimObjectId: validation.STRING_TYPE,
+  vsSimObjectId: validation.STRING_TYPE,  // This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
   versionId: validation.NUMBER_TYPE,
   //[REMOVED] //previousVersionId: validation.STRING_TYPE,
-  extras: validation.ANY_TYPE + '?',
+  extras: validation.ANY_TYPE + '?',  // Class or an object with all the extra properties specific to the SimObject
   //#endregion properties not exported to json dump
 };
