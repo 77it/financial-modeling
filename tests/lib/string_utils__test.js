@@ -1,4 +1,4 @@
-import {isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, toStringLowerCaseTrimCompare} from '../../src/lib/string_utils.js';
+import {isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, toStringLowerCaseTrimCompare, ifStringLowerCaseTrim, ifStringUpperCaseTrim} from '../../src/lib/string_utils.js';
 import {toUTC} from '../../src/lib/date_utils.js';
 
 import {assert, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
@@ -55,4 +55,22 @@ Deno.test('test toStringLowerCaseTrimCompare()', (t) => {
     assert(toStringLowerCaseTrimCompare({ }, ''));
     assert(toStringLowerCaseTrimCompare({ a: 123 }, ''));
     assert(toStringLowerCaseTrimCompare(new Date(2025, 11, 25), '2025-12-25T00:00:00.000Z'));
+});
+
+Deno.test('test ifStringLowerCaseTrim()', (t) => {
+    assertEquals(ifStringLowerCaseTrim('a'), 'a');
+    assertEquals(ifStringLowerCaseTrim('A'), 'a');
+    assertEquals(ifStringLowerCaseTrim('AbC'), 'abc');
+    assertEquals(ifStringLowerCaseTrim(undefined), undefined);
+    assertEquals(ifStringLowerCaseTrim(null), null);
+    assertEquals(ifStringLowerCaseTrim(999), 999);
+});
+
+Deno.test('test ifStringUpperCaseTrim()', (t) => {
+    assertEquals(ifStringUpperCaseTrim('a'), 'A');
+    assertEquals(ifStringUpperCaseTrim('A'), 'A');
+    assertEquals(ifStringUpperCaseTrim('AbC'), 'ABC');
+    assertEquals(ifStringUpperCaseTrim(undefined), undefined);
+    assertEquals(ifStringUpperCaseTrim(null), null);
+    assertEquals(ifStringUpperCaseTrim(999), 999);
 });

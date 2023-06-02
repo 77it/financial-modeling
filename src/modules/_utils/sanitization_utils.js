@@ -1,6 +1,6 @@
 export { sanitizeModuleData };
 
-import { ModuleData, sanitization } from '../../deps.js';
+import { ModuleData, sanitization, ifStringLowerCaseTrim } from '../../deps.js';
 
 /**
  * Sanitize moduleData tables in place (without cloning moduleData).
@@ -15,12 +15,12 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   // convert `moduleSanitization` to a map with `tableName` as key and `sanitization` as value
   const moduleSanitizationMap = new Map();
   for (const _sanitization of moduleSanitization)
-    moduleSanitizationMap.set(_sanitization.tableName, _sanitization);
+    moduleSanitizationMap.set(ifStringLowerCaseTrim(_sanitization.tableName), _sanitization);
 
   // loop moduleData tables
   for (const table of moduleData.tables) {
     // if table.tableName is found in moduleSanitization keys, sanitize with moduleSanitization.sanitization
-    if (moduleSanitizationMap.has(table.tableName.toLowerCase())) {
+    if (moduleSanitizationMap.has(ifStringLowerCaseTrim(table.tableName))) {
       sanitization.sanitizeObj(
         {
           obj: table.table,

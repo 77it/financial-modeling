@@ -1,4 +1,4 @@
-export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, toStringLowerCaseTrimCompare };
+export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, toStringLowerCaseTrimCompare, ifStringLowerCaseTrim, ifStringUpperCaseTrim };
 
 import * as sanitization from './sanitization_utils.js';
 
@@ -20,7 +20,7 @@ function isNullOrWhiteSpace (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isEmptyOrWhiteSpace  (value) {
+function isEmptyOrWhiteSpace (value) {
   try {
     if (typeof value !== 'string')
       return false;
@@ -48,8 +48,7 @@ function lowerCaseCompare (a, b) {
       : a === b;
      */
     return (a.toLowerCase() === b.toLowerCase());
-  }
-  catch (e) {
+  } catch (e) {
     return false;
   }
 }
@@ -70,8 +69,39 @@ function toStringLowerCaseTrimCompare (a, b) {
       _b = sanitization.sanitize({ value: _b, sanitization: sanitization.STRING_TYPE });
 
     return (_a.toLowerCase().trim() === _b.toLowerCase().trim());
-  }
-  catch (e) {
+  } catch (e) {
     return false;
+  }
+}
+
+/**
+ * If a is string, convert it to lowercase and trim before compare with b.
+ * @param {*} value
+ * @returns {*}
+ */
+function ifStringLowerCaseTrim (value) {
+  try {
+    if (typeof value === 'string')
+      return value.toLowerCase().trim();
+    else
+      return value;
+  } catch (e) {
+    return value;
+  }
+}
+
+/**
+ * If a is string, convert it to uppercase and trim before compare with b.
+ * @param {*} value
+ * @returns {*}
+ */
+function ifStringUpperCaseTrim (value) {
+  try {
+    if (typeof value === 'string')
+      return value.toUpperCase().trim();
+    else
+      return value;
+  } catch (e) {
+    return value;
   }
 }

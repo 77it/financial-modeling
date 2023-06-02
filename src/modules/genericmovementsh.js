@@ -14,9 +14,10 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare, isNullOrWhiteSpace } from '../deps.js';
+import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare, isNullOrWhiteSpace, ifStringUpperCaseTrim } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup } from './_utils/search_utils.js';
+import { Agenda } from './_utils/Agenda.js';
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as MODULES_CONFIG from '../config/modules.js';
 
@@ -51,6 +52,8 @@ export class Module {
   #moduleData;
   /** @type {SimulationContext} */
   #simulationContext;
+  /** @type {Agenda} */
+  #agenda;
   /** @type {string} */
   #ACTIVE_UNIT;
   /** @type {Date} */
@@ -91,6 +94,8 @@ export class Module {
     //@ts-ignore
     this.#simulationContext = undefined;
 
+    this.#agenda = new Agenda();
+
     this.#ACTIVE_UNIT = '';
     this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = new Date(0);
   }
@@ -117,6 +122,8 @@ export class Module {
 
   /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse */
   prepareDataForDailyModeling () {
+    if (this.#moduleData?.tables == null) return;
+
     // read from Settings Unit Historical end and save the value
     this.#ACTIVE_UNIT = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
     this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = this.#simulationContext.getSetting({
@@ -124,19 +131,10 @@ export class Module {
       name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     });
 
-    this.#accounting_type = moduleDataLookup(this.#moduleData, this.#accounting_type_moduleDataLookup);
-    this.#accounting_opposite_type = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type_moduleDataLookup);
+    this.#accounting_type = ifStringUpperCaseTrim(moduleDataLookup(this.#moduleData, this.#accounting_type_moduleDataLookup));
+    this.#accounting_opposite_type = ifStringUpperCaseTrim(moduleDataLookup(this.#moduleData, this.#accounting_opposite_type_moduleDataLookup));
     if (isNullOrWhiteSpace(this.#accounting_opposite_type))
-      this.#accounting_opposite_type = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE });
-  }
-
-  /**
-   * Called daily, after `beforeDailyModeling`
-   * @param {Object} p
-   * @param {Date} p.today
-   */
-  dailyModeling ({ today }) {
-    if (this.#moduleData?.tables == null) return;
+      this.#accounting_opposite_type = ifStringUpperCaseTrim(this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE }));
 
     // loop all tables
     for (const _table of this.#moduleData.tables) {
@@ -151,5 +149,16 @@ export class Module {
         }
       }
     }
+
+    // TODO loop table and save data to agenda
+  }
+
+  /**
+   * Called daily, after `beforeDailyModeling`
+   * @param {Object} p
+   * @param {Date} p.today
+   */
+  dailyModeling ({ today }) {
+    // TODO loop table and save data to agenda
   }
 }

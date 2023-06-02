@@ -18,6 +18,7 @@ const SettingsSanitization = {
   [Simulation.$$SIMULATION_END_DATE]: sanitization.DATE_TYPE,
   [Simulation.$$NUMBER_STRING_DECIMAL_SEPARATOR]: sanitization.STRING_TYPE,
   [Simulation.$$HISTORICAL_VOICE_BALANCING]: sanitization.STRING_TYPE,
+  [Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE]: sanitization.STRING_TYPE,
   [Simulation.$$CURRENCY]: sanitization.STRING_TYPE,
   [Simulation.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE]: sanitization.DATE_TYPE,
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: sanitization.NUMBER_TYPE,
