@@ -60,12 +60,14 @@ class Settings {
    * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Setting name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
-   * @return {undefined|*} Setting; if not found, returns undefined
+   * @return {undefined|*} Setting; if not found, returns undefined;
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
+   * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
+   * finally from Base Scenario and Default Unit (if Unit != Default and if if Scenario != Base)
    */
   get ({ scenario, unit, name, date }) {
-      return this.#driversRepo.get({ scenario, unit, name, date });
+      return this.#driversRepo.get({ scenario, unit, name, date, search: true });
   }
 
   /**
