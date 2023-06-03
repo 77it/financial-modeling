@@ -14,7 +14,7 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare, isNullOrWhiteSpace, parseJsonDate } from '../deps.js';
+import { deepFreeze, ModuleData, SimulationContext, sanitization, caseInsensitiveCompare, isNullOrWhiteSpace, parseJsonDate } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup } from './_utils/search_utils.js';
 import { Agenda } from './_utils/Agenda.js';
@@ -138,8 +138,7 @@ export class Module {
 
     // loop all tables
     for (const _table of this.#moduleData.tables) {
-      // if tableName == tablesInfo.Set.name
-      if (lowerCaseCompare(_table.tableName, tablesInfo.Set.tableName)) {
+      if (caseInsensitiveCompare(_table.tableName, tablesInfo.Set.tableName)) {
         for (const row of _table.table) {
           // TODO loop table and save data to agenda
           // data columns are all columns starting with MODULES_CONFIG.DATA_COLUMN_MARKER, with date in format YYYY-MM-DD or similar

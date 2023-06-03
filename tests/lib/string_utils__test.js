@@ -1,4 +1,4 @@
-import {isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, toStringLowerCaseTrimCompare, ifStringLowerCaseTrim, ifStringUpperCaseTrim} from '../../src/lib/string_utils.js';
+import {isNullOrWhiteSpace, isEmptyOrWhiteSpace, caseInsensitiveCompare, toStringLowerCaseTrimCompare, ifStringLowerCaseTrim, ifStringUpperCaseTrim} from '../../src/lib/string_utils.js';
 import {toUTC} from '../../src/lib/date_utils.js';
 
 import {assert, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
@@ -31,19 +31,19 @@ Deno.test('test isEmptyOrWhiteSpace()', (t) => {
     assertFalse(isEmptyOrWhiteSpace(new C()));
 });
 
-Deno.test('test lowerCaseCompare()', (t) => {
-    assert(lowerCaseCompare('a', 'a'));  // a = a
-    assert(lowerCaseCompare('AaA', 'aAa'));  // AaA' = aAa
-    assertFalse(lowerCaseCompare('a', 'á'));  // a != á
-    assertFalse(lowerCaseCompare('a', 'b'));  // a != b
+Deno.test('test caseInsensitiveCompare()', (t) => {
+    assert(caseInsensitiveCompare('a', 'a'));  // a = a
+    assert(caseInsensitiveCompare('AaA', 'aAa'));  // AaA' = aAa
+    assertFalse(caseInsensitiveCompare('a', 'á'));  // a != á
+    assertFalse(caseInsensitiveCompare('a', 'b'));  // a != b
     //@ts-ignore
-    assertFalse(lowerCaseCompare('a', null));
+    assertFalse(caseInsensitiveCompare('a', null));
     //@ts-ignore
-    assertFalse(lowerCaseCompare('a', 99));
+    assertFalse(caseInsensitiveCompare('a', 99));
     //@ts-ignore
-    assertFalse(lowerCaseCompare(undefined, null));
+    assertFalse(caseInsensitiveCompare(undefined, null));
     //@ts-ignore
-    assertFalse(lowerCaseCompare(88, 99));
+    assertFalse(caseInsensitiveCompare(88, 99));
 });
 
 Deno.test('test toStringLowerCaseTrimCompare()', (t) => {

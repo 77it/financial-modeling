@@ -11,7 +11,7 @@ Every module that wants to interrupt program execution for a fatal error throws 
 //#endregion
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import { deepFreeze, sanitization, ModuleData, SimulationContext, lowerCaseCompare } from '../deps.js';
+import { deepFreeze, sanitization, ModuleData, SimulationContext, caseInsensitiveCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 const MODULE_NAME = '_sample_module';

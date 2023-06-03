@@ -15,7 +15,7 @@ import { convertExcelToModuleDataArray } from './deno/convert_excel_to_moduledat
 import { Result } from './deps.js';
 import { sanitization } from './deps.js';
 import { parseJSON5 } from './deps.js';
-import { isNullOrWhiteSpace, lowerCaseCompare } from './deps.js';
+import { isNullOrWhiteSpace } from './deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';

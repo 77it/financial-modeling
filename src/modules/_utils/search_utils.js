@@ -1,6 +1,6 @@
 export { xlookup, moduleDataLookup };
 
-import { ModuleData, isNullOrWhiteSpace, toStringLowerCaseTrimCompare, sanitization as sanitizationUtils, lowerCaseCompare } from '../../deps.js';
+import { ModuleData, isNullOrWhiteSpace, toStringLowerCaseTrimCompare, sanitization as sanitizationUtils, caseInsensitiveCompare } from '../../deps.js';
 
 /**
  * Search in ModuleData a table, then a value in a table, searching in each row for lookup_key and return_key. Sanitize the result if needed.
@@ -25,7 +25,7 @@ function moduleDataLookup (moduleData, { tableName, lookup_value, lookup_key, re
   let _found = false;
 
   for (const _table of moduleData.tables) {
-    if (lowerCaseCompare(_table.tableName, tableName)) {
+    if (caseInsensitiveCompare(_table.tableName, tableName)) {
       for (const row of _table.table) {
         // compare lookup_value with row[lookup_key] (case-insensitive or not)
         let _match = false;

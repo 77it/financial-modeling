@@ -3,7 +3,7 @@ export { ModuleInfo };
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
 import { SettingsSanitization, SettingsSanitizationOptions } from '../config/settings_sanitization.js';
-import { deepFreeze, sanitization, ModuleData, SimulationContext, lowerCaseCompare } from '../deps.js';
+import { deepFreeze, sanitization, ModuleData, SimulationContext, caseInsensitiveCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 const MODULE_NAME = 'settings';
@@ -153,7 +153,7 @@ export class Module {
     // loop all tables
     for (const _table of this.#moduleData.tables) {
       // if tableName == table.name, loop all rows and create a setting for each entry
-      if (lowerCaseCompare(_table.tableName, table.tableName)) {
+      if (caseInsensitiveCompare(_table.tableName, table.tableName)) {
         for (const row of _table.table) {
           let _value = row[table.columns.value];
 

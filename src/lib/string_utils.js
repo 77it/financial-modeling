@@ -1,4 +1,4 @@
-export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, lowerCaseCompare, toStringLowerCaseTrimCompare, ifStringLowerCaseTrim, ifStringUpperCaseTrim };
+export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, caseInsensitiveCompare, toStringLowerCaseTrimCompare, ifStringLowerCaseTrim, ifStringUpperCaseTrim };
 
 import * as sanitization from './sanitization_utils.js';
 
@@ -39,7 +39,7 @@ function isEmptyOrWhiteSpace (value) {
  * @param {string} b
  * @returns {boolean}
  */
-function lowerCaseCompare (a, b) {
+function caseInsensitiveCompare (a, b) {
   try {
     /*
     // sensitivity = 'accent' means": Only strings that differ in base letters or accents and other diacritic marks compare as unequal. Examples: a != b, a != à, a = A.
