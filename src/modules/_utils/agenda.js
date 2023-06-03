@@ -20,7 +20,7 @@ class Agenda {
   }
 
   /**
-   * Append an Agenda item to a day
+   * Append an Agenda item to a day, ignoring the time part of the date
    * @param {Object} p
    * @param {Date} p.date - Date
    * @param {*} p.value - Agenda item
@@ -32,7 +32,7 @@ class Agenda {
   }
 
   /**
-   * Get all Agenda items for a day
+   * Get all Agenda items for a day, ignoring the time part of the date
    * @param {Object} p
    * @param {Date} p.date - Date
    * @return {*[]} Agenda items

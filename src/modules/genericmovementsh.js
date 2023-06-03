@@ -141,16 +141,14 @@ export class Module {
       // if tableName == tablesInfo.Set.name
       if (lowerCaseCompare(_table.tableName, tablesInfo.Set.tableName)) {
         for (const row of _table.table) {
-          //TODO create ledger entry
-          // data columns are all columns starting with MODULES_CONFIG.DATA_COLUMN_MARKER, with date in format YYYY-MM-DD or something similar
+          // TODO loop table and save data to agenda
+          // data columns are all columns starting with MODULES_CONFIG.DATA_COLUMN_MARKER, with date in format YYYY-MM-DD or similar
 
           //if `date` = `today`
           //scrivi accounting e vs accounting da this.#accounting_opposite_type
         }
       }
     }
-
-    // TODO loop table and save data to agenda
   }
 
   /**
@@ -159,6 +157,6 @@ export class Module {
    * @param {Date} p.today
    */
   dailyModeling ({ today }) {
-    // TODO loop table and save data to agenda
+    // TODO loop agenda and create SimObjects
   }
 }
