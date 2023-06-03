@@ -1,5 +1,5 @@
 export { isValidDate };
-export { parseJSON };
+export { parseJsonDate };
 export { differenceInCalendarDays, differenceInUTCCalendarDays };
 export { excelSerialDateToUTCDate, excelSerialDateToDate };
 export { addMonths };
@@ -20,9 +20,10 @@ function isValidDate (value) {
 }
 
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license);
-// added: parse of date on 3 fields YYYY-MM-DD, trim(), updated regex expression to match start/end of the row
+// added: parse of date on 3 fields YYYY-MM-DD, trim(), updated regex expression to match start/end of the row.
+// name inspired to https://www.google.com/search?q=%22parseJsonDate%22
 /**
- * @name parseJSON
+ * @name parseJsonDate
  * @category Common Helpers
  * @summary Parse a JSON date string
  *
@@ -52,7 +53,7 @@ function isValidDate (value) {
  * @param {boolean} [opt.asUTC=true] If true, the date will be parsed as UTC, otherwise as local time
  * @returns {Date} the parsed date in the local time zone
  */
-function parseJSON (argument, opt) {
+function parseJsonDate (argument, opt) {
   const _asUTC = opt?.asUTC ?? true;
 
   // match YYYY-MM-DDTHH:MM:SS.MMMZ

@@ -14,7 +14,7 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare, isNullOrWhiteSpace } from '../deps.js';
+import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare, isNullOrWhiteSpace, parseJsonDate } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup } from './_utils/search_utils.js';
 import { Agenda } from './_utils/Agenda.js';

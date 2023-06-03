@@ -1,5 +1,5 @@
 import * as S from '../../src/lib/sanitization_utils.js';
-import { parseJSON, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
+import { parseJsonDate, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
 
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
 // @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
@@ -95,12 +95,12 @@ Deno.test('test sanitizeObj()', async (t) => {
     };
 
     const expObj = {
-      date: parseJSON('1999-12-31T23:59:59', { asUTC: false }),
-      date2: parseJSON('1999-12-31', { asUTC: false }),
-      date3: parseJSON('2022-12-25T00:00:00.000Z', { asUTC: false }),
+      date: parseJsonDate('1999-12-31T23:59:59', { asUTC: false }),
+      date2: parseJsonDate('1999-12-31', { asUTC: false }),
+      date3: parseJsonDate('2022-12-25T00:00:00.000Z', { asUTC: false }),
       date4_fromExcelSerialDate: excelSerialDateToDate(44920),
-      arrDate: [parseJSON('1999-12-31T23:59:59', { asUTC: false }), new Date('2020-12-31T23:59:59')],
-      arrDate2: [parseJSON('1999-12-31T23:59:59', { asUTC: false })],
+      arrDate: [parseJsonDate('1999-12-31T23:59:59', { asUTC: false }), new Date('2020-12-31T23:59:59')],
+      arrDate2: [parseJsonDate('1999-12-31T23:59:59', { asUTC: false })],
       extraValueMissingRequiredDate: new Date(0),
     };
 
@@ -162,9 +162,9 @@ Deno.test('test sanitizeObj()', async (t) => {
       str: '999',
       num: 123,
       bool: false,
-      date: parseJSON('1999-12-31T23:59:59'),
-      date2: parseJSON('1999-12-31'),
-      date3: parseJSON('2022-12-25T00:00:00.000Z'),
+      date: parseJsonDate('1999-12-31T23:59:59'),
+      date2: parseJsonDate('1999-12-31'),
+      date3: parseJsonDate('2022-12-25T00:00:00.000Z'),
       date4_fromExcelSerialDate: excelSerialDateToUTCDate(44920),
       enum: 'mamma',
       arr: [999],
@@ -172,8 +172,8 @@ Deno.test('test sanitizeObj()', async (t) => {
       arrStr2: ['0'],
       arrNum: [99, 0, 55],
       arrNum2: [99],
-      arrDate: [parseJSON('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
-      arrDate2: [parseJSON('1999-12-31T23:59:59')],
+      arrDate: [parseJsonDate('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
+      arrDate2: [parseJsonDate('1999-12-31T23:59:59')],
       arrBool: [false, true],
       arrBool2: [false],
       arrBoolEmpty: [],
