@@ -4,6 +4,7 @@ import { isNullOrWhiteSpace, validation, sanitization } from '../../deps.js';
 
 import { SimObject } from '../simobject/simobject.js';
 import { simObjectToDto, simObjectToJsonDumpDto, splitPrincipal, toBigInt } from '../simobject/utils/simobject_utils.js';
+import { doubleEntrySideFromSimObjectType } from '../simobject/utils/doubleentryside_from_simobject_type.js';
 import { SimObjectTypes_enum_validation } from '../simobject/simobject_types_enum.js';
 import { SimObjectDebugTypes_enum, SimObjectDebugTypes_enum_validation } from '../simobject/simobject_debugtypes_enum.js';
 import { SimObjectErrorDebugTypes_enum, SimObjectErrorDebugTypes_enum_validation } from '../simobject/simobject_errordebugtypes_enum.js';
@@ -223,6 +224,10 @@ class Ledger {
    */
   newSimObject (newSimObjectDto) {
     sanitization.sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Sanitization });
+
+    newSimObjectDto.type.trim().toUpperCase();
+    newSimObjectDto.currency.trim().toUpperCase();
+
     validation.validate({ value: newSimObjectDto.type, validation: SimObjectTypes_enum_validation.concat(SimObjectDebugTypes_enum_validation) });
 
     const debug_moduleInfo = (this.#debug) ? this.#currentDebugModuleInfo : '';
@@ -236,9 +241,11 @@ class Ledger {
         roundingModeIsRound: this.#roundingModeIsRound
       });
 
+    const _doubleEntrySide = doubleEntrySideFromSimObjectType(newSimObjectDto.type);
+
     // if the SimObject is IS, then is forced to be Alive = false
-    const _alive = (newSimObjectDto.doubleEntrySide === DoubleEntrySide_enum.INCOMESTATEMENT_CREDIT
-      || newSimObjectDto.doubleEntrySide === DoubleEntrySide_enum.INCOMESTATEMENT_DEBIT)
+    const _alive = (_doubleEntrySide === DoubleEntrySide_enum.INCOMESTATEMENT_CREDIT
+      || _doubleEntrySide === DoubleEntrySide_enum.INCOMESTATEMENT_DEBIT)
       ? false : newSimObjectDto.alive;
 
     const simObject = new SimObject({
@@ -253,7 +260,7 @@ class Ledger {
       metadata__Value: newSimObjectDto.metadata__Value ?? [],
       metadata__PercentageWeight: newSimObjectDto.metadata__PercentageWeight ?? [],
       unitId: newSimObjectDto.unitId,
-      doubleEntrySide: newSimObjectDto.doubleEntrySide,
+      doubleEntrySide: _doubleEntrySide,
       currency: newSimObjectDto.currency,
       intercompanyInfo__VsUnitId: newSimObjectDto.intercompanyInfo__VsUnitId ?? '',
       value: _value,

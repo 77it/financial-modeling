@@ -11,7 +11,6 @@ class NewSimObjectDto {
    * @param {string[]} [p.metadata__Value]
    * @param {number[]} [p.metadata__PercentageWeight]
    * @param {string} p.unitId
-   * @param {string} p.doubleEntrySide
    * @param {string} p.currency
    * @param {string} [p.intercompanyInfo__VsUnitId]
    * @param {number} p.value
@@ -34,7 +33,6 @@ class NewSimObjectDto {
     this.metadata__Value = p.metadata__Value;
     this.metadata__PercentageWeight = p.metadata__PercentageWeight;
     this.unitId = p.unitId;
-    this.doubleEntrySide = p.doubleEntrySide;
     this.currency = p.currency;
     this.intercompanyInfo__VsUnitId = p.intercompanyInfo__VsUnitId;
     this.value = p.value;

@@ -1,6 +1,7 @@
 export { SettingsDefaultValues };
 
 import { Simulation } from './settings_names.js';
+import { Currency_enum } from '../engine/simobject/enums/currency_enum.js';
 import { SimObjectTypes_enum } from '../engine/simobject/simobject_types_enum.js';
 import { deepFreeze } from '../lib/obj_utils.js';
 
@@ -10,6 +11,7 @@ const SettingsDefaultValues = {
   [Simulation.$$NUMBER_STRING_DECIMAL_SEPARATOR]: '.',
   [Simulation.$$HISTORICAL_VOICE_BALANCING]: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   [Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE]: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
+  [Simulation.$$CURRENCY]: Currency_enum.UNDEFINED,
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: 12,
 
   // value of immutable settings with dates if nothing else is set

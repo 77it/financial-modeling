@@ -14,7 +14,7 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare, isNullOrWhiteSpace, ifStringUpperCaseTrim } from '../deps.js';
+import { deepFreeze, ModuleData, SimulationContext, sanitization, lowerCaseCompare, isNullOrWhiteSpace } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup } from './_utils/search_utils.js';
 import { Agenda } from './_utils/Agenda.js';
@@ -131,10 +131,10 @@ export class Module {
       name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     });
 
-    this.#accounting_type = ifStringUpperCaseTrim(moduleDataLookup(this.#moduleData, this.#accounting_type_moduleDataLookup));
-    this.#accounting_opposite_type = ifStringUpperCaseTrim(moduleDataLookup(this.#moduleData, this.#accounting_opposite_type_moduleDataLookup));
+    this.#accounting_type = moduleDataLookup(this.#moduleData, this.#accounting_type_moduleDataLookup);
+    this.#accounting_opposite_type = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type_moduleDataLookup);
     if (isNullOrWhiteSpace(this.#accounting_opposite_type))
-      this.#accounting_opposite_type = ifStringUpperCaseTrim(this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE }));
+      this.#accounting_opposite_type = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE });
 
     // loop all tables
     for (const _table of this.#moduleData.tables) {
