@@ -197,16 +197,16 @@ class DriversRepo {
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
-   * @param {boolean} [p.parseAsJSON5] - Optional flag to parse the value as JSON5
+   * @param {boolean} [p.parseAsJSON5=false] - Optional flag to parse the value as JSON5
    * @param {string|string[]|Object} [p.sanitizationType] - Optional type for value sanitization (can be string, array of string, object)
-   * @param {boolean} [p.search] - Optional flag to search for recursive search of the driver:
+   * @param {boolean} [p.search=false] - Optional flag to search for recursive search of the driver:
    * read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
    * finally from Base Scenario and Default Unit (if Unit != Default and if if Scenario != Base)
    * @return {undefined|*|*[]} Driver; if not found, returns undefined;
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns an array of values defined between `date` and `endDate`.
    */
-  get ({ scenario, unit, name, date, endDate, parseAsJSON5, sanitizationType, search }) {
+  get ({ scenario, unit, name, date, endDate, parseAsJSON5 = false, sanitizationType, search = false }) {
     let _key = this.#driversRepoBuildKey({ scenario, unit, name });
     if (!this.#driversRepo.has(_key)) {
       if (!search)
