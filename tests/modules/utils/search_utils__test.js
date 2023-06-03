@@ -73,7 +73,7 @@ Deno.test('xlookup test: test search', async () => {
 });
 
 Deno.test('moduleDataLookup test: test search', async () => {
-  const tableB_data = [
+  const tableB_1_data = [
     { name: 99, value: 'ninenine' },
     { name: 1, value: 'one' },
     { name: 'two', value: 2 },
@@ -85,11 +85,25 @@ Deno.test('moduleDataLookup test: test search', async () => {
     { name: 'seven', value: 7 },
   ];
 
+  const tableB_2_data = [
+    { name: 99, value: 'ninenine2' },
+    { name: 1, value: 'one' },
+    { name: 'two', value: 2 },
+    { name: 3, value: 'three' },
+    { name: 'four', value: 4 },
+    { name: 99, value: 'NINENINE2' },
+    { name: ' FiVe ', value: 5 },
+    { name: 6, value: 'six' },
+    { name: 'seven', value: 7 },
+  ];
+
   const moduleData = new ModuleData({
     moduleName: 'xxx', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
     tables: [
       { tableName: 'tabA', table: [] },
-      { tableName: 'tabB', table: tableB_data }
+      { tableName: 'tabB', table: tableB_1_data },
+      { tableName: 'tabA', table: [] },
+      { tableName: 'tabB', table: tableB_2_data }
     ]
   });
 
@@ -114,7 +128,7 @@ Deno.test('moduleDataLookup test: test search', async () => {
   p.return_first_match = true;
   assertEquals(moduleDataLookup(moduleData, p), 'ninenine');
   p.return_first_match = false;
-  assertEquals(moduleDataLookup(moduleData, p), 'NINENINE');
+  assertEquals(moduleDataLookup(moduleData, p), 'NINENINE2');  // last value is returned (from the second table)
 
   p.lookup_value = '   FIVE   ';
   p.return_first_match = false;
