@@ -17,6 +17,10 @@ Deno.bench("doubleEntrySideFromSimObjectType() benchmark", () => {
     // loop SimObjectTypes_enum keys
     for (const _simObjectType of simObjectTypesValues) {
       const _doubleEntrySide = doubleEntrySideFromSimObjectType(_simObjectType);
+      if (_doubleEntrySide === '') {
+        console.log(_doubleEntrySide);
+        throw new Error(`doubleEntrySideFromSimObjectType(${_simObjectType}) returned undefined`);
+      }
     }
   }
 });

@@ -15,6 +15,8 @@ Deno.bench('xlookup - benchmark', () => {
   // loop `loopCount` times
   for (let i = 0; i < loopCount; i++) {
     const aaa = xlookup(p);
+    if (aaa !== 'NINENINE')
+      throw new Error('xlookup() failed');
   }
 });
 
@@ -46,5 +48,7 @@ Deno.bench('moduleDataLookup - benchmark', () => {
   // loop `loopCount` times
   for (let i = 0; i < loopCount; i++) {
     const aaa = moduleDataLookup(moduleData, p);
+    if (aaa !== 'NINENINE')
+      throw new Error('moduleDataLookup() failed');
   }
 });
