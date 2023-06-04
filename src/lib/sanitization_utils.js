@@ -7,7 +7,7 @@ import { deepFreeze } from './obj_utils.js';
 
 //#region types
 export const ANY_TYPE = 'any';
-export const STRING_TYPE = 'string';
+export const STRING_TYPE = 'string';  // whitespaces are trimmed only if the string is empty
 export const NUMBER_TYPE = 'number';
 export const BOOLEAN_TYPE = 'boolean';
 export const DATE_TYPE = 'date';

@@ -12,6 +12,7 @@ const SettingsDefaultValues = {
   [Simulation.$$HISTORICAL_VOICE_BALANCING]: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   [Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE]: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   [Simulation.$$CURRENCY]: Currency_enum.UNDEFINED,
+  [Simulation.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE]: new Date(0),
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: 12,
 
   // value of immutable settings with dates if nothing else is set
