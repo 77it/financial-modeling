@@ -50,6 +50,13 @@ _describe('parseJsonDate as Date', () => {
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
     })
 
+    it('short date 2023/01/32: 32th day is parsed as the first day of the next month', () => {
+        const date = '2023/01/32';
+        const parsedDate = parseJsonDate(date, {asUTC: false});
+        const expectedDate = new Date(2023, 1, 1);
+        assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
+    })
+
     it('parses a fully formed ISO date with Z', () => {
         const date = '2000-03-15T05:20:10.123Z';
         const parsedDate = parseJsonDate(date, {asUTC: false});

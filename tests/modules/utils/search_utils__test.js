@@ -2,7 +2,7 @@ import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.j
 import { sanitization } from '../../deps.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
 
-import { xlookup, moduleDataLookup } from '../../../src/modules/_utils/search_utils.js';
+import { xlookup, moduleDataLookup, searchDateKeys } from '../../../src/modules/_utils/search_utils.js';
 
 Deno.test('xlookup test: undefined', async () => {
   /** @type {*} */
@@ -155,4 +155,17 @@ Deno.test('moduleDataLookup test: test search', async () => {
   // with sanitization and sanitizationOptions
   p.sanitizationOptions = { defaultNumber: 123 };
   assertEquals(moduleDataLookup(moduleData, p), 123);
+});
+
+Deno.test('searchDateKeys test', async () => {
+  const obj = {
+    '#2023-12-25': 1,
+    b: 2,
+    '#2023/01/29': 3,
+    '#2023/01/XX': 3,
+  }
+
+  const exp = [ {key: "#2023-12-25", date: new Date(2023, 11, 25)}, {key: "#2023/01/29", date: new Date(2023, 0, 29)} ];
+
+  assertEquals(JSON.stringify(searchDateKeys({ obj, prefix: '#' })), JSON.stringify(exp));
 });

@@ -9,9 +9,9 @@ export { toUTC, toStringYYYYMMDD, stripTime };
 // creating RegExp for later use
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
 const regExp_YYYYMMDDTHHMMSSMMMZ = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/;
-const regExp_partsYYYYMMDD_minus = /^(\d{4})-(\d{2})-(\d{2})$/
-const regExp_partsYYYYMMDD_slash = /^(\d{4})\/(\d{2})\/(\d{2})$/
-const regExp_partsYYYYMMDD_dot = /^(\d{4})\.(\d{2})\.(\d{2})$/
+const regExp_partsYYYYMMDD_minus = /^(\d{4})-(\d{2})-(\d{2})$/;
+const regExp_partsYYYYMMDD_slash = /^(\d{4})\/(\d{2})\/(\d{2})$/;
+const regExp_partsYYYYMMDD_dot = /^(\d{4})\.(\d{2})\.(\d{2})$/;
 
 /**
  * Check whether the date is valid
@@ -61,71 +61,78 @@ function isValidDate (value) {
  * @returns {Date} the parsed date in the local time zone
  */
 function parseJsonDate (argument, opt) {
-  const _asUTC = opt?.asUTC ?? true;
+  try {
+    const _asUTC = opt?.asUTC ?? true;
 
-  // match YYYY-MM-DDTHH:MM:SS.MMMZ
-  const parts = argument.trim().match(regExp_YYYYMMDDTHHMMSSMMMZ);
-  // match YYYY-MM-DD
-  const partsYYYYMMDD_minus = argument.trim().match(regExp_partsYYYYMMDD_minus);
-  // match YYYY/MM/DD
-  const partsYYYYMMDD_slash = argument.trim().match(regExp_partsYYYYMMDD_slash);
-  // match YYYY.MM.DD
-  const partsYYYYMMDD_dot = argument.trim().match(regExp_partsYYYYMMDD_dot);
-  if (parts) {
-    // Group 8 matches the sign
-    return _newDate(
-      +parts[1],
-      +parts[2] - 1,
-      +parts[3],
-      +parts[4] - (+parts[9] || 0) * (parts[8] === '-' ? -1 : 1),
-      +parts[5] - (+parts[10] || 0) * (parts[8] === '-' ? -1 : 1),
-      +parts[6],
-      +((parts[7] || '0') + '00').substring(0, 3)
-    );
-  } else if (partsYYYYMMDD_minus) {
-    // YYYY-MM-DD date
-    return _newDate(
-      +partsYYYYMMDD_minus[1],
-      +partsYYYYMMDD_minus[2] - 1,
-      +partsYYYYMMDD_minus[3]
-    );
-  } else if (partsYYYYMMDD_slash) {
-    // YYYY/MM/DD date
-    return _newDate(
-      +partsYYYYMMDD_slash[1],
-      +partsYYYYMMDD_slash[2] - 1,
-      +partsYYYYMMDD_slash[3]
-    );
-  } else if (partsYYYYMMDD_dot) {
-    // YYYY.MM.DD date
-    return _newDate(
-      +partsYYYYMMDD_dot[1],
-      +partsYYYYMMDD_dot[2] - 1,
-      +partsYYYYMMDD_dot[3]
-    );
-  }
-  return new Date(NaN);
+    if (typeof argument !== 'string')
+      return new Date(NaN);
 
-  //#region local functions
-  /**
-   * @param {number} year
-   * @param {number} month
-   * @param {number} date
-   * @param {number} [hours=0]
-   * @param {number} [minutes=0]
-   * @param {number} [seconds=0]
-   * @param {number} [ms=0]
-   * @returns {Date}
-   * @private
-   */
-  function _newDate (year, month, date, hours = 0, minutes = 0, seconds = 0, ms = 0) {
-    if (_asUTC) {
-      return new Date(Date.UTC(year, month, date, hours, minutes, seconds, ms));
+    // match YYYY-MM-DDTHH:MM:SS.MMMZ
+    const parts = argument.trim().match(regExp_YYYYMMDDTHHMMSSMMMZ);
+    // match YYYY-MM-DD
+    const partsYYYYMMDD_minus = argument.trim().match(regExp_partsYYYYMMDD_minus);
+    // match YYYY/MM/DD
+    const partsYYYYMMDD_slash = argument.trim().match(regExp_partsYYYYMMDD_slash);
+    // match YYYY.MM.DD
+    const partsYYYYMMDD_dot = argument.trim().match(regExp_partsYYYYMMDD_dot);
+    if (parts) {
+      // Group 8 matches the sign
+      return _newDate(
+        +parts[1],
+        +parts[2] - 1,
+        +parts[3],
+        +parts[4] - (+parts[9] || 0) * (parts[8] === '-' ? -1 : 1),
+        +parts[5] - (+parts[10] || 0) * (parts[8] === '-' ? -1 : 1),
+        +parts[6],
+        +((parts[7] || '0') + '00').substring(0, 3)
+      );
+    } else if (partsYYYYMMDD_minus) {
+      // YYYY-MM-DD date
+      return _newDate(
+        +partsYYYYMMDD_minus[1],
+        +partsYYYYMMDD_minus[2] - 1,
+        +partsYYYYMMDD_minus[3]
+      );
+    } else if (partsYYYYMMDD_slash) {
+      // YYYY/MM/DD date
+      return _newDate(
+        +partsYYYYMMDD_slash[1],
+        +partsYYYYMMDD_slash[2] - 1,
+        +partsYYYYMMDD_slash[3]
+      );
+    } else if (partsYYYYMMDD_dot) {
+      // YYYY.MM.DD date
+      return _newDate(
+        +partsYYYYMMDD_dot[1],
+        +partsYYYYMMDD_dot[2] - 1,
+        +partsYYYYMMDD_dot[3]
+      );
     }
-    return new Date(year, month, date, hours, minutes, seconds, ms);
-  }
+    return new Date(NaN);
 
-  //#endregion local functions
+    //#region local functions
+    /**
+     * @param {number} year
+     * @param {number} month
+     * @param {number} date
+     * @param {number} [hours=0]
+     * @param {number} [minutes=0]
+     * @param {number} [seconds=0]
+     * @param {number} [ms=0]
+     * @returns {Date}
+     * @private
+     */
+    function _newDate (year, month, date, hours = 0, minutes = 0, seconds = 0, ms = 0) {
+      if (_asUTC) {
+        return new Date(Date.UTC(year, month, date, hours, minutes, seconds, ms));
+      }
+      return new Date(year, month, date, hours, minutes, seconds, ms);
+    }
+
+    //#endregion local functions
+  } catch (_) {
+    return new Date(NaN);
+  }
 }
 
 // Inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/index.ts (MIT license)

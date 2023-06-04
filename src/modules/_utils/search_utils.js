@@ -1,6 +1,6 @@
-export { xlookup, moduleDataLookup };
+export { xlookup, moduleDataLookup, searchDateKeys };
 
-import { ModuleData, isNullOrWhiteSpace, toStringLowerCaseTrimCompare, sanitization as sanitizationUtils, caseInsensitiveCompare } from '../../deps.js';
+import { ModuleData, isNullOrWhiteSpace, toStringLowerCaseTrimCompare, sanitization as sanitizationUtils, caseInsensitiveCompare, parseJsonDate, isValidDate } from '../../deps.js';
 
 /**
  * Search in ModuleData a table, then a value in a table, searching in each row for lookup_key and return_key. Sanitize the result if needed.
@@ -44,7 +44,7 @@ function moduleDataLookup (moduleData, { tableName, lookup_value, lookup_key, re
         }
       }
     }
-    if (return_first_match &&_found) break;  // exit loop
+    if (return_first_match && _found) break;  // exit loop
   }
 
   if (sanitization != null)
@@ -102,6 +102,34 @@ function xlookup ({ lookup_value, lookup_array, return_array, return_first_match
       sanitization: sanitization,
       options: sanitizationOptions
     });
+
+  return _ret;
+}
+
+/** Search in an object keys starting with a specific prefix that when deserialized are dates
+ * @param {Object} p
+ * @param {*} p.obj
+ * @param {string} p.prefix
+ * @return {{key:string, date:Date}[]}
+ */
+function searchDateKeys ({ obj, prefix }) {
+  // search data column headers in _table.table[0]
+  /** @type {{key:string, date:Date}[]} */
+  const _ret = [];
+
+  if (obj == null || typeof obj !== 'object')
+    return _ret;
+
+  if (typeof prefix !== 'string' || isNullOrWhiteSpace(prefix))
+    return _ret;
+
+  for (const key of Object.keys(obj)) {
+    if (key.startsWith(prefix)) {
+      const _parsedDate = parseJsonDate(key.slice(prefix.length), { asUTC: false });
+      if (isValidDate(_parsedDate))
+        _ret.push({ key: key, date: _parsedDate });
+    }
+  }
 
   return _ret;
 }

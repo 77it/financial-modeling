@@ -14,9 +14,9 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, ModuleData, SimulationContext, sanitization, caseInsensitiveCompare, isNullOrWhiteSpace, parseJsonDate } from '../deps.js';
+import { deepFreeze, ModuleData, SimulationContext, sanitization, caseInsensitiveCompare, isNullOrWhiteSpace } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
-import { moduleDataLookup } from './_utils/search_utils.js';
+import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
 import { Agenda } from './_utils/Agenda.js';
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as MODULES_CONFIG from '../config/modules.js';
@@ -32,11 +32,13 @@ tablesInfo.Settings.sanitization = {
 };
 tablesInfo.Set = {};
 tablesInfo.Set.tableName = 'set';
-tablesInfo.Set.columns = { categoria: 'categoria', category: 'category' };
+tablesInfo.Set.columns = { simulation_input: 'simulation input', accounting_type: 'type', accounting_opposite_type: 'vs type' };
 tablesInfo.Set.sanitization = {
-  [tablesInfo.Set.columns.categoria]: sanitization.STRING_TYPE,
-  [tablesInfo.Set.columns.category]: sanitization.STRING_TYPE
+  [tablesInfo.Set.columns.simulation_input]: sanitization.ANY_TYPE,
+  [tablesInfo.Set.columns.accounting_type]: sanitization.STRING_TYPE,
+  [tablesInfo.Set.columns.accounting_opposite_type]: sanitization.STRING_TYPE,
 };
+tablesInfo.Set.dataMarker = MODULES_CONFIG.DATA_COLUMN_MARKER;
 const ModuleInfo = { MODULE_NAME, tablesInfo };
 deepFreeze(ModuleInfo);
 
@@ -56,8 +58,6 @@ export class Module {
   #agenda;
   /** @type {string} */
   #ACTIVE_UNIT;
-  /** @type {Date} */
-  #SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE;
 
   //#region data from modules
   /** @type {undefined|string} */
@@ -97,7 +97,6 @@ export class Module {
     this.#agenda = new Agenda();
 
     this.#ACTIVE_UNIT = '';
-    this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = new Date(0);
   }
 
   get name () { return this.#name; }
@@ -126,10 +125,8 @@ export class Module {
 
     // read from Settings Unit Historical end and save the value
     this.#ACTIVE_UNIT = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
-    this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = this.#simulationContext.getSetting({
-      unit: this.#ACTIVE_UNIT,
-      name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
-    });
+
+    this.#agenda.setSimulationStartDate(this.#simulationContext.getSetting({ unit: this.#ACTIVE_UNIT, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE }));
 
     this.#accounting_type = moduleDataLookup(this.#moduleData, this.#accounting_type_moduleDataLookup);
     this.#accounting_opposite_type = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type_moduleDataLookup);
@@ -139,12 +136,18 @@ export class Module {
     // loop all tables
     for (const _table of this.#moduleData.tables) {
       if (caseInsensitiveCompare(_table.tableName, tablesInfo.Set.tableName)) {
+        // search data column keys named as dates in _table.table[0]
+        const _dataColumns = searchDateKeys({ obj: _table.table[0], prefix: tablesInfo.Set.dataMarker });
+
         for (const row of _table.table) {
           // TODO loop table and save data to agenda
-          // data columns are all columns starting with MODULES_CONFIG.DATA_COLUMN_MARKER, with date in format YYYY-MM-DD or similar
 
-          //if `date` = `today`
-          //scrivi accounting e vs accounting da this.#accounting_opposite_type
+          const accounting_type = isNullOrWhiteSpace(row[tablesInfo.Set.columns.accounting_type]) ? this.#accounting_type : row[tablesInfo.Set.columns.accounting_type];
+          const accounting_opposite_type = isNullOrWhiteSpace(row[tablesInfo.Set.columns.accounting_opposite_type]) ? this.#accounting_opposite_type : row[tablesInfo.Set.columns.accounting_opposite_type];
+
+          if (isNullOrWhiteSpace(accounting_type) || isNullOrWhiteSpace(accounting_opposite_type)) continue;
+
+          XXX;  // add to Agenda all values taken from `_dataColumns`
         }
       }
     }
@@ -157,5 +160,7 @@ export class Module {
    */
   dailyModeling ({ today }) {
     // TODO loop agenda and create SimObjects
+
+    // TODOMAYBE we could check `today` against `this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE` to see if we are in historical or simulation time
   }
 }
