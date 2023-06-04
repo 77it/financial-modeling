@@ -36,3 +36,28 @@ Deno.bench("date sanitization - many sanitizations - benchmark", () => {
     assertEquals(new Date(0), S.sanitize({ value: false, sanitization: t2 }));
   }
 });
+
+Deno.bench("number sanitization - many sanitizations - benchmark", () => {
+  const loopCount = 100_000;
+
+  // loop `loopCount` times
+  for (let i = 0; i < loopCount; i++) {
+    const t = S.NUMBER_TYPE;
+    assertEquals(0, S.sanitize({ value: undefined, sanitization: t }));
+    assertEquals(0, S.sanitize({ value: null, sanitization: t }));
+    assertEquals(999, S.sanitize({ value: 999, sanitization: t }));
+    assertEquals(0, S.sanitize({ value: '', sanitization: t }));
+    assertEquals(0, S.sanitize({ value: 'abc', sanitization: t }));
+    assertEquals(1671922800000, S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
+    assertEquals(0, S.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals(1, S.sanitize({ value: true, sanitization: t }));
+    assertEquals(0, S.sanitize({ value: false, sanitization: t }));
+
+    const t2 = t + '?';
+    assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
+    assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
+    assertEquals(999, S.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals(1, S.sanitize({ value: true, sanitization: t2 }));
+    assertEquals(0, S.sanitize({ value: false, sanitization: t2 }));
+  }
+});
