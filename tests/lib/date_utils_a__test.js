@@ -458,6 +458,7 @@ _describe('stripTime', () => {
         const dateYYYYMMDD = new Date(1977, 8, 16, 0, 0, 0);
 
         assertEquals(stripTime(date).getTime(), dateYYYYMMDD.getTime());
+        assertEquals(stripTime(stripTime(date)).getTime(), dateYYYYMMDD.getTime());  // idempotent
     })
 })
 
