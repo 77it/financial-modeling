@@ -6,6 +6,13 @@ export { addMonths };
 export { areDatesEqual };
 export { toUTC, toStringYYYYMMDD, stripTime };
 
+// creating RegExp for later use
+// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
+const regExp_YYYYMMDDTHHMMSSMMMZ = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/;
+const regExp_partsYYYYMMDD_minus = /^(\d{4})-(\d{2})-(\d{2})$/
+const regExp_partsYYYYMMDD_slash = /^(\d{4})\/(\d{2})\/(\d{2})$/
+const regExp_partsYYYYMMDD_dot = /^(\d{4})\.(\d{2})\.(\d{2})$/
+
 /**
  * Check whether the date is valid
  * @param {*} value
@@ -57,21 +64,13 @@ function parseJsonDate (argument, opt) {
   const _asUTC = opt?.asUTC ?? true;
 
   // match YYYY-MM-DDTHH:MM:SS.MMMZ
-  const parts = argument.trim().match(
-    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/
-  );
+  const parts = argument.trim().match(regExp_YYYYMMDDTHHMMSSMMMZ);
   // match YYYY-MM-DD
-  const partsYYYYMMDD_minus = argument.trim().match(
-    /^(\d{4})-(\d{2})-(\d{2})$/
-  );
+  const partsYYYYMMDD_minus = argument.trim().match(regExp_partsYYYYMMDD_minus);
   // match YYYY/MM/DD
-  const partsYYYYMMDD_slash = argument.trim().match(
-    /^(\d{4})\/(\d{2})\/(\d{2})$/
-  );
+  const partsYYYYMMDD_slash = argument.trim().match(regExp_partsYYYYMMDD_slash);
   // match YYYY.MM.DD
-  const partsYYYYMMDD_dot = argument.trim().match(
-    /^(\d{4})\.(\d{2})\.(\d{2})$/
-  );
+  const partsYYYYMMDD_dot = argument.trim().match(regExp_partsYYYYMMDD_dot);
   if (parts) {
     // Group 8 matches the sign
     return _newDate(

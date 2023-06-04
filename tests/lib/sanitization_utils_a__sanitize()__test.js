@@ -157,6 +157,8 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(new Date(0), S.sanitize({ value: false, sanitization: t }));
 
     const t2 = t + '?';
+    assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2, }));
+    assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(new Date(2022, 11, 25), S.sanitize({ value: 44920, sanitization: t2 }));
     assertEquals(new Date(1), S.sanitize({ value: true, sanitization: t2 }));
     assertEquals(new Date(0), S.sanitize({ value: false, sanitization: t2 }));
