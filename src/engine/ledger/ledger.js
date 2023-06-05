@@ -5,7 +5,7 @@ import { isNullOrWhiteSpace, validation, sanitization } from '../../deps.js';
 import { SimObject } from '../simobject/simobject.js';
 import { simObjectToDto, simObjectToJsonDumpDto, splitPrincipal, toBigInt } from '../simobject/utils/simobject_utils.js';
 import { doubleEntrySideFromSimObjectType } from '../simobject/utils/doubleentryside_from_simobject_type.js';
-import { SimObjectTypes_enum_validation } from '../simobject/simobject_types_enum.js';
+import { SimObjectTypes_enum_map } from '../simobject/simobject_types_enum.js';
 import { SimObjectDebugTypes_enum, SimObjectDebugTypes_enum_validation } from '../simobject/simobject_debugtypes_enum.js';
 import { SimObjectErrorDebugTypes_enum, SimObjectErrorDebugTypes_enum_validation } from '../simobject/simobject_errordebugtypes_enum.js';
 import { DoubleEntrySide_enum } from '../simobject/enums/doubleentryside_enum.js';
@@ -228,7 +228,8 @@ class Ledger {
     newSimObjectDto.type.trim().toUpperCase();
     newSimObjectDto.currency.trim().toUpperCase();
 
-    validation.validate({ value: newSimObjectDto.type, validation: SimObjectTypes_enum_validation.concat(SimObjectDebugTypes_enum_validation) });
+    if (SimObjectTypes_enum_map.has(newSimObjectDto.type) === false)
+      throw new Error(`SimObject type ${newSimObjectDto.type} is not recognized`);
 
     const debug_moduleInfo = (this.#debug) ? this.#currentDebugModuleInfo : '';
 
@@ -379,7 +380,7 @@ class Ledger {
    */
   #newDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
     sanitization.sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Sanitization });
-    validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation.concat(SimObjectErrorDebugTypes_enum_validation) });
+    //skip validation, this method is private and can't be called with wrong types  //validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation.concat(SimObjectErrorDebugTypes_enum_validation) });
 
     const debug_moduleInfo = this.#currentDebugModuleInfo;
 

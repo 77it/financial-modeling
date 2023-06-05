@@ -1,6 +1,8 @@
-﻿import { deepFreeze, ensureArrayValuesAreUnique } from '../../lib/obj_utils.js';
+﻿export { SimObjectTypes_enum, SimObjectTypes_enum_map };
 
-export const SimObjectTypes_enum = {
+import { deepFreeze, ensureArrayValuesAreUnique } from '../../lib/obj_utils.js';
+
+const SimObjectTypes_enum = {
 //#region SimObjectTypes_All__codeid_EXTERNAL
 BS_CASH__BANKACCOUNT_FINANCIALACCOUNT : "BS_CASH__BANKACCOUNT_FINANCIALACCOUNT",  // (ITA) Depositi_bancari_e_postali
 BS_CREDIT__ACCRUALSCREDITS : "BS_CREDIT__ACCRUALSCREDITS",  // (ITA) Ratei_attivi
@@ -110,4 +112,5 @@ MEMO__DATAFROMSIMULATION_DIVIDENDSPAYOUT : "MEMO__DATAFROMSIMULATION_DIVIDENDSPA
 //#endregion SimObjectTypes_All__codeid_EXTERNAL
 }
 deepFreeze(SimObjectTypes_enum);
-export const SimObjectTypes_enum_validation = ensureArrayValuesAreUnique(Object.values(SimObjectTypes_enum));
+ensureArrayValuesAreUnique(Object.values(SimObjectTypes_enum));
+const SimObjectTypes_enum_map = new Map(Object.entries(SimObjectTypes_enum));
