@@ -1,7 +1,7 @@
 ﻿export { Settings };
 
 import { DriversRepo } from '../../lib/drivers_repo.js';
-import { sanitization } from '../../deps.js';
+import * as sanitization from '../../lib/sanitization_utils.js';
 
 class Settings {
   /** @type {DriversRepo} */

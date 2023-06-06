@@ -1,6 +1,8 @@
 ﻿export { Ledger };
 
-import { isNullOrWhiteSpace, validation, sanitization } from '../../deps.js';
+import * as sanitization from '../../lib/sanitization_utils.js';
+import * as validation from '../../lib/validation_utils.js';
+import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
 import { SimObject } from '../simobject/simobject.js';
 import { simObjectToDto, simObjectToJsonDumpDto, splitPrincipal, toBigInt } from '../simobject/utils/simobject_utils.js';

@@ -1,6 +1,8 @@
 ﻿export { TaskLocks };
 
-import { sanitization, validation, isNullOrWhiteSpace } from '../../deps.js';
+import * as sanitization from '../../lib/sanitization_utils.js';
+import * as validation from '../../lib/validation_utils.js';
+import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
 /*
 if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...

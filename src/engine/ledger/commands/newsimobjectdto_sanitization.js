@@ -2,7 +2,7 @@ export { newSimObjectDto_Sanitization };
 
 import { DoubleEntrySide_enum_validation } from '../../simobject/enums/doubleentryside_enum.js';
 import { Currency_enum_validation } from '../../simobject/enums/currency_enum.js';
-import { sanitization } from '../../../deps.js';
+import * as sanitization from '../../../lib/sanitization_utils.js';
 
 /**
  object used to validate NewSimObjectDto

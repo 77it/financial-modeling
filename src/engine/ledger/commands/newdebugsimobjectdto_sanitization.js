@@ -1,6 +1,6 @@
 export {newDebugSimObjectDto_Sanitization}
 
-import { sanitization } from '../../../deps.js';
+import * as sanitization from '../../../lib/sanitization_utils.js';
 
 /**
  object used to validate NewDebugSimObjectDto

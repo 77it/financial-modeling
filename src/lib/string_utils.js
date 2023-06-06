@@ -1,6 +1,6 @@
 export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, caseInsensitiveCompare, toStringLowerCaseTrimCompare, ifStringLowerCaseTrim, ifStringUpperCaseTrim };
 
-import * as sanitization from './sanitization_utils.js';
+import { toUTC } from './date_utils.js';
 
 /**
  * Check if a value is null, undefined, empty string or whitespace
@@ -64,9 +64,9 @@ function toStringLowerCaseTrimCompare (a, b) {
     let _a = a;
     let _b = b;
     if (typeof _a !== 'string')
-      _a = sanitization.sanitize({ value: _a, sanitization: sanitization.STRING_TYPE });
+      _a = sanitizeValueToString(_a);
     if (typeof _b !== 'string')
-      _b = sanitization.sanitize({ value: _b, sanitization: sanitization.STRING_TYPE });
+      _b = sanitizeValueToString(_b);
 
     return (_a.toLowerCase().trim() === _b.toLowerCase().trim());
   } catch (e) {
@@ -105,3 +105,36 @@ function ifStringUpperCaseTrim (value) {
     return value;
   }
 }
+
+//#region internal functions, not exported
+/** Function to sanitize a value to a string.
+ * @param {*} value
+ * @returns {string}
+ */
+function sanitizeValueToString (value) {
+  let retValue;
+  const _DEFAULT_STRING = '';
+  try {
+    if (isEmptyOrWhiteSpace(value))  // sanitize whitespace string to empty string (not to `_DEFAULT_STRING`)
+      retValue = '';
+    else if (typeof value === 'string')
+      retValue = value;
+    else if (value instanceof Date)
+      retValue = toUTC(value).toISOString();
+    else if ((typeof value === 'number' && isFinite(value)) || typeof value === 'bigint')
+      retValue = String(value);
+    else if (value === true)
+      retValue = 'true';
+    else if (value === false)
+      retValue = 'false';
+    else if (value == null || isNaN(value) || typeof value === 'object' || typeof value === 'function')
+      retValue = _DEFAULT_STRING;
+    else
+      retValue = String(value);
+  } catch (_) {
+    retValue = _DEFAULT_STRING;
+  }
+  return retValue;
+}
+
+//#endregion internal functions, not exported

@@ -1,6 +1,5 @@
 export { sanitize, sanitizeObj };
 
-import { isEmptyOrWhiteSpace } from './string_utils.js';
 import { parseJsonDate, excelSerialDateToDate, excelSerialDateToUTCDate, toUTC } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
 import { deepFreeze } from './obj_utils.js';
@@ -129,7 +128,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
       break;
     case STRING_TYPE:
       try {
-        if (isEmptyOrWhiteSpace(value))  // sanitize whitespace string to empty string (not to `_DEFAULT_STRING`)
+        if (_isEmptyOrWhiteSpace(value))  // sanitize whitespace string to empty string (not to `_DEFAULT_STRING`)
           retValue = '';
         else if (typeof value === 'string')
           retValue = value;
@@ -263,8 +262,9 @@ function sanitize ({ value, sanitization, options, validate = false }) {
   else
     return retValue;
 
+  //#region local functions
   /**
-   * Internal sanitization function
+   * Local sanitization function
    * @param {Object} p
    * @param {[*]} p.array - Array to sanitize
    * @param {string|function} p.sanitization - Sanitization string or function
@@ -280,6 +280,23 @@ function sanitize ({ value, sanitization, options, validate = false }) {
 
     return array;
   }
+
+  /**
+   * Local function to check if a value is empty string or whitespace
+   * @param {*} value
+   * @returns {boolean}
+   */
+  function _isEmptyOrWhiteSpace (value) {
+    try {
+      if (typeof value !== 'string')
+        return false;
+      return value === '' || value.toString().trim() === '';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //#endregion local functions
 }
 
 /**

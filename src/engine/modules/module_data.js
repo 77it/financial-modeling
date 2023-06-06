@@ -1,6 +1,6 @@
 export { ModuleData };
 
-import { sanitization } from '../../deps.js';
+import * as sanitization from '../../lib/sanitization_utils.js';
 
 // ModuleData is not immutable nor has the clone method, because the object is passed only to the modules that will use it
 class ModuleData {

@@ -2,7 +2,7 @@ export { simObject_Validation };
 
 import { DoubleEntrySide_enum_validation } from '../enums/doubleentryside_enum.js';
 import { Currency_enum_validation } from '../enums/currency_enum.js';
-import { validation } from '../../../deps.js';
+import * as validation from '../../../lib/validation_utils.js';
 
 const simObject_Validation = {
   decimalPlaces: validation.NUMBER_TYPE,  // Decimal places to return numbers with
