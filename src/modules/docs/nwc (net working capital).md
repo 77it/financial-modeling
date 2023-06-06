@@ -2,6 +2,8 @@
 
 ## SIMULATION__NWC__DAILY_ACTIVITY
 
+_Funziona solo nei giorni di simulazione, non nei giorni historical._
+
 Modulo di Simulation, ogni giorno scarica crediti e debiti commerciali alive con scadenza:
 * scarica crediti e debiti alive da Ledger chiamando `getAliveBsSimObjectsWithExpiredPrincipalToPay()`
 * scarica gli SO per le scadenze maturate (che hanno un piano di ammortamento scaduto a fine giornata);
@@ -16,6 +18,8 @@ Viene caricato automaticamente da Engine se il lock non è definito.
 
 
 ## UNIT__NWC__DAILY_ACTIVITY
+
+_Funziona solo nei giorni di simulazione, non nei giorni historical._
 
 Attivo solo se impostato all'interno dell'input utente (non viene caricato automaticamente da Engine se il lock non è definito).
 

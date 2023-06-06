@@ -153,6 +153,8 @@ export class Module {
         }
       }
     }
+
+    this.#startDate = this.#agenda.geFirstDate();
   }
 
   /**
