@@ -2,6 +2,6 @@
 
 // empty module
 export class Module {
-  name = 'ismovementsh';
+  name = 'ismovements2';
   alive = false;
 }

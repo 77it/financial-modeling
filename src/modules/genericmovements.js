@@ -21,7 +21,7 @@ import { Agenda } from './_utils/Agenda.js';
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as MODULES_CONFIG from '../config/modules.js';
 
-const MODULE_NAME = 'genericmovementsh';
+const MODULE_NAME = 'genericmovements';
 const tablesInfo = {};
 tablesInfo.Settings = {};
 tablesInfo.Settings.tableName = 'settings';
@@ -38,7 +38,8 @@ tablesInfo.Set.sanitization = {
   [tablesInfo.Set.columns.accounting_type]: sanitization.STRING_TYPE,
   [tablesInfo.Set.columns.accounting_opposite_type]: sanitization.STRING_TYPE,
 };
-tablesInfo.Set.dataMarker = MODULES_CONFIG.DATA_COLUMN_MARKER;
+tablesInfo.Set.simulationColumnPrefix = MODULES_CONFIG.SIMULATION_COLUMN_PREFIX;
+tablesInfo.Set.historicalColumnPrefix = MODULES_CONFIG.HISTORICAL_COLUMN_PREFIX;
 const ModuleInfo = { MODULE_NAME, tablesInfo };
 deepFreeze(ModuleInfo);
 
@@ -137,7 +138,8 @@ export class Module {
     for (const _table of this.#moduleData.tables) {
       if (caseInsensitiveCompare(_table.tableName, tablesInfo.Set.tableName)) {
         // search data column keys named as dates in _table.table[0]
-        const _dataColumns = searchDateKeys({ obj: _table.table[0], prefix: tablesInfo.Set.dataMarker });
+        const _simulationColumns = searchDateKeys({ obj: _table.table[0], prefix: tablesInfo.Set.simulationColumnPrefix });
+        const _historicalColumns = searchDateKeys({ obj: _table.table[0], prefix: tablesInfo.Set.historicalColumnPrefix });
 
         for (const row of _table.table) {
           // TODO loop table and save data to agenda

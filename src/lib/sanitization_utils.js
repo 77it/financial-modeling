@@ -164,25 +164,29 @@ function sanitize ({ value, sanitization, options, validate = false }) {
       break;
     case DATE_TYPE:
       try {
-        let _value = value;
-        if (typeof value === 'string') {  // if `value` is string, replace it with a date from a parsed string; date in local time or UTC
-          _value = parseJsonDate(value, { asUTC: _DATE_UTC });
-        } else if (typeof value === 'number' || typeof value === 'bigint') {  // if `value` is number or BigInt, convert it as Excel serial date to date in local time or UTC
-          const _numValue = Number(value);
-          if (_NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE) {
-            if (_DATE_UTC)
-              _value = excelSerialDateToUTCDate(_numValue);
-            else
-              _value = excelSerialDateToDate(_numValue);
-          } else if (_NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE)
-            _value = new Date(_value);
-          else  // no conversion
+        if (value instanceof Date) {
+          retValue = isNaN(value.getTime()) ? _DEFAULT_DATE : new Date(value);
+        } else {
+          let _value = value;
+          if (typeof value === 'string') {  // if `value` is string, replace it with a date from a parsed string; date in local time or UTC
+            _value = parseJsonDate(value, { asUTC: _DATE_UTC });
+          } else if (typeof value === 'number' || typeof value === 'bigint') {  // if `value` is number or BigInt, convert it as Excel serial date to date in local time or UTC
+            const _numValue = Number(value);
+            if (_NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE) {
+              if (_DATE_UTC)
+                _value = excelSerialDateToUTCDate(_numValue);
+              else
+                _value = excelSerialDateToDate(_numValue);
+            } else if (_NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE)
+              _value = new Date(_value);
+            else  // no conversion
+              _value = _DEFAULT_DATE;
+          } else if (value == null) {
             _value = _DEFAULT_DATE;
-        } else if (value == null) {
-          _value = _DEFAULT_DATE;
+          }
+          retValue = isNaN(new Date(_value).getTime())
+            ? _DEFAULT_DATE : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJsonDate` can return a not valid date
         }
-        retValue = isNaN(new Date(_value).getTime())
-          ? _DEFAULT_DATE : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJsonDate` can return a not valid date
       } catch (_) {
         retValue = _DEFAULT_DATE;
       }

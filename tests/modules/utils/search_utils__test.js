@@ -161,11 +161,30 @@ Deno.test('searchDateKeys test', async () => {
   const obj = {
     '#2023-12-25': 1,
     b: 2,
+    99: 2,
     '#2023/01/29': 3,
     '#2023/01/XX': 3,
   }
 
-  const exp = [ {key: "#2023-12-25", date: new Date(2023, 11, 25)}, {key: "#2023/01/29", date: new Date(2023, 0, 29)} ];
+  const exp = [
+    {key: "#2023-12-25", date: new Date(2023, 11, 25)},
+    {key: "#2023/01/29", date: new Date(2023, 0, 29)}
+  ];
+
+  const obj2 = {
+    'h#2023-12-25': 1,
+    b: 2,
+    99: 2,
+    'H#2023/01/29': 3,
+    'H#2023/01/XX': 3,
+  }
+
+  const exp2 = [
+    {key: "h#2023-12-25", date: new Date(2023, 11, 25)},  // case insensitive
+    {key: "H#2023/01/29", date: new Date(2023, 0, 29)}
+  ];
 
   assertEquals(JSON.stringify(searchDateKeys({ obj, prefix: '#' })), JSON.stringify(exp));
+  assertEquals(JSON.stringify(searchDateKeys({ obj: obj2, prefix: 'H#' })), JSON.stringify(exp2));
+  assertEquals(JSON.stringify(searchDateKeys({ obj: obj2, prefix: 'h#' })), JSON.stringify(exp2));  // case insensitive
 });
