@@ -32,11 +32,12 @@ tablesInfo.Settings.sanitization = {
 };
 tablesInfo.Set = {};
 tablesInfo.Set.tableName = 'set';
-tablesInfo.Set.columns = { simulation_input: 'simulation input', accounting_type: 'type', accounting_opposite_type: 'vs type' };
+tablesInfo.Set.columns = { simulation_input: 'simulation input', accounting_type: 'type', accounting_opposite_type: 'vs type', simObject_name: 'name' };
 tablesInfo.Set.sanitization = {
   [tablesInfo.Set.columns.simulation_input]: sanitization.ANY_TYPE,
   [tablesInfo.Set.columns.accounting_type]: sanitization.STRING_TYPE,
   [tablesInfo.Set.columns.accounting_opposite_type]: sanitization.STRING_TYPE,
+  [tablesInfo.Set.columns.simObject_name]: sanitization.STRING_TYPE,
 };
 tablesInfo.Set.simulationColumnPrefix = MODULES_CONFIG.SIMULATION_COLUMN_PREFIX;
 tablesInfo.Set.historicalColumnPrefix = MODULES_CONFIG.HISTORICAL_COLUMN_PREFIX;
@@ -146,15 +147,16 @@ export class Module {
 
           const accounting_type = isNullOrWhiteSpace(row[tablesInfo.Set.columns.accounting_type]) ? this.#accounting_type : row[tablesInfo.Set.columns.accounting_type];
           const accounting_opposite_type = isNullOrWhiteSpace(row[tablesInfo.Set.columns.accounting_opposite_type]) ? this.#accounting_opposite_type : row[tablesInfo.Set.columns.accounting_opposite_type];
+          const simObject_name = isNullOrWhiteSpace(row[tablesInfo.Set.columns.simObject_name]) ? '' : row[tablesInfo.Set.columns.simObject_name];
 
           if (isNullOrWhiteSpace(accounting_type) || isNullOrWhiteSpace(accounting_opposite_type)) continue;
 
-          XXX;  // add to Agenda all values taken from `_dataColumns`
+          XXX;  // add to Agenda all values taken from `_simulationColumns` and `_historicalColumns`
         }
       }
     }
 
-    this.#startDate = this.#agenda.geFirstDate();
+    this.#startDate = this.#agenda.getFirstDate();
   }
 
   /**
@@ -165,6 +167,10 @@ export class Module {
   dailyModeling ({ today }) {
     // TODO loop agenda and create SimObjects
 
-    // TODOMAYBE we could check `today` against `this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE` to see if we are in historical or simulation time
+    // if this.#accounting_opposite_type is 'SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT',
+    // use the utility function 'squareTrnWithCash'
+
+    // TODOMAYBE we could check `today` against `this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE`
+    // to see if we are in historical or simulation time and do things differently
   }
 }

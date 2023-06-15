@@ -15,6 +15,8 @@ class Agenda {
   #lastReturnedValueForADayRepo;
   /** @type {undefined|Date} */
   #simulation_start_date__last_historical_day_is_the_day_before;
+  /** @type {undefined|Date} */
+  #first_date;
 
   /** This is the Agenda class that stores things to do.
    * Remember to set the simulation start date with `set__simulation_start_date` before setting any Agenda item.
@@ -23,6 +25,7 @@ class Agenda {
     this.#repo = new Map();
     this.#lastReturnedValueForADayRepo = new Map();
     this.#simulation_start_date__last_historical_day_is_the_day_before = undefined;
+    this.#first_date = undefined;
   }
 
   /** Set the simulation start date (the last historical day is the day before)
@@ -37,7 +40,8 @@ class Agenda {
   }
 
   /**
-   * Append an Agenda item to a day, ignoring the time part of the date
+   * Append an Agenda item to a day, ignoring the time part of the date.
+   * If the simulation flag is true but the date is before the simulation start date, the item is ignored; and vice versa.
    * @param {Object} p
    * @param {*} p.date - Date (will be sanitized to date); if the date is invalid, throw
    * @param {*} p.value - Numeric value of the item (will be sanitized to number); skip adding if sanitized value = 0
@@ -64,9 +68,13 @@ class Agenda {
     let _date = sanitization.sanitize({ value: date, sanitization: sanitization.DATE_TYPE, options: { defaultDate: new Date(NaN) } });
     validation.validate({ value: _date, validation: validation.DATE_TYPE });
 
+    // if the simulation flag is true but the date is before the simulation start date, the item is ignored; and vice versa.
     const _todayIsSimulationDay = _date >= this.#simulation_start_date__last_historical_day_is_the_day_before;
     if (isSimulation !== _todayIsSimulationDay)
       return;
+
+    // save #first_date
+    if (this.#first_date === undefined || _date < this.#first_date) this.#first_date = stripTime(_date);
 
     const _key = toStringYYYYMMDD(_date);
     if (!this.#repo.has(_key)) this.#repo.set(_key, []);
@@ -85,5 +93,13 @@ class Agenda {
     if (!this.#repo.has(_key)) return [];
     //@ts-ignore
     return this.#repo.get(_key);
+  }
+
+  /**
+   * Get the first date of the Agenda
+   * @return {undefined|Date}
+   */
+  getFirstDate () {
+    return this.#first_date;
   }
 }

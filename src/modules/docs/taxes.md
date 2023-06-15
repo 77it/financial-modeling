@@ -1,7 +1,7 @@
 # module Taxes & taskLock UNIT__TAXES_COMPUTATION__DAILY_ACTIVITY, taskLock UNIT__TAXES_PAYMENT__DAILY_ACTIVITY
 
-Taxes module uses no Simulation/Unit settings but a table, because every tax manager can have its own different input needed from the user.
+Default unit settings for taxes:
+* Tax Rate
+* Day of tax payment: End Of Fiscal Year?
 
-Table example:
-
-    Unit name | Tax rate
+Taxes module can have its own settings, that supersede the default ones.
