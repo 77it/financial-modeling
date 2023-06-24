@@ -78,8 +78,7 @@ class Agenda {
 
     const _key = toStringYYYYMMDD(_date);
     if (!this.#repo.has(_key)) this.#repo.set(_key, []);
-    //@ts-ignore
-    this.#repo.get(_key).push({ value: _value, isSimulation, info });
+    this.#repo.get(_key)?.push({ value: _value, isSimulation, info });
   }
 
   /**
@@ -90,9 +89,11 @@ class Agenda {
    */
   get ({ date }) {
     const _key = toStringYYYYMMDD(date);
-    if (!this.#repo.has(_key)) return [];
-    //@ts-ignore
-    return this.#repo.get(_key);
+    const _value = this.#repo.get(_key);
+    if (_value === undefined)
+      return [];
+    else
+      return _value;
   }
 
   /**

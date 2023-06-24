@@ -1,3 +1,5 @@
+import { STRINGLOWERCASETRIMMED_TYPE, STRINGUPPERCASETRIMMED_TYPE } from '../../../lib/sanitization_utils.js';
+
 export { newSimObjectDto_Sanitization };
 
 import { DoubleEntrySide_enum_validation } from '../../simobject/enums/doubleentryside_enum.js';
@@ -8,9 +10,9 @@ import * as sanitization from '../../../lib/sanitization_utils.js';
  object used to validate NewSimObjectDto
  */
 const newSimObjectDto_Sanitization = {
-  type: sanitization.STRING_TYPE,
+  type: sanitization.STRINGUPPERCASETRIMMED_TYPE,
 
-  name: sanitization.STRING_TYPE,
+  name: sanitization.STRINGLOWERCASETRIMMED_TYPE,
   description: sanitization.STRING_TYPE,
   mutableDescription: sanitization.STRING_TYPE,
 
@@ -20,10 +22,7 @@ const newSimObjectDto_Sanitization = {
 
   unitId: sanitization.STRING_TYPE,
 
-  // the values are always positive, also debts and costs, then this is the sign/side (debit/credit, left/right) and the type (BS/IS) of the voice
-  doubleEntrySide: DoubleEntrySide_enum_validation,
-
-  currency: Currency_enum_validation,
+  currency: STRINGUPPERCASETRIMMED_TYPE,
 
   intercompanyInfo__VsUnitId: sanitization.STRING_TYPE,
 

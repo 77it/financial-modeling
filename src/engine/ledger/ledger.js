@@ -227,9 +227,6 @@ class Ledger {
   newSimObject (newSimObjectDto) {
     sanitization.sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Sanitization });
 
-    newSimObjectDto.type.trim().toUpperCase();
-    newSimObjectDto.currency.trim().toUpperCase();
-
     if (SimObjectTypes_enum_map.has(newSimObjectDto.type) === false)
       throw new Error(`SimObject type ${newSimObjectDto.type} is not recognized`);
 
