@@ -52,7 +52,7 @@ const simObject_Validation = {
   //#endregion properties common only to some kind of SimObjects
 
   //#region properties not exported to json dump
-  vsSimObjectId: validation.STRING_TYPE,  // This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
+  //vsSimObjectId: validation.STRING_TYPE,  // This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
   versionId: validation.NUMBER_TYPE,
   //[REMOVED] //previousVersionId: validation.STRING_TYPE,
   extras: validation.ANY_TYPE + '?',  // Class or an object with all the extra properties specific to the SimObject

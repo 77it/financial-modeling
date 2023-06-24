@@ -47,7 +47,7 @@ const newSimObjectDto_Sanitization = {
   is_Link__SimObjId: sanitization.STRING_TYPE,
   //#endregion properties common only to some kind of SimObjects
 
-  vsSimObjectId: sanitization.STRING_TYPE,
+  //vsSimObjectId: sanitization.STRING_TYPE,
 
   extras: sanitization.ANY_TYPE + '?',
 };
