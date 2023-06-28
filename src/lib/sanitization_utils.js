@@ -7,15 +7,15 @@ import { deepFreeze } from './obj_utils.js';
 //#region types
 export const ANY_TYPE = 'any';
 export const STRING_TYPE = 'string';  // whitespaces are trimmed only if the string is empty
-export const STRINGLOWERCASETRIMMED_TYPE = 'string_lowercase_trimmed';
-export const STRINGUPPERCASETRIMMED_TYPE = 'string_uppercase_trimmed';
+export const STRINGLOWERCASETRIMMED_TYPE = 'string_lowercase_trimmed'; XXX TODO
+export const STRINGUPPERCASETRIMMED_TYPE = 'string_uppercase_trimmed'; XXX TODO
 export const NUMBER_TYPE = 'number';
 export const BOOLEAN_TYPE = 'boolean';
 export const DATE_TYPE = 'date';
 export const ARRAY_TYPE = 'array';
 export const ARRAY_OF_STRINGS_TYPE = 'array[string]';
-export const ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE = 'array[string_lowercase_trimmed]';
-export const ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE = 'array[string_uppercase_trimmed]';
+export const ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE = 'array[string_lowercase_trimmed]'; XXX TODO
+export const ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE = 'array[string_uppercase_trimmed]'; XXX TODO
 export const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
 export const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
 export const ARRAY_OF_DATES_TYPE = 'array[date]';

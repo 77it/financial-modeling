@@ -4,24 +4,28 @@ export { deepFreeze, ensureArrayValuesAreUnique };
 
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 /**
- * Deep freeze an object or an array (recursively freeze all properties, also nested objects and arrays).
+ * Deep freeze an object, an array or a function (recursively freeze all properties, also nested objects and arrays).
  * @param {*} object
- * @returns {*}
+ * @returns {*} the same object, frozen; we can use directly the source object, that will be modified in place, without the need to use  result of this function
  */
-function deepFreeze(object) {
-  // Retrieve the property names defined on object
-  const propNames = Reflect.ownKeys(object);
+function deepFreeze (object) {
+  try {
+    // Retrieve the property names defined on object
+    const propNames = Reflect.ownKeys(object);
 
-  // Freeze properties before freezing self
-  for (const name of propNames) {
-    const value = object[name];
+    // Freeze properties before freezing self
+    for (const name of propNames) {
+      const value = object[name];
 
-    if ((value && typeof value === "object") || typeof value === "function") {
-      deepFreeze(value);
+      if ((value && typeof value === "object") || typeof value === "function") {
+        deepFreeze(value);
+      }
     }
-  }
 
-  return Object.freeze(object);
+    return Object.freeze(object);
+  } catch (e) {
+    return object;
+  }
 }
 
 /**
@@ -30,10 +34,10 @@ function deepFreeze(object) {
  * @returns {any[]} the same array, if values are unique
  * @throws {Error} if array values are not unique
  */
-function ensureArrayValuesAreUnique(array) {
+function ensureArrayValuesAreUnique (array) {
   const set = new Set(array);
   if (set.size !== array.length) {
-    throw new Error("array values are not unique");
+    throw new Error('array values are not unique');
   }
   return array;
 }

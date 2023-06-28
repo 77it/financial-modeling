@@ -37,16 +37,62 @@ Deno.test('test deepFreeze() on object', (t) => {
 });
 
 Deno.test('test deepFreeze() on array', (t) => {
-  const arr = [1, 2, { a: 999}, 4, 5];
+  const arr = [1, 2, { a: 999 }, 4, 5, []];
   deepFreeze(arr);
 
   // adding an element to an array
-  assertThrows(() => {
-    arr.push(6);
-  });
+  assertThrows(() => { arr.push(6); });
 
   // editing an inner property
-  assertThrows(() => {
-    arr[2].a = 100;
-  });
+  assertThrows(() => { arr[2].a = 100; });
+
+  // editing an inner array
+  assertThrows(() => { arr[5].push(5); });
+});
+
+Deno.test('test deepFreeze() function', (t) => {
+  function fun () {
+    return 999;
+  }
+
+  // we can add a property to a function
+  fun.a = 99;
+  assertEquals(fun.a, 99);
+
+  // after deepFreeze, we cannot add a property to a function
+  deepFreeze(fun);
+  assertThrows(() => { fun.d = 100; });
+});
+
+Deno.test('test deepFreeze() string, numbers', (t) => {
+  // non-freezable values are returned as is
+  assertEquals(deepFreeze(9), 9);
+  assertEquals(deepFreeze('abc'), 'abc');
+});
+
+Deno.test('test deepFreeze() class, class instance', (t) => {
+  class A {
+    constructor () {
+      this.a = 999;
+    }
+  }
+
+  const a = new A();
+
+  // we can add a property to a class instance, and overwrite them
+  a.a = 44;
+  a.b = 55;
+  assertEquals(a.a, 44);
+  assertEquals(a.b, 55);
+
+  // after deepFreeze, we cannot modify or add a property to a class instance
+  deepFreeze(a);
+  assertThrows(() => { a.d = 100; });
+  assertThrows(() => { a.b = 100; });
+
+  // class is not freezable
+  const B = deepFreeze(A);
+  const b = new B();
+
+  assertEquals(b.a, 999);
 });
