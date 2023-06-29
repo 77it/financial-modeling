@@ -12,6 +12,9 @@ export { deepFreeze, ensureArrayValuesAreUnique };
  * @returns {*} the same object, frozen; we can use directly the source object, that will be modified in place, without the need to use  result of this function
  */
 function deepFreeze (object) {
+  if ((object == null || !((typeof object === "object") || typeof object === "function")))
+    return object;
+
   try {
     // Retrieve the property names defined on object
     const propNames = Reflect.ownKeys(object);

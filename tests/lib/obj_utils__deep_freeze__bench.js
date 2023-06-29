@@ -4,6 +4,15 @@ import { deepFreeze } from '../../src/lib/obj_utils.js';
 
 const loopCount = 1_000_000;
 
+Deno.bench("deepFreeze() string", () => {
+  const notFreezableValue = 'abc';
+
+  // loop `loopCount` times
+  for (let i = 0; i < loopCount; i++) {
+    deepFreeze(notFreezableValue);
+  }
+});
+
 Deno.bench("deepFreeze() simple object benchmark", () => {
   // loop `loopCount` times
   for (let i = 0; i < loopCount; i++) {
