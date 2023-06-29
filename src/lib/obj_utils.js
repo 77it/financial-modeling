@@ -4,7 +4,10 @@ export { deepFreeze, ensureArrayValuesAreUnique };
 
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 /**
- * Deep freeze an object, an array or a function (recursively freeze all properties, also nested objects and arrays).
+ * Deep freeze public properties of an object (also a class instance), an array or a function
+ * (recursively freeze all public properties, also nested objects and arrays).
+ * Class instance private properties (properties starting with #) are not frozen.
+ * Freeze is not reversible, so it's not possible to unfreeze the object.
  * @param {*} object
  * @returns {*} the same object, frozen; we can use directly the source object, that will be modified in place, without the need to use  result of this function
  */

@@ -72,14 +72,26 @@ Deno.test('test deepFreeze() string, numbers', (t) => {
 
 Deno.test('test deepFreeze() class, class instance', (t) => {
   class A {
+    #private_value = 100;
+
     constructor () {
       this.a = 999;
+    }
+
+    /** @param {*} value */
+    set_private_value (value) {
+      this.#private_value = value;
+    }
+
+    /** @returns {*} */
+    get_private_value () {
+      return this.#private_value;
     }
   }
 
   const a = new A();
 
-  // we can add a property to a class instance, and overwrite them
+  // before freeze, we can add a property to a class instance, and overwrite them
   a.a = 44;
   a.b = 55;
   assertEquals(a.a, 44);
@@ -88,11 +100,12 @@ Deno.test('test deepFreeze() class, class instance', (t) => {
   // after deepFreeze, we cannot modify or add a property to a class instance
   deepFreeze(a);
   assertThrows(() => { a.d = 100; });
-  assertThrows(() => { a.b = 100; });
+  assertThrows(() => { a.a = 100; });
 
-  // class is not freezable
-  const B = deepFreeze(A);
-  const b = new B();
-
-  assertEquals(b.a, 999);
+  // also after deepFreeze, we can modify private properties
+  assertEquals(a.get_private_value(), 100);
+  a.set_private_value(200);
+  assertEquals(a.get_private_value(), 200);
+  a.set_private_value('abc');
+  assertEquals(a.get_private_value(), 'abc');
 });
