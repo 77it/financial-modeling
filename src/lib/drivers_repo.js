@@ -5,6 +5,7 @@ import * as validation from './validation_utils.js';
 import { stripTime, toStringYYYYMMDD } from './date_utils.js';
 import { parseJSON5 } from './json5.js';
 import { isNullOrWhiteSpace } from './string_utils.js';
+import { deepFreeze } from './obj_utils.js';
 
 class DriversRepo {
   /**
@@ -29,6 +30,8 @@ class DriversRepo {
   #prefix__immutable_with_dates;
   /** @type {boolean} */
   #allowMutable;
+  /** @type {boolean} */
+  #freezeImmutableValues;
   /** @type {Date} */
   #today;
 
@@ -41,6 +44,7 @@ class DriversRepo {
    * @param {string} p.prefix__immutable_without_dates
    * @param {string} p.prefix__immutable_with_dates
    * @param {boolean} p.allowMutable
+   * @param {boolean} p.freezeImmutableValues
    */
   constructor ({
     baseScenario,
@@ -49,20 +53,22 @@ class DriversRepo {
     sanitizationType,
     prefix__immutable_without_dates,
     prefix__immutable_with_dates,
-    allowMutable
+    allowMutable,
+    freezeImmutableValues
   }) {
-    this.#baseScenario = sanitization.sanitize({ value: baseScenario, sanitization: sanitization.STRING_TYPE });
-    this.#currentScenario = sanitization.sanitize({ value: currentScenario, sanitization: sanitization.STRING_TYPE });
-    this.#defaultUnit = sanitization.sanitize({ value: defaultUnit, sanitization: sanitization.STRING_TYPE });
-    this.#sanitizationType = sanitization.sanitize({ value: sanitizationType, sanitization: sanitization.STRING_TYPE });
+    this.#baseScenario = sanitization.sanitize({ value: baseScenario, sanitization: sanitization.STRING_TYPE, validate: true });
+    this.#currentScenario = sanitization.sanitize({ value: currentScenario, sanitization: sanitization.STRING_TYPE, validate: true });
+    this.#defaultUnit = sanitization.sanitize({ value: defaultUnit, sanitization: sanitization.STRING_TYPE, validate: true });
+    this.#sanitizationType = sanitization.sanitize({ value: sanitizationType, sanitization: sanitization.STRING_TYPE, validate: true });
 
-    this.#prefix__immutable_without_dates = sanitization.sanitize({ value: prefix__immutable_without_dates, sanitization: sanitization.STRING_TYPE });
-    this.#prefix__immutable_with_dates = sanitization.sanitize({ value: prefix__immutable_with_dates, sanitization: sanitization.STRING_TYPE });
+    this.#prefix__immutable_without_dates = sanitization.sanitize({ value: prefix__immutable_without_dates, sanitization: sanitization.STRING_TYPE, validate: true });
+    this.#prefix__immutable_with_dates = sanitization.sanitize({ value: prefix__immutable_with_dates, sanitization: sanitization.STRING_TYPE, validate: true });
     // test that prefix__immutable_with_dates does not start with prefix__immutable_without_dates
     if (this.#prefix__immutable_with_dates.startsWith(this.#prefix__immutable_without_dates)) {
       throw new Error(`prefix__immutable_with_dates (${this.#prefix__immutable_with_dates}) cannot start with prefix__immutable_without_dates (${this.#prefix__immutable_without_dates})`);
     }
-    this.#allowMutable = sanitization.sanitize({ value: allowMutable, sanitization: sanitization.BOOLEAN_TYPE });
+    this.#allowMutable = sanitization.sanitize({ value: allowMutable, sanitization: sanitization.BOOLEAN_TYPE, validate: true });
+    this.#freezeImmutableValues = sanitization.sanitize({ value: freezeImmutableValues, sanitization: sanitization.BOOLEAN_TYPE, validate: true });
 
     this.#driversRepo = new Map();
     this.#currentDebugModuleInfo = '';
@@ -148,6 +154,11 @@ class DriversRepo {
       if (_isImmutable && _keysAlreadyDefinedBeforeSet.has(_key)) {
         arrayOfErrors.push(`Driver ${_key} is immutable and it is already present`);
         continue;
+      }
+
+      // if the driver is immutable and the flag `freezeImmutableValues` is true, deep freeze the value
+      if (_isImmutable && this.#freezeImmutableValues) {
+        deepFreeze(_inputItemClone.value);
       }
 
       if (!(this.#driversRepo.has(_key))) {

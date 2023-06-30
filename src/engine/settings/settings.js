@@ -24,7 +24,8 @@ class Settings {
       sanitizationType: sanitization.ANY_TYPE,
       prefix__immutable_without_dates,
       prefix__immutable_with_dates,
-      allowMutable: true
+      allowMutable: true,
+      freezeImmutableValues: true  // is true because we can add value of any type, that can be also mutable
     });
   }
 

@@ -13,7 +13,8 @@ Deno.test('Drivers tests', async () => {
     sanitizationType: sanitization.NUMBER_TYPE,
     prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
     prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
-    allowMutable: true
+    allowMutable: true,
+    freezeImmutableValues: false
   });
 
   const input = [
@@ -156,7 +157,8 @@ Deno.test('Advanced Drivers tests', async (t) => {
     sanitizationType: sanitization.ANY_TYPE,
     prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
     prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
-    allowMutable: true
+    allowMutable: true,
+    freezeImmutableValues: false
   });
 
   const input = [

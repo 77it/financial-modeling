@@ -24,7 +24,8 @@ class Drivers {
       sanitizationType: sanitization.NUMBER_TYPE,
       prefix__immutable_without_dates,
       prefix__immutable_with_dates,
-      allowMutable: false
+      allowMutable: false,
+      freezeImmutableValues: false  // is false because we add only number values, that are immutable by default
     });
   }
 
