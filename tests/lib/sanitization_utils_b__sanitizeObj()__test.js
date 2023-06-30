@@ -156,6 +156,10 @@ Deno.test('test sanitizeObj()', async (t) => {
       arrBigInt_number: [10, '9', 0],
       big_js: 10,
       arrBig_js: [10, '9', 0],
+      extraValueStr: 'abc',
+      extraValueNum: 999,
+      extraValueBool: true,
+      extraValueDate: new Date(123),
     };
 
     const expObj = {
@@ -189,6 +193,10 @@ Deno.test('test sanitizeObj()', async (t) => {
       arrBigInt_number: [BigInt(10), BigInt(9), BigInt(0)],
       big_js: new Big(10),
       arrBig_js: [new Big(10), new Big(9), Big(0)],
+      extraValueStr: 'abc',
+      extraValueNum: 999,
+      extraValueBool: true,
+      extraValueDate: new Date(123),
       extraValueMissingRequiredStr: '',
       extraValueMissingRequiredNum: 0,
       extraValueMissingRequiredBool: false,
