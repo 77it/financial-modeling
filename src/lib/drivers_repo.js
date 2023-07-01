@@ -88,8 +88,9 @@ class DriversRepo {
 
   /**
    * Set Drivers from an array of scenarios, units, names, dates and value.
-   * Drivers are immutable.
+   * Drivers can be immutable without dates, immutable with dates and mutable.
    * If a date is already present, the second one will be ignored.
+   * If a date is present in an immutable driver without dates, the date will be ignored.
    *
    * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
    * @returns {string[]} array of errors
@@ -144,16 +145,15 @@ class DriversRepo {
         continue;
       }
 
-      // if the driver has date different from Date(0) and this is not allowed, skip loop cycle
-      if (_isImmutableWithoutDates && _inputItemClone.date?.getTime() !== 0) {
-        arrayOfErrors.push(`Driver ${_key} is immutable without dates and the date is not Date(0)`);
-        continue;
-      }
-
       // if the driver is immutable and the key is already present in the repo, skip loop cycle
       if (_isImmutable && _keysAlreadyDefinedBeforeSet.has(_key)) {
         arrayOfErrors.push(`Driver ${_key} is immutable and it is already present`);
         continue;
+      }
+
+      // if the driver has date different from Date(0) and the driver is immutable without dates, reset the date to Date(0)
+      if (_isImmutableWithoutDates && _inputItemClone.date?.getTime() !== 0) {
+        _inputItemClone.date = new Date(0);
       }
 
       // if the driver is immutable and the flag `freezeImmutableValues` is true, deep freeze the value

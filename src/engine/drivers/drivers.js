@@ -41,8 +41,9 @@ class Drivers {
 
   /**
    * Set Drivers from an array of scenarios, units, names, dates and value.
-   * Drivers are immutable.
+   * Drivers can be immutable without dates, immutable with dates.
    * If a date is already present, the second one will be ignored.
+   * If a date is present in an immutable driver without dates, the date will be ignored.
    * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
    * scenario: optional; null, undefined or '' means `currentScenario` from constructor
    * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor

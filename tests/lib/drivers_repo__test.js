@@ -21,8 +21,8 @@ Deno.test('Drivers tests', async () => {
     { unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), value: 55 },  // #driver1[0]  missing scenario
 
     // immutable without dates
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', date: new Date(2024, 0, 2), value: 6677 },  //  #driver2, immutable without date; having a date, this set will be ignored
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', value: 66 },  //  #driver2   value without date, set to Date(0)
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', date: new Date(2024, 0, 2), value: 6677 },  //  #driver2, immutable without date; having a date, the date is removed and the value is saved
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', value: 66 },  //  #driver2; being already set, will be ignored
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', value: 6655 },  //  #driver2; being already set, will be ignored
 
     // immutable with dates
@@ -44,7 +44,7 @@ Deno.test('Drivers tests', async () => {
   assertEquals(
     errors1,
     [
-      'Driver {"scenario":"scenario1","unit":"unita","name":"$$driver abc"} is immutable without dates and the date is not Date(0)',
+      'Driver {"scenario":"scenario1","unit":"unita","name":"$$driver abc"} is immutable and the date 1970-01-01 is already present',
       'Driver {"scenario":"scenario1","unit":"unita","name":"$$driver abc"} is immutable and the date 1970-01-01 is already present',
       'Driver {"scenario":"scenario1","unit":"unita","name":"$driver xyz"} is immutable and the date 2024-01-02 is already present',
     ]
@@ -107,9 +107,9 @@ Deno.test('Drivers tests', async () => {
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2099, 0, 1) }), 5555);  // query with a date long after driver
 
   // #driver2 tests
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC' }), 66);  // query without date
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', date: new Date(0) }), 66);  // query with date
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', date: new Date(2099, 0, 1) }), 66);  // query with date
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC' }), 6677);  // query without date
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', date: new Date(0) }), 6677);  // query with date
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', date: new Date(2099, 0, 1) }), 6677);  // query with date
 
   // #driver3[0] tests
   drivers.setToday(new Date(2022, 11, 25));  // set today
@@ -294,5 +294,44 @@ Deno.test('Advanced Drivers tests', async (t) => {
     drivers.set([{ name: '$$undefinedDriver3b', value: 123456733 }]);
     assertEquals(drivers.get({ name: '$$undefinedDriver3b' }), 123456733);
     assertEquals(drivers.get({ scenario: _currentScenario, unit: STD_NAMES.Simulation.NAME, name: '$$undefinedDriver3b' }), 123456733);
+  });
+
+  await t.step('Immutable driver with freezeImmutableValues: false, values are still mutable inside', async () => {
+    // add immutable driver with object value, that won't be frozen
+    const object = { a: 1, b: [2, 3] };
+    const input = [
+      { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object2', value: object },
+    ];
+    drivers.set(input);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object2' }), { a: 1, b: [2, 3] });
+    // test that returned objects are stil mutable
+    const _object = drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object2' });
+    _object.a = 2;  // try to change object
+    _object.c = 9; // try to add property
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object2' }), { a: 2, b: [2, 3], c: 9 });  // query of changed values
+  });
+
+  await t.step('Immutable driver, subsequent writing on immutable items with the same date are ignored', async () => {
+    const input = [
+      { scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-immutable-with-same-date', date: new Date(2022, 11, 25), value: 'sameDate1' },
+      { scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-immutable-with-same-date', date: new Date(2022, 11, 25), value: 'sameDate2' },
+      { scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-immutable-with-same-date', date: new Date(2022, 11, 25), value: 'sameDate3' },
+    ];
+    drivers.set(input);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-immutable-with-same-date', date: new Date(2022, 11, 24)}), undefined);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-immutable-with-same-date', date: new Date(2022, 11, 25)}), 'sameDate1');
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-immutable-with-same-date', date: new Date(2022, 11, 26)}), 'sameDate1');
+  });
+
+  await t.step('Mutable driver, subsequent writing on mutable items with the same date are overwritten', async () => {
+    const input = [
+      { scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-mutable-with-same-date', date: new Date(2022, 11, 25), value: 'sameDate1' },
+      { scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-mutable-with-same-date', date: new Date(2022, 11, 25), value: 'sameDate2' },
+      { scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-mutable-with-same-date', date: new Date(2022, 11, 25), value: 'sameDate3' },
+    ];
+    drivers.set(input);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-mutable-with-same-date', date: new Date(2022, 11, 24)}), undefined);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-mutable-with-same-date', date: new Date(2022, 11, 25)}), 'sameDate3');
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-mutable-with-same-date', date: new Date(2022, 11, 26)}), 'sameDate3');
   });
 });

@@ -133,20 +133,22 @@ Deno.test('Settings tests', async () => {
   class Class1 { #count; constructor() { this.#count = 0; this.a = 1; this.b = [2, 3];} count() { this.#count++; return this.#count } };
   const instance1 = new Class1();
   const input4 = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-object1', date: new Date(2022, 11, 25), value: object1 },  // #setting6[0]
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', date: new Date(2022, 11, 25), value: object1 },  // #setting6[0], immutable drivers without dates, the first value is set
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', date: new Date(2022, 1, 1), value: 123456 },  // #setting6, immutable drivers without dates, the second value is ignored also if date is before
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', value: 654321 },  // #setting6, immutable drivers without dates, the third value is ignored also if the date is not set then is Date(0)
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1', date: new Date(2022, 11, 27), value: instance1 },  // #setting7[0]
   ];
   drivers.set(input4);
 
   // #setting6[0] tests with wrong date (date not set by today, and no value set on Date(0))
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-object1' }), undefined);
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1' }), undefined);
 
   drivers.setToday(new Date(2022, 11, 27));
 
   // #setting6[0] tests
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-object1' }), { a: 1, b: [2, 3] });  // query with date set by today
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1' }), { a: 1, b: [2, 3] });  // query with date set by today
   // test that returned objects are made immutable
-  const _object1 = drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-object1' });
+  const _object1 = drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1' });
   assertThrows(() => { _object1.a = 2; }, Error);  // try to change object
   assertThrows(() => { _object1.c = 2; }, Error);  // try to add a new property
   assertThrows(() => { _object1.b.push(4); }, Error);  // try to change inner object
