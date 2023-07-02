@@ -28,7 +28,10 @@ Deno.test('Drivers tests', async () => {
 
     { name: '$driver XYZ4 missing Scenario and Unit', date: new Date(2023, 1, 25), value: 999 },  // #driver5[0]
   ];
-  drivers.set(input);
+  const _retErr = drivers.set(input);
+  assertEquals(_retErr, [
+    'Driver {"scenario":"scenario1","unit":"unita","name":"driver xyz"} is mutable and this is not allowed'
+  ]);
 
   const input2 = [
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 9999 }  // #driver1 ignored, is immutable

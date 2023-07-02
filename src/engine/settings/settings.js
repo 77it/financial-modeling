@@ -40,20 +40,22 @@ class Settings {
   }
 
   /**
-   * Set Settings from an array of scenarios, units, names, dates and value.
-   * Settings can be immutable without dates, immutable with dates and mutable.
-   * If a date is already present, the second one will be ignored.
-   * If a date is present in an immutable setting without dates, the date will be ignored.
-   * Values of immutable settings are frozen.
+   * Set Settings from an array of scenarios, units, names, dates and value.<p>
+   * Settings can be immutable without dates, immutable with dates and mutable.<p>
+   * If a date is already present, the second one will be ignored.<p>
+   * If a date is present in an immutable setting without dates, the date will be ignored.<p>
+   * Values of immutable settings are frozen.<p>
+   *
    * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
-   * scenario: optional; null, undefined or '' means `currentScenario` from constructor
-   * unit: Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
-   * name: Setting name
-   * date: optional; if missing will be set to new Date(0)
-   * value: Setting value
+   * scenario: optional; null, undefined or '' means `currentScenario` from constructor<p>
+   * unit: Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor<p>
+   * name: Setting name<p>
+   * date: optional; if missing will be set to new Date(0)<p>
+   * value: Setting value<p>
+   * @returns {string[]} array of errors
    */
   set (p) {
-    this.#driversRepo.set(p);
+    return this.#driversRepo.set(p);
   }
 
   /**

@@ -138,7 +138,11 @@ Deno.test('Settings tests', async () => {
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', value: 654321 },  // #setting6, immutable drivers without dates, the third value is ignored also if the date is not set then is Date(0)
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1', date: new Date(2022, 11, 27), value: instance1 },  // #setting7[0]
   ];
-  drivers.set(input4);
+  const _retErr = drivers.set(input4);
+  assertEquals(_retErr, [
+    'Driver {"scenario":"scenario1","unit":"unita","name":"$$setting xyz-object1"} is immutable and the date 1970-01-01 is already present',
+    'Driver {"scenario":"scenario1","unit":"unita","name":"$$setting xyz-object1"} is immutable and the date 1970-01-01 is already present'
+  ]);
 
   // #setting6[0] tests with wrong date (date not set by today, and no value set on Date(0))
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1' }), undefined);

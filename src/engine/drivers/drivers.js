@@ -40,19 +40,21 @@ class Drivers {
   }
 
   /**
-   * Set Drivers from an array of scenarios, units, names, dates and value.
-   * Drivers can be immutable without dates, immutable with dates.
-   * If a date is already present, the second one will be ignored.
-   * If a date is present in an immutable driver without dates, the date will be ignored.
+   * Set Drivers from an array of scenarios, units, names, dates and value.<p>
+   * Drivers can be immutable without dates, immutable with dates.<p>
+   * If a date is already present, the second one will be ignored.<p>
+   * If a date is present in an immutable driver without dates, the date will be ignored.<p>
+   *
    * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
-   * scenario: optional; null, undefined or '' means `currentScenario` from constructor
-   * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
-   * name: Driver name
-   * date: optional; if missing will be set to new Date(0)
-   * value: Driver value, will be sanitized to number
+   * scenario: optional; null, undefined or '' means `currentScenario` from constructor<p>
+   * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor<p>
+   * name: Driver name<p>
+   * date: optional; if missing will be set to new Date(0)<p>
+   * value: Driver value, will be sanitized to number<p>
+   * @returns {string[]} array of errors
    */
   set (p) {
-    this.#driversRepo.set(p);
+    return this.#driversRepo.set(p);
   }
 
   /**
