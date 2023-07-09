@@ -1,7 +1,7 @@
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../deps.js';
 
 import { SimObject } from '../../../src/engine/simobject/simobject.js';
-import { simObjectToJsonDumpDto, toBigInt } from '../../../src/engine/simobject/utils/simobject_utils.js';
+import { simObjectToDto, simObjectToJsonDumpDto, toBigInt } from '../../../src/engine/simobject/utils/simobject_utils.js';
 import { SimObjectTypes_enum } from '../../../src/engine/simobject/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../src/engine/simobject/enums/doubleentryside_enum.js';
 
@@ -34,7 +34,7 @@ const _so = new SimObject({
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '',
-  vsSimObjectId: '',
+  //vsSimObjectId: '',
   versionId: 1
 });
 
@@ -66,5 +66,15 @@ Deno.test('SimObject.toJsonDumpDto() tests', async () => {
     is_Link__SimObjId: ''
   };
 
-  assertEquals(JSON.stringify(simObjectToJsonDumpDto(_so)), JSON.stringify(_soJsonDump_Expected));
+  // save the DTO of the original object, that should be frozen
+  const _so_Dto = simObjectToJsonDumpDto(_so);
+  // try to change the value of the DTO, but the changes should be ignored, because the DTO is frozen
+  try {_so_Dto.type = 'abcd';}
+  catch (e) {}
+  try {
+    //@ts-ignore
+    _so_Dto.newField = 44;
+  }
+  catch (e) {}
+  assertEquals(JSON.stringify(_so_Dto), JSON.stringify(_soJsonDump_Expected));
 });

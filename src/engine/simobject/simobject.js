@@ -129,7 +129,7 @@ class SimObject {
    * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
    * @param {bigint[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
    * @param {string} p.is_Link__SimObjId
-   //* @param {string} p.vsSimObjectId [NOT EXPORTED TO JSON DUMP] This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
+   //param {string} p.vsSimObjectId [NOT EXPORTED TO JSON DUMP] This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
    * @param {number} p.versionId [NOT EXPORTED TO JSON DUMP]
    * @param {*} [p.extras] [NOT EXPORTED TO JSON DUMP] Class or an object with all the extra properties specific to the SimObject
    // properties not implemented, can be included in `extras`
@@ -222,20 +222,20 @@ class SimObject {
   /**
    Build a new SimObject using the method parameters and filling the missing ones with the current SimObject values
    * @param {Object} [p]
-   //* @param {number} [p.decimalPlaces]
-   //* @param {string} [p.type]
-   //* @param {string} [p.id]
+   //param {number} [p.decimalPlaces]
+   //param {string} [p.type]
+   //param {string} [p.id]
    * @param {Date} [p.dateTime]
-   //* @param {string} [p.name]
-   //* @param {string} [p.description]
+   //param {string} [p.name]
+   //param {string} [p.description]
    * @param {string} [p.mutableDescription]
-   //* @param {string[]} [p.metadata__Name]
-   //* @param {string[]} [p.metadata__Value]
-   //* @param {number[]} [p.metadata__PercentageWeight]
-   //* @param {string} [p.unitId]
-   //* @param {string} [p.doubleEntrySide]
-   //* @param {string} [p.currency]
-   //* @param {string} [p.intercompanyInfo__VsUnitId]
+   //param {string[]} [p.metadata__Name]
+   //param {string[]} [p.metadata__Value]
+   //param {number[]} [p.metadata__PercentageWeight]
+   //param {string} [p.unitId]
+   //param {string} [p.doubleEntrySide]
+   //param {string} [p.currency]
+   //param {string} [p.intercompanyInfo__VsUnitId]
    * @param {bigint} [p.value]
    * @param {bigint} [p.writingValue]
    * @param {boolean} [p.alive]
@@ -246,8 +246,8 @@ class SimObject {
    * @param {bigint} [p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate]
    * @param {Date[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date]
    * @param {bigint[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]
-   //* @param {string} [p.is_Link__SimObjId]
-   //* @param {string} [p.vsSimObjectId]
+   //param {string} [p.is_Link__SimObjId]
+   //param {string} [p.vsSimObjectId]
    * @param {*} [p.extras]
    * @returns {SimObject}
    */

@@ -3,6 +3,7 @@
 import { SimObject } from '../simobject.js';
 import { SimObjectDto } from '../simobjectdto.js';
 import { SimObjectJsonDumpDto } from '../simobjectjsondumpdto.js';
+import { deepFreeze } from '../../../lib/obj_utils.js';
 
 /**
  * Convert the SimObject to a SimObjectDto
@@ -10,7 +11,7 @@ import { SimObjectJsonDumpDto } from '../simobjectjsondumpdto.js';
  * @returns {SimObjectDto}
  */
 function simObjectToDto (simObject) {
-  return new SimObjectDto({
+  return deepFreeze(new SimObjectDto({
     type: simObject.type,
     id: simObject.id,
     dateTime: simObject.dateTime,
@@ -38,7 +39,7 @@ function simObjectToDto (simObject) {
     //vsSimObjectId: simObject.vsSimObjectId,
     versionId: simObject.versionId,
     extras: structuredCloneOrClone(simObject.extras),
-  });
+  }));
 }
 
 /**
@@ -47,7 +48,7 @@ function simObjectToDto (simObject) {
  * @returns {SimObjectJsonDumpDto}
  */
 function simObjectToJsonDumpDto (simObject) {
-  return new SimObjectJsonDumpDto({
+  return deepFreeze(new SimObjectJsonDumpDto({
     type: simObject.type,
     id: simObject.id,
     date: dateToISOString(simObject.dateTime),
@@ -72,7 +73,7 @@ function simObjectToJsonDumpDto (simObject) {
     bs_Principal__PrincipalToPay_AmortizationSchedule__Date: simObject.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => dateToISOString(date)),
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: simObject.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => bigIntToStringWithDecimals(big, simObject.decimalPlaces)),
     is_Link__SimObjId: simObject.is_Link__SimObjId,
-  });
+  }));
 }
 
 /**
