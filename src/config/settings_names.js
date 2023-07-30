@@ -8,7 +8,7 @@ import * as sanitization from '../lib/sanitization_utils.js';
 const Simulation = {
   // immutable: without dates
   $$SCENARIOS: '$$SCENARIOS',
-  $$MODULESLOADER_URL: '$$MODULESLOADER',
+  $$MODULESLOADER_URL: '$$MODULESLOADER',  // URL of the ModulesLoader, used to resolve modules' relative paths
   $$ENGINE_URL: '$$ENGINE',
   $$DEBUG_FLAG: '$$DEBUG_FLAG',
   $$SIMULATION_END_DATE: '$$SIMULATION_END_DATE',  // movements after SIMULATION_END_DATE are not processed by the simulation engine
