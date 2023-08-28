@@ -1,5 +1,3 @@
-import { STRINGLOWERCASETRIMMED_TYPE, STRINGUPPERCASETRIMMED_TYPE } from '../../../lib/sanitization_utils.js';
-
 export { newSimObjectDto_Sanitization };
 
 import { DoubleEntrySide_enum_validation } from '../../simobject/enums/doubleentryside_enum.js';
@@ -22,7 +20,7 @@ const newSimObjectDto_Sanitization = {
 
   unitId: sanitization.STRING_TYPE,
 
-  currency: STRINGUPPERCASETRIMMED_TYPE,
+  currency: sanitization.STRINGUPPERCASETRIMMED_TYPE,
 
   intercompanyInfo__VsUnitId: sanitization.STRING_TYPE,
 
