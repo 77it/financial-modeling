@@ -32,8 +32,18 @@ import * as STD_NAMES from './config/standard_names.js';
 if (Deno.args.length !== 0) {
   const args = parse(Deno.args);  // parse command line arguments
   await main({ excelUserInput: args?.input, outputFolder: args?.output, errors: args?.errors });
-} else
+} else {
   console.log('No command line arguments found, expected: --input EXCEL-INPUT-FILE --output OUTPUT-FOLDER --errors ERRORS-FILE . This file can also be imported and used as a module.');
+}
+
+/*
+  ______   _   _   _____
+ |  ____| | \ | | |  __ \
+ | |__    |  \| | | |  | |
+ |  __|   | . ` | | |  | |
+ | |____  | |\  | | |__| |
+ |______| |_| \_| |_____/
+ */
 
 /**
  * Run Simulation and write a series of output files - containing accounting writing transactions - in JSONL format in the `output` folder.
@@ -159,6 +169,15 @@ async function main ({
     if (!continueExecutionAfterSimulationDebugFlag)
       Deno.exit(_exitCode);
   }
+
+/*
+  ______   _   _   _____
+ |  ____| | \ | | |  __ \
+ | |__    |  \| | | |  | |
+ |  __|   | . ` | | |  | |
+ | |____  | |\  | | |__| |
+ |______| |_| \_| |_____/
+ */
 
   //#region local functions
   /**

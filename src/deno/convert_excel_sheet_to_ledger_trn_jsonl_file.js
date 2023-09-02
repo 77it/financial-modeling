@@ -38,21 +38,20 @@ async function convertExcelSheetToLedgerTrnJsonlFile ({ excelInput, jsonlOutput,
     await downloadAndDecompressGzip(
       { url: OPTIONS__CONVERTER_EXE_GZ_URL, path: converterExePath });
 
-  // convert Excel input file to JSONL file with ledger transactions  // see  https://deno.land/manual@v1.29.3/examples/subprocess
-  const p = Deno.run({
-    cmd: [
-      converterExePath, 'excel-sheet-to-jsonl-ledger-trn',
+  // convert Excel input file to JSONL file with ledger transactions  // see  https://deno.land/manual@v1.36.4/examples/subprocess
+  const command = new Deno.Command(converterExePath, {
+    args: [
+      'excel-sheet-to-jsonl-ledger-trn',
       '--input', excelInput,
       '--sheetname', sheetName,
       '--output', jsonlOutput,
       '--errors', tempErrorsFilePath
     ]
   });
-  await p.status();  // await its completion
-  p.close();  // close the process
+  const { code, stdout, stderr } = await command.output();  // await its completion
 
   // throw error if there are errors
-  if (existSync(tempErrorsFilePath)) {
+  if (code !== 0 || existSync(tempErrorsFilePath)) {
     const errorsText = Deno.readTextFileSync(tempErrorsFilePath);  // see https://deno.land/api@v1.29.4?s=Deno.readTextFileSync
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }

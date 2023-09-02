@@ -37,21 +37,20 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
     await downloadAndDecompressGzip(
       { url: OPTIONS__CONVERTER_EXE_GZ_URL, path: converterExePath });
 
-  // convert Excel input file to JSONL `modulesData` calling Converter program  // see  https://deno.land/manual@v1.29.3/examples/subprocess
+  // convert Excel input file to JSONL `modulesData` calling Converter program  // see  https://deno.land/manual@v1.36.4/examples/subprocess
   const jsonlOutput = excelInput + '.dump.jsonl.tmp';
-  const p = Deno.run({
-    cmd: [
-      converterExePath, 'excel-modules-to-jsonl-modules',
+  const command = new Deno.Command(converterExePath, {
+    args: [
+      'excel-modules-to-jsonl-modules',
       '--input', excelInput,
       '--output', jsonlOutput,
       '--errors', tempErrorsFilePath
     ]
   });
-  await p.status();  // await its completion
-  p.close();  // close the process
+  const { code, stdout, stderr } = await command.output();  // await its completion
 
   // throw error if there are errors
-  if (existSync(tempErrorsFilePath)) {
+  if (code !== 0 || existSync(tempErrorsFilePath)) {
     const errorsText = Deno.readTextFileSync(tempErrorsFilePath);  // see https://deno.land/api@v1.29.4?s=Deno.readTextFileSync
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }
