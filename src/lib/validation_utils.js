@@ -3,11 +3,15 @@ export { validate, validateObj };
 //#region types
 export const ANY_TYPE = 'any';
 export const STRING_TYPE = 'string';
+export const STRINGLOWERCASETRIMMED_TYPE = 'string_lowercase_trimmed';
+export const STRINGUPPERCASETRIMMED_TYPE = 'string_uppercase_trimmed';
 export const NUMBER_TYPE = 'number';
 export const BOOLEAN_TYPE = 'boolean';
 export const DATE_TYPE = 'date';
 export const ARRAY_TYPE = 'array';
 export const ARRAY_OF_STRINGS_TYPE = 'array[string]';
+export const ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE = 'array[string_lowercase_trimmed]';
+export const ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE = 'array[string_uppercase_trimmed]';
 export const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
 export const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
 export const ARRAY_OF_DATES_TYPE = 'array[date]';
@@ -142,32 +146,64 @@ function _validateValue ({ value, validation, errorMsg }) {
     }
 
     switch (validationType.toLowerCase()) {  // switch validations
-      case ANY_TYPE:
+      case ANY_TYPE: {
         if (value == null)
           return `${errorMsg} = ${value}, must be !== null or undefined`;
         return SUCCESS;
-      case STRING_TYPE:
+      }
+      case STRING_TYPE: {
         if (typeof value !== 'string')
           return `${errorMsg} = ${value}, must be string`;
         return SUCCESS;
-      case NUMBER_TYPE:
+      }
+      case STRINGLOWERCASETRIMMED_TYPE: {
+        if (typeof value !== 'string')
+          return `${errorMsg} = ${value}, must be a lowercase trimmed string`;
+        else if (value.toLowerCase().trim() !== value)
+          return `${errorMsg} = ${value}, must be a lowercase trimmed string`;
+        return SUCCESS;
+      }
+      case STRINGUPPERCASETRIMMED_TYPE: {
+        if (typeof value !== 'string')
+          return `${errorMsg} = ${value}, must be an uppercase trimmed string`;
+        else if (value.toUpperCase().trim() !== value)
+          return `${errorMsg} = ${value}, must be an uppercase trimmed string`;
+        return SUCCESS;
+      }
+      case NUMBER_TYPE: {
         if (typeof value !== 'number' || !isFinite(value))
           return `${errorMsg} = ${value}, must be a valid number`;
         return SUCCESS;
-      case BOOLEAN_TYPE:
+      }
+      case BOOLEAN_TYPE: {
         if (typeof value !== 'boolean')
           return `${errorMsg} = ${value}, must be boolean`;
         return SUCCESS;
-      case DATE_TYPE:
+      }
+      case DATE_TYPE: {
         if (!(value instanceof Date) || isNaN(value.getTime()))
           return `${errorMsg} = ${value}, must be a valid date`;
         return SUCCESS;
-      case ARRAY_TYPE:
+      }
+      case ARRAY_TYPE: {
         if (!Array.isArray(value))
           return `${errorMsg} = ${value}, must be an array`;
         return SUCCESS;
+      }
       case ARRAY_OF_STRINGS_TYPE: {
         const validationResult = _validateArray({ array: value, validation: STRING_TYPE });
+        if (validationResult)
+          return `${errorMsg} array error, ${validationResult}`;
+        return SUCCESS;
+      }
+      case ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: STRINGLOWERCASETRIMMED_TYPE });
+        if (validationResult)
+          return `${errorMsg} array error, ${validationResult}`;
+        return SUCCESS;
+      }
+      case ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: STRINGUPPERCASETRIMMED_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;

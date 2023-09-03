@@ -7,15 +7,15 @@ import { deepFreeze } from './obj_utils.js';
 //#region types
 export const ANY_TYPE = 'any';
 export const STRING_TYPE = 'string';  // whitespaces are trimmed only if the string is empty
-export const STRINGLOWERCASETRIMMED_TYPE = 'string_lowercase_trimmed'; XXX TODO
-export const STRINGUPPERCASETRIMMED_TYPE = 'string_uppercase_trimmed'; XXX TODO
+export const STRINGLOWERCASETRIMMED_TYPE = 'string_lowercase_trimmed';
+export const STRINGUPPERCASETRIMMED_TYPE = 'string_uppercase_trimmed';
 export const NUMBER_TYPE = 'number';
 export const BOOLEAN_TYPE = 'boolean';
 export const DATE_TYPE = 'date';
 export const ARRAY_TYPE = 'array';
 export const ARRAY_OF_STRINGS_TYPE = 'array[string]';
-export const ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE = 'array[string_lowercase_trimmed]'; XXX TODO
-export const ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE = 'array[string_uppercase_trimmed]'; XXX TODO
+export const ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE = 'array[string_lowercase_trimmed]';
+export const ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE = 'array[string_uppercase_trimmed]';
 export const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
 export const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
 export const ARRAY_OF_DATES_TYPE = 'array[date]';
@@ -127,10 +127,11 @@ function sanitize ({ value, sanitization, options, validate = false }) {
 
   // from now on sanitization can be only a string
   switch (sanitizationType.toLowerCase()) {  // switch sanitizations
-    case ANY_TYPE:
+    case ANY_TYPE: {
       retValue = value;  // return value as is without sanitization
       break;
-    case STRING_TYPE:
+    }
+    case STRING_TYPE: {
       try {
         if (_isEmptyOrWhiteSpace(value))  // sanitize whitespace string to empty string (not to `_DEFAULT_STRING`)
           retValue = '';
@@ -152,7 +153,16 @@ function sanitize ({ value, sanitization, options, validate = false }) {
         retValue = _DEFAULT_STRING;
       }
       break;
-    case NUMBER_TYPE:
+    }
+    case STRINGLOWERCASETRIMMED_TYPE: {
+      retValue = sanitize({ value: value, sanitization: STRING_TYPE, options: options }).toLowerCase().trim();
+      break;
+    }
+    case STRINGUPPERCASETRIMMED_TYPE: {
+      retValue = sanitize({ value: value, sanitization: STRING_TYPE, options: options }).toUpperCase().trim();
+      break;
+    }
+    case NUMBER_TYPE: {
       try {
         if (value == null)
           retValue = _DEFAULT_NUMBER;
@@ -162,10 +172,12 @@ function sanitize ({ value, sanitization, options, validate = false }) {
         retValue = _DEFAULT_NUMBER;
       }
       break;
-    case BOOLEAN_TYPE:
+    }
+    case BOOLEAN_TYPE: {
       retValue = Boolean(value);
       break;
-    case DATE_TYPE:
+    }
+    case DATE_TYPE: {
       try {
         if (value instanceof Date) {
           retValue = isNaN(value.getTime()) ? _DEFAULT_DATE : new Date(value);
@@ -194,14 +206,24 @@ function sanitize ({ value, sanitization, options, validate = false }) {
         retValue = _DEFAULT_DATE;
       }
       break;
-    case ARRAY_TYPE:
+    }
+    case ARRAY_TYPE: {
       if (!Array.isArray(value))  // if `value` is not an array return a new array with `value` as first element
         retValue = [value];
       else
         retValue = value;
       break;
+    }
     case ARRAY_OF_STRINGS_TYPE: {
       retValue = _sanitizeArray({ array: value, sanitization: STRING_TYPE });
+      break;
+    }
+    case ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: STRINGLOWERCASETRIMMED_TYPE });
+      break;
+    }
+    case ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: STRINGUPPERCASETRIMMED_TYPE });
       break;
     }
     case ARRAY_OF_NUMBERS_TYPE: {

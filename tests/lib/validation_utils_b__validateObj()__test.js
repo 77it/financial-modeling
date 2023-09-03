@@ -88,6 +88,8 @@ Deno.test('test validateObj(), not valid, any type is null', () => {
 Deno.test('test validateObj(), valid, complex object, names with and without quotes', () => {
   const objToValidate = {
     'str': 'string',
+    'strLowercaseTrimmed': 'string',
+    'strUppercaseTrimmed': 'STRING',
     'num': 123,
     'bool': false,
     'date': new Date('1999-12-31T23:59:59'),
@@ -97,6 +99,8 @@ Deno.test('test validateObj(), valid, complex object, names with and without quo
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }],
     'arrStr': [ 'a', 'b' ],
+    'arrStrLowercaseTrimmed': [ 'a', 'b' ],
+    'arrStrUppercaseTrimmed': [ 'A', 'B' ],
     'arrNum': [ 99, 0, 55 ],
     'arrDate': [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ],
     'arrBool': [ false, true ],
@@ -117,6 +121,8 @@ Deno.test('test validateObj(), valid, complex object, names with and without quo
 
   const validation = {
     str: Validation.STRING_TYPE,
+    strLowercaseTrimmed: Validation.STRINGLOWERCASETRIMMED_TYPE,
+    strUppercaseTrimmed: Validation.STRINGUPPERCASETRIMMED_TYPE,
     num: Validation.NUMBER_TYPE,
     bool: Validation.BOOLEAN_TYPE,
     date: Validation.DATE_TYPE,
@@ -124,6 +130,8 @@ Deno.test('test validateObj(), valid, complex object, names with and without quo
     enumWithUndefined: [11, undefined, 'aa', 'aaa', 55],
     arr: Validation.ARRAY_TYPE,
     arrStr: Validation.ARRAY_OF_STRINGS_TYPE,
+    arrStrLowercaseTrimmed: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE,
+    arrStrUppercaseTrimmed: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE,
     arrNum: Validation.ARRAY_OF_NUMBERS_TYPE,
     arrDate: Validation.ARRAY_OF_DATES_TYPE,
     arrBool: Validation.ARRAY_OF_BOOLEANS_TYPE,
@@ -147,11 +155,15 @@ Deno.test('test validateObj(), valid, complex object, names with and without quo
 Deno.test('test validateObj(), valid, object with and without optional types and optional (missing) properties', () => {
   const validation = {
     str: Validation.STRING_TYPE + '?',
+    strLowercaseTrimmed: Validation.STRINGLOWERCASETRIMMED_TYPE + '?',
+    strUppercaseTrimmed: Validation.STRINGUPPERCASETRIMMED_TYPE + '?',
     num: Validation.NUMBER_TYPE + '?',
     bool: Validation.BOOLEAN_TYPE + '?',
     date: Validation.DATE_TYPE + '?',
     arr: Validation.ARRAY_TYPE + '?',
     arrStr: Validation.ARRAY_OF_STRINGS_TYPE + '?',
+    arrStrLowercaseTrimmed: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?',
+    arrStrUppercaseTrimmed: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?',
     arrNum: Validation.ARRAY_OF_NUMBERS_TYPE + '?',
     arrDate: Validation.ARRAY_OF_DATES_TYPE + '?',
     arrBool: Validation.ARRAY_OF_BOOLEANS_TYPE + '?',
@@ -167,6 +179,8 @@ Deno.test('test validateObj(), valid, object with and without optional types and
 
   const objToValidate = {
     str: 'string',
+    strLowercaseTrimmed: 'string',
+    strUppercaseTrimmed: 'STRING',
     num: 123,
     bool: false,
     date: new Date('1999-12-31T23:59:59'),
@@ -174,6 +188,8 @@ Deno.test('test validateObj(), valid, object with and without optional types and
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }],
     arrStr: [ 'a', 'b' ],
+    arrStrLowercaseTrimmed: [ 'a', 'b' ],
+    arrStrUppercaseTrimmed: [ 'A', 'B' ],
     arrNum: [ 99, 0, 55 ],
     arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59') ],
     arrBool: [ false, true ],
@@ -195,11 +211,15 @@ Deno.test('test validateObj(), valid, object with and without optional types and
 
   const nullObject = {
     str: null,
+    strLowercaseTrimmed: null,
+    strUppercaseTrimmed: null,
     num: null,
     bool: null,
     date: null,
     arr: null,
     arrStr: null,
+    arrStrLowercaseTrimmed: null,
+    arrStrUppercaseTrimmed: null,
     arrNum: null,
     arrDate: null,
     arrBool: null,
@@ -319,6 +339,8 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
   const objToValidate = {
     arr: 999,
     arrStr: [ 'a', 'b', 99 ],
+    arrStrLowercaseTrimmed: ['AA', 'aa', '   aa   ', 99],
+    arrStrUppercaseTrimmed: ['aa', 'AA', '   AA   ', 99],
     arrNum: [ 99, 0, 55, false ],
     arrDate: [ new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59'), 99 ],
     arrBool: [ false, true, 99 ],
@@ -331,6 +353,8 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
   const validation = {
     arr: Validation.ARRAY_TYPE,
     arrStr: Validation.ARRAY_OF_STRINGS_TYPE,
+    arrStrLowercaseTrimmed: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE,
+    arrStrUppercaseTrimmed: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE,
     arrNum: Validation.ARRAY_OF_NUMBERS_TYPE,
     arrDate: Validation.ARRAY_OF_DATES_TYPE,
     arrBool: Validation.ARRAY_OF_BOOLEANS_TYPE,
@@ -349,6 +373,8 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
   console.log(_error);
   assert(_error.includes('["arr = 999, must be an array"'));
   assert(_error.includes('"arrStr array error, [\\"Value = 99, must be string\\"]"'));
+  assert(_error.includes('"arrStrLowercaseTrimmed array error, [\\"Value = AA, must be a lowercase trimmed string\\",\\"Value =    aa   , must be a lowercase trimmed string\\",\\"Value = 99, must be a lowercase trimmed string\\"]"'));
+  assert(_error.includes('"arrStrUppercaseTrimmed array error, [\\"Value = aa, must be an uppercase trimmed string\\",\\"Value =    AA   , must be an uppercase trimmed string\\",\\"Value = 99, must be an uppercase trimmed string\\"]"'));
   assert(_error.includes('"arrNum array error, [\\"Value = false, must be a valid number\\"]"'));
   assert(_error.includes('"arrDate array error, [\\"Value = 99, must be a valid date\\"]"'));
   assert(_error.includes('"arrBool array error, [\\"Value = 99, must be boolean\\"]"'));

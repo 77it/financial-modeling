@@ -127,6 +127,8 @@ Deno.test('test sanitizeObj()', async (t) => {
 
     const objToSanitize = {
       str: 999,
+      strLowercaseTrimmed: '  b B      ',
+      strUppercaseTrimmed: '  b B      ',
       num: '123',
       bool: 0,
       date: '1999-12-31T23:59:59',
@@ -137,6 +139,10 @@ Deno.test('test sanitizeObj()', async (t) => {
       arr: 999,
       arrStr: [0, 'b'],
       arrStr2: 0,
+      arrStrLowercaseTrimmed: [0, '  b B      ', '  c C      '],
+      arrStrLowercaseTrimmed2: 0,
+      arrStrUppercaseTrimmed: [0, '  b B      ', '  c C      '],
+      arrStrUppercaseTrimmed2: 0,
       arrNum: ['99', '0', 55],
       arrNum2: '99',
       arrDate: ['1999-12-31T23:59:59', new Date('2020-12-31T23:59:59')],
@@ -164,6 +170,8 @@ Deno.test('test sanitizeObj()', async (t) => {
 
     const expObj = {
       str: '999',
+      strLowercaseTrimmed: 'b b',
+      strUppercaseTrimmed: 'B B',
       num: 123,
       bool: false,
       date: parseJsonDate('1999-12-31T23:59:59'),
@@ -174,6 +182,10 @@ Deno.test('test sanitizeObj()', async (t) => {
       arr: [999],
       arrStr: ['0', 'b'],
       arrStr2: ['0'],
+      arrStrLowercaseTrimmed: ['0', 'b b', 'c c'],
+      arrStrLowercaseTrimmed2: ['0'],
+      arrStrUppercaseTrimmed: ['0', 'B B', 'C C'],
+      arrStrUppercaseTrimmed2: ['0'],
       arrNum: [99, 0, 55],
       arrNum2: [99],
       arrDate: [parseJsonDate('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
@@ -205,6 +217,8 @@ Deno.test('test sanitizeObj()', async (t) => {
 
     const sanitization = {
       str: S.STRING_TYPE,
+      strLowercaseTrimmed: S.STRINGLOWERCASETRIMMED_TYPE,
+      strUppercaseTrimmed: S.STRINGUPPERCASETRIMMED_TYPE,
       num: S.NUMBER_TYPE,
       bool: S.BOOLEAN_TYPE,
       date: S.DATE_TYPE,
@@ -215,6 +229,10 @@ Deno.test('test sanitizeObj()', async (t) => {
       arr: S.ARRAY_TYPE,
       arrStr: S.ARRAY_OF_STRINGS_TYPE,
       arrStr2: S.ARRAY_OF_STRINGS_TYPE,
+      arrStrLowercaseTrimmed: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE,
+      arrStrLowercaseTrimmed2: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE,
+      arrStrUppercaseTrimmed: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE,
+      arrStrUppercaseTrimmed2: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE,
       arrNum: S.ARRAY_OF_NUMBERS_TYPE,
       arrNum2: S.ARRAY_OF_NUMBERS_TYPE,
       arrDate: S.ARRAY_OF_DATES_TYPE,

@@ -15,11 +15,15 @@ import {
 Deno.test('test sanitization lib const definition', async (t) => {
   assertEquals(S.ANY_TYPE, V.ANY_TYPE);
   assertEquals(S.STRING_TYPE, V.STRING_TYPE);
+  assertEquals(S.STRINGLOWERCASETRIMMED_TYPE, V.STRINGLOWERCASETRIMMED_TYPE);
+  assertEquals(S.STRINGUPPERCASETRIMMED_TYPE, V.STRINGUPPERCASETRIMMED_TYPE);
   assertEquals(S.NUMBER_TYPE, V.NUMBER_TYPE);
   assertEquals(S.BOOLEAN_TYPE, V.BOOLEAN_TYPE);
   assertEquals(S.DATE_TYPE, V.DATE_TYPE);
   assertEquals(S.ARRAY_TYPE, V.ARRAY_TYPE);
   assertEquals(S.ARRAY_OF_STRINGS_TYPE, V.ARRAY_OF_STRINGS_TYPE);
+  assertEquals(S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE, V.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE);
+  assertEquals(S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE, V.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE);
   assertEquals(S.ARRAY_OF_NUMBERS_TYPE, V.ARRAY_OF_NUMBERS_TYPE);
   assertEquals(S.ARRAY_OF_BOOLEANS_TYPE, V.ARRAY_OF_BOOLEANS_TYPE);
   assertEquals(S.ARRAY_OF_DATES_TYPE, V.ARRAY_OF_DATES_TYPE);
@@ -74,6 +78,58 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('', S.sanitize({ value: '    ', sanitization: t2 }));  // whitespaces are trimmed
     assertEquals('true', S.sanitize({ value: true, sanitization: t2 }));
     assertEquals('false', S.sanitize({ value: false, sanitization: t2 }));
+  });
+
+  await t.step('string lowercase trimmed type', async () => {
+    const t = S.STRINGLOWERCASETRIMMED_TYPE;
+    assertEquals('', S.sanitize({ value: undefined, sanitization: t }));
+    assertEquals('', S.sanitize({ value: null, sanitization: t }));
+    assertEquals('0', S.sanitize({ value: 0, sanitization: t }));
+    assertEquals('999', S.sanitize({ value: 999, sanitization: t }));
+    assertEquals('', S.sanitize({ value: '', sanitization: t }));
+    assertEquals('', S.sanitize({ value: '    ', sanitization: t }));  // whitespaces are trimmed if the string is empty
+    assertEquals('abc', S.sanitize({ value: 'abc', sanitization: t }));
+    assertEquals('abc', S.sanitize({ value: '  abc  ', sanitization: t }));    // whitespaces are trimmed if the string is not empty
+    assertEquals('abc', S.sanitize({ value: 'aBc', sanitization: t }));
+    assertEquals('abc', S.sanitize({ value: '  aBc  ', sanitization: t }));    // whitespaces are trimmed if the string is not empty
+    assertEquals('2022-12-25t00:00:00.000z', S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
+    assertEquals('', S.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals('true', S.sanitize({ value: true, sanitization: t }));
+    assertEquals('false', S.sanitize({ value: false, sanitization: t }));
+
+    const t2 = t + '?';
+    assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
+    assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
+    assertEquals('999', S.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals('', S.sanitize({ value: '    ', sanitization: t2 }));  // whitespaces are trimmed
+    assertEquals('true', S.sanitize({ value: true, sanitization: t2 }));
+    assertEquals('false', S.sanitize({ value: false, sanitization: t2 }));
+  });
+
+  await t.step('string uppercase trimmed type', async () => {
+    const t = S.STRINGUPPERCASETRIMMED_TYPE;
+    assertEquals('', S.sanitize({ value: undefined, sanitization: t }));
+    assertEquals('', S.sanitize({ value: null, sanitization: t }));
+    assertEquals('0', S.sanitize({ value: 0, sanitization: t }));
+    assertEquals('999', S.sanitize({ value: 999, sanitization: t }));
+    assertEquals('', S.sanitize({ value: '', sanitization: t }));
+    assertEquals('', S.sanitize({ value: '    ', sanitization: t }));  // whitespaces are trimmed if the string is empty
+    assertEquals('ABC', S.sanitize({ value: 'abc', sanitization: t }));
+    assertEquals('ABC', S.sanitize({ value: '  abc  ', sanitization: t }));    // whitespaces are trimmed if the string is not empty
+    assertEquals('ABC', S.sanitize({ value: 'aBc', sanitization: t }));
+    assertEquals('ABC', S.sanitize({ value: '  aBc  ', sanitization: t }));    // whitespaces are trimmed if the string is not empty
+    assertEquals('2022-12-25T00:00:00.000Z', S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
+    assertEquals('', S.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals('TRUE', S.sanitize({ value: true, sanitization: t }));
+    assertEquals('FALSE', S.sanitize({ value: false, sanitization: t }));
+
+    const t2 = t + '?';
+    assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
+    assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
+    assertEquals('999', S.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals('', S.sanitize({ value: '    ', sanitization: t2 }));  // whitespaces are trimmed
+    assertEquals('TRUE', S.sanitize({ value: true, sanitization: t2 }));
+    assertEquals('FALSE', S.sanitize({ value: false, sanitization: t2 }));
   });
 
   await t.step('number type + validation', async () => {
@@ -222,6 +278,44 @@ Deno.test('test sanitize()', async (t) => {
 
     const t2 = t + '?';
     assertEquals(['', '2', 'a'], S.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
+    assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
+    assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
+    assertEquals(['999'], S.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals([''], S.sanitize({ value: '', sanitization: t2 }));
+  });
+
+  await t.step('array of strings lowercase trimmed type', async () => {
+    const t = S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE;
+    assertEquals(['1', '2', 'a'], S.sanitize({ value: [1, 2, '   a   '], sanitization: t }));
+    assertEquals([''], S.sanitize({ value: undefined, sanitization: t }));
+    assertEquals([''], S.sanitize({ value: null, sanitization: t }));
+    assertEquals(['999'], S.sanitize({ value: 999, sanitization: t }));
+    assertEquals([''], S.sanitize({ value: '', sanitization: t }));
+    assertEquals(['abc'], S.sanitize({ value: 'abc', sanitization: t }));
+    assertEquals(['2022-12-25t00:00:00.000z'], S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
+    assertEquals([''], S.sanitize({ value: new Date(NaN), sanitization: t }));
+
+    const t2 = t + '?';
+    assertEquals(['', '2', 'a'], S.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
+    assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
+    assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
+    assertEquals(['999'], S.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals([''], S.sanitize({ value: '', sanitization: t2 }));
+  });
+
+  await t.step('array of strings uppercase trimmed type', async () => {
+    const t = S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE;
+    assertEquals(['1', '2', 'A'], S.sanitize({ value: [1, 2, '   a   '], sanitization: t }));
+    assertEquals([''], S.sanitize({ value: undefined, sanitization: t }));
+    assertEquals([''], S.sanitize({ value: null, sanitization: t }));
+    assertEquals(['999'], S.sanitize({ value: 999, sanitization: t }));
+    assertEquals([''], S.sanitize({ value: '', sanitization: t }));
+    assertEquals(['ABC'], S.sanitize({ value: 'abc', sanitization: t }));
+    assertEquals(['2022-12-25T00:00:00.000Z'], S.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
+    assertEquals([''], S.sanitize({ value: new Date(NaN), sanitization: t }));
+
+    const t2 = t + '?';
+    assertEquals(['', '2', 'A'], S.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
     assertEquals(undefined, S.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, S.sanitize({ value: null, sanitization: t2 }));
     assertEquals(['999'], S.sanitize({ value: 999, sanitization: t2 }));

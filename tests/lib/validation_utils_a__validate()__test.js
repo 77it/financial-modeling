@@ -57,10 +57,12 @@ Deno.test('test validate(), valid, all cases', () => {
   const testClassInstance = new TestClass();
 
   Validation.validate({ value: 'string', validation: Validation.STRING_TYPE });
+  Validation.validate({ value: 'string', validation: Validation.STRINGLOWERCASETRIMMED_TYPE });
+  Validation.validate({ value: 'STRING', validation: Validation.STRINGUPPERCASETRIMMED_TYPE });
   Validation.validate({ value: 123, validation: Validation.NUMBER_TYPE });
   Validation.validate({ value: false, validation: Validation.BOOLEAN_TYPE });
   Validation.validate({ value: new Date('1999-12-31T23:59:59'), validation: Validation.DATE_TYPE });
-  Validation.validate({ value: 999, validation: [11, 22].concat([999, 55])  });  // enum
+  Validation.validate({ value: 999, validation: [11, 22].concat([999, 55]) });  // enum
   Validation.validate({ value: 'aaa', validation: [11, 'aa', 'aaa', 55] });  // enum
   Validation.validate({ value: undefined, validation: [11, undefined, 'aa', 'aaa', 55] });  // enum
   Validation.validate({
@@ -70,6 +72,8 @@ Deno.test('test validate(), valid, all cases', () => {
     validation: Validation.ARRAY_TYPE
   });
   Validation.validate({ value: ['a', 'b'], validation: Validation.ARRAY_OF_STRINGS_TYPE });
+  Validation.validate({ value: ['a', 'b'], validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
+  Validation.validate({ value: ['A', 'B'], validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
   Validation.validate({ value: [99, 0, 55], validation: Validation.ARRAY_OF_NUMBERS_TYPE });
   Validation.validate({ value: [new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')], validation: Validation.ARRAY_OF_DATES_TYPE });
   Validation.validate({ value: [false, true], validation: Validation.ARRAY_OF_BOOLEANS_TYPE });
@@ -94,6 +98,8 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   const testClassInstance = new TestClass();
 
   Validation.validate({ value: 'string', validation: Validation.STRING_TYPE + '?' });
+  Validation.validate({ value: 'string', validation: Validation.STRINGLOWERCASETRIMMED_TYPE + '?' });
+  Validation.validate({ value: 'STRING', validation: Validation.STRINGUPPERCASETRIMMED_TYPE + '?' });
   Validation.validate({ value: 123, validation: Validation.NUMBER_TYPE + '?' });
   Validation.validate({ value: false, validation: Validation.BOOLEAN_TYPE + '?' });
   Validation.validate({ value: new Date('1999-12-31T23:59:59'), validation: Validation.DATE_TYPE + '?' });
@@ -104,6 +110,8 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
     validation: Validation.ARRAY_TYPE + '?'
   });
   Validation.validate({ value: ['a', 'b'], validation: Validation.ARRAY_OF_STRINGS_TYPE + '?' });
+  Validation.validate({ value: ['a', 'b'], validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?' });
+  Validation.validate({ value: ['A', 'B'], validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?' });
   Validation.validate({ value: [99, 0, 55], validation: Validation.ARRAY_OF_NUMBERS_TYPE + '?' });
   Validation.validate({ value: [new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')], validation: Validation.ARRAY_OF_DATES_TYPE + '?' });
   Validation.validate({ value: [false, true], validation: Validation.ARRAY_OF_BOOLEANS_TYPE + '?' });
@@ -121,11 +129,15 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
 
   let nullOrUndefined = null;
   Validation.validate({ value: nullOrUndefined, validation: Validation.STRING_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.STRINGLOWERCASETRIMMED_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.STRINGUPPERCASETRIMMED_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.NUMBER_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.BOOLEAN_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.DATE_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGS_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_NUMBERS_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_DATES_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BOOLEANS_TYPE + '?' });
@@ -142,11 +154,15 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
 
   nullOrUndefined = undefined;
   Validation.validate({ value: nullOrUndefined, validation: Validation.STRING_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.STRINGLOWERCASETRIMMED_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.STRINGUPPERCASETRIMMED_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.NUMBER_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.BOOLEAN_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.DATE_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGS_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?' });
+  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_NUMBERS_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_DATES_TYPE + '?' });
   Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BOOLEANS_TYPE + '?' });
@@ -171,6 +187,42 @@ Deno.test('test validate(), not valid, all cases', () => {
   }
   console.log(_error);
   assert(_error.includes('Value = 99, must be string'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: 'AA', validation: Validation.STRINGLOWERCASETRIMMED_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value = AA, must be a lowercase trimmed string'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: '   aa   ', validation: Validation.STRINGLOWERCASETRIMMED_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value =    aa   , must be a lowercase trimmed string'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: 'aa', validation: Validation.STRINGUPPERCASETRIMMED_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value = aa, must be an uppercase trimmed string'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: '   AA   ', validation: Validation.STRINGUPPERCASETRIMMED_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value =    AA   , must be an uppercase trimmed string'));
 
   _error = '';
   try {
@@ -226,6 +278,42 @@ Deno.test('test validate(), not valid, all cases', () => {
   }
   console.log(_error);
   assert(_error.includes('Value array error, must be an array'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value array error, must be an array'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: ['AA', 'aa', '   aa   '], validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('["Value = AA, must be a lowercase trimmed string","Value =    aa   , must be a lowercase trimmed string"]'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('Value array error, must be an array'));
+
+  _error = '';
+  try {
+    Validation.validate({ value: ['aa', 'AA', '   AA   '], validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
+  } catch (error) {
+    _error = error.message;
+  }
+  console.log(_error);
+  assert(_error.includes('["Value = aa, must be an uppercase trimmed string","Value =    AA   , must be an uppercase trimmed string"]'));
 
   _error = '';
   try {

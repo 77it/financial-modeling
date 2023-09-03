@@ -22,7 +22,7 @@ import { newDebugSimObjectDto_Sanitization } from './commands/newdebugsimobjectd
 
 // init
 
-// dates: store dates in Ledger as local dates, no UTC
+// dates: store dates in Ledger as local dates, without UTC conversion, trimmed to date only (no time)
 
 /*
 Js Ledger, metodi
