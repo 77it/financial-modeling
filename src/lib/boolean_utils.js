@@ -3,8 +3,6 @@ export { isStringOrBooleanTrue, isStringOrBooleanFalse };
 import * as sanitization from './sanitization_utils.js';
 
 // the following values can be used to compare the result of sanitization of boolean values (or string containing 'true' or 'false') to string
-// conversion sample
-//   sanitization.sanitize({ value: XXX, sanitization: sanitization.STRING_TYPE }).toLowerCase()
 const BOOLEAN_TRUE_STRING = 'true';
 const BOOLEAN_FALSE_STRING = 'false';
 
