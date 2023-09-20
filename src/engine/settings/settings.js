@@ -42,7 +42,7 @@ class Settings {
   /**
    * Set Settings from an array of scenarios, units, names, dates and value.<p>
    * Settings can be immutable without dates, immutable with dates and mutable.<p>
-   * If a date is already present, the second one will be ignored.<p>
+   * If a date is already present, the second Setting will be ignored.<p>
    * If a date is present in an immutable setting without dates, the date will be ignored.<p>
    * Values of immutable settings are frozen.<p>
    *
