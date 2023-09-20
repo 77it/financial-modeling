@@ -42,7 +42,7 @@ class Drivers {
   /**
    * Set Drivers from an array of scenarios, units, names, dates and value.<p>
    * Drivers can be immutable without dates, immutable with dates.<p>
-   * If a date is already present, the second one will be ignored.<p>
+   * If a date is already present, the second Driver will be ignored.<p>
    * If a date is present in an immutable driver without dates, the date will be ignored.<p>
    *
    * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
