@@ -7,6 +7,7 @@ import { parseJSON5 } from './json5.js';
 import { isNullOrWhiteSpace } from './string_utils.js';
 import { deepFreeze } from './obj_utils.js';
 
+// This is a base class used to build Settings and Drivers repositories
 class DriversRepo {
   /**
    Map to store Drivers:
