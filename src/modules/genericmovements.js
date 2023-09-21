@@ -139,13 +139,35 @@ export class Module {
         for (const row of _currTab.table) {
           // TODO loop table and save data to agenda
 
-          const accounting_type = row[_tSet.columns.accounting_type] ?? this.#accounting_type__default;
-          const accounting_opposite_type = row[_tSet.columns.accounting_opposite_type] ?? this.#accounting_opposite_type__default;
-          const simObject_name = row[_tSet.columns.simObject_name] ?? '';
+          const _accounting_type = row[_tSet.columns.accounting_type] ?? this.#accounting_type__default;
+          const _accounting_opposite_type = row[_tSet.columns.accounting_opposite_type] ?? this.#accounting_opposite_type__default;
+          const _simObject_name = row[_tSet.columns.simObject_name] ?? '';
 
-          if (isNullOrWhiteSpace(accounting_type) || isNullOrWhiteSpace(accounting_opposite_type)) continue;
+          if (isNullOrWhiteSpace(_accounting_type) || isNullOrWhiteSpace(_accounting_opposite_type)) continue;
 
-          XXX;  // add to Agenda all values taken from `_simulationColumns` and `_historicalColumns`
+          // loop `_historicalColumns`
+          for (const _column of _historicalColumns) {
+            const _value = sanitization.sanitize({ value: row[_column.key], sanitization: sanitization.NUMBER_TYPE, options: { defaultNumber: undefined } });
+            if (_value == null) continue;
+
+            this.#agenda.set({
+              date: _column.date,
+              isSimulation: false,
+              data: new set_data({value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name})
+            });
+          }
+
+          // loop `_simulationColumns`
+          for (const _column of _simulationColumns) {
+            const _value = sanitization.sanitize({ value: row[_column.key], sanitization: sanitization.NUMBER_TYPE, options: { defaultNumber: undefined } });
+            if (_value == null) continue;
+
+            this.#agenda.set({
+              date: _column.date,
+              isSimulation: true,
+              data: new set_data({value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name})
+            });
+          }
         }
       }
     }
@@ -163,8 +185,18 @@ export class Module {
 
     // if 'accounting_opposite_type' is 'SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT',
     // use the utility function 'squareTrnWithCash'
+  }
+}
 
-    // TODOMAYBE we could check `today` against `this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE`
-    // to see if we are in historical or simulation time and do things differently
+// internal class used to store data in the agenda
+class set_data {
+  /**
+   * @param {{value: number, accounting_type: string, accounting_opposite_type: string, simObject_name: string}} p
+   */
+  constructor({value, accounting_type, accounting_opposite_type, simObject_name}) {
+    this.value = value;
+    this.accounting_type = accounting_type;
+    this.accounting_opposite_type = accounting_opposite_type;
+    this.simObject_name = simObject_name;
   }
 }

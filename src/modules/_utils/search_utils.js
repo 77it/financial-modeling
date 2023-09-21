@@ -4,6 +4,7 @@ import { ModuleData, isNullOrWhiteSpace, toStringCaseInsensitiveTrimCompare, san
 
 /**
  * Search in ModuleData a table, then a value in a table, searching in each row for lookup_key and return_key. Sanitize the result if needed.
+ * If no match is found, return undefined, eventually sanitized.
  * @param {ModuleData} moduleData
  * @param {{tableName: string, lookup_value: *, lookup_key: string, return_key: string, return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: string, sanitizationOptions?: Object }} opt
  * return_first_match default = true;
