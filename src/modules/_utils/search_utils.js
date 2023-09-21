@@ -1,6 +1,6 @@
 export { xlookup, moduleDataLookup, searchDateKeys };
 
-import { ModuleData, isNullOrWhiteSpace, toStringLowerCaseTrimCompare, sanitization as sanitizationUtils, caseInsensitiveCompare, parseJsonDate, isValidDate } from '../../deps.js';
+import { ModuleData, isNullOrWhiteSpace, toStringLowerCaseTrimCompare, sanitization as sanitizationUtils, caseInsensitiveCompare, parseJsonDate, isValidDate, stripTime } from '../../deps.js';
 
 /**
  * Search in ModuleData a table, then a value in a table, searching in each row for lookup_key and return_key. Sanitize the result if needed.
@@ -106,7 +106,9 @@ function xlookup ({ lookup_value, lookup_array, return_array, return_first_match
   return _ret;
 }
 
-/** Search in an object keys starting with a specific prefix (case-insensitive) that when deserialized are dates
+/** Search in an object keys starting with a specific prefix (case-insensitive) that can be parsed as a Date.
+ * If an object key is not parsable as a Date, it is ignored.
+ * Return an array of objects with key and date (stripping the time part).
  * @param {Object} p
  * @param {*} p.obj
  * @param {string} p.prefix
@@ -130,7 +132,7 @@ function searchDateKeys ({ obj, prefix }) {
       if (key.toLowerCase().startsWith(_prefix_lowercase)) {
         const _parsedDate = parseJsonDate(key.slice(prefix.length), { asUTC: false });
         if (isValidDate(_parsedDate))
-          _ret.push({ key: key, date: _parsedDate });
+          _ret.push({ key: key, date: stripTime(_parsedDate) });
       }
     }
 

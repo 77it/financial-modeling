@@ -1,9 +1,10 @@
 export { sanitizeModuleData };
 
-import { ModuleData, sanitization, ifStringLowerCaseTrim } from '../../deps.js';
+import { ModuleData, validation, sanitization, toStringLowerCaseTrim } from '../../deps.js';
 
 /**
  * Sanitize moduleData tables in place (without cloning moduleData).
+ * tableName is case-insensitive.
  * @param {Object} p
  * @param {ModuleData} p.moduleData
  * @param {{tableName: string, sanitization: *, sanitizationOptions?: *}[]} p.moduleSanitization
@@ -12,20 +13,24 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   if (moduleData?.tables == null) return moduleData;
   if (moduleSanitization == null) return moduleData;
 
-  // convert `moduleSanitization` to a map with `tableName` as key and `sanitization` as value
-  const moduleSanitizationMap = new Map();
+  validation.validateObj({ obj: moduleSanitization, validation: { tableName: validation.STRING_TYPE, sanitization: validation.OBJECT_TYPE, sanitizationOptions: validation.OBJECT_TYPE + '?' } });
+
+  // convert `moduleSanitization` to an object `tableName` as key and `sanitization` as value
+  /** @type {Record<string, any>} */
+  const moduleSanitizationObj =  {};
   for (const _sanitization of moduleSanitization)
-    moduleSanitizationMap.set(ifStringLowerCaseTrim(_sanitization.tableName), _sanitization);
+    moduleSanitizationObj[toStringLowerCaseTrim(_sanitization.tableName)] = _sanitization;
 
   // loop moduleData tables
   for (const table of moduleData.tables) {
+    const _sanitization = moduleSanitizationObj[toStringLowerCaseTrim(table.tableName)];
     // if table.tableName is found in moduleSanitization keys, sanitize with moduleSanitization.sanitization
-    if (moduleSanitizationMap.has(ifStringLowerCaseTrim(table.tableName))) {
+    if (!(_sanitization == null)) {
       sanitization.sanitizeObj(
         {
           obj: table.table,
-          sanitization: moduleSanitizationMap.get(table.tableName).sanitization,
-          options: moduleSanitizationMap.get(table.tableName).sanitizationOptions
+          sanitization: _sanitization.sanitization,
+          options: _sanitization?.sanitizationOptions
         });
     }
   }

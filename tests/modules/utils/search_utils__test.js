@@ -159,24 +159,24 @@ Deno.test('moduleDataLookup test: test search', async () => {
 
 Deno.test('searchDateKeys test', async () => {
   const obj = {
-    '#2023-12-25': 1,
-    b: 2,
-    99: 2,
+    '#2023-12-25T05:20:10': 1,  // time part is stripped
+    b: 2,  // ignored, not starting with prefix
+    99: 2,  // ignored, not starting with prefix
     '#2023/01/29': 3,
-    '#2023/01/XX': 3,
+    '#2023/01/XX': 3,  // ignored, not parsable as a date
   }
 
   const exp = [
-    {key: "#2023-12-25", date: new Date(2023, 11, 25)},
+    {key: "#2023-12-25T05:20:10", date: new Date(2023, 11, 25)},
     {key: "#2023/01/29", date: new Date(2023, 0, 29)}
   ];
 
   const obj2 = {
     'h#2023-12-25': 1,
-    b: 2,
-    99: 2,
+    b: 2,  // ignored, not starting with prefix
+    99: 2,  // ignored, not starting with prefix
     'H#2023/01/29': 3,
-    'H#2023/01/XX': 3,
+    'H#2023/01/XX': 3,  // ignored, not parsable as a date
   }
 
   const exp2 = [
