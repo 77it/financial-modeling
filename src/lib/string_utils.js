@@ -1,4 +1,4 @@
-export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, caseInsensitiveCompare, toStringLowerCaseTrimCompare, toStringLowerCaseTrim };
+export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, caseInsensitiveCompare, toStringCaseInsensitiveTrimCompare, toStringLowerCaseTrim };
 import { sanitize, STRINGLOWERCASETRIMMED_TYPE } from './sanitization_utils.js';
 
 /**
@@ -58,7 +58,7 @@ function caseInsensitiveCompare (a, b) {
  * @param {*} b
  * @returns {boolean}
  */
-function toStringLowerCaseTrimCompare (a, b) {
+function toStringCaseInsensitiveTrimCompare (a, b) {
   try {
     let _a = a;
     let _b = b;

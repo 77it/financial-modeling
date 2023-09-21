@@ -1,6 +1,6 @@
 export { xlookup, moduleDataLookup, searchDateKeys };
 
-import { ModuleData, isNullOrWhiteSpace, toStringLowerCaseTrimCompare, sanitization as sanitizationUtils, caseInsensitiveCompare, parseJsonDate, isValidDate, stripTime } from '../../deps.js';
+import { ModuleData, isNullOrWhiteSpace, toStringCaseInsensitiveTrimCompare, sanitization as sanitizationUtils, caseInsensitiveCompare, parseJsonDate, isValidDate, stripTime } from '../../deps.js';
 
 /**
  * Search in ModuleData a table, then a value in a table, searching in each row for lookup_key and return_key. Sanitize the result if needed.
@@ -30,7 +30,7 @@ function moduleDataLookup (moduleData, { tableName, lookup_value, lookup_key, re
         // compare lookup_value with row[lookup_key] (case-insensitive or not)
         let _match = false;
         if (string_insensitive_match)
-          _match = toStringLowerCaseTrimCompare(lookup_value, row[lookup_key]);
+          _match = toStringCaseInsensitiveTrimCompare(lookup_value, row[lookup_key]);
         else
           _match = lookup_value === row[lookup_key];
 
@@ -83,7 +83,7 @@ function xlookup ({ lookup_value, lookup_array, return_array, return_first_match
     // compare lookup_value with lookup_array[i] (case-insensitive or not)
     let _match = false;
     if (string_insensitive_match)
-      _match = toStringLowerCaseTrimCompare(lookup_value, lookup_array[i]);
+      _match = toStringCaseInsensitiveTrimCompare(lookup_value, lookup_array[i]);
     else
       _match = lookup_value === lookup_array[i];
 
