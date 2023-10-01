@@ -182,7 +182,7 @@ function differenceInCalendarDays (
   // (e.g. it's different in the day of the daylight saving time clock shift)
   return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY);
 
-  // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts
+  // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts (MIT license)
   /**
    * @description
    * Return the start of a day for the given date.
@@ -232,7 +232,7 @@ function differenceInUTCCalendarDays (
   // (e.g. it's different in the day of the daylight saving time clock shift)
   return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY);
 
-  // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts
+  // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts (MIT license)
   /**
    * @description
    * Return the start of a day for the given date.
@@ -280,7 +280,7 @@ function excelSerialDateToDate (excelSerialDate) {
   }
 }
 
-// inspired to https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts
+// inspired to https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts (MIT license)
 /**
  * @name addMonths
  * @category Month Helpers

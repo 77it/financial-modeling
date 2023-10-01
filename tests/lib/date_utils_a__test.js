@@ -153,7 +153,7 @@ _describe('parseJsonDate as UTC #1', () => {
 })
 
 
-// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJsonDate/test.ts
+// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJsonDate/test.ts (MIT license)
 _describe('parseJsonDate as UTC #2', () => {
     it('parses a formatted date with an hour of offset back to UTC - issue 2149', () => {
         const date = '2021-01-09T13:18:10.873+01:00'
@@ -336,7 +336,8 @@ _describe('differenceInCalendarDays #1', () => {
 })
 
 
-// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts
+// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts (MIT license)
+// without not applicable tests
 _describe('differenceInCalendarDays #2', () => {
     it('returns the number of calendar days between the given dates (2012 is a leap year - 2011)', () => {
         const result = differenceInCalendarDays(
@@ -428,6 +429,107 @@ _describe('differenceInCalendarDays #2', () => {
     })
 })
 
+// DST TESTS inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts (MIT license)
+_describe('differenceInCalendarDays #3 - DST', () => {
+    // These tests were copy-pasted almost unchanged from DST tests for
+    // `differenceInDays`
+    const dstTransitions = getDstTransitions(2017);
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || Deno.env.get("TZ");
+
+    if (dstTransitions.start === undefined || dstTransitions.end === undefined )
+        throw new Error(`No DST transitions found for ${tz}`);
+
+    console.log(`works across DST start & end in local timezone: ${tz}`);
+
+    const { start, end } = dstTransitions
+    const HOUR = 1000 * 60 * 60
+    const MINUTE = 1000 * 60
+
+    assert(start !== undefined)
+    assert(end !== undefined)
+
+    // It's usually 1 hour, but for some timezones, e.g. Australia/Lord_Howe, it is 30 minutes
+    const dstOffset =
+      (end.getTimezoneOffset() - start.getTimezoneOffset()) * MINUTE
+
+    // TEST DST START (SPRING)
+
+    // anchor to one hour before the boundary
+    {
+      const a = new Date(start.getTime() - HOUR) // 1 hour before DST
+      const b = new Date(a.getTime() + 24 * HOUR - dstOffset) // 1 day later, same local time
+      const c = new Date(a.getTime() + 48 * HOUR - dstOffset) // 2 days later, same local time
+
+      assert(sameTime(a, b))
+      assert(sameTime(a, c))
+      assert(sameTime(b, c))
+      assert(differenceInCalendarDays(c, b) === 1) // normal 24-hour day
+      assert(differenceInCalendarDays(b, a) === 1) // 23 hours -> 1 day
+      assert(differenceInCalendarDays(c, a) === 2) // 47 hours -> 2 days
+    }
+    // anchor exactly at the boundary
+    {
+      const a = start // exactly when DST starts
+      const b = new Date(a.getTime() + 24 * HOUR) // 1 day later, same local time
+      const c = new Date(a.getTime() + 48 * HOUR) // 2 days later, same local time
+
+      assert(sameTime(a, b))
+      assert(sameTime(a, c))
+      assert(sameTime(b, c))
+      assert(differenceInCalendarDays(c, b) === 1) // normal 24-hour day
+      assert(differenceInCalendarDays(b, a) === 1) // normal 24-hour day
+      assert(differenceInCalendarDays(c, a) === 2) // 2 normal 24-hour days
+    }
+
+    // TEST DST END (FALL)
+
+    // make sure that diffs across a "fall back" DST boundary won't report a full day
+    // until 25 hours have elapsed.
+    {
+      const a = new Date(end.getTime() - HOUR / 2) // 1 hour before Standard Time starts
+      const b = new Date(a.getTime() + 24 * HOUR + dstOffset - 15 * MINUTE) // 1 day later, 15 mins earlier local time
+      const c = new Date(a.getTime() + 48 * HOUR + dstOffset - 15 * MINUTE) // 2 days later, 15 mins earlier local time
+
+      assert(differenceInCalendarDays(c, b) === 1) // normal 24-hour day
+      assert(differenceInCalendarDays(b, a) === 1) // 24.75 hours but 1 calendar days
+      assert(differenceInCalendarDays(c, a) === 2) // 49.75 hours but 2 calendar days
+    }
+    // anchor to one hour before the boundary
+    {
+      const a = new Date(end.getTime() - HOUR) // 1 hour before Standard Time starts
+      const b = new Date(a.getTime() + 24 * HOUR + dstOffset) // 1 day later, same local time
+      const c = new Date(a.getTime() + 48 * HOUR + dstOffset) // 2 days later, same local time
+
+      assert(sameTime(a, b))
+      assert(sameTime(a, c))
+      assert(sameTime(b, c))
+      assert(differenceInCalendarDays(c, b) === 1) // normal 24-hour day
+      assert(differenceInCalendarDays(b, a) === 1) // 25 hours -> 1 day
+      assert(differenceInCalendarDays(c, a) === 2) // 49 hours -> 2 days
+    }
+    // anchor to one hour after the boundary
+    {
+      const a = new Date(end.getTime() + HOUR) // 1 hour after Standard Time starts
+      const b = new Date(a.getTime() + 24 * HOUR) // 1 day later, same local time
+      const c = new Date(a.getTime() + 48 * HOUR) // 2 days later, same local time
+
+      assert(sameTime(a, b))
+      assert(sameTime(a, c))
+      assert(sameTime(b, c))
+      assert(differenceInCalendarDays(c, b) === 1) // normal 24-hour day
+      assert(differenceInCalendarDays(b, a) === 1) // normal 24-hour day
+      assert(differenceInCalendarDays(c, a) === 2) // 2 normal 24-hour days
+    }
+    // anchor exactly at the boundary
+    {
+      const a = end // exactly when Standard Time starts
+      const b = new Date(a.getTime() + 24 * HOUR) // 1 day later, same local time
+      const c = new Date(a.getTime() + 48 * HOUR) // 2 days later, same local time
+      assert(differenceInCalendarDays(b, a) === 1) // normal 24-hour day
+      assert(differenceInCalendarDays(c, a) === 2) // 2 normal 24-hour days
+    }
+})
+
 
 _describe('excelSerialDateToUTCDate', () => {
     it('tests', () => {
@@ -477,3 +579,174 @@ _describe('toStringYYYYMMDD', () => {
         assertEquals(toStringYYYYMMDD(date), '1977-09-16');
     })
 })
+
+//region // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/test/dst/tzOffsetTransitions.ts (MIT license)
+
+/**
+ * Fetch the start and end of DST for the local time
+ * zone in a given year.
+ * We'll assume that DST start & end are the first
+ * forward and the last back transitions in the year,
+ * except transitions in Jan or Dec which are likely
+ * to be permanent TZ changes rather than DST changes.
+ * @param {number} year
+ * @returns {{start: Date|undefined, end: Date|undefined}} object with two Date-valued properties:
+ * - `start` is the first instant of DST in the Spring,
+ *   or undefined if there's no DST in this year.
+ * - `end` is the first instant of standard time
+ *   in the Fall, or undefined if there's no DST in
+ *   this year.
+ */
+export function getDstTransitions(year) {
+  const result = {
+    start: undefined,
+    end: undefined
+  }
+  const transitions = getTzOffsetTransitions(year)
+  for (let i = 0; i < transitions.length; i++) {
+    const t = transitions[i]
+    const month = t.date.getMonth()
+    if (month > 0 && month < 11) {
+      if (t.type === 'forward') result.start = t.date
+      if (t.type === 'back' && !result.end) result.end = t.date
+    }
+  }
+  return result
+}
+
+/**
+ * Fetch all timezone-offset transitions in a given
+ * year.  These are almost always DST transitions,
+ * but sometimes there are non-DST changes, e.g.
+ * when a country changes its time zone
+ * @param {number} year
+ * @returns {any[]} array of objects, each  with the following
+ * properties:
+ * - `date` - a `Date` representing the first instant
+ *   when the new timezone offset is effective.
+ * - `type` - either `forward` for skipping time like
+ *   the Spring transition to DST.
+ * - `before` - the timezone offset before the transition.
+ *   For example, the UTC-0400 offset will return -240.
+ *   To match how times are displayed in ISO 8601 format,
+ *   the sign of this value is reversed from the return
+ *   value of `Date.getTimezoneOffset`.
+ * - `after` - the timezone offset after the transition.
+ *   Examples and caveats are the same as `before`.
+
+ */
+export function getTzOffsetTransitions(year) {
+  // start at the end of the previous day
+  let date = firstTickInLocalDay(new Date(year, 0, 1))
+  if (!isValidDate(date)) {
+    throw new Error('Invalid Date')
+  }
+  let baseTzOffset = previousTickTimezoneOffset(date)
+  const transitions = []
+  do {
+    let tzOffset = date.getTimezoneOffset()
+    if (baseTzOffset !== tzOffset) {
+      if (tzOffset !== previousTickTimezoneOffset(date)) {
+        // Transition is the first tick of a local day.
+        transitions.push({
+          date: date,
+          type: tzOffset < baseTzOffset ? 'forward' : 'back',
+          before: -baseTzOffset,
+          after: -tzOffset
+        })
+        baseTzOffset = tzOffset
+      } else {
+        // transition was not at the start of the day, so it must have happened
+        // yesterday. Back up one day and find the minute where it happened.
+        let transitionDate = new Date(date.getTime())
+        transitionDate.setDate(transitionDate.getDate() - 1)
+
+        // Iterate through each 5 mins of the day until we find a transition.
+        // TODO: this could be optimized to search hours then minutes or by or
+        // by using a binary search.
+        const dayNumber = transitionDate.getDate()
+        while (
+          isValidDate(transitionDate) &&
+          transitionDate.getDate() === dayNumber
+          ) {
+          tzOffset = transitionDate.getTimezoneOffset()
+          if (baseTzOffset !== tzOffset) {
+            transitions.push({
+              date: transitionDate,
+              type: tzOffset < baseTzOffset ? 'forward' : 'back',
+              before: -baseTzOffset,
+              after: -tzOffset
+            })
+            baseTzOffset = tzOffset
+            break // assuming only 1 transition per day
+          }
+          transitionDate = fiveMinutesLater(transitionDate)
+        }
+      }
+    }
+    date = oneDayLater(date)
+  } while (date.getFullYear() === year)
+  return transitions
+}
+
+/**
+ * @param {Date} date
+ * @returns {Date}
+ **/
+function firstTickInLocalDay(date) {
+  const MINUTE = 1000 * 60
+
+  const dateNumber = date.getDate()
+  let prev = date
+  let d = date
+  do {
+    prev = d
+    d = new Date(d.getTime() - MINUTE)
+  } while (dateNumber === d.getDate())
+  return prev
+}
+
+/**
+ * @param {Date} date
+ * @returns {number}
+ **/
+function previousTickTimezoneOffset(date) {
+  const d = new Date(date.getTime() - 1)
+  return d.getTimezoneOffset()
+}
+
+/**
+ * @param {Date} date
+ * @returns {Date}
+ **/
+function fiveMinutesLater(date) {
+  const MINUTE = 1000 * 60
+
+  return new Date(date.getTime() + 5 * MINUTE)
+}
+
+/**
+ * @param {Date} date
+ * @returns {Date}
+ **/
+function oneDayLater(date) {
+  const d = new Date(date)
+  d.setDate(d.getDate() + 1)
+  return firstTickInLocalDay(d)
+}
+
+/**
+ * @param {Date} t1
+ * @param {Date} t2
+ * @returns {boolean}
+ **/
+function sameTime(t1, t2) {
+  return (
+    t1.getHours() === t2.getHours() &&
+    t1.getMinutes() === t2.getMinutes() &&
+    t1.getSeconds() === t2.getSeconds() &&
+    t1.getMilliseconds() === t2.getMilliseconds()
+  )
+}
+
+//#endregion
