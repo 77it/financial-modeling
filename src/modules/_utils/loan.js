@@ -21,7 +21,7 @@ https://www.adventuresincre.com/lenders-calcs/
 // npm   https://www.npmjs.com/package/financial/v/0.1.3
 // file index   https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/
 // @deno-types="https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/financial.d.ts"
-import * as financial from 'https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/financial.esm.js';
+import * as financial from '../../../vendor/financial/financial.esm.js';
 
 //#region TODO
 

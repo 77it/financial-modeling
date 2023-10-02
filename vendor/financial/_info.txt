@@ -1,0 +1,1 @@
+from https://cdn.jsdelivr.net/npm/financial@0.1.3/

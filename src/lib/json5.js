@@ -3,7 +3,7 @@ export { parseJSON5, parseJSON5Lowercased, objectKeysToLowerCase };
 // see https://json5.org/
 // see also https://github.com/json5/json5
 // @deno-types='https://unpkg.com/json5@2/lib/index.d.ts'
-import JSON5 from 'https://unpkg.com/json5@2/dist/index.min.mjs';
+import JSON5 from '../../vendor/json5/index.min.mjs';
 
 /**
  * Parse a JSON5 string
