@@ -92,6 +92,12 @@ export class Module {
     this.#alive = true;
     this.#startDate = undefined;
     this.#ACTIVE_UNIT = '';
+    //@ts-ignore
+    this.#moduleData = undefined;
+    //@ts-ignore
+    this.#simulationContext = undefined;
+    //@ts-ignore
+    this.#agenda = undefined;
   }
 
   get name () { return this.#name; }
