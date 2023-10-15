@@ -31,7 +31,7 @@ class ModulesLoader {
    Add classes from object to the repository.
    If URI/moduleName already exists, it is not added.
    * @param {{moduleName: string, moduleEngineURI: string, classObj: *}} p
-   * @throws Will throw an error if moduleEngineURI/moduleName already exists
+   * @throws {Error} Will throw an error if moduleEngineURI/moduleName already exists, because it is not allowed to overwrite a module with a different object.
    */
   addClassFromObject (p) {
     const _validation = {
@@ -52,12 +52,12 @@ class ModulesLoader {
 
   /**
    Load module from URI and add a class with default name {DEFAULT_CLASSNAME} to the repository.
-   If 'URI/moduleName' already exists, it is not loaded/added.
    If URI is "" or . or / or \, is set to ./${moduleName.trim().toLowerCase()}.js
    If URI is a GitHub path is converted to a CDN path (e.g. jsdelivr)
    If URI is missing the ".js" extension, the extension is added
    * @param {{moduleName: string, moduleEngineURI: string}} p
-   * @throws Will throw an error if moduleEngineURI/moduleName already exists
+   * @throws {Error} Will throw an error if URI/moduleName already exists, because we don't know if the module from the URI is the same as the one already loaded (could be loaded from a local object with `addClassFromObject`).
+   * @throws {Error} Will throw an error if loading module fails.
    */
   async addClassFromURI (p) {
     validation.validateObj({

@@ -248,7 +248,7 @@ Deno.test('test modulesLoader_Resolve, GitHub URI transformation to CDN (raw and
 //#endregion addClassFromURI
 
 //#region test addClassFromObject & addClassFromURI
-Deno.test('test add from class, get it, and then from uri (skipped for same name), then get the first class', async () => {
+Deno.test('test add from class, get it, and then from uri (throw for same URI/name), then get the first class', async () => {
   const _URI = './modules_loader_test_module.js';
   const _moduleName = 'duplicateModule';
 
@@ -262,7 +262,7 @@ Deno.test('test add from class, get it, and then from uri (skipped for same name
   const __ValuesB = new _ValuesB(9999);
   assertEquals(__ValuesB.valueX, 9999);
 
-  // add from uri (skipped for same name)
+  // try to add from uri (throw for same URI/name)
   let _error;
   try {
     await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI });

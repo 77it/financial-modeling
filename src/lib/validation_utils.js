@@ -42,7 +42,7 @@ const SUCCESS = '';
  * @param {*} p.validation - Validation type (string, array of strings, class or function, array containing a class or function)
  * @param {string} [p.errorMsg] - Optional error message
  * @return {*} Validated value
- * @throws Will throw an error if the validation fails
+ * @throws {Error} Will throw an error if the validation fails
  */
 // see https://github.com/iarna/aproba for inspiration
 function validate ({ value, validation, errorMsg }) {
@@ -73,7 +73,7 @@ function validate ({ value, validation, errorMsg }) {
  * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}
  * @param {string} [p.errorMsg] - Optional error message
  * @return {*} Validated value
- * @throws Will throw an error if the validation fails
+ * @throws {Error} Will throw an error if the validation fails
  */
 // see https://github.com/iarna/aproba for inspiration
 function validateObj ({ obj, validation, errorMsg }) {

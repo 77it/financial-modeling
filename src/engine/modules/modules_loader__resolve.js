@@ -2,6 +2,7 @@ export { modulesLoader_Resolve };
 
 /**
  * Function to resolve a module URI to a list of CDN URI from which import the module; if the URI is not a GitHub path, the URI is returned as is
+ * CDN supported: jsdelivr, githack, statically.io, GitHub raw
  * @param {string} moduleUrl - The url of the module to resolve
  * @return {string[]} List of URL from which import a module
  */
