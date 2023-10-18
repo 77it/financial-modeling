@@ -14,9 +14,9 @@ import { DoubleEntrySide_enum } from '../simobject/enums/doubleentryside_enum.js
 import { Currency_enum } from '../simobject/enums/currency_enum.js';
 
 import { NewSimObjectDto } from './commands/newsimobjectdto.js';
-import { newSimObjectDto_Sanitization } from './commands/newsimobjectdto_sanitization.js';
+import { newSimObjectDto_Schema } from './commands/newsimobjectdto.schema.js';
 import { NewDebugSimObjectDto } from './commands/newdebugsimobjectdto.js';
-import { newDebugSimObjectDto_Sanitization } from './commands/newdebugsimobjectdto_sanitization.js';
+import { newDebugSimObjectDto_Schema } from './commands/newdebugsimobjectdto.schema.js';
 
 // TODO
 
@@ -225,7 +225,7 @@ class Ledger {
    * @param {NewSimObjectDto} newSimObjectDto
    */
   newSimObject (newSimObjectDto) {
-    sanitization.sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Sanitization });
+    sanitization.sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Schema });
 
     if (SimObjectTypes_enum_map.has(newSimObjectDto.type) === false)
       throw new Error(`SimObject type ${newSimObjectDto.type} is not recognized`);
@@ -378,7 +378,7 @@ class Ledger {
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   #newDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
-    sanitization.sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Sanitization });
+    sanitization.sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Schema });
     //skip validation, this method is private and can't be called with wrong types  //validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation.concat(SimObjectErrorDebugTypes_enum_validation) });
 
     const debug_moduleInfo = this.#currentDebugModuleInfo;

@@ -1,4 +1,4 @@
-export { simObjectJsonDumpDto_Validation };
+export { simObjectJsonDumpDto_Schema };
 
 import { DoubleEntrySide_enum_validation } from '../enums/doubleentryside_enum.js';
 import { Currency_enum_validation } from '../enums/currency_enum.js';
@@ -7,7 +7,7 @@ import { validation } from '../../../deps.js';
 /**
  object used to validate simObjectDto
  */
-const simObjectJsonDumpDto_Validation = {
+const simObjectJsonDumpDto_Schema = {
   type: validation.STRING_TYPE,
 
   id: validation.STRING_TYPE,

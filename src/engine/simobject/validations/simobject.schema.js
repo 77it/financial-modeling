@@ -1,10 +1,10 @@
-export { simObject_Validation };
+export { simObject_Schema };
 
 import { DoubleEntrySide_enum_validation } from '../enums/doubleentryside_enum.js';
 import { Currency_enum_validation } from '../enums/currency_enum.js';
 import * as validation from '../../../lib/validation_utils.js';
 
-const simObject_Validation = {
+const simObject_Schema = {
   decimalPlaces: validation.NUMBER_TYPE,  // Decimal places to return numbers with
 
   type: validation.STRING_TYPE,

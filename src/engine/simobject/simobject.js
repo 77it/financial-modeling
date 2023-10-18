@@ -1,7 +1,7 @@
 export { SimObject };
 
 import { validateObj } from '../../lib/validation_utils.js';
-import { simObject_Validation } from './validations/simobject_validation.js';
+import { simObject_Schema } from './validations/simobject.schema.js';
 
 // info
 /*
@@ -138,7 +138,7 @@ class SimObject {
    //unityOfMeasure: 'string',
    */
   constructor (p) {
-    validateObj({ obj: p, validation: simObject_Validation });
+    validateObj({ obj: p, validation: simObject_Schema });
 
     // value must be equal to indefinite + principal
     if (p.value !==

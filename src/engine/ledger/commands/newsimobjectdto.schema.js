@@ -1,4 +1,4 @@
-export { newSimObjectDto_Sanitization };
+export { newSimObjectDto_Schema };
 
 import { DoubleEntrySide_enum_validation } from '../../simobject/enums/doubleentryside_enum.js';
 import { Currency_enum_validation } from '../../simobject/enums/currency_enum.js';
@@ -7,7 +7,7 @@ import * as sanitization from '../../../lib/sanitization_utils.js';
 /**
  object used to validate NewSimObjectDto
  */
-const newSimObjectDto_Sanitization = {
+const newSimObjectDto_Schema = {
   type: sanitization.STRINGUPPERCASETRIMMED_TYPE,
 
   name: sanitization.STRINGLOWERCASETRIMMED_TYPE,
