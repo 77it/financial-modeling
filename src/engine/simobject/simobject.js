@@ -1,14 +1,14 @@
 export { SimObject };
 
 import { validateObj } from '../../lib/validation_utils.js';
-import { simObject_Schema } from './validations/simobject.schema.js';
+import { simObject_Schema } from './schemas/simobject.schema.js';
 
 // info
 /*
 # about numbers and dates
 * numbers: stored as BigInt
 * date:
-  * stored as local dates, no UTC
+  * stored as local dates, without UTC conversion
   * dates can have hour/minutes/seconds if needed, won't be stripped/normalized
   * dates will be converted to UTC when serialized
 */
