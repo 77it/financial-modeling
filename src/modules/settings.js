@@ -2,7 +2,7 @@ export { ModuleInfo };
 
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
-import { SettingsSanitization, SettingsSanitizationOptions } from '../config/settings_sanitization.js';
+import { SettingsSchemas, SettingsSanitizationOptions } from '../config/settings_schemas.js';
 import { deepFreeze, sanitization, ModuleData, SimulationContext, caseInsensitiveCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
@@ -157,11 +157,11 @@ export class Module {
         for (const row of _table.table) {
           let _value = row[table.columns.value];
 
-          // sanitize setting value taking the sanitization settings from SettingsSanitization object (the setting name is the key of the object)
-          if (SettingsSanitization[row[table.columns.name]] != null) {
+          // sanitize setting value taking the sanitization settings from SettingsSchemas object (the setting name is the key of the object)
+          if (SettingsSchemas[row[table.columns.name]] != null) {
             _value = sanitization.sanitize({
               value: row[table.columns.value],
-              sanitization: SettingsSanitization[row[table.columns.name]],
+              sanitization: SettingsSchemas[row[table.columns.name]],
               options: SettingsSanitizationOptions
             });
           }
