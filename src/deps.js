@@ -1,4 +1,5 @@
 export { Result } from './lib/result.js';
+export * as schema from './lib/schema.js';
 export * as validation from './lib/validation_utils.js';
 export * as sanitization from './lib/sanitization_utils.js';
 export { isValidDate, addMonths, toUTC, toStringYYYYMMDD, stripTime, parseJsonDate, areDatesEqual } from './lib/date_utils.js';

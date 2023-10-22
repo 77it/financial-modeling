@@ -1,5 +1,5 @@
 import { validateObj } from '../../src/lib/validation_utils.js';
-import * as Validation from '../../src/lib/validation_utils.js';
+import * as S from '../../src/lib/schema.js';
 
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
 // @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
@@ -14,14 +14,14 @@ import {
 
 Deno.test('test validateObj() return value', () => {
   const objToValidate = { a: 'mamma', b: 99 };
-  const objToValidate2 = validateObj({ obj: objToValidate, validation: { a: Validation.STRING_TYPE, b: Validation.NUMBER_TYPE } });
+  const objToValidate2 = validateObj({ obj: objToValidate, validation: { a: S.STRING_TYPE, b: S.NUMBER_TYPE } });
 
   assertEquals(objToValidate2, objToValidate);
 });
 
 Deno.test('test validateObj(), valid, simple object', () => {
   const objToValidate = { a: 'mamma', b: 99 };
-  validateObj({ obj: objToValidate, validation: { a: Validation.STRING_TYPE, b: Validation.NUMBER_TYPE } });
+  validateObj({ obj: objToValidate, validation: { a: S.STRING_TYPE, b: S.NUMBER_TYPE } });
 });
 
 Deno.test('test validateObj(), valid, class instance', () => {
@@ -36,25 +36,25 @@ Deno.test('test validateObj(), valid, class instance', () => {
   }
 
   const testClassInstance = new TestClass({ a: '0', b: 99 });
-  const validation = { a: Validation.STRING_TYPE, b: Validation.NUMBER_TYPE };
+  const validation = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
 
   validateObj({ obj: testClassInstance, validation: validation });
 });
 
 Deno.test('test validateObj(), valid, `any` type', () => {
   const objToValidate = { a: 'mamma', b: 99 };
-  validateObj({ obj: objToValidate, validation: { a: Validation.ANY_TYPE, b: Validation.NUMBER_TYPE } });
+  validateObj({ obj: objToValidate, validation: { a: S.ANY_TYPE, b: S.NUMBER_TYPE } });
 
   const objToValidate2 = { a: 9999, b: 99 };
-  validateObj({ obj: objToValidate2, validation: { a: Validation.ANY_TYPE, b: Validation.NUMBER_TYPE } });
+  validateObj({ obj: objToValidate2, validation: { a: S.ANY_TYPE, b: S.NUMBER_TYPE } });
 });
 
 Deno.test('test validateObj(), not valid, any type is undefined', () => {
   const objToValidate = { a: undefined, b: 99 };
 
   const validation = {
-    a: Validation.ANY_TYPE,
-    b: Validation.NUMBER_TYPE
+    a: S.ANY_TYPE,
+    b: S.NUMBER_TYPE
   };
 
   let _error;
@@ -71,8 +71,8 @@ Deno.test('test validateObj(), not valid, any type is null', () => {
   const objToValidate = { a: null, b: 99 };
 
   const validation = {
-    a: Validation.ANY_TYPE,
-    b: Validation.NUMBER_TYPE
+    a: S.ANY_TYPE,
+    b: S.NUMBER_TYPE
   };
 
   let _error;
@@ -120,33 +120,33 @@ Deno.test('test validateObj(), valid, complex object, names with and without quo
   };
 
   const validation = {
-    str: Validation.STRING_TYPE,
-    strLowercaseTrimmed: Validation.STRINGLOWERCASETRIMMED_TYPE,
-    strUppercaseTrimmed: Validation.STRINGUPPERCASETRIMMED_TYPE,
-    num: Validation.NUMBER_TYPE,
-    bool: Validation.BOOLEAN_TYPE,
-    date: Validation.DATE_TYPE,
+    str: S.STRING_TYPE,
+    strLowercaseTrimmed: S.STRINGLOWERCASETRIMMED_TYPE,
+    strUppercaseTrimmed: S.STRINGUPPERCASETRIMMED_TYPE,
+    num: S.NUMBER_TYPE,
+    bool: S.BOOLEAN_TYPE,
+    date: S.DATE_TYPE,
     enum: [11, 'aa', 'aaa', 55],
     enumWithUndefined: [11, undefined, 'aa', 'aaa', 55],
-    arr: Validation.ARRAY_TYPE,
-    arrStr: Validation.ARRAY_OF_STRINGS_TYPE,
-    arrStrLowercaseTrimmed: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE,
-    arrStrUppercaseTrimmed: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE,
-    arrNum: Validation.ARRAY_OF_NUMBERS_TYPE,
-    arrDate: Validation.ARRAY_OF_DATES_TYPE,
-    arrBool: Validation.ARRAY_OF_BOOLEANS_TYPE,
-    arrBoolEmpty: Validation.ARRAY_OF_BOOLEANS_TYPE,
-    arrObj: Validation.ARRAY_OF_OBJECTS_TYPE,
-    obj: Validation.OBJECT_TYPE,
-    fun: Validation.FUNCTION_TYPE,
-    symbol: Validation.SYMBOL_TYPE,
-    bigInt: Validation.BIGINT_TYPE,
-    bigInt_number: Validation.BIGINT_NUMBER_TYPE,
-    arrBigInt: Validation.ARRAY_OF_BIGINT_TYPE,
-    arrBigInt_number: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE,
+    arr: S.ARRAY_TYPE,
+    arrStr: S.ARRAY_OF_STRINGS_TYPE,
+    arrStrLowercaseTrimmed: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE,
+    arrStrUppercaseTrimmed: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE,
+    arrNum: S.ARRAY_OF_NUMBERS_TYPE,
+    arrDate: S.ARRAY_OF_DATES_TYPE,
+    arrBool: S.ARRAY_OF_BOOLEANS_TYPE,
+    arrBoolEmpty: S.ARRAY_OF_BOOLEANS_TYPE,
+    arrObj: S.ARRAY_OF_OBJECTS_TYPE,
+    obj: S.OBJECT_TYPE,
+    fun: S.FUNCTION_TYPE,
+    symbol: S.SYMBOL_TYPE,
+    bigInt: S.BIGINT_TYPE,
+    bigInt_number: S.BIGINT_NUMBER_TYPE,
+    arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
+    arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
     big_js: Big,
     arrBig_js: [Big],
-    any: Validation.ANY_TYPE,
+    any: S.ANY_TYPE,
   };
 
   validateObj({ obj: objToValidate, validation: validation });
@@ -154,26 +154,26 @@ Deno.test('test validateObj(), valid, complex object, names with and without quo
 
 Deno.test('test validateObj(), valid, object with and without optional types and optional (missing) properties', () => {
   const validation = {
-    str: Validation.STRING_TYPE + '?',
-    strLowercaseTrimmed: Validation.STRINGLOWERCASETRIMMED_TYPE + '?',
-    strUppercaseTrimmed: Validation.STRINGUPPERCASETRIMMED_TYPE + '?',
-    num: Validation.NUMBER_TYPE + '?',
-    bool: Validation.BOOLEAN_TYPE + '?',
-    date: Validation.DATE_TYPE + '?',
-    arr: Validation.ARRAY_TYPE + '?',
-    arrStr: Validation.ARRAY_OF_STRINGS_TYPE + '?',
-    arrStrLowercaseTrimmed: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?',
-    arrStrUppercaseTrimmed: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?',
-    arrNum: Validation.ARRAY_OF_NUMBERS_TYPE + '?',
-    arrDate: Validation.ARRAY_OF_DATES_TYPE + '?',
-    arrBool: Validation.ARRAY_OF_BOOLEANS_TYPE + '?',
-    arrObj: Validation.ARRAY_OF_OBJECTS_TYPE + '?',
-    obj: Validation.OBJECT_TYPE + '?',
-    fun: Validation.FUNCTION_TYPE + '?',
-    bigInt: Validation.BIGINT_TYPE + '?',
-    bigInt_number: Validation.BIGINT_NUMBER_TYPE + '?',
-    arrBigInt: Validation.ARRAY_OF_BIGINT_TYPE + '?',
-    arrBigInt_number: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE + '?',
+    str: S.STRING_TYPE + '?',
+    strLowercaseTrimmed: S.STRINGLOWERCASETRIMMED_TYPE + '?',
+    strUppercaseTrimmed: S.STRINGUPPERCASETRIMMED_TYPE + '?',
+    num: S.NUMBER_TYPE + '?',
+    bool: S.BOOLEAN_TYPE + '?',
+    date: S.DATE_TYPE + '?',
+    arr: S.ARRAY_TYPE + '?',
+    arrStr: S.ARRAY_OF_STRINGS_TYPE + '?',
+    arrStrLowercaseTrimmed: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?',
+    arrStrUppercaseTrimmed: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?',
+    arrNum: S.ARRAY_OF_NUMBERS_TYPE + '?',
+    arrDate: S.ARRAY_OF_DATES_TYPE + '?',
+    arrBool: S.ARRAY_OF_BOOLEANS_TYPE + '?',
+    arrObj: S.ARRAY_OF_OBJECTS_TYPE + '?',
+    obj: S.OBJECT_TYPE + '?',
+    fun: S.FUNCTION_TYPE + '?',
+    bigInt: S.BIGINT_TYPE + '?',
+    bigInt_number: S.BIGINT_NUMBER_TYPE + '?',
+    arrBigInt: S.ARRAY_OF_BIGINT_TYPE + '?',
+    arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE + '?',
     any: 'any?',
   };
 
@@ -245,8 +245,8 @@ Deno.test('test validateObj(), valid, nested object', () => {
   };
 
   const validation = {
-    valA: Validation.STRING_TYPE,
-    valB: Validation.OBJECT_TYPE,
+    valA: S.STRING_TYPE,
+    valB: S.OBJECT_TYPE,
   };
 
   validateObj({ obj: objToValidate.arr[0], validation: validation });
@@ -261,8 +261,8 @@ Deno.test('test validateObj(), valid, objects in array', () => {
   };
 
   const validation = {
-    valA: Validation.STRING_TYPE,
-    valB: Validation.OBJECT_TYPE,
+    valA: S.STRING_TYPE,
+    valB: S.OBJECT_TYPE,
   };
 
   validateObj({ obj: objToValidate.arr, validation: validation });
@@ -272,8 +272,8 @@ Deno.test('test validateObj(), not valid, simple object + personalized error mes
   const objToValidate = { a: 'mamma', b: 99 };
 
   const validation = {
-    a: Validation.STRING_TYPE,
-    b: Validation.STRING_TYPE
+    a: S.STRING_TYPE,
+    b: S.STRING_TYPE
   };
 
   let _error;
@@ -299,8 +299,8 @@ Deno.test('test validateObj(), not valid, objects in array', () => {
   };
 
   const validation = {
-    valA: Validation.STRING_TYPE,
-    valB: Validation.OBJECT_TYPE,
+    valA: S.STRING_TYPE,
+    valB: S.OBJECT_TYPE,
   };
 
   let _error;
@@ -320,9 +320,9 @@ Deno.test('test validateObj(), not valid, missing keys', () => {
   };
 
   const validation = {
-    arr: Validation.ARRAY_TYPE,
-    obj: Validation.OBJECT_TYPE,
-    fun: Validation.FUNCTION_TYPE,
+    arr: S.ARRAY_TYPE,
+    obj: S.OBJECT_TYPE,
+    fun: S.FUNCTION_TYPE,
   };
 
   let _error;
@@ -351,16 +351,16 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
   };
 
   const validation = {
-    arr: Validation.ARRAY_TYPE,
-    arrStr: Validation.ARRAY_OF_STRINGS_TYPE,
-    arrStrLowercaseTrimmed: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE,
-    arrStrUppercaseTrimmed: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE,
-    arrNum: Validation.ARRAY_OF_NUMBERS_TYPE,
-    arrDate: Validation.ARRAY_OF_DATES_TYPE,
-    arrBool: Validation.ARRAY_OF_BOOLEANS_TYPE,
-    arrObj: Validation.ARRAY_OF_OBJECTS_TYPE,
-    arrBigInt: Validation.ARRAY_OF_BIGINT_TYPE,
-    arrBigInt_number: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE,
+    arr: S.ARRAY_TYPE,
+    arrStr: S.ARRAY_OF_STRINGS_TYPE,
+    arrStrLowercaseTrimmed: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE,
+    arrStrUppercaseTrimmed: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE,
+    arrNum: S.ARRAY_OF_NUMBERS_TYPE,
+    arrDate: S.ARRAY_OF_DATES_TYPE,
+    arrBool: S.ARRAY_OF_BOOLEANS_TYPE,
+    arrObj: S.ARRAY_OF_OBJECTS_TYPE,
+    arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
+    arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
     arrBig_js: [Big],
   };
 
@@ -392,9 +392,9 @@ Deno.test('test validateObj(), not valid, null/undefined/not a str parameter', (
   };
 
   const validation = {
-    str: Validation.STRING_TYPE,
-    str2: Validation.STRING_TYPE,
-    str3: Validation.STRING_TYPE,
+    str: S.STRING_TYPE,
+    str2: S.STRING_TYPE,
+    str3: S.STRING_TYPE,
   };
 
   let _error;
@@ -416,10 +416,10 @@ Deno.test('test validateObj(), not valid, null/undefined/NaN/infinity num parame
   };
 
   const validation = {
-    num: Validation.NUMBER_TYPE,
-    num2: Validation.NUMBER_TYPE,
-    num3: Validation.NUMBER_TYPE,
-    num4: Validation.NUMBER_TYPE,
+    num: S.NUMBER_TYPE,
+    num2: S.NUMBER_TYPE,
+    num3: S.NUMBER_TYPE,
+    num4: S.NUMBER_TYPE,
   };
 
   let _error;
@@ -441,10 +441,10 @@ Deno.test('test validateObj(), not valid, null/undefined/not a date/invalid date
   };
 
   const validation = {
-    date: Validation.DATE_TYPE,
-    date2: Validation.DATE_TYPE,
-    date3: Validation.DATE_TYPE,
-    date4: Validation.DATE_TYPE,
+    date: S.DATE_TYPE,
+    date2: S.DATE_TYPE,
+    date3: S.DATE_TYPE,
+    date4: S.DATE_TYPE,
   };
 
   let _error;
@@ -473,9 +473,9 @@ Deno.test('test validateObj(), not valid, null/undefined/not BigInt parameter', 
   };
 
   const validation = {
-    big: Validation.BIGINT_TYPE,
-    big2: Validation.BIGINT_TYPE,
-    big3: Validation.BIGINT_TYPE,
+    big: S.BIGINT_TYPE,
+    big2: S.BIGINT_TYPE,
+    big3: S.BIGINT_TYPE,
   };
 
   let _error;
@@ -497,10 +497,10 @@ Deno.test('test validateObj(), not valid, null/undefined/not BigInt number param
   };
 
   const validation2 = {
-    big: Validation.BIGINT_NUMBER_TYPE,
-    big2: Validation.BIGINT_NUMBER_TYPE,
-    big3: Validation.BIGINT_NUMBER_TYPE,
-    big4: Validation.BIGINT_NUMBER_TYPE,
+    big: S.BIGINT_NUMBER_TYPE,
+    big2: S.BIGINT_NUMBER_TYPE,
+    big3: S.BIGINT_NUMBER_TYPE,
+    big4: S.BIGINT_NUMBER_TYPE,
   };
 
   let _error='';
@@ -544,9 +544,9 @@ Deno.test('test validateObj(), not valid, null/undefined/not a bool parameter', 
   };
 
   const validation = {
-    bool: Validation.BOOLEAN_TYPE,
-    bool2: Validation.BOOLEAN_TYPE,
-    bool3: Validation.BOOLEAN_TYPE,
+    bool: S.BOOLEAN_TYPE,
+    bool2: S.BOOLEAN_TYPE,
+    bool3: S.BOOLEAN_TYPE,
   };
 
   let _error;
@@ -567,9 +567,9 @@ Deno.test('test validateObj(), not valid, null/undefined/not an array parameter'
   };
 
   const validation = {
-    arr: Validation.ARRAY_TYPE,
-    arr2: Validation.ARRAY_TYPE,
-    arr3: Validation.ARRAY_TYPE,
+    arr: S.ARRAY_TYPE,
+    arr2: S.ARRAY_TYPE,
+    arr3: S.ARRAY_TYPE,
   };
 
   let _error;
@@ -590,9 +590,9 @@ Deno.test('test validateObj(), not valid, null/undefined/not an object parameter
   };
 
   const validation = {
-    obj: Validation.OBJECT_TYPE,
-    obj2: Validation.OBJECT_TYPE,
-    obj3: Validation.OBJECT_TYPE,
+    obj: S.OBJECT_TYPE,
+    obj2: S.OBJECT_TYPE,
+    obj3: S.OBJECT_TYPE,
   };
 
   let _error;
@@ -613,9 +613,9 @@ Deno.test('test validateObj(), not valid, null/undefined/not a function paramete
   };
 
   const validation = {
-    fun: Validation.FUNCTION_TYPE,
-    fun2: Validation.FUNCTION_TYPE,
-    fun3: Validation.FUNCTION_TYPE,
+    fun: S.FUNCTION_TYPE,
+    fun2: S.FUNCTION_TYPE,
+    fun3: S.FUNCTION_TYPE,
   };
 
   let _error;
@@ -632,7 +632,7 @@ Deno.test('test validateObj(), not valid, string instead of object', () => {
   const notAnObjToValidate = "mamma";
 
   const validation = {
-    date: Validation.DATE_TYPE,
+    date: S.DATE_TYPE,
   };
 
   let _error;

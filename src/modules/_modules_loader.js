@@ -1,6 +1,6 @@
 export { ModulesLoader };
 
-import { validation, sanitization } from '../deps.js';
+import { schema, validation, sanitization } from '../deps.js';
 import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
 
 const DEFAULT_CLASSNAME = 'Module';
@@ -35,9 +35,9 @@ class ModulesLoader {
    */
   addClassFromObject (p) {
     const _validation = {
-      moduleName: validation.STRING_TYPE,
-      moduleEngineURI: validation.STRING_TYPE,
-      classObj: validation.ANY_TYPE
+      moduleName: schema.STRING_TYPE,
+      moduleEngineURI: schema.STRING_TYPE,
+      classObj: schema.ANY_TYPE
     };
     validation.validateObj({ obj: p, validation: _validation });
 
@@ -62,7 +62,7 @@ class ModulesLoader {
   async addClassFromURI (p) {
     validation.validateObj({
       obj: p,
-      validation: { moduleName: validation.STRING_TYPE, moduleEngineURI: validation.STRING_TYPE }
+      validation: { moduleName: schema.STRING_TYPE, moduleEngineURI: schema.STRING_TYPE }
     });
 
     const _moduleName = p.moduleName.trim().toLowerCase();
@@ -102,8 +102,8 @@ class ModulesLoader {
    */
   get (p) {
     const _validation = {
-      moduleName: validation.STRING_TYPE,
-      moduleEngineURI: validation.STRING_TYPE
+      moduleName: schema.STRING_TYPE,
+      moduleEngineURI: schema.STRING_TYPE
     };
     validation.validateObj({ obj: p, validation: _validation });
 
@@ -126,7 +126,7 @@ class ModulesLoader {
   #classesRepoBuildKey ({ moduleEngineURI, moduleName }) {
     const _p = sanitization.sanitizeObj({
       obj: { moduleEngineURI, moduleName },
-      sanitization: { moduleEngineURI: sanitization.STRING_TYPE, moduleName: sanitization.STRING_TYPE },
+      sanitization: { moduleEngineURI: schema.STRING_TYPE, moduleName: schema.STRING_TYPE },
       validate: true
     });
     return JSON.stringify({moduleEngineURI: _p.moduleEngineURI, moduleName: _p.moduleName});

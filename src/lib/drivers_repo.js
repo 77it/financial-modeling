@@ -1,5 +1,6 @@
 ﻿export { DriversRepo };
 
+import * as schema from './schema.js';
 import * as sanitization from './sanitization_utils.js';
 import * as validation from './validation_utils.js';
 import { stripTime, toStringYYYYMMDD } from './date_utils.js';
@@ -57,19 +58,19 @@ class DriversRepo {
     allowMutable,
     freezeImmutableValues
   }) {
-    this.#baseScenario = sanitization.sanitize({ value: baseScenario, sanitization: sanitization.STRING_TYPE, validate: true });
-    this.#currentScenario = sanitization.sanitize({ value: currentScenario, sanitization: sanitization.STRING_TYPE, validate: true });
-    this.#defaultUnit = sanitization.sanitize({ value: defaultUnit, sanitization: sanitization.STRING_TYPE, validate: true });
-    this.#sanitizationType = sanitization.sanitize({ value: sanitizationType, sanitization: sanitization.STRING_TYPE, validate: true });
+    this.#baseScenario = sanitization.sanitize({ value: baseScenario, sanitization: schema.STRING_TYPE, validate: true });
+    this.#currentScenario = sanitization.sanitize({ value: currentScenario, sanitization: schema.STRING_TYPE, validate: true });
+    this.#defaultUnit = sanitization.sanitize({ value: defaultUnit, sanitization: schema.STRING_TYPE, validate: true });
+    this.#sanitizationType = sanitization.sanitize({ value: sanitizationType, sanitization: schema.STRING_TYPE, validate: true });
 
-    this.#prefix__immutable_without_dates = sanitization.sanitize({ value: prefix__immutable_without_dates, sanitization: sanitization.STRING_TYPE, validate: true });
-    this.#prefix__immutable_with_dates = sanitization.sanitize({ value: prefix__immutable_with_dates, sanitization: sanitization.STRING_TYPE, validate: true });
+    this.#prefix__immutable_without_dates = sanitization.sanitize({ value: prefix__immutable_without_dates, sanitization: schema.STRING_TYPE, validate: true });
+    this.#prefix__immutable_with_dates = sanitization.sanitize({ value: prefix__immutable_with_dates, sanitization: schema.STRING_TYPE, validate: true });
     // test that prefix__immutable_with_dates does not start with prefix__immutable_without_dates
     if (this.#prefix__immutable_with_dates.startsWith(this.#prefix__immutable_without_dates)) {
       throw new Error(`prefix__immutable_with_dates (${this.#prefix__immutable_with_dates}) cannot start with prefix__immutable_without_dates (${this.#prefix__immutable_without_dates})`);
     }
-    this.#allowMutable = sanitization.sanitize({ value: allowMutable, sanitization: sanitization.BOOLEAN_TYPE, validate: true });
-    this.#freezeImmutableValues = sanitization.sanitize({ value: freezeImmutableValues, sanitization: sanitization.BOOLEAN_TYPE, validate: true });
+    this.#allowMutable = sanitization.sanitize({ value: allowMutable, sanitization: schema.BOOLEAN_TYPE, validate: true });
+    this.#freezeImmutableValues = sanitization.sanitize({ value: freezeImmutableValues, sanitization: schema.BOOLEAN_TYPE, validate: true });
 
     this.#driversRepo = new Map();
     this.#currentDebugModuleInfo = '';
@@ -78,12 +79,12 @@ class DriversRepo {
 
   /** @param {string} debugModuleInfo */
   setDebugModuleInfo (debugModuleInfo) {
-    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
+    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: schema.STRING_TYPE });
   }
 
   /** @param {Date} today */
   setToday (today) {
-    validation.validate({ value: today, validation: validation.DATE_TYPE });
+    validation.validate({ value: today, validation: schema.DATE_TYPE });
     this.#today = today;
   }
 
@@ -122,7 +123,7 @@ class DriversRepo {
       sanitization.sanitizeObj({
         obj: _inputItemClone,
         sanitization: {
-          date: sanitization.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
+          date: schema.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
           value: this.#sanitizationType
         }
       });
@@ -241,7 +242,7 @@ class DriversRepo {
             _foundFlag = true;
         }
 
-        // search from Base Scenario and Default Unit (if Unit != Default and if if Scenario != Base)
+        // search from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base)
         if (!_foundFlag && scenario !== _baseScenario && unit !== _defaultUnit) {
           _key = this.#driversRepoBuildKey({ scenario: _baseScenario, unit: _defaultUnit, name });
           if (this.#driversRepo.has(_key))
@@ -260,7 +261,7 @@ class DriversRepo {
     // missing dates will be set to this.#today
     let _date = (date === undefined || date === null) ? this.#today : date;
     // invalid date will be set to new Date(0)
-    _date = sanitization.sanitize({ value: _date, sanitization: sanitization.DATE_TYPE });
+    _date = sanitization.sanitize({ value: _date, sanitization: schema.DATE_TYPE });
     // strip the time part from the date (if the date is != Date(0))
     _date = (_date.getTime() !== 0) ? stripTime(_date) : _date;
 
@@ -289,7 +290,7 @@ class DriversRepo {
     // if `endDate` is defined, returns an array of values defined between `date` and `endDate`
     else {
       // invalid date will be set to new Date(0)
-      let _endDate = sanitization.sanitize({ value: endDate, sanitization: sanitization.DATE_TYPE });
+      let _endDate = sanitization.sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
       // strip the time part from the date (if the date is != Date(0))
       _endDate = (_endDate.getTime() !== 0) ? stripTime(_endDate) : _endDate;
       // if `endDate` is lower than `date`, throw
@@ -343,7 +344,7 @@ class DriversRepo {
   #driversRepoBuildKey ({ scenario, unit, name }) {
     const _p = sanitization.sanitizeObj({
       obj: { scenario, unit, name },
-      sanitization: { scenario: sanitization.STRING_TYPE, unit: sanitization.STRING_TYPE, name: sanitization.STRING_TYPE },
+      sanitization: { scenario: schema.STRING_TYPE, unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
       validate: true
     });
 

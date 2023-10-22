@@ -1,4 +1,5 @@
-import * as S from '../../src/lib/sanitization_utils.js';
+import * as S from '../../src/lib/schema.js';
+import * as s from '../../src/lib/sanitization_utils.js';
 import { parseJsonDate, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
 
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
@@ -16,10 +17,10 @@ import {
 Deno.test('test sanitizeObj()', async (t) => {
   await t.step('null, undefined and other non-objects are coerced to {}', async () => {
     const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
-    assertEquals(S.sanitizeObj({ obj: null, sanitization: sanitization }), {});
-    assertEquals(S.sanitizeObj({ obj: undefined, sanitization: sanitization }), {});
-    assertEquals(S.sanitizeObj({ obj: 999, sanitization: sanitization }), {});
-    assertEquals(S.sanitizeObj({ obj: Symbol(), sanitization: sanitization }), {});
+    assertEquals(s.sanitizeObj({ obj: null, sanitization: sanitization }), {});
+    assertEquals(s.sanitizeObj({ obj: undefined, sanitization: sanitization }), {});
+    assertEquals(s.sanitizeObj({ obj: 999, sanitization: sanitization }), {});
+    assertEquals(s.sanitizeObj({ obj: Symbol(), sanitization: sanitization }), {});
   });
 
   await t.step('class: class Type is coerced to {}, class instance is object and sanitized normally', async () => {
@@ -37,11 +38,11 @@ Deno.test('test sanitizeObj()', async (t) => {
     const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
 
     // class Type is coerced to {}
-    assertEquals(S.sanitizeObj({ obj: TestClass, sanitization: sanitization }), {});
+    assertEquals(s.sanitizeObj({ obj: TestClass, sanitization: sanitization }), {});
 
     // class instance is object and sanitized normally
     assertEquals(
-      JSON.stringify(S.sanitizeObj({ obj: testClassInstance, sanitization: sanitization, validate: true })),
+      JSON.stringify(s.sanitizeObj({ obj: testClassInstance, sanitization: sanitization, validate: true })),
       JSON.stringify({ a: '0', b: 99 })
     );
   });
@@ -52,7 +53,7 @@ Deno.test('test sanitizeObj()', async (t) => {
     const expObj = { a: 0, b: 99 };
     const sanitization = { a: S.NUMBER_TYPE, b: S.NUMBER_TYPE };
     /* `a` `b` are not sanitized */
-    S.sanitizeObj({ obj: { a, b }, sanitization: sanitization });
+    s.sanitizeObj({ obj: { a, b }, sanitization: sanitization });
     /* FAILS */
     // @ts-ignore
     assertNotEquals({ a, b }, expObj);
@@ -61,11 +62,11 @@ Deno.test('test sanitizeObj()', async (t) => {
     //
     // 1. construct another object
     const _p1 = { a, b };
-    S.sanitizeObj({ obj: _p1, sanitization: sanitization });
+    s.sanitizeObj({ obj: _p1, sanitization: sanitization });
     // @ts-ignore
     assertEquals(_p1, expObj);
     // 2. save the returned object
-    const _p2 = S.sanitizeObj({ obj: { a, b }, sanitization: sanitization });
+    const _p2 = s.sanitizeObj({ obj: { a, b }, sanitization: sanitization });
     assertEquals(_p2, expObj);
 
   });
@@ -74,14 +75,14 @@ Deno.test('test sanitizeObj()', async (t) => {
     const objToSanitize = { a: 'mamma', b: 99 };
     const expObj = { a: 'mamma', b: 99 };
     const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
-    assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
+    assertEquals(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
   });
 
   await t.step('`any` type', async () => {
     const objToSanitize = { a: undefined, b: null, c: 99 };
     const expObj = { a: undefined, b: null, c: 99 };
     const sanitization = { a: S.ANY_TYPE, b: S.ANY_TYPE, c: S.NUMBER_TYPE };
-    assertEquals(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
+    assertEquals(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
   });
 
   await t.step('complex type, local date', async () => {
@@ -114,9 +115,9 @@ Deno.test('test sanitizeObj()', async (t) => {
       extraValueMissingRequiredDate: S.DATE_TYPE,
     };
 
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization })), JSON.stringify(expObj));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization })), JSON.stringify(expObj));
 
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
   });
 
   await t.step('complex type + validate=true test', async () => {
@@ -263,9 +264,9 @@ Deno.test('test sanitizeObj()', async (t) => {
     //@ts-ignore
     const replacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
 
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
 
-    assertEquals(JSON.stringify(S.sanitizeObj({
+    assertEquals(JSON.stringify(s.sanitizeObj({
       obj: objToSanitize,
       sanitization: sanitization,
       validate: true,
@@ -275,10 +276,10 @@ Deno.test('test sanitizeObj()', async (t) => {
 
   await t.step('enum type', async () => {
     // test undefined with enum type
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
 
     // test enum type
-    assertThrows(() => S.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
+    assertThrows(() => s.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
   });
 
   await t.step('custom sanitization for string, number, date, bigint', async () => {
@@ -335,59 +336,59 @@ Deno.test('test sanitizeObj()', async (t) => {
 
     let wrongValue = null;
     let objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
 
     wrongValue = undefined;
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
 
     wrongValue = { ciao: 999 };
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
 
     wrongValue = NaN;
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
 
     wrongValue = 0;
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
 
     wrongValue = -0;
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
 
     wrongValue = 0n;
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
 
     wrongValue = '0';
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0Str, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0Str, replacer));
 
     wrongValue = "";
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
 
     wrongValue = "   ";
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
   });
 
   await t.step('enum type', async () => {
     // test undefined with enum type
-    assertEquals(JSON.stringify(S.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
 
     // test enum type
-    assertThrows(() => S.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
+    assertThrows(() => s.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
   });
 });

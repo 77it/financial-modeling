@@ -1,5 +1,5 @@
 import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
-import { sanitization } from '../../deps.js';
+import { schema } from '../../deps.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
 
 import { xlookup, moduleDataLookup, searchDateKeys } from '../../../src/modules/_utils/search_utils.js';
@@ -55,9 +55,9 @@ Deno.test('xlookup test: test search', async () => {
   assertEquals(xlookup(p), 'six');
 
   // with sanitization
-  p = { lookup_value: 'five', lookup_array, return_array, return_first_match: false, sanitization: sanitization.STRING_TYPE };
+  p = { lookup_value: 'five', lookup_array, return_array, return_first_match: false, sanitization: schema.STRING_TYPE };
   assertEquals(xlookup(p), '5');
-  p = { lookup_value: 6, lookup_array, return_array, return_first_match: false, sanitization: sanitization.NUMBER_TYPE };
+  p = { lookup_value: 6, lookup_array, return_array, return_first_match: false, sanitization: schema.NUMBER_TYPE };
   assertEquals(xlookup(p), 0);
 
   // with sanitization and sanitizationOptions
@@ -66,7 +66,7 @@ Deno.test('xlookup test: test search', async () => {
     lookup_array,
     return_array,
     return_first_match: false,
-    sanitization: sanitization.NUMBER_TYPE,
+    sanitization: schema.NUMBER_TYPE,
     sanitizationOptions: { defaultNumber: 123 }
   };
   assertEquals(xlookup(p), 123);
@@ -146,10 +146,10 @@ Deno.test('moduleDataLookup test: test search', async () => {
 
   // with sanitization
   p.lookup_value = 'five';
-  p.sanitization = sanitization.STRING_TYPE;
+  p.sanitization = schema.STRING_TYPE;
   assertEquals(moduleDataLookup(moduleData, p), '5');
   p.lookup_value = 6;
-  p.sanitization = sanitization.NUMBER_TYPE;
+  p.sanitization = schema.NUMBER_TYPE;
   assertEquals(moduleDataLookup(moduleData, p), 0);
 
   // with sanitization and sanitizationOptions

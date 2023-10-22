@@ -1,5 +1,5 @@
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../deps.js';
-import { sanitization } from '../deps.js';
+import { schema } from '../deps.js';
 
 import { DriversRepo } from '../../src/lib/drivers_repo.js';
 import * as STD_NAMES from '../../src/config/standard_names.js';
@@ -10,7 +10,7 @@ Deno.test('Drivers tests', async () => {
     currentScenario: _currentScenario,
     baseScenario: STD_NAMES.Scenario.BASE,
     defaultUnit: STD_NAMES.Simulation.NAME,
-    sanitizationType: sanitization.NUMBER_TYPE,
+    sanitizationType: schema.NUMBER_TYPE,
     prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
     prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
     allowMutable: true,
@@ -154,7 +154,7 @@ Deno.test('Advanced Drivers tests', async (t) => {
     currentScenario: _currentScenario,
     baseScenario: STD_NAMES.Scenario.BASE,
     defaultUnit: STD_NAMES.Simulation.NAME,
-    sanitizationType: sanitization.ANY_TYPE,
+    sanitizationType: schema.ANY_TYPE,
     prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
     prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
     allowMutable: true,
@@ -196,13 +196,13 @@ Deno.test('Advanced Drivers tests', async (t) => {
   await t.step('get() with sanitizationType as string or array (then sanitize())', async () => {
     // not existing driver is not sanitized
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'THIS-DRIVER-DOES-NOT-EXIST', sanitizationType: sanitization.NUMBER_TYPE }),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'THIS-DRIVER-DOES-NOT-EXIST', sanitizationType: schema.NUMBER_TYPE }),
       undefined);
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', sanitizationType: sanitization.NUMBER_TYPE }),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', sanitizationType: schema.NUMBER_TYPE }),
       0);
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', sanitizationType: sanitization.STRING_TYPE }),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', sanitizationType: schema.STRING_TYPE }),
       '{a: 99, b: false, c: [1, 2, \'3\', "4"]}');
     assertEquals(
       drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', sanitizationType: [999, 888, 'aaa'] }),  // array sanitization, ignored
@@ -216,20 +216,20 @@ Deno.test('Advanced Drivers tests', async (t) => {
         unit: 'UnitA',
         name: '$$driverABC1',
         parseAsJSON5: true,
-        sanitizationType: { a: sanitization.STRING_TYPE, b: sanitization.STRING_TYPE, c: sanitization.ARRAY_OF_NUMBERS_TYPE }
+        sanitizationType: { a: schema.STRING_TYPE, b: schema.STRING_TYPE, c: schema.ARRAY_OF_NUMBERS_TYPE }
       }),
       { a: '99', b: 'false', c: [1, 2, 3, 4] });
   });
 
   await t.step('get() with parseAsJSON5 & sanitizationType as string', async () => {
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2', parseAsJSON5: true, sanitizationType: sanitization.BOOLEAN_TYPE }),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2', parseAsJSON5: true, sanitizationType: schema.BOOLEAN_TYPE }),
       false);
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', parseAsJSON5: true, sanitizationType: sanitization.ANY_TYPE }),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', parseAsJSON5: true, sanitizationType: schema.ANY_TYPE }),
       [1, 2, '3', '4']);
     assertEquals(
-      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', parseAsJSON5: true, sanitizationType: sanitization.ARRAY_OF_NUMBERS_TYPE }),
+      drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC3', parseAsJSON5: true, sanitizationType: schema.ARRAY_OF_NUMBERS_TYPE }),
       [1, 2, 3, 4]);
   });
 

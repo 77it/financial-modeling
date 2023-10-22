@@ -1,44 +1,11 @@
 export { sanitize, sanitizeObj };
 
+import * as schema from './schema.js';
 import { parseJsonDate, excelSerialDateToDate, excelSerialDateToUTCDate, toUTC } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
-import { deepFreeze } from './obj_utils.js';
-
-//#region types
-export const ANY_TYPE = 'any';
-export const STRING_TYPE = 'string';  // whitespaces are trimmed only if the string is empty
-export const STRINGLOWERCASETRIMMED_TYPE = 'string_lowercase_trimmed';
-export const STRINGUPPERCASETRIMMED_TYPE = 'string_uppercase_trimmed';
-export const NUMBER_TYPE = 'number';
-export const BOOLEAN_TYPE = 'boolean';
-export const DATE_TYPE = 'date';
-export const ARRAY_TYPE = 'array';
-export const ARRAY_OF_STRINGS_TYPE = 'array[string]';
-export const ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE = 'array[string_lowercase_trimmed]';
-export const ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE = 'array[string_uppercase_trimmed]';
-export const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
-export const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
-export const ARRAY_OF_DATES_TYPE = 'array[date]';
-export const ARRAY_OF_OBJECTS_TYPE = 'array[object]';
-export const OBJECT_TYPE = 'object';
-export const FUNCTION_TYPE = 'function';
-export const SYMBOL_TYPE = 'symbol';
-export const BIGINT_TYPE = 'bigint';
-export const BIGINT_NUMBER_TYPE = 'bigint_number';
-export const ARRAY_OF_BIGINT_TYPE = 'array[bigint]';
-export const ARRAY_OF_BIGINT_NUMBER_TYPE = 'array[bigint_number]';
-export const OPTIONAL = '?';
-//#endregion types
-
-export const NUMBER_TO_DATE_OPTS = {
-  EXCEL_1900_SERIAL_DATE: 'NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE',
-  JS_SERIAL_DATE: 'NUMBER_TO_DATE__JS_SERIAL_DATE',
-  NO_CONVERSION: 'NUMBER_TO_DATE__NO_CONVERSION'
-};
-deepFreeze(NUMBER_TO_DATE_OPTS);
 
 //#region defaults
-const DEFAULT__NUMBER_TO_DATE = NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE;
+const DEFAULT__NUMBER_TO_DATE = schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE;
 const DEFAULT__DATE_UTC = false;  // if true, conversion from string or number to dates return UTC dates
 const DEFAULT_STRING = '';
 const DEFAULT_NUMBER = 0;
@@ -58,13 +25,14 @@ const DEFAULT_BIGINT = BigInt(0);
  * Sanitization types ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
+ * Whitespaces are trimmed only if the string is empty.
  * String to dates are parsed as JSON to dates (in local time or UTC, depending on options.dateUTC).
  * Number to dates are considered Excel serial dates (stripping hours)
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
  * @param {*} p.sanitization - Sanitization type (string, array of strings, function, array containing a function)
  * @param {Object} [p.options]
- * @param {string} [p.options.numberToDate=NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
+ * @param {string} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
  * @param {boolean} [p.options.dateUTC=false]
  * @param {*} [p.options.defaultString='']
  * @param {*} [p.options.defaultNumber=0]
@@ -79,7 +47,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
 
   if (options == null) options = {};  // sanitize options, otherwise the following code won't work
   const _NUMBER_TO_DATE = ('numberToDate' in options) ? options.numberToDate : DEFAULT__NUMBER_TO_DATE;
-  validateFunc({ value: _NUMBER_TO_DATE, validation: Object.values(NUMBER_TO_DATE_OPTS) });
+  validateFunc({ value: _NUMBER_TO_DATE, validation: [schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE, schema.NUMBER_TO_DATE_OPTS__JS_SERIAL_DATE, schema.NUMBER_TO_DATE_OPTS__NO_CONVERSION] });
   /** @type {boolean} */
   const _DATE_UTC = options?.dateUTC ?? DEFAULT__DATE_UTC;
   const _DEFAULT_STRING = ('defaultString' in options) ? options.defaultString : DEFAULT_STRING;
@@ -127,11 +95,11 @@ function sanitize ({ value, sanitization, options, validate = false }) {
 
   // from now on sanitization can be only a string
   switch (sanitizationType.toLowerCase()) {  // switch sanitizations
-    case ANY_TYPE: {
+    case schema.ANY_TYPE: {
       retValue = value;  // return value as is without sanitization
       break;
     }
-    case STRING_TYPE: {
+    case schema.STRING_TYPE: {
       try {
         if (_isEmptyOrWhiteSpace(value))  // sanitize whitespace string to empty string (not to `_DEFAULT_STRING`)
           retValue = '';
@@ -154,15 +122,15 @@ function sanitize ({ value, sanitization, options, validate = false }) {
       }
       break;
     }
-    case STRINGLOWERCASETRIMMED_TYPE: {
-      retValue = sanitize({ value: value, sanitization: STRING_TYPE, options: options }).toLowerCase().trim();
+    case schema.STRINGLOWERCASETRIMMED_TYPE: {
+      retValue = sanitize({ value: value, sanitization: schema.STRING_TYPE, options: options }).toLowerCase().trim();
       break;
     }
-    case STRINGUPPERCASETRIMMED_TYPE: {
-      retValue = sanitize({ value: value, sanitization: STRING_TYPE, options: options }).toUpperCase().trim();
+    case schema.STRINGUPPERCASETRIMMED_TYPE: {
+      retValue = sanitize({ value: value, sanitization: schema.STRING_TYPE, options: options }).toUpperCase().trim();
       break;
     }
-    case NUMBER_TYPE: {
+    case schema.NUMBER_TYPE: {
       try {
         if (value == null)
           retValue = _DEFAULT_NUMBER;
@@ -173,11 +141,11 @@ function sanitize ({ value, sanitization, options, validate = false }) {
       }
       break;
     }
-    case BOOLEAN_TYPE: {
+    case schema.BOOLEAN_TYPE: {
       retValue = Boolean(value);
       break;
     }
-    case DATE_TYPE: {
+    case schema.DATE_TYPE: {
       try {
         if (value instanceof Date) {
           retValue = isNaN(value.getTime()) ? _DEFAULT_DATE : new Date(value);
@@ -187,12 +155,12 @@ function sanitize ({ value, sanitization, options, validate = false }) {
             _value = parseJsonDate(value, { asUTC: _DATE_UTC });
           } else if (typeof value === 'number' || typeof value === 'bigint') {  // if `value` is number or BigInt, convert it as Excel serial date to date in local time or UTC
             const _numValue = Number(value);
-            if (_NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE) {
+            if (_NUMBER_TO_DATE === schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE) {
               if (_DATE_UTC)
                 _value = excelSerialDateToUTCDate(_numValue);
               else
                 _value = excelSerialDateToDate(_numValue);
-            } else if (_NUMBER_TO_DATE === NUMBER_TO_DATE_OPTS.JS_SERIAL_DATE)
+            } else if (_NUMBER_TO_DATE === schema.NUMBER_TO_DATE_OPTS__JS_SERIAL_DATE)
               _value = new Date(_value);
             else  // no conversion
               _value = _DEFAULT_DATE;
@@ -207,54 +175,54 @@ function sanitize ({ value, sanitization, options, validate = false }) {
       }
       break;
     }
-    case ARRAY_TYPE: {
+    case schema.ARRAY_TYPE: {
       if (!Array.isArray(value))  // if `value` is not an array return a new array with `value` as first element
         retValue = [value];
       else
         retValue = value;
       break;
     }
-    case ARRAY_OF_STRINGS_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: STRING_TYPE });
+    case schema.ARRAY_OF_STRINGS_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: schema.STRING_TYPE });
       break;
     }
-    case ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: STRINGLOWERCASETRIMMED_TYPE });
+    case schema.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: schema.STRINGLOWERCASETRIMMED_TYPE });
       break;
     }
-    case ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: STRINGUPPERCASETRIMMED_TYPE });
+    case schema.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: schema.STRINGUPPERCASETRIMMED_TYPE });
       break;
     }
-    case ARRAY_OF_NUMBERS_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: NUMBER_TYPE });
+    case schema.ARRAY_OF_NUMBERS_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: schema.NUMBER_TYPE });
       break;
     }
-    case ARRAY_OF_BOOLEANS_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: BOOLEAN_TYPE });
+    case schema.ARRAY_OF_BOOLEANS_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: schema.BOOLEAN_TYPE });
       break;
     }
-    case ARRAY_OF_DATES_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: DATE_TYPE });
+    case schema.ARRAY_OF_DATES_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: schema.DATE_TYPE });
       break;
     }
-    case ARRAY_OF_OBJECTS_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: OBJECT_TYPE });
+    case schema.ARRAY_OF_OBJECTS_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: schema.OBJECT_TYPE });
       break;
     }
-    case OBJECT_TYPE: {
+    case schema.OBJECT_TYPE: {
       retValue = value;  // return value as is without sanitization
       break;
     }
-    case FUNCTION_TYPE: {
+    case schema.FUNCTION_TYPE: {
       retValue = value;  // return value as is without sanitization
       break;
     }
-    case SYMBOL_TYPE: {
+    case schema.SYMBOL_TYPE: {
       retValue = value;  // return value as is without sanitization
       break;
     }
-    case BIGINT_TYPE: {
+    case schema.BIGINT_TYPE: {
       try {
         retValue = (typeof value === 'bigint') ? value : BigInt(value);
       } catch (_) {
@@ -262,7 +230,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
       }
       break;
     }
-    case BIGINT_NUMBER_TYPE: {
+    case schema.BIGINT_NUMBER_TYPE: {
       try {
         retValue = (typeof value === 'bigint') ? value : BigInt(value);
       } catch (_) {
@@ -270,12 +238,12 @@ function sanitize ({ value, sanitization, options, validate = false }) {
       }
       break;
     }
-    case ARRAY_OF_BIGINT_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: BIGINT_TYPE });
+    case schema.ARRAY_OF_BIGINT_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: schema.BIGINT_TYPE });
       break;
     }
-    case ARRAY_OF_BIGINT_NUMBER_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: BIGINT_NUMBER_TYPE });
+    case schema.ARRAY_OF_BIGINT_NUMBER_TYPE: {
+      retValue = _sanitizeArray({ array: value, sanitization: schema.BIGINT_NUMBER_TYPE });
       break;
     }
     default:
@@ -340,7 +308,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
  * @param {*} p.obj - Object to sanitize
  * @param {*} p.sanitization - Sanitization object {key1: 'string', key2: 'number?'}
  * @param {Object} [p.options]
- * @param {string} [p.options.numberToDate=NUMBER_TO_DATE_OPTS.EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
+ * @param {string} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
  * @param {boolean} [p.options.dateUTC=false]
  * @param {*} [p.options.defaultString='']
  * @param {*} [p.options.defaultNumber=0]

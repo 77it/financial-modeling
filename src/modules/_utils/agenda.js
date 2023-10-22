@@ -1,6 +1,6 @@
 export { Agenda };
 
-import { sanitization, validation, stripTime, toStringYYYYMMDD } from '../../deps.js';
+import { schema, sanitization, validation, stripTime, toStringYYYYMMDD } from '../../deps.js';
 
 class Agenda {
   /**
@@ -21,7 +21,7 @@ class Agenda {
     this.#repo = new Map();
     this.#first_date = undefined;
 
-    validation.validate({ value: simulationStartDate, validation: validation.DATE_TYPE });
+    validation.validate({ value: simulationStartDate, validation: schema.DATE_TYPE });
     this.#simulation_start_date__last_historical_day_is_the_day_before = stripTime(simulationStartDate);
   }
 
@@ -39,12 +39,12 @@ class Agenda {
     // validate input parameters
     validation.validateObj({
       obj: { date,  isSimulation, data },
-      validation: { date: validation.ANY_TYPE, isSimulation: validation.BOOLEAN_TYPE, data: validation.ANY_TYPE }
+      validation: { date: schema.ANY_TYPE, isSimulation: schema.BOOLEAN_TYPE, data: schema.ANY_TYPE }
     });
 
     // sanitize date to Date (default date NaN); if the date is invalid, throw.
-    let _date = sanitization.sanitize({ value: date, sanitization: sanitization.DATE_TYPE, options: { defaultDate: new Date(NaN) } });
-    validation.validate({ value: _date, validation: validation.DATE_TYPE });
+    let _date = sanitization.sanitize({ value: date, sanitization: schema.DATE_TYPE, options: { defaultDate: new Date(NaN) } });
+    validation.validate({ value: _date, validation: schema.DATE_TYPE });
 
     // if the simulation flag is true but the date is before the simulation start date, the item is ignored; and vice versa.
     const _todayIsSimulationDay = _date >= this.#simulation_start_date__last_historical_day_is_the_day_before;

@@ -1,16 +1,16 @@
 export {newDebugSimObjectDto_Schema}
 
-import * as sanitization from '../../../lib/sanitization_utils.js';
+import * as schema from '../../../lib/schema.js';
 
 /**
  object used to validate NewDebugSimObjectDto
 */
 const newDebugSimObjectDto_Schema = {
-  type: sanitization.STRING_TYPE,
+  type: schema.STRING_TYPE,
 
-  description: sanitization.STRING_TYPE,
+  description: schema.STRING_TYPE,
 
-  command__DebugDescription: sanitization.STRING_TYPE,
+  command__DebugDescription: schema.STRING_TYPE,
 
-  commandGroup__DebugDescription: sanitization.STRING_TYPE,
+  commandGroup__DebugDescription: schema.STRING_TYPE,
 }

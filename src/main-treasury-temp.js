@@ -12,10 +12,7 @@ import { convertExcelToModuleDataArray } from './deno/convert_excel_to_moduledat
 //#endregion deno imports
 
 //#region local imports
-import { Result } from './deps.js';
-import { sanitization } from './deps.js';
-import { parseJSON5 } from './deps.js';
-import { isNullOrWhiteSpace } from './deps.js';
+import { Result, schema, sanitization, parseJSON5, isNullOrWhiteSpace } from './deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
@@ -77,7 +74,7 @@ async function main ({
     const _$$MODULESLOADER_URL = _get_SimulationSetting_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
       settingName: SETTINGS_NAMES.Simulation.$$MODULESLOADER_URL,
-      settingSanitization: sanitization.STRING_TYPE
+      settingSanitization: schema.STRING_TYPE
     });
     const _modulesLoaderClass = await _getFunctionFromUrl({
       url: _$$MODULESLOADER_URL,
@@ -97,7 +94,7 @@ async function main ({
     const _$$ENGINE_URL = _get_SimulationSetting_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
       settingName: SETTINGS_NAMES.Simulation.$$ENGINE_URL,
-      settingSanitization: sanitization.STRING_TYPE
+      settingSanitization: schema.STRING_TYPE
     });
     const _engine = await _getFunctionFromUrl({
       url: _$$ENGINE_URL,
@@ -114,7 +111,7 @@ async function main ({
     const _$$SCENARIOS_parsed_array = parseJSON5(_$$SCENARIOS_setting);
     const _$$SCENARIOS = sanitization.sanitize({
       value: _$$SCENARIOS_parsed_array,
-      sanitization: sanitization.ARRAY_OF_STRINGS_TYPE
+      sanitization: schema.ARRAY_OF_STRINGS_TYPE
     });
 
     if(isNullOrWhiteSpace(_$$SCENARIOS[0]))  // if first scenario is empty, set it to base scenario

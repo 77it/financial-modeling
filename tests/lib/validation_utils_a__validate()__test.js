@@ -1,4 +1,5 @@
-import * as Validation from '../../src/lib/validation_utils.js';
+import * as S from '../../src/lib/schema.js';
+import * as v from '../../src/lib/validation_utils.js';
 
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
 // @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
@@ -10,19 +11,18 @@ import {
   assertFalse,
   assertThrows,
 } from '../deps.js';
-import * as S from '../../src/lib/sanitization_utils.js';
 
 Deno.test('test validate(): wrong/unknown options', () => {
-  assertThrows(() => Validation.validate({ value: 'aaaX', validation: 'wrong validation type' }));
+  assertThrows(() => v.validate({ value: 'aaaX', validation: 'wrong validation type' }));
 });
 
 Deno.test('test validate(): undefined is not not valid `any` type + personalized error message', () => {
   const objToValidate = undefined;
-  const validation = Validation.ANY_TYPE;
+  const validation = S.ANY_TYPE;
 
   let _error;
   try {
-    Validation.validate({ value: objToValidate, validation: validation, errorMsg: 'ValX' });
+    v.validate({ value: objToValidate, validation: validation, errorMsg: 'ValX' });
   } catch (error) {
     _error = error.message;
   }
@@ -32,11 +32,11 @@ Deno.test('test validate(): undefined is not not valid `any` type + personalized
 
 Deno.test('test validate(): null is not not valid `any` type + personalized error message', () => {
   const objToValidate = null;
-  const validation = Validation.ANY_TYPE;
+  const validation = S.ANY_TYPE;
 
   let _error;
   try {
-    Validation.validate({ value: objToValidate, validation: validation });
+    v.validate({ value: objToValidate, validation: validation });
   } catch (error) {
     _error = error.message;
   }
@@ -46,7 +46,7 @@ Deno.test('test validate(): null is not not valid `any` type + personalized erro
 
 Deno.test('test validate() return value', () => {
   const objToValidate = 'xyz';
-  const objToValidate2 = Validation.validate({ value: objToValidate, validation: Validation.STRING_TYPE });
+  const objToValidate2 = v.validate({ value: objToValidate, validation: S.STRING_TYPE });
 
   assertEquals(objToValidate2, objToValidate);
 });
@@ -56,40 +56,40 @@ Deno.test('test validate(), valid, all cases', () => {
 
   const testClassInstance = new TestClass();
 
-  Validation.validate({ value: 'string', validation: Validation.STRING_TYPE });
-  Validation.validate({ value: 'string', validation: Validation.STRINGLOWERCASETRIMMED_TYPE });
-  Validation.validate({ value: 'STRING', validation: Validation.STRINGUPPERCASETRIMMED_TYPE });
-  Validation.validate({ value: 123, validation: Validation.NUMBER_TYPE });
-  Validation.validate({ value: false, validation: Validation.BOOLEAN_TYPE });
-  Validation.validate({ value: new Date('1999-12-31T23:59:59'), validation: Validation.DATE_TYPE });
-  Validation.validate({ value: 999, validation: [11, 22].concat([999, 55]) });  // enum
-  Validation.validate({ value: 'aaa', validation: [11, 'aa', 'aaa', 55] });  // enum
-  Validation.validate({ value: undefined, validation: [11, undefined, 'aa', 'aaa', 55] });  // enum
-  Validation.validate({
+  v.validate({ value: 'string', validation: S.STRING_TYPE });
+  v.validate({ value: 'string', validation: S.STRINGLOWERCASETRIMMED_TYPE });
+  v.validate({ value: 'STRING', validation: S.STRINGUPPERCASETRIMMED_TYPE });
+  v.validate({ value: 123, validation: S.NUMBER_TYPE });
+  v.validate({ value: false, validation: S.BOOLEAN_TYPE });
+  v.validate({ value: new Date('1999-12-31T23:59:59'), validation: S.DATE_TYPE });
+  v.validate({ value: 999, validation: [11, 22].concat([999, 55]) });  // enum
+  v.validate({ value: 'aaa', validation: [11, 'aa', 'aaa', 55] });  // enum
+  v.validate({ value: undefined, validation: [11, undefined, 'aa', 'aaa', 55] });  // enum
+  v.validate({
     value: [
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }],
-    validation: Validation.ARRAY_TYPE
+    validation: S.ARRAY_TYPE
   });
-  Validation.validate({ value: ['a', 'b'], validation: Validation.ARRAY_OF_STRINGS_TYPE });
-  Validation.validate({ value: ['a', 'b'], validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
-  Validation.validate({ value: ['A', 'B'], validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
-  Validation.validate({ value: [99, 0, 55], validation: Validation.ARRAY_OF_NUMBERS_TYPE });
-  Validation.validate({ value: [new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')], validation: Validation.ARRAY_OF_DATES_TYPE });
-  Validation.validate({ value: [false, true], validation: Validation.ARRAY_OF_BOOLEANS_TYPE });
-  Validation.validate({ value: [], validation: Validation.ARRAY_OF_BOOLEANS_TYPE });  // empty array
-  Validation.validate({ value: [{ a: 99 }], validation: Validation.ARRAY_OF_OBJECTS_TYPE });
-  Validation.validate({ value: { a: 999 }, validation: Validation.OBJECT_TYPE });
-  Validation.validate({ value: testClassInstance, validation: Validation.OBJECT_TYPE });
-  Validation.validate({ value: () => {console.log('mamma');}, validation: Validation.FUNCTION_TYPE });
-  Validation.validate({ value: Symbol(), validation: Validation.SYMBOL_TYPE });
-  Validation.validate({ value: BigInt(10), validation: Validation.BIGINT_TYPE });
-  Validation.validate({ value: BigInt(10), validation: Validation.BIGINT_NUMBER_TYPE });
-  Validation.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: Validation.ARRAY_OF_BIGINT_TYPE });
-  Validation.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE });
-  Validation.validate({ value: new Big(10), validation: Big });
-  Validation.validate({ value: [new Big(10), new Big(9), new Big(0)], validation: [Big] });
-  Validation.validate({ value: 999, validation: Validation.ANY_TYPE });
+  v.validate({ value: ['a', 'b'], validation: S.ARRAY_OF_STRINGS_TYPE });
+  v.validate({ value: ['a', 'b'], validation: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
+  v.validate({ value: ['A', 'B'], validation: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
+  v.validate({ value: [99, 0, 55], validation: S.ARRAY_OF_NUMBERS_TYPE });
+  v.validate({ value: [new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')], validation: S.ARRAY_OF_DATES_TYPE });
+  v.validate({ value: [false, true], validation: S.ARRAY_OF_BOOLEANS_TYPE });
+  v.validate({ value: [], validation: S.ARRAY_OF_BOOLEANS_TYPE });  // empty array
+  v.validate({ value: [{ a: 99 }], validation: S.ARRAY_OF_OBJECTS_TYPE });
+  v.validate({ value: { a: 999 }, validation: S.OBJECT_TYPE });
+  v.validate({ value: testClassInstance, validation: S.OBJECT_TYPE });
+  v.validate({ value: () => {console.log('mamma');}, validation: S.FUNCTION_TYPE });
+  v.validate({ value: Symbol(), validation: S.SYMBOL_TYPE });
+  v.validate({ value: BigInt(10), validation: S.BIGINT_TYPE });
+  v.validate({ value: BigInt(10), validation: S.BIGINT_NUMBER_TYPE });
+  v.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: S.ARRAY_OF_BIGINT_TYPE });
+  v.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE });
+  v.validate({ value: new Big(10), validation: Big });
+  v.validate({ value: [new Big(10), new Big(9), new Big(0)], validation: [Big] });
+  v.validate({ value: 999, validation: S.ANY_TYPE });
 });
 
 Deno.test('test validate(), valid, all cases, with optional types', () => {
@@ -97,91 +97,91 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
 
   const testClassInstance = new TestClass();
 
-  Validation.validate({ value: 'string', validation: Validation.STRING_TYPE + '?' });
-  Validation.validate({ value: 'string', validation: Validation.STRINGLOWERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: 'STRING', validation: Validation.STRINGUPPERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: 123, validation: Validation.NUMBER_TYPE + '?' });
-  Validation.validate({ value: false, validation: Validation.BOOLEAN_TYPE + '?' });
-  Validation.validate({ value: new Date('1999-12-31T23:59:59'), validation: Validation.DATE_TYPE + '?' });
-  Validation.validate({
+  v.validate({ value: 'string', validation: S.STRING_TYPE + '?' });
+  v.validate({ value: 'string', validation: S.STRINGLOWERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: 'STRING', validation: S.STRINGUPPERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: 123, validation: S.NUMBER_TYPE + '?' });
+  v.validate({ value: false, validation: S.BOOLEAN_TYPE + '?' });
+  v.validate({ value: new Date('1999-12-31T23:59:59'), validation: S.DATE_TYPE + '?' });
+  v.validate({
     value: [
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }],
-    validation: Validation.ARRAY_TYPE + '?'
+    validation: S.ARRAY_TYPE + '?'
   });
-  Validation.validate({ value: ['a', 'b'], validation: Validation.ARRAY_OF_STRINGS_TYPE + '?' });
-  Validation.validate({ value: ['a', 'b'], validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: ['A', 'B'], validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: [99, 0, 55], validation: Validation.ARRAY_OF_NUMBERS_TYPE + '?' });
-  Validation.validate({ value: [new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')], validation: Validation.ARRAY_OF_DATES_TYPE + '?' });
-  Validation.validate({ value: [false, true], validation: Validation.ARRAY_OF_BOOLEANS_TYPE + '?' });
-  Validation.validate({ value: [], validation: Validation.ARRAY_OF_BOOLEANS_TYPE + '?' });  // empty array
-  Validation.validate({ value: [{ a: 99 }], validation: Validation.ARRAY_OF_OBJECTS_TYPE + '?' });
-  Validation.validate({ value: { a: 999 }, validation: Validation.OBJECT_TYPE + '?' });
-  Validation.validate({ value: testClassInstance, validation: Validation.OBJECT_TYPE + '?' });
-  Validation.validate({ value: () => {console.log('mamma');}, validation: Validation.FUNCTION_TYPE + '?' });
-  Validation.validate({ value: Symbol(), validation: Validation.SYMBOL_TYPE + '?' });
-  Validation.validate({ value: BigInt(10), validation: Validation.BIGINT_TYPE + '?' });
-  Validation.validate({ value: BigInt(10), validation: Validation.BIGINT_NUMBER_TYPE + '?' });
-  Validation.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: Validation.ARRAY_OF_BIGINT_TYPE + '?' });
-  Validation.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE + '?' });
-  Validation.validate({ value: 999, validation: Validation.ANY_TYPE + '?' });
+  v.validate({ value: ['a', 'b'], validation: S.ARRAY_OF_STRINGS_TYPE + '?' });
+  v.validate({ value: ['a', 'b'], validation: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: ['A', 'B'], validation: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: [99, 0, 55], validation: S.ARRAY_OF_NUMBERS_TYPE + '?' });
+  v.validate({ value: [new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')], validation: S.ARRAY_OF_DATES_TYPE + '?' });
+  v.validate({ value: [false, true], validation: S.ARRAY_OF_BOOLEANS_TYPE + '?' });
+  v.validate({ value: [], validation: S.ARRAY_OF_BOOLEANS_TYPE + '?' });  // empty array
+  v.validate({ value: [{ a: 99 }], validation: S.ARRAY_OF_OBJECTS_TYPE + '?' });
+  v.validate({ value: { a: 999 }, validation: S.OBJECT_TYPE + '?' });
+  v.validate({ value: testClassInstance, validation: S.OBJECT_TYPE + '?' });
+  v.validate({ value: () => {console.log('mamma');}, validation: S.FUNCTION_TYPE + '?' });
+  v.validate({ value: Symbol(), validation: S.SYMBOL_TYPE + '?' });
+  v.validate({ value: BigInt(10), validation: S.BIGINT_TYPE + '?' });
+  v.validate({ value: BigInt(10), validation: S.BIGINT_NUMBER_TYPE + '?' });
+  v.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: S.ARRAY_OF_BIGINT_TYPE + '?' });
+  v.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE + '?' });
+  v.validate({ value: 999, validation: S.ANY_TYPE + '?' });
 
   let nullOrUndefined = null;
-  Validation.validate({ value: nullOrUndefined, validation: Validation.STRING_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.STRINGLOWERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.STRINGUPPERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.NUMBER_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.BOOLEAN_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.DATE_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGS_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_NUMBERS_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_DATES_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BOOLEANS_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BOOLEANS_TYPE + '?' });  // empty array
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_OBJECTS_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.OBJECT_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.FUNCTION_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.SYMBOL_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.BIGINT_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.BIGINT_NUMBER_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BIGINT_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ANY_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.STRING_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.STRINGLOWERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.STRINGUPPERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.NUMBER_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.BOOLEAN_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.DATE_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_STRINGS_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_NUMBERS_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_DATES_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_BOOLEANS_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_BOOLEANS_TYPE + '?' });  // empty array
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_OBJECTS_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.OBJECT_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.FUNCTION_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.SYMBOL_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.BIGINT_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.BIGINT_NUMBER_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_BIGINT_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ANY_TYPE + '?' });
 
   nullOrUndefined = undefined;
-  Validation.validate({ value: nullOrUndefined, validation: Validation.STRING_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.STRINGLOWERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.STRINGUPPERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.NUMBER_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.BOOLEAN_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.DATE_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGS_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_NUMBERS_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_DATES_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BOOLEANS_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BOOLEANS_TYPE + '?' });  // empty array
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_OBJECTS_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.OBJECT_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.FUNCTION_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.SYMBOL_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.BIGINT_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.BIGINT_NUMBER_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BIGINT_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE + '?' });
-  Validation.validate({ value: nullOrUndefined, validation: Validation.ANY_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.STRING_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.STRINGLOWERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.STRINGUPPERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.NUMBER_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.BOOLEAN_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.DATE_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_STRINGS_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_NUMBERS_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_DATES_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_BOOLEANS_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_BOOLEANS_TYPE + '?' });  // empty array
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_OBJECTS_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.OBJECT_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.FUNCTION_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.SYMBOL_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.BIGINT_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.BIGINT_NUMBER_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_BIGINT_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE + '?' });
+  v.validate({ value: nullOrUndefined, validation: S.ANY_TYPE + '?' });
 });
 
 Deno.test('test validate(), not valid, all cases', () => {
   let _error;
   try {
-    Validation.validate({ value: 99, validation: Validation.STRING_TYPE });
+    v.validate({ value: 99, validation: S.STRING_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -190,7 +190,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 'AA', validation: Validation.STRINGLOWERCASETRIMMED_TYPE });
+    v.validate({ value: 'AA', validation: S.STRINGLOWERCASETRIMMED_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -199,7 +199,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: '   aa   ', validation: Validation.STRINGLOWERCASETRIMMED_TYPE });
+    v.validate({ value: '   aa   ', validation: S.STRINGLOWERCASETRIMMED_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -208,7 +208,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 'aa', validation: Validation.STRINGUPPERCASETRIMMED_TYPE });
+    v.validate({ value: 'aa', validation: S.STRINGUPPERCASETRIMMED_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -217,7 +217,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: '   AA   ', validation: Validation.STRINGUPPERCASETRIMMED_TYPE });
+    v.validate({ value: '   AA   ', validation: S.STRINGUPPERCASETRIMMED_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -226,7 +226,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 'aa', validation: Validation.NUMBER_TYPE });
+    v.validate({ value: 'aa', validation: S.NUMBER_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -235,7 +235,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.BOOLEAN_TYPE });
+    v.validate({ value: 99, validation: S.BOOLEAN_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -244,7 +244,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.DATE_TYPE });
+    v.validate({ value: 99, validation: S.DATE_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -254,7 +254,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   // enum
   _error = '';
   try {
-    Validation.validate({ value: 'aaaX', validation: [11, 'aa', 'aaa', 55] });
+    v.validate({ value: 'aaaX', validation: [11, 'aa', 'aaa', 55] });
   } catch (error) {
     _error = error.message;
   }
@@ -263,7 +263,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.ARRAY_TYPE });
+    v.validate({ value: 99, validation: S.ARRAY_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -272,7 +272,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_STRINGS_TYPE });
+    v.validate({ value: 99, validation: S.ARRAY_OF_STRINGS_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -281,7 +281,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
+    v.validate({ value: 99, validation: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -290,7 +290,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: ['AA', 'aa', '   aa   '], validation: Validation.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
+    v.validate({ value: ['AA', 'aa', '   aa   '], validation: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -299,7 +299,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
+    v.validate({ value: 99, validation: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -308,7 +308,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: ['aa', 'AA', '   AA   '], validation: Validation.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
+    v.validate({ value: ['aa', 'AA', '   AA   '], validation: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -317,7 +317,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_NUMBERS_TYPE });
+    v.validate({ value: 99, validation: S.ARRAY_OF_NUMBERS_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -326,7 +326,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_DATES_TYPE });
+    v.validate({ value: 99, validation: S.ARRAY_OF_DATES_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -335,7 +335,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_BOOLEANS_TYPE });
+    v.validate({ value: 99, validation: S.ARRAY_OF_BOOLEANS_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -344,7 +344,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_OBJECTS_TYPE });
+    v.validate({ value: 99, validation: S.ARRAY_OF_OBJECTS_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -353,7 +353,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.OBJECT_TYPE });
+    v.validate({ value: 99, validation: S.OBJECT_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -362,7 +362,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.FUNCTION_TYPE });
+    v.validate({ value: 99, validation: S.FUNCTION_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -371,7 +371,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.SYMBOL_TYPE });
+    v.validate({ value: 99, validation: S.SYMBOL_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -380,7 +380,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.BIGINT_TYPE });
+    v.validate({ value: 99, validation: S.BIGINT_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -389,7 +389,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.BIGINT_NUMBER_TYPE });
+    v.validate({ value: 99, validation: S.BIGINT_NUMBER_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -398,7 +398,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: BigInt('999999999999999999999'), validation: Validation.BIGINT_NUMBER_TYPE });
+    v.validate({ value: BigInt('999999999999999999999'), validation: S.BIGINT_NUMBER_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -407,7 +407,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_BIGINT_TYPE });
+    v.validate({ value: 99, validation: S.ARRAY_OF_BIGINT_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -416,7 +416,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: [BigInt(10), 0, BigInt(0)], validation: Validation.ARRAY_OF_BIGINT_TYPE });
+    v.validate({ value: [BigInt(10), 0, BigInt(0)], validation: S.ARRAY_OF_BIGINT_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -425,7 +425,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE });
+    v.validate({ value: 99, validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -434,7 +434,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: [BigInt('999999999999999999999'), BigInt(10), 0, BigInt(0)], validation: Validation.ARRAY_OF_BIGINT_NUMBER_TYPE });
+    v.validate({ value: [BigInt('999999999999999999999'), BigInt(10), 0, BigInt(0)], validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE });
   } catch (error) {
     _error = error.message;
   }
@@ -443,7 +443,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: Big });
+    v.validate({ value: 99, validation: Big });
   } catch (error) {
     _error = error.message;
   }
@@ -452,7 +452,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: 99, validation: [Big] });
+    v.validate({ value: 99, validation: [Big] });
   } catch (error) {
     _error = error.message;
   }
@@ -461,7 +461,7 @@ Deno.test('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    Validation.validate({ value: [new Big(10), 0, Big(0)], validation: [Big] });
+    v.validate({ value: [new Big(10), 0, Big(0)], validation: [Big] });
   } catch (error) {
     _error = error.message;
   }

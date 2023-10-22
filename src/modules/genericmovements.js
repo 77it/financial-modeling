@@ -14,7 +14,7 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, ModuleData, SimulationContext, sanitization, caseInsensitiveCompare, isNullOrWhiteSpace } from '../deps.js';
+import { deepFreeze, ModuleData, SimulationContext, schema, sanitization, caseInsensitiveCompare, isNullOrWhiteSpace } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
 import { Agenda } from './_utils/Agenda.js';
@@ -27,17 +27,17 @@ tablesInfo.Settings = {};
 tablesInfo.Settings.tableName = 'settings';
 tablesInfo.Settings.columns = { name: 'name', value: 'value' };
 tablesInfo.Settings.sanitization = {
-  [tablesInfo.Settings.columns.name]: sanitization.STRING_TYPE,
-  [tablesInfo.Settings.columns.value]: sanitization.ANY_TYPE
+  [tablesInfo.Settings.columns.name]: schema.STRING_TYPE,
+  [tablesInfo.Settings.columns.value]: schema.ANY_TYPE
 };
 tablesInfo.Set = {};
 tablesInfo.Set.tableName = 'set';
 tablesInfo.Set.columns = { simulation_input: 'simulation input', accounting_type: 'type', accounting_opposite_type: 'vs type', simObject_name: 'name' };
 tablesInfo.Set.sanitization = {
-  [tablesInfo.Set.columns.simulation_input]: sanitization.ANY_TYPE,
-  [tablesInfo.Set.columns.accounting_type]: sanitization.STRINGUPPERCASETRIMMED_TYPE,
-  [tablesInfo.Set.columns.accounting_opposite_type]: sanitization.STRINGUPPERCASETRIMMED_TYPE,
-  [tablesInfo.Set.columns.simObject_name]: sanitization.STRINGUPPERCASETRIMMED_TYPE,
+  [tablesInfo.Set.columns.simulation_input]: schema.ANY_TYPE,
+  [tablesInfo.Set.columns.accounting_type]: schema.STRINGUPPERCASETRIMMED_TYPE,
+  [tablesInfo.Set.columns.accounting_opposite_type]: schema.STRINGUPPERCASETRIMMED_TYPE,
+  [tablesInfo.Set.columns.simObject_name]: schema.STRINGUPPERCASETRIMMED_TYPE,
 };
 tablesInfo.Set.simulationColumnPrefix = MODULES_CONFIG.SIMULATION_COLUMN_PREFIX;
 tablesInfo.Set.historicalColumnPrefix = MODULES_CONFIG.HISTORICAL_COLUMN_PREFIX;
@@ -66,7 +66,7 @@ export class Module {
   #accounting_type__default;
   #accounting_type__default__moduleDataLookup = {
     lookup_value: 'type',
-    sanitization: sanitization.STRINGUPPERCASETRIMMED_TYPE,
+    sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
     tableName: tablesInfo.Settings.tableName,
     lookup_key: tablesInfo.Settings.columns.name,
     return_key: tablesInfo.Settings.columns.value,
@@ -77,7 +77,7 @@ export class Module {
   #accounting_opposite_type__default;
   #accounting_opposite_type__default__moduleDataLookup = {
     lookup_value: 'vs type',
-    sanitization: sanitization.STRINGUPPERCASETRIMMED_TYPE,
+    sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
     tableName: tablesInfo.Settings.tableName,
     lookup_key: tablesInfo.Settings.columns.name,
     return_key: tablesInfo.Settings.columns.value,
@@ -153,7 +153,7 @@ export class Module {
 
           // loop `_historicalColumns`
           for (const _column of _historicalColumns) {
-            const _value = sanitization.sanitize({ value: row[_column.key], sanitization: sanitization.NUMBER_TYPE, options: { defaultNumber: undefined } });
+            const _value = sanitization.sanitize({ value: row[_column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
             if (_value == null) continue;
 
             this.#agenda.set({
@@ -165,7 +165,7 @@ export class Module {
 
           // loop `_simulationColumns`
           for (const _column of _simulationColumns) {
-            const _value = sanitization.sanitize({ value: row[_column.key], sanitization: sanitization.NUMBER_TYPE, options: { defaultNumber: undefined } });
+            const _value = sanitization.sanitize({ value: row[_column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
             if (_value == null) continue;
 
             this.#agenda.set({

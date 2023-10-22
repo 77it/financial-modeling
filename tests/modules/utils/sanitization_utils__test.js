@@ -1,9 +1,9 @@
 import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
+import * as schema from '../../../src/lib/schema.js';
 import { sanitization } from '../../deps.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
 
 import { sanitizeModuleData } from '../../../src/modules/_utils/sanitization_utils.js';
-import * as MODULES_CONFIG from '../../../src/config/modules.js';
 
 Deno.test('sanitizeModuleData test', async () => {
   //#region build tables info object
@@ -12,15 +12,15 @@ Deno.test('sanitizeModuleData test', async () => {
   tablesInfo.tA.tableName = 'TABA';
   tablesInfo.tA.columns = { name: 'name', value: 'value' };
   tablesInfo.tA.sanitization = {
-    [tablesInfo.tA.columns.name]: sanitization.ANY_TYPE,
-    [tablesInfo.tA.columns.value]: sanitization.ANY_TYPE
+    [tablesInfo.tA.columns.name]: schema.ANY_TYPE,
+    [tablesInfo.tA.columns.value]: schema.ANY_TYPE
   };
   tablesInfo.tB = {};
   tablesInfo.tB.tableName = 'TABB';
   tablesInfo.tB.columns = { name: 'name', value: 'value' };
   tablesInfo.tB.sanitization = {
-    [tablesInfo.tB.columns.name]: sanitization.STRINGUPPERCASETRIMMED_TYPE,
-    [tablesInfo.tB.columns.value]: sanitization.STRINGUPPERCASETRIMMED_TYPE
+    [tablesInfo.tB.columns.name]: schema.STRINGUPPERCASETRIMMED_TYPE,
+    [tablesInfo.tB.columns.value]: schema.STRINGUPPERCASETRIMMED_TYPE
   };
   //#endregion build tables info object
 

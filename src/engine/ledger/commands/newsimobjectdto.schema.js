@@ -1,51 +1,49 @@
 export { newSimObjectDto_Schema };
 
-import { DoubleEntrySide_enum_validation } from '../../simobject/enums/doubleentryside_enum.js';
-import { Currency_enum_validation } from '../../simobject/enums/currency_enum.js';
-import * as sanitization from '../../../lib/sanitization_utils.js';
+import * as schema from '../../../lib/schema.js';
 
 /**
  object used to validate NewSimObjectDto
  */
 const newSimObjectDto_Schema = {
-  type: sanitization.STRINGUPPERCASETRIMMED_TYPE,
+  type: schema.STRINGUPPERCASETRIMMED_TYPE,
 
-  name: sanitization.STRINGLOWERCASETRIMMED_TYPE,
-  description: sanitization.STRING_TYPE,
-  mutableDescription: sanitization.STRING_TYPE,
+  name: schema.STRINGLOWERCASETRIMMED_TYPE,
+  description: schema.STRING_TYPE,
+  mutableDescription: schema.STRING_TYPE,
 
-  metadata__Name: sanitization.ARRAY_OF_STRINGS_TYPE,
-  metadata__Value: sanitization.ARRAY_OF_STRINGS_TYPE,
-  metadata__PercentageWeight: sanitization.ARRAY_OF_NUMBERS_TYPE,
+  metadata__Name: schema.ARRAY_OF_STRINGS_TYPE,
+  metadata__Value: schema.ARRAY_OF_STRINGS_TYPE,
+  metadata__PercentageWeight: schema.ARRAY_OF_NUMBERS_TYPE,
 
-  unitId: sanitization.STRING_TYPE,
+  unitId: schema.STRING_TYPE,
 
-  currency: sanitization.STRINGUPPERCASETRIMMED_TYPE,
+  currency: schema.STRINGUPPERCASETRIMMED_TYPE,
 
-  intercompanyInfo__VsUnitId: sanitization.STRING_TYPE,
+  intercompanyInfo__VsUnitId: schema.STRING_TYPE,
 
-  value: sanitization.NUMBER_TYPE,
-  writingValue: sanitization.NUMBER_TYPE,
+  value: schema.NUMBER_TYPE,
+  writingValue: schema.NUMBER_TYPE,
 
-  alive: sanitization.BOOLEAN_TYPE,
+  alive: schema.BOOLEAN_TYPE,
 
   //#region command, command group properties
-  command__Id: sanitization.STRING_TYPE,
-  command__DebugDescription: sanitization.STRING_TYPE,
+  command__Id: schema.STRING_TYPE,
+  command__DebugDescription: schema.STRING_TYPE,
 
-  commandGroup__Id: sanitization.STRING_TYPE,
-  commandGroup__DebugDescription: sanitization.STRING_TYPE,
+  commandGroup__Id: schema.STRING_TYPE,
+  commandGroup__DebugDescription: schema.STRING_TYPE,
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: sanitization.NUMBER_TYPE,
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: sanitization.ARRAY_OF_DATES_TYPE,
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: sanitization.ARRAY_OF_NUMBERS_TYPE,
+  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: schema.NUMBER_TYPE,
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: schema.ARRAY_OF_DATES_TYPE,
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: schema.ARRAY_OF_NUMBERS_TYPE,
 
-  is_Link__SimObjId: sanitization.STRING_TYPE,
+  is_Link__SimObjId: schema.STRING_TYPE,
   //#endregion properties common only to some kind of SimObjects
 
-  //vsSimObjectId: sanitization.STRING_TYPE,
+  //vsSimObjectId: schema.STRING_TYPE,
 
-  extras: sanitization.ANY_TYPE + '?',
+  extras: schema.ANY_TYPE + '?',
 };

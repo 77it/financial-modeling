@@ -1,30 +1,6 @@
 export { validate, validateObj };
 
-//#region types
-export const ANY_TYPE = 'any';
-export const STRING_TYPE = 'string';
-export const STRINGLOWERCASETRIMMED_TYPE = 'string_lowercase_trimmed';
-export const STRINGUPPERCASETRIMMED_TYPE = 'string_uppercase_trimmed';
-export const NUMBER_TYPE = 'number';
-export const BOOLEAN_TYPE = 'boolean';
-export const DATE_TYPE = 'date';
-export const ARRAY_TYPE = 'array';
-export const ARRAY_OF_STRINGS_TYPE = 'array[string]';
-export const ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE = 'array[string_lowercase_trimmed]';
-export const ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE = 'array[string_uppercase_trimmed]';
-export const ARRAY_OF_NUMBERS_TYPE = 'array[number]';
-export const ARRAY_OF_BOOLEANS_TYPE = 'array[boolean]';
-export const ARRAY_OF_DATES_TYPE = 'array[date]';
-export const ARRAY_OF_OBJECTS_TYPE = 'array[object]';
-export const OBJECT_TYPE = 'object';
-export const FUNCTION_TYPE = 'function';
-export const SYMBOL_TYPE = 'symbol';
-export const BIGINT_TYPE = 'bigint';
-export const BIGINT_NUMBER_TYPE = 'bigint_number';
-export const ARRAY_OF_BIGINT_TYPE = 'array[bigint]';
-export const ARRAY_OF_BIGINT_NUMBER_TYPE = 'array[bigint_number]';
-export const OPTIONAL = '?';
-//#endregion types
+import * as schema from './schema.js';
 
 const SUCCESS = '';
 
@@ -146,122 +122,122 @@ function _validateValue ({ value, validation, errorMsg }) {
     }
 
     switch (validationType.toLowerCase()) {  // switch validations
-      case ANY_TYPE: {
+      case schema.ANY_TYPE: {
         if (value == null)
           return `${errorMsg} = ${value}, must be !== null or undefined`;
         return SUCCESS;
       }
-      case STRING_TYPE: {
+      case schema.STRING_TYPE: {
         if (typeof value !== 'string')
           return `${errorMsg} = ${value}, must be string`;
         return SUCCESS;
       }
-      case STRINGLOWERCASETRIMMED_TYPE: {
+      case schema.STRINGLOWERCASETRIMMED_TYPE: {
         if (typeof value !== 'string')
           return `${errorMsg} = ${value}, must be a lowercase trimmed string`;
         else if (value.toLowerCase().trim() !== value)
           return `${errorMsg} = ${value}, must be a lowercase trimmed string`;
         return SUCCESS;
       }
-      case STRINGUPPERCASETRIMMED_TYPE: {
+      case schema.STRINGUPPERCASETRIMMED_TYPE: {
         if (typeof value !== 'string')
           return `${errorMsg} = ${value}, must be an uppercase trimmed string`;
         else if (value.toUpperCase().trim() !== value)
           return `${errorMsg} = ${value}, must be an uppercase trimmed string`;
         return SUCCESS;
       }
-      case NUMBER_TYPE: {
+      case schema.NUMBER_TYPE: {
         if (typeof value !== 'number' || !isFinite(value))
           return `${errorMsg} = ${value}, must be a valid number`;
         return SUCCESS;
       }
-      case BOOLEAN_TYPE: {
+      case schema.BOOLEAN_TYPE: {
         if (typeof value !== 'boolean')
           return `${errorMsg} = ${value}, must be boolean`;
         return SUCCESS;
       }
-      case DATE_TYPE: {
+      case schema.DATE_TYPE: {
         if (!(value instanceof Date) || isNaN(value.getTime()))
           return `${errorMsg} = ${value}, must be a valid date`;
         return SUCCESS;
       }
-      case ARRAY_TYPE: {
+      case schema.ARRAY_TYPE: {
         if (!Array.isArray(value))
           return `${errorMsg} = ${value}, must be an array`;
         return SUCCESS;
       }
-      case ARRAY_OF_STRINGS_TYPE: {
-        const validationResult = _validateArray({ array: value, validation: STRING_TYPE });
+      case schema.ARRAY_OF_STRINGS_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: schema.STRING_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;
       }
-      case ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE: {
-        const validationResult = _validateArray({ array: value, validation: STRINGLOWERCASETRIMMED_TYPE });
+      case schema.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: schema.STRINGLOWERCASETRIMMED_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;
       }
-      case ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE: {
-        const validationResult = _validateArray({ array: value, validation: STRINGUPPERCASETRIMMED_TYPE });
+      case schema.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: schema.STRINGUPPERCASETRIMMED_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;
       }
-      case ARRAY_OF_NUMBERS_TYPE: {
-        const validationResult = _validateArray({ array: value, validation: NUMBER_TYPE });
+      case schema.ARRAY_OF_NUMBERS_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: schema.NUMBER_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;
       }
-      case ARRAY_OF_BOOLEANS_TYPE: {
-        const validationResult = _validateArray({ array: value, validation: BOOLEAN_TYPE });
+      case schema.ARRAY_OF_BOOLEANS_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: schema.BOOLEAN_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;
       }
-      case ARRAY_OF_DATES_TYPE: {
-        const validationResult = _validateArray({ array: value, validation: DATE_TYPE });
+      case schema.ARRAY_OF_DATES_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: schema.DATE_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;
       }
-      case ARRAY_OF_OBJECTS_TYPE: {
-        const validationResult = _validateArray({ array: value, validation: OBJECT_TYPE });
+      case schema.ARRAY_OF_OBJECTS_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: schema.OBJECT_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;
       }
-      case OBJECT_TYPE:
+      case schema.OBJECT_TYPE:
         if (value == null || typeof value !== 'object')  // double check, because typeof null is object
           return `${errorMsg} = ${value}, must be an object`;
         return SUCCESS;
-      case FUNCTION_TYPE:
+      case schema.FUNCTION_TYPE:
         if (typeof value !== 'function')
           return `${errorMsg} = ${value}, must be a function`;
         return SUCCESS;
-      case SYMBOL_TYPE:
+      case schema.SYMBOL_TYPE:
         if (typeof value !== 'symbol')
           return `${errorMsg} = ${value}, must be a symbol`;
         return SUCCESS;
-      case BIGINT_TYPE:
+      case schema.BIGINT_TYPE:
         if (!(typeof value === 'bigint'))
           return `${errorMsg} = ${value}, must be an instance of BigInt`;
         return SUCCESS;
-      case BIGINT_NUMBER_TYPE:
+      case schema.BIGINT_NUMBER_TYPE:
         if (!(typeof value === 'bigint'))
           return `${errorMsg} = ${value}, must be an instance of BigInt`;
         if (value.toString() !== Number(value).toString())
           return `${errorMsg} = ${value}, is BigInt but the value is too big to be safely converted to a number`;
         return SUCCESS;
-      case ARRAY_OF_BIGINT_TYPE: {
-        const validationResult = _validateArray({ array: value, validation: BIGINT_TYPE });
+      case schema.ARRAY_OF_BIGINT_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: schema.BIGINT_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;
       }
-      case ARRAY_OF_BIGINT_NUMBER_TYPE: {
-        const validationResult = _validateArray({ array: value, validation: BIGINT_NUMBER_TYPE });
+      case schema.ARRAY_OF_BIGINT_NUMBER_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: schema.BIGINT_NUMBER_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;

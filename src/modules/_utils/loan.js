@@ -1,4 +1,5 @@
 export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
+import { schema } from '../../deps.js';
 import { validation } from '../../deps.js';
 import { addMonths } from '../../deps.js';
 
@@ -148,12 +149,12 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
         },
       validation:
         {
-          startDate: validation.DATE_TYPE,
-          startingPrincipal: validation.NUMBER_TYPE,
-          annualInterestRate: validation.NUMBER_TYPE,
-          numberOfPayments: validation.NUMBER_TYPE,
-          numberOfPaymentsInAYear: validation.NUMBER_TYPE,
-          gracePeriod: validation.NUMBER_TYPE
+          startDate: schema.DATE_TYPE,
+          startingPrincipal: schema.NUMBER_TYPE,
+          annualInterestRate: schema.NUMBER_TYPE,
+          numberOfPayments: schema.NUMBER_TYPE,
+          numberOfPaymentsInAYear: schema.NUMBER_TYPE,
+          gracePeriod: schema.NUMBER_TYPE
         }
     });
 

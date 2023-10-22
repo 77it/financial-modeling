@@ -1,7 +1,7 @@
 ﻿export { Drivers };
 
 import { DriversRepo } from '../../lib/drivers_repo.js';
-import * as sanitization from '../../lib/sanitization_utils.js';
+import * as schema from '../../lib/schema.js';
 
 class Drivers {
   /** @type {DriversRepo} */
@@ -21,7 +21,7 @@ class Drivers {
       baseScenario,
       currentScenario,
       defaultUnit,
-      sanitizationType: sanitization.NUMBER_TYPE,
+      sanitizationType: schema.NUMBER_TYPE,
       prefix__immutable_without_dates,
       prefix__immutable_with_dates,
       allowMutable: false,

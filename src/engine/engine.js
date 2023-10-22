@@ -4,7 +4,12 @@ import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as STD_NAMES from '../config/standard_names.js';
 import * as CFG from '../config/engine.js';
 
-import { validation, sanitization, stripTime, Result, isStringOrBooleanTrue } from '../deps.js';
+import * as schema from '../lib/schema.js';
+import * as sanitization from '../lib/sanitization_utils.js';
+import * as validation from '../lib/validation_utils.js';
+import { stripTime } from '../lib/date_utils.js';
+import { Result } from '../lib/result.js';
+import { isStringOrBooleanTrue } from '../lib/boolean_utils.js';
 
 import { Ledger } from './ledger/ledger.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
@@ -40,11 +45,11 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     validation.validateObj({
       obj: { modulesData, modules, scenarioName, appendTrnDump, ledgerDebug },
       validation: {
-        modulesData: validation.ARRAY_TYPE,
-        modules: validation.ARRAY_TYPE,
-        scenarioName: validation.STRING_TYPE,
-        appendTrnDump: validation.FUNCTION_TYPE,
-        ledgerDebug: validation.BOOLEAN_TYPE + validation.OPTIONAL
+        modulesData: schema.ARRAY_TYPE,
+        modules: schema.ARRAY_TYPE,
+        scenarioName: schema.STRING_TYPE,
+        appendTrnDump: schema.FUNCTION_TYPE,
+        ledgerDebug: schema.BOOLEAN_TYPE + schema.OPTIONAL
       }
     });
     if (modulesData.length !== modules.length) throw new Error('modulesData.length !== modules.length');
@@ -145,7 +150,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     // read `$$SIMULATION_END_DATE` from settings
     _endDate = sanitization.sanitize({
       value: _settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE }),
-      sanitization: sanitization.DATE_TYPE + sanitization.OPTIONAL
+      sanitization: schema.DATE_TYPE + schema.OPTIONAL
     });
     // if `_startDate` is still undefined, set it to default value (Date(0))
     if (_startDate == null) _startDate = stripTime(new Date(0));
@@ -256,7 +261,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     function updateStartDate ({ actualDate, newDate }) {
       const _newDate = stripTime(sanitization.sanitize({
         value: newDate,
-        sanitization: sanitization.DATE_TYPE + sanitization.OPTIONAL
+        sanitization: schema.DATE_TYPE + schema.OPTIONAL
       }));
       if (_newDate == null)
         return actualDate;
@@ -276,8 +281,8 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
 
       // loop `taskLocksRawCallSequence`
       taskLocksRawCallSequence.forEach(_entry => {
-        const _isSimulation = sanitization.sanitize({ value: _entry.isSimulation, sanitization: sanitization.BOOLEAN_TYPE });
-        const _name = sanitization.sanitize({ value: _entry.name, sanitization: sanitization.STRING_TYPE });
+        const _isSimulation = sanitization.sanitize({ value: _entry.isSimulation, sanitization: schema.BOOLEAN_TYPE });
+        const _name = sanitization.sanitize({ value: _entry.name, sanitization: schema.STRING_TYPE });
 
         if (_isSimulation) {
           if (_taskLocks.isDefined({ name: _name }))
@@ -301,10 +306,10 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
      * @param {Settings} p.settings
      */
     function setDebugLevelOnLedger ({ debugParameter, settings }) {
-      const _debugFlagFromParameter = sanitization.sanitize({ value: debugParameter, sanitization: sanitization.STRING_TYPE }).toLowerCase();
+      const _debugFlagFromParameter = sanitization.sanitize({ value: debugParameter, sanitization: schema.STRING_TYPE }).toLowerCase();
       const _debugFlagFromSettings = sanitization.sanitize({
         value: settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
-        sanitization: sanitization.STRING_TYPE
+        sanitization: schema.STRING_TYPE
       }).toLowerCase();
 
       if (isStringOrBooleanTrue(_debugFlagFromParameter) || isStringOrBooleanTrue(_debugFlagFromSettings))

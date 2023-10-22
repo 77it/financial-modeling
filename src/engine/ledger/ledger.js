@@ -1,5 +1,6 @@
 ﻿export { Ledger };
 
+import * as schema from '../../lib/schema.js';
 import * as sanitization from '../../lib/sanitization_utils.js';
 import * as validation from '../../lib/validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
@@ -80,7 +81,7 @@ class Ledger {
   constructor ({ appendTrnDump, decimalPlaces, roundingModeIsRound }) {
     const _p = sanitization.sanitizeObj({
       obj: { decimalPlaces, roundingModeIsRound },
-      sanitization: { decimalPlaces: sanitization.NUMBER_TYPE, roundingModeIsRound: sanitization.BOOLEAN_TYPE }
+      sanitization: { decimalPlaces: schema.NUMBER_TYPE, roundingModeIsRound: schema.BOOLEAN_TYPE }
     });
 
     // check if decimalPlaces is an integer, otherwise raise exception
@@ -105,7 +106,7 @@ class Ledger {
   /** Set the debug module info, used when debug mode is on.
    * @param {string} debugModuleInfo */
   setDebugModuleInfo (debugModuleInfo) {
-    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: sanitization.STRING_TYPE });
+    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: schema.STRING_TYPE });
   }
 
   /**
@@ -117,7 +118,7 @@ class Ledger {
 
   /** @param {Date} today */
   setToday (today) {
-    validation.validate({ value: today, validation: validation.DATE_TYPE });
+    validation.validate({ value: today, validation: schema.DATE_TYPE });
     this.#today = today;
   }
 
