@@ -1,6 +1,6 @@
 export { sanitizeModuleData };
 
-import { ModuleData, schema, validation, sanitization, toStringLowerCaseTrim } from '../../deps.js';
+import { ModuleData, schema, validateObj, sanitizeObj, toStringLowerCaseTrim } from '../../deps.js';
 
 /**
  * Sanitize moduleData tables in place (without cloning moduleData).
@@ -13,7 +13,7 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   if (moduleData?.tables == null) return moduleData;
   if (moduleSanitization == null) return moduleData;
 
-  validation.validateObj({ obj: moduleSanitization, validation: { tableName: schema.STRING_TYPE, sanitization: schema.OBJECT_TYPE, sanitizationOptions: schema.OBJECT_TYPE + '?' } });
+  validateObj({ obj: moduleSanitization, validation: { tableName: schema.STRING_TYPE, sanitization: schema.OBJECT_TYPE, sanitizationOptions: schema.OBJECT_TYPE + '?' } });
 
   // convert `moduleSanitization` to an object with `tableName` as key and `sanitization` as value
   /** @type {Record<string, any>} */
@@ -27,7 +27,7 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
     const _sanitization = moduleSanitizationObj[toStringLowerCaseTrim(_currTab.tableName)];
     // if `table.tableName` is found in `moduleSanitizationObj` keys, sanitize `_currTab.table` with `_sanitization.sanitization`
     if (!(_sanitization == null)) {
-      sanitization.sanitizeObj(
+      sanitizeObj(
         {
           obj: _currTab.table,
           sanitization: _sanitization.sanitization,

@@ -3,7 +3,7 @@ export { ModuleInfo };
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
 import { SettingsSchemas, SettingsSanitizationOptions } from '../config/settings.schemas.js';
-import { deepFreeze, schema, sanitization, ModuleData, SimulationContext, caseInsensitiveCompare } from '../deps.js';
+import { deepFreeze, schema, sanitize, ModuleData, SimulationContext, caseInsensitiveCompare } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 const MODULE_NAME = 'settings';
@@ -159,7 +159,7 @@ export class Module {
 
           // sanitize setting value taking the sanitization settings from SettingsSchemas object (the setting name is the key of the object)
           if (SettingsSchemas[row[table.columns.name]] != null) {
-            _value = sanitization.sanitize({
+            _value = sanitize({
               value: row[table.columns.value],
               sanitization: SettingsSchemas[row[table.columns.name]],
               options: SettingsSanitizationOptions

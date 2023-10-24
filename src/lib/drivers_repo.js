@@ -1,8 +1,8 @@
 ﻿export { DriversRepo };
 
 import * as schema from './schema.js';
-import * as sanitization from './sanitization_utils.js';
-import * as validation from './validation_utils.js';
+import { sanitize, sanitizeObj } from './sanitization_utils.js';
+import { validate } from './validation_utils.js';
 import { stripTime, toStringYYYYMMDD } from './date_utils.js';
 import { parseJSON5 } from './json5.js';
 import { isNullOrWhiteSpace } from './string_utils.js';
@@ -58,19 +58,19 @@ class DriversRepo {
     allowMutable,
     freezeImmutableValues
   }) {
-    this.#baseScenario = sanitization.sanitize({ value: baseScenario, sanitization: schema.STRING_TYPE, validate: true });
-    this.#currentScenario = sanitization.sanitize({ value: currentScenario, sanitization: schema.STRING_TYPE, validate: true });
-    this.#defaultUnit = sanitization.sanitize({ value: defaultUnit, sanitization: schema.STRING_TYPE, validate: true });
-    this.#sanitizationType = sanitization.sanitize({ value: sanitizationType, sanitization: schema.STRING_TYPE, validate: true });
+    this.#baseScenario = sanitize({ value: baseScenario, sanitization: schema.STRING_TYPE, validate: true });
+    this.#currentScenario = sanitize({ value: currentScenario, sanitization: schema.STRING_TYPE, validate: true });
+    this.#defaultUnit = sanitize({ value: defaultUnit, sanitization: schema.STRING_TYPE, validate: true });
+    this.#sanitizationType = sanitize({ value: sanitizationType, sanitization: schema.STRING_TYPE, validate: true });
 
-    this.#prefix__immutable_without_dates = sanitization.sanitize({ value: prefix__immutable_without_dates, sanitization: schema.STRING_TYPE, validate: true });
-    this.#prefix__immutable_with_dates = sanitization.sanitize({ value: prefix__immutable_with_dates, sanitization: schema.STRING_TYPE, validate: true });
+    this.#prefix__immutable_without_dates = sanitize({ value: prefix__immutable_without_dates, sanitization: schema.STRING_TYPE, validate: true });
+    this.#prefix__immutable_with_dates = sanitize({ value: prefix__immutable_with_dates, sanitization: schema.STRING_TYPE, validate: true });
     // test that prefix__immutable_with_dates does not start with prefix__immutable_without_dates
     if (this.#prefix__immutable_with_dates.startsWith(this.#prefix__immutable_without_dates)) {
       throw new Error(`prefix__immutable_with_dates (${this.#prefix__immutable_with_dates}) cannot start with prefix__immutable_without_dates (${this.#prefix__immutable_without_dates})`);
     }
-    this.#allowMutable = sanitization.sanitize({ value: allowMutable, sanitization: schema.BOOLEAN_TYPE, validate: true });
-    this.#freezeImmutableValues = sanitization.sanitize({ value: freezeImmutableValues, sanitization: schema.BOOLEAN_TYPE, validate: true });
+    this.#allowMutable = sanitize({ value: allowMutable, sanitization: schema.BOOLEAN_TYPE, validate: true });
+    this.#freezeImmutableValues = sanitize({ value: freezeImmutableValues, sanitization: schema.BOOLEAN_TYPE, validate: true });
 
     this.#driversRepo = new Map();
     this.#currentDebugModuleInfo = '';
@@ -79,12 +79,12 @@ class DriversRepo {
 
   /** @param {string} debugModuleInfo */
   setDebugModuleInfo (debugModuleInfo) {
-    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: schema.STRING_TYPE });
+    this.#currentDebugModuleInfo = sanitize({ value: debugModuleInfo, sanitization: schema.STRING_TYPE });
   }
 
   /** @param {Date} today */
   setToday (today) {
-    validation.validate({ value: today, validation: schema.DATE_TYPE });
+    validate({ value: today, validation: schema.DATE_TYPE });
     this.#today = today;
   }
 
@@ -120,7 +120,7 @@ class DriversRepo {
       const _inputItemClone = { ..._inputItem };
 
       // sanitize the input object, only fields `date` and `value`
-      sanitization.sanitizeObj({
+      sanitizeObj({
         obj: _inputItemClone,
         sanitization: {
           date: schema.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
@@ -261,7 +261,7 @@ class DriversRepo {
     // missing dates will be set to this.#today
     let _date = (date === undefined || date === null) ? this.#today : date;
     // invalid date will be set to new Date(0)
-    _date = sanitization.sanitize({ value: _date, sanitization: schema.DATE_TYPE });
+    _date = sanitize({ value: _date, sanitization: schema.DATE_TYPE });
     // strip the time part from the date (if the date is != Date(0))
     _date = (_date.getTime() !== 0) ? stripTime(_date) : _date;
 
@@ -283,14 +283,14 @@ class DriversRepo {
       if (isNullOrWhiteSpace(sanitizationType))
         return _parsedValue;
       else if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
-        return sanitization.sanitize({ value: _parsedValue, sanitization: sanitizationType });
+        return sanitize({ value: _parsedValue, sanitization: sanitizationType });
       else
-        return sanitization.sanitizeObj({ obj: _parsedValue, sanitization: sanitizationType });
+        return sanitizeObj({ obj: _parsedValue, sanitization: sanitizationType });
     }
     // if `endDate` is defined, returns an array of values defined between `date` and `endDate`
     else {
       // invalid date will be set to new Date(0)
-      let _endDate = sanitization.sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
+      let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
       // strip the time part from the date (if the date is != Date(0))
       _endDate = (_endDate.getTime() !== 0) ? stripTime(_endDate) : _endDate;
       // if `endDate` is lower than `date`, throw
@@ -313,9 +313,9 @@ class DriversRepo {
 
       // sanitize the value if requested
       if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
-        _retArray = _retArray.map(_item => sanitization.sanitize({ value: _item, sanitization: sanitizationType }));
+        _retArray = _retArray.map(_item => sanitize({ value: _item, sanitization: sanitizationType }));
       else if (typeof sanitizationType === 'object')
-        _retArray = _retArray.map(_item => sanitization.sanitizeObj({ obj: _item, sanitization: sanitizationType }));
+        _retArray = _retArray.map(_item => sanitizeObj({ obj: _item, sanitization: sanitizationType }));
 
       return _retArray;
     }
@@ -342,7 +342,7 @@ class DriversRepo {
    * @return {string}
    */
   #driversRepoBuildKey ({ scenario, unit, name }) {
-    const _p = sanitization.sanitizeObj({
+    const _p = sanitizeObj({
       obj: { scenario, unit, name },
       sanitization: { scenario: schema.STRING_TYPE, unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
       validate: true

@@ -1,7 +1,7 @@
 export { Result } from './lib/result.js';
 export * as schema from './lib/schema.js';
-export * as validation from './lib/validation_utils.js';
-export * as sanitization from './lib/sanitization_utils.js';
+export { validate, validateObj } from './lib/validation_utils.js';
+export { sanitize, sanitizeObj } from './lib/sanitization_utils.js';
 export { isValidDate, addMonths, toUTC, toStringYYYYMMDD, stripTime, parseJsonDate, areDatesEqual } from './lib/date_utils.js';
 export { isNullOrWhiteSpace, caseInsensitiveCompare, toStringCaseInsensitiveTrimCompare, toStringLowerCaseTrim } from './lib/string_utils.js';
 export { isStringOrBooleanTrue, isStringOrBooleanFalse } from './lib/boolean_utils.js';

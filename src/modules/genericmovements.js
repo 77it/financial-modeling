@@ -14,7 +14,7 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, ModuleData, SimulationContext, schema, sanitization, caseInsensitiveCompare, isNullOrWhiteSpace } from '../deps.js';
+import { deepFreeze, ModuleData, SimulationContext, schema, sanitize, caseInsensitiveCompare, isNullOrWhiteSpace } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
 import { Agenda } from './_utils/Agenda.js';
@@ -153,7 +153,7 @@ export class Module {
 
           // loop `_historicalColumns`
           for (const _column of _historicalColumns) {
-            const _value = sanitization.sanitize({ value: row[_column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
+            const _value = sanitize({ value: row[_column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
             if (_value == null) continue;
 
             this.#agenda.set({
@@ -165,7 +165,7 @@ export class Module {
 
           // loop `_simulationColumns`
           for (const _column of _simulationColumns) {
-            const _value = sanitization.sanitize({ value: row[_column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
+            const _value = sanitize({ value: row[_column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
             if (_value == null) continue;
 
             this.#agenda.set({

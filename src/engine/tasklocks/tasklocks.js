@@ -1,8 +1,8 @@
 ﻿export { TaskLocks };
 
 import * as schema from '../../lib/schema.js';
-import * as sanitization from '../../lib/sanitization_utils.js';
-import * as validation from '../../lib/validation_utils.js';
+import { sanitize, sanitizeObj } from '../../lib/sanitization_utils.js';
+import { validate } from '../../lib/validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
 /*
@@ -29,12 +29,12 @@ class TaskLocks {
     this.#taskLocksRepo = new Map();
     this.#currentDebugModuleInfo = '';
 
-    this.#defaultUnit = sanitization.sanitize({ value: defaultUnit, sanitization: schema.STRING_TYPE });
+    this.#defaultUnit = sanitize({ value: defaultUnit, sanitization: schema.STRING_TYPE });
   }
 
   /** @param {string} debugModuleInfo */
   setDebugModuleInfo (debugModuleInfo) {
-    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: schema.STRING_TYPE });
+    this.#currentDebugModuleInfo = sanitize({ value: debugModuleInfo, sanitization: schema.STRING_TYPE });
   }
 
   /**
@@ -46,7 +46,7 @@ class TaskLocks {
    * @return {boolean} true if TaskLock is set, false if TaskLock is already defined
    */
   set ({ unit, name, value }) {
-    validation.validate({ value: value, validation: schema.FUNCTION_TYPE });
+    validate({ value: value, validation: schema.FUNCTION_TYPE });
     const _key = this.#taskLocksRepoBuildKey({ unit, name });
     if (this.#taskLocksRepo.has(_key))
       return false;
@@ -123,7 +123,7 @@ class TaskLocks {
    * @return {string}
    */
   #taskLocksRepoBuildKey ({ unit, name }) {
-    const _p = sanitization.sanitizeObj({
+    const _p = sanitizeObj({
       obj: { unit, name },
       sanitization: { unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
       validate: true

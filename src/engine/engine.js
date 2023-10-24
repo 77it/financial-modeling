@@ -5,8 +5,8 @@ import * as STD_NAMES from '../config/standard_names.js';
 import * as CFG from '../config/engine.js';
 
 import * as schema from '../lib/schema.js';
-import * as sanitization from '../lib/sanitization_utils.js';
-import * as validation from '../lib/validation_utils.js';
+import { sanitize } from '../lib/sanitization_utils.js';
+import { validateObj } from '../lib/validation_utils.js';
 import { stripTime } from '../lib/date_utils.js';
 import { Result } from '../lib/result.js';
 import { isStringOrBooleanTrue } from '../lib/boolean_utils.js';
@@ -42,7 +42,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
   const _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });  // define _ledger here to be able to use it in the `finally` block
 
   try {
-    validation.validateObj({
+    validateObj({
       obj: { modulesData, modules, scenarioName, appendTrnDump, ledgerDebug },
       validation: {
         modulesData: schema.ARRAY_TYPE,
@@ -148,7 +148,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
       _startDate = updateStartDate({ actualDate: _startDate, newDate: module?.startDate });  // set or update _startDate
     });
     // read `$$SIMULATION_END_DATE` from settings
-    _endDate = sanitization.sanitize({
+    _endDate = sanitize({
       value: _settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE }),
       sanitization: schema.DATE_TYPE + schema.OPTIONAL
     });
@@ -259,7 +259,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
      * @return {undefined|Date} - Return the updated simulation start date
      */
     function updateStartDate ({ actualDate, newDate }) {
-      const _newDate = stripTime(sanitization.sanitize({
+      const _newDate = stripTime(sanitize({
         value: newDate,
         sanitization: schema.DATE_TYPE + schema.OPTIONAL
       }));
@@ -281,8 +281,8 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
 
       // loop `taskLocksRawCallSequence`
       taskLocksRawCallSequence.forEach(_entry => {
-        const _isSimulation = sanitization.sanitize({ value: _entry.isSimulation, sanitization: schema.BOOLEAN_TYPE });
-        const _name = sanitization.sanitize({ value: _entry.name, sanitization: schema.STRING_TYPE });
+        const _isSimulation = sanitize({ value: _entry.isSimulation, sanitization: schema.BOOLEAN_TYPE });
+        const _name = sanitize({ value: _entry.name, sanitization: schema.STRING_TYPE });
 
         if (_isSimulation) {
           if (_taskLocks.isDefined({ name: _name }))
@@ -306,8 +306,8 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
      * @param {Settings} p.settings
      */
     function setDebugLevelOnLedger ({ debugParameter, settings }) {
-      const _debugFlagFromParameter = sanitization.sanitize({ value: debugParameter, sanitization: schema.STRING_TYPE }).toLowerCase();
-      const _debugFlagFromSettings = sanitization.sanitize({
+      const _debugFlagFromParameter = sanitize({ value: debugParameter, sanitization: schema.STRING_TYPE }).toLowerCase();
+      const _debugFlagFromSettings = sanitize({
         value: settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
         sanitization: schema.STRING_TYPE
       }).toLowerCase();

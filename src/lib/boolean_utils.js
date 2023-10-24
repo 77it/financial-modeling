@@ -1,7 +1,7 @@
 export { isStringOrBooleanTrue, isStringOrBooleanFalse };
 
 import * as schema from './schema.js';
-import * as sanitization from './sanitization_utils.js';
+import { sanitize } from './sanitization_utils.js';
 
 // the following values can be used to compare the result of sanitization of boolean values (or string containing 'true' or 'false') to string
 const BOOLEAN_TRUE_STRING = 'true';
@@ -18,7 +18,7 @@ function isStringOrBooleanTrue (value) {
     if (typeof value === 'boolean')
       return value;
     // if value is not boolean, sanitize it to string, convert to lowercase and trim before compare
-    return (sanitization.sanitize({ value: value, sanitization: schema.STRING_TYPE }).trim().toLowerCase() === BOOLEAN_TRUE_STRING);
+    return (sanitize({ value: value, sanitization: schema.STRING_TYPE }).trim().toLowerCase() === BOOLEAN_TRUE_STRING);
   } catch (e) {
     return false;
   }
@@ -35,7 +35,7 @@ function isStringOrBooleanFalse (value) {
     if (typeof value === 'boolean')
       return !value;
     // if value is not boolean, sanitize it to string, convert to lowercase and trim before compare
-    return (sanitization.sanitize({ value: value, sanitization: schema.STRING_TYPE }).trim().toLowerCase() === BOOLEAN_FALSE_STRING);
+    return (sanitize({ value: value, sanitization: schema.STRING_TYPE }).trim().toLowerCase() === BOOLEAN_FALSE_STRING);
   } catch (e) {
     return false;
   }

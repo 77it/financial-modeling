@@ -1,8 +1,8 @@
 ﻿export { Ledger };
 
 import * as schema from '../../lib/schema.js';
-import * as sanitization from '../../lib/sanitization_utils.js';
-import * as validation from '../../lib/validation_utils.js';
+import { sanitize, sanitizeObj } from '../../lib/sanitization_utils.js';
+import { validate, validateObj } from '../../lib/validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
 import { SimObject } from '../simobject/simobject.js';
@@ -79,7 +79,7 @@ class Ledger {
    * @param {boolean} p.roundingModeIsRound Rounding mode to use when storing numbers in the ledger; if true, use Math.round(), otherwise use Math.floor()
    */
   constructor ({ appendTrnDump, decimalPlaces, roundingModeIsRound }) {
-    const _p = sanitization.sanitizeObj({
+    const _p = sanitizeObj({
       obj: { decimalPlaces, roundingModeIsRound },
       sanitization: { decimalPlaces: schema.NUMBER_TYPE, roundingModeIsRound: schema.BOOLEAN_TYPE }
     });
@@ -106,7 +106,7 @@ class Ledger {
   /** Set the debug module info, used when debug mode is on.
    * @param {string} debugModuleInfo */
   setDebugModuleInfo (debugModuleInfo) {
-    this.#currentDebugModuleInfo = sanitization.sanitize({ value: debugModuleInfo, sanitization: schema.STRING_TYPE });
+    this.#currentDebugModuleInfo = sanitize({ value: debugModuleInfo, sanitization: schema.STRING_TYPE });
   }
 
   /**
@@ -118,7 +118,7 @@ class Ledger {
 
   /** @param {Date} today */
   setToday (today) {
-    validation.validate({ value: today, validation: schema.DATE_TYPE });
+    validate({ value: today, validation: schema.DATE_TYPE });
     this.#today = today;
   }
 
@@ -226,7 +226,7 @@ class Ledger {
    * @param {NewSimObjectDto} newSimObjectDto
    */
   newSimObject (newSimObjectDto) {
-    sanitization.sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Schema });
+    sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Schema });
 
     if (SimObjectTypes_enum_map.has(newSimObjectDto.type) === false)
       throw new Error(`SimObject type ${newSimObjectDto.type} is not recognized`);
@@ -379,7 +379,7 @@ class Ledger {
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   #newDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
-    sanitization.sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Schema });
+    sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Schema });
     //skip validation, this method is private and can't be called with wrong types  //validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation.concat(SimObjectErrorDebugTypes_enum_validation) });
 
     const debug_moduleInfo = this.#currentDebugModuleInfo;

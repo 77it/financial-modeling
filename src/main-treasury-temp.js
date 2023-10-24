@@ -12,7 +12,7 @@ import { convertExcelToModuleDataArray } from './deno/convert_excel_to_moduledat
 //#endregion deno imports
 
 //#region local imports
-import { Result, schema, sanitization, parseJSON5, isNullOrWhiteSpace } from './deps.js';
+import { Result, schema, sanitize, sanitizeObj, parseJSON5, isNullOrWhiteSpace } from './deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
@@ -109,7 +109,7 @@ async function main ({
       settingName: SETTINGS_NAMES.Simulation.$$SCENARIOS
     });
     const _$$SCENARIOS_parsed_array = parseJSON5(_$$SCENARIOS_setting);
-    const _$$SCENARIOS = sanitization.sanitize({
+    const _$$SCENARIOS = sanitize({
       value: _$$SCENARIOS_parsed_array,
       sanitization: schema.ARRAY_OF_STRINGS_TYPE
     });
@@ -225,7 +225,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
           for (const _tableObj of moduleData.tables) {
             if (_tableObj.tableName.trim().toLowerCase() === tableName) {
               const _table = structuredClone(_tableObj.table);  // clone _tableObj to avoid side effects
-              sanitization.sanitizeObj({
+              sanitizeObj({
                 obj: _table,
                 sanitization: tableSanitization
               });
@@ -243,7 +243,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
     })();
 
     if (!isNullOrWhiteSpace(settingSanitization))
-      return sanitization.sanitize({ value: _setting, sanitization: settingSanitization });
+      return sanitize({ value: _setting, sanitization: settingSanitization });
     else
       return _setting;
   } catch (e) {
