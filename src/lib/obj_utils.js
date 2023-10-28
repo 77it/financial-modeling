@@ -1,6 +1,4 @@
-export { deepFreeze, ensureArrayValuesAreUnique };
-
-// see json5.js  // function objectKeysToLowerCase
+export { deepFreeze, ensureArrayValuesAreUnique, objectKeysToLowerCase };
 
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 /**
@@ -46,4 +44,23 @@ function ensureArrayValuesAreUnique (array) {
     throw new Error('array values are not unique');
   }
   return array;
+}
+
+// from https://stackoverflow.com/a/41072596/5288052 + edit from comment
+/**
+ * Convert all keys of an object to lowercase
+ * @param {*} input
+ * @returns {{}|*}
+ */
+function objectKeysToLowerCase (input) {
+  if (typeof input !== 'object' || input === null) return input;
+  if (Array.isArray(input)) return input.map(objectKeysToLowerCase);
+  return Object.keys(input).reduce(
+    /** @param {*} newObj
+     * @param key */
+    function (newObj, key) {
+      const val = input[key];
+      newObj[key.toLowerCase()] = (typeof val === 'object') && val !== null ? objectKeysToLowerCase(val) : val;
+      return newObj;
+    }, {});
 }
