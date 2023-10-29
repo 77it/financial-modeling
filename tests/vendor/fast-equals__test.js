@@ -1,8 +1,6 @@
 import { deepEqual } from '../../vendor/fast-equals/fast-equals.js';
 
 import { assert, assertEquals, assertFalse, assertStrictEquals, assertThrows } from '../deps.js';
-import * as S from '../../src/lib/schema.js';
-import * as s from '../../src/lib/sanitization_utils.js';
 
 Deno.test('test fast-equals.js/deepEqual()', async (t) => {
   await t.step('object', async () => {
@@ -25,6 +23,8 @@ Deno.test('test fast-equals.js/deepEqual()', async (t) => {
     assertFalse(arrayA === arrayB);
     assert(deepEqual(arrayA, arrayB));
     assertFalse(deepEqual(arrayA, arrayC_shuffled));
+    assertFalse(deepEqual(arrayA, 999));
+    assertFalse(deepEqual(arrayA, new Date('2020-01-01')));
   });
 
   await t.step('string', async () => {
@@ -34,6 +34,7 @@ Deno.test('test fast-equals.js/deepEqual()', async (t) => {
 
     assert(deepEqual(stringA, stringB));
     assertFalse(deepEqual(stringA, stringC_different));
+    assertFalse(deepEqual(stringA, 999));
   });
 
   await t.step('number', async () => {
@@ -43,6 +44,7 @@ Deno.test('test fast-equals.js/deepEqual()', async (t) => {
 
     assert(deepEqual(numberA, numberB));
     assertFalse(deepEqual(numberA, numberC_different));
+    assertFalse(deepEqual(numberA, 'abc'));
   });
 
   await t.step('boolean', async () => {
@@ -52,6 +54,7 @@ Deno.test('test fast-equals.js/deepEqual()', async (t) => {
 
     assert(deepEqual(booleanA, booleanB));
     assertFalse(deepEqual(booleanA, booleanC_different));
+    assertFalse(deepEqual(booleanA, 999));
   });
 
   await t.step('date', async () => {
@@ -61,6 +64,7 @@ Deno.test('test fast-equals.js/deepEqual()', async (t) => {
 
     assert(deepEqual(dateA, dateB));
     assertFalse(deepEqual(dateA, dateC_different));
+    assertFalse(deepEqual(dateA, 99n));
   });
 
   await t.step('bigint', async () => {
@@ -70,5 +74,6 @@ Deno.test('test fast-equals.js/deepEqual()', async (t) => {
 
     assert(deepEqual(bigintA, bigintB));
     assertFalse(deepEqual(bigintA, bigintC));
+    assertFalse(deepEqual(bigintA, 123));
   });
 });
