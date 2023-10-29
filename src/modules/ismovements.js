@@ -1,7 +1,7 @@
 // TODO to implement
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import { deepFreeze, schema, ModuleData, SimulationContext, caseInsensitiveCompare } from '../deps.js';
+import { deepFreeze, schema, ModuleData, SimulationContext, eq2 } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 const MODULE_NAME = 'ismovements';
@@ -104,7 +104,7 @@ export class Module {
     // loop all tables
     for (const table of this.#moduleData.tables) {
       // if tableName == tablesInfo.Set.name, loop all rows and create a setting for each entry
-      if (caseInsensitiveCompare(table.tableName, tablesInfo.Set.tableName)) {
+      if (eq2(table.tableName, tablesInfo.Set.tableName)) {
         for (const row of table.table) {
           //TODO create ledger entry
           //in base al valore di Setting Unit Historical end, per capire se muovere vs cash o vs PN.
