@@ -1,4 +1,6 @@
-export { deepFreeze, ensureArrayValuesAreUnique };
+export { deepFreeze, ensureArrayValuesAreUnique, eq, eq2 };
+
+import { deepEqual } from '../../vendor/fast-equals/fast-equals.js';
 
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 /**
@@ -44,4 +46,31 @@ function ensureArrayValuesAreUnique (array) {
     throw new Error('array values are not unique');
   }
   return array;
+}
+
+/**
+ * Equality of two values, with deep comparison of objects and arrays.
+ * @param {any} a
+ * @param {any} b
+ * @returns {boolean}
+ */
+function eq (a, b) {
+  // call deepEqual from fast-equals, https://github.com/planttheidea/fast-equals
+  return deepEqual(a, b);
+}
+
+/**
+ * Equality of two values, with deep comparison of objects and arrays.
+ * The difference from eq() is that eq2() is that if a and b are strings, they are compared after trim & case insensitive.
+ * @param {any} a
+ * @param {any} b
+ * @returns {boolean}
+ */
+function eq2 (a, b) {
+  // if a and b are strings, compare them after trim & case insensitive
+  if (typeof a === 'string' && typeof b === 'string')
+    return a.trim().toLowerCase() === b.trim().toLowerCase();
+  // else call eq()
+  else
+    return eq(a, b);
 }
