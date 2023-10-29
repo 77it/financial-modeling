@@ -1,4 +1,4 @@
-import {isNullOrWhiteSpace, isEmptyOrWhiteSpace, caseInsensitiveCompare, toStringCaseInsensitiveTrimCompare, toStringLowerCaseTrim} from '../../src/lib/string_utils.js';
+import {isNullOrWhiteSpace, isEmptyOrWhiteSpace, caseInsensitiveCompare, toStringLowerCaseTrim} from '../../src/lib/string_utils.js';
 
 import {assert, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
 
@@ -43,17 +43,6 @@ Deno.test('test caseInsensitiveCompare()', (t) => {
     assertFalse(caseInsensitiveCompare(undefined, null));
     //@ts-ignore
     assertFalse(caseInsensitiveCompare(88, 99));
-});
-
-Deno.test('test toStringCaseInsensitiveTrimCompare()', (t) => {
-    assert(toStringCaseInsensitiveTrimCompare('a', 'a'));
-    assert(toStringCaseInsensitiveTrimCompare('123', 123));  // number to string
-    assert(toStringCaseInsensitiveTrimCompare('  123  ', 123));  // number to string
-    assert(toStringCaseInsensitiveTrimCompare(123, '123'));  // number to string
-    assert(toStringCaseInsensitiveTrimCompare(123, '  123  '));  // number to string
-    assert(toStringCaseInsensitiveTrimCompare({ }, ''));
-    assert(toStringCaseInsensitiveTrimCompare({ a: 123 }, ''));
-    assert(toStringCaseInsensitiveTrimCompare(new Date(2025, 11, 25), '2025-12-25T00:00:00.000Z'));
 });
 
 Deno.test('test toStringLowerCaseTrim()', (t) => {

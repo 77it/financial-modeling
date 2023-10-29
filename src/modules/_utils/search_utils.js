@@ -1,10 +1,12 @@
 export { xlookup, moduleDataLookup, searchDateKeys };
 
-import { ModuleData, isNullOrWhiteSpace, toStringCaseInsensitiveTrimCompare, sanitization as sanitizationUtils, caseInsensitiveCompare, parseJsonDate, isValidDate, stripTime } from '../../deps.js';
+import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, parseJsonDate, isValidDate, stripTime } from '../../deps.js';
 
 /**
- * Search in ModuleData a table, then a value in a table, searching in each row for lookup_key and return_key. Sanitize the result if needed.
- * If no match is found, return undefined, eventually sanitized.
+ * Search in ModuleData a table, then a value in a table, then a value in a column, returning the value of another column in the same row.
+ * Search value `lookup_value` in column `lookup_key` in table `tableName` of ModuleData;
+ * returns the value of column `return_key` in the same row.
+ * Optionally sanitize the result; if no match is found, return undefined, optionally sanitized.
  * @param {ModuleData} moduleData
  * @param {{tableName: string, lookup_value: *, lookup_key: string, return_key: string, return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: string, sanitizationOptions?: Object }} opt
  * return_first_match default = true;
@@ -37,12 +39,12 @@ function moduleDataLookup (
   let _found = false;
 
   for (const _table of moduleData.tables) {
-    if (caseInsensitiveCompare(_table.tableName, tableName)) {
+    if (eq2(_table.tableName, tableName)) {
       for (const row of _table.table) {
         // compare lookup_value with row[lookup_key] (case-insensitive or not)
         let _match = false;
         if (string_insensitive_match)
-          _match = toStringCaseInsensitiveTrimCompare(lookup_value, row[lookup_key]);
+          _match = eq2(lookup_value, row[lookup_key]);
         else
           _match = lookup_value === row[lookup_key];
 
@@ -60,7 +62,7 @@ function moduleDataLookup (
   }
 
   if (sanitization != null)
-    return sanitizationUtils.sanitize({
+    return sanitize({
       value: _ret,
       sanitization: sanitization,
       options: sanitizationOptions
@@ -104,7 +106,7 @@ function xlookup (
     // compare lookup_value with lookup_array[i] (case-insensitive or not)
     let _match = false;
     if (string_insensitive_match)
-      _match = toStringCaseInsensitiveTrimCompare(lookup_value, lookup_array[i]);
+      _match = eq2(lookup_value, lookup_array[i]);
     else
       _match = lookup_value === lookup_array[i];
 
@@ -118,7 +120,7 @@ function xlookup (
   }
 
   if (sanitization != null)
-    return sanitizationUtils.sanitize({
+    return sanitize({
       value: _ret,
       sanitization: sanitization,
       options: sanitizationOptions

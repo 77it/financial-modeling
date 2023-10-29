@@ -1,4 +1,4 @@
-export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, caseInsensitiveCompare, toStringCaseInsensitiveTrimCompare, toStringLowerCaseTrim };
+export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, caseInsensitiveCompare, toStringLowerCaseTrim };
 import { sanitize } from './sanitization_utils.js';
 import { STRINGLOWERCASETRIMMED_TYPE } from './schema.js';
 
@@ -48,27 +48,6 @@ function caseInsensitiveCompare (a, b) {
       : a === b;
      */
     return (a.toLowerCase() === b.toLowerCase());
-  } catch (e) {
-    return false;
-  }
-}
-
-/**
- * Compare two values of any kind; if not string, convert them to string; then lowercase and trim before compare.
- * @param {*} a
- * @param {*} b
- * @returns {boolean}
- */
-function toStringCaseInsensitiveTrimCompare (a, b) {
-  try {
-    let _a = a;
-    let _b = b;
-    if (typeof _a !== 'string')
-      _a = sanitize({ value: _a, sanitization: STRINGLOWERCASETRIMMED_TYPE });
-    if (typeof _b !== 'string')
-      _b = sanitize({ value: _b, sanitization: STRINGLOWERCASETRIMMED_TYPE });
-
-    return (_a.toLowerCase().trim() === _b.toLowerCase().trim());
   } catch (e) {
     return false;
   }
