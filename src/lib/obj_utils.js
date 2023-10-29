@@ -1,4 +1,4 @@
-export { deepFreeze, ensureArrayValuesAreUnique, eq, eq2 };
+export { deepFreeze, ensureArrayValuesAreUnique, eq, eq2, get2 };
 
 import { deepEqual } from '../../vendor/fast-equals/fast-equals.js';
 
@@ -73,4 +73,30 @@ function eq2 (a, b) {
   // else call eq()
   else
     return eq(a, b);
+}
+
+/**
+ * Get value from an object, querying the key in a case insensitive way.
+ * Try to get the exact key, then try to get the key after trim & case insensitive.
+ * @param {Record<string, any>} obj
+ * @param {string} key
+ * @returns {any}
+ */
+function get2 (obj, key) {
+  // if obj is not an object, return undefined
+  if (!((typeof obj === "object") || typeof obj === "function"))
+    return undefined;
+
+  // if obj has the key, return it
+  if (obj.hasOwnProperty(key))
+    return obj[key];
+
+  // if obj has the key after trim & case insensitive, return it
+  for (const _key in obj) {
+    if (eq2(_key, key))
+      return obj[_key];
+  }
+
+  // else return undefined
+  return undefined;
 }

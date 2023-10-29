@@ -1,6 +1,5 @@
 import { assert, assertEquals, assertFalse, assertThrows } from '../deps.js';
 import { ensureArrayValuesAreUnique } from '../../src/lib/obj_utils.js';
-import { parseJSON5 } from '../../src/lib/json5.js';
 
 Deno.test('test ensureArrayValuesAreUnique()', (t) => {
   // random array with unique values
