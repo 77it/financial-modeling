@@ -13,7 +13,18 @@ import { ModuleData, isNullOrWhiteSpace, toStringCaseInsensitiveTrimCompare, san
  * sanitizationOptions if missing, no sanitizationOptions are passed to sanitization.
  * @returns {*}
  * */
-function moduleDataLookup (moduleData, { tableName, lookup_value, lookup_key, return_key, return_first_match, string_insensitive_match, sanitization, sanitizationOptions }) {
+function moduleDataLookup (
+  moduleData,
+  {
+    tableName,
+    lookup_value,
+    lookup_key,
+    return_key,
+    return_first_match,
+    string_insensitive_match,
+    sanitization,
+    sanitizationOptions
+  }) {
   if (moduleData == null) return undefined;
   if (lookup_value == null) return undefined;
   if (isNullOrWhiteSpace(lookup_key)) return undefined;
@@ -68,7 +79,16 @@ function moduleDataLookup (moduleData, { tableName, lookup_value, lookup_key, re
  * sanitizationOptions if missing, no sanitizationOptions are passed to sanitization.
  * @returns {*}
  * */
-function xlookup ({ lookup_value, lookup_array, return_array, return_first_match, string_insensitive_match, sanitizationOptions, sanitization }) {
+function xlookup (
+  {
+    lookup_value,
+    lookup_array,
+    return_array,
+    return_first_match,
+    string_insensitive_match,
+    sanitizationOptions,
+    sanitization
+  }) {
   if (lookup_value == null) return undefined;
   if (!Array.isArray(lookup_array)) return undefined;
   if (!Array.isArray(return_array)) return undefined;
