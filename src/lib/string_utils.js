@@ -1,4 +1,4 @@
-export { isNullOrWhiteSpace, isEmptyOrWhiteSpace, toStringLowerCaseTrim };
+export { isNullOrWhiteSpace, isEmptyOrWhiteSpace };
 import { sanitize } from './sanitization_utils.js';
 import { STRINGLOWERCASETRIMMED_TYPE } from './schema.js';
 
@@ -27,18 +27,5 @@ function isEmptyOrWhiteSpace (value) {
     return value === '' || value.toString().trim() === '';
   } catch (e) {
     return false;
-  }
-}
-
-/**
- * Convert a value of any type to string, lowercase and trimmed.
- * @param {*} value
- * @returns {string}
- */
-function toStringLowerCaseTrim (value) {
-  try {
-    return sanitize({ value: value, sanitization: STRINGLOWERCASETRIMMED_TYPE });
-  } catch (e) {
-    return '';
   }
 }

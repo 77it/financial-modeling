@@ -1,6 +1,6 @@
 export { sanitizeModuleData };
 
-import { ModuleData, schema, validateObj, sanitizeObj, toStringLowerCaseTrim } from '../../deps.js';
+import { ModuleData, schema, validateObj, sanitizeObj, eq2 } from '../../deps.js';
 
 /**
  * Sanitize moduleData tables in place (without cloning moduleData).
@@ -15,21 +15,16 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
 
   validateObj({ obj: moduleSanitization, validation: { tableName: schema.STRING_TYPE, sanitization: schema.OBJECT_TYPE, sanitizationOptions: schema.OBJECT_TYPE + '?' } });
 
-  // convert `moduleSanitization` to an object with `tableName` as key and `sanitization` as value
-  /** @type {Record<string, any>} */
-  const moduleSanitizationObj =  {};
-  for (const _sanitization of moduleSanitization)
-    moduleSanitizationObj[toStringLowerCaseTrim(_sanitization.tableName)] = _sanitization;
-
   // loop moduleData tables
-  for (const _currTab of moduleData.tables) {
-    // get case-insensitive `table.tableName` key from `moduleSanitizationObj` object
-    const _sanitization = moduleSanitizationObj[toStringLowerCaseTrim(_currTab.tableName)];
-    // if `table.tableName` is found in `moduleSanitizationObj` keys, sanitize `_currTab.table` with `_sanitization.sanitization`
+  for (const _table of moduleData.tables) {
+    // search for `_table.tableName` in `moduleSanitization` array (in a case insensitive way); if not found, `_sanitization` is undefined
+    const _sanitization = moduleSanitization.find(_ => eq2(_.tableName, _table.tableName));
+
+    // if `_sanitization` has a value, sanitize `_table.table` with it
     if (!(_sanitization == null)) {
       sanitizeObj(
         {
-          obj: _currTab.table,
+          obj: _table.table,
           sanitization: _sanitization.sanitization,
           options: _sanitization?.sanitizationOptions
         });
