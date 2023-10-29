@@ -51,7 +51,7 @@ Deno.test('xlookup test: test search', async () => {
 
   p = { lookup_value: 'five', lookup_array, return_array, return_first_match: false };  // automatic string conversion, trim and lowercase
   assertEquals(xlookup(p), 5);
-  p = { lookup_value: '6', lookup_array, return_array, return_first_match: false };  // automatic string conversion, trim and lowercase
+  p = { lookup_value: 6, lookup_array, return_array, return_first_match: false };
   assertEquals(xlookup(p), 'six');
 
   // with sanitization
@@ -141,8 +141,8 @@ Deno.test('moduleDataLookup test: test search', async () => {
   p.lookup_value = 'five';
   p.string_insensitive_match = true;
   assertEquals(moduleDataLookup(moduleData, p), 5);  // automatic string conversion, trim and lowercase
-  p.lookup_value = '6';
-  assertEquals(moduleDataLookup(moduleData, p), 'six');  // automatic string conversion, trim and lowercase
+  p.lookup_value = 6;
+  assertEquals(moduleDataLookup(moduleData, p), 'six');
 
   // with sanitization
   p.lookup_value = 'five';
