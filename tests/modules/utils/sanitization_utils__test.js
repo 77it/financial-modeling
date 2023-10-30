@@ -1,6 +1,5 @@
 import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
 import * as schema from '../../../src/lib/schema.js';
-import { sanitization } from '../../deps.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
 
 import { sanitizeModuleData } from '../../../src/modules/_utils/sanitization_utils.js';

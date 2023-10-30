@@ -1,6 +1,6 @@
 export { xlookup, moduleDataLookup, searchDateKeys };
 
-import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, parseJsonDate, isValidDate, stripTime } from '../../deps.js';
+import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, get2, parseJsonDate, isValidDate, stripTime } from '../../deps.js';
 
 /**
  * Search in ModuleData a table, then a value in a table, then a value in a column, returning the value of another column in the same row.
@@ -9,9 +9,10 @@ import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, parseJsonDate, isValidDa
  * Optionally sanitize the result; if no match is found, return undefined, optionally sanitized.
  * @param {ModuleData} moduleData
  * @param {{tableName: string, lookup_value: *, lookup_key: string, return_key: string, return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: string, sanitizationOptions?: Object }} opt
- * return_first_match default = true;
- * string_insensitive_match default = true; if true, convert lookup_value and lookup_array to string, to lowercase and trim before comparing.
- * sanitization if missing, no sanitization is performed;
+ * return_first_match default = true.
+ * string_insensitive_match default = true; if true, `lookup_key` and `return_key` are get directly and if not found they are matched with all keys after trim & case insensitive;
+ *   `lookup_value`, if is a string, is matched with values after trim & case insensitive.
+ * sanitization if missing, no sanitization is performed.
  * sanitizationOptions if missing, no sanitizationOptions are passed to sanitization.
  * @returns {*}
  * */
@@ -41,20 +42,22 @@ function moduleDataLookup (
   for (const _table of moduleData.tables) {
     if (eq2(_table.tableName, tableName)) {
       for (const row of _table.table) {
-        // compare lookup_value with row[lookup_key] (case-insensitive or not)
+        // compare lookup_value with row[lookup_key] (trim & case-insensitive with eq() and get2())
         let _match = false;
         if (string_insensitive_match)
-          _match = eq2(lookup_value, row[lookup_key]);
+          _match = eq2(lookup_value, get2(row, lookup_key));
         else
           _match = lookup_value === row[lookup_key];
 
         if (_match) {
+          // get from row[return_key] (trim & case-insensitive with get2())
           if (return_first_match) {
-            _ret = row[return_key];
+            _ret = string_insensitive_match ? get2(row, return_key) : row[return_key];
             _found = true;
             break;  // exit loop
+          } else {
+            _ret = string_insensitive_match ? get2(row, return_key) : row[return_key];
           }
-          _ret = row[return_key];
         }
       }
     }
@@ -76,7 +79,7 @@ function moduleDataLookup (
  * Search a value in a column, return the value of another column in the same row. Sanitize the result if needed.
  * @param {{lookup_value: *, lookup_array: *[], return_array: *[], return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: string, sanitizationOptions?: Object }} p
  * return_first_match default = true;
- * string_insensitive_match default = true; if true, convert lookup_value and lookup_array to string, to lowercase and trim before comparing.
+ * string_insensitive_match default = true; `lookup_value`, if is a string, is matched with values in `lookup_array` after trim & case insensitive.
  * sanitization if missing, no sanitization is performed;
  * sanitizationOptions if missing, no sanitizationOptions are passed to sanitization.
  * @returns {*}

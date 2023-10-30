@@ -14,7 +14,7 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, ModuleData, SimulationContext, schema, sanitize, eq2, isNullOrWhiteSpace } from '../deps.js';
+import { deepFreeze, ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
 import { Agenda } from './_utils/Agenda.js';
@@ -145,9 +145,9 @@ export class Module {
         for (const row of _currTab.table) {
           // TODO loop table and save data to agenda
 
-          const _accounting_type = row[_tSet.columns.accounting_type] ?? this.#accounting_type__default;
-          const _accounting_opposite_type = row[_tSet.columns.accounting_opposite_type] ?? this.#accounting_opposite_type__default;
-          const _simObject_name = row[_tSet.columns.simObject_name] ?? '';
+          const _accounting_type = get2(row, _tSet.columns.accounting_type) ?? this.#accounting_type__default;
+          const _accounting_opposite_type = get2(row, _tSet.columns.accounting_opposite_type) ?? this.#accounting_opposite_type__default;
+          const _simObject_name = get2(row, _tSet.columns.simObject_name) ?? '';
 
           if (isNullOrWhiteSpace(_accounting_type) || isNullOrWhiteSpace(_accounting_opposite_type)) continue;
 

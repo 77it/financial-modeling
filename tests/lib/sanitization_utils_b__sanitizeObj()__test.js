@@ -15,6 +15,11 @@ import {
 } from '../deps.js';
 
 Deno.test('test sanitizeObj()', async (t) => {
+  await t.step('sanitization = {} means no sanitization', async () => {
+    const objToSanitize = { a: '11', b: 99 };
+    assertEquals(s.sanitizeObj({ obj: objToSanitize, sanitization: {}}), objToSanitize);
+  });
+
   await t.step('null, undefined and other non-objects are coerced to {}', async () => {
     const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
     assertEquals(s.sanitizeObj({ obj: null, sanitization: sanitization }), {});
@@ -72,9 +77,9 @@ Deno.test('test sanitizeObj()', async (t) => {
   });
 
   await t.step('simple object', async () => {
-    const objToSanitize = { a: 'mamma', b: 99 };
-    const expObj = { a: 'mamma', b: 99 };
-    const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
+    const objToSanitize = { a: '11', b: 99 };
+    const expObj = { a: 11, b: '99' };
+    const sanitization = { a: S.NUMBER_TYPE, b: S.STRING_TYPE };
     assertEquals(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
   });
 

@@ -3,7 +3,7 @@ export { ModuleInfo };
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
 import { SettingsSchemas, SettingsSanitizationOptions } from '../config/settings.schemas.js';
-import { deepFreeze, schema, sanitize, ModuleData, SimulationContext, eq2 } from '../deps.js';
+import { deepFreeze, schema, sanitize, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 const MODULE_NAME = 'settings';
@@ -124,7 +124,7 @@ export class Module {
   /** Set Simulation Settings */
   #setSimulationSettings = () => {
     this.#setSettingsFromATable(tablesInfo.Set);
-  }
+  };
 
   /** Set Settings Default Values, only if they don't have a value already defined */
   #setSettingsDefaultValues = () => {
@@ -137,7 +137,7 @@ export class Module {
         value: SettingsDefaultValues[settingDefault_Key]
       }]);
     }
-  }
+  };
 
   /** Set Active Settings */
   #setActiveSettings () {
@@ -155,27 +155,25 @@ export class Module {
       // if tableName == table.name, loop all rows and create a setting for each entry
       if (eq2(_table.tableName, table.tableName)) {
         for (const row of _table.table) {
-          let _value = row[table.columns.value];
+          // read value from row (key match trim & case insensitive)
+          // and sanitize setting value taking the sanitization settings from SettingsSchemas object (the setting name is the key of the object);
+          // if the setting name is not found in SettingsSchemas, the sanitization is set to empty `{}` and the setting value is not sanitized
+          let _value = sanitize({
+            value: get2(row, table.columns.value),
+            sanitization: get2(SettingsSchemas, get2(row, table.columns.name)) ?? {},
+            options: SettingsSanitizationOptions
+          });
 
-          // sanitize setting value taking the sanitization settings from SettingsSchemas object (the setting name is the key of the object)
-          if (SettingsSchemas[row[table.columns.name]] != null) {
-            _value = sanitize({
-              value: row[table.columns.value],
-              sanitization: SettingsSchemas[row[table.columns.name]],
-              options: SettingsSanitizationOptions
-            });
-          }
-
-          // create setting
+          // create setting reading scenario, unit, name, date from row (key match trim & case insensitive)
           this.#simulationContext.setSetting([{
-            scenario: row[table.columns.scenario],
-            unit: row[table.columns.unit],
-            name: row[table.columns.name],
-            date: row[table.columns.date],
+            scenario: get2(row, table.columns.scenario),
+            unit: get2(row, table.columns.unit),
+            name: get2(row, table.columns.name),
+            date: get2(row, table.columns.date),
             value: _value
           }]);
         }
       }
     }
-  }
+  };
 }
