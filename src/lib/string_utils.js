@@ -1,6 +1,4 @@
 export { isNullOrWhiteSpace, isEmptyOrWhiteSpace };
-import { sanitize } from './sanitization_utils.js';
-import { STRINGLOWERCASETRIMMED_TYPE } from './schema.js';
 
 /**
  * Check if a value is null, undefined, empty string or whitespace
