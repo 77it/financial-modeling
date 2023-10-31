@@ -11,9 +11,9 @@ import { assert, assertEquals, assertFalse, assertThrows } from '../deps.js';
 
 Deno.test('test fast-equals.js/eq()', async (t) => {
   await t.step('object', async () => {
-    const objectA = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1000' } };
-    const objectB = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1000' } };
-    const objectC_shuffled = { foo2: { baz: '1000' }, foo: { baz: '999', bar: 'baz' } };
+    const objectA = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1000', x: 1000n } };
+    const objectB = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1000', x: 1000n } };
+    const objectC_shuffled = { foo2: { x: 1000n, baz: '1000' }, foo: { baz: '999', bar: 'baz' } };
     const objectD_different = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1001' } };
 
     assertFalse(objectA === objectB);

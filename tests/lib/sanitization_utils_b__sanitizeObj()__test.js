@@ -1,5 +1,6 @@
 import * as S from '../../src/lib/schema.js';
 import * as s from '../../src/lib/sanitization_utils.js';
+import { eq } from '../../src/lib/obj_utils.js';
 import { parseJsonDate, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
 
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
@@ -17,7 +18,7 @@ import {
 Deno.test('test sanitizeObj()', async (t) => {
   await t.step('sanitization = {} means no sanitization', async () => {
     const objToSanitize = { a: '11', b: 99 };
-    assertEquals(s.sanitizeObj({ obj: objToSanitize, sanitization: {}}), objToSanitize);
+    assertEquals(s.sanitizeObj({ obj: objToSanitize, sanitization: {} }), objToSanitize);
   });
 
   await t.step('null, undefined and other non-objects are coerced to {}', async () => {
@@ -378,12 +379,12 @@ Deno.test('test sanitizeObj()', async (t) => {
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
     assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0Str, replacer));
 
-    wrongValue = "";
+    wrongValue = '';
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
     assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
 
-    wrongValue = "   ";
+    wrongValue = '   ';
     //@ts-ignore
     objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
     assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
@@ -395,5 +396,29 @@ Deno.test('test sanitizeObj()', async (t) => {
 
     // test enum type
     assertThrows(() => s.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
+  });
+
+  await t.step('keyInsensitiveMatch option test', async () => {
+    const objToSanitize = {
+      str: 999,
+      num: '123',
+      bool: 0,
+    };
+
+    const expObj = {
+      str: '999',
+      num: 123,
+      bool: false,
+      NUM2: 0,
+    };
+
+    const sanitization = {
+      '  sTr   ': S.STRING_TYPE,
+      'NUM  ': S.NUMBER_TYPE,
+      bool: S.BOOLEAN_TYPE,
+      NUM2: S.NUMBER_TYPE,  // this key is not present in `objToSanitize` then will be added in the sanitized object
+    };
+
+    assert(eq(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, keyInsensitiveMatch: true }), expObj));
   });
 });

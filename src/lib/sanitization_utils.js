@@ -3,6 +3,7 @@ export { sanitize, sanitizeObj };
 import * as schema from './schema.js';
 import { parseJsonDate, excelSerialDateToDate, excelSerialDateToUTCDate, toUTC } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
+import { eq2, get2 } from './obj_utils.js';
 
 //#region defaults
 const DEFAULT__NUMBER_TO_DATE = schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE;
@@ -315,9 +316,10 @@ function sanitize ({ value, sanitization, options, validate = false }) {
  * @param {*} [p.options.defaultDate=new Date(0)]
  * @param {*} [p.options.defaultBigInt=BigInt(0)]
  * @param {boolean} [p.validate=false] - Optional validation flag
+ * @param {boolean} [p.keyInsensitiveMatch=false] - Optionally match keys between sanitization and obj to sanitize in a case insensitive way (case and trim)
  * @return {*} Sanitized object
  */
-function sanitizeObj ({ obj, sanitization, options, validate = false }) {
+function sanitizeObj ({ obj, sanitization, options, validate = false, keyInsensitiveMatch = false }) {
   let retValue;
 
   if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
@@ -327,12 +329,19 @@ function sanitizeObj ({ obj, sanitization, options, validate = false }) {
   else if (Array.isArray(obj)) {
     for (const elem of obj) {
       for (let i = 0; i < obj.length; i++) {  // sanitize every element of the array
-        obj[i] = _sanitizeObj2(obj[i]);
+        if (keyInsensitiveMatch)
+          obj[i] = _sanitizeObj2_keyInsensitiveMatch(obj[i]);
+        else
+          obj[i] = _sanitizeObj2(obj[i]);
       }
     }
     retValue = obj;
-  } else
-    retValue = _sanitizeObj2(obj);
+  } else {
+    if (keyInsensitiveMatch)
+      retValue = _sanitizeObj2_keyInsensitiveMatch(obj);
+    else
+      retValue = _sanitizeObj2(obj);
+  }
 
   if (validate)
     return validateObjFunc({ obj: retValue, validation: sanitization });
@@ -357,6 +366,44 @@ function sanitizeObj ({ obj, sanitization, options, validate = false }) {
       if (!(key in _obj) && optionalSanitization)
         continue;
 
+      _obj[key] = sanitize({ value: _obj[key], sanitization: sanitization[key], options: options });
+    }
+    return _obj;
+  }
+
+  /**
+   * Local sanitization function, with key insensitive match
+   * @param {*} _obj - Object to sanitize
+   * @return {*} Sanitized object
+   */
+  function _sanitizeObj2_keyInsensitiveMatch (_obj) {
+    // loop object to sanitize keys
+    for (const key of Object.keys(_obj)) {
+      // get sanitization with get2 (get key after trim & case insensitive)
+      const _sanitization = get2(sanitization, key);
+      // skip loop if sanitization is undefined
+      if (_sanitization == null)
+        continue;
+
+      // skip enum sanitization (if the sanitization array contains values different from functions means that it is an enum)
+      if (Array.isArray(_sanitization) && typeof _sanitization[0] !== 'function')
+        continue;
+
+      _obj[key] = sanitize({ value: _obj[key], sanitization: get2(sanitization, key), options: options });
+    }
+
+    // code that generate properties with default values if they are missing in the object to sanitize;
+    // loop sanitization keys, not object to sanitize keys
+    for (const key of Object.keys(sanitization)) {
+      // if the sanitization is optional, skip sanitization
+      if ((typeof sanitization[key] === 'string') && (sanitization[key].toString().trim().slice(-1) === '?'))
+        continue;
+
+      // if there is a key in the object to sanitize that match the sanitization key, skip sanitization
+      if (Object.keys(_obj).find(_ => eq2(_, key)))
+        continue;
+
+      // if we are here, the sanitization key is missing in the object to sanitize, so add it with default value
       _obj[key] = sanitize({ value: _obj[key], sanitization: sanitization[key], options: options });
     }
     return _obj;
