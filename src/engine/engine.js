@@ -306,11 +306,11 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
      * @param {Settings} p.settings
      */
     function setDebugLevelOnLedger ({ debugParameter, settings }) {
-      const _debugFlagFromParameter = sanitize({ value: debugParameter, sanitization: schema.STRING_TYPE }).toLowerCase();
+      const _debugFlagFromParameter = sanitize({ value: debugParameter, sanitization: schema.STRINGLOWERCASETRIMMED_TYPE });
       const _debugFlagFromSettings = sanitize({
         value: settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
-        sanitization: schema.STRING_TYPE
-      }).toLowerCase();
+        sanitization: schema.STRINGLOWERCASETRIMMED_TYPE
+      });
 
       if (isStringOrBooleanTrue(_debugFlagFromParameter) || isStringOrBooleanTrue(_debugFlagFromSettings))
         _ledger.setDebug();

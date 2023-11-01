@@ -18,7 +18,7 @@ function isStringOrBooleanTrue (value) {
     if (typeof value === 'boolean')
       return value;
     // if value is not boolean, sanitize it to string, convert to lowercase and trim before compare
-    return (sanitize({ value: value, sanitization: schema.STRING_TYPE }).trim().toLowerCase() === BOOLEAN_TRUE_STRING);
+    return (sanitize({ value: value, sanitization: schema.STRINGLOWERCASETRIMMED_TYPE }) === BOOLEAN_TRUE_STRING);
   } catch (e) {
     return false;
   }
@@ -35,7 +35,7 @@ function isStringOrBooleanFalse (value) {
     if (typeof value === 'boolean')
       return !value;
     // if value is not boolean, sanitize it to string, convert to lowercase and trim before compare
-    return (sanitize({ value: value, sanitization: schema.STRING_TYPE }).trim().toLowerCase() === BOOLEAN_FALSE_STRING);
+    return (sanitize({ value: value, sanitization: schema.STRINGLOWERCASETRIMMED_TYPE }) === BOOLEAN_FALSE_STRING);
   } catch (e) {
     return false;
   }

@@ -41,9 +41,7 @@ class ModulesLoader {
     };
     validateObj({ obj: p, validation: _validation });
 
-    const _moduleName = p.moduleName.trim().toLowerCase();
-
-    const repoKey = this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: _moduleName });
+    const repoKey = this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: p.moduleName });
     if (!(this.#classesRepo.has(repoKey)))
       this.#classesRepo.set(repoKey, { class: p.classObj, cdnURI: '' });
     else
@@ -65,14 +63,12 @@ class ModulesLoader {
       validation: { moduleName: schema.STRING_TYPE, moduleEngineURI: schema.STRING_TYPE }
     });
 
-    const _moduleName = p.moduleName.trim().toLowerCase();
-
-    const repoKey = this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: _moduleName });
+    const repoKey = this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: p.moduleName });
 
     if (!(this.#classesRepo.has(repoKey))) {
       let _URI = p.moduleEngineURI.trim();
-      if (['', '.', '/', './', '\\', '.\\'].includes(_URI))  // If moduleEngineURI is missing or . / /. \ \., is set to ./${_moduleName}.js
-        _URI = `./${_moduleName}.js`;
+      if (['', '.', '/', './', '\\', '.\\'].includes(_URI))  // If moduleEngineURI is missing or . / /. \ \., is set to ./${p.moduleName.trim().toLowerCase()}.js
+        _URI = `./${p.moduleName.trim().toLowerCase()}.js`;
 
       // DYNAMIC IMPORT (works with Deno and browser)
       let _lastImportError = '';
@@ -107,9 +103,7 @@ class ModulesLoader {
     };
     validateObj({ obj: p, validation: _validation });
 
-    const _moduleName = p.moduleName.trim().toLowerCase();
-
-    const _ret = this.#classesRepo.get(this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: _moduleName }));
+    const _ret = this.#classesRepo.get(this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: p.moduleName }));
     if (_ret === undefined)
       return undefined;
     if (_ret.class == null || _ret.cdnURI == null)
@@ -126,7 +120,7 @@ class ModulesLoader {
   #classesRepoBuildKey ({ moduleEngineURI, moduleName }) {
     const _p = sanitizeObj({
       obj: { moduleEngineURI, moduleName },
-      sanitization: { moduleEngineURI: schema.STRING_TYPE, moduleName: schema.STRING_TYPE },
+      sanitization: { moduleEngineURI: schema.STRING_TYPE, moduleName: schema.STRINGLOWERCASETRIMMED_TYPE },
       validate: true
     });
     return JSON.stringify({moduleEngineURI: _p.moduleEngineURI, moduleName: _p.moduleName});

@@ -7,7 +7,7 @@ export { isNullOrWhiteSpace, isEmptyOrWhiteSpace };
  */
 function isNullOrWhiteSpace (value) {
   try {
-    return value === null || value === undefined || value === '' || value.toString().trim() === '';
+    return value === null || value === undefined || value === '' || (typeof value === 'string' && value.toString().trim() === '');
   } catch (e) {
     return false;
   }

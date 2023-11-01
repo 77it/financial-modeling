@@ -12,7 +12,7 @@ import { convertExcelToModuleDataArray } from './deno/convert_excel_to_moduledat
 //#endregion deno imports
 
 //#region local imports
-import { Result, schema, sanitize, sanitizeObj, parseJSON5, isNullOrWhiteSpace } from './deps.js';
+import { Result, schema, sanitize, sanitizeObj, parseJSON5, isNullOrWhiteSpace, eq2, get2 } from './deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
@@ -114,7 +114,7 @@ async function main ({
       sanitization: schema.ARRAY_OF_STRINGS_TYPE
     });
 
-    if(isNullOrWhiteSpace(_$$SCENARIOS[0]))  // if first scenario is empty, set it to base scenario
+    if (isNullOrWhiteSpace(_$$SCENARIOS[0]))  // if first scenario is empty, set it to base scenario
       _$$SCENARIOS[0] = STD_NAMES.Scenario.BASE;
 
     //#region loop scenarios
@@ -167,14 +167,14 @@ async function main ({
       Deno.exit(_exitCode);
   }
 
-/*
-  ______   _   _   _____
- |  ____| | \ | | |  __ \
- | |__    |  \| | | |  | |
- |  __|   | . ` | | |  | |
- | |____  | |\  | | |__| |
- |______| |_| \_| |_____/
- */
+  /*
+    ______   _   _   _____
+   |  ____| | \ | | |  __ \
+   | |__    |  \| | | |  | |
+   |  __|   | . ` | | |  | |
+   | |____  | |\  | | |__| |
+   |______| |_| \_| |_____/
+   */
 
   //#region local functions
   /**
@@ -206,39 +206,28 @@ function _get_SimulationSetting_FromModuleDataArray ({
   settingSanitization
 }) {
   try {
-    const _settingName = settingName.trim().toLowerCase();
-
-    const moduleName = SETTINGS_MODULE_INFO.MODULE_NAME.trim().toLowerCase();
     const table = SETTINGS_MODULE_INFO.tablesInfo.Set;
-    const tableName = table.tableName.trim().toLowerCase();
-    const tableSanitization = table.sanitization;
-    const tableColScenario = table.columns.scenario.trim().toLowerCase();
-    const tableColUnit = table.columns.unit.trim().toLowerCase();
-    const tableColName = table.columns.name.trim().toLowerCase();
-    const tableColValue = table.columns.value.trim().toLowerCase();
-    const scenarioName = STD_NAMES.Scenario.BASE.trim().toLowerCase();
-    const unitName = STD_NAMES.Simulation.NAME.trim().toLowerCase();
 
     const _setting = (() => {
       for (const moduleData of moduleDataArray) {
-        if (moduleData.moduleName.trim().toLowerCase() === moduleName)
-          for (const _tableObj of moduleData.tables) {
-            if (_tableObj.tableName.trim().toLowerCase() === tableName) {
-              const _table = structuredClone(_tableObj.table);  // clone _tableObj to avoid side effects
+        if (eq2(moduleData.moduleName, SETTINGS_MODULE_INFO.MODULE_NAME)) {
+          for (const _tableSrc of moduleData.tables) {
+            if (eq2(_tableSrc.tableName, table.tableName)) {
+              const _table = structuredClone(_tableSrc.table);  // clone _tableSrc to avoid to store the sanitization effect
               sanitizeObj({
                 obj: _table,
-                sanitization: tableSanitization
+                sanitization: table.sanitization
               });
               for (const row of _table) {
-                if (
-                  (row[tableColScenario].toString().trim().toLowerCase() === scenarioName ||
-                    isNullOrWhiteSpace(row[tableColScenario].toString().trim().toLowerCase())) &&
-                  row[tableColUnit].toString().trim().toLowerCase() === unitName &&
-                  row[tableColName].toString().trim().toLowerCase() === _settingName)
-                  return row[tableColValue];
+                if ((eq2(get2(row, table.columns.scenario), STD_NAMES.Scenario.BASE) ||
+                    isNullOrWhiteSpace(get2(row, table.columns.scenario))) &&
+                  eq2(get2(row, table.columns.unit), STD_NAMES.Simulation.NAME) &&
+                  eq2(row[table.columns.name], settingName))
+                  return get2(row, table.columns.value);
               }
             }
           }
+        }
       }
     })();
 
