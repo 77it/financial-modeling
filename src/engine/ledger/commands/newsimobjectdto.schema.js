@@ -8,7 +8,7 @@ import * as schema from '../../../lib/schema.js';
 const newSimObjectDto_Schema = {
   type: schema.STRINGUPPERCASETRIMMED_TYPE,
 
-  name: schema.STRINGLOWERCASETRIMMED_TYPE,
+  name: schema.STRINGUPPERCASETRIMMED_TYPE,
   description: schema.STRING_TYPE,
   mutableDescription: schema.STRING_TYPE,
 
