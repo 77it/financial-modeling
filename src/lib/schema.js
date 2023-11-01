@@ -29,12 +29,3 @@ export const NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE = 'NUMBER_TO_DATE__EXCE
 export const NUMBER_TO_DATE_OPTS__JS_SERIAL_DATE = 'NUMBER_TO_DATE__JS_SERIAL_DATE';
 export const NUMBER_TO_DATE_OPTS__NO_CONVERSION = 'NUMBER_TO_DATE__NO_CONVERSION';
 //#endregion types
-
-//#region defaults
-const DEFAULT__NUMBER_TO_DATE = NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE;
-const DEFAULT__DATE_UTC = false;  // if true, conversion from string or number to dates return UTC dates
-const DEFAULT_STRING = '';
-const DEFAULT_NUMBER = 0;
-const DEFAULT_DATE = new Date(0);
-const DEFAULT_BIGINT = BigInt(0);
-//#endregion defaults

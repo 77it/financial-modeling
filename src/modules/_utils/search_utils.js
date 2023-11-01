@@ -11,7 +11,7 @@ import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, get2, parseJsonDate, isV
  * @param {{tableName: string, lookup_value: *, lookup_key: string, return_key: string, return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: string, sanitizationOptions?: Object }} opt
  * return_first_match default = true.
  * string_insensitive_match default = true; if true, `lookup_key` and `return_key` are get directly and if not found they are matched with all keys after trim & case insensitive;
- *   `lookup_value`, if is a string, is matched with values after trim & case insensitive.
+ *   `lookup_value`, if is a string, is matched with values of `lookup_key` after trim & case insensitive.
  * sanitization if missing, no sanitization is performed.
  * sanitizationOptions if missing, no sanitizationOptions are passed to sanitization.
  * @returns {*}

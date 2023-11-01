@@ -4,7 +4,8 @@ import { ModuleData, schema, validateObj, sanitizeObj, eq2 } from '../../deps.js
 
 /**
  * Sanitize moduleData tables in place (without cloning moduleData).
- * tableName is case-insensitive.
+ * tableName is matched between moduleData and moduleSanitization in a case insensitive & trim way.
+ * sanitization is also done in a case insensitive & trim way, matching the keys of the object to sanitize to the sanitization object keys.
  * @param {Object} p
  * @param {ModuleData} p.moduleData
  * @param {{tableName: string, sanitization: *, sanitizationOptions?: *}[]} p.moduleSanitization
@@ -26,7 +27,8 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
         {
           obj: _table.table,
           sanitization: _sanitization.sanitization,
-          options: _sanitization?.sanitizationOptions
+          options: _sanitization?.sanitizationOptions,
+          keyInsensitiveMatch: true
         });
     }
   }

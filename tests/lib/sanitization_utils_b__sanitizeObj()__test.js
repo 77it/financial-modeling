@@ -398,7 +398,7 @@ Deno.test('test sanitizeObj()', async (t) => {
     assertThrows(() => s.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
   });
 
-  await t.step('keyInsensitiveMatch option test', async () => {
+  await t.step('keyInsensitiveMatch option test + add a missing sanitization key', async () => {
     const objToSanitize = {
       str: 999,
       num: '123',
@@ -417,6 +417,7 @@ Deno.test('test sanitizeObj()', async (t) => {
       'NUM  ': S.NUMBER_TYPE,
       bool: S.BOOLEAN_TYPE,
       NUM2: S.NUMBER_TYPE,  // this key is not present in `objToSanitize` then will be added in the sanitized object
+      NUM3: S.NUMBER_TYPE + S.OPTIONAL,  // this key is not present in `objToSanitize` and WILL NOT be added because it's optional
     };
 
     assert(eq(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, keyInsensitiveMatch: true }), expObj));
