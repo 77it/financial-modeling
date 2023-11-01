@@ -13,9 +13,9 @@ if (existSync(ERROR_FILE)) Deno.removeSync(ERROR_FILE);
 
 Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
 
-Deno.test('main-treasury-temp tests with ./user_data__no_settings.xlsx', async () => {
-  const BASE_TEST_FILENAME = 'user_data__no_settings';
-  const JSONL_OUTPUT = 'base.jsonl';
+Deno.test('main-treasury-temp tests with ./user_data.xlsx', async () => {
+  const BASE_TEST_FILENAME = 'user_data';
+  const JSONL_OUTPUT = 'a.jsonl';
 
   await main({
     excelUserInput: `./${BASE_TEST_FILENAME}.xlsx`, outputFolder: '.', errors: ERROR_FILE,
