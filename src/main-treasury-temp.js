@@ -22,7 +22,7 @@ import { Module } from './modules/_sample_module.js';
 
 import { ModuleInfo as SETTINGS_MODULE_INFO } from './modules/settings.js';
 import * as SETTINGS_NAMES from './config/settings_names.js';
-import * as STD_NAMES from './config/standard_names.js';
+import * as CFG from './config/engine.js';
 //#endregion local imports
 
 // call `main` function only if there are command line arguments  (useful to not call `main` function with the following code when importing this file)
@@ -115,7 +115,7 @@ async function main ({
     });
 
     if (isNullOrWhiteSpace(_$$SCENARIOS[0]))  // if first scenario is empty, set it to base scenario
-      _$$SCENARIOS[0] = STD_NAMES.Scenario.BASE;
+      _$$SCENARIOS[0] = CFG.SCENARIO_BASE;
 
     //#region loop scenarios
     for (const _scenario of _$$SCENARIOS) {
@@ -219,9 +219,9 @@ function _get_SimulationSetting_FromModuleDataArray ({
                 sanitization: table.sanitization
               });
               for (const row of _table) {
-                if ((eq2(get2(row, table.columns.scenario), STD_NAMES.Scenario.BASE) ||
+                if ((eq2(get2(row, table.columns.scenario), CFG.SCENARIO_BASE) ||
                     isNullOrWhiteSpace(get2(row, table.columns.scenario))) &&
-                  eq2(get2(row, table.columns.unit), STD_NAMES.Simulation.NAME) &&
+                  eq2(get2(row, table.columns.unit), CFG.SIMULATION_NAME) &&
                   eq2(row[table.columns.name], settingName))
                   return get2(row, table.columns.value);
               }

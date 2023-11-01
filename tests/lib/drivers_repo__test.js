@@ -2,17 +2,17 @@ import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from
 import { schema } from '../deps.js';
 
 import { DriversRepo } from '../../src/lib/drivers_repo.js';
-import * as STD_NAMES from '../../src/config/standard_names.js';
+import * as CFG from '../../src/config/engine.js';
 
 Deno.test('Drivers tests', async () => {
   const _currentScenario = 'SCENARIO1';
   const drivers = new DriversRepo({
     currentScenario: _currentScenario,
-    baseScenario: STD_NAMES.Scenario.BASE,
-    defaultUnit: STD_NAMES.Simulation.NAME,
+    baseScenario: CFG.SCENARIO_BASE,
+    defaultUnit: CFG.SIMULATION_NAME,
     sanitizationType: schema.NUMBER_TYPE,
-    prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
-    prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
+    prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
+    prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES,
     allowMutable: true,
     freezeImmutableValues: false
   });
@@ -31,9 +31,9 @@ Deno.test('Drivers tests', async () => {
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25), value: 555 },  // #driver1[1]
 
     // mutable
-    { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 77 },  // #driver3[0]
-    { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2), value: 7_777 },  // #driver3[3]
-    { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25), value: 777 },  // #driver3[1]
+    { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 77 },  // #driver3[0]
+    { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2), value: 7_777 },  // #driver3[3]
+    { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25), value: 777 },  // #driver3[1]
 
     { name: 'driver XYZ2', date: new Date(2023, 1, 25), value: 77_777 },  // #driver4  missing scenario and unit
 
@@ -54,7 +54,7 @@ Deno.test('Drivers tests', async () => {
   const input2 = [
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', value: 6655 },  //  #driver2; being already set, will be ignored
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 99 },  // immutable, ignored
-    { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 25), value: 7_775 },  // #driver3[2]
+    { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 25), value: 7_775 },  // #driver3[2]
   ];
   const input2_clone = structuredClone(input2);
   const errors2 = drivers.set(input2);
@@ -113,30 +113,30 @@ Deno.test('Drivers tests', async () => {
 
   // #driver3[0] tests
   drivers.setToday(new Date(2022, 11, 25));  // set today
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ' }), 77);  // query without date (will query today)
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // undefined, query before set date
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25) }), 77);  // query with exact date
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 24) }), 77);  // query with last date before next driver
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ' }), 77);  // query without date (will query today)
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // undefined, query before set date
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25) }), 77);  // query with exact date
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 24) }), 77);  // query with last date before next driver
   drivers.setToday(new Date(0));  // reset today
 
   // #driver3[1] tests
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25) }), 777);  // query with exact date
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 24) }), 777);  // query with last date before next driver
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25) }), 777);  // query with exact date
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 24) }), 777);  // query with last date before next driver
 
   // #driver3[2] tests
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 25) }), 7_775);  // query with exact date
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 31) }), 7_775);  // query with last date before next driver
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 25) }), 7_775);  // query with exact date
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 31) }), 7_775);  // query with last date before next driver
 
   // #driver3[3] tests
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 1) }), 7_775);  // query before set date
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2) }), 7_777);  // query with exact date
-  assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2099, 0, 1) }), 7_777);  // query with a date long after driver
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 1) }), 7_775);  // query before set date
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2) }), 7_777);  // query with exact date
+  assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2099, 0, 1) }), 7_777);  // query with a date long after driver
 
   // #driver4 tests
-  assertEquals(drivers.get({ scenario: _currentScenario, unit: STD_NAMES.Simulation.NAME, name: 'driver XYZ2', date: new Date(2023, 1, 25) }), 77_777);  // query with exact date
-  assertEquals(drivers.get({ scenario: _currentScenario, unit: STD_NAMES.Simulation.NAME, name: 'driver XYZ2', date: new Date(2024, 0, 1) }), 77_777);  // query with last date before next driver
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: CFG.SIMULATION_NAME, name: 'driver XYZ2', date: new Date(2023, 1, 25) }), 77_777);  // query with exact date
+  assertEquals(drivers.get({ scenario: _currentScenario, unit: CFG.SIMULATION_NAME, name: 'driver XYZ2', date: new Date(2024, 0, 1) }), 77_777);  // query with last date before next driver
   // missing scenario
-  assertEquals(drivers.get({ unit: STD_NAMES.Simulation.NAME, name: 'driver XYZ2', date: new Date(2023, 1, 25) }), 77_777);  // query with exact date
+  assertEquals(drivers.get({ unit: CFG.SIMULATION_NAME, name: 'driver XYZ2', date: new Date(2023, 1, 25) }), 77_777);  // query with exact date
   // missing Unit
   assertEquals(drivers.get({ scenario: _currentScenario, name: 'driver XYZ2', date: new Date(2023, 1, 25) }), 77_777);  // query with exact date
   // missing scenario and Unit
@@ -152,11 +152,11 @@ Deno.test('Advanced Drivers tests', async (t) => {
   const _currentScenario = 'SCENARIO1';
   const drivers = new DriversRepo({
     currentScenario: _currentScenario,
-    baseScenario: STD_NAMES.Scenario.BASE,
-    defaultUnit: STD_NAMES.Simulation.NAME,
+    baseScenario: CFG.SCENARIO_BASE,
+    defaultUnit: CFG.SIMULATION_NAME,
     sanitizationType: schema.ANY_TYPE,
-    prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
-    prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES,
+    prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
+    prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES,
     allowMutable: true,
     freezeImmutableValues: false
   });
@@ -236,32 +236,32 @@ Deno.test('Advanced Drivers tests', async (t) => {
   await t.step('get() with search', async () => {
     const input = [
       { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC Unit', value: 1 },
-      { scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Default Unit', value: 2 },
-      { scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation', value: 3 },
-      { scenario: STD_NAMES.Scenario.BASE, unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Base Simulation, Default Unit', value: 4 },
+      { scenario: 'SCENARIO1', unit: CFG.SIMULATION_NAME, name: '$$driverABC2 Default Unit', value: 2 },
+      { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation', value: 3 },
+      { scenario: CFG.SCENARIO_BASE, unit: CFG.SIMULATION_NAME, name: '$$driverABC2 Base Simulation, Default Unit', value: 4 },
     ];
     drivers.set(input);
 
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC Unit', search: true }), 1);
 
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Default Unit', search: true }), 2);
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Default Unit', search: true }), 2);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: CFG.SIMULATION_NAME, name: '$$driverABC2 Default Unit', search: true }), 2);
     assertEquals(drivers.get({
-      scenario: STD_NAMES.Scenario.BASE,
-      unit: STD_NAMES.Simulation.NAME,
+      scenario: CFG.SCENARIO_BASE,
+      unit: CFG.SIMULATION_NAME,
       name: '$$driverABC2 Default Unit',
       search: true
     }), undefined);
 
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Base Simulation', search: true }), 3);
-    assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation', search: true }), 3);
+    assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation', search: true }), 3);
 
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
-    assertEquals(drivers.get({ scenario: STD_NAMES.Scenario.BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: CFG.SIMULATION_NAME, name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
+    assertEquals(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: '$$driverABC2 Base Simulation, Default Unit', search: true }), 4);
     assertEquals(drivers.get({
-      scenario: STD_NAMES.Scenario.BASE,
-      unit: STD_NAMES.Simulation.NAME,
+      scenario: CFG.SCENARIO_BASE,
+      unit: CFG.SIMULATION_NAME,
       name: '$$driverABC2 Base Simulation, Default Unit',
       search: true
     }), 4);
@@ -277,23 +277,23 @@ Deno.test('Advanced Drivers tests', async (t) => {
     assertEquals(drivers.get({ unit: 'UnitA', name: '$$undefinedDriver1b' }), 123456711);
     assertEquals(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$$undefinedDriver1b' }), 123456711);
 
-    // undefined unit = STD_NAMES.Simulation.NAME
+    // undefined unit = CFG.SIMULATION_NAME
     drivers.set([{ scenario: 'SCENARIO1', unit: undefined, name: '$$undefinedDriver2', value: 12345672 }]);
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: undefined, name: '$$undefinedDriver2' }), 12345672);
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$undefinedDriver2' }), 12345672);
-    // omitted unit = STD_NAMES.Simulation.NAME
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: CFG.SIMULATION_NAME, name: '$$undefinedDriver2' }), 12345672);
+    // omitted unit = CFG.SIMULATION_NAME
     drivers.set([{ scenario: 'SCENARIO1', name: '$$undefinedDriver2b', value: 123456722 }]);
     assertEquals(drivers.get({ scenario: 'SCENARIO1', name: '$$undefinedDriver2b' }), 123456722);
-    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: STD_NAMES.Simulation.NAME, name: '$$undefinedDriver2b' }), 123456722);
+    assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: CFG.SIMULATION_NAME, name: '$$undefinedDriver2b' }), 123456722);
 
-    // undefined scenario & undefined unit = _currentScenario & STD_NAMES.Simulation.NAME
+    // undefined scenario & undefined unit = _currentScenario & CFG.SIMULATION_NAME
     drivers.set([{ scenario: undefined, unit: undefined, name: '$$undefinedDriver3', value: 12345673 }]);
     assertEquals(drivers.get({ scenario: undefined, unit: undefined, name: '$$undefinedDriver3' }), 12345673);
-    assertEquals(drivers.get({ scenario: _currentScenario, unit: STD_NAMES.Simulation.NAME, name: '$$undefinedDriver3' }), 12345673);
-    // omitted scenario & omitted unit = _currentScenario & STD_NAMES.Simulation.NAME
+    assertEquals(drivers.get({ scenario: _currentScenario, unit: CFG.SIMULATION_NAME, name: '$$undefinedDriver3' }), 12345673);
+    // omitted scenario & omitted unit = _currentScenario & CFG.SIMULATION_NAME
     drivers.set([{ name: '$$undefinedDriver3b', value: 123456733 }]);
     assertEquals(drivers.get({ name: '$$undefinedDriver3b' }), 123456733);
-    assertEquals(drivers.get({ scenario: _currentScenario, unit: STD_NAMES.Simulation.NAME, name: '$$undefinedDriver3b' }), 123456733);
+    assertEquals(drivers.get({ scenario: _currentScenario, unit: CFG.SIMULATION_NAME, name: '$$undefinedDriver3b' }), 123456733);
   });
 
   await t.step('Immutable driver with freezeImmutableValues: false, values are still mutable inside', async () => {

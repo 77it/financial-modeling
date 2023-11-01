@@ -3,7 +3,6 @@
 export { Simulation, Unit };
 
 import { deepFreeze, ensureArrayValuesAreUnique } from '../lib/obj_utils.js';
-import * as sanitization from '../lib/sanitization_utils.js';
 
 const Simulation = {
   // immutable: without dates

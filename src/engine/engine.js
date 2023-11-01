@@ -1,7 +1,6 @@
 export { engine };
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import * as STD_NAMES from '../config/standard_names.js';
 import * as CFG from '../config/engine.js';
 
 import * as schema from '../lib/schema.js';
@@ -64,18 +63,18 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     const _modulesArray = modules;
 
     const _settings = new Settings({
-      currentScenario: scenarioName, baseScenario: STD_NAMES.Scenario.BASE,
-      defaultUnit: STD_NAMES.Simulation.NAME,
-      prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
-      prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES
+      currentScenario: scenarioName, baseScenario: CFG.SCENARIO_BASE,
+      defaultUnit: CFG.SIMULATION_NAME,
+      prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
+      prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES
     });
     const _drivers = new Drivers({
-      currentScenario: scenarioName, baseScenario: STD_NAMES.Scenario.BASE,
-      defaultUnit: STD_NAMES.Simulation.NAME,
-      prefix__immutable_without_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITHOUT_DATES,
-      prefix__immutable_with_dates: STD_NAMES.ImmutablePrefix.PREFIX__IMMUTABLE_WITH_DATES
+      currentScenario: scenarioName, baseScenario: CFG.SCENARIO_BASE,
+      defaultUnit: CFG.SIMULATION_NAME,
+      prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
+      prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES
     });
-    const _taskLocks = new TaskLocks({ defaultUnit: STD_NAMES.Simulation.NAME });
+    const _taskLocks = new TaskLocks({ defaultUnit: CFG.SIMULATION_NAME });
     //#endregion variables declaration
 
     //#region set context
@@ -149,7 +148,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     });
     // read `$$SIMULATION_END_DATE` from settings
     _endDate = sanitize({
-      value: _settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE }),
+      value: _settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE }),
       sanitization: schema.DATE_TYPE + schema.OPTIONAL
     });
     // if `_startDate` is still undefined, set it to default value (Date(0))
@@ -308,7 +307,7 @@ async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledg
     function setDebugLevelOnLedger ({ debugParameter, settings }) {
       const _debugFlagFromParameter = sanitize({ value: debugParameter, sanitization: schema.STRINGLOWERCASETRIMMED_TYPE });
       const _debugFlagFromSettings = sanitize({
-        value: settings.get({ unit: STD_NAMES.Simulation.NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
+        value: settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
         sanitization: schema.STRINGLOWERCASETRIMMED_TYPE
       });
 

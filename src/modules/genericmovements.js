@@ -19,7 +19,7 @@ import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
 import { Agenda } from './_utils/Agenda.js';
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import * as MODULES_CONFIG from '../config/modules.js';
+import * as CFG from '../config/engine.js';
 
 const MODULE_NAME = 'genericmovements';
 const tablesInfo = {};
@@ -39,8 +39,8 @@ tablesInfo.Set.sanitization = {
   [tablesInfo.Set.columns.accounting_opposite_type]: schema.STRINGUPPERCASETRIMMED_TYPE,
   [tablesInfo.Set.columns.simObject_name]: schema.STRINGUPPERCASETRIMMED_TYPE,
 };
-tablesInfo.Set.simulationColumnPrefix = MODULES_CONFIG.SIMULATION_COLUMN_PREFIX;
-tablesInfo.Set.historicalColumnPrefix = MODULES_CONFIG.HISTORICAL_COLUMN_PREFIX;
+tablesInfo.Set.simulationColumnPrefix = CFG.SIMULATION_COLUMN_PREFIX;
+tablesInfo.Set.historicalColumnPrefix = CFG.HISTORICAL_COLUMN_PREFIX;
 const ModuleInfo = { MODULE_NAME, tablesInfo };
 deepFreeze(ModuleInfo);
 

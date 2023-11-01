@@ -2,10 +2,10 @@
 
 import { SimObjectTypes_enum } from '../../engine/simobject/simobject_types_enum.js';
 import { Ledger } from '../../engine/ledger/ledger.js';
-import { UnitObjects} from '../../config/standard_names.js';
+import { BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME } from '../../config/engine.js';
 
 const CASH_TYPE = SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT;
-const CASH_DEFAULT_NAME = UnitObjects.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT;
+const CASH_DEFAULT_NAME = BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME;
 
 /** Function that creates a cash entry to complete the current ledger with default name and type, taken from a Config defined here.
  * @param {Object} p
