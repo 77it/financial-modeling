@@ -3,17 +3,17 @@ export { xlookup, moduleDataLookup, searchDateKeys };
 import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, get2, parseJsonDate, isValidDate, stripTime } from '../../deps.js';
 
 /**
- * Search in ModuleData a table, then a value in a table, then a value in a column, returning the value of another column in the same row.
- * Search value `lookup_value` in column `lookup_key` in table `tableName` of ModuleData;
- * returns the value of column `return_key` in the same row.
+ * Search table `tableName` in ModuleData, then value `lookup_value` in column `lookup_key`,
+ * then returns the value of column `return_key` in the same row.
  * Optionally sanitize the result; if no match is found, return undefined, optionally sanitized.
+ * If `string_insensitive_match` is true: `tableName` and `lookup_value` (if string) are matched in a case insensitive & trim way,
+ * `lookup_key` and `return_key` are get directly and if not found they are matched with all keys in a case insensitive & trim way.
  * @param {ModuleData} moduleData
  * @param {{tableName: string, lookup_value: *, lookup_key: string, return_key: string, return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: string, sanitizationOptions?: Object }} opt
- * return_first_match default = true.
- * string_insensitive_match default = true; if true, `lookup_key` and `return_key` are get directly and if not found they are matched with all keys after trim & case insensitive;
- *   `lookup_value`, if is a string, is matched with values of `lookup_key` after trim & case insensitive.
- * sanitization if missing, no sanitization is performed.
- * sanitizationOptions if missing, no sanitizationOptions are passed to sanitization.
+ * return_first_match default = true;
+ * string_insensitive_match default = true;
+ * sanitization if missing, no sanitization is performed;
+ * sanitizationOptions is optional.
  * @returns {*}
  * */
 function moduleDataLookup (
@@ -40,7 +40,7 @@ function moduleDataLookup (
   let _found = false;
 
   for (const _table of moduleData.tables) {
-    if (eq2(_table.tableName, tableName)) {
+    if (string_insensitive_match ? eq2(_table.tableName, tableName) : _table.tableName === tableName) {
       for (const row of _table.table) {
         // compare lookup_value with row[lookup_key] (trim & case-insensitive with eq() and get2())
         let _match = false;
@@ -76,12 +76,14 @@ function moduleDataLookup (
 
 // inspired to https://support.microsoft.com/en-us/office/xlookup-function-b7fd680e-6d10-43e6-84f9-88eae8bf5929
 /**
- * Search a value in a column, return the value of another column in the same row. Sanitize the result if needed.
+ * Search value `lookup_value` in `lookup_array`, then return the value of `return_array` in the same row.
+ * Sanitize the result if needed.
+ * If `string_insensitive_match` is true: `lookup_value` (if string) is matched in a case insensitive & trim way,
  * @param {{lookup_value: *, lookup_array: *[], return_array: *[], return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: string, sanitizationOptions?: Object }} p
  * return_first_match default = true;
- * string_insensitive_match default = true; `lookup_value`, if is a string, is matched with values in `lookup_array` after trim & case insensitive.
+ * string_insensitive_match default = true;
  * sanitization if missing, no sanitization is performed;
- * sanitizationOptions if missing, no sanitizationOptions are passed to sanitization.
+ * sanitizationOptions is optional.
  * @returns {*}
  * */
 function xlookup (

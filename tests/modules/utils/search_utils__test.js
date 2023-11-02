@@ -130,29 +130,43 @@ Deno.test('moduleDataLookup test: test search', async () => {
   p = { lookup_value: undefined, lookup_key: 'name', return_key: 'value', return_first_match: false };
   assertEquals(moduleDataLookup(moduleData, p), undefined);
 
-  p = { tableName: 'tabB', lookup_key: 'name', return_key: 'value' };
+  p = {
+    tableName: '   TABB   ',  // with default string_insensitive_match, automatic string conversion (trim and lowercase) of tableName
+    lookup_key: 'name',
+    return_key: 'value'
+  };
 
   //@ts-ignore
   assertEquals(moduleDataLookup(null, p), undefined);
 
   p.lookup_value = 99;
   assertEquals(moduleDataLookup(moduleData, p), 'ninenine');  // return_first_match default = true;
+
   p.return_first_match = true;
   assertEquals(moduleDataLookup(moduleData, p), 'ninenine');
+
   p.return_first_match = false;
   assertEquals(moduleDataLookup(moduleData, p), 'NINENINE2');  // last value is returned (from the second table)
 
-  p.lookup_value = '   FIVE   ';
   p.return_first_match = false;
-  assertEquals(moduleDataLookup(moduleData, p), 88);  // automatic string conversion, trim and lowercase + return from the second table
+  p.lookup_value = '   FIVE   ';
+  assertEquals(moduleDataLookup(moduleData, p), 88);  // string_insensitive_match of value + return from the second table
+
   p.string_insensitive_match = false;
-  assertEquals(moduleDataLookup(moduleData, p), undefined);  // DISABLING automatic string conversion, trim and lowercase
+  p.tableName = '   TABB   ';
   p.lookup_value = ' FiVe ';
-  assertEquals(moduleDataLookup(moduleData, p), 88);  // DISABLING automatic string conversion, trim and lowercase + return from the second table
+  assertEquals(moduleDataLookup(moduleData, p), undefined);  // DISABLING string_insensitive_match, the table name is not matched anymore
+
+  p.tableName = 'tabB';
+  p.lookup_value = '   FIVE   ';
+  assertEquals(moduleDataLookup(moduleData, p), undefined);  // DISABLING string_insensitive_match, the value is not matched anymore
+
+  p.lookup_value = ' FiVe ';
+  assertEquals(moduleDataLookup(moduleData, p), 88);  // exact value match + return from the second table
 
   p.lookup_value = 'five';
   p.string_insensitive_match = true;
-  assertEquals(moduleDataLookup(moduleData, p), 88);  // automatic string conversion, trim and lowercase + return from the second table
+  assertEquals(moduleDataLookup(moduleData, p), 88);  // string_insensitive_match of value + return from the second table
   p.lookup_value = 6;
   assertEquals(moduleDataLookup(moduleData, p), 'six');
 
