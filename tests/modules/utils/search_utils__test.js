@@ -27,8 +27,9 @@ Deno.test('xlookup test: undefined', async () => {
 });
 
 Deno.test('xlookup test: test search', async () => {
-  const lookup_array = [99, 1, 'two', 3, 'four', 99, ' FiVe ', 6, 'seven'];
-  const return_array = ['ninenine', 'one', 2, 'three', 4, 'NINENINE', 5, 'six', 7];
+  const lookup_array = [99, 1, 'two', 3, 'four', 99, ' FiVe ', 6, 'seven', '9'];
+  const return_array = ['ninenine', 'one', 2, 'three', 4, 'NINENINE', 5, 'six', 7, 'xxx'];
+  const return_array_wrong_shorter = ['ninenine'];
 
   /** @type {*} */
   let p = null;
@@ -60,6 +61,16 @@ Deno.test('xlookup test: test search', async () => {
   p = { lookup_value: 6, lookup_array, return_array, return_first_match: false, sanitization: schema.NUMBER_TYPE };
   assertEquals(xlookup(p), 0);
 
+  // failing search of string where the value is number, and viceversa
+  p = { lookup_value: 9, lookup_array, return_array, return_first_match: false };
+  assertEquals(xlookup(p), undefined);
+  p = { lookup_value: '1', lookup_array, return_array, return_first_match: false };
+  assertEquals(xlookup(p), undefined);
+
+  // return undefined the array length is different
+  p = { lookup_value: 99, lookup_array, return_array_wrong_shorter, return_first_match: false };
+  assertEquals(xlookup(p), undefined);
+
   // with sanitization and sanitizationOptions
   p = {
     lookup_value: 6,
@@ -83,6 +94,7 @@ Deno.test('moduleDataLookup test: test search', async () => {
     { name: ' FiVe ', value: 5 },
     { name: 6, value: 'six' },
     { name: 'seven', value: 7 },
+    { name: '9', value: 'xxx' },
   ];
 
   const tableB_2_data = [
@@ -92,7 +104,7 @@ Deno.test('moduleDataLookup test: test search', async () => {
     { name: 3, value: 'three' },
     { name: 'four', value: 4 },
     { name: 99, value: 'NINENINE2' },
-    { name: ' FiVe ', value: 5 },
+    { name: ' FiVe ', value: 88 },
     { name: 6, value: 'six' },
     { name: 'seven', value: 7 },
   ];
@@ -132,22 +144,28 @@ Deno.test('moduleDataLookup test: test search', async () => {
 
   p.lookup_value = '   FIVE   ';
   p.return_first_match = false;
-  assertEquals(moduleDataLookup(moduleData, p), 5);  // automatic string conversion, trim and lowercase
+  assertEquals(moduleDataLookup(moduleData, p), 88);  // automatic string conversion, trim and lowercase + return from the second table
   p.string_insensitive_match = false;
   assertEquals(moduleDataLookup(moduleData, p), undefined);  // DISABLING automatic string conversion, trim and lowercase
   p.lookup_value = ' FiVe ';
-  assertEquals(moduleDataLookup(moduleData, p), 5);  // DISABLING automatic string conversion, trim and lowercase
+  assertEquals(moduleDataLookup(moduleData, p), 88);  // DISABLING automatic string conversion, trim and lowercase + return from the second table
 
   p.lookup_value = 'five';
   p.string_insensitive_match = true;
-  assertEquals(moduleDataLookup(moduleData, p), 5);  // automatic string conversion, trim and lowercase
+  assertEquals(moduleDataLookup(moduleData, p), 88);  // automatic string conversion, trim and lowercase + return from the second table
   p.lookup_value = 6;
   assertEquals(moduleDataLookup(moduleData, p), 'six');
+
+  // failing search of string where the value is number, and viceversa
+  p.lookup_value = 9;
+  assertEquals(moduleDataLookup(moduleData, p), undefined);
+  p.lookup_value = '1';
+  assertEquals(moduleDataLookup(moduleData, p), undefined);
 
   // with sanitization
   p.lookup_value = 'five';
   p.sanitization = schema.STRING_TYPE;
-  assertEquals(moduleDataLookup(moduleData, p), '5');
+  assertEquals(moduleDataLookup(moduleData, p), '88');  // return from the second table
   p.lookup_value = 6;
   p.sanitization = schema.NUMBER_TYPE;
   assertEquals(moduleDataLookup(moduleData, p), 0);
@@ -164,11 +182,11 @@ Deno.test('searchDateKeys test', async () => {
     99: 2,  // ignored, not starting with prefix
     '#2023/01/29': 3,
     '#2023/01/XX': 3,  // ignored, not parsable as a date
-  }
+  };
 
   const exp = [
-    {key: "#2023-12-25T05:20:10", date: new Date(2023, 11, 25)},
-    {key: "#2023/01/29", date: new Date(2023, 0, 29)}
+    { key: '#2023-12-25T05:20:10', date: new Date(2023, 11, 25) },
+    { key: '#2023/01/29', date: new Date(2023, 0, 29) }
   ];
 
   const obj2 = {
@@ -177,11 +195,11 @@ Deno.test('searchDateKeys test', async () => {
     99: 2,  // ignored, not starting with prefix
     'H#2023/01/29': 3,
     'H#2023/01/XX': 3,  // ignored, not parsable as a date
-  }
+  };
 
   const exp2 = [
-    {key: "h#2023-12-25", date: new Date(2023, 11, 25)},  // case insensitive
-    {key: "H#2023/01/29", date: new Date(2023, 0, 29)}
+    { key: 'h#2023-12-25', date: new Date(2023, 11, 25) },  // case insensitive
+    { key: 'H#2023/01/29', date: new Date(2023, 0, 29) }
   ];
 
   assertEquals(JSON.stringify(searchDateKeys({ obj, prefix: '#' })), JSON.stringify(exp));
