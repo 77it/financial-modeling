@@ -46,14 +46,18 @@ Deno.test('YAML tests', (t) => {
   assertEquals(parsedB.mamma, 'ciao');
   //#endregion parsing object (works with ' and ")
 
-  //#region parsing array of something
+  //#region parsing array of something, strings also without quotes
   const txt2 = '[[\'2023-01-05\' , 155343.53] , [\'2023-02-05\',100000],{start: \'2024-06-01\', NP: 2, npy: 2}]';
   let parsed2 = parseYAML(txt2);
   assertEquals(parsed2[0], ['2023-01-05', 155343.53]);
   assertEquals(parsed2[2].NP, 2);
 
+  const txt3 = '[a,b,c]';
+  let parsed3 = parseYAML(txt3);
+  assertEquals(parsed3, ['a', 'b', 'c']);
+
   const txt4 = '[\'ciao\', "mamma"]';
   let parsed4 = parseYAML(txt4);
   assertEquals(parsed4, ['ciao', 'mamma']);
-  //#endregion parsing array of something
+  //#endregion parsing array of something, strings also without quotes
 });
