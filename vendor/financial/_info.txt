@@ -1,1 +1,1 @@
-from https://cdn.jsdelivr.net/npm/financial@0.1.3/
+from https://cdn.jsdelivr.net/npm/financial@0.1.3/ + added `//@ts-nocheck` to the file

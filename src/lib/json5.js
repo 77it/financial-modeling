@@ -12,6 +12,9 @@ import JSON5 from '../../vendor/json5/index.min.mjs';
  */
 function parseJSON5 (value) {
   try {
+    if (value == null)
+      return undefined;
+
     return JSON5.parse(value);
   } catch (e) {
     return undefined;

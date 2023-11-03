@@ -1,0 +1,5 @@
+from   https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.mjs + added `//@ts-nocheck` to the file
+npm   https://www.npmjs.com/package/js-yaml
+github   https://github.com/nodeca/js-yaml
+online demo   https://nodeca.github.io/js-yaml/
+specs   https://yaml.org/spec/1.2.2/
