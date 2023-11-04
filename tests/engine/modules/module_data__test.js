@@ -1,7 +1,6 @@
 // run with `deno test --allow-read THIS-FILE-NAME`
 
 import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
-import { win32 } from "https://deno.land/std@0.182.0/path/mod.ts";
 
 import { moduleDataArray_LoadFromJsonlFile } from '../../../src/deno/module_data_array__load_from_jsonl_file.js';
 import { readLines } from 'https://deno.land/std@0.152.0/io/mod.ts';

@@ -2,7 +2,7 @@ export { moduleDataArray_LoadFromJsonlFile };
 
 import { readLines } from 'https://deno.land/std@0.152.0/io/buffer.ts';
 import { ModuleData } from '../engine/modules/module_data.js';
-import { win32 } from 'https://deno.land/std@0.182.0/path/mod.ts';
+import * as windows from "https://deno.land/std@0.205.0/path/windows/mod.ts";
 
 /**
  * Returns a ModuleData from a JSONL file
@@ -10,7 +10,7 @@ import { win32 } from 'https://deno.land/std@0.182.0/path/mod.ts';
  * @return {Promise<ModuleData[]>} deserialized ModuleData
  */
 async function moduleDataArray_LoadFromJsonlFile (jsonlFilePath) {
-  let _jsonlFilePath = (jsonlFilePath instanceof URL) ? win32.fromFileUrl(jsonlFilePath) : jsonlFilePath;
+  let _jsonlFilePath = (jsonlFilePath instanceof URL) ? windows.fromFileUrl(jsonlFilePath) : jsonlFilePath;
   const fileReader = await Deno.open(_jsonlFilePath);
   const jsonLines = [];
 
