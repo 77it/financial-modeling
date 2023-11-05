@@ -17,5 +17,7 @@ export const IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES = '$';
 export const SIMULATION_COLUMN_PREFIX = '#';
 export const HISTORICAL_COLUMN_PREFIX = 'H#';
 
+export const DEFAULT_UNIT_ID = 'CompanyA';
+
 export const BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME = 'cash_account_1';
 //#endregion modules config

@@ -1,6 +1,7 @@
 export { SettingsDefaultValues };
 
 import { Simulation } from './settings_names.js';
+import { DEFAULT_UNIT_ID } from './engine.js';
 import { Currency_enum } from '../engine/simobject/enums/currency_enum.js';
 import { SimObjectTypes_enum } from '../engine/simobject/simobject_types_enum.js';
 import { deepFreeze } from '../lib/obj_utils.js';
@@ -20,7 +21,7 @@ const SettingsDefaultValues = {
   [Simulation.$DEFAULT_DAY_PAYABLE]: [30, 60],
 
   // first values of mutable settings if nothing else is set
-  [Simulation.ACTIVE_UNIT]: '_',
+  [Simulation.ACTIVE_UNIT]: DEFAULT_UNIT_ID,
   [Simulation.DEFAULT_INTEREST_ON_DEPOSITS]: 0,
   [Simulation.DEFAULT_PASSIVE_INTEREST_ON_OVERDRAFTS]: 0.03,
 };

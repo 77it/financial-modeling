@@ -102,7 +102,7 @@ export class Module {
 
   /** Set Settings Default Values, only if they don't have a value already defined */
   #setSettingsDefaultValues = () => {
-    // loop `SettingsDefaultValues` keys and set a new Setting only if it doesn't exist
+    // loop `SettingsDefaultValues` keys and set a new Setting if it doesn't exist or if it has a null/undefined value
     for (const settingDefault_Key of Object.keys(SettingsDefaultValues)) {
       if (this.#simulationContext.getSetting({ name: settingDefault_Key }) != null) continue;
 
