@@ -15,7 +15,7 @@ import { ModuleData, SimulationContext } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 const MODULE_NAME = '_sample_module';
-const tablesInfo = {};
+const tablesInfo = {};  // when implemented, should be imported from '../config/modules/_sample_module.js'
 
 export class Module {
   #name = MODULE_NAME;

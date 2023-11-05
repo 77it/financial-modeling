@@ -14,33 +14,15 @@ Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
 Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
  */
 
-import { deepFreeze, ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace } from '../deps.js';
+import * as SETTINGS_NAMES from '../config/settings_names.js';
+import { tablesInfo } from '../config/modules/ismovements.js';
+import * as CFG from '../config/engine.js';
+import { Agenda } from './_utils/Agenda.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
-import { Agenda } from './_utils/Agenda.js';
-import * as SETTINGS_NAMES from '../config/settings_names.js';
-import * as CFG from '../config/engine.js';
+import { deepFreeze, ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace } from '../deps.js';
 
 const MODULE_NAME = 'genericmovements';
-const tablesInfo = {};
-tablesInfo.Settings = {};
-tablesInfo.Settings.tableName = 'settings';
-tablesInfo.Settings.columns = { name: 'name', value: 'value' };
-tablesInfo.Settings.sanitization = {
-  [tablesInfo.Settings.columns.name]: schema.STRING_TYPE,
-  [tablesInfo.Settings.columns.value]: schema.ANY_TYPE
-};
-tablesInfo.Set = {};
-tablesInfo.Set.tableName = 'set';
-tablesInfo.Set.columns = { simulation_input: 'simulation input', accounting_type: 'type', accounting_opposite_type: 'vs type', simObject_name: 'name' };
-tablesInfo.Set.sanitization = {
-  [tablesInfo.Set.columns.simulation_input]: schema.ANY_TYPE,
-  [tablesInfo.Set.columns.accounting_type]: schema.STRINGUPPERCASETRIMMED_TYPE,
-  [tablesInfo.Set.columns.accounting_opposite_type]: schema.STRINGUPPERCASETRIMMED_TYPE,
-  [tablesInfo.Set.columns.simObject_name]: schema.STRINGUPPERCASETRIMMED_TYPE,
-};
-tablesInfo.Set.simulationColumnPrefix = CFG.SIMULATION_COLUMN_PREFIX;
-tablesInfo.Set.historicalColumnPrefix = CFG.HISTORICAL_COLUMN_PREFIX;
 const ModuleInfo = { MODULE_NAME, tablesInfo };
 deepFreeze(ModuleInfo);
 
@@ -69,9 +51,7 @@ export class Module {
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
     tableName: tablesInfo.Settings.tableName,
     lookup_key: tablesInfo.Settings.columns.name,
-    return_key: tablesInfo.Settings.columns.value,
-    return_first_match: false,
-    string_insensitive_match: true
+    return_key: tablesInfo.Settings.columns.value
   };
   /** @type {undefined|string} */
   #accounting_opposite_type__default;
@@ -80,9 +60,7 @@ export class Module {
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
     tableName: tablesInfo.Settings.tableName,
     lookup_key: tablesInfo.Settings.columns.name,
-    return_key: tablesInfo.Settings.columns.value,
-    return_first_match: false,
-    string_insensitive_match: true
+    return_key: tablesInfo.Settings.columns.value
   };
   //#endregion data from modules
 

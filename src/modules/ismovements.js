@@ -1,25 +1,11 @@
 // TODO to implement
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
+import { tablesInfo } from '../config/modules/ismovements.js';
 import { deepFreeze, schema, ModuleData, SimulationContext, eq2 } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 const MODULE_NAME = 'ismovements';
-const tablesInfo = {};
-tablesInfo.Settings = {};
-tablesInfo.Settings.tableName = 'settings';
-tablesInfo.Settings.columns = { name: 'name', value: 'value' };
-tablesInfo.Settings.sanitization = {
-  [tablesInfo.Settings.columns.name]: schema.STRING_TYPE,
-  [tablesInfo.Settings.columns.value]: schema.ANY_TYPE
-};
-tablesInfo.Set = {};
-tablesInfo.Set.tableName = 'set';
-tablesInfo.Set.columns = { categoria: 'categoria', category: 'category' };
-tablesInfo.Set.sanitization = {
-  [tablesInfo.Set.columns.categoria]: schema.STRING_TYPE,
-  [tablesInfo.Set.columns.category]: schema.STRING_TYPE
-};
 const ModuleInfo = { MODULE_NAME, tablesInfo };
 deepFreeze(ModuleInfo);
 
