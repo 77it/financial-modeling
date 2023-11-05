@@ -16,11 +16,11 @@ const newSimObjectDto_Schema = {
   metadata__Value: schema.ARRAY_OF_STRINGS_TYPE,
   metadata__PercentageWeight: schema.ARRAY_OF_NUMBERS_TYPE,
 
-  unitId: schema.STRING_TYPE,
+  unitId: schema.STRINGUPPERCASETRIMMED_TYPE,
 
   currency: schema.STRINGUPPERCASETRIMMED_TYPE,
 
-  intercompanyInfo__VsUnitId: schema.STRING_TYPE,
+  intercompanyInfo__VsUnitId: schema.STRINGUPPERCASETRIMMED_TYPE,
 
   value: schema.NUMBER_TYPE,
   writingValue: schema.NUMBER_TYPE,

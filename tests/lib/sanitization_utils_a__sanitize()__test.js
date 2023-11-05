@@ -135,6 +135,10 @@ Deno.test('test sanitize()', async (t) => {
     const t = S.BOOLEAN_TYPE;
     assertEquals(false, s.sanitize({ value: undefined, sanitization: t }));
     assertEquals(false, s.sanitize({ value: null, sanitization: t }));
+    assertEquals(false, s.sanitize({ value: -0, sanitization: t }));
+    assertEquals(false, s.sanitize({ value: 0, sanitization: t }));
+    assertEquals(true, s.sanitize({ value: 1, sanitization: t }));
+    assertEquals(true, s.sanitize({ value: -1, sanitization: t }));
     assertEquals(true, s.sanitize({ value: 999, sanitization: t }));
     assertEquals(false, s.sanitize({ value: '', sanitization: t }));
     assertEquals(true, s.sanitize({ value: 'abc', sanitization: t }));
@@ -250,6 +254,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(['abc'], s.sanitize({ value: 'abc', sanitization: t }));
     assertEquals(['2022-12-25T00:00:00.000Z'], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals([''], s.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals([''], s.sanitize({ value: [[]], sanitization: t }));
+    assertEquals([''], s.sanitize({ value: { }, sanitization: t }));
+    assertEquals([''], s.sanitize({ value: { a: 999}, sanitization: t }));
+    assertEquals([''], s.sanitize({ value: Symbol(), sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(['', '2', 'a'], s.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
@@ -257,6 +265,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(null, s.sanitize({ value: null, sanitization: t2 }));
     assertEquals(['999'], s.sanitize({ value: 999, sanitization: t2 }));
     assertEquals([''], s.sanitize({ value: '', sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: [[]], sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: { }, sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: { a: 999}, sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: Symbol(), sanitization: t2 }));
   });
 
   await t.step('array of strings lowercase trimmed type', async () => {
@@ -269,6 +281,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(['abc'], s.sanitize({ value: 'abc', sanitization: t }));
     assertEquals(['2022-12-25t00:00:00.000z'], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals([''], s.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals([''], s.sanitize({ value: [[]], sanitization: t }));
+    assertEquals([''], s.sanitize({ value: { }, sanitization: t }));
+    assertEquals([''], s.sanitize({ value: { a: 999}, sanitization: t }));
+    assertEquals([''], s.sanitize({ value: Symbol(), sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(['', '2', 'a'], s.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
@@ -276,6 +292,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(null, s.sanitize({ value: null, sanitization: t2 }));
     assertEquals(['999'], s.sanitize({ value: 999, sanitization: t2 }));
     assertEquals([''], s.sanitize({ value: '', sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: [[]], sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: { }, sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: { a: 999}, sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: Symbol(), sanitization: t2 }));
   });
 
   await t.step('array of strings uppercase trimmed type', async () => {
@@ -288,6 +308,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(['ABC'], s.sanitize({ value: 'abc', sanitization: t }));
     assertEquals(['2022-12-25T00:00:00.000Z'], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals([''], s.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals([''], s.sanitize({ value: [[]], sanitization: t }));
+    assertEquals([''], s.sanitize({ value: { }, sanitization: t }));
+    assertEquals([''], s.sanitize({ value: { a: 999}, sanitization: t }));
+    assertEquals([''], s.sanitize({ value: Symbol(), sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(['', '2', 'A'], s.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
@@ -295,6 +319,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(null, s.sanitize({ value: null, sanitization: t2 }));
     assertEquals(['999'], s.sanitize({ value: 999, sanitization: t2 }));
     assertEquals([''], s.sanitize({ value: '', sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: [[]], sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: { }, sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: { a: 999}, sanitization: t2 }));
+    assertEquals([''], s.sanitize({ value: Symbol(), sanitization: t2 }));
   });
 
   await t.step('array of numbers type', async () => {
@@ -307,12 +335,20 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals([0], s.sanitize({ value: 'abc', sanitization: t }));
     assertEquals([1671922800000], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals([0], s.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals([0], s.sanitize({ value: [[]], sanitization: t }));
+    assertEquals([0], s.sanitize({ value: { }, sanitization: t }));
+    assertEquals([0], s.sanitize({ value: { a: 999}, sanitization: t }));
+    assertEquals([0], s.sanitize({ value: Symbol(), sanitization: t }));
 
     const t2 = t + '?';
     assertEquals([0, 2, 0], s.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
     assertEquals(undefined, s.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, s.sanitize({ value: null, sanitization: t2 }));
     assertEquals([999], s.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals([0], s.sanitize({ value: [[]], sanitization: t2 }));
+    assertEquals([0], s.sanitize({ value: { }, sanitization: t2 }));
+    assertEquals([0], s.sanitize({ value: { a: 999}, sanitization: t2 }));
+    assertEquals([0], s.sanitize({ value: Symbol(), sanitization: t2 }));
   });
 
   await t.step('array of booleans type', async () => {
@@ -325,12 +361,20 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals([true], s.sanitize({ value: 'abc', sanitization: t }));
     assertEquals([true], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
     assertEquals([true], s.sanitize({ value: new Date(NaN), sanitization: t }));
+    assertEquals([true], s.sanitize({ value: [[]], sanitization: t }));
+    assertEquals([true], s.sanitize({ value: { }, sanitization: t }));
+    assertEquals([true], s.sanitize({ value: { a: 999}, sanitization: t }));
+    assertEquals([true], s.sanitize({ value: Symbol(), sanitization: t }));
 
     const t2 = t + '?';
     assertEquals([false, true, true], s.sanitize({ value: [undefined, 2, 'a'], sanitization: t2 }));
     assertEquals(undefined, s.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, s.sanitize({ value: null, sanitization: t2 }));
     assertEquals([true], s.sanitize({ value: 999, sanitization: t2 }));
+    assertEquals([true], s.sanitize({ value: [[]], sanitization: t2 }));
+    assertEquals([true], s.sanitize({ value: { }, sanitization: t2 }));
+    assertEquals([true], s.sanitize({ value: { a: 999}, sanitization: t2 }));
+    assertEquals([true], s.sanitize({ value: Symbol(), sanitization: t2 }));
   });
 
   await t.step('array of dates type', async () => {
@@ -356,6 +400,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals([new Date(0)], s.sanitize({ value: 'abc', sanitization: t, options }));
     assertEquals([new Date(2022, 11, 25)], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t, options }));
     assertEquals([new Date(0)], s.sanitize({ value: new Date(NaN), sanitization: t, options }));
+    assertEquals([new Date(0)], s.sanitize({ value: [[]], sanitization: t }));
+    assertEquals([new Date(0)], s.sanitize({ value: { }, sanitization: t }));
+    assertEquals([new Date(0)], s.sanitize({ value: { a: 999}, sanitization: t }));
+    assertEquals([new Date(0)], s.sanitize({ value: Symbol(), sanitization: t }));
 
     const t2 = t + '?';
     assertEquals([new Date(0), new Date(Date.UTC(2022, 11, 25, 0, 0, 0)), new Date(Date.UTC(2022, 11, 25, 0, 0, 0))], s.sanitize({
@@ -367,6 +415,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(null, s.sanitize({ value: null, sanitization: t2, options }));
     assertEquals([new Date(Date.UTC(2022, 11, 25))], s.sanitize({ value: 44920, sanitization: t2, options }));
     assertEquals([new Date(2022, 11, 25)], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t2, options }));
+    assertEquals([new Date(0)], s.sanitize({ value: [[]], sanitization: t2 }));
+    assertEquals([new Date(0)], s.sanitize({ value: { }, sanitization: t2 }));
+    assertEquals([new Date(0)], s.sanitize({ value: { a: 999}, sanitization: t2 }));
+    assertEquals([new Date(0)], s.sanitize({ value: Symbol(), sanitization: t2 }));
   });
 
   await t.step('object type', async () => {
