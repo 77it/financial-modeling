@@ -1,15 +1,9 @@
-export { ModuleInfo };
-
-import { tablesInfo } from '../config/modules/ismovements.js';
+import { MODULE_NAME, tablesInfo } from '../config/modules/settings.js';
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
 import { SettingsSchemas, SettingsSanitizationOptions } from '../config/settings.schemas.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
-import { deepFreeze, schema, sanitize, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
-
-const MODULE_NAME = 'settings';
-const ModuleInfo = { MODULE_NAME, tablesInfo };
-deepFreeze(ModuleInfo);
+import { schema, sanitize, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
 
 export class Module {
   #name = MODULE_NAME;

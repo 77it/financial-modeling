@@ -1,13 +1,9 @@
 // TODO to implement
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import { tablesInfo } from '../config/modules/ismovements.js';
-import { deepFreeze, schema, ModuleData, SimulationContext, eq2 } from '../deps.js';
+import { MODULE_NAME, tablesInfo } from '../config/modules/ismovements.js';
+import { schema, ModuleData, SimulationContext, eq2 } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
-
-const MODULE_NAME = 'ismovements';
-const ModuleInfo = { MODULE_NAME, tablesInfo };
-deepFreeze(ModuleInfo);
 
 export class Module {
   #name = MODULE_NAME;

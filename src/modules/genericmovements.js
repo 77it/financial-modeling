@@ -15,16 +15,12 @@ Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a 
  */
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import { tablesInfo } from '../config/modules/ismovements.js';
+import { MODULE_NAME, tablesInfo } from '../config/modules/genericmovements.js';
 import * as CFG from '../config/engine.js';
 import { Agenda } from './_utils/Agenda.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
-import { deepFreeze, ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace } from '../deps.js';
-
-const MODULE_NAME = 'genericmovements';
-const ModuleInfo = { MODULE_NAME, tablesInfo };
-deepFreeze(ModuleInfo);
+import { ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace } from '../deps.js';
 
 export class Module {
   #name = MODULE_NAME;

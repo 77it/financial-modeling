@@ -20,7 +20,7 @@ import { engine } from './engine/engine.js';
 import { ModulesLoader } from './modules/_modules_loader.js';
 import { Module } from './modules/_sample_module.js';
 
-import { ModuleInfo as SETTINGS_MODULE_INFO } from './modules/settings.js';
+import { MODULE_NAME as SETTINGS_MODULE_NAME, tablesInfo as SETTINGS_TABLES_INFO } from './config/modules/settings.js';
 import * as SETTINGS_NAMES from './config/settings_names.js';
 import * as CFG from './config/engine.js';
 //#endregion local imports
@@ -206,11 +206,11 @@ function _get_SimulationSetting_FromModuleDataArray ({
   settingSanitization
 }) {
   try {
-    const table = SETTINGS_MODULE_INFO.tablesInfo.Set;
+    const table = SETTINGS_TABLES_INFO.Set;
 
     const _setting = (() => {
       for (const moduleData of moduleDataArray) {
-        if (eq2(moduleData.moduleName, SETTINGS_MODULE_INFO.MODULE_NAME)) {
+        if (eq2(moduleData.moduleName, SETTINGS_MODULE_NAME)) {
           for (const _tableSrc of moduleData.tables) {
             if (eq2(_tableSrc.tableName, table.tableName)) {
               const _table = structuredClone(_tableSrc.table);  // clone _tableSrc to avoid to store the sanitization effect
