@@ -23,7 +23,13 @@ const ACTIVESET_VALUE = 'value';
 const tablesInfo = {
   Set: {
     tableName: SET,
-    columns: { scenario: SET_SCENARIO, unit: SET_UNIT, name: SET_NAME, date: SET_DATE, value: SET_VALUE },
+    columns: {
+      scenario: SET_SCENARIO,
+      unit: SET_UNIT,
+      name: SET_NAME,
+      date: SET_DATE,
+      value: SET_VALUE
+    },
     sanitization: {
       [SET_SCENARIO]: schema.STRING_TYPE,
       [SET_UNIT]: schema.STRING_TYPE,
