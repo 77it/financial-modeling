@@ -30,9 +30,6 @@ const SettingsSchemas = {
   // mutable
   [Simulation.ACTIVE_UNIT]: schema.STRING_TYPE,
   [Simulation.ACTIVE_VSUNIT]: schema.STRING_TYPE,
-  [Simulation.ACTIVE_METADATA_TYPE]: schema.ARRAY_OF_STRINGS_TYPE,
-  [Simulation.ACTIVE_METADATA_VALUE]: schema.ARRAY_OF_STRINGS_TYPE,
-  [Simulation.ACTIVE_METADATA_PERCENTAGEWEIGHT]: schema.ARRAY_OF_NUMBERS_TYPE,
   [Simulation.ACTIVE_METADATA]: schema.ANY_TYPE,
   [Simulation.DEFAULT_INTEREST_ON_DEPOSITS]: schema.NUMBER_TYPE,
   [Simulation.DEFAULT_PASSIVE_INTEREST_ON_OVERDRAFTS]: schema.NUMBER_TYPE,

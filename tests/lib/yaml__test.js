@@ -11,14 +11,14 @@ Deno.test('YAML tests', (t) => {
 
   // parsing null returns null
   assertEquals(parseYAML(null), undefined);
-  //#endregion parsing null and undefined
+  //#endregion
 
   //#region parsing object with key not separated from value, returns `null` (converted to `undefined` in our library) as value
   let parsed_undefined_value = parseYAML('{"Main":999.159, Name:"Y88 x", mamma:ciao}');
   assertEquals(parsed_undefined_value.Main, 999.159);
   assertEquals(parsed_undefined_value['Name:"Y88 x"'], null);
   assertEquals(parsed_undefined_value['mamma:ciao'], null);
-  //#endregion parsing object (works with ' and ")
+  //#endregion
 
   //#region parsing strings with and without quotes
   // parsing a with quotes returns the string
@@ -26,11 +26,11 @@ Deno.test('YAML tests', (t) => {
 
   // parsing a without quotes returns undefined
   assertEquals(parseYAML('ciao'), 'ciao');
-  //#endregion parsing null and undefined
+  //#endregion
 
   //#region parsing numbers returns the number
   assertEquals(parseYAML(999), 999);
-  //#endregion parsing numbers returns undefined
+  //#endregion
 
   //#region parsing object (works with ' and ")
   const txt = '{\'Main\':999.159, Name: \'Y88 x\', mamma : ciao}';
@@ -44,7 +44,7 @@ Deno.test('YAML tests', (t) => {
   assertEquals(parsedB.Main, 999.159);
   assertEquals(parsedB.Name, 'Y88 x');
   assertEquals(parsedB.mamma, 'ciao');
-  //#endregion parsing object (works with ' and ")
+  //#endregion
 
   //#region parsing array of something, strings also without quotes
   const txt2 = '[[\'2023-01-05\' , 155343.53] , [\'2023-02-05\',100000],{start: \'2024-06-01\', NP: 2, npy: 2}]';
@@ -59,5 +59,13 @@ Deno.test('YAML tests', (t) => {
   const txt4 = '[\'ciao\', "mamma"]';
   let parsed4 = parseYAML(txt4);
   assertEquals(parsed4, ['ciao', 'mamma']);
-  //#endregion parsing array of something, strings also without quotes
+  //#endregion
+
+  //#region parsing array of objects
+  const txt5 = '[{ type: c/c, value: ISP, weight: 0.2}, {type: linea di business, value: cantina, weight: 0.3 }]';
+  let parsed5 = parseYAML(txt5);
+  assertEquals(parsed5[0].type, 'c/c');
+  assertEquals(parsed5[1].value, 'cantina');
+  assertEquals(parsed5[1].weight, 0.3);
+  //#endregion
 });
