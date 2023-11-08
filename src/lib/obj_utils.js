@@ -79,13 +79,21 @@ function eq2 (a, b) {
  * Get value from an object, querying the key in a case insensitive way.
  * Try to get the exact key, then try to get the key after trim & case insensitive.
  * @param {Record<string, any>} obj
- * @param {string} key
+ * @param {string|number} key
  * @returns {any}
  */
 function get2 (obj, key) {
-  // if obj is not an object, return undefined
-  if (!((typeof obj === "object") || typeof obj === "function"))
+  // if obj or key are null or undefined, return undefined
+  if (obj == null || key == null)
     return undefined;
+
+  // if obj is not an object, return undefined
+  if (!(typeof obj === "object" || typeof obj === "function"))
+    return undefined;
+
+  // if key is of number type, convert it to string
+  if (typeof key === 'number')
+    key = key.toString();
 
   // if obj has the key, return it
   if (obj.hasOwnProperty(key))
