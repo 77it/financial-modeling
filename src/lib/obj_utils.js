@@ -151,6 +151,7 @@ function get2 (obj, key) {
 
 /**
  * Takes keys from source object and merge them into target.
+ * If keys are of the source object (and not inherited), copy them to target if target does not have them.
  * @param {Object} p
  * @param {any} p.target
  * @param {any} p.source
