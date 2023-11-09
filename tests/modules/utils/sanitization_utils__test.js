@@ -1,8 +1,8 @@
-import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
+import { sanitizeModuleData } from '../../../src/modules/_utils/sanitization_utils.js';
+
 import * as schema from '../../../src/lib/schema.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
-
-import { sanitizeModuleData } from '../../../src/modules/_utils/sanitization_utils.js';
+import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
 
 Deno.test('sanitizeModuleData test: test case-insensitive & trim match of table name + object key names', async () => {
   //#region build tables info object

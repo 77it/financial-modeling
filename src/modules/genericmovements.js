@@ -16,11 +16,11 @@ Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a 
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import { MODULE_NAME, tablesInfo } from '../config/modules/genericmovements.js';
-import * as CFG from '../config/engine.js';
 import { Agenda } from './_utils/Agenda.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
-import { ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace } from '../deps.js';
+import { ActiveMetadata } from './_utils/metadata_utils.js';
+import { ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace, mergeNewKeys } from '../deps.js';
 
 export class Module {
   #name = MODULE_NAME;
@@ -38,6 +38,8 @@ export class Module {
   #agenda;
   /** @type {string} */
   #ACTIVE_UNIT;
+  /** @type {ActiveMetadata} */
+  #activeMetadata;
 
   //#region data from modules
   /** @type {undefined|string} */
@@ -66,6 +68,8 @@ export class Module {
     this.#alive = true;
     this.#startDate = undefined;
     this.#ACTIVE_UNIT = '';
+    //@ts-ignore
+    this.#activeMetadata = undefined;
     //@ts-ignore
     this.#moduleData = undefined;
     //@ts-ignore
@@ -98,10 +102,12 @@ export class Module {
   prepareDataForDailyModeling () {
     if (this.#moduleData?.tables == null) return;
 
-    // read from Settings Unit Historical end and save the value
+    // read from Settings ACTIVE_UNIT & ACTIVE_METADATA and save the values
     this.#ACTIVE_UNIT = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
+    this.#activeMetadata = new ActiveMetadata(this.#simulationContext.getSetting({ unit: this.#ACTIVE_UNIT, name: SETTINGS_NAMES.Simulation.ACTIVE_METADATA }));
 
-    this.#agenda = new Agenda({simulationStartDate: this.#simulationContext.getSetting({ unit: this.#ACTIVE_UNIT, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE })});
+    // init Agenda with #ACTIVE_UNIT & reading from settings $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
+    this.#agenda = new Agenda({ simulationStartDate: this.#simulationContext.getSetting({ unit: this.#ACTIVE_UNIT, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE }) });
 
     this.#accounting_type__default = moduleDataLookup(this.#moduleData, this.#accounting_type__default__moduleDataLookup);
     this.#accounting_opposite_type__default = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type__default__moduleDataLookup);
@@ -133,7 +139,7 @@ export class Module {
             this.#agenda.set({
               date: _column.date,
               isSimulation: false,
-              data: new set_data({value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name})
+              data: new set_data({ value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name })
             });
           }
 
@@ -145,7 +151,7 @@ export class Module {
             this.#agenda.set({
               date: _column.date,
               isSimulation: true,
-              data: new set_data({value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name})
+              data: new set_data({ value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name })
             });
           }
         }
@@ -163,6 +169,8 @@ export class Module {
   dailyModeling ({ today }) {
     // TODO loop agenda and create SimObjects
 
+    // add activeMetadata to current SimObject with 'mergeNewKeys'
+
     // if 'accounting_opposite_type' is 'SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT',
     // use the utility function 'squareTrnWithCash'
   }
@@ -173,7 +181,7 @@ class set_data {
   /**
    * @param {{value: number, accounting_type: string, accounting_opposite_type: string, simObject_name: string}} p
    */
-  constructor({value, accounting_type, accounting_opposite_type, simObject_name}) {
+  constructor ({ value, accounting_type, accounting_opposite_type, simObject_name }) {
     this.value = value;
     this.accounting_type = accounting_type;
     this.accounting_opposite_type = accounting_opposite_type;

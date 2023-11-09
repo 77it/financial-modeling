@@ -14,7 +14,7 @@ function isNullOrWhiteSpace (value) {
 }
 
 /**
- * Check if a value is empty string or whitespace
+ * Check if a value is a string, empty or whitespace. If not a string, returns false.
  * @param {*} value
  * @returns {boolean}
  */

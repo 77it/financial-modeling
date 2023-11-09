@@ -343,7 +343,7 @@ function addMonths (
 
 // inspired to https://stackoverflow.com/a/19054782 + https://stackoverflow.com/questions/492994/compare-two-dates-with-javascript
 /**
- * Function that accept two dates and check if the dates are equal (ignoring time)
+ * Accept two dates and check if the dates are equal (ignoring time)
  *
  * @param {Date} date1
  * @param {Date} date2
@@ -356,7 +356,7 @@ function areDatesEqual (date1, date2) {
 }
 
 /**
- * Function that convert a date to UTC
+ * Convert a date to UTC
  *
  * @param {Date} date
  * @returns {Date}
@@ -366,7 +366,7 @@ function toUTC (date) {
 }
 
 /**
- * Function that accept a string and return a string in the format YYYY-MM-DD, stripping the time part
+ * Accept a string and return a string in the format YYYY-MM-DD, stripping the time part
  *
  * @param {Date} date
  * @returns {string}
@@ -377,7 +377,7 @@ function toStringYYYYMMDD (date) {
 }
 
 /**
- * Function that accept a date and return a date with only the year, month and day (stripping the time part)
+ * Accept a date and return a date with only the year, month and day (stripping the time part)
  *
  * @param {Date} date
  * @returns {Date}

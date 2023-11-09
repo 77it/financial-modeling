@@ -5,8 +5,9 @@ export { sanitize, sanitizeObj } from './lib/sanitization_utils.js';
 export { isValidDate, addMonths, toUTC, toStringYYYYMMDD, stripTime, parseJsonDate, areDatesEqual } from './lib/date_utils.js';
 export { isNullOrWhiteSpace, isEmptyOrWhiteSpace } from './lib/string_utils.js';
 export { isStringOrBooleanTrue, isStringOrBooleanFalse } from './lib/boolean_utils.js';
+export { parseYAML } from './lib/yaml.js';
 export { parseJSON5 } from './lib/json5.js';
-export { deepFreeze, ensureArrayValuesAreUnique, eq, eq2, get2 } from './lib/obj_utils.js';
+export { deepFreeze, ensureArrayValuesAreUnique, eq, eq2, eqObj, get2, mergeNewKeys } from './lib/obj_utils.js';
 
 export { SimulationContext } from './engine/context/simulationcontext.js';
 export { ModuleData } from './engine/modules/module_data.js';

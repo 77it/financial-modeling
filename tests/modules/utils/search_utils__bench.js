@@ -1,8 +1,9 @@
 // run it with `deno bench`
 
 import { xlookup, moduleDataLookup } from '../../../src/modules/_utils/search_utils.js';
-import { assertEquals } from 'https://deno.land/std@0.171.0/testing/asserts.ts';
+
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
+import { assertEquals } from 'https://deno.land/std@0.171.0/testing/asserts.ts';
 
 Deno.bench('xlookup - benchmark', () => {
   const loopCount = 1_000_000;

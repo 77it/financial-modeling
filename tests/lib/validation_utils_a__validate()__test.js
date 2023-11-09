@@ -71,14 +71,21 @@ Deno.test('test validate(), valid, all cases', () => {
       { valA: 'aaaX', valB: { a: 9990 } }],
     validation: S.ARRAY_TYPE
   });
+  v.validate({ value: [], validation: S.ARRAY_TYPE });  // empty array
   v.validate({ value: ['a', 'b'], validation: S.ARRAY_OF_STRINGS_TYPE });
+  v.validate({ value: [], validation: S.ARRAY_OF_STRINGS_TYPE });  // empty array
   v.validate({ value: ['a', 'b'], validation: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
+  v.validate({ value: [], validation: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });  // empty array
   v.validate({ value: ['A', 'B'], validation: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
+  v.validate({ value: [], validation: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });  // empty array
   v.validate({ value: [99, 0, 55], validation: S.ARRAY_OF_NUMBERS_TYPE });
+  v.validate({ value: [], validation: S.ARRAY_OF_NUMBERS_TYPE });  // empty array
   v.validate({ value: [new Date('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')], validation: S.ARRAY_OF_DATES_TYPE });
+  v.validate({ value: [], validation: S.ARRAY_OF_DATES_TYPE });  // empty array
   v.validate({ value: [false, true], validation: S.ARRAY_OF_BOOLEANS_TYPE });
   v.validate({ value: [], validation: S.ARRAY_OF_BOOLEANS_TYPE });  // empty array
   v.validate({ value: [{ a: 99 }], validation: S.ARRAY_OF_OBJECTS_TYPE });
+  v.validate({ value: [], validation: S.ARRAY_OF_OBJECTS_TYPE });  // empty array
   v.validate({ value: { a: 999 }, validation: S.OBJECT_TYPE });
   v.validate({ value: testClassInstance, validation: S.OBJECT_TYPE });
   v.validate({ value: () => {console.log('mamma');}, validation: S.FUNCTION_TYPE });

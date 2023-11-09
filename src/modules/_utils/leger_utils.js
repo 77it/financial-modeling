@@ -7,7 +7,7 @@ import { BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME } from '../../config/engine
 const CASH_TYPE = SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT;
 const CASH_DEFAULT_NAME = BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME;
 
-/** Function that creates a cash entry to complete the current ledger with default name and type, taken from a Config defined here.
+/** Creates a cash entry to complete the current ledger with default name and type, taken from a Config defined here.
  * @param {Object} p
  * @param {Ledger} p.unit
  * @param {Ledger} p.ledger

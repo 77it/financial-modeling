@@ -1,8 +1,8 @@
-import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
+import { xlookup, moduleDataLookup, searchDateKeys } from '../../../src/modules/_utils/search_utils.js';
+
 import { schema } from '../../deps.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
-
-import { xlookup, moduleDataLookup, searchDateKeys } from '../../../src/modules/_utils/search_utils.js';
+import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
 
 Deno.test('xlookup test: undefined', async () => {
   /** @type {*} */

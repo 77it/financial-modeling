@@ -1,6 +1,6 @@
-import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../deps.js';
-
 import { Agenda } from '../../../src/modules/_utils/agenda.js';
+
+import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../deps.js';
 
 Deno.test('Agenda test', async () => {
   // create agenda + set simulation start date (the time part is ignored)
