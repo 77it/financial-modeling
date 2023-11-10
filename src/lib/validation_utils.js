@@ -1,3 +1,5 @@
+import { DISABLE_VALIDATION } from '../config/engine.js';
+
 export { validate, validateObj };
 
 import * as schema from './schema.js';
@@ -22,6 +24,9 @@ const SUCCESS = '';
  */
 // see https://github.com/iarna/aproba for inspiration
 function validate ({ value, validation, errorMsg }) {
+  if (DISABLE_VALIDATION)
+    return value;
+
   if (typeof validation !== 'string' && !Array.isArray(validation) && typeof validation !== 'function')
     throw new Error(`'validation' parameter must be a string, an array or a function`);
   if (errorMsg != null && typeof errorMsg !== 'string')
@@ -53,6 +58,9 @@ function validate ({ value, validation, errorMsg }) {
  */
 // see https://github.com/iarna/aproba for inspiration
 function validateObj ({ obj, validation, errorMsg }) {
+  if (DISABLE_VALIDATION)
+    return obj;
+
   if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
     throw new Error(`'obj' parameter must be an object`);
   if (validation == null || typeof validation !== 'object')  // double check, because typeof null is object
