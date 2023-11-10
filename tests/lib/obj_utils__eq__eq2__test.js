@@ -110,4 +110,28 @@ Deno.test('test fast-equals.js/eq2()', async (t) => {
     assert(eq2(objectA, objectC_shuffled));
     assertFalse(eq2(objectA, objectD_different));
   });
+
+  await t.step('class instances with private properties (must compare only public properties)', async () => {
+    class sourceClassWithPrivateProperties {
+      #c;
+      #d;
+
+      /**
+       * @param {{a: number, b: number, c: number, d: number}} p
+       */
+      constructor ({ a, b, c, d }) {
+        this.a = a;
+        this.b = b;
+        this.#c = c;
+        this.#d = d;
+      }
+    }
+
+    const a = new sourceClassWithPrivateProperties({ a: 1, b: 2, c: 3, d: 4 });
+    const public_properties_same_as_a = new sourceClassWithPrivateProperties({ a: 1, b: 2, c: 88, d: 99 });
+    const different = new sourceClassWithPrivateProperties({ a: 5, b: 2, c: 88, d: 99 });
+
+    assert(eq(a, public_properties_same_as_a));
+    assertFalse(eq(a, different));
+  });
 });

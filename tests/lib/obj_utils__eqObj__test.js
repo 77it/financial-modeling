@@ -1,4 +1,4 @@
-import { eqObj } from '../../src/lib/obj_utils.js';
+import { eq, eqObj } from '../../src/lib/obj_utils.js';
 
 import { assert, assertEquals, assertFalse, assertThrows } from '../deps.js';
 
@@ -51,5 +51,29 @@ Deno.test('test eqObj()', async (t) => {
 
     assert(eqObj(/abc/, /abc/));
     assertFalse(eqObj(/abc/, /ab/));
+  });
+
+  await t.step('class instances with private properties (must compare only public properties)', async () => {
+    class sourceClassWithPrivateProperties {
+      #c;
+      #d;
+
+      /**
+       * @param {{a: number, b: number, c: number, d: number}} p
+       */
+      constructor ({ a, b, c, d }) {
+        this.a = a;
+        this.b = b;
+        this.#c = c;
+        this.#d = d;
+      }
+    }
+
+    const a = new sourceClassWithPrivateProperties({ a: 1, b: 2, c: 3, d: 4 });
+    const public_properties_same_as_a = new sourceClassWithPrivateProperties({ a: 1, b: 2, c: 88, d: 99 });
+    const different = new sourceClassWithPrivateProperties({ a: 5, b: 2, c: 88, d: 99 });
+
+    assert(eqObj(a, public_properties_same_as_a));
+    assertFalse(eqObj(a, different));
   });
 });
