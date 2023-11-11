@@ -1,7 +1,7 @@
 // run it with `deno bench`
 
 import * as S from '../../src/lib/schema.js';
-import * as s from '../../src/lib/sanitization_utils.js';
+import * as s from '../../src/lib/schema_sanitization_utils.js';
 import { assertEquals } from 'https://deno.land/std@0.171.0/testing/asserts.ts';
 
 Deno.bench("date sanitization - date parse from string sanitizations - benchmark", () => {

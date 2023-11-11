@@ -4,8 +4,8 @@ import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as CFG from '../config/engine.js';
 
 import * as schema from '../lib/schema.js';
-import { sanitize } from '../lib/sanitization_utils.js';
-import { validateObj } from '../lib/validation_utils.js';
+import { sanitize } from '../lib/schema_sanitization_utils.js';
+import { validateObj } from '../lib/schema_validation_utils.js';
 import { stripTime } from '../lib/date_utils.js';
 import { Result } from '../lib/result.js';
 import { isStringOrBooleanTrue } from '../lib/boolean_utils.js';

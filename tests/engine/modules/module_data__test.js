@@ -3,7 +3,6 @@
 import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
 
 import { moduleDataArray_LoadFromJsonlFile } from '../../../src/deno/module_data_array__load_from_jsonl_file.js';
-import { readLines } from 'https://deno.land/std@0.152.0/io/mod.ts';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
 
 Deno.test('moduleData test: read multiline file', async () => {

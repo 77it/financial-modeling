@@ -1,8 +1,8 @@
 ﻿export { Ledger };
 
 import * as schema from '../../lib/schema.js';
-import { sanitize, sanitizeObj } from '../../lib/sanitization_utils.js';
-import { validate, validateObj } from '../../lib/validation_utils.js';
+import { sanitize, sanitizeObj } from '../../lib/schema_sanitization_utils.js';
+import { validate, validateObj } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
 import { SimObject } from '../simobject/simobject.js';

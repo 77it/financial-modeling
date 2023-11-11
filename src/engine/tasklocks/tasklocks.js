@@ -1,8 +1,8 @@
 ﻿export { TaskLocks };
 
 import * as schema from '../../lib/schema.js';
-import { sanitize, sanitizeObj } from '../../lib/sanitization_utils.js';
-import { validate } from '../../lib/validation_utils.js';
+import { sanitize, sanitizeObj } from '../../lib/schema_sanitization_utils.js';
+import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
 /*

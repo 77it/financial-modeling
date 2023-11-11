@@ -2,7 +2,7 @@ export { sanitize, sanitizeObj };
 
 import * as schema from './schema.js';
 import { parseJsonDate, excelSerialDateToDate, excelSerialDateToUTCDate, toUTC } from './date_utils.js';
-import { validate as validateFunc, validateObj as validateObjFunc } from './validation_utils.js';
+import { validate as validateFunc, validateObj as validateObjFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
 
 //#region defaults

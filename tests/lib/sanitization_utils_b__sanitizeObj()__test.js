@@ -1,5 +1,5 @@
 import * as S from '../../src/lib/schema.js';
-import * as s from '../../src/lib/sanitization_utils.js';
+import * as s from '../../src/lib/schema_sanitization_utils.js';
 import { eq } from '../../src/lib/obj_utils.js';
 import { parseJsonDate, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
 

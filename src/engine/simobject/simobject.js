@@ -1,6 +1,6 @@
 export { SimObject };
 
-import { validateObj } from '../../lib/validation_utils.js';
+import { validateObj } from '../../lib/schema_validation_utils.js';
 import { simObject_Schema } from './schemas/simobject.schema.js';
 
 // info

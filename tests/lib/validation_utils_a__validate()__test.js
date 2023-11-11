@@ -1,5 +1,5 @@
 import * as S from '../../src/lib/schema.js';
-import * as v from '../../src/lib/validation_utils.js';
+import * as v from '../../src/lib/schema_validation_utils.js';
 
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
 // @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"

@@ -1,8 +1,8 @@
 ﻿export { DriversRepo };
 
 import * as schema from './schema.js';
-import { sanitize, sanitizeObj } from './sanitization_utils.js';
-import { validate } from './validation_utils.js';
+import { sanitize, sanitizeObj } from './schema_sanitization_utils.js';
+import { validate } from './schema_validation_utils.js';
 import { stripTime, toStringYYYYMMDD } from './date_utils.js';
 import { parseJSON5 } from './json5.js';
 import { isNullOrWhiteSpace } from './string_utils.js';

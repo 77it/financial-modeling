@@ -1,5 +1,5 @@
 //#region other config
-// If true, the validation of the data is disabled in 'validation_utils.js/validateObj()' and 'validation_utils.js/validate()'
+// If true, the validation of the data is disabled in 'schema_validation_utils.js/validateObj()' and 'schema_validation_utils.js/validate()'
 export const DISABLE_VALIDATION = false;
 //#endregion other config
 

@@ -1,7 +1,7 @@
 export { ModuleData };
 
 import * as schema from '../../lib/schema.js';
-import { sanitizeObj } from '../../lib/sanitization_utils.js';
+import { sanitizeObj } from '../../lib/schema_sanitization_utils.js';
 
 // ModuleData is not immutable nor has the clone method, because the object is passed only to the modules that will use it
 class ModuleData {

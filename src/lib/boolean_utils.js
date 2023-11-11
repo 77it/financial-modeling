@@ -1,7 +1,7 @@
 export { isStringOrBooleanTrue, isStringOrBooleanFalse };
 
 import * as schema from './schema.js';
-import { sanitize } from './sanitization_utils.js';
+import { sanitize } from './schema_sanitization_utils.js';
 
 // the following values can be used to compare the result of sanitization of boolean values (or string containing 'true' or 'false') to string
 const BOOLEAN_TRUE_STRING = 'true';
