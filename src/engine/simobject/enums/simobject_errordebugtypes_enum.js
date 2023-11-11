@@ -1,4 +1,4 @@
-﻿import { deepFreeze, ensureArrayValuesAreUnique } from '../../lib/obj_utils.js';
+﻿import { deepFreeze, ensureArrayValuesAreUnique } from '../../../lib/obj_utils.js';
 
 export const SimObjectErrorDebugTypes_enum = {
   /*

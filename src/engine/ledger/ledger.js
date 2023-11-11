@@ -8,9 +8,9 @@ import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 import { SimObject } from '../simobject/simobject.js';
 import { simObjectToDto, simObjectToJsonDumpDto, splitPrincipal, toBigInt } from '../simobject/utils/simobject_utils.js';
 import { doubleEntrySideFromSimObjectType } from '../simobject/utils/doubleentryside_from_simobject_type.js';
-import { SimObjectTypes_enum_map } from '../simobject/simobject_types_enum.js';
-import { SimObjectDebugTypes_enum, SimObjectDebugTypes_enum_validation } from '../simobject/simobject_debugtypes_enum.js';
-import { SimObjectErrorDebugTypes_enum, SimObjectErrorDebugTypes_enum_validation } from '../simobject/simobject_errordebugtypes_enum.js';
+import { SimObjectTypes_enum_map } from '../simobject/enums/simobject_types_enum.js';
+import { SimObjectDebugTypes_enum, SimObjectDebugTypes_enum_validation } from '../simobject/enums/simobject_debugtypes_enum.js';
+import { SimObjectErrorDebugTypes_enum, SimObjectErrorDebugTypes_enum_validation } from '../simobject/enums/simobject_errordebugtypes_enum.js';
 import { DoubleEntrySide_enum } from '../simobject/enums/doubleentryside_enum.js';
 import { Currency_enum } from '../simobject/enums/currency_enum.js';
 

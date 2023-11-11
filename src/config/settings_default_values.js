@@ -3,7 +3,7 @@ export { SettingsDefaultValues };
 import { Simulation } from './settings_names.js';
 import { DEFAULT_UNIT_ID } from './engine.js';
 import { Currency_enum } from '../engine/simobject/enums/currency_enum.js';
-import { SimObjectTypes_enum } from '../engine/simobject/simobject_types_enum.js';
+import { SimObjectTypes_enum } from '../engine/simobject/enums/simobject_types_enum.js';
 import { deepFreeze } from '../lib/obj_utils.js';
 
 const SettingsDefaultValues = {

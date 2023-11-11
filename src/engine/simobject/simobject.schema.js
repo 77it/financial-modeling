@@ -1,8 +1,8 @@
 export { simObject_Schema };
 
-import { DoubleEntrySide_enum_validation } from '../enums/doubleentryside_enum.js';
-import { Currency_enum_validation } from '../enums/currency_enum.js';
-import * as schema from '../../../lib/schema.js';
+import { DoubleEntrySide_enum_validation } from './enums/doubleentryside_enum.js';
+import { Currency_enum_validation } from './enums/currency_enum.js';
+import * as schema from '../../lib/schema.js';
 
 const simObject_Schema = {
   decimalPlaces: schema.NUMBER_TYPE,  // Decimal places to return numbers with

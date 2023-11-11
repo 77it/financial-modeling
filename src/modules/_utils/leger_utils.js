@@ -1,6 +1,6 @@
 // TODO funzione di modules/utils che crea una voce di cassa a completamento dello sbilancio corrente (es VsCash)
 
-import { SimObjectTypes_enum } from '../../engine/simobject/simobject_types_enum.js';
+import { SimObjectTypes_enum } from '../../engine/simobject/enums/simobject_types_enum.js';
 import { Ledger } from '../../engine/ledger/ledger.js';
 import { BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME } from '../../config/engine.js';
 

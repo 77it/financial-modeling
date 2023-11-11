@@ -688,7 +688,7 @@ Deno.test('test validateObj(), strict flag, invalid plain object (extraneous key
   } catch (error) {
     _error = error.message;
   }
-  
+
   assertEquals(_error, 'Validation error: ["c is not a valid key, is missing from validation object","d is not a valid key, is missing from validation object"]');
 });
 

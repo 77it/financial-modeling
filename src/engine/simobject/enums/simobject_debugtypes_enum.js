@@ -1,4 +1,4 @@
-﻿import { deepFreeze, ensureArrayValuesAreUnique } from '../../lib/obj_utils.js';
+﻿import { deepFreeze, ensureArrayValuesAreUnique } from '../../../lib/obj_utils.js';
 
 /*
 Why do we have 4 debug types?  // DEBUG_ERROR type is on another file

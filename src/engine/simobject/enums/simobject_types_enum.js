@@ -1,6 +1,6 @@
 ﻿export { SimObjectTypes_enum, SimObjectTypes_enum_map };
 
-import { deepFreeze, ensureArrayValuesAreUnique } from '../../lib/obj_utils.js';
+import { deepFreeze, ensureArrayValuesAreUnique } from '../../../lib/obj_utils.js';
 
 const SimObjectTypes_enum = {
 //#region SimObjectTypes_All__codeid_EXTERNAL

@@ -1,7 +1,7 @@
 export { SimObject };
 
 import { validateObj } from '../../lib/schema_validation_utils.js';
-import { simObject_Schema } from './schemas/simobject.schema.js';
+import { simObject_Schema } from './simobject.schema.js';
 
 // info
 /*
@@ -39,7 +39,7 @@ class SimObject {
   #bs_Principal__PrincipalToPay_AmortizationSchedule__Date;
   #bs_Principal__PrincipalToPay_AmortizationSchedule__Principal;
   #is_Link__SimObjId;
-  #consolidation;  // XXX TO ADD
+  #consolidation;  // TODO XXX TO ADD
   //#vsSimObjectId;
   #versionId;  // NOT EXPORTED TO JSON DUMP
   #extras;  // NOT EXPORTED TO JSON DUMP

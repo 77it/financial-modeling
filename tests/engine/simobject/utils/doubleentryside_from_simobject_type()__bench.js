@@ -1,7 +1,7 @@
 // run it with `deno bench`
 
 import { doubleEntrySideFromSimObjectType } from '../../../../src/engine/simobject/utils/doubleentryside_from_simobject_type.js';
-import { SimObjectTypes_enum } from '../../../../src/engine/simobject/simobject_types_enum.js';
+import { SimObjectTypes_enum } from '../../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../../src/engine/simobject/enums/doubleentryside_enum.js';
 
 Deno.bench("doubleEntrySideFromSimObjectType() benchmark", () => {
