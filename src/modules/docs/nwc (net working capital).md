@@ -9,17 +9,8 @@ Modulo di Simulation, ogni giorno scarica crediti e debiti commerciali alive con
 * scarica gli SO per le scadenze maturate (che hanno un piano di ammortamento scaduto a fine giornata);
   se il saldo residuo = 0, setta alive = false
 * definisce su /config/nwc la lista dei tipi di accounting da scaricare
-<unused>
-// unused: not needed, we should simply use vsUnitId; having vsSimObjectId we would have a problem with vsSimObject identified
-// in Excel with name, and we could run in the situation in which the referenced name is not yet defined and we couldn't determine the vs Id;
-// furthermore, we must define vsSimObjectId AND vsUnitId, that is double the complication.
-// finally, is not clear which advantages we could have using vsSimObjectId when we must anyway indicate the payment schedule in each
-// SimObject for the right classification of the duration (ITA debiti entro/oltre esercizio).
-* se ha scaricato un SO, e questo SO ha un vsSimObjectId, lo scarica per lo stesso importo, nella stessa transazione.
-  se il vsSimObjectId aveva una scadenza maturata scarica quella, a seguire Indefinite, a seguire il resto di schedule;
-  se il vsSimObjectId ha un importo inferiore o uguale a quel che dobbiamo scaricare, estinguilo (setta alive = false);
-  se già a zero, non fare nulla.
-</unused>
+
+* vsSimObjectName: is unused for the daily schedule payments; see >vsSimObjectName_note_20231111
 
 Viene caricato automaticamente da Engine se il lock non è definito.
 

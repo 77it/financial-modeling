@@ -227,6 +227,8 @@ class Ledger {
    */
   newSimObject (newSimObjectDto) {
     sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Schema });
+    // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
+    validateObj({ obj: newSimObjectDto, validation: newSimObjectDto_Schema, strict:true });
 
     if (SimObjectTypes_enum_map.has(newSimObjectDto.type) === false)
       throw new Error(`SimObject type ${newSimObjectDto.type} is not recognized`);

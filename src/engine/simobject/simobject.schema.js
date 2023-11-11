@@ -52,9 +52,22 @@ const simObject_Schema = {
   //#endregion properties common only to some kind of SimObjects
 
   //#region properties NOT EXPORTED TO JSON DUMP
-  //vsSimObjectId: schema.STRING_TYPE,  // This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
+  vsSimObjectName: schema.STRING_TYPE,  // This is the name of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
+  //vsSimObjectId: schema.STRING_TYPE,  // REPLACED WITH `vsSimObjectName` because we will can't set in both linked SimObjects the Id of the other, because the other will not exist yet; instead the name can be set in both linked SimObjects
+
   versionId: schema.NUMBER_TYPE,
   //[REMOVED] //previousVersionId: schema.STRING_TYPE,
   extras: schema.ANY_TYPE + '?',  // Class or an object with all the extra properties specific to the SimObject
   //#endregion properties NOT EXPORTED TO JSON DUMP
 };
+
+// NOTES
+/*
+# vsSimObjectName   #vsSimObjectName_note_20231111
+Could be used to extinguish the linked SimObjects when the first is closed.
+
+Is unused for the daily schedule payments, because every SimObject should be managed by itself;
+the reason is that we don't know which one of the 2 linked SimObject is already paid for the daily schedule:
+if today is not present in the other SimObject - because already paid - what must we do: align the schedule? or ignore
+the mismatch? we don't know, then better to leave the management to the SimObject itself.
+*/

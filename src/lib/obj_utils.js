@@ -76,7 +76,7 @@ function eq2 (a, b) {
 }
 
 /**
- * Equality of two objects (plain objects or classes instances), with deep comparison of objects and arrays.
+ * Equality of two objects (also between plain objects and classes instances), with deep comparison of objects and arrays.
  * @param {any} a
  * @param {any} b
  * @returns {boolean}

@@ -1,6 +1,6 @@
-import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../deps.js';
+import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../../deps.js';
 
-import { splitPrincipal, bigIntToNumberWithDecimals, bigIntToStringWithDecimals } from '../../../src/engine/simobject/utils/simobject_utils.js';
+import { splitPrincipal, bigIntToNumberWithDecimals, bigIntToStringWithDecimals } from '../../../../src/engine/simobject/utils/simobject_utils.js';
 
 const decimalPlaces = 4;
 const roundingModeIsRound = true;

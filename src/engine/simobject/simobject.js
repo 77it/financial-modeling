@@ -138,13 +138,17 @@ class SimObject {
    //unityOfMeasure: 'string',
    */
   constructor (p) {
-    validateObj({ obj: p, validation: simObject_Schema });
+    validateObj({ obj: p, validation: simObject_Schema, strict: true });
 
     // value must be equal to indefinite + principal
     if (p.value !==
       p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate +
       p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.reduce((a, b) => a + b, 0n))
       throw new Error(`value must be equal to indefinite + principal, got ${p.value} !== ${p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate} + ${p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.reduce((a, b) => a + b, 0n)}`);
+
+    // length of metadata arrays must be equal
+    if (p.metadata__Name.length !== p.metadata__Value.length || p.metadata__Name.length !== p.metadata__PercentageWeight.length)
+      throw new Error(`length of metadata arrays must be equal, got name = ${p.metadata__Name.length}, value = ${p.metadata__Value.length}, weight= ${p.metadata__PercentageWeight.length}`);
 
     // check if decimalPlaces is an integer, otherwise raise exception
     if (!Number.isInteger(p.decimalPlaces))
