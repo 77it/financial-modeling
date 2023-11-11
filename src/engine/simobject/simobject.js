@@ -40,7 +40,7 @@ class SimObject {
   #bs_Principal__PrincipalToPay_AmortizationSchedule__Principal;
   #is_Link__SimObjId;
   #consolidation;  // TODO XXX TO ADD
-  //#vsSimObjectId;
+  #vsSimObjectName;
   #versionId;  // NOT EXPORTED TO JSON DUMP
   #extras;  // NOT EXPORTED TO JSON DUMP
 
@@ -95,7 +95,7 @@ class SimObject {
 
   get is_Link__SimObjId () { return this.#is_Link__SimObjId; }
 
-  //get vsSimObjectId () { return this.#vsSimObjectId; }
+  get vsSimObjectName () { return this.#vsSimObjectName; }
 
   get versionId () { return this.#versionId; }
 
@@ -130,7 +130,7 @@ class SimObject {
    * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
    * @param {bigint[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
    * @param {string} p.is_Link__SimObjId
-   //param {string} p.vsSimObjectId *NOT EXPORTED TO JSON DUMP* This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
+   * @param {string} p.vsSimObjectName *NOT EXPORTED TO JSON DUMP* This is the name of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
    * @param {number} p.versionId *NOT EXPORTED TO JSON DUMP*
    * @param {*} [p.extras] *NOT EXPORTED TO JSON DUMP* Class or an object with all the extra properties specific to the SimObject
    // properties not implemented, can be included in `extras`
@@ -180,7 +180,7 @@ class SimObject {
     this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [...p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date];
     this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [...p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal];
     this.#is_Link__SimObjId = p.is_Link__SimObjId;
-    //this.#vsSimObjectId = p.vsSimObjectId;
+    this.#vsSimObjectName = p.vsSimObjectName;
     this.#versionId = p.versionId;
     this.#extras = this.#StructuredCloneOrClone(p.extras);
   }
@@ -217,7 +217,7 @@ class SimObject {
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
       is_Link__SimObjId: this.#is_Link__SimObjId,
-      //vsSimObjectId: this.#vsSimObjectId,
+      vsSimObjectName: this.#vsSimObjectName,
       versionId: this.#versionId,
       extras: this.#extras,
     });
@@ -251,7 +251,7 @@ class SimObject {
    * @param {Date[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date]
    * @param {bigint[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]
    //param {string} [p.is_Link__SimObjId]
-   //param {string} [p.vsSimObjectId]
+   //param {string} [p.vsSimObjectName]
    * @param {*} [p.extras]
    * @returns {SimObject}
    */
@@ -283,7 +283,7 @@ class SimObject {
       bs_Principal__PrincipalToPay_AmortizationSchedule__Date: p?.bs_Principal__PrincipalToPay_AmortizationSchedule__Date ?? this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: p?.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal ?? this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
       is_Link__SimObjId: this.#is_Link__SimObjId,
-      //vsSimObjectId: this.#vsSimObjectId,
+      vsSimObjectName: this.#vsSimObjectName,
       versionId: this.#versionId + 1,
       extras: p?.extras ?? this.#extras,
     });

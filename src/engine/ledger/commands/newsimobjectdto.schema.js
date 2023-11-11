@@ -43,7 +43,7 @@ const newSimObjectDto_Schema = {
   is_Link__SimObjId: schema.STRING_TYPE,
   //#endregion properties common only to some kind of SimObjects
 
-  //vsSimObjectId: schema.STRING_TYPE,
+  vsSimObjectName: schema.STRING_TYPE,
 
   extras: schema.ANY_TYPE + '?',
 };

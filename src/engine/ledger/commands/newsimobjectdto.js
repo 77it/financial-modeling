@@ -21,8 +21,8 @@ class NewSimObjectDto {
    * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
    * @param {number[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
    * @param {string} [p.is_Link__SimObjId]
-   //param {string} [p.vsSimObjectId] This is the id of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
-   * @param {*} [p.extras] Class or an object with all the extra properties specific to the SimObject
+   * @param {string} [p.vsSimObjectName]
+   * @param {*} [p.extras]
    */
   constructor (p) {
     this.type = p.type;
@@ -43,7 +43,7 @@ class NewSimObjectDto {
     this.bs_Principal__PrincipalToPay_AmortizationSchedule__Date = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date;
     this.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal;
     this.is_Link__SimObjId = p.is_Link__SimObjId;
-    //this.vsSimObjectId = p.vsSimObjectId;
+    this.vsSimObjectName = p.vsSimObjectName;
     this.extras = p.extras;
   }
 }

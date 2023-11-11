@@ -34,7 +34,7 @@ const _so = new SimObject({
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '123',
-  //vsSimObjectId: '991',
+  vsSimObjectName: '991',
   versionId: 1
 });
 
@@ -64,7 +64,7 @@ const _so2_withExtras = new SimObject({
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '123',
-  //vsSimObjectId: '991',
+  vsSimObjectName: '991',
   versionId: 1,
   extras: {a: 999, b: 'aaa'}
 });
@@ -98,7 +98,7 @@ Deno.test('SimObject.simObjectToDto() & .with() without value tests', async () =
     bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [0.0001, 0.0011, 0.0111, 0.0877],
     is_Link__SimObjId: '123',
-    //vsSimObjectId: '991',
+    vsSimObjectName: '991',
     versionId: 2
   };
 
@@ -127,7 +127,7 @@ Deno.test('SimObject.simObjectToDto() & .with() without value tests', async () =
     bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [0.0001, 0.0011, 0.0111, 0.0877],
     is_Link__SimObjId: '123',
-    //vsSimObjectId: '991',
+    vsSimObjectName: '991',
     versionId: 2,
     extras: {a: 999, b: 'aaa'}
   };
@@ -182,7 +182,7 @@ Deno.test('SimObject.simObjectToDto() & .with() tests', async () => {
     bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],  // updated
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 112n, 876n],  // updated
     is_Link__SimObjId: '8989',  // ignored
-    //vsSimObjectId: '776655',
+    vsSimObjectName: '776655',  // ignored
     versionId: 1,  // autoincrement
     extras: {a: 9991, b: 'aaax'}  // updated
   });
@@ -212,7 +212,7 @@ Deno.test('SimObject.simObjectToDto() & .with() tests', async () => {
     bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [0.0001, 0.0011, 0.0112, 0.0876],
     is_Link__SimObjId: '123',
-    //vsSimObjectId: '991',
+    vsSimObjectName: '991',
     versionId: 2,
     extras: {a: 9991, b: 'aaax'}
   };

@@ -53,8 +53,7 @@ const simObject_Schema = {
 
   //#region properties NOT EXPORTED TO JSON DUMP
   vsSimObjectName: schema.STRING_TYPE,  // This is the name of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
-  //vsSimObjectId: schema.STRING_TYPE,  // REPLACED WITH `vsSimObjectName` because we will can't set in both linked SimObjects the Id of the other, because the other will not exist yet; instead the name can be set in both linked SimObjects
-
+  //[REPLACED] //vsSimObjectId: schema.STRING_TYPE,  // REPLACED WITH `vsSimObjectName` because we will can't set in both linked SimObjects the Id of the other, because the other will not exist yet; instead the name can be set in both linked SimObjects
   versionId: schema.NUMBER_TYPE,
   //[REMOVED] //previousVersionId: schema.STRING_TYPE,
   extras: schema.ANY_TYPE + '?',  // Class or an object with all the extra properties specific to the SimObject

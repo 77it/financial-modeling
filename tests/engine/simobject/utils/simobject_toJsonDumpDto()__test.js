@@ -34,7 +34,7 @@ const _so = new SimObject({
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '',
-  //vsSimObjectId: '',
+  vsSimObjectName: '',
   versionId: 1
 });
 

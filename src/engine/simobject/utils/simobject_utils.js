@@ -36,7 +36,7 @@ function simObjectToDto (simObject) {
     bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [...simObject.bs_Principal__PrincipalToPay_AmortizationSchedule__Date],
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: simObject.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => bigIntToNumberWithDecimals(big, simObject.decimalPlaces)),
     is_Link__SimObjId: simObject.is_Link__SimObjId,
-    //vsSimObjectId: simObject.vsSimObjectId,
+    vsSimObjectName: simObject.vsSimObjectName,
     versionId: simObject.versionId,
     extras: structuredCloneOrClone(simObject.extras),
   }));
