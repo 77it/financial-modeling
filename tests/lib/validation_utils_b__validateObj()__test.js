@@ -63,7 +63,7 @@ Deno.test('test validateObj(), not valid, any type is undefined', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('a = undefined, must be !== null or undefined'));
 });
 
@@ -81,7 +81,7 @@ Deno.test('test validateObj(), not valid, any type is null', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('a = null, must be !== null or undefined'));
 });
 
@@ -282,7 +282,7 @@ Deno.test('test validateObj(), not valid, simple object + personalized error mes
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('b = 99, must be string'));
   assert(_error.includes('personalized error message'));
 });
@@ -309,7 +309,7 @@ Deno.test('test validateObj(), not valid, objects in array', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('valB = 999, must be an object'));
   assert(_error.includes('valB = 1, must be an object'));
 });
@@ -323,6 +323,7 @@ Deno.test('test validateObj(), not valid, missing keys', () => {
     arr: S.ARRAY_TYPE,
     obj: S.OBJECT_TYPE,
     fun: S.FUNCTION_TYPE,
+    enum: [11, 'aa', 'aaa', 55],
   };
 
   let _error;
@@ -332,7 +333,7 @@ Deno.test('test validateObj(), not valid, missing keys', () => {
     _error = error.message;
   }
   console.log(_error);
-  assert(_error.includes('["obj is missing","fun is missing"]'));
+  assert(_error.includes('["obj is missing","fun is missing","enum = undefined, must be one of 11,aa,aaa,55"]'));
 });
 
 Deno.test('test validateObj(), not valid, array is of wrong type', () => {
@@ -370,7 +371,7 @@ Deno.test('test validateObj(), not valid, array is of wrong type', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["arr = 999, must be an array"'));
   assert(_error.includes('"arrStr array error, [\\"Value = 99, must be string\\"]"'));
   assert(_error.includes('"arrStrLowercaseTrimmed array error, [\\"Value = AA, must be a lowercase trimmed string\\",\\"Value =    aa   , must be a lowercase trimmed string\\",\\"Value = 99, must be a lowercase trimmed string\\"]"'));
@@ -403,7 +404,7 @@ Deno.test('test validateObj(), not valid, null/undefined/not a str parameter', (
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["str = null, must be string","str2 = undefined, must be string","str3 = 999, must be string"]'));
 });
 
@@ -428,7 +429,7 @@ Deno.test('test validateObj(), not valid, null/undefined/NaN/infinity num parame
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["num = null, must be a valid number","num2 = undefined, must be a valid number","num3 = NaN, must be a valid number","num4 = Infinity, must be a valid number"]'));
 });
 
@@ -453,17 +454,9 @@ Deno.test('test validateObj(), not valid, null/undefined/not a date/invalid date
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["date = null, must be a valid date","date2 = undefined, must be a valid date","date3 = 999, must be a valid date","date4 = Invalid Date, must be a valid date"]'));
 });
-
-
-
-
-
-
-
-
 
 Deno.test('test validateObj(), not valid, null/undefined/not BigInt parameter', () => {
   const objToValidate = {
@@ -484,7 +477,7 @@ Deno.test('test validateObj(), not valid, null/undefined/not BigInt parameter', 
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["big = null, must be an instance of BigInt","big2 = undefined, must be an instance of BigInt","big3 = 999, must be an instance of BigInt"]'));
 });
 
@@ -509,7 +502,7 @@ Deno.test('test validateObj(), not valid, null/undefined/not BigInt number param
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["big = null, must be an instance of BigInt","big2 = undefined, must be an instance of BigInt","big3 = 999, must be an instance of BigInt","big4 = 999999999999999999999, is BigInt but the value is too big to be safely converted to a number"]'));
 });
 
@@ -532,7 +525,7 @@ Deno.test('test validateObj(), not valid, null/undefined/not Big.js parameter', 
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["big = null, must be an instance of a function or class","big2 = undefined, must be an instance of a function or class","big3 = 999, must be an instance of a function or class"]'));
 });
 
@@ -555,7 +548,7 @@ Deno.test('test validateObj(), not valid, null/undefined/not a bool parameter', 
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["bool = null, must be boolean","bool2 = undefined, must be boolean","bool3 = 999, must be boolean"]'));
 });
 
@@ -578,7 +571,7 @@ Deno.test('test validateObj(), not valid, null/undefined/not an array parameter'
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["arr = null, must be an array","arr2 = undefined, must be an array","arr3 = 999, must be an array"]'));
 });
 
@@ -601,7 +594,7 @@ Deno.test('test validateObj(), not valid, null/undefined/not an object parameter
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["obj = null, must be an object","obj2 = undefined, must be an object","obj3 = 999, must be an object"]'));
 });
 
@@ -624,7 +617,7 @@ Deno.test('test validateObj(), not valid, null/undefined/not a function paramete
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["fun = null, must be a function","fun2 = undefined, must be a function","fun3 = 999, must be a function"]'));
 });
 
@@ -641,7 +634,7 @@ Deno.test('test validateObj(), not valid, string instead of object', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('\'obj\' parameter must be an object'));
 });
 
@@ -658,6 +651,94 @@ Deno.test('test validateObj(), not valid (not existing), unknown type', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["str type is unrecognized"]'));
+});
+
+Deno.test('test validateObj(), strict flag, valid plain object', () => {
+  const objToValidate = {
+    a: 999,
+    b: 'aaa'
+  };
+
+  const validation = {
+    a: S.NUMBER_TYPE,
+    b: S.STRING_TYPE,
+  };
+
+  validateObj({ obj: objToValidate, validation: validation, strict: true });
+});
+
+Deno.test('test validateObj(), strict flag, invalid plain object (extraneous keys)', () => {
+  const objToValidate = {
+    a: 999,
+    b: 'ccc',
+    c: 'aaa',
+    d: 'aaa',
+  };
+
+  const validation = {
+    a: S.NUMBER_TYPE,
+    b: S.STRING_TYPE,
+  };
+
+  let _error;
+  try {
+    validateObj({ obj: objToValidate, validation: validation, strict: true });
+  } catch (error) {
+    _error = error.message;
+  }
+  
+  assertEquals(_error, 'Validation error: ["c is not a valid key, is missing from validation object","d is not a valid key, is missing from validation object"]');
+});
+
+Deno.test('test validateObj(), strict flag, valid class instance', () => {
+  class sourceClass {
+    /**
+     * @param {{a: number, b: string}} p
+     */
+    constructor ({ a, b}) {
+      this.a = a;
+      this.b = b;
+    }
+  }
+
+  const objToValidate = new sourceClass({ a: 1, b: 'ccc' });
+
+  const validation = {
+    a: S.NUMBER_TYPE,
+    b: S.STRING_TYPE,
+  };
+
+  validateObj({ obj: objToValidate, validation: validation, strict: true });
+});
+
+Deno.test('test validateObj(), strict flag, invalid class instance (extraneous keys)', () => {
+  class sourceClass {
+    /**
+     * @param {{a: number, b: string, c: string, d: string}} p
+     */
+    constructor ({ a, b, c, d}) {
+      this.a = a;
+      this.b = b;
+      this.c = c;
+      this.d = d;
+    }
+  }
+
+  const objToValidate = new sourceClass({ a: 1, b: 'ccc', c: 'aaa', d: 'aaa' });
+
+  const validation = {
+    a: S.NUMBER_TYPE,
+    b: S.STRING_TYPE,
+  };
+
+  let _error;
+  try {
+    validateObj({ obj: objToValidate, validation: validation, strict: true });
+  } catch (error) {
+    _error = error.message;
+  }
+
+  assertEquals(_error, 'Validation error: ["c is not a valid key, is missing from validation object","d is not a valid key, is missing from validation object"]');
 });

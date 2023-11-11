@@ -53,11 +53,12 @@ function validate ({ value, validation, errorMsg }) {
  * @param {*} p.obj - Object to validate
  * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}
  * @param {string} [p.errorMsg] - Optional error message
+ * @param {boolean} [p.strict = false] - Optional strict flag, default false; if true check that there are no extra keys other than validation keys in the validated object.
  * @return {*} Validated value
  * @throws {Error} Will throw an error if the validation fails
  */
 // see https://github.com/iarna/aproba for inspiration
-function validateObj ({ obj, validation, errorMsg }) {
+function validateObj ({ obj, validation, errorMsg, strict = false }) {
   if (DISABLE_VALIDATION)
     return obj;
 
@@ -70,7 +71,8 @@ function validateObj ({ obj, validation, errorMsg }) {
 
   const validationResult = _validateObj({
     obj: obj,
-    validation: validation
+    validation: validation,
+    strict: strict
   });
 
   if (validationResult) {
@@ -288,9 +290,10 @@ function _validateValue ({ value, validation, errorMsg }) {
  * @param {Object} p
  * @param {*} p.obj - Object to validate
  * @param {*} p.validation - Validation object {key1: 'typeA', key2: 'typeB'}
+ * @param {boolean} [p.strict] - Strict flag; if true check that there are no extra keys other than validation keys in the validated object.
  * @return {string} Return empty string for success; return error string for validation error.
  */
-function _validateObj ({ obj, validation }) {
+function _validateObj ({ obj, validation, strict }) {
   /** @type {string[]} */
   const errors = [];
 
@@ -316,8 +319,14 @@ function _validateObj ({ obj, validation }) {
    * @param {*} _obj - Object to validate
    */
   function _validateObj2 (_obj) {
+    // if `strict` flag is true, check that there are no extra keys other than validation keys in the validated object
+    if (strict)
+      for (const key2 of Object.keys(_obj))
+        if (!(key2 in validation))
+          errors.push(`${key2} is not a valid key, is missing from validation object`);
+
     for (const key of Object.keys(validation)) {
-      // enum or function validation
+      // Array of enum or array with function to be used as validation
       if (Array.isArray(validation[key])) {
         const validationResult = _validateValue({
           value: _obj[key],
@@ -342,6 +351,7 @@ function _validateObj ({ obj, validation }) {
           validation: validation[key],
           errorMsg: key
         });
+
         if (validationResult) errors.push(validationResult);
       }
     }

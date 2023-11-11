@@ -26,7 +26,7 @@ Deno.test('test validate(): undefined is not not valid `any` type + personalized
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('ValX = undefined, must be !== null or undefined'));
 });
 
@@ -40,7 +40,7 @@ Deno.test('test validate(): null is not not valid `any` type + personalized erro
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = null, must be !== null or undefined'));
 });
 
@@ -192,7 +192,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 99, must be string'));
 
   _error = '';
@@ -201,7 +201,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = AA, must be a lowercase trimmed string'));
 
   _error = '';
@@ -210,7 +210,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value =    aa   , must be a lowercase trimmed string'));
 
   _error = '';
@@ -219,7 +219,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = aa, must be an uppercase trimmed string'));
 
   _error = '';
@@ -228,7 +228,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value =    AA   , must be an uppercase trimmed string'));
 
   _error = '';
@@ -237,7 +237,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = aa, must be a valid number'));
 
   _error = '';
@@ -246,7 +246,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 99, must be boolean'));
 
   _error = '';
@@ -255,7 +255,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 99, must be a valid date'));
 
   // enum
@@ -265,7 +265,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Validation error: Value = aaaX, must be one of 11,aa,aaa,55'));
 
   _error = '';
@@ -274,7 +274,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 99, must be an array'));
 
   _error = '';
@@ -283,7 +283,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value array error, must be an array'));
 
   _error = '';
@@ -292,7 +292,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value array error, must be an array'));
 
   _error = '';
@@ -301,7 +301,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["Value = AA, must be a lowercase trimmed string","Value =    aa   , must be a lowercase trimmed string"]'));
 
   _error = '';
@@ -310,7 +310,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value array error, must be an array'));
 
   _error = '';
@@ -319,7 +319,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["Value = aa, must be an uppercase trimmed string","Value =    AA   , must be an uppercase trimmed string"]'));
 
   _error = '';
@@ -328,7 +328,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value array error, must be an array'));
 
   _error = '';
@@ -337,7 +337,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value array error, must be an array'));
 
   _error = '';
@@ -346,7 +346,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value array error, must be an array'));
 
   _error = '';
@@ -355,7 +355,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value array error, must be an array'));
 
   _error = '';
@@ -364,7 +364,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 99, must be an object'));
 
   _error = '';
@@ -373,7 +373,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 99, must be a function'));
 
   _error = '';
@@ -382,7 +382,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 99, must be a symbol'));
 
   _error = '';
@@ -391,7 +391,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 99, must be an instance of BigInt'));
 
   _error = '';
@@ -400,7 +400,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 99, must be an instance of BigInt'));
 
   _error = '';
@@ -409,7 +409,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 999999999999999999999, is BigInt but the value is too big to be safely converted to a number'));
 
   _error = '';
@@ -418,7 +418,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value array error, must be an array'));
 
   _error = '';
@@ -427,7 +427,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 0, must be an instance of BigInt'));
 
   _error = '';
@@ -436,7 +436,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value array error, must be an array'));
 
   _error = '';
@@ -445,7 +445,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('["Value = 999999999999999999999, is BigInt but the value is too big to be safely converted to a number","Value = 0, must be an instance of BigInt"]'));
 
   _error = '';
@@ -454,7 +454,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 99, must be an instance of a function or class'));
 
   _error = '';
@@ -463,7 +463,7 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value array error, must be an array'));
 
   _error = '';
@@ -472,6 +472,6 @@ Deno.test('test validate(), not valid, all cases', () => {
   } catch (error) {
     _error = error.message;
   }
-  console.log(_error);
+  
   assert(_error.includes('Value = 0, must be an instance of a function or class'));
 });
