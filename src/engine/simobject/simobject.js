@@ -1,7 +1,7 @@
 export { SimObject };
 
-import { validateObj } from '../../lib/schema_validation_utils.js';
 import { simObject_Schema } from './simobject.schema.js';
+import { validateObj } from '../../lib/schema_validation_utils.js';
 
 // info
 /*
