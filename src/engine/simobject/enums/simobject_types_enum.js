@@ -1,4 +1,4 @@
-﻿export { SimObjectTypes_enum, SimObjectTypes_enum_map };
+﻿export { SimObjectTypes_enum };
 
 import { deepFreeze, ensureArrayValuesAreUnique } from '../../../lib/obj_utils.js';
 
@@ -113,4 +113,3 @@ MEMO__DATAFROMSIMULATION_DIVIDENDSPAYOUT : "MEMO__DATAFROMSIMULATION_DIVIDENDSPA
 }
 deepFreeze(SimObjectTypes_enum);
 ensureArrayValuesAreUnique(Object.values(SimObjectTypes_enum));
-const SimObjectTypes_enum_map = new Map(Object.entries(SimObjectTypes_enum));
