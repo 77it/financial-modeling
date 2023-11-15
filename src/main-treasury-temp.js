@@ -1,3 +1,13 @@
+/**
+ Abandon all hope, ye who enter here.
+ For financial modeling is a treacherous journey,
+ fraught with peril and uncertainty.
+ Yet, with careful planning and analysis,
+ one may navigate the labyrinthine world of finance,
+ and emerge victorious on the other side.
+ May this code serve as a guide and a beacon of hope,
+ to all who dare to venture forth into the realm of numbers. */
+
 // run with
 // `deno run --allow-read --allow-write THIS-FILE.js --input INPUT --output OUTPUT --errors ERRORS`
 
