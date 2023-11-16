@@ -56,6 +56,10 @@ Deno.test('YAML tests', (t) => {
   let parsed3 = parseYAML(txt3);
   assertEquals(parsed3, ['a', 'b', 'c']);
 
+  const txt3b = '[amm  CIO giò kjkk  , b9988,b9989, 999 ,dlkjdlkjdlsdkjjdkl, d l k j d l k j d l sdkjjdkl ,lkjlkjlkljlkj]';
+  let parsed3b = parseYAML(txt3b);
+  assertEquals(parsed3b, ['amm  CIO giò kjkk', 'b9988', 'b9989', 999, 'dlkjdlkjdlsdkjjdkl', 'd l k j d l k j d l sdkjjdkl', 'lkjlkjlkljlkj']);
+
   const txt4 = '[\'ciao\', "mamma"]';
   let parsed4 = parseYAML(txt4);
   assertEquals(parsed4, ['ciao', 'mamma']);
