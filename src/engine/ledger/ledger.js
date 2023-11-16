@@ -234,7 +234,7 @@ class Ledger {
     // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
     validateObj({ obj: newSimObjectDto, validation: newSimObjectDto_Schema, strict:true });
 
-    if (SimObjectTypes_enum_map.has(newSimObjectDto.type) === false)
+    if (this.#simObjectTypes_enum_map.has(newSimObjectDto.type) === false)
       throw new Error(`SimObject type ${newSimObjectDto.type} is not recognized`);
 
     const debug_moduleInfo = (this.#debug) ? this.#currentDebugModuleInfo : '';

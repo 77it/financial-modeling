@@ -1,5 +1,6 @@
 export { MODULE_NAME, tablesInfo };
 
+import * as CONST from './_const.js';
 import { schema, deepFreeze } from '../../deps.js';
 
 //#region names of module, tables and columns in the external source file (excel, json, etc.)
@@ -29,6 +30,9 @@ const tablesInfo = {
       name: SET_NAME,
       date: SET_DATE,
       value: SET_VALUE
+    },
+    parsing: {
+      [SET_VALUE]: CONST.YAML_PARSING
     },
     sanitization: {
       [SET_SCENARIO]: schema.STRING_TYPE,
