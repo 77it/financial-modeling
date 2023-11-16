@@ -26,24 +26,28 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
 
     // if `_pss` has a value, parse and sanitize `_table.table` with it
     if (_pss != null) {
+
       // if `_pss.parsing` is not null and an object, parse with it
       if (_pss.parsing != null && typeof _pss.parsing === 'object') {
         // loop `_pss.parsing` keys
         for (const _parseKey in _pss.parsing) {
-          // loop `_table.table` keys
-          for (const _tableKey in _table.table) {
-            // if `_tableKey` matches `_parseKey` in a case insensitive way, parse `_table.table[_tableKey]` with `_pss.parsing[_parseKey]`
-            if (eq2(_tableKey, _parseKey)) {
-              // switch over `_pss.parsing[_parseKey]` values, matching them against CONST values
-              switch (_pss.parsing[_parseKey]) {
-                case CONST.YAML_PARSING:
-                  _table.table[_tableKey] = parseYAML(_table.table[_tableKey]);
-                  break;
-                case CONST.JSON5_PARSING:
-                  _table.table[_tableKey] = parseJSON5(_table.table[_tableKey]);
-                  break;
-                default:
-                  throw new Error(`Unknown parsing type: ${_pss.parsing[_parseKey]}`);
+          // loop `_table.table` rows
+          for (const _row of _table.table) {
+            // loop `_row` keys
+            for (const _rowKey in _row) {
+              // if `_rowKey` matches `_parseKey` in a case insensitive way, parse `_row[_rowKey]` with `_pss.parsing[_parseKey]`
+              if (eq2(_rowKey, _parseKey)) {
+                // switch over `_pss.parsing[_parseKey]` values, matching them against CONST values
+                switch (_pss.parsing[_parseKey]) {
+                  case CONST.YAML_PARSING:
+                    _row[_rowKey] = parseYAML(_row[_rowKey]);
+                    break;
+                  case CONST.JSON5_PARSING:
+                    _row[_rowKey] = parseJSON5(_row[_rowKey]);
+                    break;
+                  default:
+                    throw new Error(`Unknown parsing type: ${_pss.parsing[_parseKey]}`);
+                }
               }
             }
           }

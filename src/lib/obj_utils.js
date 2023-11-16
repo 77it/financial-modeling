@@ -62,6 +62,7 @@ function eq (a, b) {
 /**
  * Equality of two values, with deep comparison of objects and arrays.
  * The difference from eq() is that eq2() is that if a and b are strings, they are compared after trim & case insensitive.
+ * The difference con eqObj() is that with eq2() comparing a class and a plain object, they are always not equal.
  * @param {any} a
  * @param {any} b
  * @returns {boolean}
@@ -76,7 +77,8 @@ function eq2 (a, b) {
 }
 
 /**
- * Equality of two objects (also between plain objects and classes instances), with deep comparison of objects and arrays.
+ * Equality of two objects by content, with deep comparison of objects and arrays.
+ * Equality by content can be used also between plain objects and classes instances.
  * @param {any} a
  * @param {any} b
  * @returns {boolean}

@@ -4,6 +4,7 @@ import * as CONST from '../../../src/config/modules/_const.js';
 import * as schema from '../../../src/lib/schema.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
 import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
+import { eqObj } from '../../deps.js';
 
 Deno.test('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim match of table name + object key names', async () => {
   //#region ARRANGE
@@ -27,8 +28,8 @@ Deno.test('sanitizeModuleData test (parse + sanitize): test case-insensitive & t
   tablesInfo.toParse_tC.tableName = 'TABc';
   tablesInfo.toParse_tC.columns = { name: '  naME', value: '  VALue  ' };
   tablesInfo.toParse_tC.parsing = {
-    [tablesInfo.toParse_tC.columns.name]: CONST.JSON5_PARSING,
-    [tablesInfo.toParse_tC.columns.value]: CONST.YAML_PARSING
+    [tablesInfo.toParse_tC.columns.name]: CONST.YAML_PARSING,
+    [tablesInfo.toParse_tC.columns.value]: CONST.JSON5_PARSING
   };
   tablesInfo.toParse_tC.sanitization = {
     [tablesInfo.toParse_tC.columns.name]: schema.ANY_TYPE,
@@ -112,5 +113,5 @@ Deno.test('sanitizeModuleData test (parse + sanitize): test case-insensitive & t
   sanitizeModuleData({ moduleData: moduleData, moduleSanitization: list_of_sanitizations });
 
   // ASSERT
-  assertEquals(JSON.stringify(moduleData), JSON.stringify(moduleData_exp));
+  assert(eqObj(moduleData, moduleData_exp));
 });
