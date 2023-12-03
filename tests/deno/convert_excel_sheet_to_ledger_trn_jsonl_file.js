@@ -3,8 +3,8 @@ export { convertExcelSheetToLedgerTrnJsonlFile };
 import { platform } from 'https://deno.land/std@0.171.0/node/process.ts';
 import * as windows from "https://deno.land/std@0.205.0/path/windows/mod.ts";
 
-import { existSync } from './exist_sync.js';
-import { downloadAndDecompressGzip } from './download_and_decompress_gzip.js';
+import { existSync } from '../../src/deno/exist_sync.js';
+import { downloadAndDecompressGzip } from '../../src/deno/download_and_decompress_gzip.js';
 
 //#region OPTIONS
 const OPTIONS__CONVERTER_EXE_GZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter2.exe.gz';
