@@ -34,6 +34,7 @@ When you use the "recurrence" the movement will be simulated for each month auto
 Don't deviate from the JSON format, don't add extra fields, don't add extra objects.
 `;
 
+// text-davinci-003 is a deprecated model, see https://platform.openai.com/docs/deprecations/deprecation-history
 Deno.test('text-davinci-003 tests', async () => {
   const forecast_type = 'please forecast a candy shop, from 2025-01-01 to 2025-12-31, detailing movements for each month. 1 employee, 1 machine, 1 location, 1 kg of candies per day sold at 100 usd each.'
   //const forecast_type = 'forecast a candy shop.'

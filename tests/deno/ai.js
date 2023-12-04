@@ -27,6 +27,7 @@ export { text_davinci_003__single_message, gpt__chat, TEXT_DAVINCI__MODEL, TEXT_
 
 import { Configuration, OpenAIApi } from 'npm:openai@3.2.1';
 
+// text-davinci-003 is a deprecated model, see https://platform.openai.com/docs/deprecations/deprecation-history
 const TEXT_DAVINCI_003__MAX_TOKENS = 2048;
 const TEXT_DAVINCI__MODEL = 'text-davinci-003';
 const GPT_3_5_TURBO__MODEL = 'gpt-3.5-turbo';
