@@ -63,10 +63,7 @@ const simObject_Schema = {
 // NOTES
 /*
 # vsSimObjectName   #vsSimObjectName_note_20231111
-Could be used to extinguish the linked SimObjects when the first is closed.
-
-Is unused for the daily schedule payments, because every SimObject should be managed by itself;
-the reason is that we don't know which one of the 2 linked SimObject is already paid for the daily schedule:
-if today is not present in the other SimObject - because already paid - what must we do: align the schedule? or ignore
-the mismatch? we don't know, then better to leave the management to the SimObject itself.
+Can be used to extinguish the linked SimObjects when the first is closed.
+Can be used to pay the daily schedule payments of the linked SimObjects but only if the residual value of the
+two SimObject is the same before the payment and if the schedule is the same; otherwise ignore the payment.
 */

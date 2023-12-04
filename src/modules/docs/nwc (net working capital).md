@@ -10,7 +10,9 @@ Modulo di Simulation, ogni giorno scarica crediti e debiti commerciali alive con
   se il saldo residuo = 0, setta alive = false
 * definisce su /config/nwc la lista dei tipi di accounting da scaricare
 
-* vsSimObjectName: is unused for the daily schedule payments; see >vsSimObjectName_note_20231111
+Scarica anche i SimObject intercompany collegati:
+* quando processa lo scarico di un SimObject e trova che questo è collegato a un altro con `vsSimObjectName`
+  scarica automaticamente anche l'altro SimObject // see >vsSimObjectName_note_20231111
 
 Viene caricato automaticamente da Engine se il lock non è definito.
 
