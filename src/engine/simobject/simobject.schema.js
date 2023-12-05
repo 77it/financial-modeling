@@ -63,7 +63,13 @@ const simObject_Schema = {
 // NOTES
 /*
 # vsSimObjectName   #vsSimObjectName_note_20231111
+This property must be set with intercompanyInfo__VsUnitId, to define the linked Unit of which is referenced a SimObject by name.
+
 Can be used to extinguish the linked SimObjects when the first is closed.
 Can be used to pay the daily schedule payments of the linked SimObjects but only if the residual value of the
 two SimObject is the same before the payment and if the schedule is the same; otherwise ignore the payment.
+
+If this property is set in one SimObject A only and is missing from the linked SimObject B
+the two SimObjects A & B will be considered linked and will be treated as if they have an opposite/matching vsSimObjectName & intercompanyInfo__VsUnitId.
+Furthermore, B can't define a vsSimObjectName vs C, because this will be a fatal error.
 */
