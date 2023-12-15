@@ -40,7 +40,7 @@ class SimObject {
   #bs_Principal__PrincipalToPay_AmortizationSchedule__Principal;
   #is_Link__SimObjId;
   #consolidation;  // TODO XXX TO ADD
-  #vsSimObjectName;
+  #vsSimObjectName;  // NOT EXPORTED TO JSON DUMP
   #versionId;  // NOT EXPORTED TO JSON DUMP
   #extras;  // NOT EXPORTED TO JSON DUMP
 
