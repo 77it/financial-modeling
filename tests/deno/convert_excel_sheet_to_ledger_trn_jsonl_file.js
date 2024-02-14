@@ -1,6 +1,6 @@
 export { convertExcelSheetToLedgerTrnJsonlFile };
 
-import { platform } from 'https://deno.land/std@0.171.0/node/process.ts';
+import process from "node:process";
 import * as windows from "https://deno.land/std@0.205.0/path/windows/mod.ts";
 
 import { existSync } from '../../src/deno/exist_sync.js';
@@ -70,7 +70,7 @@ function platformIsWindows () {
   // see https://deno.land/std@0.171.0/node/process.ts?s=platform
   // see also https://nodejs.org/api/process.html#process_process_platform
   //const platforms = ['aix', 'android', 'darwin', 'freebsd', 'linux', 'openbsd', 'sunos', 'win32'];
-  return (platform === 'win32');
+  return (process.platform === 'win32');
 }
 
 //#endregion private functions

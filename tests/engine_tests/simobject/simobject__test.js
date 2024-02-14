@@ -45,6 +45,7 @@ Deno.test('SimObject tests', async (t) => {
 
   await t.step('test error, metadata array of different length', async () => {
     const p1 = structuredClone(p);
+    //@ts-ignore
     p1.metadata__Name = ['AA'];
     let _error = '';
     try {
@@ -57,6 +58,7 @@ Deno.test('SimObject tests', async (t) => {
 
   await t.step('test error, extraneous property not present in validation object', async () => {
     const p1 = structuredClone(p);
+    //@ts-ignore
     p1.extraneous_property = 99;
     let _error = '';
     try {
