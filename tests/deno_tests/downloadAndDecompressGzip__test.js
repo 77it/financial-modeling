@@ -5,7 +5,7 @@ import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from
 import { downloadAndDecompressGzip } from '../../src/deno/download_and_decompress_gzip.js';
 
 Deno.test('downloadAndDecompressGzip tests', async () => {
-  const url = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter.exe.gz';
+  const url = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.6/Converter.exe.gz';
   const path = './converter.exe';
 
   await downloadAndDecompressGzip({ url, path });

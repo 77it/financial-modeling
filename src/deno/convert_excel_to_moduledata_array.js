@@ -10,7 +10,7 @@ import { existSync } from './exist_sync.js';
 import { downloadAndDecompressGzip } from './download_and_decompress_gzip.js';
 
 //#region OPTIONS
-const OPTIONS__CONVERTER_EXE_GZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter.exe.gz';
+const OPTIONS__CONVERTER_EXE_GZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.6/Converter.exe.gz';
 const OPTIONS__CONVERTER_EXE_NAME = 'converter.exe';
 
 //#endregion OPTIONS
