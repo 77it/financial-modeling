@@ -1,7 +1,6 @@
 export { convertExcelToModuleDataArray };
 
 import process from "node:process";
-import * as windows from "https://deno.land/std@0.205.0/path/windows/mod.ts";
 
 import { ModuleData } from '../engine/modules/module_data.js';
 import { moduleDataArray_LoadFromJsonlFile } from './module_data_array__load_from_jsonl_file.js';
@@ -26,7 +25,10 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
     throw new Error('platform not supported');
 
   // build a path with OPTIONS__CONVERTER_EXE_NAME and this file path + normalize to windows path
-  const converterExePath = windows.fromFileUrl(new URL(OPTIONS__CONVERTER_EXE_NAME, import.meta.url));  // see https://github.com/denoland/deno/issues/1286#issuecomment-643624186
+  // see https://github.com/denoland/deno/issues/1286#issuecomment-643624186
+  // & https://developer.mozilla.org/en-US/docs/Web/API/URL
+  const _converterExePath = (new URL(OPTIONS__CONVERTER_EXE_NAME, import.meta.url)).pathname;
+  const converterExePath = _converterExePath.startsWith('/') ? _converterExePath.slice(1) : _converterExePath;
 
   // create temporary file to store errors
   const tempErrorsFilePath = await Deno.makeTempFile();
