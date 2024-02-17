@@ -27,9 +27,9 @@ import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
  * @param {string} p.scenarioName - Scenario name
  * @param {appendTrnDump} p.appendTrnDump - Function to append the transactions dump
  * @param {boolean} [p.ledgerDebug=false] - Optional ledgerDebug flag
- * @return {Promise<Result>}
+ * @return {Result}
  */
-async function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebug }) {
+function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebug }) {
   /*
      _____   _____   __  __   _    _   _                   _______   _____    ____    _   _             _____   _______              _____    _______
     / ____| |_   _| |  \/  | | |  | | | |          /\     |__   __| |_   _|  / __ \  | \ | |           / ____| |__   __|     /\     |  __ \  |__   __|
