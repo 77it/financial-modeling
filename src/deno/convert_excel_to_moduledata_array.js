@@ -30,9 +30,6 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
   const _converterExePath = (new URL(OPTIONS__CONVERTER_EXE_NAME, import.meta.url)).pathname;
   const converterExePath = _converterExePath.startsWith('/') ? _converterExePath.slice(1) : _converterExePath;
 
-  // create temporary file to store errors
-  const tempErrorsFilePath = await Deno.makeTempFile();
-
   // download and decompress OPTIONS__CONVERTER_EXE_GZ_URL
   if (!existSync(converterExePath))
     await downloadAndDecompressGzip(
@@ -40,6 +37,7 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
 
   // convert Excel input file to JSONL `modulesData` calling Converter program  // see  https://deno.land/manual@v1.36.4/examples/subprocess
   const jsonlOutput = excelInput + '.dump.jsonl.tmp';
+  const tempErrorsFilePath = excelInput + '.errors.tmp';
   const command = new Deno.Command(converterExePath, {
     args: [
       'excel-modules-to-jsonl-modules',
