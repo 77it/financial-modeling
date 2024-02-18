@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+
 /**
  * Returns true if the path exists (file or folder), false otherwise
  *
@@ -5,6 +7,10 @@
  * @returns {boolean} - True if the path exists (file or folder), false otherwise
  */
 export function existSync (path) {
+  return fs.existsSync(path);
+
+  // old Deno code
+  /*
   // see https://deno.land/api@v1.33.1?s=Deno.statSync
   // see https://deno.land/api@v1.33.1?s=Deno.FileInfo
   //
@@ -15,7 +21,6 @@ export function existSync (path) {
   //    // Doing so creates a race condition. Instead, perform the actual file operation directly.
   // see https://deno.com/blog/v1.33#deprecation-of-fsexists-has-been-canceled
   // see https://deno.land/std@0.185.0/fs/mod.ts?s=existsSync
-
   try {
     const fileInfo = Deno.statSync(path);  // throws if file does not exist
     if (fileInfo.isDirectory || fileInfo.isFile || fileInfo.isSymlink)
@@ -24,4 +29,5 @@ export function existSync (path) {
   } catch (_) {
     return false;
   }
+  */
 }
