@@ -19,7 +19,7 @@ Deno.test('main-treasury-temp tests with ./user_data__no_settings.xlsx', async (
 
   await main({
     excelUserInput: `./${BASE_TEST_FILENAME}.xlsx`, outputFolder: '.', errors: ERROR_FILE,
-    moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
+    moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG
   });
 
   if (existSync(ERROR_FILE)) throw new Error(`Error file ${ERROR_FILE} should not exist`);

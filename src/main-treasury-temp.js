@@ -16,6 +16,7 @@ export { main };
 //#region deno imports
 import { parse } from 'https://deno.land/std@0.172.0/flags/mod.ts';
 import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts';
+import process from "node:process";
 
 import { existSync } from './deno/exist_sync.js';
 import { convertExcelToModuleDataArray } from './deno/convert_excel_to_moduledata_array.js';
@@ -61,15 +62,13 @@ if (Deno.args.length !== 0) {
  * @param {string} p.errors - Path of the error file, created only if there are errors
  * @param {boolean} [p.moduleResolverDebugFlag=false] - When true, Engine and ModuleLoader are returned from local file
  * @param {boolean} [p.ledgerDebugFlag=false] - Ledger debug flag
- * @param {boolean} [p.continueExecutionAfterSimulationDebugFlag=false] - Continue execution after simulation debug flag
  */
 async function main ({
   excelUserInput,
   outputFolder,
   errors,
   moduleResolverDebugFlag = false,
-  ledgerDebugFlag = false,
-  continueExecutionAfterSimulationDebugFlag = false
+  ledgerDebugFlag = false
 }) {
   // create/overwrite errorsDump file
   const errorsDumpFileWriter = await Deno.open(errors, { create: true, write: true, truncate: true });
@@ -170,11 +169,14 @@ async function main ({
   } finally {
     errorsDumpFileWriter.close();
     // if exit code is 0, delete errors file
-    if (_exitCode === 0 && existSync(errors))
+    if (_exitCode === 0 && existSync(errors)) {
       Deno.removeSync(errors);
-    // continue execution after simulation if debug flag is true
-    if (!continueExecutionAfterSimulationDebugFlag)
-      Deno.exit(_exitCode);
+    }
+    // Rather than calling process.exit() directly, the code should set the process.exitCode and allow the process to exit naturally
+    // by avoiding scheduling any additional work for the event loop
+    // see https://nodejs.org/api/process.html#processexitcode
+    // & https://nodejs.org/api/process.html#processexitcode_1
+    process.exitCode = _exitCode;
   }
 
   /*

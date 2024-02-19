@@ -16,7 +16,7 @@ Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory
 Deno.test('main-treasury-temp tests with ./user_data__non_existent_module.xlsx', async () => {
   await main({
     excelUserInput: './user_data__non_existent_module.xlsx', outputFolder: '.', errors: ERROR_FILE,
-    moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG, continueExecutionAfterSimulationDebugFlag: DEBUG_FLAG
+    moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG
   });
 
   const _errors = Deno.readTextFileSync(ERROR_FILE);
