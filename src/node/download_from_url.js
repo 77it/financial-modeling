@@ -1,4 +1,4 @@
-// run with `deno run --allow-net --allow-read --allow-write src\deno\download_from_url.js`
+// run with `deno run --allow-net --allow-read --allow-write THIS_FILE`
 
 export { downloadFromUrl };
 

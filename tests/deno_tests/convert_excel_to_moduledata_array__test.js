@@ -2,7 +2,7 @@
 
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../deps.js';
 
-import { convertExcelToModuleDataArray } from '../../src/deno/convert_excel_to_moduledata_array.js';
+import { convertExcelToModuleDataArray } from '../../src/node/convert_excel_to_moduledata_array.js';
 
 Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
 

@@ -3,8 +3,8 @@ export { convertExcelSheetToLedgerTrnJsonlFile };
 import process from "node:process";
 import * as windows from "https://deno.land/std@0.205.0/path/windows/mod.ts";
 
-import { existSync } from '../../src/deno/exist_sync.js';
-import { downloadFromUrl } from '../../src/deno/download_from_url.js';
+import { existSync } from '../../src/node/exist_sync.js';
+import { downloadFromUrl } from '../../src/node/download_from_url.js';
 
 //#region OPTIONS
 const OPTIONS__CONVERTER_EXE_GZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.6/Converter2.exe';

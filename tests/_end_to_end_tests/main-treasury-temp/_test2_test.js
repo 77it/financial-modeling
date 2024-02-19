@@ -1,6 +1,6 @@
 // run with --allow-read --allow-write --allow-net --allow-run
 
-import { existSync } from '../../../src/deno/exist_sync.js';
+import { existSync } from '../../../src/node/exist_sync.js';
 
 import { main } from '../../../src/main-treasury-temp.js';
 

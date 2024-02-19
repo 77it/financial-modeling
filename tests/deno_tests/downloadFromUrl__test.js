@@ -2,7 +2,7 @@
 
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../deps.js';
 
-import { downloadFromUrl } from '../../src/deno/download_from_url.js';
+import { downloadFromUrl } from '../../src/node/download_from_url.js';
 
 Deno.test('downloadFromUrl tests', async () => {
   const url = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.5/Converter.exe';

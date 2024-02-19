@@ -13,13 +13,13 @@
 
 export { main };
 
-//#region deno imports
+//#region node imports
 import { parse } from 'https://deno.land/std@0.172.0/flags/mod.ts';
 import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts';
 import process from "node:process";
 
-import { existSync } from './deno/exist_sync.js';
-import { convertExcelToModuleDataArray } from './deno/convert_excel_to_moduledata_array.js';
+import { existSync } from './node/exist_sync.js';
+import { convertExcelToModuleDataArray } from './node/convert_excel_to_moduledata_array.js';
 //#endregion deno imports
 
 //#region local imports
