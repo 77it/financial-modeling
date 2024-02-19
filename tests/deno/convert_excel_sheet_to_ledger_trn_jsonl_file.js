@@ -4,11 +4,11 @@ import process from "node:process";
 import * as windows from "https://deno.land/std@0.205.0/path/windows/mod.ts";
 
 import { existSync } from '../../src/deno/exist_sync.js';
-import { downloadAndDecompressGzip } from '../../src/deno/download_and_decompress_gzip.js';
+import { downloadFromUrl } from '../../src/deno/download_from_url.js';
 
 //#region OPTIONS
-const OPTIONS__CONVERTER_EXE_GZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.6/Converter2.exe.gz';
-const OPTIONS__CONVERTER_EXE_NAME = './converter2.exe';
+const OPTIONS__CONVERTER_EXE_GZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.6/Converter2.exe';
+const OPTIONS__CONVERTER_EXE_NAME = '../bin/converter2.exe';
 
 //#endregion OPTIONS
 
@@ -32,8 +32,8 @@ async function convertExcelSheetToLedgerTrnJsonlFile ({ excelInput, jsonlOutput,
 
   // download and decompress OPTIONS__CONVERTER_EXE_GZ_URL
   if (!existSync(converterExePath))
-    await downloadAndDecompressGzip(
-      { url: OPTIONS__CONVERTER_EXE_GZ_URL, path: converterExePath });
+    await downloadFromUrl(
+      { url: OPTIONS__CONVERTER_EXE_GZ_URL, filepath: converterExePath });
 
   // convert Excel input file to JSONL file with ledger transactions  // see  https://deno.land/manual@v1.36.4/examples/subprocess
   const command = new Deno.Command(converterExePath, {

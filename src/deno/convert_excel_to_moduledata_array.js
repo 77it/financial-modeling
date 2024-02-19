@@ -1,16 +1,17 @@
 export { convertExcelToModuleDataArray };
 
+import fs from 'node:fs';
 import process from "node:process";
 
 import { ModuleData } from '../engine/modules/module_data.js';
 import { moduleDataArray_LoadFromJsonlFile } from './module_data_array__load_from_jsonl_file.js';
 
 import { existSync } from './exist_sync.js';
-import { downloadAndDecompressGzip } from './download_and_decompress_gzip.js';
+import { downloadFromUrl } from './download_from_url.js';
 
 //#region OPTIONS
-const OPTIONS__CONVERTER_EXE_GZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.6/Converter.exe.gz';
-const OPTIONS__CONVERTER_EXE_NAME = 'converter.exe';
+const OPTIONS__CONVERTER_EXE_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.6/Converter.exe';
+const OPTIONS__CONVERTER_EXE_NAME = '../bin/converter.exe';
 
 //#endregion OPTIONS
 
@@ -32,8 +33,8 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
 
   // download and decompress OPTIONS__CONVERTER_EXE_GZ_URL
   if (!existSync(converterExePath))
-    await downloadAndDecompressGzip(
-      { url: OPTIONS__CONVERTER_EXE_GZ_URL, path: converterExePath });
+    await downloadFromUrl(
+      { url: OPTIONS__CONVERTER_EXE_URL, filepath: converterExePath });
 
   // convert Excel input file to JSONL `modulesData` calling Converter program  // see  https://deno.land/manual@v1.36.4/examples/subprocess
   const jsonlOutput = excelInput + '.dump.jsonl.tmp';
@@ -50,13 +51,12 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
 
   // throw error if there are errors
   if (code !== 0 || existSync(tempErrorsFilePath)) {
-    const errorsText = Deno.readTextFileSync(tempErrorsFilePath);  // see https://deno.land/api@v1.29.4?s=Deno.readTextFileSync
+    const errorsText = fs.readFileSync(tempErrorsFilePath, 'utf8');  // see https://nodejs.org/api/fs.html#fsreadfilesyncpath-options
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }
 
   // throw error if output file does not exist
   if (!existSync(jsonlOutput)) {
-    const errorsText = Deno.readTextFileSync(tempErrorsFilePath);  // see https://deno.land/api@v1.29.4?s=Deno.readTextFileSync
     throw new Error(`Errors during conversion of the Excel input file: output file ${jsonlOutput} does not exist`);
   }
 
@@ -65,7 +65,7 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
 
   // delete temporary file
   try {
-    Deno.removeSync(jsonlOutput);
+    fs.unlinkSync(jsonlOutput);
   } catch (_) { }
 
   // return `modulesData`
