@@ -11,7 +11,7 @@ import { downloadFromUrl } from './download_from_url.js';
 
 //#region OPTIONS
 const OPTIONS__CONVERTER_EXE_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.6/Converter.exe';
-const OPTIONS__CONVERTER_EXE_NAME = '../bin/converter.exe';
+const OPTIONS__CONVERTER_EXE_NAME = '../../bin/converter.exe';
 
 //#endregion OPTIONS
 
