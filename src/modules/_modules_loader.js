@@ -70,7 +70,7 @@ class ModulesLoader {
       if (['', '.', '/', './', '\\', '.\\'].includes(_URI))  // If moduleEngineURI is missing or . / /. \ \., is set to ./${p.moduleName.trim().toLowerCase()}.js
         _URI = `./${p.moduleName.trim().toLowerCase()}.js`;
 
-      // DYNAMIC IMPORT (works with Deno and browser)
+      // DYNAMIC IMPORT (works with DENO, BROWSER and NODE with option --experimental-network-imports)
       let _lastImportError = '';
       for (const _cdnURI of this.#modulesLoader_Resolve(_URI)) {
         try {
