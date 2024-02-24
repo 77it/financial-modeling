@@ -18,7 +18,7 @@ import { parse } from 'https://deno.land/std@0.172.0/flags/mod.ts';
 import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts';
 import process from "node:process";
 
-import { existSync } from './node/exist_sync.js';
+import { existsSync } from './node/exists_sync.js';
 import { convertExcelToModuleDataArray } from './node/convert_excel_to_moduledata_array.js';
 //#endregion deno imports
 
@@ -169,7 +169,7 @@ async function main ({
   } finally {
     errorsDumpFileWriter.close();
     // if exit code is 0, delete errors file
-    if (_exitCode === 0 && existSync(errors)) {
+    if (_exitCode === 0 && existsSync(errors)) {
       Deno.removeSync(errors);
     }
     // Rather than calling process.exit() directly, the code should set the process.exitCode and allow the process to exit naturally

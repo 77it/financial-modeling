@@ -6,7 +6,7 @@ import process from "node:process";
 import { ModuleData } from '../engine/modules/module_data.js';
 import { moduleDataArray_LoadFromJsonlFile } from './module_data_array__load_from_jsonl_file.js';
 
-import { existSync } from './exist_sync.js';
+import { existsSync } from './exists_sync.js';
 import { downloadFromUrl } from './download_from_url.js';
 
 //#region OPTIONS
@@ -32,7 +32,7 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
   const converterExePath = _converterExePath.startsWith('/') ? _converterExePath.slice(1) : _converterExePath;
 
   // download and decompress OPTIONS__CONVERTER_EXE_GZ_URL
-  if (!existSync(converterExePath))
+  if (!existsSync(converterExePath))
     await downloadFromUrl(
       { url: OPTIONS__CONVERTER_EXE_URL, filepath: converterExePath });
 
@@ -50,13 +50,13 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
   const { code, stdout, stderr } = await command.output();  // await its completion
 
   // throw error if there are errors
-  if (code !== 0 || existSync(tempErrorsFilePath)) {
+  if (code !== 0 || existsSync(tempErrorsFilePath)) {
     const errorsText = fs.readFileSync(tempErrorsFilePath, 'utf8');  // see https://nodejs.org/api/fs.html#fsreadfilesyncpath-options
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }
 
   // throw error if output file does not exist
-  if (!existSync(jsonlOutput)) {
+  if (!existsSync(jsonlOutput)) {
     throw new Error(`Errors during conversion of the Excel input file: output file ${jsonlOutput} does not exist`);
   }
 

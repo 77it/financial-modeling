@@ -3,7 +3,7 @@ export { convertExcelSheetToLedgerTrnJsonlFile };
 import process from "node:process";
 import * as windows from "https://deno.land/std@0.205.0/path/windows/mod.ts";
 
-import { existSync } from '../../src/node/exist_sync.js';
+import { existsSync } from '../../src/node/exists_sync.js';
 import { downloadFromUrl } from '../../src/node/download_from_url.js';
 
 //#region OPTIONS
@@ -31,7 +31,7 @@ async function convertExcelSheetToLedgerTrnJsonlFile ({ excelInput, jsonlOutput,
   const tempErrorsFilePath = await Deno.makeTempFile();
 
   // download and decompress OPTIONS__CONVERTER_EXE_GZ_URL
-  if (!existSync(converterExePath))
+  if (!existsSync(converterExePath))
     await downloadFromUrl(
       { url: OPTIONS__CONVERTER_EXE_GZ_URL, filepath: converterExePath });
 
@@ -48,13 +48,13 @@ async function convertExcelSheetToLedgerTrnJsonlFile ({ excelInput, jsonlOutput,
   const { code, stdout, stderr } = await command.output();  // await its completion
 
   // throw error if there are errors
-  if (code !== 0 || existSync(tempErrorsFilePath)) {
+  if (code !== 0 || existsSync(tempErrorsFilePath)) {
     const errorsText = Deno.readTextFileSync(tempErrorsFilePath);  // see https://deno.land/api@v1.29.4?s=Deno.readTextFileSync
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }
 
   // throw error if output file does not exist
-  if (!existSync(jsonlOutput)) {
+  if (!existsSync(jsonlOutput)) {
     const errorsText = Deno.readTextFileSync(tempErrorsFilePath);  // see https://deno.land/api@v1.29.4?s=Deno.readTextFileSync
     throw new Error(`Errors during conversion of the Excel input file: output file ${jsonlOutput} does not exist`);
   }

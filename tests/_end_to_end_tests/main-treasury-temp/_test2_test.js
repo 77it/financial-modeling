@@ -1,6 +1,6 @@
 // run with --allow-read --allow-write --allow-net --allow-run
 
-import { existSync } from '../../../src/node/exist_sync.js';
+import { existsSync } from '../../../src/node/exists_sync.js';
 
 import { main } from '../../../src/main-treasury-temp.js';
 
@@ -9,7 +9,7 @@ import { convertExcelSheetToLedgerTrnJsonlFile } from '../../deno/convert_excel_
 
 import { DEBUG_FLAG, ERROR_FILE } from './_test_settings.js';
 
-if (existSync(ERROR_FILE)) Deno.removeSync(ERROR_FILE);
+if (existsSync(ERROR_FILE)) Deno.removeSync(ERROR_FILE);
 
 Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
 
@@ -22,7 +22,7 @@ Deno.test('main-treasury-temp tests with ./user_data__no_settings.xlsx', async (
     moduleResolverDebugFlag: DEBUG_FLAG, ledgerDebugFlag: DEBUG_FLAG
   });
 
-  if (existSync(ERROR_FILE)) throw new Error(`Error file ${ERROR_FILE} should not exist`);
+  if (existsSync(ERROR_FILE)) throw new Error(`Error file ${ERROR_FILE} should not exist`);
 
   await convertExcelSheetToLedgerTrnJsonlFile({
     excelInput: `./${BASE_TEST_FILENAME}__expected_trn.xlsx`,
