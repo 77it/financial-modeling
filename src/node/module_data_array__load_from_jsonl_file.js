@@ -1,6 +1,7 @@
 export { moduleDataArray_LoadFromJsonlFile };
 
-import { readLines } from 'https://deno.land/std@0.152.0/io/buffer.ts';
+import readline from 'node:readline';
+import fs from 'node:fs';
 import { ModuleData } from '../engine/modules/module_data.js';
 
 /**
@@ -9,16 +10,23 @@ import { ModuleData } from '../engine/modules/module_data.js';
  * @return {Promise<ModuleData[]>} deserialized ModuleData
  */
 async function moduleDataArray_LoadFromJsonlFile (jsonlFilePath) {
-  // see https://developer.mozilla.org/en-US/docs/Web/API/URL/pathname
+  // see https://nodejs.org/api/readline.html
   const _jsonlFilePath = (jsonlFilePath instanceof URL) ? jsonlFilePath.pathname : jsonlFilePath;
   const __jsonlFilePath = _jsonlFilePath.startsWith('/') ? _jsonlFilePath.slice(1) : _jsonlFilePath;
-  const fileReader = await Deno.open(__jsonlFilePath);
-  const jsonLines = [];
 
-  for await (const line of readLines(fileReader))
-    if (line.trim())
+  const fileStream = fs.createReadStream(__jsonlFilePath);
+
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
+  });
+
+  const jsonLines = [];
+  for await (const line of rl) {
+    if (line?.trim())
       jsonLines.push(line);
-  fileReader.close();
+  }
+  fileStream.close();
 
   // loop jsonLines and parse content to ModuleData
   const moduleDataArray = [];
