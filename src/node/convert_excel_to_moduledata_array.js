@@ -2,6 +2,7 @@ export { convertExcelToModuleDataArray };
 
 import fs from 'node:fs';
 import process from "node:process";
+import { execFileSync } from 'node:child_process';
 
 import { ModuleData } from '../engine/modules/module_data.js';
 import { moduleDataArray_LoadFromJsonlFile } from './module_data_array__load_from_jsonl_file.js';
@@ -39,18 +40,28 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
   // convert Excel input file to JSONL `modulesData` calling Converter program  // see  https://deno.land/manual@v1.36.4/examples/subprocess
   const jsonlOutput = excelInput + '.dump.jsonl.tmp';
   const tempErrorsFilePath = excelInput + '.errors.tmp';
-  const command = new Deno.Command(converterExePath, {
-    args: [
-      'excel-modules-to-jsonl-modules',
-      '--input', excelInput,
-      '--output', jsonlOutput,
-      '--errors', tempErrorsFilePath
-    ]
-  });
-  const { code, stdout, stderr } = await command.output();  // await its completion
+
+  const args = [
+    'excel-modules-to-jsonl-modules',
+    '--input', excelInput,
+    '--output', jsonlOutput,
+    '--errors', tempErrorsFilePath
+  ]
+
+  const { stdout_string, exit_code } = (() => {
+    try {
+      // see https://www.freecodecamp.org/news/node-js-child-processes-everything-you-need-to-know-e69498fe970a/
+      // see https://nodejs.org/api/child_process.html#child_processexecfilefile-args-options-callback
+      const stdout_string = execFileSync(converterExePath, args, {encoding: 'utf8'});  // will print stderr without intercepting it
+      return {stdout_string: stdout_string, exit_code: 0};
+    } catch (error) {
+      console.log(error);
+      return {stdout_string: '', exit_code: error.status};
+    }
+  })();
 
   // throw error if there are errors
-  if (code !== 0 || existsSync(tempErrorsFilePath)) {
+  if (exit_code !== 0 || existsSync(tempErrorsFilePath)) {
     const errorsText = fs.readFileSync(tempErrorsFilePath, 'utf8');  // see https://nodejs.org/api/fs.html#fsreadfilesyncpath-options
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }
