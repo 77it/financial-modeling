@@ -1,3 +1,3 @@
-deno test --check --allow-net --allow-read --allow-write --allow-run --config deno.json tests/
+deno test --check --allow-net --allow-read --allow-write --allow-run --allow-env --config deno.json tests/
 
 pause
