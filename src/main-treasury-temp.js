@@ -15,9 +15,9 @@
 export { main };
 
 //#region node imports
-import { parse } from 'https://deno.land/std@0.172.0/flags/mod.ts';
-import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts';
+import { parseArgs } from 'node:util';
 import process from "node:process";
+import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts';
 
 import { existsSync } from './node/exists_sync.js';
 import { convertExcelToModuleDataArray } from './node/convert_excel_to_moduledata_array.js';
@@ -38,9 +38,24 @@ import * as CFG from './config/engine.js';
 //#endregion local imports
 
 // call `main` function only if there are command line arguments  (useful to not call `main` function with the following code when importing this file)
-if (Deno.args.length !== 0) {
-  const args = parse(Deno.args);  // parse command line arguments
-  await main({ excelUserInput: args?.input, outputFolder: args?.output, errors: args?.errors });
+const args = (typeof Deno !== "undefined") ? Deno.args : process.argv.slice(2);
+// check if array is an array, and then if the length is > 0
+if (Array.isArray(args) && args.length > 0) {
+  const options = {
+    input: { type: 'string', short: 'i', default: '' },
+    output: { type: 'string', short: 'o', default: '' },
+    error: { type: 'string', short: 'e', default: ''},
+  };
+
+  const args_parsed = (() => {
+    try {
+      return parseArgs({args, options});
+    } catch (e) {
+      return {values: {}, positionals: []};
+    }
+  })();
+
+  await main({ excelUserInput: args_parsed.values?.input, outputFolder: args_parsed.values?.output, errors: args_parsed.values?.errors });
 } else {
   console.log('No command line arguments found, expected: --input EXCEL-INPUT-FILE --output OUTPUT-FOLDER --errors ERRORS-FILE . This file can also be imported and used as a module.');
 }
