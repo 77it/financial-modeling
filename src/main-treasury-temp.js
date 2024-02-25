@@ -6,7 +6,8 @@
  one may navigate the labyrinthine world of finance,
  and emerge victorious on the other side.
  May this code serve as a guide and a beacon of hope,
- to all who dare to venture forth into the realm of numbers. */
+ to all who dare to venture forth into the realm of numbers. 
+*/
 
 // run with
 // `deno run --allow-read --allow-write THIS-FILE.js --input INPUT --output OUTPUT --errors ERRORS`
@@ -20,7 +21,7 @@ import process from "node:process";
 
 import { existsSync } from './node/exists_sync.js';
 import { convertExcelToModuleDataArray } from './node/convert_excel_to_moduledata_array.js';
-//#endregion deno imports
+//#endregion node imports
 
 //#region local imports
 import { Result, schema, sanitize, sanitizeObj, parseJSON5, isNullOrWhiteSpace, eq2, get2 } from './deps.js';
