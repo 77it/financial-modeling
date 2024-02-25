@@ -26,7 +26,7 @@ Private Properties
 * [1] lastCalculation
 */
 
-import { BigDenary } from "https://deno.land/x/bigdenary/mod.ts";
+import { BigDenary } from 'https://deno.land/x/bigdenary/mod.ts';
 
 class Loan {
     //#region private properties

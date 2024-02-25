@@ -1,3 +1,5 @@
+// see https://nodejs.org/api/test.html
+
 export { test2 as test };
 
 import { test } from 'node:test';

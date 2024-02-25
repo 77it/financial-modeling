@@ -1,7 +1,7 @@
 export { convertExcelToModuleDataArray };
 
 import fs from 'node:fs';
-import process from "node:process";
+import process from 'node:process';
 import { execFileSync } from 'node:child_process';
 
 import { ModuleData } from '../engine/modules/module_data.js';

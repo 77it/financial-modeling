@@ -16,8 +16,8 @@ export { main };
 
 //#region node imports
 import { parseArgs } from 'node:util';
-import process from "node:process";
-import { writeAllSync } from 'https://deno.land/std@0.173.0/streams/write_all.ts';
+import process from 'node:process';
+import fs from 'node:fs';
 
 import { existsSync } from './node/exists_sync.js';
 import { convertExcelToModuleDataArray } from './node/convert_excel_to_moduledata_array.js';
@@ -55,7 +55,7 @@ if (Array.isArray(args) && args.length > 0) {
     }
   })();
 
-  await main({ excelUserInput: args_parsed.values?.input, outputFolder: args_parsed.values?.output, errors: args_parsed.values?.errors });
+  await main({ excelUserInput: args_parsed.values?.input, outputFolder: args_parsed.values?.output, errorsFilePath: args_parsed.values?.errors });
 } else {
   console.log('No command line arguments found, expected: --input EXCEL-INPUT-FILE --output OUTPUT-FOLDER --errors ERRORS-FILE . This file can also be imported and used as a module.');
 }
@@ -75,19 +75,21 @@ if (Array.isArray(args) && args.length > 0) {
  * @param {Object} p
  * @param {string} p.excelUserInput - Path of the Excel file with user input
  * @param {string} p.outputFolder - Output folder
- * @param {string} p.errors - Path of the error file, created only if there are errors
+ * @param {string} p.errorsFilePath - Path of the error file, created only if there are errors
  * @param {boolean} [p.moduleResolverDebugFlag=false] - When true, Engine and ModuleLoader are returned from local file
  * @param {boolean} [p.ledgerDebugFlag=false] - Ledger debug flag
  */
 async function main ({
   excelUserInput,
   outputFolder,
-  errors,
+  errorsFilePath,
   moduleResolverDebugFlag = false,
   ledgerDebugFlag = false
 }) {
-  // create/overwrite errorsDump file
-  const errorsDumpFileWriter = await Deno.open(errors, { create: true, write: true, truncate: true });
+  // Delete the file before writing to it
+  if (fs.existsSync(errorsFilePath)) {
+    fs.unlinkSync(errorsFilePath);
+  }
 
   let _exitCode = 0;
 
@@ -147,15 +149,19 @@ async function main ({
       if (isNullOrWhiteSpace(_scenario))  // skip empty scenarios
         continue;
 
-      // create/overwrite output file   // see https://deno.land/api@v1.29.1?s=Deno.open
+      // Create a writable stream; see https://nodejs.org/api/fs.html#fscreatewritestreampath-options
       const _output = `${outputFolder}/${_scenario}.jsonl`;
-      const trnDumpFileWriter = await Deno.open(_output, { create: true, write: true, truncate: true });
+      // Delete the file before writing to it
+      if (fs.existsSync(_output)) {
+        fs.unlinkSync(_output);
+      }
 
       /**
        * Callback to dump the transactions
        * @param {string} dump */
       const _appendTrnDump = function (dump) {
-        writeToStream(trnDumpFileWriter, dump);
+        // see https://nodejs.org/api/fs.html#fsappendfilesyncpath-data-options
+        fs.appendFileSync(_output, dump + '\n', 'utf8');
       };
 
       // run simulation
@@ -170,23 +176,21 @@ async function main ({
 
       if (!_engine_result.success) {
         console.log(_engine_result?.error ?? 'Unknown error');
-        writeToStream(errorsDumpFileWriter, _engine_result?.error ?? 'Unknown error');
+        // see https://nodejs.org/api/fs.html#fsappendfilesyncpath-data-options
+        fs.appendFileSync(errorsFilePath, _engine_result?.error ?? 'Unknown error' + '\n', 'utf8');
         _exitCode = 1;
       }
-
-      trnDumpFileWriter.close();
     }
     //#endregion loop scenarios
   } catch (error) {
     const _error = error.stack?.toString() ?? error.toString();
     console.log(_error);
-    writeToStream(errorsDumpFileWriter, _error);
+    fs.appendFileSync(errorsFilePath, _error, 'utf8');
     _exitCode = 1;
   } finally {
-    errorsDumpFileWriter.close();
     // if exit code is 0, delete errors file
-    if (_exitCode === 0 && existsSync(errors)) {
-      Deno.removeSync(errors);
+    if (_exitCode === 0 && existsSync(errorsFilePath)) {
+      fs.unlinkSync(errorsFilePath);  // throws if file does not exist
     }
     // Rather than calling process.exit() directly, the code should set the process.exitCode and allow the process to exit naturally
     // by avoiding scheduling any additional work for the event loop
@@ -203,19 +207,6 @@ async function main ({
    | |____  | |\  | | |__| |
    |______| |_| \_| |_____/
    */
-
-  //#region local functions
-  /**
-   * Write text to stream
-   * see https://deno.land/std@0.173.0/streams/write_all.ts?s=writeAllSync
-   * @param {*} stream
-   * @param {string} text
-   */
-  function writeToStream (stream, text) {
-    writeAllSync(stream, new TextEncoder().encode(text));
-  }
-
-  //#endregion local functions
 }
 
 //#region private functions
