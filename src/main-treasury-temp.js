@@ -55,7 +55,29 @@ if (Array.isArray(args) && args.length > 0) {
     }
   })();
 
-  await main({ excelUserInput: args_parsed.values?.input, outputFolder: args_parsed.values?.output, errorsFilePath: args_parsed.values?.errors });
+  // if args_parsed are null or not of string type, exit
+  if (args_parsed.values?.input == null || typeof args_parsed.values.input !== 'string') {
+    console.error('No valid input file specified');
+    process.exit(1);
+  }
+  if (args_parsed.values?.output == null || typeof args_parsed.values.output !== 'string') {
+    console.error('No valid output folder specified');
+    process.exit(1);
+  }
+  if (args_parsed.values?.errors == null || typeof args_parsed.values.errors !== 'string') {
+    console.error('No valid errors file specified');
+    process.exit(1);
+  }
+
+  // save value or set to '' if null
+  /** @type {string} */
+  const excelUserInput = args_parsed.values.input ? args_parsed.values.input : '';
+  /** @type {string} */
+  const outputFolder = args_parsed.values.output ? args_parsed.values.output : '';
+  /** @type {string} */
+  const errorsFilePath = args_parsed.values.errors ? args_parsed.values.errors : '';
+
+  await main({ excelUserInput, outputFolder, errorsFilePath });
 } else {
   console.log('No command line arguments found, expected: --input EXCEL-INPUT-FILE --output OUTPUT-FOLDER --errors ERRORS-FILE . This file can also be imported and used as a module.');
 }
