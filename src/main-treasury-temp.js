@@ -49,6 +49,7 @@ if (Array.isArray(args) && args.length > 0) {
 
   const args_parsed = (() => {
     try {
+      //@ts-ignore
       return parseArgs({args, options});
     } catch (e) {
       return {values: {}, positionals: []};
@@ -178,12 +179,23 @@ async function main ({
         fs.unlinkSync(_output);
       }
 
+      // declare array buffer in which to store strings to write to `_output` file
+      /** @type {string[]} */
+      const _output_buffer = [];
+      const _OUTPUT_BUFFER_MAXLENGTH = 1_000;
+
       /**
        * Callback to dump the transactions
        * @param {string} dump */
       const _appendTrnDump = function (dump) {
-        // see https://nodejs.org/api/fs.html#fsappendfilesyncpath-data-options
-        fs.appendFileSync(_output, dump + '\n', 'utf8');
+        // write to buffer and then write to file every _OUTPUT_BUFFER_MAXLENGTH iterations
+        _output_buffer.push(dump);
+        if (_output_buffer.length % _OUTPUT_BUFFER_MAXLENGTH === _OUTPUT_BUFFER_MAXLENGTH - 1) {
+          // see https://nodejs.org/api/fs.html#fsappendfilesyncpath-data-options
+          fs.appendFileSync(_output, _output_buffer.join('\n'), 'utf8');
+          // empty buffer and reset counter
+          _output_buffer.length = 0;
+        }
       };
 
       // run simulation
@@ -195,6 +207,11 @@ async function main ({
         appendTrnDump: _appendTrnDump,
         ledgerDebug: ledgerDebugFlag
       });
+
+      // write remaining strings in buffer
+      if (_output_buffer.length > 0) {
+        fs.appendFileSync(_output, _output_buffer.join('\n'), 'utf8');
+      }
 
       if (!_engine_result.success) {
         console.log(_engine_result?.error ?? 'Unknown error');
