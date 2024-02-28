@@ -41,18 +41,21 @@ import * as CFG from './config/engine.js';
 const args = (typeof Deno !== "undefined") ? Deno.args : process.argv.slice(2);
 // check if array is an array, and then if the length is > 0
 if (Array.isArray(args) && args.length > 0) {
+  /** @type {"string"} */
+  const str_txt = 'string';  // const that contains the string 'string', to prevent type error in Deno 1.40.5
+
   const options = {
-    input: { type: 'string', short: 'i', default: '' },
-    output: { type: 'string', short: 'o', default: '' },
-    error: { type: 'string', short: 'e', default: ''},
+    input: { type: str_txt, short: 'i', default: '' },
+    output: { type: str_txt, short: 'o', default: '' },
+    errors: { type: str_txt, short: 'e', default: ''},
   };
 
+  /** @type {{values: {input: string | undefined, output: string | undefined, errors: string | undefined}, positionals: any}} */
   const args_parsed = (() => {
     try {
-      //@ts-ignore
       return parseArgs({args, options});
     } catch (e) {
-      return {values: {}, positionals: []};
+      return {values: {input: undefined, output: undefined, errors: undefined}, positionals: []};
     }
   })();
 

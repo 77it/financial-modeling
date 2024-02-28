@@ -1,1 +1,3 @@
-from https://cdn.jsdelivr.net/npm/financial@0.1.3/ + added `//@ts-nocheck` to the file
+from https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/financial.esm.js + added `//@ts-nocheck` to the file
+github home: https://github.com/lmammino/financial
+npm: https://www.npmjs.com/package/financial

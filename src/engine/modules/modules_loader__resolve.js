@@ -1,3 +1,8 @@
+// BEWARE: to serve GitHub files you can activate also GitHub Pages, to serve files in this way:
+// https://77it.github.io/financial-modeling/src/lib/result.js
+//
+// JS file served by GitHub Pages are accepted by Deno, Node.js and browsers.
+
 export { modulesLoader_Resolve };
 
 /**
@@ -21,11 +26,17 @@ function modulesLoader_Resolve (moduleUrl) {
   } else // If moduleEngineURI is not a GitHub path, return the original URI
     _ret.push(_cdnURI);
 
-  // loop return array: if some element is missing the ".js" extension from the url, add it
+  // loop return array: if some element is missing an extension from the url, add it
   for (let i = 0; i < _ret.length; i++) {
-    if (_ret[i].slice(-3).toLowerCase() !== '.js')
+    const ext = _ret[i].slice(-3).toLowerCase();
+    if (ext !== '.js' && ext !== '.mjs' && ext !== '.cjs' && ext !== '.ts')
       _ret[i] = `${_ret[i]}.js`;
   }
+
+  // MAYBE_TODO: in the future we can eventually:
+  // * shuffle the array to balance the load on the various CDN
+  // * add more CDN to the list
+  // * duplicate the CDN entries to try the CDN more than once
 
   return _ret;
 
