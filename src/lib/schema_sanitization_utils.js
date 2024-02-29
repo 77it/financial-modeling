@@ -305,6 +305,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
  * Any, object, function, class are ignored and returned as is.
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
+ * Object keys missing from the sanitization object are ignored and not sanitized.
  * @param {Object} p
  * @param {*} p.obj - Object to sanitize
  * @param {*} p.sanitization - Sanitization object {key1: 'string', key2: 'number?'}
