@@ -1,8 +1,8 @@
 // TODO to implement
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import { MODULE_NAME, tablesInfo } from '../config/modules/ismovements.js';
-import { schema, ModuleData, SimulationContext, eq2 } from '../deps.js';
+import { MODULE_NAME, tablesInfo, moduleSanitization } from '../config/modules/ismovements.js';
+import { ModuleData, SimulationContext, eq2 } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 export class Module {
@@ -51,7 +51,7 @@ export class Module {
    */
   init ({ moduleData, simulationContext }) {
     // save moduleData, after sanitizing it
-    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization: Object.values(tablesInfo) });
+    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization });
     // save simulationContext
     this.#simulationContext = simulationContext;
   }
@@ -86,7 +86,7 @@ export class Module {
     // loop all tables
     for (const table of this.#moduleData.tables) {
       // if tableName == tablesInfo.Set.name, loop all rows and create a setting for each entry
-      if (eq2(table.tableName, tablesInfo.Set.tableName)) {
+      if (eq2(table.tableName, tablesInfo.SET.tableName)) {
         for (const row of table.table) {
           //TODO create ledger entry
           //in base al valore di Setting Unit Historical end, per capire se muovere vs cash o vs PN.

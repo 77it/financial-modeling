@@ -1,9 +1,9 @@
-import { MODULE_NAME, tablesInfo } from '../config/modules/settings.js';
+import { MODULE_NAME, tablesInfo, moduleSanitization } from '../config/modules/settings.js';
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
 import { SettingsSchemas, SettingsSanitizationOptions } from '../config/settings.schemas.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
-import { schema, sanitize, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
+import { sanitize, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
 
 export class Module {
   #name = MODULE_NAME;
@@ -44,7 +44,7 @@ export class Module {
    */
   init ({ moduleData, simulationContext }) {
     // save moduleData, after sanitizing it
-    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization: Object.values(tablesInfo) });
+    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization });
     // save simulationContext
     this.#simulationContext = simulationContext;
   }
@@ -91,7 +91,7 @@ export class Module {
 
   /** Set Simulation Settings */
   #setSimulationSettings = () => {
-    this.#setSettingsFromATable(tablesInfo.Set);
+    this.#setSettingsFromATable(tablesInfo.SET);
   };
 
   /** Set Settings Default Values, only if they don't have a value already defined */
@@ -109,11 +109,11 @@ export class Module {
 
   /** Set Active Settings */
   #setActiveSettings () {
-    this.#setSettingsFromATable(tablesInfo.ActiveSet);
+    this.#setSettingsFromATable(tablesInfo.ACTIVESET);
   }
 
   /** Set Settings from a table, sanitizing values
-   * @param {{tableName: string, columns: { scenario: string, unit: string, name: string, date: string, value: string }}} table
+   * @param {{tableName: string, columns: { SCENARIO: string, UNIT: string, NAME: string, DATE: string, VALUE: string }}} table
    * */
   #setSettingsFromATable = (table) => {
     if (this.#moduleData?.tables == null) return;
@@ -127,17 +127,17 @@ export class Module {
           // and sanitize setting value taking the sanitization settings from SettingsSchemas object (the setting name is the key of the object);
           // if the setting name is not found in SettingsSchemas, the sanitization is set to empty `{}` and the setting value is not sanitized
           let _value = sanitize({
-            value: get2(row, table.columns.value),
-            sanitization: get2(SettingsSchemas, get2(row, table.columns.name)) ?? {},
+            value: get2(row, table.columns.VALUE),
+            sanitization: get2(SettingsSchemas, get2(row, table.columns.NAME)) ?? {},
             options: SettingsSanitizationOptions
           });
 
           // create setting reading scenario, unit, name, date from row (key match trim & case insensitive)
           this.#simulationContext.setSetting([{
-            scenario: get2(row, table.columns.scenario),
-            unit: get2(row, table.columns.unit),
-            name: get2(row, table.columns.name),
-            date: get2(row, table.columns.date),
+            scenario: get2(row, table.columns.SCENARIO),
+            unit: get2(row, table.columns.UNIT),
+            name: get2(row, table.columns.NAME),
+            date: get2(row, table.columns.DATE),
             value: _value
           }]);
         }

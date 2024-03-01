@@ -1,43 +1,45 @@
 // TODO to implement
 
-export { MODULE_NAME, tablesInfo };
+export { MODULE_NAME, tablesInfo, moduleSanitization };
 
 import { schema, deepFreeze } from '../../deps.js';
 
-//#region names of module, tables and columns in the external source file (excel, json, etc.)
 const MODULE_NAME = 'ismovements';
 
-const SETTINGS = 'settings';
-const SETTINGS_NAME = 'name';
-const SETTINGS_VALUE = 'value';
-
-const SET = 'set';
-const SET_CATGORIA = 'categoria';
-const SET_CATEGORY = 'category';
-//#endregion names
-
 const tablesInfo = {
-  Settings: {
-    tableName: SETTINGS,
+  SETTINGS: {
+    tableName: 'settings',
     columns: {
-      name: SETTINGS_NAME,
-      value: SETTINGS_VALUE
+      NAME: 'name',
+      VALUE: 'value'
     },
-    sanitization: {
-      [SETTINGS_NAME]: schema.STRING_TYPE,
-      [SETTINGS_VALUE]: schema.ANY_TYPE
-    }
   },
-  Set: {
-    tableName: SET,
+  SET: {
+    tableName: 'set',
     columns: {
-      categoria: SET_CATGORIA,
-      category: SET_CATEGORY
+      CATEGORIA: 'categoria',
+      CATEGORY: 'category'
     },
-    sanitization: {
-      [SET_CATGORIA]: schema.STRING_TYPE,
-      [SET_CATEGORY]: schema.STRING_TYPE
-    }
   }
 };
+
+/** @type {{tableName: string, parsing?: *, sanitization?: *, sanitizationOptions?: *}[]} */
+const moduleSanitization = [
+  {
+    tableName: tablesInfo.SETTINGS.tableName,
+    sanitization: {
+      [tablesInfo.SETTINGS.columns.NAME]: schema.STRING_TYPE,
+      [tablesInfo.SETTINGS.columns.VALUE]: schema.ANY_TYPE
+    }
+  },
+  {
+    tableName: tablesInfo.SET.tableName,
+    sanitization: {
+      [tablesInfo.SET.columns.CATEGORIA]: schema.STRING_TYPE,
+      [tablesInfo.SET.columns.CATEGORY]: schema.STRING_TYPE
+    }
+  }
+];
+
 deepFreeze(tablesInfo);
+deepFreeze(moduleSanitization);

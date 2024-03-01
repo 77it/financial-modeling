@@ -15,7 +15,7 @@ Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a 
  */
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import { MODULE_NAME, tablesInfo } from '../config/modules/genericmovements.js';
+import { MODULE_NAME, tablesInfo, moduleSanitization } from '../config/modules/genericmovements.js';
 import { Agenda } from './_utils/Agenda.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
@@ -48,18 +48,18 @@ export class Module {
   #accounting_type__default__moduleDataLookup = {
     lookup_value: 'type',
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
-    tableName: tablesInfo.Settings.tableName,
-    lookup_key: tablesInfo.Settings.columns.name,
-    return_key: tablesInfo.Settings.columns.value
+    tableName: tablesInfo.SETTINGS.tableName,
+    lookup_key: tablesInfo.SETTINGS.columns.NAME,
+    return_key: tablesInfo.SETTINGS.columns.VALUE
   };
   /** @type {undefined|string} */
   #accounting_opposite_type__default;
   #accounting_opposite_type__default__moduleDataLookup = {
     lookup_value: 'vs type',
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
-    tableName: tablesInfo.Settings.tableName,
-    lookup_key: tablesInfo.Settings.columns.name,
-    return_key: tablesInfo.Settings.columns.value
+    tableName: tablesInfo.SETTINGS.tableName,
+    lookup_key: tablesInfo.SETTINGS.columns.NAME,
+    return_key: tablesInfo.SETTINGS.columns.VALUE
   };
   //#endregion data from modules
 
@@ -94,7 +94,7 @@ export class Module {
    */
   init ({ moduleData, simulationContext }) {
     // save moduleData, after sanitizing it (call it with 'Object.values' to generate an array of all sanitizations)
-    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization: Object.values(tablesInfo) });
+    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization });
     // save simulationContext
     this.#simulationContext = simulationContext;
   }
@@ -117,7 +117,7 @@ export class Module {
 
     // loop all tables
     for (const _currTab of this.#moduleData.tables) {
-      const _tSet = tablesInfo.Set;
+      const _tSet = tablesInfo.SET;
       if (eq2(_currTab.tableName, _tSet.tableName)) {
         // search data column keys named as dates in _currTab.table[0]
         const _simulationColumns = searchDateKeys({ obj: _currTab.table[0], prefix: _tSet.simulationColumnPrefix });
@@ -126,9 +126,9 @@ export class Module {
         for (const row of _currTab.table) {
           // TODO loop table and save data to agenda
 
-          const _accounting_type = get2(row, _tSet.columns.accounting_type) ?? this.#accounting_type__default;
-          const _accounting_opposite_type = get2(row, _tSet.columns.accounting_opposite_type) ?? this.#accounting_opposite_type__default;
-          const _simObject_name = get2(row, _tSet.columns.simObject_name) ?? '';
+          const _accounting_type = get2(row, _tSet.columns.ACCOUNTING_TYPE) ?? this.#accounting_type__default;
+          const _accounting_opposite_type = get2(row, _tSet.columns.ACCOUNTING_OPPOSITE_TYPE) ?? this.#accounting_opposite_type__default;
+          const _simObject_name = get2(row, _tSet.columns.SIMOBJECT_NAME) ?? '';
 
           if (isNullOrWhiteSpace(_accounting_type) || isNullOrWhiteSpace(_accounting_opposite_type)) continue;
 

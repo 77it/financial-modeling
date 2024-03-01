@@ -32,7 +32,7 @@ import { engine } from './engine/engine.js';
 import { ModulesLoader } from './modules/_modules_loader.js';
 import { Module } from './modules/_sample_module.js';
 
-import { MODULE_NAME as SETTINGS_MODULE_NAME, tablesInfo as SETTINGS_TABLES_INFO } from './config/modules/settings.js';
+import { MODULE_NAME as SETTINGS_MODULE_NAME, tablesInfo as SETTINGS_TABLES_INFO, moduleSanitization as SETTINGS_SANITIZATION } from './config/modules/settings.js';
 import * as SETTINGS_NAMES from './config/settings_names.js';
 import * as CFG from './config/engine.js';
 //#endregion local imports
@@ -267,7 +267,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
   settingSanitization
 }) {
   try {
-    const table = SETTINGS_TABLES_INFO.Set;
+    const table = SETTINGS_TABLES_INFO.SET;
 
     const _setting = (() => {
       for (const moduleData of moduleDataArray) {
@@ -277,14 +277,14 @@ function _get_SimulationSetting_FromModuleDataArray ({
               const _table = structuredClone(_tableSrc.table);  // clone _tableSrc to avoid to store the sanitization effect
               sanitizeObj({
                 obj: _table,
-                sanitization: table.sanitization
+                sanitization: SETTINGS_SANITIZATION
               });
               for (const row of _table) {
-                if ((eq2(get2(row, table.columns.scenario), CFG.SCENARIO_BASE) ||
-                    isNullOrWhiteSpace(get2(row, table.columns.scenario))) &&
-                  eq2(get2(row, table.columns.unit), CFG.SIMULATION_NAME) &&
-                  eq2(row[table.columns.name], settingName))
-                  return get2(row, table.columns.value);
+                if ((eq2(get2(row, table.columns.SCENARIO), CFG.SCENARIO_BASE) ||
+                    isNullOrWhiteSpace(get2(row, table.columns.SCENARIO))) &&
+                  eq2(get2(row, table.columns.UNIT), CFG.SIMULATION_NAME) &&
+                  eq2(row[table.columns.NAME], settingName))
+                  return get2(row, table.columns.VALUE);
               }
             }
           }

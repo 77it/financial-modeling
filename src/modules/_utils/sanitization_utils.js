@@ -10,7 +10,7 @@ import { ModuleData, schema, validateObj, sanitizeObj, eq2, parseYAML, parseJSON
  * parsing is done before sanitization, with YAML or JSON5 (values from config/modules/_const.js), only for the keys specified in the sanitization object.
  * @param {Object} p
  * @param {ModuleData} p.moduleData
- * @param {{tableName: string, parsing: *, sanitization: *, sanitizationOptions?: *}[]} p.moduleSanitization
+ * @param {{tableName: string, parsing?: *, sanitization?: *, sanitizationOptions?: *}[]} p.moduleSanitization
  */
 function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   if (moduleData?.tables == null) return moduleData;
@@ -22,7 +22,7 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   for (const _table of moduleData.tables) {
     // search for `_table.tableName` in `moduleSanitization` array (in a case insensitive way); if not found, `_pss` is undefined
     // if found, `_pss` contains the parsing and sanitization settings object for the table
-    /** @type {{tableName: string, parsing: *, sanitization: *, sanitizationOptions?: *} | undefined} */
+    /** @type {{tableName: string, parsing?: *, sanitization?: *, sanitizationOptions?: *} | undefined} */
     const _pss = moduleSanitization.find(_ => eq2(_.tableName, _table.tableName));
 
     // if `_pss` has a value, parse and sanitize `_table.table` with it
