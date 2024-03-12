@@ -39,7 +39,6 @@ class SimObject {
   #bs_Principal__PrincipalToPay_AmortizationSchedule__Date;
   #bs_Principal__PrincipalToPay_AmortizationSchedule__Principal;
   #is_Link__SimObjId;
-  #consolidation;  // TODO XXX TO ADD
   #vsSimObjectName;  // NOT EXPORTED TO JSON DUMP
   #versionId;  // NOT EXPORTED TO JSON DUMP
   #extras;  // NOT EXPORTED TO JSON DUMP
@@ -224,7 +223,8 @@ class SimObject {
   }
 
   /**
-   Build a new SimObject using the method parameters and filling the missing ones with the current SimObject values
+   Build a new SimObject using the method properties and filling the missing ones with the current SimObject values.
+   Some properties are unavailable in this method, because they are immutable and cannot be changed.
    * @param {Object} [p]
    //param {number} [p.decimalPlaces]
    //param {string} [p.type]
