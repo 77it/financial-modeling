@@ -7,8 +7,8 @@ import { deepFreeze, ensureArrayValuesAreUnique } from '../lib/obj_utils.js';
 const Simulation = {
   // immutable: without dates
   $$SCENARIOS: '$$SCENARIOS',
-  $$MODULESLOADER_URL: '$$MODULESLOADER',  // URL of the ModulesLoader, used to resolve modules' relative paths
-  $$ENGINE_URL: '$$ENGINE',
+  $$MODULESLOADER_URL: '$$MODULESLOADER_URL',  // URL of the ModulesLoader, used to resolve modules' relative paths
+  $$ENGINE_URL: '$$ENGINE_URL',
   $$DEBUG_FLAG: '$$DEBUG_FLAG',
   $$SIMULATION_END_DATE: '$$SIMULATION_END_DATE',  // movements after SIMULATION_END_DATE are not processed by the simulation engine
   $$NUMBER_STRING_DECIMAL_SEPARATOR: '$$NUMBER_STRING_DECIMAL_SEPARATOR',  // dot as decimal separator | comma as decimal separator; used to interpret, on columns that should contain numbers, strings that need to be converted to numbers

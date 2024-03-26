@@ -51,8 +51,9 @@ export class Module {
 
   /** Set TaskLocks */
   setTaskLocksBeforeTheSimulationStarts () {
+    // set tasks that will be executed later to set settings value
     this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SET_SIMULATION_SETTINGS, value: this.#setSimulationSettings });
-    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SET_DEFAULT_SETTINGS_VALUE, value: this.#setSettingsDefaultValues });
+    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SET_MISSING_SETTINGS_WITH_DEFAULT_VALUE, value: this.#setMissingSettingsWithDefaultValue });
   }
 
   /** Set Settings and Drivers */
@@ -95,7 +96,7 @@ export class Module {
   };
 
   /** Set Settings Default Values, only if they don't have a value already defined */
-  #setSettingsDefaultValues = () => {
+  #setMissingSettingsWithDefaultValue = () => {
     // loop `SettingsDefaultValues` keys and set a new Setting if it doesn't exist or if it has a null/undefined value
     for (const settingDefault_Key of Object.keys(SettingsDefaultValues)) {
       if (this.#simulationContext.getSetting({ name: settingDefault_Key }) != null) continue;
