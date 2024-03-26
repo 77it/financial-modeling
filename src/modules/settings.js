@@ -140,7 +140,7 @@ export class Module {
               keyInsensitiveMatch: true
             });
           } else {
-            // sanitize the setting value
+            // if `_sanitization` is not object, sanitize the value with `sanitize` function
             _sanitizedValue = sanitize({
               value: _value,
               sanitization: _sanitization,
