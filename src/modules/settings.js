@@ -126,10 +126,12 @@ export class Module {
         for (const row of _table.table) {
           // read value from row (key match trim & case insensitive)
           // and sanitize setting value taking the sanitization settings from SettingsSchemas object (the setting name is the key of the object);
-          // if the setting name is not found in SettingsSchemas, the sanitization is set to empty `{}` and the setting value is not sanitized
+          // if the setting name is not found in SettingsSchemas, the sanitization is set to empty string '' and the setting value is not sanitized
+          //
+          // TODO: valutare se sanitizzare automaticamente come oggetto invece che come valore, se `SettingsSchemas` restituisce un oggetto invece di una stringa
           let _value = sanitize({
             value: get2(row, table.columns.VALUE),
-            sanitization: get2(SettingsSchemas, get2(row, table.columns.NAME)) ?? {},
+            sanitization: get2(SettingsSchemas, get2(row, table.columns.NAME)) ?? '',
             options: SettingsSanitizationOptions
           });
 
