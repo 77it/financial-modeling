@@ -11,6 +11,8 @@ import * as schema from '../lib/schema.js';
 const SettingsSanitizationOptions = { defaultDate: new Date(0) };
 deepFreeze(SettingsSanitizationOptions);
 
+// `SettingsSchemas` can contain strings (schema constants) or objects made of schema constants;
+// the sanitization, done in `src/modules/settings.js`, will run a value or an object sanitization based on the type of the schema
 const SettingsSchemas = {
   // immutable: without dates
   [Simulation.$$SCENARIOS]: schema.ARRAY_OF_STRINGS_TYPE,
