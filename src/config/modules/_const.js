@@ -1,4 +1,4 @@
-//#region parsing options, used by module config
-export const YAML_PARSING = 'yaml';
-export const JSON5_PARSING = 'json5';
-//#endregion parsing options, used by module config
+//#region parse options, used by module config
+export const YAML_PARSE = 'yaml';
+export const JSON5_PARSE = 'json5';
+//#endregion parse options, used by module config

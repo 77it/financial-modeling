@@ -27,9 +27,9 @@ Deno.test('sanitizeModuleData test (parse + sanitize): test case-insensitive & t
   tablesInfo.toParse_tC = {};
   tablesInfo.toParse_tC.tableName = 'TABc';
   tablesInfo.toParse_tC.columns = { name: '  naME', value: '  VALue  ' };
-  tablesInfo.toParse_tC.parsing = {
-    [tablesInfo.toParse_tC.columns.name]: CONST.YAML_PARSING,
-    [tablesInfo.toParse_tC.columns.value]: CONST.JSON5_PARSING
+  tablesInfo.toParse_tC.parse = {
+    [tablesInfo.toParse_tC.columns.name]: CONST.YAML_PARSE,
+    [tablesInfo.toParse_tC.columns.value]: CONST.JSON5_PARSE
   };
   tablesInfo.toParse_tC.sanitization = {
     [tablesInfo.toParse_tC.columns.name]: schema.ANY_TYPE,

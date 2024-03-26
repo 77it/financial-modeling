@@ -23,7 +23,7 @@ const tablesInfo = {
   }
 };
 
-/** @type {{tableName: string, parsing?: *, sanitization?: *, sanitizationOptions?: *}[]} */
+/** @type {{tableName: string, parse?: *, sanitization?: *, sanitizationOptions?: *}[]} */
 const moduleSanitization = [
   {
     tableName: tablesInfo.SETTINGS.tableName,

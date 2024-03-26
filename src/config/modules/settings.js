@@ -31,15 +31,15 @@ const tablesInfo = {
 // used by `sanitizeModuleData` function.
 // keys explanation:
 // - tableName: name of the table in the database
-// - parsing: [OPTIONAL] parsing method for the column, done before sanitization
+// - parse: [OPTIONAL] parse method for the column, done before sanitization
 // - sanitization: [OPTIONAL] sanitization method for the columns; if not present, the column will not be sanitized
 // - sanitizationOptions: [OPTIONAL] options for sanitization `sanitizeObj` function
-/** @type {{tableName: string, parsing?: *, sanitization?: *, sanitizationOptions?: *}[]} */
+/** @type {{tableName: string, parse?: *, sanitization?: *, sanitizationOptions?: *}[]} */
 const moduleSanitization = [
   {
     tableName: tablesInfo.SET.tableName,
-    parsing: {
-      [tablesInfo.SET.columns.VALUE]: CONST.YAML_PARSING
+    parse: {
+      [tablesInfo.SET.columns.VALUE]: CONST.YAML_PARSE
     },
     sanitization: {
       [tablesInfo.SET.columns.SCENARIO]: schema.STRING_TYPE,
@@ -54,8 +54,8 @@ const moduleSanitization = [
   },
   {
     tableName: tablesInfo.ACTIVESET.tableName,
-    parsing: {
-      [tablesInfo.SET.columns.VALUE]: CONST.YAML_PARSING
+    parse: {
+      [tablesInfo.SET.columns.VALUE]: CONST.YAML_PARSE
     },
     sanitization: {
       [tablesInfo.ACTIVESET.columns.SCENARIO]: schema.STRING_TYPE,
