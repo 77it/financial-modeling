@@ -1,6 +1,6 @@
 //#region types
 export const ANY_TYPE = 'any';
-export const STRING_TYPE = 'string';  // whitespaces are trimmed only if the string is empty
+export const STRING_TYPE = 'string';  // during sanitization whitespaces are trimmed only if the string is empty
 export const STRINGLOWERCASETRIMMED_TYPE = 'string_lowercase_trimmed';
 export const STRINGUPPERCASETRIMMED_TYPE = 'string_uppercase_trimmed';
 export const NUMBER_TYPE = 'number';
@@ -18,7 +18,7 @@ export const OBJECT_TYPE = 'object';
 export const FUNCTION_TYPE = 'function';
 export const SYMBOL_TYPE = 'symbol';
 export const BIGINT_TYPE = 'bigint';
-export const BIGINT_NUMBER_TYPE = 'bigint_number';
+export const BIGINT_NUMBER_TYPE = 'bigint_number';  // a BigInt that can be converted to a number
 export const ARRAY_OF_BIGINT_TYPE = 'array[bigint]';
 export const ARRAY_OF_BIGINT_NUMBER_TYPE = 'array[bigint_number]';
 export const OPTIONAL = '?';

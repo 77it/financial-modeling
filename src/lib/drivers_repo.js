@@ -33,7 +33,7 @@ class DriversRepo {
   /** @type {boolean} */
   #allowMutable;
   /** @type {boolean} */
-  #freezeImmutableValues;
+  #freezeValues;
   /** @type {Date} */
   #today;
 
@@ -46,7 +46,7 @@ class DriversRepo {
    * @param {string} p.prefix__immutable_without_dates
    * @param {string} p.prefix__immutable_with_dates
    * @param {boolean} p.allowMutable
-   * @param {boolean} p.freezeImmutableValues
+   * @param {boolean} p.freezeValues  Option to freeze values; we don't use StructuredClone because it doesn't work well with Classes instances
    */
   constructor ({
     baseScenario,
@@ -56,7 +56,7 @@ class DriversRepo {
     prefix__immutable_without_dates,
     prefix__immutable_with_dates,
     allowMutable,
-    freezeImmutableValues
+    freezeValues
   }) {
     this.#baseScenario = sanitize({ value: baseScenario, sanitization: schema.STRING_TYPE, validate: true });
     this.#currentScenario = sanitize({ value: currentScenario, sanitization: schema.STRING_TYPE, validate: true });
@@ -70,7 +70,7 @@ class DriversRepo {
       throw new Error(`prefix__immutable_with_dates (${this.#prefix__immutable_with_dates}) cannot start with prefix__immutable_without_dates (${this.#prefix__immutable_without_dates})`);
     }
     this.#allowMutable = sanitize({ value: allowMutable, sanitization: schema.BOOLEAN_TYPE, validate: true });
-    this.#freezeImmutableValues = sanitize({ value: freezeImmutableValues, sanitization: schema.BOOLEAN_TYPE, validate: true });
+    this.#freezeValues = sanitize({ value: freezeValues, sanitization: schema.BOOLEAN_TYPE, validate: true });
 
     this.#driversRepo = new Map();
     this.#currentDebugModuleInfo = '';
@@ -116,7 +116,7 @@ class DriversRepo {
 
     // loop all entries, adding only the drivers in the set
     for (const _inputItem of p) {
-      // shallow clone _inputItem
+      // shallow clone _inputItem, to build a new object and work on it, adding properties ecc (doesn't clone the values of the object)
       const _inputItemClone = { ..._inputItem };
 
       // sanitize the input object, only fields `date` and `value`
@@ -158,8 +158,8 @@ class DriversRepo {
         _inputItemClone.date = new Date(0);
       }
 
-      // if the driver is immutable and the flag `freezeImmutableValues` is true, deep freeze the value
-      if (_isImmutable && this.#freezeImmutableValues) {
+      // if the flag `freezeValues` is true, deep freeze the value
+      if (this.#freezeValues) {
         deepFreeze(_inputItemClone.value);
       }
 

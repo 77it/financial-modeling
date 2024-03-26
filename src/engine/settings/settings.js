@@ -25,7 +25,7 @@ class Settings {
       prefix__immutable_without_dates,
       prefix__immutable_with_dates,
       allowMutable: true,
-      freezeImmutableValues: true  // is true because we can add value of any type, that can be also mutable
+      freezeValues: true  // is true because we can add value of any type, that can be also mutable, then we freeze them
     });
   }
 

@@ -14,7 +14,7 @@ Deno.test('Drivers tests', async () => {
     prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
     prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES,
     allowMutable: true,
-    freezeImmutableValues: false
+    freezeValues: false
   });
 
   const input = [
@@ -158,7 +158,7 @@ Deno.test('Advanced Drivers tests', async (t) => {
     prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
     prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES,
     allowMutable: true,
-    freezeImmutableValues: false
+    freezeValues: false
   });
 
   const input = [
@@ -296,7 +296,7 @@ Deno.test('Advanced Drivers tests', async (t) => {
     assertEquals(drivers.get({ scenario: _currentScenario, unit: CFG.SIMULATION_NAME, name: '$$undefinedDriver3b' }), 123456733);
   });
 
-  await t.step('Immutable driver with freezeImmutableValues: false, values are still mutable inside', async () => {
+  await t.step('Immutable driver with freezeValues: false, values are still mutable inside', async () => {
     // add immutable driver with object value, that won't be frozen
     const object = { a: 1, b: [2, 3] };
     const input = [
@@ -333,5 +333,49 @@ Deno.test('Advanced Drivers tests', async (t) => {
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-mutable-with-same-date', date: new Date(2022, 11, 24)}), undefined);
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-mutable-with-same-date', date: new Date(2022, 11, 25)}), 'sameDate3');
     assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-mutable-with-same-date', date: new Date(2022, 11, 26)}), 'sameDate3');
+  });
+});
+
+Deno.test('Immutable Drivers tests', async (t) => {
+  const _currentScenario = 'SCENARIO1';
+  const drivers = new DriversRepo({
+    currentScenario: _currentScenario,
+    baseScenario: CFG.SCENARIO_BASE,
+    defaultUnit: CFG.SIMULATION_NAME,
+    sanitizationType: schema.ANY_TYPE,
+    prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
+    prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES,
+    allowMutable: true,
+    freezeValues: true
+  });
+
+  const input = [
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1', value: {a: 99, b: false, c: [1, 2, '3', "4"]} },
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driverABC2', value: {a: 99, b: false, c: [1, 2, '3', "4"]} },
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driverABC3', value: {a: 99, b: false, c: [1, 2, '3', "4"]} },
+  ];
+  drivers.set(input);
+
+  await t.step('Immutable driver with freezeValues: true, also mutable settings values are not mutable inside', async () => {
+    const _object1 = drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driverABC1' });
+    const _object2 = drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driverABC2' });
+    const _object3 = drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driverABC3' });
+
+    assertEquals(_object1, {a: 99, b: false, c: [1, 2, '3', "4"]});
+    assertEquals(_object2, {a: 99, b: false, c: [1, 2, '3', "4"]});
+    assertEquals(_object3, {a: 99, b: false, c: [1, 2, '3', "4"]});
+
+    try {
+      _object1.a = 2;  // try to change object
+      _object2.a = 2;  // try to change object
+      _object3.a = 2;  // try to change object
+    } catch (_) {
+      // ignore error
+    }
+
+    // assert that the saved objects are immutable
+    assertEquals(_object1, {a: 99, b: false, c: [1, 2, '3', "4"]});
+    assertEquals(_object2, {a: 99, b: false, c: [1, 2, '3', "4"]});
+    assertEquals(_object3, {a: 99, b: false, c: [1, 2, '3', "4"]});
   });
 });

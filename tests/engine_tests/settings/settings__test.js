@@ -176,7 +176,13 @@ Deno.test('Settings tests', async () => {
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-object2' }), { a: 1, b: [2, 3] });  // query with date set by today
   // test that returned objects are stil mutable
   const _object2 = drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-object2' });
-  _object2.a = 2;  // try to change object
-  _object2.c = 9; // try to add property
-  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-object2' }), { a: 2, b: [2, 3], c: 9 });  // query of changed values
+
+  // try to change object, edits are ignored, because every saved setting is immutable (not cloned with StructuredClone but frozen with deepFreeze)
+  try {
+    _object2.a = 2;
+    _object2.c = 9;
+  } catch (_) {
+    // errors are expected, and ignored
+  }
+  assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-object2' }), { a: 1, b: [2, 3] });  // query of unchanged values
 });

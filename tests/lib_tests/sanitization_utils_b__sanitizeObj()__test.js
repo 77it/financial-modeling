@@ -390,12 +390,17 @@ Deno.test('test sanitizeObj()', async (t) => {
     assertEquals(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
   });
 
-  await t.step('enum type', async () => {
-    // test undefined with enum type
+  await t.step('enum type in property', async () => {
+    // test that when the property 'a' is missing in the object, it pass the validation of an enum containing undefined
     assertEquals(JSON.stringify(s.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
 
-    // test enum type
+    // test that enum sanitization is ignored + validation
     assertThrows(() => s.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
+  });
+
+  await t.step('enum array as sanitization is ignored', async () => {
+    // test that enum sanitization is ignored
+    assertEquals(JSON.stringify(s.sanitizeObj({ obj: {}, sanitization: [11, undefined, 'aa', 'aaa', 55], validate: false })), JSON.stringify({}));
   });
 
   await t.step('keyInsensitiveMatch option test + add a missing sanitization key', async () => {

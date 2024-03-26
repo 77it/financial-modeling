@@ -17,18 +17,18 @@ const DEFAULT_BIGINT = BigInt(0);
 
 /**
  * Sanitize value returning a sanitized value without modifying the original value.
- * Accepted sanitization types are many: see exported strings; class is 'function', class instance is 'object'.
+ * Accepted sanitization types are many: see `schema.js`; class is 'function', class instance is 'object';
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
  * To sanitize a value with a function pass the function as sanitization type: the function will be called with the value to sanitize as parameter.
  * For optional values (null/undefined are accepted) append '?' to the type.
  * For enum sanitization use an array of values (values will be ignored, optionally validated).
- * As types, you can use also exported const as 'ANY_TYPE'.
  * Sanitization types ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
- * Whitespaces are trimmed only if the string is empty.
+ * ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE, SYMBOL_TYPE are ignored and returned as is.
+ * With `STRING_TYPE` whitespaces are trimmed if the string is empty.
  * String to dates are parsed as JSON to dates (in local time or UTC, depending on options.dateUTC).
- * Number to dates are considered Excel serial dates (stripping hours)
+ * Number to dates are considered by default Excel serial dates (stripping hours); can be changed with options.
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
  * @param {*} p.sanitization - Sanitization type (string, array of strings, function, array containing a function)
@@ -296,19 +296,18 @@ function sanitize ({ value, sanitization, options, validate = false }) {
 
 /**
  * Sanitize Object, modifying it in place and returning the same object to allow chaining.
- * If obj is array, the sanitization is done on contained objects.
+ * If obj is array, the sanitization is done on contained objects;
+ * array are sanitized without cloning them.
  * If obj is null/undefined or other non-objects returns empty object {}.
- * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
- * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
+ * Sanitization is an object with keys corresponding to the keys of the object to sanitize and values corresponding to the sanitization types;
+ * accepted types are many: see `schema.js`; class is 'function', class instance is 'object';
+ * for optional parameters (null/undefined are accepted) append '?' to type, e.g. 'any?', 'string?', 'number?', etc.
+ * If sanitization is an array, skip the sanitization because it is an enum that can't be applied to an object.
  * For enum sanitization use an array of values (values will be ignored, optionally validated).
- * As types you can use also exported const as 'ANY_TYPE'.
- * Any, object, function, class are ignored and returned as is.
- * Array are sanitized without cloning them.
- * A non-array value sanitized to array becomes an array with the value added as first element.
  * Object keys missing from the sanitization object are ignored and not sanitized.
  * @param {Object} p
  * @param {*} p.obj - Object to sanitize
- * @param {*} p.sanitization - Sanitization object {key1: 'string', key2: 'number?'}
+ * @param {*} p.sanitization - Sanitization object; e.g.  {key1: 'string', key2: 'number?'}
  * @param {Object} [p.options]
  * @param {string} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
  * @param {boolean} [p.options.dateUTC=false]
@@ -325,7 +324,7 @@ function sanitizeObj ({ obj, sanitization, options, validate = false, keyInsensi
 
   if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
     retValue = {};  // return an empty object if `obj` is not an object
-  else if (sanitization == null || typeof sanitization !== 'object')  // double check, because typeof null is object
+  else if (sanitization == null || typeof sanitization !== 'object' || Array.isArray(sanitization))  // double check, because typeof null is object and typeof array is object
     retValue = obj;
   else if (Array.isArray(obj)) {
     for (const elem of obj) {

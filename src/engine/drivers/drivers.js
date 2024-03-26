@@ -25,7 +25,7 @@ class Drivers {
       prefix__immutable_without_dates,
       prefix__immutable_with_dates,
       allowMutable: false,
-      freezeImmutableValues: false  // is false because we add only number values, that are immutable by default
+      freezeValues: false  // is false because we add only number values, that are immutable by default
     });
   }
 

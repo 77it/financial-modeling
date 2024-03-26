@@ -3,7 +3,7 @@ import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
 import { SettingsSchemas, SettingsSanitizationOptions } from '../config/settings.schemas.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
-import { sanitize, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
+import { sanitize, sanitizeObj, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
 
 export class Module {
   #name = MODULE_NAME;
@@ -125,15 +125,28 @@ export class Module {
       if (eq2(_table.tableName, table.tableName)) {
         for (const row of _table.table) {
           // read value from row (key match trim & case insensitive)
-          // and sanitize setting value taking the sanitization settings from SettingsSchemas object (the setting name is the key of the object);
+          const _value = get2(row, table.columns.VALUE);
+          // takes the sanitization settings from SettingsSchemas object (the setting name is the key of the object);
           // if the setting name is not found in SettingsSchemas, the sanitization is set to empty string '' and the setting value is not sanitized
-          //
-          // TODO: valutare se sanitizzare automaticamente come oggetto invece che come valore, se `SettingsSchemas` restituisce un oggetto invece di una stringa
-          let _value = sanitize({
-            value: get2(row, table.columns.VALUE),
-            sanitization: get2(SettingsSchemas, get2(row, table.columns.NAME)) ?? '',
-            options: SettingsSanitizationOptions
-          });
+          const _sanitization = get2(SettingsSchemas, get2(row, table.columns.NAME)) ?? '';
+
+          let _sanitizedValue;
+          // if `_sanitization` is an object but not an array, sanitize the value with `sanitizeObj` function
+          if (_sanitization != null && typeof _sanitization === 'object' && !Array.isArray(_sanitization)) {
+            _sanitizedValue = sanitizeObj({
+              obj: _value,
+              sanitization: _sanitization,
+              options: SettingsSanitizationOptions,
+              keyInsensitiveMatch: true
+            });
+          } else {
+            // sanitize the setting value
+            _sanitizedValue = sanitize({
+              value: _value,
+              sanitization: _sanitization,
+              options: SettingsSanitizationOptions
+            });
+          }
 
           // create setting reading scenario, unit, name, date from row (key match trim & case insensitive)
           this.#simulationContext.setSetting([{
@@ -141,7 +154,7 @@ export class Module {
             unit: get2(row, table.columns.UNIT),
             name: get2(row, table.columns.NAME),
             date: get2(row, table.columns.DATE),
-            value: _value
+            value: _sanitizedValue
           }]);
         }
       }
