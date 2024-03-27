@@ -28,7 +28,7 @@ const tablesInfo = {
   }
 };
 
-// used by `sanitizeModuleData` function.
+// array of objects, used by `sanitizeModuleData` function.
 // keys explanation:
 // - tableName: name of the table in the database
 // - parse: [OPTIONAL] parse method for the column, done before sanitization

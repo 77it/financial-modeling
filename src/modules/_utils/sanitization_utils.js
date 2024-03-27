@@ -16,7 +16,12 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   if (moduleData?.tables == null) return moduleData;
   if (moduleSanitization == null) return moduleData;
 
-  validateObj({ obj: moduleSanitization, validation: { tableName: schema.STRING_TYPE, sanitization: schema.OBJECT_TYPE, sanitizationOptions: schema.OBJECT_TYPE + '?' } });
+  validateObj({ obj: moduleSanitization, validation: {
+    tableName: schema.STRING_TYPE,
+    parse: schema.OBJECT_TYPE + '?',
+    sanitization: schema.OBJECT_TYPE + '?',
+    sanitizationOptions: schema.OBJECT_TYPE + '?'
+  } });
 
   // loop moduleData tables
   for (const _table of moduleData.tables) {

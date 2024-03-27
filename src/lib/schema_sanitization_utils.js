@@ -44,7 +44,7 @@ const DEFAULT_BIGINT = BigInt(0);
  */
 function sanitize ({ value, sanitization, options, validate = false }) {
   if (typeof sanitization !== 'string' && !Array.isArray(sanitization) && typeof sanitization !== 'function')
-    throw new Error(`'sanitization' parameter must be a string or an array`);
+    throw new Error(`'sanitization' parameter must be a string, an array or a function`);
 
   if (options == null) options = {};  // sanitize options, otherwise the following code won't work
   const _NUMBER_TO_DATE = ('numberToDate' in options) ? options.numberToDate : DEFAULT__NUMBER_TO_DATE;

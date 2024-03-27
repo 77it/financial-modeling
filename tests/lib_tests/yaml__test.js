@@ -1,35 +1,55 @@
 // BEWARE: YAML object definition works only if key is separated form value by at least one space (key: value); doesn't work without space (key:value), as JSON5 does.
 // see https://yaml.org/spec/1.2.2/#21-collections
 
-import { assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows } from '../deps.js';
+import { assert, assertEquals, assertFalse, assertStrictEquals, assertThrows } from '../deps.js';
 import { parseYAML } from '../../src/lib/yaml.js';
 
 Deno.test('YAML tests', (t) => {
   //#region parsing null and undefined
   // parsing undefined returns undefined
   assertEquals(parseYAML(undefined), undefined);
+  // string 'undefined' is not converted to undefined but remains a string
+  assertEquals(parseYAML('undefined'), 'undefined');
 
-  // parsing null returns null
+  // parsing null returns undefined
   assertEquals(parseYAML(null), undefined);
+  // string 'null' is converted to null, and is no more a string
+  assertEquals(parseYAML('null'), null);
   //#endregion
 
-  //#region parsing object with key not separated from value, returns `null` (converted to `undefined` in our library) as value
-  let parsed_undefined_value = parseYAML('{"Main":999.159, Name:"Y88 x", mamma:ciao}');
-  assertEquals(parsed_undefined_value.Main, 999.159);
-  assertEquals(parsed_undefined_value['Name:"Y88 x"'], null);
-  assertEquals(parsed_undefined_value['mamma:ciao'], null);
+  //#region parsing object with key not separated from value, works only if the key is enclosed in "";
+  // otherwise, returns `null` (converted to `undefined` in our library) as value
+  let parsed_keys_not_separated_from_values = parseYAML('{"Main":999.159, "Main2":"abcd", Name:"Y88 x", mamma:ciao}');
+  // test key definition
+  assert("Main" in parsed_keys_not_separated_from_values);
+  assert("Main2" in parsed_keys_not_separated_from_values);
+  assertFalse("Name" in parsed_keys_not_separated_from_values);  // not defined
+  assert("Name:\"Y88 x\"" in parsed_keys_not_separated_from_values);  // defined, key made of key+value
+  assertFalse("mamma" in parsed_keys_not_separated_from_values);  // not defined
+  assert("mamma:ciao" in parsed_keys_not_separated_from_values);  // defined, key made of key+value
+  // test key values
+  assertEquals(parsed_keys_not_separated_from_values.Main, 999.159);
+  assertEquals(parsed_keys_not_separated_from_values.Main2, "abcd");
+  assertEquals(parsed_keys_not_separated_from_values['Name'], undefined);  // undefined key
+  assertEquals(parsed_keys_not_separated_from_values['Name:"Y88 x"'], null);  // key defined, null value
+  assertEquals(parsed_keys_not_separated_from_values['mamma'], undefined);  // undefined key
+  assertEquals(parsed_keys_not_separated_from_values['mamma:ciao'], null);  // key defined, null value
   //#endregion
 
-  //#region parsing strings with and without quotes
-  // parsing a with quotes returns the string
+  //#region parsing strings with and without quotes, returns the string
   assertEquals(parseYAML('"ciao"'), 'ciao');
-
-  // parsing a without quotes returns undefined
   assertEquals(parseYAML('ciao'), 'ciao');
   //#endregion
 
   //#region parsing numbers returns the number
   assertEquals(parseYAML(999), 999);
+  //#endregion
+
+  //#region parsing dates
+  assertEquals(parseYAML('2023-01-05T00:00:00.000Z'), new Date('2023-01-05T00:00:00.000Z'));  // converted correctly to Date
+  assertEquals(parseYAML('2023-01-05'), new Date('2023-01-05'));  // converted correctly to Date
+  assertEquals(parseYAML('2023-01'), '2023-01');  // YYYY-MM is converted to string
+  assertEquals(parseYAML('2023'), 2023);  // YYYY is converted to number
   //#endregion
 
   //#region parsing object (works with ' and ")
