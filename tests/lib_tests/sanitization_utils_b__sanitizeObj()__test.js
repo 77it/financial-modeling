@@ -266,6 +266,7 @@ Deno.test('test sanitizeObj()', async (t) => {
       extraValueMissingNotRequired: S.STRING_TYPE + '?'
     };
 
+    // If you do not wish to patch BigInt.prototype, you can use the replacer parameter of JSON.stringify to serialize BigInt values
     // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
     //@ts-ignore
     const replacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
@@ -410,11 +411,23 @@ Deno.test('test sanitizeObj()', async (t) => {
       bool: 0,
     };
 
+    const objToSanitize_withOptionalValue = {
+      str: 999,
+      num: '123',
+      bool: 0,
+      NUM3: '999.1',  // the optional value, when present, will be sanitized
+    };
+
     const expObj = {
       str: '999',
       num: 123,
       bool: false,
       NUM2: 0,
+    };
+
+    const expObj_withOptionalValue = {
+      ...expObj,
+      NUM3: 999.1,
     };
 
     const sanitization = {
@@ -426,5 +439,7 @@ Deno.test('test sanitizeObj()', async (t) => {
     };
 
     assert(eq(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, keyInsensitiveMatch: true }), expObj));
+
+    assert(eq(s.sanitizeObj({ obj: objToSanitize_withOptionalValue, sanitization: sanitization, keyInsensitiveMatch: true }), expObj_withOptionalValue));
   });
 });
