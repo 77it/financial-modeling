@@ -5,14 +5,14 @@ import { SimObjectTypes_enum } from '../../../../src/engine/simobject/enums/simo
 import { DoubleEntrySide_enum } from '../../../../src/engine/simobject/enums/doubleentryside_enum.js';
 
 Deno.bench("doubleEntrySideFromSimObjectType() benchmark", () => {
-  // get all SimObjectTypes_enum values
+  // get all SimObjectTypes_enum values in an array
   const simObjectTypesValues = Object.values(SimObjectTypes_enum)
 
   const loopCount = 100_000;
 
   // loop `loopCount` times
   for (let i = 0; i < loopCount; i++) {
-    // loop SimObjectTypes_enum keys
+    // loop SimObjectTypes_enum values array
     for (const _simObjectType of simObjectTypesValues) {
       const _doubleEntrySide = doubleEntrySideFromSimObjectType(_simObjectType);
       if (_doubleEntrySide === '') {

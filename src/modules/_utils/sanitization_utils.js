@@ -36,11 +36,11 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
       // if `_pss.parse` is not null and an object, parse with it
       if (_pss.parse != null && typeof _pss.parse === 'object') {
         // loop `_pss.parse` keys
-        for (const _parseKey in _pss.parse) {
+        for (const _parseKey of Object.keys(_pss.parse)) {
           // loop `_table.table` rows
           for (const _row of _table.table) {
             // loop `_row` keys
-            for (const _rowKey in _row) {
+            for (const _rowKey of Object.keys(_row)) {
               // if `_rowKey` matches `_parseKey` in a case insensitive way, parse `_row[_rowKey]` with `_pss.parse[_parseKey]`
               if (eq2(_rowKey, _parseKey)) {
                 // switch over `_pss.parse[_parseKey]` values, matching them against CONST values
