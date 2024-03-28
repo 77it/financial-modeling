@@ -39,10 +39,11 @@ const moduleSanitization = [
   {
     tableName: tablesInfo.SET.tableName,
     parse: {
+      [tablesInfo.SET.columns.SCENARIO]: CONST.YAML_PARSE,
       [tablesInfo.SET.columns.VALUE]: CONST.YAML_PARSE
     },
     sanitization: {
-      [tablesInfo.SET.columns.SCENARIO]: schema.STRING_TYPE,
+      [tablesInfo.SET.columns.SCENARIO]: schema.ARRAY_OF_STRINGS_TYPE,  // is an array of strings because it can be a list of scenarios
       [tablesInfo.SET.columns.UNIT]: schema.STRING_TYPE,
       [tablesInfo.SET.columns.NAME]: schema.STRING_TYPE,
       [tablesInfo.SET.columns.DATE]: schema.DATE_TYPE,

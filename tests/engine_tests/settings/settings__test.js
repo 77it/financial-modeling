@@ -60,7 +60,7 @@ Deno.test('Settings tests', async () => {
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), '55');  // query with exact date
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 26) }), '55');  // query with first date after driver
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 24) }), '55');  // query with last date before next driver
-  assertEquals(drivers.get({ scenario: 'sCeNaRiO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), '55');  // query scenario with wrong case
+  assertEquals(drivers.get({ scenario: '  sCeNaRiO1  ', unit: '  Unita ', name: ' $driver xyz ', date: new Date(2022, 11, 25) }), '55');  // query scenario, unit, driver name with wrong case and whitespace, works nonetheless
 
   // #setting1[1] tests
   assertEquals(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25) }), "555");  // query with exact date
