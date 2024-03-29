@@ -143,6 +143,13 @@ function sanitize ({ value, sanitization, options, validate = false }) {
       break;
     }
     case schema.BOOLEAN_TYPE: {
+      if (typeof value === 'string') {
+        const _value = value.trim().toLowerCase();
+        if (_value === 'false' || _value === '') {
+          retValue = false;
+          break;
+        }
+      }
       retValue = Boolean(value);
       break;
     }
