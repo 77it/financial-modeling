@@ -3,7 +3,7 @@ export * as schema from './lib/schema.js';
 export { validate, validateObj } from './lib/schema_validation_utils.js';
 export { sanitize, sanitizeObj } from './lib/schema_sanitization_utils.js';
 export { isValidDate, addMonths, toUTC, toStringYYYYMMDD, stripTime, parseJsonDate, areDatesEqual } from './lib/date_utils.js';
-export { isNullOrWhiteSpace, isEmptyOrWhiteSpace } from './lib/string_utils.js';
+export { isNullOrWhiteSpace } from './lib/string_utils.js';
 export { isStringOrBooleanTrue, isStringOrBooleanFalse } from './lib/boolean_utils.js';
 export { parseYAML } from './lib/yaml.js';
 export { parseJSON5 } from './lib/json5.js';

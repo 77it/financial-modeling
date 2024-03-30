@@ -1,4 +1,4 @@
-import { isNullOrWhiteSpace, isEmptyOrWhiteSpace } from '../../src/lib/string_utils.js';
+import { isNullOrWhiteSpace, DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace } from '../../src/lib/string_utils.js';
 
 import { assert, assertEquals, assertFalse, assertStrictEquals, assertThrows } from '../deps.js';
 
@@ -18,18 +18,18 @@ Deno.test('test isNullOrWhiteSpace()', (t) => {
   assertFalse(isNullOrWhiteSpace(new C()));
 });
 
-Deno.test('test isEmptyOrWhiteSpace()', (t) => {
-  assertFalse(isEmptyOrWhiteSpace(null));
-  assertFalse(isEmptyOrWhiteSpace(undefined));
-  assert(isEmptyOrWhiteSpace(''));
-  assert(isEmptyOrWhiteSpace('     '));
+Deno.test('test DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace()', (t) => {
+  assertFalse(DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace(null));
+  assertFalse(DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace(undefined));
+  assert(DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace(''));
+  assert(DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace('     '));
 
-  assertFalse(isEmptyOrWhiteSpace('a'));
-  assertFalse(isEmptyOrWhiteSpace(99));
-  assertFalse(isEmptyOrWhiteSpace({}));
-  assertFalse(isEmptyOrWhiteSpace(Symbol()));
+  assertFalse(DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace('a'));
+  assertFalse(DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace(99));
+  assertFalse(DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace({}));
+  assertFalse(DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace(Symbol()));
 
   class C {}
 
-  assertFalse(isEmptyOrWhiteSpace(new C()));
+  assertFalse(DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace(new C()));
 });

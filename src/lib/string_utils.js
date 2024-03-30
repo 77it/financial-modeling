@@ -1,4 +1,4 @@
-export { isNullOrWhiteSpace, isEmptyOrWhiteSpace };
+export { isNullOrWhiteSpace, DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace };
 
 /**
  * Check if a value is null, undefined, empty string or whitespace
@@ -18,7 +18,7 @@ function isNullOrWhiteSpace (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isEmptyOrWhiteSpace (value) {
+function DONT_USE_use_instead_isNullOrWhiteSpace____isEmptyOrWhiteSpace (value) {
   try {
     if (typeof value !== 'string')
       return false;
