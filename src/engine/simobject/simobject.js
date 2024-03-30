@@ -157,17 +157,17 @@ class SimObject {
     this.#decimalPlaces = p.decimalPlaces;
     this.#type = p.type;
     this.#id = p.id;
-    this.#dateTime = p.dateTime;
-    this.#name = p.name;
-    this.#description = p.description;
+    this.#dateTime = this.#stripTime(p.dateTime);
+    this.#name = p.name.toUpperCase().trim();
+    this.#description = p.description.toUpperCase().trim();
     this.#mutableDescription = p.mutableDescription;
-    this.#metadata__Name = [...p.metadata__Name];
-    this.#metadata__Value = [...p.metadata__Value];
+    this.#metadata__Name = p.metadata__Name.map((name) => name.toUpperCase().trim());
+    this.#metadata__Value = p.metadata__Value.map((value) => value.toUpperCase().trim());
     this.#metadata__PercentageWeight = [...p.metadata__PercentageWeight];
-    this.#unitId = p.unitId;
+    this.#unitId = p.unitId.toUpperCase().trim();
     this.#doubleEntrySide = p.doubleEntrySide;
     this.#currency = p.currency;
-    this.#intercompanyInfo__VsUnitId = p.intercompanyInfo__VsUnitId;
+    this.#intercompanyInfo__VsUnitId = p.intercompanyInfo__VsUnitId.toUpperCase().trim();
     this.#value = p.value;
     this.#writingValue = p.writingValue;
     this.#alive = p.alive;
@@ -176,7 +176,7 @@ class SimObject {
     this.#commandGroup__Id = p.commandGroup__Id;
     this.#commandGroup__DebugDescription = p.commandGroup__DebugDescription;
     this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate = p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate;
-    this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [...p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date];
+    this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => this.#stripTime(date));
     this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [...p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal];
     this.#is_Link__SimObjId = p.is_Link__SimObjId;
     this.#vsSimObjectName = p.vsSimObjectName;
@@ -303,5 +303,14 @@ class SimObject {
       return structuredClone(obj);
   }
 
+  /**
+   * Accept a date and return a date with only the year, month and day (stripping the time part)
+   *
+   * @param {Date} date
+   * @returns {Date}
+   */
+  #stripTime (date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
   //#endregion
 }
