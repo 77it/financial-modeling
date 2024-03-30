@@ -2,12 +2,14 @@
 
 import { doubleEntrySideFromSimObjectType } from '../../../../src/engine/simobject/enums/doubleentryside_enum.js';
 import { SimObjectTypes_enum } from '../../../../src/engine/simobject/enums/simobject_types_enum.js';
-import { DoubleEntrySide_enum } from '../../../../src/engine/simobject/enums/doubleentryside_enum.js';
 
 Deno.bench("doubleEntrySideFromSimObjectType() benchmark", () => {
   // get all SimObjectTypes_enum values in an array
   const simObjectTypesValues = Object.values(SimObjectTypes_enum)
 
+  // BEWARE !!!!!!
+  // This benchmark is very slow, because it calls `doubleEntrySideFromSimObjectType` 10_000_000 times:
+  // the test is done with a loop of 100_000 iterations * length of array SimObjectTypes_enum (~100 elements),
   const loopCount = 100_000;
 
   // loop `loopCount` times
