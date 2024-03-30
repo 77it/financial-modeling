@@ -169,6 +169,33 @@ class Ledger {
     return null;
   }
 
+  /**
+   * @param {Object} p
+   * @param {string} [p.id] - SimObject Id
+   * @returns {SimObject | undefined} */
+  getSimObjectById ({ id }) {
+    // TODO return SO by id
+    // * throw if Id is not string with a value
+    // * return undefined if not found
+    // SO is cloned before being returned
+    //@ts-ignore
+    return null;
+  }
+
+  /**
+   * @param {Object} p
+   * @param {string} [p.name] - SimObject Name
+   * @param {string} [p.unit] - SimObject Unit
+   * @returns {SimObject | undefined} */
+  getSimObjectByName ({ name, unit }) {
+    // TODO return SO by name and unit
+    // * throw if Name/Unit are not string with a value
+    // * return undefined if not found
+    // SO is cloned before being returned
+    //@ts-ignore
+    return null;
+  }
+
   //#endregion GET/QUERY methods
 
   //#region COMMIT methods
