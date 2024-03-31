@@ -125,15 +125,15 @@ Deno.test('moduleDataLookup test: test search', async () => {
   // {lookup_value: *, lookup_array: *[], return_array: *[], return_first_match: boolean, sanitization?: string, sanitizationOptions?: Object }
 
   // rest undefined return
-  p = { lookup_value: null, lookup_key: 'name', return_key: 'value', return_first_match: false };
+  p = { lookup_value: null, lookup_column: 'name', return_column: 'value', return_first_match: false };
   assertEquals(moduleDataLookup(moduleData, p), undefined);
-  p = { lookup_value: undefined, lookup_key: 'name', return_key: 'value', return_first_match: false };
+  p = { lookup_value: undefined, lookup_column: 'name', return_column: 'value', return_first_match: false };
   assertEquals(moduleDataLookup(moduleData, p), undefined);
 
   p = {
     tableName: '   TABB   ',  // with default string_insensitive_match, automatic string conversion (trim and lowercase) of tableName
-    lookup_key: 'name',
-    return_key: 'value'
+    lookup_column: 'name',
+    return_column: 'value'
   };
 
   //@ts-ignore

@@ -44,7 +44,7 @@ Deno.bench('moduleDataLookup - benchmark', () => {
     ]
   });
 
-  const p = { tableName: 'tabB', lookup_key: 'name', return_key: 'value', lookup_value: 99, return_first_match: false };
+  const p = { tableName: 'tabB', lookup_column: 'name', return_column: 'value', lookup_value: 99, return_first_match: false };
 
   // loop `loopCount` times
   for (let i = 0; i < loopCount; i++) {

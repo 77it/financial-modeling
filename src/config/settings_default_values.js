@@ -15,6 +15,7 @@ const SettingsDefaultValues = {
   [Simulation.$$CURRENCY]: Currency_enum.UNDEFINED,
   [Simulation.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE]: new Date(0),
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: 12,
+  [Simulation.DEFAULT_SPLIT]: [1,1,1,1,1,1,1,1,1,1,1,1],  // default split of things, 12 equal months (e.g. of Income Statement items)
 
   // value of immutable settings with dates if nothing else is set
   [Simulation.$MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE]: 100,

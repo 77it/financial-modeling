@@ -49,8 +49,8 @@ export class Module {
     lookup_value: 'type',
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
     tableName: tablesInfo.SETTINGS.tableName,
-    lookup_key: tablesInfo.SETTINGS.columns.NAME,
-    return_key: tablesInfo.SETTINGS.columns.VALUE
+    lookup_column: tablesInfo.SETTINGS.columns.NAME,
+    return_column: tablesInfo.SETTINGS.columns.VALUE
   };
   /** @type {undefined|string} */
   #accounting_opposite_type__default;
@@ -58,8 +58,8 @@ export class Module {
     lookup_value: 'vs type',
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
     tableName: tablesInfo.SETTINGS.tableName,
-    lookup_key: tablesInfo.SETTINGS.columns.NAME,
-    return_key: tablesInfo.SETTINGS.columns.VALUE
+    lookup_column: tablesInfo.SETTINGS.columns.NAME,
+    return_column: tablesInfo.SETTINGS.columns.VALUE
   };
   //#endregion data from modules
 
@@ -124,7 +124,8 @@ export class Module {
         const _historicalColumns = searchDateKeys({ obj: _currTab.table[0], prefix: _tSet.historicalColumnPrefix });
 
         for (const row of _currTab.table) {
-          // TODO loop table and save data to agenda
+          // TODO loop table and save data to agenda;
+          // skip not active data
 
           const _accounting_type = get2(row, _tSet.columns.ACCOUNTING_TYPE) ?? this.#accounting_type__default;
           const _accounting_opposite_type = get2(row, _tSet.columns.ACCOUNTING_OPPOSITE_TYPE) ?? this.#accounting_opposite_type__default;

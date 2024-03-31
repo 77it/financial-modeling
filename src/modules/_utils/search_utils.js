@@ -3,13 +3,13 @@ export { xlookup, moduleDataLookup, searchDateKeys };
 import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, get2, parseJsonDate, isValidDate, stripTime } from '../../deps.js';
 
 /**
- * Search table `tableName` in ModuleData, then value `lookup_value` in column `lookup_key`,
- * then returns the value of column `return_key` in the same row.
+ * Search table `tableName` in ModuleData, then value `lookup_value` in column `lookup_column`,
+ * then returns the value of column `return_column` in the same row.
  * Optionally sanitize the result; if no match is found, return undefined, optionally sanitized.
  * If `string_insensitive_match` is true: `tableName` and `lookup_value` (if string) are matched in a case insensitive & trim way,
- * `lookup_key` and `return_key` are get directly and if not found they are matched with all keys in a case insensitive & trim way.
+ * `lookup_column` and `return_column` are get directly and if not found they are matched with all keys in a case insensitive & trim way.
  * @param {ModuleData} moduleData
- * @param {{tableName: string, lookup_value: *, lookup_key: string, return_key: string, return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: string, sanitizationOptions?: Object }} opt
+ * @param {{tableName: string, lookup_value: *, lookup_column: string, return_column: string, return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: string, sanitizationOptions?: Object }} opt
  * return_first_match default = true;
  * string_insensitive_match default = true;
  * sanitization if missing, no sanitization is performed;
@@ -21,8 +21,8 @@ function moduleDataLookup (
   {
     tableName,
     lookup_value,
-    lookup_key,
-    return_key,
+    lookup_column,
+    return_column,
     return_first_match,
     string_insensitive_match,
     sanitization,
@@ -30,8 +30,8 @@ function moduleDataLookup (
   }) {
   if (moduleData == null) return undefined;
   if (lookup_value == null) return undefined;
-  if (isNullOrWhiteSpace(lookup_key)) return undefined;
-  if (isNullOrWhiteSpace(return_key)) return undefined;
+  if (isNullOrWhiteSpace(lookup_column)) return undefined;
+  if (isNullOrWhiteSpace(return_column)) return undefined;
 
   if (return_first_match == null) return_first_match = true;
   if (string_insensitive_match == null) string_insensitive_match = true;
@@ -42,21 +42,21 @@ function moduleDataLookup (
   for (const _table of moduleData.tables) {
     if (string_insensitive_match ? eq2(_table.tableName, tableName) : _table.tableName === tableName) {
       for (const row of _table.table) {
-        // compare lookup_value with row[lookup_key] (trim & case-insensitive with eq() and get2())
+        // compare lookup_value with row[lookup_column] (trim & case-insensitive with eq() and get2())
         let _match = false;
         if (string_insensitive_match)
-          _match = eq2(lookup_value, get2(row, lookup_key));
+          _match = eq2(lookup_value, get2(row, lookup_column));
         else
-          _match = lookup_value === row[lookup_key];
+          _match = lookup_value === row[lookup_column];
 
         if (_match) {
-          // get from row[return_key] (trim & case-insensitive with get2())
+          // get from row[return_column] (trim & case-insensitive with get2())
           if (return_first_match) {
-            _ret = string_insensitive_match ? get2(row, return_key) : row[return_key];
+            _ret = string_insensitive_match ? get2(row, return_column) : row[return_column];
             _found = true;
             break;  // exit loop
           } else {
-            _ret = string_insensitive_match ? get2(row, return_key) : row[return_key];
+            _ret = string_insensitive_match ? get2(row, return_column) : row[return_column];
           }
         }
       }

@@ -17,6 +17,7 @@ const Simulation = {
   $$CURRENCY: '$$CURRENCY',
   $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE: '$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE',
   $$END_OF_THE_FISCAL_YEAR__MONTH: '$$END_OF_THE_FISCAL_YEAR__MONTH',
+  DEFAULT_SPLIT: '$$DEFAULT_SPLIT',
 
   // immutable: with dates
   $MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE: '$MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE',  // if > 1 will be divided by 100
@@ -31,7 +32,7 @@ const Simulation = {
 
   // removed settings
   /*
-  // removed because we prefer keeping `ACTIVE_METADATA` without settings duplication
+  // removed because we prefer keeping `ACTIVE_METADATA` as a single setting that defines TYPE, VALUE and PERCENTAGEWEIGHT without settings duplication
   ACTIVE_METADATA_TYPE: 'ACTIVE_METADATA_TYPE',  // string
   ACTIVE_METADATA_VALUE: 'ACTIVE_METADATA_VALUE',  // string
   ACTIVE_METADATA_PERCENTAGEWEIGHT: 'ACTIVE_METADATA_PERCENTAGEWEIGHT',  // number
