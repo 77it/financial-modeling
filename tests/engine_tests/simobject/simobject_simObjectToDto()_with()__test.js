@@ -31,10 +31,10 @@ const _so = new SimObject({
   commandGroup__Id: '1',
   commandGroup__DebugDescription: '',
   bs_Principal__PrincipalToPay_IndefiniteExpiryDate: toBigInt(18.9, decimalPlaces, roundingModeIsRound),
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1, 1, 1, 1, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '123',
-  vsSimObjectName: '991',
+  vsSimObjectName: '991aaa',
   versionId: 1
 });
 
@@ -61,10 +61,10 @@ const _so2_withExtras = new SimObject({
   commandGroup__Id: '1',
   commandGroup__DebugDescription: '',
   bs_Principal__PrincipalToPay_IndefiniteExpiryDate: toBigInt(18.9, decimalPlaces, roundingModeIsRound),
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
+  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1, 1, 1, 1, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '123',
-  vsSimObjectName: '991',
+  vsSimObjectName: '991aaa',
   versionId: 1,
   extras: {a: 999, b: 'aaa'}
 });
@@ -77,13 +77,13 @@ Deno.test('SimObject.simObjectToDto() & .with() without value tests', async () =
     type: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
     id: '1',
     dateTime: new Date(2020, 0, 1),
-    name: 'Bank account',
-    description: 'Bank account description',
+    name: 'BANK ACCOUNT',
+    description: 'BANK ACCOUNT DESCRIPTION',
     mutableDescription: '',
     metadata__Name: [],
     metadata__Value: [],
     metadata__PercentageWeight: [],
-    unitId: 'UnitA',
+    unitId: 'UNITA',
     doubleEntrySide: DoubleEntrySide_enum.BALANCESHEET_CREDIT,
     currency: 'EUR',
     intercompanyInfo__VsUnitId: '',
@@ -98,7 +98,7 @@ Deno.test('SimObject.simObjectToDto() & .with() without value tests', async () =
     bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [0.0001, 0.0011, 0.0111, 0.0877],
     is_Link__SimObjId: '123',
-    vsSimObjectName: '991',
+    vsSimObjectName: '991AAA',
     versionId: 2
   };
 
@@ -106,13 +106,13 @@ Deno.test('SimObject.simObjectToDto() & .with() without value tests', async () =
     type: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
     id: '1',
     dateTime: new Date(2020, 0, 1),
-    name: 'Bank account',
-    description: 'Bank account description',
+    name: 'BANK ACCOUNT',
+    description: 'BANK ACCOUNT DESCRIPTION',
     mutableDescription: '',
     metadata__Name: [],
     metadata__Value: [],
     metadata__PercentageWeight: [],
-    unitId: 'UnitA',
+    unitId: 'UNITA',
     doubleEntrySide: DoubleEntrySide_enum.BALANCESHEET_CREDIT,
     currency: 'EUR',
     intercompanyInfo__VsUnitId: '',
@@ -127,7 +127,7 @@ Deno.test('SimObject.simObjectToDto() & .with() without value tests', async () =
     bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [0.0001, 0.0011, 0.0111, 0.0877],
     is_Link__SimObjId: '123',
-    vsSimObjectName: '991',
+    vsSimObjectName: '991AAA',
     versionId: 2,
     extras: {a: 999, b: 'aaa'}
   };
@@ -161,7 +161,7 @@ Deno.test('SimObject.simObjectToDto() & .with() tests', async () => {
     type: SimObjectTypes_enum.BS_CREDIT__ACCRUALSCREDITS,  // ignored
     id: '999', // ignored
     dateTime: new Date(2021, 0, 1),  // updated
-    name: '!!!Bank account???',  // ignored
+    name: '!!!bank account???',  // ignored
     description: '!!!Bank account description???',  // ignored
     mutableDescription: 'xxx',  // updated
     metadata__Name: ['a'],  // ignored
@@ -191,13 +191,13 @@ Deno.test('SimObject.simObjectToDto() & .with() tests', async () => {
     type: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
     id: '1',
     dateTime: new Date(2021, 0, 1),
-    name: 'Bank account',
-    description: 'Bank account description',
+    name: 'BANK ACCOUNT',
+    description: 'BANK ACCOUNT DESCRIPTION',
     mutableDescription: 'xxx',
     metadata__Name: [],
     metadata__Value: [],
     metadata__PercentageWeight: [],
-    unitId: 'UnitA',
+    unitId: 'UNITA',
     doubleEntrySide: DoubleEntrySide_enum.BALANCESHEET_CREDIT,
     currency: 'EUR',
     intercompanyInfo__VsUnitId: '',
@@ -212,7 +212,7 @@ Deno.test('SimObject.simObjectToDto() & .with() tests', async () => {
     bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [0.0001, 0.0011, 0.0112, 0.0876],
     is_Link__SimObjId: '123',
-    vsSimObjectName: '991',
+    vsSimObjectName: '991AAA',
     versionId: 2,
     extras: {a: 9991, b: 'aaax'}
   };

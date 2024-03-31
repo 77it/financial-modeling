@@ -179,7 +179,7 @@ class SimObject {
     this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => this.#stripTime(date));
     this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [...p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal];
     this.#is_Link__SimObjId = p.is_Link__SimObjId;
-    this.#vsSimObjectName = p.vsSimObjectName;
+    this.#vsSimObjectName = p.vsSimObjectName.toUpperCase().trim();
     this.#versionId = p.versionId;
     this.#extras = this.#StructuredCloneOrClone(p.extras);
   }
