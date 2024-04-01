@@ -1,6 +1,6 @@
 // default names of Settings; strings values will be used in the Excel/Source File
 //
-// here is not defined the YAML parsing, because parse option is set in `src/config/modules/settings.js` file
+// here is not defined the YAML parsing, because parse option is set in Settings module config file `src/config/modules/settings.js`
 
 export { SettingsSchemas, SettingsSanitizationOptions };
 

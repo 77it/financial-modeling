@@ -28,7 +28,6 @@ import { Result, schema, sanitize, sanitizeObj, parseJSON5, isNullOrWhiteSpace, 
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
-import { engine } from './engine/engine.js';
 import { ModulesLoader } from './modules/_modules_loader.js';
 import { Module } from './modules/_sample_module.js';
 
@@ -123,7 +122,7 @@ async function main ({
     // convert Excel input file to an array of `moduleData`
     const _moduleDataArray = await convertExcelToModuleDataArray({ excelInput: excelUserInput });
 
-    // get ModulesLoader class from `moduleDataArray` or from `'./modules/_modules_loader.js'` file
+    // get ModulesLoader class from a Setting (from `moduleDataArray`) or, as a fallback, from `'./modules/_modules_loader.js'` file
     const _$$MODULESLOADER_URL = _get_SimulationSetting_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
       settingName: SETTINGS_NAMES.Simulation.$$MODULESLOADER_URL,
@@ -133,17 +132,21 @@ async function main ({
       url: _$$MODULESLOADER_URL,
       functionName: 'ModulesLoader',
       debug: moduleResolverDebugFlag,
-      defaultFunction: ModulesLoader
+      fallbackFunction: ModulesLoader
     });
-    // init the module loader passing a resolver loaded alongside this module; in that way the resolver can be more up to date than the one that exist alongside ModulesLoader
+    // init the module loader passing a resolver; the resolver is loaded in this file, from the same root
+    // in that way the resolver can be more up to date than the one that exist alongside ModulesLoader
+    /** @type {ModulesLoader} */
     const _modulesLoader = new _modulesLoaderClass({ modulesLoader_Resolve });
 
-    /** Array of module classes
+    /** Array of module classes: load module classes from moduleDataArray, then init the classes and return them in an array
      * @type {Module[]} */
     const _modulesArray = await _init_modules_classes__loading_Modules_fromUri(
       { modulesLoader: _modulesLoader, moduleDataArray: _moduleDataArray });
 
-    // get engine from `moduleDataArray` or from `./engine/engine.js` file
+    // get engine from a Setting (from `moduleDataArray`) or, as a fallback, from ModulesLoader function;
+    // the fallback engine is loaded from the same root of ModulesLoader,
+    // in that way the engine can be more aligned with the modules loaded from ModulesLoader
     const _$$ENGINE_URL = _get_SimulationSetting_FromModuleDataArray({
       moduleDataArray: _moduleDataArray,
       settingName: SETTINGS_NAMES.Simulation.$$ENGINE_URL,
@@ -153,7 +156,7 @@ async function main ({
       url: _$$ENGINE_URL,
       functionName: 'engine',
       debug: moduleResolverDebugFlag,
-      defaultFunction: engine
+      fallbackFunction: _modulesLoader.getEngine()
     });
 
     // get scenarios from `moduleDataArray`
@@ -259,7 +262,7 @@ async function main ({
  * @param {ModuleData[]} p.moduleDataArray
  * @param {string} p.settingName
  * @param {string} [p.settingSanitization]
- * @return {*} - Setting read from `moduleDataArray`
+ * @return {* | undefined} - undefined if some error occurs, otherwise Setting read from `moduleDataArray`
  */
 function _get_SimulationSetting_FromModuleDataArray ({
   moduleDataArray,
@@ -292,6 +295,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
       }
     })();
 
+    // sanitize the setting if a sanitization is provided
     if (!isNullOrWhiteSpace(settingSanitization))
       return sanitize({ value: _setting, sanitization: settingSanitization });
     else
@@ -303,23 +307,23 @@ function _get_SimulationSetting_FromModuleDataArray ({
 
 /**
  @private
- * Returns an object from a URL or from defaultFunction
+ * Returns an object from a URL or from fallbackFunction
  * @param {Object} p
  * @param {string} p.url
  * @param {string} p.functionName
- * @param {boolean} p.debug - debug flag: when true, the function is returned from defaultFunction
- * @param {*} p.defaultFunction - Default object to return when debug is true or when `functionName` is not found
+ * @param {boolean} p.debug - debug flag: when true, the function is returned from fallbackFunction
+ * @param {*} p.fallbackFunction - Fallback function to return when debug is true or when `functionName` is not found
  * @return {Promise<*>} - Some object read from URI
  */
 async function _getFunctionFromUrl ({
   url,
   functionName,
   debug,
-  defaultFunction
+  fallbackFunction
 }) {
 
   if (debug)
-    return defaultFunction;
+    return fallbackFunction;
 
   if (!isNullOrWhiteSpace(url)) {
     // DYNAMIC IMPORT (works with DENO, BROWSER and NODE with option --experimental-network-imports)
@@ -338,20 +342,21 @@ async function _getFunctionFromUrl ({
     throw new Error(`error loading module ${url}, error: ${_lastImportError}`);
   }
 
-  // fallback to default object
-  return defaultFunction;
+  // return fallback function
+  return fallbackFunction;
 }
 
 /**
  @private
- * Load modules on modulesLoader reading moduleDataArray, then init the classes and store them in modulesRepo
+ * Load module classes on modulesLoader reading moduleDataArray, then init the classes and return them in an array
  * @param {Object} p
  * @param {ModulesLoader} p.modulesLoader
  * @param {ModuleData[]} p.moduleDataArray
- * @return {Promise<*[]>}  returns array of module classes
+ * @return {Promise<Module[]>}  returns array of module classes
  * @throws {Error} If module is not founds
  */
 async function _init_modules_classes__loading_Modules_fromUri ({ modulesLoader, moduleDataArray }) {
+  /** @type {Module[]} */
   const _modulesRepo = [];
   for (const moduleData of moduleDataArray) {
     // try to get the module from modulesLoader

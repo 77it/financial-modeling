@@ -2,6 +2,7 @@ export { ModulesLoader };
 
 import { schema, validateObj, sanitizeObj } from '../deps.js';
 import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
+import { engine } from '../engine/engine.js';
 
 const DEFAULT_CLASSNAME = 'Module';
 
@@ -25,6 +26,15 @@ class ModulesLoader {
 
     // if modulesLoader_Resolve is null/undefined, assign to _modulesLoader_Resolve
     this.#modulesLoader_Resolve = p?.modulesLoader_Resolve ?? modulesLoader_Resolve;
+  }
+
+  /**
+   Returns an engine loaded from the same root of ModulesLoader;
+   in that way the engine can be more aligned with the modules loaded from ModulesLoader
+   * @return {*}
+   */
+  getEngine () {
+    return engine;
   }
 
   /**
