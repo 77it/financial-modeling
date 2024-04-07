@@ -43,6 +43,7 @@ Deno.test('YAML tests', (t) => {
 
   //#region parsing numbers returns the number
   assertEquals(parseYAML(999), 999);
+  assertEquals(parseYAML(-1), -1);
   //#endregion
 
   //#region parsing dates
@@ -52,17 +53,26 @@ Deno.test('YAML tests', (t) => {
   assertEquals(parseYAML('2023'), 2023);  // YYYY is converted to number
   //#endregion
 
+  //#region parsing range of dates
+  assertEquals(parseYAML('2023-01-05T00:00:00.000Z:2024-01-05T00:00:00.000Z'), '2023-01-05T00:00:00.000Z:2024-01-05T00:00:00.000Z');  // left as string
+  assertEquals(parseYAML('2023-01-05:2024-01-05'), '2023-01-05:2024-01-05');  // left as string
+  assertEquals(parseYAML('2023-01:2024-01'), '2023-01:2024-01');  // left as string
+  assertEquals(parseYAML('2023:2024'), '2023:2024');  // left as string
+  //#endregion
+
   //#region parsing object (works with ' and ")
-  const txt = '{\'Main\':999.159, Name: \'Y88 x\', mamma : ciao}';
+  const txt = '{\'Main\':999.159, Name: \'Y88 x\', num: -1, mamma : ciao}';
   let parsed = parseYAML(txt);
   assertEquals(parsed.Main, 999.159);
   assertEquals(parsed.Name, 'Y88 x');
+  assertEquals(parsed.num, -1);
   assertEquals(parsed.mamma, 'ciao');
 
-  const txtB = '{"Main":999.159, Name: "Y88 x", mamma : ciao}';
-  let parsedB = parseYAML(txt);
+  const txtB = '{"Main":999.159, Name: "Y88 x", num: -1, mamma : ciao}';
+  let parsedB = parseYAML(txtB);
   assertEquals(parsedB.Main, 999.159);
   assertEquals(parsedB.Name, 'Y88 x');
+  assertEquals(parsed.num, -1);
   assertEquals(parsedB.mamma, 'ciao');
   //#endregion
 
