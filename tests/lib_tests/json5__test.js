@@ -1,3 +1,5 @@
+// for a more flexible parsing standard, see YAML tests "tests/lib_tests/yaml__test.js"
+
 import { assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows } from '../deps.js';
 import { parseJSON5 } from '../../src/lib/json5.js';
 
@@ -26,7 +28,7 @@ Deno.test('JSON5 tests', (t) => {
   //#endregion parsing numbers returns undefined
 
   //#region parsing object
-  const txt = '{\'Main\':999.159, Name: \'Y88 x\'}';
+  const txt = '{\'Main\':999.159, Name:\'Y88 x\'}';
   let parsed = parseJSON5(txt);
   assertEquals(parsed.Main, 999.159);
   assertEquals(parsed.Name, 'Y88 x');
