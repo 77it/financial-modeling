@@ -116,7 +116,7 @@ class DriversRepo {
 
     // loop all entries, adding only the drivers in the set
     for (const _inputItem of p) {
-      // shallow clone _inputItem, to build a new object and work on it, adding properties ecc (doesn't clone the values of the object)
+      // shallow clone _inputItem, to build a new object and be able to add properties to it without changing the original object (doesn't clone the properties of the object, only creates a new object with the same properties)
       const _inputItemClone = { ..._inputItem };
 
       // sanitize the input object, only fields `date` and `value`
