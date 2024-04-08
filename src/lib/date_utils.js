@@ -289,7 +289,7 @@ function excelSerialDateToDate (excelSerialDate) {
  * @description
  * Add the specified number of months to the given date.
  *
- * @param {Date} date - the date to be changed
+ * @param {Date} date - the date to add the months to
  * @param {number} amount - the amount of months to be added. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
  * @returns {Date} the new date with the months added
  *
@@ -357,6 +357,7 @@ function areDatesEqual (date1, date2) {
 
 /**
  * Convert a date to UTC
+ * BEWARE: converting a UTC date to UTC will "damage it", because the converted date will be different from the source date
  *
  * @param {Date} date
  * @returns {Date}

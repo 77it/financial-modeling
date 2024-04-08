@@ -1,7 +1,7 @@
 // BEWARE: YAML object definition works only if key is separated form value by at least one space (key: value); doesn't work without space (key:value), as JSON5 does.
 // see https://yaml.org/spec/1.2.2/#21-collections
 
-import { assert, assertEquals, assertFalse, assertStrictEquals, assertThrows } from '../deps.js';
+import { toUTC, assert, assertEquals, assertFalse, assertStrictEquals, assertThrows } from '../deps.js';
 import { parseYAML } from '../../src/lib/yaml.js';
 
 Deno.test('YAML tests', (t) => {
@@ -46,9 +46,9 @@ Deno.test('YAML tests', (t) => {
   assertEquals(parseYAML(-1), -1);
   //#endregion
 
-  //#region parsing dates
-  assertEquals(parseYAML('2023-01-05T00:00:00.000Z'), new Date('2023-01-05T00:00:00.000Z'));  // converted correctly to Date
-  assertEquals(parseYAML('2023-01-05'), new Date('2023-01-05'));  // converted correctly to Date
+  //#region parsing dates (only to UTC date or string)
+  assertEquals(parseYAML('2023-01-05T00:00:00.000Z'), toUTC(new Date(2023, 0, 5)));  // converted to UTC Date
+  assertEquals(parseYAML('2023-01-05'), toUTC(new Date(2023, 0, 5)));  // converted to UTC Date
   assertEquals(parseYAML('2023-01'), '2023-01');  // YYYY-MM is converted to string
   assertEquals(parseYAML('2023'), 2023);  // YYYY is converted to number
   //#endregion
