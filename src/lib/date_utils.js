@@ -1,7 +1,7 @@
 export { isValidDate };
 export { parseJsonToLocalDate, parseJsonToUTCDate };
 export { differenceInCalendarDays, differenceInUTCCalendarDays };
-export { excelSerialDateToUTCDate, excelSerialDateToDate };
+export { excelSerialDateToUTCDate, excelSerialDateToDate, localDateToExcelSerialDate };
 export { addMonths };
 export { areDatesEqual };
 export { toUTC, toStringYYYYMMDD, stripTime };
@@ -264,8 +264,8 @@ function differenceInUTCCalendarDays (
 }
 
 /**
- * @description
  * Convert Excel serial date (1900 date system) to UTC date.
+ * Only the integer part of the Excel serial date is considered.
  * If conversion fails, return an invalid date.
  * See https://docs.microsoft.com/en-us/office/troubleshoot/excel/1900-and-1904-date-system
  *
@@ -281,8 +281,8 @@ function excelSerialDateToUTCDate (excelSerialDate) {
 }
 
 /**
- * @description
- * Convert Excel serial date (1900 date system) to date.
+ * Convert Excel serial date (1900 date system) to local time date.
+ * Only the integer part of the Excel serial date is considered.
  * If conversion fails, return an invalid date.
  * See https://docs.microsoft.com/en-us/office/troubleshoot/excel/1900-and-1904-date-system
  *
@@ -297,13 +297,25 @@ function excelSerialDateToDate (excelSerialDate) {
   }
 }
 
+/**
+ * Convert local time date to Excel serial date (1900 date system).
+ * The time part of the date will be stripped before conversion.
+ * If conversion fails, return an invalid number.
+ *
+ * @param {Date} localDate
+ * @returns {number} the converted Excel serial date
+ */
+function localDateToExcelSerialDate (localDate) {
+  try {
+    const timeStrippedDate = stripTime(localDate);  // strip time
+    return Math.floor((timeStrippedDate.getTime() - new Date(1899, 11, 30).getTime()) / 86400000);  // See https://stackoverflow.com/a/67130235/5288052
+  } catch (_) {
+    return NaN;
+  }
+}
+
 // inspired to https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts (MIT license)
 /**
- * @name addMonths
- * @category Month Helpers
- * @summary Add the specified number of months to the given date.
- *
- * @description
  * Add the specified number of months to the given date.
  *
  * @param {Date} date - the date to add the months to
@@ -360,7 +372,7 @@ function addMonths (
 
 // inspired to https://stackoverflow.com/a/19054782 + https://stackoverflow.com/questions/492994/compare-two-dates-with-javascript
 /**
- * Accept two dates and check if the dates are equal (ignoring time)
+ * Check if two dates are equal (ignoring time)
  *
  * @param {Date} date1
  * @param {Date} date2

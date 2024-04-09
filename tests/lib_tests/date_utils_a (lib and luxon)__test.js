@@ -1,4 +1,13 @@
-import { isValidDate, parseJsonToLocalDate, parseJsonToUTCDate, differenceInCalendarDays as differenceInCalendarDays_lib, differenceInUTCCalendarDays, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
+import {
+    isValidDate,
+    parseJsonToLocalDate,
+    parseJsonToUTCDate,
+    differenceInCalendarDays as differenceInCalendarDays_lib,
+    differenceInUTCCalendarDays,
+    excelSerialDateToUTCDate,
+    excelSerialDateToDate,
+    localDateToExcelSerialDate
+} from '../../src/lib/date_utils.js';
 import { differenceInCalendarDays_luxon } from './date_utils_a__differenceInCalendarDays_luxon.js';
 import { toUTC, stripTime, toStringYYYYMMDD } from '../../src/lib/date_utils.js';
 
@@ -576,9 +585,25 @@ _describe('excelSerialDateToUTCDate', () => {
 _describe('excelSerialDateToDate', () => {
     it('tests', () => {
         assertEquals(excelSerialDateToDate(367), new Date(1901, 0, 1, 0, 0, 0));
+        // the decimal part is ignored
+        assertEquals(excelSerialDateToDate(367.99), new Date(1901, 0, 1, 0, 0, 0));
+        assertEquals(excelSerialDateToDate(368), new Date(1901, 0, 2, 0, 0, 0));
         assertEquals(excelSerialDateToDate(28384), new Date(1977, 8, 16, 0, 0, 0));
         assertEquals(excelSerialDateToDate(44920), new Date(2022, 11, 25, 0, 0, 0));
         assertEquals(excelSerialDateToDate(NaN), new Date(NaN));
+    })
+})
+
+
+_describe('localDateToExcelSerialDate', () => {
+    it('tests', () => {
+        assertEquals(367, localDateToExcelSerialDate(new Date(1901, 0, 1, 0, 0, 0)));
+        // the decimal part is ignored
+        assertEquals(367, localDateToExcelSerialDate(new Date(1901, 0, 1, 0, 0, 0)));
+        assertEquals(368, localDateToExcelSerialDate(new Date(1901, 0, 2, 0, 0, 0)));
+        assertEquals(28384, localDateToExcelSerialDate(new Date(1977, 8, 16, 0, 0, 0)));
+        assertEquals(44920, localDateToExcelSerialDate(new Date(2022, 11, 25, 0, 0, 0)));
+        assertEquals(NaN, localDateToExcelSerialDate(new Date(NaN)));
     })
 })
 
