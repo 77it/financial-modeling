@@ -5,7 +5,7 @@ import {
     differenceInCalendarDays as differenceInCalendarDays_lib,
     differenceInUTCCalendarDays,
     excelSerialDateToUTCDate,
-    excelSerialDateToDate,
+    excelSerialDateToLocalDate,
     localDateToExcelSerialDate
 } from '../../src/lib/date_utils.js';
 import { differenceInCalendarDays_luxon } from './date_utils_a__differenceInCalendarDays_luxon.js';
@@ -582,15 +582,15 @@ _describe('excelSerialDateToUTCDate', () => {
 })
 
 
-_describe('excelSerialDateToDate', () => {
+_describe('excelSerialDateToLocalDate', () => {
     it('tests', () => {
-        assertEquals(excelSerialDateToDate(367), new Date(1901, 0, 1, 0, 0, 0));
+        assertEquals(excelSerialDateToLocalDate(367), new Date(1901, 0, 1, 0, 0, 0));
         // the decimal part is ignored
-        assertEquals(excelSerialDateToDate(367.99), new Date(1901, 0, 1, 0, 0, 0));
-        assertEquals(excelSerialDateToDate(368), new Date(1901, 0, 2, 0, 0, 0));
-        assertEquals(excelSerialDateToDate(28384), new Date(1977, 8, 16, 0, 0, 0));
-        assertEquals(excelSerialDateToDate(44920), new Date(2022, 11, 25, 0, 0, 0));
-        assertEquals(excelSerialDateToDate(NaN), new Date(NaN));
+        assertEquals(excelSerialDateToLocalDate(367.99), new Date(1901, 0, 1, 0, 0, 0));
+        assertEquals(excelSerialDateToLocalDate(368), new Date(1901, 0, 2, 0, 0, 0));
+        assertEquals(excelSerialDateToLocalDate(28384), new Date(1977, 8, 16, 0, 0, 0));
+        assertEquals(excelSerialDateToLocalDate(44920), new Date(2022, 11, 25, 0, 0, 0));
+        assertEquals(excelSerialDateToLocalDate(NaN), new Date(NaN));
     })
 })
 

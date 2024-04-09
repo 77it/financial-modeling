@@ -1,7 +1,7 @@
 export { sanitize, sanitizeObj };
 
 import * as schema from './schema.js';
-import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToDate, excelSerialDateToUTCDate, toUTC } from './date_utils.js';
+import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, toUTC } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
 
@@ -170,7 +170,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
               if (_DATE_UTC)
                 _value = excelSerialDateToUTCDate(_numValue);
               else
-                _value = excelSerialDateToDate(_numValue);
+                _value = excelSerialDateToLocalDate(_numValue);
             } else if (_NUMBER_TO_DATE === schema.NUMBER_TO_DATE_OPTS__JS_SERIAL_DATE)
               _value = new Date(_value);
             else  // no conversion

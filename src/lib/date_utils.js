@@ -1,7 +1,7 @@
 export { isValidDate };
 export { parseJsonToLocalDate, parseJsonToUTCDate };
 export { differenceInCalendarDays, differenceInUTCCalendarDays };
-export { excelSerialDateToUTCDate, excelSerialDateToDate, localDateToExcelSerialDate };
+export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
 export { addMonths };
 export { areDatesEqual };
 export { toUTC, toStringYYYYMMDD, stripTime };
@@ -289,7 +289,7 @@ function excelSerialDateToUTCDate (excelSerialDate) {
  * @param {number} excelSerialDate
  * @returns {Date} the converted date
  */
-function excelSerialDateToDate (excelSerialDate) {
+function excelSerialDateToLocalDate (excelSerialDate) {
   try {
     return new Date(0, 0, excelSerialDate - 1);  // See https://stackoverflow.com/a/67130235/5288052
   } catch (_) {

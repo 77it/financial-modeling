@@ -1,7 +1,7 @@
 import * as S from '../../src/lib/schema.js';
 import * as s from '../../src/lib/schema_sanitization_utils.js';
 import { eq } from '../../src/lib/obj_utils.js';
-import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
+import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToUTCDate, excelSerialDateToLocalDate } from '../../src/lib/date_utils.js';
 
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
 // @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
@@ -105,7 +105,7 @@ Deno.test('test sanitizeObj()', async (t) => {
       date: parseJsonToLocalDate('1999-12-31T23:59:59'),
       date2: parseJsonToLocalDate('1999-12-31'),
       date3: parseJsonToLocalDate('2022-12-25T00:00:00.000Z'),
-      date4_fromExcelSerialDate: excelSerialDateToDate(44920),
+      date4_fromExcelSerialDate: excelSerialDateToLocalDate(44920),
       arrDate: [parseJsonToLocalDate('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
       arrDate2: [parseJsonToLocalDate('1999-12-31T23:59:59')],
       extraValueMissingRequiredDate: new Date(0),
@@ -308,7 +308,7 @@ Deno.test('test sanitizeObj()', async (t) => {
     const expObj_0 = {
       str: '0',
       num: 0,
-      date: excelSerialDateToDate(0),
+      date: excelSerialDateToLocalDate(0),
       bigInt: BigInt(0),
       bigInt_number: BigInt(0)
     };
