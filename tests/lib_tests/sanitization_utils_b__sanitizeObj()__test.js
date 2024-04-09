@@ -1,7 +1,7 @@
 import * as S from '../../src/lib/schema.js';
 import * as s from '../../src/lib/schema_sanitization_utils.js';
 import { eq } from '../../src/lib/obj_utils.js';
-import { parseJsonDate, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
+import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
 
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
 // @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
@@ -102,12 +102,12 @@ Deno.test('test sanitizeObj()', async (t) => {
     };
 
     const expObj = {
-      date: parseJsonDate('1999-12-31T23:59:59', { asUTC: false }),
-      date2: parseJsonDate('1999-12-31', { asUTC: false }),
-      date3: parseJsonDate('2022-12-25T00:00:00.000Z', { asUTC: false }),
+      date: parseJsonToLocalDate('1999-12-31T23:59:59'),
+      date2: parseJsonToLocalDate('1999-12-31'),
+      date3: parseJsonToLocalDate('2022-12-25T00:00:00.000Z'),
       date4_fromExcelSerialDate: excelSerialDateToDate(44920),
-      arrDate: [parseJsonDate('1999-12-31T23:59:59', { asUTC: false }), new Date('2020-12-31T23:59:59')],
-      arrDate2: [parseJsonDate('1999-12-31T23:59:59', { asUTC: false })],
+      arrDate: [parseJsonToLocalDate('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
+      arrDate2: [parseJsonToLocalDate('1999-12-31T23:59:59')],
       extraValueMissingRequiredDate: new Date(0),
     };
 
@@ -181,9 +181,9 @@ Deno.test('test sanitizeObj()', async (t) => {
       strUppercaseTrimmed: 'B B',
       num: 123,
       bool: false,
-      date: parseJsonDate('1999-12-31T23:59:59'),
-      date2: parseJsonDate('1999-12-31'),
-      date3: parseJsonDate('2022-12-25T00:00:00.000Z'),
+      date: parseJsonToUTCDate('1999-12-31T23:59:59'),
+      date2: parseJsonToUTCDate('1999-12-31'),
+      date3: parseJsonToUTCDate('2022-12-25T00:00:00.000Z'),
       date4_fromExcelSerialDate: excelSerialDateToUTCDate(44920),
       enum: 'mamma',
       arr: [999],
@@ -195,8 +195,8 @@ Deno.test('test sanitizeObj()', async (t) => {
       arrStrUppercaseTrimmed2: ['0'],
       arrNum: [99, 0, 55],
       arrNum2: [99],
-      arrDate: [parseJsonDate('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
-      arrDate2: [parseJsonDate('1999-12-31T23:59:59')],
+      arrDate: [parseJsonToUTCDate('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
+      arrDate2: [parseJsonToUTCDate('1999-12-31T23:59:59')],
       arrBool: [false, true],
       arrBool2: [false],
       arrBoolEmpty: [],

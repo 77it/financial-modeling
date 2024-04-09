@@ -1,7 +1,7 @@
 export { sanitize, sanitizeObj };
 
 import * as schema from './schema.js';
-import { parseJsonDate, excelSerialDateToDate, excelSerialDateToUTCDate, toUTC } from './date_utils.js';
+import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToDate, excelSerialDateToUTCDate, toUTC } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
 
@@ -160,7 +160,10 @@ function sanitize ({ value, sanitization, options, validate = false }) {
         } else {
           let _value = value;
           if (typeof value === 'string') {  // if `value` is string, replace it with a date from a parsed string; date in local time or UTC
-            _value = parseJsonDate(value, { asUTC: _DATE_UTC });
+            if (_DATE_UTC)
+              _value = parseJsonToUTCDate(value);
+            else
+              _value = parseJsonToLocalDate(value);
           } else if (typeof value === 'number' || typeof value === 'bigint') {  // if `value` is number or BigInt, convert it as Excel serial date to date in local time or UTC
             const _numValue = Number(value);
             if (_NUMBER_TO_DATE === schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE) {
@@ -176,7 +179,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
             _value = _DEFAULT_DATE;
           }
           retValue = isNaN(new Date(_value).getTime())
-            ? _DEFAULT_DATE : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJsonDate` can return a not valid date
+            ? _DEFAULT_DATE : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJsonToLocalDate`|`parseJsonToUTCDate` can return a not valid date
         }
       } catch (_) {
         retValue = _DEFAULT_DATE;

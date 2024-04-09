@@ -1,4 +1,4 @@
-import { isValidDate, parseJsonDate, differenceInCalendarDays as differenceInCalendarDays_lib, differenceInUTCCalendarDays, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
+import { isValidDate, parseJsonToLocalDate, parseJsonToUTCDate, differenceInCalendarDays as differenceInCalendarDays_lib, differenceInUTCCalendarDays, excelSerialDateToUTCDate, excelSerialDateToDate } from '../../src/lib/date_utils.js';
 import { differenceInCalendarDays_luxon } from './date_utils_a__differenceInCalendarDays_luxon.js';
 import { toUTC, stripTime, toStringYYYYMMDD } from '../../src/lib/date_utils.js';
 
@@ -29,125 +29,125 @@ _describe('isValidDate', () => {
 })
 
 
-_describe('parseJsonDate as Date', () => {
+_describe('parseJsonToLocalDate as Date', () => {
     it('short date 2021-01-09', () => {
         const date = '2021-01-09';
-        const parsedDate = parseJsonDate(date, {asUTC: false});
+        const parsedDate = parseJsonToLocalDate(date);
         const expectedDate = new Date(2021, 0, 9);
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
     })
 
     it('short date 2021/01/09', () => {
         const date = '2021/01/09';
-        const parsedDate = parseJsonDate(date, {asUTC: false});
+        const parsedDate = parseJsonToLocalDate(date);
         const expectedDate = new Date(2021, 0, 9);
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
     })
 
     it('short date 2021.01.09', () => {
         const date = '2021.01.09';
-        const parsedDate = parseJsonDate(date, {asUTC: false});
+        const parsedDate = parseJsonToLocalDate(date);
         const expectedDate = new Date(2021, 0, 9);
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
     })
 
     it('short date 2023/01/32: 32th day is parsed as the first day of the next month', () => {
         const date = '2023/01/32';
-        const parsedDate = parseJsonDate(date, {asUTC: false});
+        const parsedDate = parseJsonToLocalDate(date);
         const expectedDate = new Date(2023, 1, 1);
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
     })
 
     it('parses a fully formed ISO date with Z', () => {
         const date = '2000-03-15T05:20:10.123Z';
-        const parsedDate = parseJsonDate(date, {asUTC: false});
+        const parsedDate = parseJsonToLocalDate(date);
         const expectedDate = new Date(2000, 2, 15, 5, 20, 10, 123);
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
     })
 
     it('parses a fully formed ISO date with Z + spaces', () => {
         const date = '   2000-03-15T05:20:10.123Z   ';
-        const parsedDate = parseJsonDate(date, {asUTC: false});
+        const parsedDate = parseJsonToLocalDate(date);
         const expectedDate = new Date(2000, 2, 15, 5, 20, 10, 123);
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
     })
 })
 
 
-_describe('parseJsonDate as UTC #1', () => {
+_describe('parseJsonToUTCDate as UTC #1', () => {
     it('short date 2021-01-09, explicit UTC option', () => {
         const date = '2021-01-09';
-        const parsedDate = parseJsonDate(date, {asUTC: true});
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = '2021-01-09T00:00:00.000Z';
         assert.equal(parsedDate.toISOString(), expectedDate);
     })
 
     it('short date 2021-01-09', () => {
         const date = '2021-01-09';
-        const parsedDate = parseJsonDate(date);
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = '2021-01-09T00:00:00.000Z';
         assert.equal(parsedDate.toISOString(), expectedDate);
     })
 
     it('short date 2021/01/09', () => {
         const date = '2021/01/09';
-        const parsedDate = parseJsonDate(date);
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = '2021-01-09T00:00:00.000Z';
         assert.equal(parsedDate.toISOString(), expectedDate);
     })
 
     it('short date 2021.01.09', () => {
         const date = '2021.01.09';
-        const parsedDate = parseJsonDate(date);
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = '2021-01-09T00:00:00.000Z';
         assert.equal(parsedDate.toISOString(), expectedDate);
     })
 
     it('short date + spaces', () => {
         const date = '   2021-01-09     ';
-        const parsedDate = parseJsonDate(date);
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = '2021-01-09T00:00:00.000Z';
         assert.equal(parsedDate.toISOString(), expectedDate);
     })
 
     it('Invalid date for short date + random extra characters on start', () => {
         const date = '!?!?!2021-01-09';
-        const parsedDate = parseJsonDate(date);
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = 'Invalid Date';
         assert.equal(parsedDate.toString(), expectedDate);
     })
 
     it('Invalid date for short date + random extra characters on end', () => {
         const date = '2021-01-09!!!WWWtext';
-        const parsedDate = parseJsonDate(date);
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = 'Invalid Date';
         assert.equal(parsedDate.toString(), expectedDate);
     })
 
     it('parses a fully formed ISO date with Z + spaces', () => {
         const date = '   2000-03-15T05:20:10.123Z   ';
-        const parsedDate = parseJsonDate(date);
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = '2000-03-15T05:20:10.123Z';
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('parses a fully formed ISO date with Z + spaces, explicit UTC option', () => {
         const date = '   2000-03-15T05:20:10.123Z   ';
-        const parsedDate = parseJsonDate(date, {asUTC: true});
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = '2000-03-15T05:20:10.123Z';
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('Invalid date for parses a fully formed ISO date with Z + random extra characters on start', () => {
         const date = '!?!?!2000-03-15T05:20:10.123Z';
-        const parsedDate = parseJsonDate(date);
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = 'Invalid Date';
         assert.equal(parsedDate.toString(), expectedDate)
     })
 
     it('Invalid date for parses a fully formed ISO date with Z + random extra characters on end', () => {
         const date = '2000-03-15T05:20:10.123Z!!!WWWtext';
-        const parsedDate = parseJsonDate(date);
+        const parsedDate = parseJsonToUTCDate(date);
         const expectedDate = 'Invalid Date';
         assert.equal(parsedDate.toString(), expectedDate)
     })
@@ -155,122 +155,122 @@ _describe('parseJsonDate as UTC #1', () => {
 
 
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJsonDate/test.ts (MIT license)
-_describe('parseJsonDate as UTC #2', () => {
+_describe('parseJsonToUTCDate #2', () => {
     it('parses a formatted date with an hour of offset back to UTC - issue 2149', () => {
         const date = '2021-01-09T13:18:10.873+01:00'
         const expectedDate = new Date('2021-01-09T12:18:10.873Z')
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString())
     })
 
     it('parses a formatted date with 2 hours of offset back to UTC - issue 2149', () => {
         const date = '2021-01-09T13:18:10.873+02:00'
         const expectedDate = new Date('2021-01-09T11:18:10.873Z')
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString())
     })
 
     it('parses a formatted date with -2 hours of offset back to UTC - issue 2149', () => {
         const date = '2021-01-09T13:18:10.873-02:00'
         const expectedDate = new Date('2021-01-09T15:18:10.873Z')
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString())
     })
 
     it('parses a formatted Indian Standart Time in Asia/Kolkata with +5:30 hours of offset back to UTC - issue 2149', () => {
         const date = '2021-02-15T02:56:04.678+05:30'
         const expectedDate = new Date('2021-02-14T21:26:04.678Z')
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString())
     })
 
     it('parses a formatted time in Asia/Kathmandu with +5:45 hours of offset back to UTC - issue 2149', () => {
         const date = '2021-02-15T17:45:00.900+05:45'
         const expectedDate = new Date('2021-02-15T12:00:00.900Z')
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate.toISOString())
     })
 
     it('parses a fully formed ISO date with Z', () => {
         const date = '2000-03-15T05:20:10.123Z'
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), date)
     })
 
     it('parses a fully formed ISO date with Z without ms', () => {
         const date = '2000-03-15T05:20:10Z'
         const expectedDate = '2000-03-15T05:20:10.000Z'
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('parses a fully formed ISO date with zero offset', () => {
         const zeroOffset = '2000-03-15T05:20:10+00:00'
         const expectedDate = '2000-03-15T05:20:10.000Z'
-        const parsedDate = parseJsonDate(zeroOffset)
+        const parsedDate = parseJsonToUTCDate(zeroOffset)
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('parses a fully formed ISO date with zero offset without colon', () => {
         const zeroOffset = '2000-03-15T05:20:10+0000'
         const expectedDate = '2000-03-15T05:20:10.000Z'
-        const parsedDate = parseJsonDate(zeroOffset)
+        const parsedDate = parseJsonToUTCDate(zeroOffset)
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('parses a fully formed ISO date without Z', () => {
         const date = '2000-03-15T05:20:10.123'
         const expectedDate = '2000-03-15T05:20:10.123Z'
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('parses a fully formed ISO date without Z and with 6-digit millisecond part', () => {
         const date = '2000-03-15T05:20:10.123456'
         const expectedDate = '2000-03-15T05:20:10.123Z'
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('parses a fully formed ISO with 1-digit millisecond part', () => {
         const date = '2000-03-15T05:20:10.1Z'
         const expectedDate = '2000-03-15T05:20:10.100Z'
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('parses a fully formed ISO with 2-digit millisecond part', () => {
         const date = '2000-03-15T05:20:10.12Z'
         const expectedDate = '2000-03-15T05:20:10.120Z'
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('parses supported formats with a space time separator instead of a T', () => {
         const date = '2000-03-15 05:20:10.123Z'
         const expectedDate = '2000-03-15T05:20:10.123Z'
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('parses the SQL datetime format without milliseconds', () => {
         const date = '2000-03-15 05:20:10'
         const expectedDate = '2000-03-15T05:20:10.000Z'
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('parses the SQL datetime format with up to 7 millisecond digits', () => {
         const date = '2000-03-15 05:20:10.1234567'
         const expectedDate = '2000-03-15T05:20:10.123Z'
-        const parsedDate = parseJsonDate(date)
+        const parsedDate = parseJsonToUTCDate(date)
         assert.equal(parsedDate.toISOString(), expectedDate)
     })
 
     it('returns an invalid date for anything else', () => {
-        assert.equal(parseJsonDate('').toString(), 'Invalid Date')
-        assert.equal(parseJsonDate('invalid').toString(), 'Invalid Date')
-        assert.equal(parseJsonDate('2020\\10\\10').toString(), 'Invalid Date')
+        assert.equal(parseJsonToUTCDate('').toString(), 'Invalid Date')
+        assert.equal(parseJsonToUTCDate('invalid').toString(), 'Invalid Date')
+        assert.equal(parseJsonToUTCDate('2020\\10\\10').toString(), 'Invalid Date')
     })
 })
 

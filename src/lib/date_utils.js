@@ -1,5 +1,5 @@
 export { isValidDate };
-export { parseJsonDate };
+export { parseJsonToLocalDate, parseJsonToUTCDate };
 export { differenceInCalendarDays, differenceInUTCCalendarDays };
 export { excelSerialDateToUTCDate, excelSerialDateToDate };
 export { addMonths };
@@ -26,17 +26,9 @@ function isValidDate (value) {
   return false;  // is not a date
 }
 
-// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license);
-// added: parse of date on 3 fields YYYY-MM-DD, trim(), updated regex expression to match start/end of the row.
-// name inspired to https://www.google.com/search?q=%22parseJsonDate%22
 /**
- * @name parseJsonDate
- * @category Common Helpers
- * @summary Parse a JSON date string
- *
- * @description
- * Converts a complete ISO date string in UTC time, the typical format for transmitting
- * a date in JSON, to a JavaScript `Date` instance.
+ * Converts a ISO date string (the typical format for transmitting a date in JSON)
+ * to a JavaScript `Date` in local time zone.
  *
  * The following formats are supported:
  *
@@ -56,11 +48,36 @@ function isValidDate (value) {
  * Any other input type or invalid date strings will return an `Invalid Date`.
  *
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
+ * @returns {Date} the parsed date in local time zone
+ */
+function parseJsonToLocalDate (argument) {
+  return _parseJsonDate(argument, { asUTC: false });
+}
+
+/**
+ * Converts a ISO date string (the typical format for transmitting a date in JSON)
+ * to a JavaScript `Date` in UTC time zone.
+ * See other notes in `parseJsonToLocalDate`.
+ *
+ * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
+ * @returns {Date} the parsed date in UTC time zone
+*/
+function parseJsonToUTCDate (argument) {
+  return _parseJsonDate(argument, { asUTC: true });
+}
+
+// Inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license);
+// added: parse of date on 3 fields YYYY-MM-DD, trim(), updated regex expression to match start/end of the row;
+// name inspired to https://www.google.com/search?q=%22parseJsonDate%22
+/**
+ * Private function to parse a JSON date string (local or UTC)
+ *
+ * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
  * @param {Object} [opt]
  * @param {boolean} [opt.asUTC=true] If true, the date will be parsed as UTC, otherwise as local time
- * @returns {Date} the parsed date in the local time zone
+ * @returns {Date} the parsed date in UTC or local time zone
  */
-function parseJsonDate (argument, opt) {
+function _parseJsonDate (argument, opt) {
   try {
     const _asUTC = opt?.asUTC ?? true;
 
