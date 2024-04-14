@@ -110,9 +110,9 @@ function sanitize ({ value, sanitization, options, validate = false }) {
           retValue = value;
         else if (value instanceof Date)
           if (_DATE_UTC) {
-            retValue = toUTC(value).toISOString();
+            retValue = value.toISOString();  // if `_DATE_UTC` is true, the date is presumed to be UTC then is not needed to convert it to UTC before converting the date to string
           } else {
-            retValue = value.toISOString();
+            retValue = toUTC(value).toISOString();
           }
         else if ((typeof value === 'number' && isFinite(value)) || typeof value === 'bigint')
           retValue = String(value);

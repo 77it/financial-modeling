@@ -178,13 +178,13 @@ function structuredCloneOrClone (obj) {
     return structuredClone(obj);
 }
 
-/** Convert date to ISO string with the current time zone as if it were UTC
+/** Convert date to ISO string with the current time zone as if it were UTC, stripping time
  * @param {Date} date
  * @returns {string}
  */
 function dateToISOString (date) {
   // build a UTC date with parts of the date, then convert to ISO string
-  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds())).toISOString();
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString();
 }
 
 //#endregion private functions

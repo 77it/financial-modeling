@@ -308,7 +308,7 @@ Deno.test('test sanitizeObj()', async (t) => {
     const expObj_0 = {
       str: '0',
       num: 0,
-      date: excelSerialDateToLocalDate(0),
+      date: new Date('2025-12-31'),  // `excelSerialDateToLocalDate(0)` returns Date(NaN), that is invalid, and is sanitized to the default sanitization value
       bigInt: BigInt(0),
       bigInt_number: BigInt(0)
     };
