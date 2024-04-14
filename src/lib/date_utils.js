@@ -2,7 +2,7 @@ export { isValidDate };
 export { parseJsonToLocalDate, parseJsonToUTCDate };
 export { differenceInCalendarDays, differenceInUTCCalendarDays };
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
-export { addMonths, addDaysToLocalDate, addDaysToUTCDate };
+export { addMonths, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
 export { areDatesEqual };
 export { toUTC, toStringYYYYMMDD, stripTime, stripTimeToUTCDate };
 
@@ -372,7 +372,7 @@ function addDaysToUTCDate(date, amount) {
 
 // inspired to https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts (MIT license)
 /**
- * Add the specified number of months to the given date.
+ * Add the specified number of months to the given local date.
  *
  * @param {Date} date - the date to add the months to
  * @param {number} amount - the amount of months to be added. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
@@ -392,7 +392,6 @@ function addMonths (
     // If 0 months, no-op to avoid changing times in the hour before end of DST
     return new Date(date);
   }
-  const dayOfMonth = _date.getDate();
 
   // The JS Date object supports date math by accepting out-of-bounds values for
   // month, day, etc. For example, new Date(2020, 0, 0) returns 31 Dec 2019 and
@@ -402,6 +401,7 @@ function addMonths (
   // we'll default to the end of the desired month by adding 1 to the desired
   // month and using a date of 0 to back up one day to the end of the desired
   // month.
+  const dayOfMonth = _date.getDate();
   const endOfDesiredMonth = new Date(_date);
   endOfDesiredMonth.setMonth(_date.getMonth() + amount + 1, 0);
   const daysInMonth = endOfDesiredMonth.getDate();
@@ -413,7 +413,7 @@ function addMonths (
     // Otherwise, we now know that setting the original day-of-month value won't
     // cause an overflow, so set the desired day-of-month. Note that we can't
     // just set the date of `endOfDesiredMonth` because that object may have had
-    // its time changed in the unusual case where where a DST transition was on
+    // its time changed in the unusual case where a DST transition was on
     // the last day of the month and its local time was in the hour skipped or
     // repeated next to a DST transition.  So we use `date` instead which is
     // guaranteed to still have the original time.
@@ -424,6 +424,32 @@ function addMonths (
     );
     return _date;
   }
+}
+
+// inspired to https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts (MIT license)
+/**
+ * Get the end of the month of the given local time date.
+ * The time part of the date will be stripped after adding the day.
+ *
+ * @param {Date} date - the date to get the end of the month
+ * @returns {Date} the end of the month date
+ *
+ * @example
+ * 2014/09/01 => 2014/09/30
+ * 2014/12/31 => 2014/12/31
+ */
+function getEndOfMonthOfLocalDate (date) {
+  // The JS Date object supports date math by accepting out-of-bounds values for
+  // month, day, etc. For example, new Date(2020, 0, 0) returns 31 Dec 2019 and
+  // new Date(2020, 13, 1) returns 1 Feb 2021.  This is *almost* the behavior we
+  // want except that dates will wrap around the end of a month, meaning that
+  // new Date(2020, 13, 31) will return 3 Mar 2021 not 28 Feb 2021 as desired. So
+  // we'll default to the end of the desired month by adding 1 to the desired
+  // month and using a date of 0 to back up one day to the end of the desired
+  // month.
+  const endOfDesiredMonth = stripTime(date);
+  endOfDesiredMonth.setMonth(date.getMonth() + 1, 0);
+  return endOfDesiredMonth;
 }
 
 // inspired to https://stackoverflow.com/a/19054782 + https://stackoverflow.com/questions/492994/compare-two-dates-with-javascript

@@ -6,7 +6,8 @@ import {
     differenceInUTCCalendarDays,
     excelSerialDateToUTCDate,
     excelSerialDateToLocalDate,
-    localDateToExcelSerialDate
+    localDateToExcelSerialDate,
+    getEndOfMonthOfLocalDate
 } from '../../src/lib/date_utils.js';
 import { differenceInCalendarDays_luxon } from './date_utils_a__differenceInCalendarDays_luxon.js';
 import { toUTC, stripTime, toStringYYYYMMDD } from '../../src/lib/date_utils.js';
@@ -642,6 +643,24 @@ _describe('toStringYYYYMMDD', () => {
         const date = new Date(1977, 8, 16, 10, 1, 5, 9);
 
         assertEquals(toStringYYYYMMDD(date), '1977-09-16');
+    })
+})
+
+
+_describe('getEndOfMonthOfLocalDate', () => {
+    it('tests', () => {
+        const date = new Date(1977, 8 /*Sep*/, 16, 10, 1, 5, 9);
+        const date2 = new Date(1977, 8 /*Sep*/, 16);
+        const date3 = new Date(1977, 8 /*Sep*/, 30, 11, 59, 59, 999);
+        // test leap year
+        const date4_bisestile = new Date(2020, 1 /*Feb*/, 15, 11, 59, 59, 999);
+        const date5_bisestile = new Date(2020, 1 /*Feb*/, 1);
+
+        assertEquals(getEndOfMonthOfLocalDate(date), new Date(1977, 8 /*Sep*/, 30));
+        assertEquals(getEndOfMonthOfLocalDate(date2), new Date(1977, 8 /*Sep*/, 30));
+        assertEquals(getEndOfMonthOfLocalDate(date3), new Date(1977, 8 /*Sep*/, 30));
+        assertEquals(getEndOfMonthOfLocalDate(date4_bisestile), new Date(2020, 1 /*Feb*/, 29));
+        assertEquals(getEndOfMonthOfLocalDate(date5_bisestile), new Date(2020, 1 /*Feb*/, 29));
     })
 })
 
