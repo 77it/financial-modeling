@@ -46,6 +46,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('true', s.sanitize({ value: true, sanitization: t }));
     assertEquals('false', s.sanitize({ value: false, sanitization: t }));
 
+    // string sanitization with UTC `dateUTC` option = true
+    const opt = { dateUTC: true };
+    assertEquals('2022-12-25T00:00:00.000Z', s.sanitize({ value: new Date(Date.UTC(2022, 11, 25)), sanitization: t, options: opt }));
+
     const t2 = t + '?';
     assertEquals(undefined, s.sanitize({ value: undefined, sanitization: t2 }));
     assertEquals(null, s.sanitize({ value: null, sanitization: t2 }));
