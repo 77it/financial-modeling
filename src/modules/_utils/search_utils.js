@@ -42,7 +42,8 @@ function moduleDataLookup (
   for (const _table of moduleData.tables) {
     if (string_insensitive_match ? eq2(_table.tableName, tableName) : _table.tableName === tableName) {
       for (const row of _table.table) {
-        // compare lookup_value with row[lookup_column] (trim & case-insensitive with eq() and get2())
+        // get `lookup_column` from `row[lookup_column]` (key are compared with trim & case-insensitive with get2())
+        // then compare `lookup_value` with get value (values are compared with trim & case-insensitive with eq2())
         let _match = false;
         if (string_insensitive_match)
           _match = eq2(lookup_value, get2(row, lookup_column));

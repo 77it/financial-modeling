@@ -1,13 +1,13 @@
-import { eq } from '../../src/lib/obj_utils.js';
+import { eq2 } from '../../src/lib/obj_utils.js';
 import { _extractKeys } from '../lib/obj_utils.js';
 
 import { assert, assertEquals, assertFalse, assertThrows } from '../deps.js';
 
 Deno.test('test extractKeys()', async (t) => {
   await t.step('test with invalid values', async () => {
-    assert(eq({}, _extractKeys({})));
+    assert(eq2({}, _extractKeys({})));
     //@ts-ignore
-    assert(eq({}, _extractKeys(null)));
+    assert(eq2({}, _extractKeys(null)));
   });
 
   await t.step('test extracting keys from a class', async () => {
@@ -24,6 +24,6 @@ Deno.test('test extractKeys()', async (t) => {
     }
     const source = new sourceClass({ a: 1, b: 2, c: 3, d: 4});
 
-    assert(eq({ d: 4, b: 2, c: 3, a: 1}, _extractKeys(source)));
+    assert(eq2({ d: 4, b: 2, c: 3, a: 1}, _extractKeys(source)));
   });
 });

@@ -1,6 +1,6 @@
 import * as S from '../../src/lib/schema.js';
 import * as s from '../../src/lib/schema_sanitization_utils.js';
-import { eq } from '../../src/lib/obj_utils.js';
+import { eq2 } from '../../src/lib/obj_utils.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToUTCDate, excelSerialDateToLocalDate } from '../../src/lib/date_utils.js';
 
 // from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
@@ -438,8 +438,8 @@ Deno.test('test sanitizeObj()', async (t) => {
       NUM3: S.NUMBER_TYPE + S.OPTIONAL,  // this key is not present in `objToSanitize` and WILL NOT be added because it's optional
     };
 
-    assert(eq(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, keyInsensitiveMatch: true }), expObj));
+    assert(eq2(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, keyInsensitiveMatch: true }), expObj));
 
-    assert(eq(s.sanitizeObj({ obj: objToSanitize_withOptionalValue, sanitization: sanitization, keyInsensitiveMatch: true }), expObj_withOptionalValue));
+    assert(eq2(s.sanitizeObj({ obj: objToSanitize_withOptionalValue, sanitization: sanitization, keyInsensitiveMatch: true }), expObj_withOptionalValue));
   });
 });

@@ -1,5 +1,5 @@
 export { eqObj, _extractKeys };
-import { eq } from '../../src/lib/obj_utils.js';
+import { eq2 } from '../../src/lib/obj_utils.js';
 
 /**
  * Equality of two objects by content, with deep comparison of objects and arrays.
@@ -10,35 +10,35 @@ import { eq } from '../../src/lib/obj_utils.js';
  */
 function eqObj (a, b) {
   try {
-    // if a and b are null or undefined, compare them with eq()
+    // if a and b are null or undefined, compare them with eq2()
     if (a == null || b == null)
-      return eq(a, b);
+      return eq2(a, b);
 
-    // if a or b are arrays, compare them with eq()
+    // if a or b are arrays, compare them with eq2()
     if (Array.isArray(a) || Array.isArray(b))
-      return eq(a, b);
+      return eq2(a, b);
 
-    // if a or b are dates, compare them with eq()
+    // if a or b are dates, compare them with eq2()
     if (a instanceof Date || b instanceof Date)
-      return eq(a, b);
+      return eq2(a, b);
 
-    // if a or b are functions, compare them with eq()
+    // if a or b are functions, compare them with eq2()
     if (typeof a === 'function' || typeof b === 'function')
-      return eq(a, b);
+      return eq2(a, b);
 
-    // if a or b are regex, compare them with eq()
+    // if a or b are regex, compare them with eq2()
     if (a instanceof RegExp || b instanceof RegExp)
-      return eq(a, b);
+      return eq2(a, b);
 
     // if a and b are objects, extract keys then compare them
     if (typeof a === 'object' && typeof b === 'object')
-      return eq(_extractKeys(a), _extractKeys(b));
+      return eq2(_extractKeys(a), _extractKeys(b));
 
-    // fallback, compare them with eq()
-    return eq(a, b);
+    // fallback, compare them with eq2()
+    return eq2(a, b);
   }
   catch (e) {
-    return eq(a, b);
+    return eq2(a, b);
   }
 }
 

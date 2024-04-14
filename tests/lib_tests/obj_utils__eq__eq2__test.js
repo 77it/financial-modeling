@@ -1,15 +1,14 @@
 // @ts-nocheck
 
-// test equality function eq(), that provides equality of two values, with deep comparison of objects and arrays
+// test equality function eq2(), that provides equality of two values, with deep comparison of objects and arrays,
 // that internally calls deepEqual from fast-equals, https://github.com/planttheidea/fast-equals
-//
-// test also equality function eq2(), that is like eq() but if a and b are strings, they are compared after trim & case insensitive
+// if a and b are strings, they are compared after trim & case insensitive.
 
-import { eq, eq2 } from '../../src/lib/obj_utils.js';
+import { eq2 } from '../../src/lib/obj_utils.js';
 
 import { assert, assertEquals, assertFalse, assertThrows } from '../deps.js';
 
-Deno.test('test fast-equals.js/eq()', async (t) => {
+Deno.test('test fast-equals.js through eq2() #1', async (t) => {
   await t.step('object', async () => {
     const objectA = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1000', x: 1000n } };
     const objectB = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1000', x: 1000n } };
@@ -17,9 +16,9 @@ Deno.test('test fast-equals.js/eq()', async (t) => {
     const objectD_different = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1001' } };
 
     assertFalse(objectA === objectB);
-    assert(eq(objectA, objectB));
-    assert(eq(objectA, objectC_shuffled));
-    assertFalse(eq(objectA, objectD_different));
+    assert(eq2(objectA, objectB));
+    assert(eq2(objectA, objectC_shuffled));
+    assertFalse(eq2(objectA, objectD_different));
   });
 
   await t.step('array', async () => {
@@ -28,10 +27,10 @@ Deno.test('test fast-equals.js/eq()', async (t) => {
     const arrayC_shuffled = [1, 2, 3, 'b', 'a', 'c'];
 
     assertFalse(arrayA === arrayB);
-    assert(eq(arrayA, arrayB));
-    assertFalse(eq(arrayA, arrayC_shuffled));
-    assertFalse(eq(arrayA, 999));
-    assertFalse(eq(arrayA, new Date('2020-01-01')));
+    assert(eq2(arrayA, arrayB));
+    assertFalse(eq2(arrayA, arrayC_shuffled));
+    assertFalse(eq2(arrayA, 999));
+    assertFalse(eq2(arrayA, new Date('2020-01-01')));
   });
 
   await t.step('string', async () => {
@@ -39,9 +38,9 @@ Deno.test('test fast-equals.js/eq()', async (t) => {
     const stringB = 'hello world';
     const stringC_different = 'hello world!';
 
-    assert(eq(stringA, stringB));
-    assertFalse(eq(stringA, stringC_different));
-    assertFalse(eq(stringA, 999));
+    assert(eq2(stringA, stringB));
+    assertFalse(eq2(stringA, stringC_different));
+    assertFalse(eq2(stringA, 999));
   });
 
   await t.step('number', async () => {
@@ -49,9 +48,9 @@ Deno.test('test fast-equals.js/eq()', async (t) => {
     const numberB = 123;
     const numberC_different = 999;
 
-    assert(eq(numberA, numberB));
-    assertFalse(eq(numberA, numberC_different));
-    assertFalse(eq(numberA, 'abc'));
+    assert(eq2(numberA, numberB));
+    assertFalse(eq2(numberA, numberC_different));
+    assertFalse(eq2(numberA, 'abc'));
   });
 
   await t.step('boolean', async () => {
@@ -59,9 +58,9 @@ Deno.test('test fast-equals.js/eq()', async (t) => {
     const booleanB = true;
     const booleanC_different = false;
 
-    assert(eq(booleanA, booleanB));
-    assertFalse(eq(booleanA, booleanC_different));
-    assertFalse(eq(booleanA, 999));
+    assert(eq2(booleanA, booleanB));
+    assertFalse(eq2(booleanA, booleanC_different));
+    assertFalse(eq2(booleanA, 999));
   });
 
   await t.step('date', async () => {
@@ -69,9 +68,9 @@ Deno.test('test fast-equals.js/eq()', async (t) => {
     const dateB = new Date('2020-01-01');
     const dateC_different = new Date('2022-01-01');
 
-    assert(eq(dateA, dateB));
-    assertFalse(eq(dateA, dateC_different));
-    assertFalse(eq(dateA, 99n));
+    assert(eq2(dateA, dateB));
+    assertFalse(eq2(dateA, dateC_different));
+    assertFalse(eq2(dateA, 99n));
   });
 
   await t.step('bigint', async () => {
@@ -79,13 +78,13 @@ Deno.test('test fast-equals.js/eq()', async (t) => {
     const bigintB = 123n;
     const bigintC = 999n;
 
-    assert(eq(bigintA, bigintB));
-    assertFalse(eq(bigintA, bigintC));
-    assertFalse(eq(bigintA, 123));
+    assert(eq2(bigintA, bigintB));
+    assertFalse(eq2(bigintA, bigintC));
+    assertFalse(eq2(bigintA, 123));
   });
 });
 
-Deno.test('test fast-equals.js/eq2()', async (t) => {
+Deno.test('test fast-equals.js through eq2() #2', async (t) => {
   await t.step('string', async () => {
     const string = 'hello world';
     const string_whitespace = '  hello world  ';
@@ -131,7 +130,7 @@ Deno.test('test fast-equals.js/eq2()', async (t) => {
     const public_properties_same_as_a = new sourceClassWithPrivateProperties({ a: 1, b: 2, c: 88, d: 99 });
     const different = new sourceClassWithPrivateProperties({ a: 5, b: 2, c: 88, d: 99 });
 
-    assert(eq(a, public_properties_same_as_a));
-    assertFalse(eq(a, different));
+    assert(eq2(a, public_properties_same_as_a));
+    assertFalse(eq2(a, different));
   });
 });
