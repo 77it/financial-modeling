@@ -1,4 +1,4 @@
-import { eq, eqObj } from '../../src/lib/obj_utils.js';
+import { eqObj } from '../deps.js';
 
 import { assert, assertEquals, assertFalse, assertThrows } from '../deps.js';
 

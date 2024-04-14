@@ -1,4 +1,5 @@
-import { eq, _extractKeys } from '../../src/lib/obj_utils.js';
+import { eq } from '../../src/lib/obj_utils.js';
+import { _extractKeys } from '../lib/obj_utils.js';
 
 import { assert, assertEquals, assertFalse, assertThrows } from '../deps.js';
 
