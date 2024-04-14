@@ -2,9 +2,9 @@ export { isValidDate };
 export { parseJsonToLocalDate, parseJsonToUTCDate };
 export { differenceInCalendarDays, differenceInUTCCalendarDays };
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
-export { addMonths };
+export { addMonths, addDaysToLocalDate, addDaysToUTCDate };
 export { areDatesEqual };
-export { toUTC, toStringYYYYMMDD, stripTime };
+export { toUTC, toStringYYYYMMDD, stripTime, stripTimeToUTCDate };
 
 // creating RegExp for later use
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
@@ -265,6 +265,7 @@ function differenceInUTCCalendarDays (
 
 /**
  * Convert Excel serial date (1900 date system) to UTC date.
+ * `excelSerialDate` must be >= 61 = 1900-03-01 because Excel incorrectly treats 1900 as a leap year.
  * Only the integer part of the Excel serial date is considered.
  * If conversion fails, return an invalid date.
  * See https://docs.microsoft.com/en-us/office/troubleshoot/excel/1900-and-1904-date-system
@@ -274,7 +275,10 @@ function differenceInUTCCalendarDays (
  */
 function excelSerialDateToUTCDate (excelSerialDate) {
   try {
-    return new Date(Date.UTC(0, 0, excelSerialDate - 1));  // See https://stackoverflow.com/a/67130235/5288052
+    if (excelSerialDate <= 60) {
+      return new Date(NaN);
+    }
+    return new Date(Date.UTC(0, 0, excelSerialDate - 1));  // inspired to https://stackoverflow.com/a/67130235/5288052
   } catch (_) {
     return new Date(NaN);
   }
@@ -282,6 +286,7 @@ function excelSerialDateToUTCDate (excelSerialDate) {
 
 /**
  * Convert Excel serial date (1900 date system) to local time date.
+ * `excelSerialDate` must be >= 61 = 1900-03-01 because Excel incorrectly treats 1900 as a leap year.
  * Only the integer part of the Excel serial date is considered.
  * If conversion fails, return an invalid date.
  * See https://docs.microsoft.com/en-us/office/troubleshoot/excel/1900-and-1904-date-system
@@ -291,7 +296,10 @@ function excelSerialDateToUTCDate (excelSerialDate) {
  */
 function excelSerialDateToLocalDate (excelSerialDate) {
   try {
-    return new Date(0, 0, excelSerialDate - 1);  // See https://stackoverflow.com/a/67130235/5288052
+    if (excelSerialDate <= 60) {
+      return new Date(NaN);
+    }
+    return new Date(0, 0, excelSerialDate - 1);  // inspired to https://stackoverflow.com/a/67130235/5288052
   } catch (_) {
     return new Date(NaN);
   }
@@ -307,11 +315,59 @@ function excelSerialDateToLocalDate (excelSerialDate) {
  */
 function localDateToExcelSerialDate (localDate) {
   try {
-    const timeStrippedDate = stripTime(localDate);  // strip time
-    return Math.floor((timeStrippedDate.getTime() - new Date(1899, 11, 30).getTime()) / 86400000);  // See https://stackoverflow.com/a/67130235/5288052
+    // because Excel incorrectly treats 1900 as a leap year, then tests that the date to convert is not less than 1900-03-01
+    // see https://stackoverflow.com/a/67130235/5288052
+    if (localDate < new Date(1900, 2, 1)) {
+      return NaN;
+    }
+
+    // convert the date to UTC, stripping time
+    const baseDateToDiffVersus = new Date(1899, 11, 30);  // 1899-12-30 is the base date for Excel serial date
+    return differenceInCalendarDays(localDate, baseDateToDiffVersus);
   } catch (_) {
     return NaN;
   }
+}
+
+/**
+ * Add the specified number of days to the given local time date; the time is stripped after adding the day.
+ *
+ * @param {Date} date - the date to add the months to
+ * @param {number} amount - the amount of days to be added
+ * @returns {Date} the new date with the days added
+ */
+function addDaysToLocalDate(date, amount) {
+  if (isNaN(amount)) return new Date(date);
+  if (!amount) {
+    return new Date(date);
+    }
+  /*
+  // old implementation, from https://stackoverflow.com/a/19691491/5288052   &   https://stackoverflow.com/questions/563406/add-days-to-javascript-date
+  // & https://raw.githubusercontent.com/date-fns/date-fns/main/src/addDays/index.ts
+  // didn't work: `addDays(new Date(1917, 3, 1), 1) !== new Date(1917, 3 , 2)`
+  // but worked with: `addDays(new Date(1917, 2, 31), 2) !== new Date(1917, 3, 2)`
+  // because new Date(1917, 3, 1), that is 1917-04-01, is not representable in the local time zone because the zero hour is skipped, then adding 1 to that date returns a new date with hour set to 1
+  // see https://github.com/date-fns/date-fns/issues/3767#issuecomment-2053698643
+  const _date = new Date(date);
+  _date.setDate(_date.getDate() + amount);
+  return _date;
+  */
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + amount);
+}
+
+/**
+ * Add the specified number of days to the given UTC date; the time is stripped after adding the day.
+ *
+ * @param {Date} date - the UTC date to add the months to
+ * @param {number} amount - the amount of days to be added
+ * @returns {Date} the new UTC date with the days added
+ */
+function addDaysToUTCDate(date, amount) {
+  if (isNaN(amount)) return new Date(date);
+  if (!amount) {
+    return new Date(date);
+  }
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + amount));
 }
 
 // inspired to https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts (MIT license)
@@ -415,6 +471,19 @@ function toStringYYYYMMDD (date) {
 function stripTime (date) {
   if (isValidDate(date))
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  else
+    return date;
+}
+
+/**
+ * Accept a UTC date and return a date with only the year, month and day (stripping the time part)
+ *
+ * @param {Date} date
+ * @returns {Date}
+ */
+function stripTimeToUTCDate (date) {
+  if (isValidDate(date))
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   else
     return date;
 }

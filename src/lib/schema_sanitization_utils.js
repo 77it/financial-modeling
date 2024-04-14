@@ -7,7 +7,9 @@ import { eq2, get2 } from './obj_utils.js';
 
 //#region defaults
 const DEFAULT__NUMBER_TO_DATE = schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE;
-const DEFAULT__DATE_UTC = false;  // if true, conversion from string or number to dates return UTC dates
+// if true, conversion from string or number to dates return UTC dates;
+// if true, conversion from dates assumes that dates are in UTC time.
+const DEFAULT__DATE_UTC = false;
 const DEFAULT_STRING = '';
 const DEFAULT_NUMBER = 0;
 const DEFAULT_DATE = new Date(0);
@@ -107,7 +109,11 @@ function sanitize ({ value, sanitization, options, validate = false }) {
         else if (typeof value === 'string')
           retValue = value;
         else if (value instanceof Date)
-          retValue = toUTC(value).toISOString();
+          if (_DATE_UTC) {
+            retValue = toUTC(value).toISOString();
+          } else {
+            retValue = value.toISOString();
+          }
         else if ((typeof value === 'number' && isFinite(value)) || typeof value === 'bigint')
           retValue = String(value);
         else if (value === true)

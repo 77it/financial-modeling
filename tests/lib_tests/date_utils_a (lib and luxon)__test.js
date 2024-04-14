@@ -574,6 +574,8 @@ _describe('differenceInCalendarDays #3 - DST', () => {
 
 _describe('excelSerialDateToUTCDate', () => {
     it('tests', () => {
+        // test dates from number 367, because Excel incorrectly treats 1900 as a leap year;
+        // see https://stackoverflow.com/a/67130235/5288052
         assertEquals(excelSerialDateToUTCDate(367), new Date(Date.UTC(1901, 0, 1, 0, 0, 0)));
         assertEquals(excelSerialDateToUTCDate(28384), new Date(Date.UTC(1977, 8, 16, 0, 0, 0)));
         assertEquals(excelSerialDateToUTCDate(44920), new Date(Date.UTC(2022, 11, 25, 0, 0, 0)));
@@ -584,6 +586,9 @@ _describe('excelSerialDateToUTCDate', () => {
 
 _describe('excelSerialDateToLocalDate', () => {
     it('tests', () => {
+        // test dates from number 61 = 1900-03-01, because Excel incorrectly treats 1900 as a leap year;
+        // see https://stackoverflow.com/a/67130235/5288052
+        assertEquals(excelSerialDateToLocalDate(61), new Date(1900, 2, 1, 0, 0, 0));
         assertEquals(excelSerialDateToLocalDate(367), new Date(1901, 0, 1, 0, 0, 0));
         // the decimal part is ignored
         assertEquals(excelSerialDateToLocalDate(367.99), new Date(1901, 0, 1, 0, 0, 0));
@@ -597,6 +602,9 @@ _describe('excelSerialDateToLocalDate', () => {
 
 _describe('localDateToExcelSerialDate', () => {
     it('tests', () => {
+        // test dates from number 61 = 1900-03-01, because Excel incorrectly treats 1900 as a leap year;
+        // see https://stackoverflow.com/a/67130235/5288052
+        assertEquals(61, localDateToExcelSerialDate(new Date(1900, 2, 1, 0, 0, 0)));
         assertEquals(367, localDateToExcelSerialDate(new Date(1901, 0, 1, 0, 0, 0)));
         // the decimal part is ignored
         assertEquals(367, localDateToExcelSerialDate(new Date(1901, 0, 1, 0, 0, 0)));
