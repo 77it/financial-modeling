@@ -184,7 +184,8 @@ function mergeNewKeys ({ target, source }) {
 /**
  * Function used by 'eqObj' to compare classes and objects.
  *
- * Extract keys from a class to a plain object. Can be used also on a plain object, but is not useful because it returns a similar object, cloned.
+ * Extract keys from a class to a plain object, also additional properties for the object that are inherited from the base object class contained in the object's prototype.
+ * Can be used also on a plain object, but is not useful because it returns a similar object, shallow cloned.
  * Key values are NOT cloned.
  * If errors occur, returns an empty object.
  * @param {Object} obj
@@ -201,7 +202,8 @@ function _extractKeys (obj) {
     if (Array.isArray(obj))
       return {};
 
-    // loop object keys and copy them to a plain object (with structuredClone)
+    // loop object keys and copy them to a plain object.
+    // loop also on additional properties for the object that are inherited from the base object class contained in the object's prototype.
     const _keys = {};
     for (const key in obj) {
       //@ts-ignore
