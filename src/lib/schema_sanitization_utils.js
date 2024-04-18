@@ -120,10 +120,15 @@ function sanitize ({ value, sanitization, options, validate = false }) {
           retValue = 'true';
         else if (value === false)
           retValue = 'false';
-        else if (value == null || isNaN(value) || typeof value === 'object' || typeof value === 'function')
+        else if (Array.isArray(value))
+          retValue = String(value);
+        else if (isNaN(value) || typeof value === 'object' || typeof value === 'function')
           retValue = _DEFAULT_STRING;
         else
           retValue = String(value);
+
+        if (retValue == null)  // last check before returning a value
+          retValue = _DEFAULT_STRING;
       } catch (_) {
         retValue = _DEFAULT_STRING;
       }

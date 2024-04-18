@@ -45,6 +45,9 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('', s.sanitize({ value: new Date(NaN), sanitization: t }));
     assertEquals('true', s.sanitize({ value: true, sanitization: t }));
     assertEquals('false', s.sanitize({ value: false, sanitization: t }));
+    assertEquals('', s.sanitize({ value: [], sanitization: t }));
+    assertEquals('a', s.sanitize({ value: ['a'], sanitization: t }));
+    assertEquals('  a,  b ,c', s.sanitize({ value: ['  a','  b ', 'c'], sanitization: t }));
 
     // string sanitization with UTC `dateUTC` option = true
     const opt = { dateUTC: true };
@@ -75,6 +78,9 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('', s.sanitize({ value: new Date(NaN), sanitization: t }));
     assertEquals('true', s.sanitize({ value: true, sanitization: t }));
     assertEquals('false', s.sanitize({ value: false, sanitization: t }));
+    assertEquals('', s.sanitize({ value: [], sanitization: t }));
+    assertEquals('a', s.sanitize({ value: ['A'], sanitization: t }));
+    assertEquals('a,  b ,c', s.sanitize({ value: ['  a','  B ', 'c'], sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(undefined, s.sanitize({ value: undefined, sanitization: t2 }));
@@ -101,6 +107,9 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals('', s.sanitize({ value: new Date(NaN), sanitization: t }));
     assertEquals('TRUE', s.sanitize({ value: true, sanitization: t }));
     assertEquals('FALSE', s.sanitize({ value: false, sanitization: t }));
+    assertEquals('', s.sanitize({ value: [], sanitization: t }));
+    assertEquals('A', s.sanitize({ value: ['A'], sanitization: t }));
+    assertEquals('A,  B ,C', s.sanitize({ value: ['  a','  B ', 'c'], sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(undefined, s.sanitize({ value: undefined, sanitization: t2 }));
@@ -122,6 +131,10 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(0, s.sanitize({ value: new Date(NaN), sanitization: t }));
     assertEquals(1, s.sanitize({ value: true, sanitization: t }));
     assertEquals(0, s.sanitize({ value: false, sanitization: t }));
+    assertEquals(0, s.sanitize({ value: [], sanitization: t }));
+    assertEquals(2, s.sanitize({ value: [2], sanitization: t }));
+    assertEquals(9, s.sanitize({ value: [9], sanitization: t }));
+    assertEquals(0, s.sanitize({ value: [1,2], sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(undefined, s.sanitize({ value: undefined, sanitization: t2 }));
