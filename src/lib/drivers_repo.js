@@ -13,7 +13,8 @@ class DriversRepo {
   /**
    Map to store Drivers:
    keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
-   values are an array of {date: number [1], value: number}  [1] number obtained with `date.getTime()`
+   values are an array of {date: number [1], value: number} ordered by date
+   [1] number obtained with `date.getTime()`
    * @type {Map<string, {dateMilliseconds: number, value: number}[]>} */
   #driversRepo;
   /** @type {string} */
@@ -184,9 +185,7 @@ class DriversRepo {
                 arrayOfErrors.push(`Driver ${_key} is immutable and the date ${toStringYYYYMMDD(_inputItemClone.date)} is already present`);
               _toAppendFlag = false;
               break;
-            }
-
-            if (_driver[i].dateMilliseconds > _dateMilliseconds) {
+            } else if (_driver[i].dateMilliseconds > _dateMilliseconds) {
               _driver.splice(i, 0, { dateMilliseconds: _dateMilliseconds, value: _inputItemClone.value });
               _toAppendFlag = false;
               break;
@@ -214,10 +213,11 @@ class DriversRepo {
    * @param {string|string[]|Object} [p.sanitizationType] - Optional type for value sanitization (can be string, array of string, object)
    * @param {boolean} [p.search=false] - Optional flag to search for recursive search of the driver:
    * read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
-   * finally from Base Scenario and Default Unit (if Unit != Default and if if Scenario != Base)
+   * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base)
    * @return {undefined|*|*[]} Driver; if not found, returns undefined;
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns an array of values defined between `date` and `endDate`.
+   * Returned data is not cloned, but with `freezeValues` option = true the values are deep frozen.
    */
   get ({ scenario, unit, name, date, endDate, parseAsJSON5 = false, sanitizationType, search = false }) {
     let _key = this.#driversRepoBuildKey({ scenario, unit, name });
@@ -272,8 +272,10 @@ class DriversRepo {
 
       // search for the right Driver, saving the date closest (but not greater) to the requested date
       for (const _item of _driver) {
-        if (_item.dateMilliseconds <= _dateMilliseconds)
-          _ret = _item.value;
+        // data is ordered by date, so if the date is greater than the requested date, break
+        if (_item.dateMilliseconds > _dateMilliseconds)
+          break;
+        _ret = _item.value;
       }
 
       // parse as JSON5 if requested

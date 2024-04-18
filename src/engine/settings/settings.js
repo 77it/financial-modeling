@@ -69,7 +69,8 @@ class Settings {
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
    * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
-   * finally from Base Scenario and Default Unit (if Unit != Default and if if Scenario != Base)
+   * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).
+   * Returned data is not cloned because Settings are stored with `freezeValues` option = true then the values are deep frozen.
    */
   get ({ scenario, unit, name, date }) {
       return this.#driversRepo.get({ scenario, unit, name, date, search: true });
