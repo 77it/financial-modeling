@@ -151,6 +151,8 @@ Deno.test('test sanitize()', async (t) => {
   await t.step('boolean type', async () => {
     const t = S.BOOLEAN_TYPE;
     assertEquals(false, s.sanitize({ value: 'false', sanitization: t }));  // string 'false' = false
+    assertEquals(false, s.sanitize({ value: 'FaLsE', sanitization: t }));  // string 'false' = false
+    assertEquals(false, s.sanitize({ value: '  FaLsE  ', sanitization: t }));  // string 'false' = false
     assertEquals(false, s.sanitize({ value: '', sanitization: t }));  // string '' = false
     assertEquals(false, s.sanitize({ value: '     ', sanitization: t }));  // whitespace = false
     assertEquals(false, s.sanitize({ value: undefined, sanitization: t }));
@@ -166,6 +168,8 @@ Deno.test('test sanitize()', async (t) => {
     assertEquals(true, s.sanitize({ value: true, sanitization: t }));
     assertEquals(false, s.sanitize({ value: false, sanitization: t }));
     assertEquals(true, s.sanitize({ value: 'true', sanitization: t }));
+    assertEquals(true, s.sanitize({ value: 'TrUe', sanitization: t }));
+    assertEquals(true, s.sanitize({ value: '  TrUe   ', sanitization: t }));
 
     const t2 = t + '?';
     assertEquals(undefined, s.sanitize({ value: undefined, sanitization: t2 }));
