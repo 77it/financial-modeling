@@ -8,12 +8,15 @@ import JSON5 from '../../vendor/json5/index.min.mjs';
 /**
  * Parse a JSON5 string
  * @param {*} value
- * @returns {undefined | *} undefined if not valid, otherwise the parsed value
+ * @returns {undefined | *} undefined if parsing input string goes in error, otherwise the parsed value; if input is not a string, returns the input value
  */
 function parseJSON5 (value) {
   try {
     if (value == null)
       return undefined;
+
+    if (typeof value !== 'string')
+      return value;
 
     return JSON5.parse(value);
   } catch (e) {

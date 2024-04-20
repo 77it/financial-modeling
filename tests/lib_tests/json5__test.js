@@ -19,20 +19,27 @@ Deno.test('JSON5 tests', (t) => {
   // parsing a with quotes returns the string
   assertEquals(parseJSON5('"ciao"'), 'ciao');
 
-  // parsing a without quotes returns undefined
+  // parsing a string without quotes returns undefined
   assertEquals(parseJSON5('ciao'), undefined);
   //#endregion parsing null and undefined
 
   //#region parsing numbers returns the number
   assertEquals(parseJSON5(999), 999);
-  //#endregion parsing numbers returns undefined
+  //#endregion parsing numbers returns the number
 
-  //#region parsing object
+  //#region parsing object returns the object
+  const obj = {Main:999.159, Name:'Y88 x'};
+  let parsedObj = parseJSON5(obj);
+  assertEquals(parsedObj.Main, 999.159);
+  assertEquals(parsedObj.Name, 'Y88 x');
+  //#endregion parsing object returns the object
+
+  //#region parsing object serialized in string
   const txt = '{\'Main\':999.159, Name:\'Y88 x\'}';
   let parsed = parseJSON5(txt);
   assertEquals(parsed.Main, 999.159);
   assertEquals(parsed.Name, 'Y88 x');
-  //#endregion parsing object
+  //#endregion parsing object serialized in string
 
   //#region parsing array of something
   const txt2 = '[[\'2023-01-05\' , 155343.53] , [\'2023-02-05\',100000],{start:\'2024-06-01\', NP:2, npy:2}]';
