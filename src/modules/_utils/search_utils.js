@@ -1,6 +1,6 @@
 export { xlookup, moduleDataLookup, searchDateKeys };
 
-import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, get2, parseJsonToLocalDate, isValidDate, stripTime } from '../../deps.js';
+import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, get2, parseJsonToLocalDate, isValidDate, stripTimeToLocalDate } from '../../deps.js';
 
 /**
  * Search table `tableName` in ModuleData, then value `lookup_value` in column `lookup_column`,
@@ -161,7 +161,7 @@ function searchDateKeys ({ obj, prefix }) {
       if (key.toLowerCase().startsWith(_prefix_lowercase)) {
         const _parsedDate = parseJsonToLocalDate(key.slice(prefix.length));
         if (isValidDate(_parsedDate))
-          _ret.push({ key: key, date: stripTime(_parsedDate) });
+          _ret.push({ key: key, date: stripTimeToLocalDate(_parsedDate) });
       }
     }
 

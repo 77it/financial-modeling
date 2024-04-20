@@ -1,6 +1,6 @@
 export { Agenda };
 
-import { schema, sanitize, validate, validateObj, stripTime, toStringYYYYMMDD } from '../../deps.js';
+import { schema, sanitize, validate, validateObj, stripTimeToLocalDate, toStringYYYYMMDD } from '../../deps.js';
 
 class Agenda {
   /**
@@ -22,7 +22,7 @@ class Agenda {
     this.#first_date = undefined;
 
     validate({ value: simulationStartDate, validation: schema.DATE_TYPE });
-    this.#simulation_start_date__last_historical_day_is_the_day_before = stripTime(simulationStartDate);
+    this.#simulation_start_date__last_historical_day_is_the_day_before = stripTimeToLocalDate(simulationStartDate);
   }
 
   /**
@@ -52,7 +52,7 @@ class Agenda {
       return;
 
     // save #first_date
-    if (this.#first_date === undefined || _date < this.#first_date) this.#first_date = stripTime(_date);
+    if (this.#first_date === undefined || _date < this.#first_date) this.#first_date = stripTimeToLocalDate(_date);
 
     const _key = toStringYYYYMMDD(_date);
     if (!this.#repo.has(_key)) this.#repo.set(_key, []);

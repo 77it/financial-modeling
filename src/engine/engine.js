@@ -6,7 +6,7 @@ import * as CFG from '../config/engine.js';
 import * as schema from '../lib/schema.js';
 import { sanitize } from '../lib/schema_sanitization_utils.js';
 import { validateObj } from '../lib/schema_validation_utils.js';
-import { stripTime } from '../lib/date_utils.js';
+import { stripTimeToLocalDate } from '../lib/date_utils.js';
 import { Result } from '../lib/result.js';
 import { isStringOrBooleanTrue } from '../lib/boolean_utils.js';
 
@@ -153,9 +153,9 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       sanitization: schema.DATE_TYPE + schema.OPTIONAL
     });
     // if `_startDate` is still undefined, set it to default value (Date(0))
-    if (_startDate == null) _startDate = stripTime(new Date(0));
+    if (_startDate == null) _startDate = stripTimeToLocalDate(new Date(0));
     // if `_endDate` is still undefined, set it to default value (to 10 years from now, at the end of the year)
-    if (_endDate == null) _endDate = stripTime(new Date(new Date().getFullYear() + CFG.DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31));
+    if (_endDate == null) _endDate = stripTimeToLocalDate(new Date(new Date().getFullYear() + CFG.DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31));
 
     //#endregion set `_startDate`/`_endDate`
 
@@ -266,7 +266,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
      * @return {undefined|Date} - Return the updated simulation start date
      */
     function updateStartDate ({ actualDate, newDate }) {
-      const _newDate = stripTime(sanitize({
+      const _newDate = stripTimeToLocalDate(sanitize({
         value: newDate,
         sanitization: schema.DATE_TYPE + schema.OPTIONAL
       }));

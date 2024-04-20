@@ -3,7 +3,7 @@
 import * as schema from './schema.js';
 import { sanitize, sanitizeObj } from './schema_sanitization_utils.js';
 import { validate } from './schema_validation_utils.js';
-import { stripTime, toStringYYYYMMDD } from './date_utils.js';
+import { stripTimeToLocalDate, toStringYYYYMMDD } from './date_utils.js';
 import { parseJSON5 } from './json5.js';
 import { isNullOrWhiteSpace } from './string_utils.js';
 import { deepFreeze } from './obj_utils.js';
@@ -131,7 +131,7 @@ class DriversRepo {
 
       // if date is not present, set it to new Date(0); if date is present, strip the time part from the date (if the date is != Date(0))
       // (check for `_inputItemClone?.date` because typescript can't understand that `sanitizeObj` sanitize invalid dates)
-      _inputItemClone.date = (_inputItemClone?.date && _inputItemClone?.date.getTime() !== 0) ? stripTime(_inputItemClone?.date) : new Date(0);
+      _inputItemClone.date = (_inputItemClone?.date && _inputItemClone?.date.getTime() !== 0) ? stripTimeToLocalDate(_inputItemClone?.date) : new Date(0);
 
       const _key = this.#driversRepoBuildKey({ scenario: _inputItemClone.scenario, unit: _inputItemClone.unit, name: _inputItemClone.name });
 
@@ -263,7 +263,7 @@ class DriversRepo {
     // invalid date will be set to new Date(0)
     _date = sanitize({ value: _date, sanitization: schema.DATE_TYPE });
     // strip the time part from the date (if the date is != Date(0))
-    _date = (_date.getTime() !== 0) ? stripTime(_date) : _date;
+    _date = (_date.getTime() !== 0) ? stripTimeToLocalDate(_date) : _date;
 
     // if `endDate` is not defined, returns the value defined before or at `date`
     if (endDate === undefined || endDate === null) {
@@ -294,7 +294,7 @@ class DriversRepo {
       // invalid date will be set to new Date(0)
       let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
       // strip the time part from the date (if the date is != Date(0))
-      _endDate = (_endDate.getTime() !== 0) ? stripTime(_endDate) : _endDate;
+      _endDate = (_endDate.getTime() !== 0) ? stripTimeToLocalDate(_endDate) : _endDate;
       // if `endDate` is lower than `date`, throw
       if (_endDate.getTime() < _date.getTime())
         throw new Error(`Invalid parameters: 'endDate' (${_endDate}) (original value ${endDate}) is lower than 'date' (${_date})`);

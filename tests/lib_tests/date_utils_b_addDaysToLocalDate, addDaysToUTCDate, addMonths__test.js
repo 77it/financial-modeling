@@ -1,6 +1,6 @@
 // from (with edits) https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/test.ts
 
-import { addDaysToLocalDate, addDaysToUTCDate, addMonths, stripTime, stripTimeToUTCDate } from '../../src/lib/date_utils.js';
+import { addDaysToLocalDate, addDaysToUTCDate, addMonths, stripTimeToLocalDate, stripTimeToUTCDate } from '../../src/lib/date_utils.js';
 
 import { assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows } from '../deps.js';
 import { describe, it } from 'https://deno.land/std@0.139.0/testing/bdd.ts';
@@ -49,8 +49,8 @@ _describe('addDaysToLocalDate, addDaysToUTCDate', () => {
       const date = addDaysToLocalDate(date_19000101, i);
       last_date = addDaysToLocalDate(last_date, 1);
       // test that date doesn't contain time
-      assert.equal(date.getTime(), stripTime(date).getTime());
-      assert.equal(last_date.getTime(), stripTime(last_date).getTime());
+      assert.equal(date.getTime(), stripTimeToLocalDate(date).getTime());
+      assert.equal(last_date.getTime(), stripTimeToLocalDate(last_date).getTime());
       // check that date built adding many days to a first date, or a date built one by one, is the same
       assert.equal(last_date.getTime(), date.getTime());
     }
@@ -62,8 +62,8 @@ _describe('addDaysToLocalDate, addDaysToUTCDate', () => {
       const date = addDaysToLocalDate(date_21001231, -i);
       last_date = addDaysToLocalDate(last_date, -1);
       // test that date doesn't contain time
-      assert.equal(date.getTime(), stripTime(date).getTime());
-      assert.equal(last_date.getTime(), stripTime(last_date).getTime());
+      assert.equal(date.getTime(), stripTimeToLocalDate(date).getTime());
+      assert.equal(last_date.getTime(), stripTimeToLocalDate(last_date).getTime());
       // check that date built adding many days to a first date, or a date built one by one, is the same
       assert.equal(last_date.getTime(), date.getTime());
     }

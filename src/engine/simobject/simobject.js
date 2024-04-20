@@ -157,7 +157,7 @@ class SimObject {
     this.#decimalPlaces = p.decimalPlaces;
     this.#type = p.type;
     this.#id = p.id;
-    this.#dateTime = this.#stripTime(p.dateTime);
+    this.#dateTime = this.#stripTimeToLocalDate(p.dateTime);
     this.#name = p.name.toUpperCase().trim();
     this.#description = p.description.toUpperCase().trim();
     this.#mutableDescription = p.mutableDescription;
@@ -176,7 +176,7 @@ class SimObject {
     this.#commandGroup__Id = p.commandGroup__Id;
     this.#commandGroup__DebugDescription = p.commandGroup__DebugDescription;
     this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate = p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate;
-    this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => this.#stripTime(date));
+    this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => this.#stripTimeToLocalDate(date));
     this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [...p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal];
     this.#is_Link__SimObjId = p.is_Link__SimObjId;
     this.#vsSimObjectName = p.vsSimObjectName.toUpperCase().trim();
@@ -309,7 +309,7 @@ class SimObject {
    * @param {Date} date
    * @returns {Date}
    */
-  #stripTime (date) {
+  #stripTimeToLocalDate (date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   }
   //#endregion

@@ -10,7 +10,7 @@ import {
     getEndOfMonthOfLocalDate
 } from '../../src/lib/date_utils.js';
 import { differenceInCalendarDays_luxon } from './date_utils_a__differenceInCalendarDays_luxon.js';
-import { toUTC, stripTime, toStringYYYYMMDD } from '../../src/lib/date_utils.js';
+import { toUTC, stripTimeToLocalDate, toStringYYYYMMDD } from '../../src/lib/date_utils.js';
 
 import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
 import {describe, it} from "https://deno.land/std@0.139.0/testing/bdd.ts";
@@ -627,13 +627,13 @@ _describe('toUTC', () => {
 })
 
 
-_describe('stripTime', () => {
+_describe('stripTimeToLocalDate', () => {
     it('tests', () => {
         const date = new Date(1977, 8, 16, 10, 1, 5, 9);
         const dateYYYYMMDD = new Date(1977, 8, 16, 0, 0, 0);
 
-        assertEquals(stripTime(date).getTime(), dateYYYYMMDD.getTime());
-        assertEquals(stripTime(stripTime(date)).getTime(), dateYYYYMMDD.getTime());  // idempotent
+        assertEquals(stripTimeToLocalDate(date).getTime(), dateYYYYMMDD.getTime());
+        assertEquals(stripTimeToLocalDate(stripTimeToLocalDate(date)).getTime(), dateYYYYMMDD.getTime());  // idempotent
     })
 })
 

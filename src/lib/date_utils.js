@@ -4,7 +4,7 @@ export { differenceInCalendarDays, differenceInUTCCalendarDays };
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
 export { addMonths, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
 export { areDatesEqual };
-export { toUTC, toStringYYYYMMDD, stripTime, stripTimeToUTCDate };
+export { toUTC, toStringYYYYMMDD, stripTimeToLocalDate, stripTimeToUTCDate };
 
 // creating RegExp for later use
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
@@ -447,7 +447,7 @@ function getEndOfMonthOfLocalDate (date) {
   // we'll default to the end of the desired month by adding 1 to the desired
   // month and using a date of 0 to back up one day to the end of the desired
   // month.
-  const endOfDesiredMonth = stripTime(date);
+  const endOfDesiredMonth = stripTimeToLocalDate(date);
   endOfDesiredMonth.setMonth(date.getMonth() + 1, 0);
   return endOfDesiredMonth;
 }
@@ -494,7 +494,7 @@ function toStringYYYYMMDD (date) {
  * @param {Date} date
  * @returns {Date}
  */
-function stripTime (date) {
+function stripTimeToLocalDate (date) {
   if (isValidDate(date))
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   else
