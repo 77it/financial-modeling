@@ -1,7 +1,7 @@
 export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
 import { schema } from '../../deps.js';
 import { validateObj } from '../../deps.js';
-import { addMonths } from '../../deps.js';
+import { addMonthsToLocalDate } from '../../deps.js';
 
 // info about loans
 /*
@@ -187,7 +187,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
     // The interest payment portion of the period
     const interestPayment = startingPrincipal * annualInterestRate / numberOfPaymentsInAYear;
 
-    currDate = addMonths(currDate, 12 / numberOfPaymentsInAYear);
+    currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
 
     mortgageArray.push({
       date: currDate,
@@ -213,7 +213,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
     // Calculate the remaining mortgage amount, which you do by subtracting the principal payment
     mortgageRemaining = mortgageRemaining - principalPayment;
 
-    currDate = addMonths(currDate, 12 / numberOfPaymentsInAYear);
+    currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
 
     mortgageArray.push({
       date: currDate,

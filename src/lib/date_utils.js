@@ -2,7 +2,7 @@ export { isValidDate };
 export { parseJsonToLocalDate, parseJsonToUTCDate };
 export { differenceInCalendarDaysOfLocalDates, differenceInCalendarDaysOfUTCDates };
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
-export { addMonths, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
+export { addMonthsToLocalDate, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
 export { areDatesEqual };
 export { toUTC, toStringYYYYMMDD, stripTimeToLocalDate, stripTimeToUTCDate };
 
@@ -383,7 +383,7 @@ function addDaysToUTCDate(date, amount) {
  * Add 2 months to 2014/12/31 => 2015/02/28
  * Add 2 months to 2023/12/31 => 2024/02/29  // leap year
  */
-function addMonths (
+function addMonthsToLocalDate (
   date,
   amount) {
   const _date = new Date(date);
