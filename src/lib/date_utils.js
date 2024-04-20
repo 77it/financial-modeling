@@ -1,6 +1,6 @@
 export { isValidDate };
 export { parseJsonToLocalDate, parseJsonToUTCDate };
-export { differenceInCalendarDaysOfLocalDates, differenceInUTCCalendarDays };
+export { differenceInCalendarDaysOfLocalDates, differenceInCalendarDaysOfUTCDates };
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
 export { addMonths, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
 export { areDatesEqual };
@@ -232,7 +232,7 @@ function differenceInCalendarDaysOfLocalDates (
  * @example
  * See differenceInCalendarDaysOfLocalDates
  */
-function differenceInUTCCalendarDays (
+function differenceInCalendarDaysOfUTCDates (
   dateLeft,
   dateRight,
 ) {

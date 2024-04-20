@@ -3,7 +3,7 @@ import {
     parseJsonToLocalDate,
     parseJsonToUTCDate,
     differenceInCalendarDaysOfLocalDates as differenceInCalendarDays_lib,
-    differenceInUTCCalendarDays,
+    differenceInCalendarDaysOfUTCDates,
     excelSerialDateToUTCDate,
     excelSerialDateToLocalDate,
     localDateToExcelSerialDate,
@@ -285,9 +285,9 @@ _describe('parseJsonToUTCDate #2', () => {
 })
 
 
-_describe('differenceInUTCCalendarDays', () => {
+_describe('differenceInCalendarDaysOfUTCDates', () => {
     it('returns the number of calendar days (1 day) between the given dates in UTC without hours', () => {
-        const result = differenceInUTCCalendarDays(
+        const result = differenceInCalendarDaysOfUTCDates(
             new Date(Date.UTC(2022, 4 /* May */, 31, 0, 0)),
             new Date(Date.UTC(2022, 4 /* May */, 30, 0, 0))
         )
@@ -295,7 +295,7 @@ _describe('differenceInUTCCalendarDays', () => {
     })
 
     it('returns the number of calendar days (1 day) between the given dates in UTC with hours', () => {
-        const result = differenceInUTCCalendarDays(
+        const result = differenceInCalendarDaysOfUTCDates(
             new Date(Date.UTC(2022, 4 /* May */, 31, 0, 0)),
             new Date(Date.UTC(2022, 4 /* May */, 30, 2, 0))
         )
