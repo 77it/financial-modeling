@@ -3,7 +3,7 @@ import { DateTime } from "https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/es6/lux
 
 /**
  * @description
- * Reimplementation of lib/differenceInCalendarDays using Luxon, to test that the lib version works as the Luxon version.
+ * Reimplementation of lib/differenceInCalendarDaysOfLocalDates using Luxon, to test that the lib version works as the Luxon version.
  *
  * @param {Date} dateLeft - the later date
  * @param {Date} dateRight - the earlier date

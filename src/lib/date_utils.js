@@ -1,6 +1,6 @@
 export { isValidDate };
 export { parseJsonToLocalDate, parseJsonToUTCDate };
-export { differenceInCalendarDays, differenceInUTCCalendarDays };
+export { differenceInCalendarDaysOfLocalDates, differenceInUTCCalendarDays };
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
 export { addMonths, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
 export { areDatesEqual };
@@ -169,20 +169,20 @@ function _parseJsonDate (argument, opt) {
  * @example
  * // How many calendar days are between
  * // 2 July 2011 23:00:00 and 2 July 2012 00:00:00 (leap year)?
- * const result = differenceInCalendarDays(
+ * const result = differenceInCalendarDaysOfLocalDates(
  *   new Date(2012, 6, 2, 0, 0),
  *   new Date(2011, 6, 2, 23, 0)
  * )
  * //=> 366
  * // How many calendar days are between
  * // 2 July 2011 23:59:00 and 3 July 2011 00:01:00?
- * const result = differenceInCalendarDays(
+ * const result = differenceInCalendarDaysOfLocalDates(
  *   new Date(2011, 6, 3, 0, 1),
  *   new Date(2011, 6, 2, 23, 59)
  * )
  * //=> 1
  */
-function differenceInCalendarDays (
+function differenceInCalendarDaysOfLocalDates (
   dateLeft,
   dateRight
 ) {
@@ -230,7 +230,7 @@ function differenceInCalendarDays (
  * @returns {number} the number of calendar days
  *
  * @example
- * See differenceInCalendarDays
+ * See differenceInCalendarDaysOfLocalDates
  */
 function differenceInUTCCalendarDays (
   dateLeft,
@@ -323,7 +323,7 @@ function localDateToExcelSerialDate (localDate) {
 
     // convert the date to UTC, stripping time
     const baseDateToDiffVersus = new Date(1899, 11, 30);  // 1899-12-30 is the base date for Excel serial date
-    return differenceInCalendarDays(localDate, baseDateToDiffVersus);
+    return differenceInCalendarDaysOfLocalDates(localDate, baseDateToDiffVersus);
   } catch (_) {
     return NaN;
   }
