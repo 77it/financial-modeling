@@ -188,8 +188,8 @@ function differenceInCalendarDaysOfLocalDates (
 ) {
   const MILLISECONDS_IN_DAY = 86400000;
 
-  const startOfDayLeft = startOfDay(dateLeft);
-  const startOfDayRight = startOfDay(dateRight);
+  const startOfDayLeft = startOfDayOfLocalDates(dateLeft);
+  const startOfDayRight = startOfDayOfLocalDates(dateRight);
 
   const timestampLeft = startOfDayLeft.getTime();
   const timestampRight = startOfDayRight.getTime();
@@ -213,7 +213,7 @@ function differenceInCalendarDaysOfLocalDates (
    * const result = startOfDay(new Date(2014, 8, 2, 11, 55, 0))
    * //=> Tue Sep 02 2014 00:00:00
    */
-  function startOfDay (date) {
+  function startOfDayOfLocalDates (date) {
     const _date = new Date(date.getTime());  // clone the date
     _date.setHours(0, 0, 0, 0);
     return _date;
@@ -238,8 +238,8 @@ function differenceInCalendarDaysOfUTCDates (
 ) {
   const MILLISECONDS_IN_DAY = 86400000;
 
-  const startOfDayLeft = startOfDay(dateLeft);
-  const startOfDayRight = startOfDay(dateRight);
+  const startOfDayLeft = startOfDayOfUTCDates(dateLeft);
+  const startOfDayRight = startOfDayOfUTCDates(dateRight);
 
   const timestampLeft = startOfDayLeft.getTime();
   const timestampRight = startOfDayRight.getTime();
@@ -258,7 +258,7 @@ function differenceInCalendarDaysOfUTCDates (
    * @param {Date} date - the original date
    * @returns {Date} the start of a day
    */
-  function startOfDay (date) {
+  function startOfDayOfUTCDates (date) {
     return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));  // clone the UTC date without hours/min/sec
   }
 }
