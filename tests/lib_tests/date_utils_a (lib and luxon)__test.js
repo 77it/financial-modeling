@@ -10,7 +10,7 @@ import {
     getEndOfMonthOfLocalDate
 } from '../../src/lib/date_utils.js';
 import { differenceInCalendarDays_luxon } from './date_utils_a__differenceInCalendarDays_luxon.js';
-import { toUTC, stripTimeToLocalDate, localDateToStringYYYYMMDD } from '../../src/lib/date_utils.js';
+import { localDateToUTC, stripTimeToLocalDate, localDateToStringYYYYMMDD } from '../../src/lib/date_utils.js';
 
 import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
 import {describe, it} from "https://deno.land/std@0.139.0/testing/bdd.ts";
@@ -617,12 +617,12 @@ _describe('localDateToExcelSerialDate', () => {
 })
 
 
-_describe('toUTC', () => {
+_describe('localDateToUTC', () => {
     it('tests', () => {
         const date = new Date(1977, 8, 16, 0, 0, 0);
         const dateUTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
 
-        assertEquals(toUTC(date).getTime(), dateUTC.getTime());
+        assertEquals(localDateToUTC(date).getTime(), dateUTC.getTime());
     })
 })
 

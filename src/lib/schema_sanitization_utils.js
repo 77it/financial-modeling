@@ -1,7 +1,7 @@
 export { sanitize, sanitizeObj };
 
 import * as schema from './schema.js';
-import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, toUTC } from './date_utils.js';
+import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, localDateToUTC } from './date_utils.js';
 import { validate as validateFunc, validateObj as validateObjFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
 
@@ -112,7 +112,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
           if (_DATE_UTC) {
             retValue = value.toISOString();  // if `_DATE_UTC` is true, the date is presumed to be UTC then is not needed to convert it to UTC before converting the date to string
           } else {
-            retValue = toUTC(value).toISOString();
+            retValue = localDateToUTC(value).toISOString();
           }
         else if ((typeof value === 'number' && isFinite(value)) || typeof value === 'bigint')
           retValue = String(value);
