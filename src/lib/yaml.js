@@ -9,12 +9,15 @@ import yaml from '../../vendor/js-yaml/js-yaml.mjs';
 /**
  * Parse a parseYAML string
  * @param {*} value
- * @returns {undefined | *} undefined if not valid, otherwise the parsed value
+ * @returns {undefined | *} undefined if parsing input string goes in error, otherwise the parsed value; if input is not a string, returns the input value
  */
 function parseYAML (value) {
   try {
     if (value == null)
       return undefined;
+
+    if (typeof value !== 'string')
+      return value;
 
     //@ts-ignore
     return yaml.load(value);
