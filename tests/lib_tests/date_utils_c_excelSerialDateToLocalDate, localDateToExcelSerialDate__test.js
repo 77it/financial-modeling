@@ -3,7 +3,7 @@ import {
   excelSerialDateToUTCDate,
   excelSerialDateToLocalDate,
   localDateToExcelSerialDate,
-  toStringYYYYMMDD
+  localDateToStringYYYYMMDD
 } from '../../src/lib/date_utils.js';
 
 import { test } from 'node:test';
@@ -83,7 +83,7 @@ t('localDateToExcelSerialDate', () => {
   for (let i = 61; i <= 73415; i++) {
     currentDate = addDaysToLocalDate(currentDate, 1);
     if (localDateToExcelSerialDate(currentDate) !== i) {
-      console.log(`localDateToExcelSerialDate(${toStringYYYYMMDD(currentDate)}): `, localDateToExcelSerialDate(currentDate));
+      console.log(`localDateToExcelSerialDate(${localDateToStringYYYYMMDD(currentDate)}): `, localDateToExcelSerialDate(currentDate));
       console.log(`serialDate: `, i);
       assert(false);
     }

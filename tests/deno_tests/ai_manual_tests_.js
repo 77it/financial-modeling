@@ -2,12 +2,12 @@
 
 import { text_davinci_003__single_message, gpt__chat, TEXT_DAVINCI__MODEL, TEXT_DAVINCI_003__MAX_TOKENS, GPT_3_5_TURBO__MODEL, GPT_4__MODEL } from '../deno/ai.js';
 
-import { toStringYYYYMMDD } from '../../src/lib/date_utils.js';
+import { localDateToStringYYYYMMDD } from '../../src/lib/date_utils.js';
 import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../deps.js';
 
 // next year, first day of the year, to string YYYY-MM-DD
-const _nextYearStart = toStringYYYYMMDD(new Date(new Date().getFullYear() + 1, 0, 1));
-const _nextYearEnd = toStringYYYYMMDD(new Date(new Date().getFullYear() + 1, 11, 1));
+const _nextYearStart = localDateToStringYYYYMMDD(new Date(new Date().getFullYear() + 1, 0, 1));
+const _nextYearEnd = localDateToStringYYYYMMDD(new Date(new Date().getFullYear() + 1, 11, 1));
 
 const financial_forecast__system_prompt =
   `You are a financial consultant preparing a financial forecast for a company.

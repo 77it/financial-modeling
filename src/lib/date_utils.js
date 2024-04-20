@@ -4,7 +4,7 @@ export { differenceInCalendarDaysOfLocalDates, differenceInCalendarDaysOfUTCDate
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
 export { addMonthsToLocalDate, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
 export { compareLocalDatesIgnoringTime };
-export { toUTC, toStringYYYYMMDD, stripTimeToLocalDate, stripTimeToUTCDate };
+export { toUTC, localDateToStringYYYYMMDD, stripTimeToLocalDate, stripTimeToUTCDate };
 
 // creating RegExp for later use
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
@@ -484,7 +484,7 @@ function toUTC (date) {
  * @returns {string}
  * @throws {Error} if the date is not valid
  */
-function toStringYYYYMMDD (date) {
+function localDateToStringYYYYMMDD (date) {
   return toUTC(date).toISOString().slice(0, 10);
 }
 

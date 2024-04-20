@@ -1,11 +1,11 @@
 export { Agenda };
 
-import { schema, sanitize, validate, validateObj, stripTimeToLocalDate, toStringYYYYMMDD } from '../../deps.js';
+import { schema, sanitize, validate, validateObj, stripTimeToLocalDate, localDateToStringYYYYMMDD } from '../../deps.js';
 
 class Agenda {
   /**
    Map to store things to do:
-   keys are strings of ISO serialization of date (with `toStringYYYYMMDD`), values are an array of {isSimulation: boolean, data: *}
+   keys are strings of ISO serialization of date (with `localDateToStringYYYYMMDD`), values are an array of {isSimulation: boolean, data: *}
    * @type {Map<string, {isSimulation: boolean, data: *}[]>} */
   #repo;
   /** @type {Date} */
@@ -54,7 +54,7 @@ class Agenda {
     // save #first_date
     if (this.#first_date === undefined || _date < this.#first_date) this.#first_date = stripTimeToLocalDate(_date);
 
-    const _key = toStringYYYYMMDD(_date);
+    const _key = localDateToStringYYYYMMDD(_date);
     if (!this.#repo.has(_key)) this.#repo.set(_key, []);
     this.#repo.get(_key)?.push({ isSimulation: isSimulation, data: data });
   }
@@ -67,7 +67,7 @@ class Agenda {
    * @return {{isSimulation: boolean, data: *}[]} Agenda items
    */
   get ({ date }) {
-    const _key = toStringYYYYMMDD(date);
+    const _key = localDateToStringYYYYMMDD(date);
     const _value = this.#repo.get(_key);
     if (_value === undefined)
       return [];

@@ -10,7 +10,7 @@ import {
     getEndOfMonthOfLocalDate
 } from '../../src/lib/date_utils.js';
 import { differenceInCalendarDays_luxon } from './date_utils_a__differenceInCalendarDays_luxon.js';
-import { toUTC, stripTimeToLocalDate, toStringYYYYMMDD } from '../../src/lib/date_utils.js';
+import { toUTC, stripTimeToLocalDate, localDateToStringYYYYMMDD } from '../../src/lib/date_utils.js';
 
 import {assert as assertDeno, assertEquals, assertFalse, assertStrictEquals, assertThrows} from '../deps.js';
 import {describe, it} from "https://deno.land/std@0.139.0/testing/bdd.ts";
@@ -638,11 +638,11 @@ _describe('stripTimeToLocalDate', () => {
 })
 
 
-_describe('toStringYYYYMMDD', () => {
+_describe('localDateToStringYYYYMMDD', () => {
     it('tests', () => {
         const date = new Date(1977, 8, 16, 10, 1, 5, 9);
 
-        assertEquals(toStringYYYYMMDD(date), '1977-09-16');
+        assertEquals(localDateToStringYYYYMMDD(date), '1977-09-16');
     })
 })
 

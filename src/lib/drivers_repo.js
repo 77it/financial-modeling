@@ -3,7 +3,7 @@
 import * as schema from './schema.js';
 import { sanitize, sanitizeObj } from './schema_sanitization_utils.js';
 import { validate } from './schema_validation_utils.js';
-import { stripTimeToLocalDate, toStringYYYYMMDD } from './date_utils.js';
+import { stripTimeToLocalDate, localDateToStringYYYYMMDD } from './date_utils.js';
 import { parseJSON5 } from './json5.js';
 import { isNullOrWhiteSpace } from './string_utils.js';
 import { deepFreeze } from './obj_utils.js';
@@ -182,7 +182,7 @@ class DriversRepo {
               if (_isMutable)
                 _driver[i].value = _inputItemClone.value;
               else
-                arrayOfErrors.push(`Driver ${_key} is immutable and the date ${toStringYYYYMMDD(_inputItemClone.date)} is already present`);
+                arrayOfErrors.push(`Driver ${_key} is immutable and the date ${localDateToStringYYYYMMDD(_inputItemClone.date)} is already present`);
               _toAppendFlag = false;
               break;
             } else if (_driver[i].dateMilliseconds > _dateMilliseconds) {
