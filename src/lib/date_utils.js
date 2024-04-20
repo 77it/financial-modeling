@@ -3,7 +3,7 @@ export { parseJsonToLocalDate, parseJsonToUTCDate };
 export { differenceInCalendarDaysOfLocalDates, differenceInCalendarDaysOfUTCDates };
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
 export { addMonthsToLocalDate, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
-export { areDatesEqual };
+export { compareLocalDatesIgnoringTime };
 export { toUTC, toStringYYYYMMDD, stripTimeToLocalDate, stripTimeToUTCDate };
 
 // creating RegExp for later use
@@ -460,7 +460,7 @@ function getEndOfMonthOfLocalDate (date) {
  * @param {Date} date2
  * @returns {boolean}
  */
-function areDatesEqual (date1, date2) {
+function compareLocalDatesIgnoringTime (date1, date2) {
   return date1.getFullYear() === date2.getFullYear() &&
     date1.getMonth() === date2.getMonth() &&
     date1.getDate() === date2.getDate();
