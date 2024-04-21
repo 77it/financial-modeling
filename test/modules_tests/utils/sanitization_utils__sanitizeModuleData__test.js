@@ -3,10 +3,13 @@ import { sanitizeModuleData } from '../../../src/modules/_utils/sanitization_uti
 import * as CONST from '../../../src/config/modules/_const.js';
 import * as schema from '../../../src/lib/schema.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
-import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
-import { eqObj } from '../../deps.js';
 
-Deno.test('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim match of table name + object key names', async () => {
+import { test } from 'node:test';
+import assert from 'node:assert';
+/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
+import { eqObj } from '../../../test2/deps.js';
+
+t('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim match of table name + object key names', async () => {
   //#region ARRANGE
   //#region build tables info object
   const tablesInfo = {};

@@ -1,32 +1,35 @@
 import { xlookup, moduleDataLookup, searchDateKeys } from '../../../src/modules/_utils/search_utils.js';
 
-import { schema } from '../../deps.js';
+import { schema } from '../../../test2/deps.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
-import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
 
-Deno.test('xlookup test: undefined', async () => {
+import { test } from 'node:test';
+import assert from 'node:assert';
+/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
+
+t('xlookup test: undefined', async () => {
   /** @type {*} */
   let p = null;
 
   // {lookup_value: *, lookup_array: *[], return_array: *[], return_first_match: boolean, sanitization?: string, sanitizationOptions?: Object }
 
   p = { lookup_value: null, lookup_array: [], return_array: [], return_first_match: false };
-  assertEquals(xlookup(p), undefined);
+  assert.deepStrictEqual(xlookup(p), undefined);
 
   p = { lookup_value: undefined, lookup_array: [], return_array: [], return_first_match: true };
-  assertEquals(xlookup(p), undefined);
+  assert.deepStrictEqual(xlookup(p), undefined);
 
   p = { lookup_value: undefined, lookup_array: [], return_array: [] };
-  assertEquals(xlookup(p), undefined);
+  assert.deepStrictEqual(xlookup(p), undefined);
 
   p = { lookup_value: 'abc', lookup_array: [1], return_array: [], return_first_match: false };  // array of different length
-  assertEquals(xlookup(p), undefined);
+  assert.deepStrictEqual(xlookup(p), undefined);
 
   p = { lookup_value: 'abc', lookup_array: [], return_array: ['a'], return_first_match: false };  // array of different length
-  assertEquals(xlookup(p), undefined);
+  assert.deepStrictEqual(xlookup(p), undefined);
 });
 
-Deno.test('xlookup test: test search', async () => {
+t('xlookup test: test search', async () => {
   const lookup_array = [99, 1, 'two', 3, 'four', 99, ' FiVe ', 6, 'seven', '9'];
   const return_array = ['ninenine', 'one', 2, 'three', 4, 'NINENINE', 5, 'six', 7, 'xxx'];
   const return_array_wrong_shorter = ['ninenine'];
@@ -37,39 +40,39 @@ Deno.test('xlookup test: test search', async () => {
   // {lookup_value: *, lookup_array: *[], return_array: *[], return_first_match: boolean, sanitization?: string, sanitizationOptions?: Object }
 
   p = { lookup_value: 99, lookup_array, return_array };
-  assertEquals(xlookup(p), 'ninenine');  // return_first_match default = true;
+  assert.deepStrictEqual(xlookup(p), 'ninenine');  // return_first_match default = true;
   p = { lookup_value: 99, lookup_array, return_array, return_first_match: true };
-  assertEquals(xlookup(p), 'ninenine');
+  assert.deepStrictEqual(xlookup(p), 'ninenine');
   p = { lookup_value: 99, lookup_array, return_array, return_first_match: false };
-  assertEquals(xlookup(p), 'NINENINE');
+  assert.deepStrictEqual(xlookup(p), 'NINENINE');
 
   p = { lookup_value: '   FIVE   ', lookup_array, return_array, return_first_match: false };  // automatic string conversion, trim and lowercase
-  assertEquals(xlookup(p), 5);
+  assert.deepStrictEqual(xlookup(p), 5);
   p = { lookup_value: '   FIVE   ', lookup_array, return_array, return_first_match: false, string_insensitive_match: false };  // DISABLING automatic string conversion, trim and lowercase
-  assertEquals(xlookup(p), undefined);
+  assert.deepStrictEqual(xlookup(p), undefined);
   p = { lookup_value: ' FiVe ', lookup_array, return_array, return_first_match: false, string_insensitive_match: false };  // DISABLING automatic string conversion, trim and lowercase
-  assertEquals(xlookup(p), 5);
+  assert.deepStrictEqual(xlookup(p), 5);
 
   p = { lookup_value: 'five', lookup_array, return_array, return_first_match: false };  // automatic string conversion, trim and lowercase
-  assertEquals(xlookup(p), 5);
+  assert.deepStrictEqual(xlookup(p), 5);
   p = { lookup_value: 6, lookup_array, return_array, return_first_match: false };
-  assertEquals(xlookup(p), 'six');
+  assert.deepStrictEqual(xlookup(p), 'six');
 
   // with sanitization
   p = { lookup_value: 'five', lookup_array, return_array, return_first_match: false, sanitization: schema.STRING_TYPE };
-  assertEquals(xlookup(p), '5');
+  assert.deepStrictEqual(xlookup(p), '5');
   p = { lookup_value: 6, lookup_array, return_array, return_first_match: false, sanitization: schema.NUMBER_TYPE };
-  assertEquals(xlookup(p), 0);
+  assert.deepStrictEqual(xlookup(p), 0);
 
   // failing search of string where the value is number, and viceversa
   p = { lookup_value: 9, lookup_array, return_array, return_first_match: false };
-  assertEquals(xlookup(p), undefined);
+  assert.deepStrictEqual(xlookup(p), undefined);
   p = { lookup_value: '1', lookup_array, return_array, return_first_match: false };
-  assertEquals(xlookup(p), undefined);
+  assert.deepStrictEqual(xlookup(p), undefined);
 
   // return undefined the array length is different
   p = { lookup_value: 99, lookup_array, return_array_wrong_shorter, return_first_match: false };
-  assertEquals(xlookup(p), undefined);
+  assert.deepStrictEqual(xlookup(p), undefined);
 
   // with sanitization and sanitizationOptions
   p = {
@@ -80,10 +83,10 @@ Deno.test('xlookup test: test search', async () => {
     sanitization: schema.NUMBER_TYPE,
     sanitizationOptions: { defaultNumber: 123 }
   };
-  assertEquals(xlookup(p), 123);
+  assert.deepStrictEqual(xlookup(p), 123);
 });
 
-Deno.test('moduleDataLookup test: test search', async () => {
+t('moduleDataLookup test: test search', async () => {
   const tableB_1_data = [
     { name: 99, value: 'ninenine' },
     { name: 1, value: 'one' },
@@ -126,9 +129,9 @@ Deno.test('moduleDataLookup test: test search', async () => {
 
   // rest undefined return
   p = { lookup_value: null, lookup_column: 'name', return_column: 'value', return_first_match: false };
-  assertEquals(moduleDataLookup(moduleData, p), undefined);
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), undefined);
   p = { lookup_value: undefined, lookup_column: 'name', return_column: 'value', return_first_match: false };
-  assertEquals(moduleDataLookup(moduleData, p), undefined);
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), undefined);
 
   p = {
     tableName: '   TABB   ',  // with default string_insensitive_match, automatic string conversion (trim and lowercase) of tableName
@@ -137,59 +140,59 @@ Deno.test('moduleDataLookup test: test search', async () => {
   };
 
   //@ts-ignore
-  assertEquals(moduleDataLookup(null, p), undefined);
+  assert.deepStrictEqual(moduleDataLookup(null, p), undefined);
 
   p.lookup_value = 99;
-  assertEquals(moduleDataLookup(moduleData, p), 'ninenine');  // return_first_match default = true;
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), 'ninenine');  // return_first_match default = true;
 
   p.return_first_match = true;
-  assertEquals(moduleDataLookup(moduleData, p), 'ninenine');
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), 'ninenine');
 
   p.return_first_match = false;
-  assertEquals(moduleDataLookup(moduleData, p), 'NINENINE2');  // last value is returned (from the second table)
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), 'NINENINE2');  // last value is returned (from the second table)
 
   p.return_first_match = false;
   p.lookup_value = '   FIVE   ';
-  assertEquals(moduleDataLookup(moduleData, p), 88);  // string_insensitive_match of value + return from the second table
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), 88);  // string_insensitive_match of value + return from the second table
 
   p.string_insensitive_match = false;
   p.tableName = '   TABB   ';
   p.lookup_value = ' FiVe ';
-  assertEquals(moduleDataLookup(moduleData, p), undefined);  // DISABLING string_insensitive_match, the table name is not matched anymore
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), undefined);  // DISABLING string_insensitive_match, the table name is not matched anymore
 
   p.tableName = 'tabB';
   p.lookup_value = '   FIVE   ';
-  assertEquals(moduleDataLookup(moduleData, p), undefined);  // DISABLING string_insensitive_match, the value is not matched anymore
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), undefined);  // DISABLING string_insensitive_match, the value is not matched anymore
 
   p.lookup_value = ' FiVe ';
-  assertEquals(moduleDataLookup(moduleData, p), 88);  // exact value match + return from the second table
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), 88);  // exact value match + return from the second table
 
   p.lookup_value = 'five';
   p.string_insensitive_match = true;
-  assertEquals(moduleDataLookup(moduleData, p), 88);  // string_insensitive_match of value + return from the second table
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), 88);  // string_insensitive_match of value + return from the second table
   p.lookup_value = 6;
-  assertEquals(moduleDataLookup(moduleData, p), 'six');
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), 'six');
 
   // failing search of string where the value is number, and viceversa
   p.lookup_value = 9;
-  assertEquals(moduleDataLookup(moduleData, p), undefined);
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), undefined);
   p.lookup_value = '1';
-  assertEquals(moduleDataLookup(moduleData, p), undefined);
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), undefined);
 
   // with sanitization
   p.lookup_value = 'five';
   p.sanitization = schema.STRING_TYPE;
-  assertEquals(moduleDataLookup(moduleData, p), '88');  // return from the second table
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), '88');  // return from the second table
   p.lookup_value = 6;
   p.sanitization = schema.NUMBER_TYPE;
-  assertEquals(moduleDataLookup(moduleData, p), 0);
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), 0);
 
   // with sanitization and sanitizationOptions
   p.sanitizationOptions = { defaultNumber: 123 };
-  assertEquals(moduleDataLookup(moduleData, p), 123);
+  assert.deepStrictEqual(moduleDataLookup(moduleData, p), 123);
 });
 
-Deno.test('searchDateKeys test', async () => {
+t('searchDateKeys test', async () => {
   const obj = {
     '#2023-12-25T05:20:10': 1,  // time part is stripped
     b: 2,  // ignored, not starting with prefix
@@ -216,7 +219,7 @@ Deno.test('searchDateKeys test', async () => {
     { key: 'H#2023/01/29', date: new Date(2023, 0, 29) }
   ];
 
-  assertEquals(JSON.stringify(searchDateKeys({ obj, prefix: '#' })), JSON.stringify(exp));
-  assertEquals(JSON.stringify(searchDateKeys({ obj: obj2, prefix: 'H#' })), JSON.stringify(exp2));
-  assertEquals(JSON.stringify(searchDateKeys({ obj: obj2, prefix: 'h#' })), JSON.stringify(exp2));  // case insensitive
+  assert.deepStrictEqual(JSON.stringify(searchDateKeys({ obj, prefix: '#' })), JSON.stringify(exp));
+  assert.deepStrictEqual(JSON.stringify(searchDateKeys({ obj: obj2, prefix: 'H#' })), JSON.stringify(exp2));
+  assert.deepStrictEqual(JSON.stringify(searchDateKeys({ obj: obj2, prefix: 'h#' })), JSON.stringify(exp2));  // case insensitive
 });

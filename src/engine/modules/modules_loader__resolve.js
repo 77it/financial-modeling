@@ -22,7 +22,7 @@ function modulesLoader_Resolve (moduleUrl) {
     _ret.push(buildJsDelivrURI(splitGitHubURIParts));
     _ret.push(buildGithackURI(splitGitHubURIParts));
     _ret.push(buildStaticallyIoURI(splitGitHubURIParts));
-    _ret.push(buildGitHubRawURI(splitGitHubURIParts));
+    //_ret.push(DONT_USE__WRONG_MIME_TYPE__buildGitHubRawURI(splitGitHubURIParts));
   } else // If moduleEngineURI is not a GitHub path, return the original URI
     _ret.push(_cdnURI);
 
@@ -91,11 +91,20 @@ function modulesLoader_Resolve (moduleUrl) {
   }
 
   /**
+   * Don't use this functions, because raw.githubusercontent.com doesn't serve the correct MIME type for JavaScript files
+   * serving them as text/plain instead of text/javascript.
+   *
+   * Use the other CDNs instead or serve the file with GitHub Pages.
+   *
+   * For more information see https://stackoverflow.com/a/52921967/5288052
+   * & https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#aside_%E2%80%94_.mjs_versus_.js
+   * & https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#troubleshooting
+   *
    * Build a GitHub raw URI
    * @param {{user: string, repo: string, version: string, path: string }} p
    * @return {string}
    */
-  function buildGitHubRawURI ({ user, repo, version, path }) {
+  function DONT_USE__WRONG_MIME_TYPE__buildGitHubRawURI ({ user, repo, version, path }) {
     return `https://raw.githubusercontent.com/${user}/${repo}/${version}/${path}`;
   }
   //#endregion local functions
