@@ -1,4 +1,5 @@
 import {
+  isValidDate,
   addDaysToLocalDate, addDaysToUTCDate,
   excelSerialDateToUTCDate,
   excelSerialDateToLocalDate,
@@ -8,12 +9,11 @@ import {
 
 import { test } from 'node:test';
 import assert from 'node:assert';
-
 /** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;
 
 t('excelSerialDateToLocalDate from 1900 to 2100', () => {
   // test that serial date can't be less than 61
-  assert.deepStrictEqual(excelSerialDateToLocalDate(60), new Date(NaN));
+  assert(!isValidDate(excelSerialDateToLocalDate(60)));
 
   // test first value of the loop
   assert.deepStrictEqual(excelSerialDateToLocalDate(61), new Date(1900, 2 /*Mar*/, 1));
@@ -41,7 +41,7 @@ t('excelSerialDateToLocalDate from 1900 to 2100', () => {
 
 t('excelSerialDateToUTCDate from 1900 to 2100', () => {
   // test that serial date can't be less than 61
-  assert.deepStrictEqual(excelSerialDateToUTCDate(60), new Date(NaN));
+  assert(!isValidDate(excelSerialDateToUTCDate(60)));
 
   // test first value of the loop
   assert.deepStrictEqual(excelSerialDateToUTCDate(61), new Date(Date.UTC(1900, 2 /*Mar*/, 1)));
