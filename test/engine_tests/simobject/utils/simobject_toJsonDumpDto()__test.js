@@ -1,15 +1,17 @@
-import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../../deps.js';
-
 import { SimObject } from '../../../../src/engine/simobject/simobject.js';
 import { simObjectToJsonDumpDto, toBigInt } from '../../../../src/engine/simobject/utils/simobject_utils.js';
 import { SimObjectTypes_enum } from '../../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../../src/engine/simobject/enums/doubleentryside_enum.js';
 
+import { test } from 'node:test';
+import assert from 'node:assert';
+/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
+
 const decimalPlaces = 4;
 const roundingModeIsRound = true;
 
 const _so = new SimObject({
-  decimalPlaces: 4,
+  decimalPlaces: decimalPlaces,
   type: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   id: '1',
   dateTime: new Date(2020, 0, 1),
@@ -38,7 +40,7 @@ const _so = new SimObject({
   versionId: 1
 });
 
-Deno.test('SimObject.toJsonDumpDto() tests', async () => {
+t('SimObject.toJsonDumpDto() tests', async () => {
   const _soJsonDump_Expected = {
     type: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
     id: '1',
@@ -76,5 +78,5 @@ Deno.test('SimObject.toJsonDumpDto() tests', async () => {
     _so_Dto.newField = 44;
   }
   catch (e) {}
-  assertEquals(JSON.stringify(_so_Dto), JSON.stringify(_soJsonDump_Expected));
+  assert.deepStrictEqual(JSON.stringify(_so_Dto), JSON.stringify(_soJsonDump_Expected));
 });

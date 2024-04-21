@@ -1,4 +1,3 @@
-export { assert, assertFalse, assertEquals, assertNotEquals, assertStrictEquals, assertThrows } from 'https://deno.land/std@0.171.0/testing/asserts.ts';
 export * as schema from '../src/lib/schema.js';
 export { localDateToUTC } from '../src/lib/date_utils.js';
 export { eq2 } from '../src/lib/obj_utils.js';

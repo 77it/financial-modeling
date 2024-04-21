@@ -1,16 +1,16 @@
-import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../../deps.js';
-
 import { splitPrincipal, bigIntToNumberWithDecimals, bigIntToStringWithDecimals } from '../../../../src/engine/simobject/utils/simobject_utils.js';
+
+import { test } from 'node:test';
+import assert from 'node:assert';
+/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
 
 const decimalPlaces = 4;
 const roundingModeIsRound = true;
 
-Deno.test('splitPrincipal() tests #1, split with Indefinite + Schedule', async () => {
+t('splitPrincipal() tests #1, split with Indefinite + Schedule', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 10;
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [100, 100, 100, 690];
-  const decimalPlaces = 4;
-  const roundingModeIsRound = true;
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule } = splitPrincipal({
       value,
@@ -25,16 +25,14 @@ Deno.test('splitPrincipal() tests #1, split with Indefinite + Schedule', async (
   const expectedPrincipalIndefiniteExpiryDate = 10_0000n;
   const expectedPrincipalAmortizationSchedule = [100_0000n, 100_0000n, 100_0000n, 690_0000n];
 
-  assertEquals(principalIndefiniteExpiryDate, expectedPrincipalIndefiniteExpiryDate);
-  assertEquals(principalAmortizationSchedule, expectedPrincipalAmortizationSchedule);
+  assert.deepStrictEqual(principalIndefiniteExpiryDate, expectedPrincipalIndefiniteExpiryDate);
+  assert.deepStrictEqual(principalAmortizationSchedule, expectedPrincipalAmortizationSchedule);
 });
 
-Deno.test('splitPrincipal() tests #2, split with Indefinite + Schedule testing conversion to number', async () => {
+t('splitPrincipal() tests #2, split with Indefinite + Schedule testing conversion to number', async () => {
   const value = 999;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 10;
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [1, 1, 1, 2];
-  const decimalPlaces = 4;
-  const roundingModeIsRound = true;
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule } = splitPrincipal({
       value,
@@ -55,16 +53,14 @@ Deno.test('splitPrincipal() tests #2, split with Indefinite + Schedule testing c
   const expectedPrincipalAmortizationSchedule = [197.8, 197.8, 197.8, 395.6];
 
   // assert
-  assertEquals(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
-  assertEquals(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
+  assert.deepStrictEqual(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
+  assert.deepStrictEqual(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
 });
 
-Deno.test('splitPrincipal() tests #3, split with Indefinite + Schedule testing conversion to string', async () => {
+t('splitPrincipal() tests #3, split with Indefinite + Schedule testing conversion to string', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 0;
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [333, 333, 333];
-  const decimalPlaces = 4;
-  const roundingModeIsRound = true;
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule } = splitPrincipal({
       value,
@@ -85,17 +81,15 @@ Deno.test('splitPrincipal() tests #3, split with Indefinite + Schedule testing c
   const expectedPrincipalAmortizationSchedule = ['333.3333', '333.3333', '333.3334'];
 
   // assert
-  assertEquals(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
-  assertEquals(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
+  assert.deepStrictEqual(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
+  assert.deepStrictEqual(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
 });
 
-Deno.test('splitPrincipal() tests #4, split with Indefinite without Schedule', async () => {
+t('splitPrincipal() tests #4, split with Indefinite without Schedule', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 1000;
   /** @type {number[]} */
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [];
-  const decimalPlaces = 4;
-  const roundingModeIsRound = true;
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule } = splitPrincipal({
       value,
@@ -117,17 +111,15 @@ Deno.test('splitPrincipal() tests #4, split with Indefinite without Schedule', a
   const expectedPrincipalAmortizationSchedule = [];
 
   // assert
-  assertEquals(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
-  assertEquals(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
+  assert.deepStrictEqual(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
+  assert.deepStrictEqual(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
 });
 
-Deno.test('splitPrincipal() tests #5, split without Indefinite and no Schedule', async () => {
+t('splitPrincipal() tests #5, split without Indefinite and no Schedule', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 0;
   /** @type {number[]} */
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [];
-  const decimalPlaces = 4;
-  const roundingModeIsRound = true;
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule } = splitPrincipal({
       value,
@@ -149,6 +141,6 @@ Deno.test('splitPrincipal() tests #5, split without Indefinite and no Schedule',
   const expectedPrincipalAmortizationSchedule = [];
 
   // assert
-  assertEquals(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
-  assertEquals(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
+  assert.deepStrictEqual(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
+  assert.deepStrictEqual(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
 });

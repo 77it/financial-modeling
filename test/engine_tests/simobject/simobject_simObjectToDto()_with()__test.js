@@ -1,15 +1,17 @@
-import { assert, assertFalse, assertEquals, assertNotEquals, assertThrows } from '../../deps.js';
-
 import { SimObject } from '../../../src/engine/simobject/simobject.js';
 import { simObjectToDto, toBigInt } from '../../../src/engine/simobject/utils/simobject_utils.js';
 import { SimObjectTypes_enum } from '../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../src/engine/simobject/enums/doubleentryside_enum.js';
 
+import { test } from 'node:test';
+import assert from 'node:assert';
+/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
+
 const decimalPlaces = 4;
 const roundingModeIsRound = true;
 
 const _so = new SimObject({
-  decimalPlaces: 4,
+  decimalPlaces: decimalPlaces,
   type: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   id: '1',
   dateTime: new Date(2020, 0, 1),
@@ -39,7 +41,7 @@ const _so = new SimObject({
 });
 
 const _so2_withExtras = new SimObject({
-  decimalPlaces: 4,
+  decimalPlaces: decimalPlaces,
   type: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   id: '1',
   dateTime: new Date(2020, 0, 1),
@@ -69,7 +71,7 @@ const _so2_withExtras = new SimObject({
   extras: {a: 999, b: 'aaa'}
 });
 
-Deno.test('SimObject.simObjectToDto() & .with() without value tests', async () => {
+t('SimObject.simObjectToDto() & .with() without value tests', async () => {
   const _so_With = _so.with();
   const _so_With2_withExtras = _so2_withExtras.with({});
 
@@ -132,7 +134,7 @@ Deno.test('SimObject.simObjectToDto() & .with() without value tests', async () =
     extras: {a: 999, b: 'aaa'}
   };
 
-  assertEquals(_so_With.decimalPlaces, 4);
+  assert.deepStrictEqual(_so_With.decimalPlaces, 4);
 
   let _error = '';
 
@@ -142,19 +144,19 @@ Deno.test('SimObject.simObjectToDto() & .with() without value tests', async () =
   // try to change the value of the DTO, but the changes will go in error, because the DTO is frozen
   try {_so_With_Dto.type = 'abcd';}
   catch (e) {_error = e.message;}
-  assertEquals(_error, "Cannot assign to read only property 'type' of object '#<SimObjectDto>'");
+  assert.deepStrictEqual(_error, "Cannot assign to read only property 'type' of object '#<SimObjectDto>'");
   try {
     //@ts-ignore
     _so_With_Dto.newField = 44;}
   catch (e) {_error = e.message;}
-  assertEquals(_error, "Cannot add property newField, object is not extensible");
+  assert.deepStrictEqual(_error, "Cannot add property newField, object is not extensible");
 
-  assertEquals(JSON.stringify(_so_With_Dto), JSON.stringify(_soDump_Expected));
+  assert.deepStrictEqual(JSON.stringify(_so_With_Dto), JSON.stringify(_soDump_Expected));
 
-  assertEquals(JSON.stringify(simObjectToDto(_so_With2_withExtras)), JSON.stringify(_soDump_Expected2_withExtras));
+  assert.deepStrictEqual(JSON.stringify(simObjectToDto(_so_With2_withExtras)), JSON.stringify(_soDump_Expected2_withExtras));
 });
 
-Deno.test('SimObject.simObjectToDto() & .with() tests', async () => {
+t('SimObject.simObjectToDto() & .with() tests', async () => {
   const _so_With = _so2_withExtras.with({
     //@ts-ignore
     decimalPlaces: 44,  // ignored
@@ -217,5 +219,5 @@ Deno.test('SimObject.simObjectToDto() & .with() tests', async () => {
     extras: {a: 9991, b: 'aaax'}
   };
 
-  assertEquals(JSON.stringify(simObjectToDto(_so_With)), JSON.stringify(_soDump_Expected));
+  assert.deepStrictEqual(JSON.stringify(simObjectToDto(_so_With)), JSON.stringify(_soDump_Expected));
 });
