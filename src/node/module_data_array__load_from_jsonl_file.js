@@ -14,7 +14,7 @@ async function moduleDataArray_LoadFromJsonlFile (jsonlFilePath) {
   const _jsonlFilePath = (jsonlFilePath instanceof URL) ? jsonlFilePath.pathname : jsonlFilePath;
   const __jsonlFilePath = _jsonlFilePath.startsWith('/') ? _jsonlFilePath.slice(1) : _jsonlFilePath;
 
-  const fileStream = fs.createReadStream(__jsonlFilePath);
+  const fileStream = fs.createReadStream(__jsonlFilePath, 'utf8');
 
   const rl = readline.createInterface({
     input: fileStream,
@@ -30,8 +30,13 @@ async function moduleDataArray_LoadFromJsonlFile (jsonlFilePath) {
 
   // loop jsonLines and parse content to ModuleData
   const moduleDataArray = [];
-  for (const json of jsonLines)
+  for (let json of jsonLines) {
+    // Remove BOM if present
+    if (json.charCodeAt(0) === 0xFEFF) {
+      json = json.substr(1);
+    }
     moduleDataArray.push(new ModuleData(JSON.parse(json)));
+  }
 
   return moduleDataArray;
 }

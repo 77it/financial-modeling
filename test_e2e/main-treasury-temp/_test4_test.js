@@ -1,20 +1,28 @@
 // run with --allow-read --allow-write --allow-net --allow-run
 
-import { existsSync } from '../../../src/node/exists_sync.js';
+import { existsSync } from '../../src/node/exists_sync.js';
+import { dirname } from 'node:path';
+import { chdir } from 'node:process';
+import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
 
-import { main } from '../../../src/main-treasury-temp.js';
-
-import { assert, assertFalse, assertEquals, assertNotEquals } from '../../../test/deps.js';
-import { convertExcelSheetToLedgerTrnJsonlFile } from '../../deno/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
+import { main } from '../../src/main-treasury-temp.js';
 
 import { DEBUG_FLAG, ERROR_FILE } from './_test_settings.js';
 
-if (existsSync(ERROR_FILE)) Deno.removeSync(ERROR_FILE);
+import { test } from 'node:test';
+import assert from 'node:assert';
+/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
 
-Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
+if (existsSync(ERROR_FILE)) {
+  fs.unlinkSync(ERROR_FILE);
+}
 
-Deno.test('engine test with deno deploy (calling online function)', async () => {
-  assertEquals(1, 0);
+// set cwd/current working directory to current folder (the folder of this file)
+chdir(dirname(fileURLToPath(import.meta.url)));
+
+t('engine test with deno deploy (calling online function)', async () => {
+  assert.deepStrictEqual(1, 0);
 });
 
   /* TODO NOW

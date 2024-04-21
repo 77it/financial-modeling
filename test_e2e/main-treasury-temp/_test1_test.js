@@ -1,19 +1,27 @@
-// run with --allow-read --allow-write --allow-net --allow-run
+// run with --allow-read --allow-write --allow-net --allow-run --allow-env
 
-import { existsSync } from '../../../src/node/exists_sync.js';
+import { existsSync } from '../../src/node/exists_sync.js';
+import { dirname } from 'node:path';
+import { chdir } from 'node:process';
+import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
 
-import { main } from '../../../src/main-treasury-temp.js';
+import { main } from '../../src/main-treasury-temp.js';
 
-import { assert, assertFalse, assertEquals, assertNotEquals } from '../../../test/deps.js';
-import { convertExcelSheetToLedgerTrnJsonlFile } from '../../deno/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
+import { test } from 'node:test';
+import assert from 'node:assert';
+/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
 
 import { DEBUG_FLAG, ERROR_FILE } from './_test_settings.js';
 
-if (existsSync(ERROR_FILE)) Deno.removeSync(ERROR_FILE);
+if (existsSync(ERROR_FILE)) {
+  fs.unlinkSync(ERROR_FILE);
+}
 
-Deno.chdir(new URL('.', import.meta.url));  // set cwd/current working directory to current folder (the folder of this file)
+// set cwd/current working directory to current folder (the folder of this file)
+chdir(dirname(fileURLToPath(import.meta.url)));
 
-Deno.test('main-treasury-temp tests with ./user_data__non_existent_module.xlsx', async () => {
+t('main-treasury-temp tests with ./user_data__non_existent_module.xlsx', async () => {
   await main({
     excelUserInput: './user_data__non_existent_module.xlsx',
     outputFolder: '.',
@@ -22,7 +30,7 @@ Deno.test('main-treasury-temp tests with ./user_data__non_existent_module.xlsx',
     ledgerDebugFlag: DEBUG_FLAG
   });
 
-  const _errors = Deno.readTextFileSync(ERROR_FILE);
+  const _errors = fs.readFileSync(ERROR_FILE, 'utf8');
   //console.log(_errors);
 
   assert(_errors.includes(`error loading module`));
