@@ -7,7 +7,7 @@ import { ModuleData } from '../../../src/engine/modules/module_data.js';
 import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
-import { eqObj } from '../../../test2/deps.js';
+import { eqObj } from '../../deps.js';
 
 t('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim match of table name + object key names', async () => {
   //#region ARRANGE

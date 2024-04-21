@@ -5,18 +5,15 @@ import * as v from '../../src/lib/schema_validation_utils.js';
 // @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
 import { Big } from 'https://cdn.jsdelivr.net/npm/big.js@6.2.1/big.min.mjs';
 
-import {
-  assert,
-  assertEquals,
-  assertFalse,
-  assertThrows,
-} from '../deps.js';
+import { test } from 'node:test';
+import assert from 'node:assert';
+/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;
 
-Deno.test('test validate(): wrong/unknown options', () => {
-  assertThrows(() => v.validate({ value: 'aaaX', validation: 'wrong validation type' }));
+t('test validate(): wrong/unknown options', () => {
+  assert.throws(() => v.validate({ value: 'aaaX', validation: 'wrong validation type' }));
 });
 
-Deno.test('test validate(): undefined is not not valid `any` type + personalized error message', () => {
+t('test validate(): undefined is not not valid `any` type + personalized error message', () => {
   const objToValidate = undefined;
   const validation = S.ANY_TYPE;
 
@@ -30,7 +27,7 @@ Deno.test('test validate(): undefined is not not valid `any` type + personalized
   assert(_error.includes('ValX = undefined, must be !== null or undefined'));
 });
 
-Deno.test('test validate(): null is not not valid `any` type + personalized error message', () => {
+t('test validate(): null is not not valid `any` type + personalized error message', () => {
   const objToValidate = null;
   const validation = S.ANY_TYPE;
 
@@ -44,14 +41,14 @@ Deno.test('test validate(): null is not not valid `any` type + personalized erro
   assert(_error.includes('Value = null, must be !== null or undefined'));
 });
 
-Deno.test('test validate() return value', () => {
+t('test validate() return value', () => {
   const objToValidate = 'xyz';
   const objToValidate2 = v.validate({ value: objToValidate, validation: S.STRING_TYPE });
 
-  assertEquals(objToValidate2, objToValidate);
+  assert.deepStrictEqual(objToValidate2, objToValidate);
 });
 
-Deno.test('test validate(), valid, all cases', () => {
+t('test validate(), valid, all cases', () => {
   class TestClass {}
 
   const testClassInstance = new TestClass();
@@ -99,7 +96,7 @@ Deno.test('test validate(), valid, all cases', () => {
   v.validate({ value: 999, validation: S.ANY_TYPE });
 });
 
-Deno.test('test validate(), valid, all cases, with optional types', () => {
+t('test validate(), valid, all cases, with optional types', () => {
   class TestClass {}
 
   const testClassInstance = new TestClass();
@@ -185,7 +182,7 @@ Deno.test('test validate(), valid, all cases, with optional types', () => {
   v.validate({ value: nullOrUndefined, validation: S.ANY_TYPE + '?' });
 });
 
-Deno.test('test validate(), not valid, all cases', () => {
+t('test validate(), not valid, all cases', () => {
   let _error;
   try {
     v.validate({ value: 99, validation: S.STRING_TYPE });

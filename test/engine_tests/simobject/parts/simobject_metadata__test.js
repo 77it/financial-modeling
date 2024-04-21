@@ -1,6 +1,6 @@
 import { SimObject_Metadata } from '../../../../src/engine/simobject/parts/simobject_metadata.js';
 
-import { eqObj } from '../../../../test2/deps.js';
+import { eqObj } from '../../../deps.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

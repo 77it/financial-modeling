@@ -4,7 +4,7 @@ import { existsSync } from '../../../src/node/exists_sync.js';
 
 import { main } from '../../../src/main-treasury-temp.js';
 
-import { assert, assertFalse, assertEquals, assertNotEquals } from '../../deps.js';
+import { assert, assertFalse, assertEquals, assertNotEquals } from '../../../test/deps.js';
 import { convertExcelSheetToLedgerTrnJsonlFile } from '../../deno/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
 
 import { DEBUG_FLAG, ERROR_FILE } from './_test_settings.js';

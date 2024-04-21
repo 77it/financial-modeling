@@ -1,6 +1,6 @@
 import { xlookup, moduleDataLookup, searchDateKeys } from '../../../src/modules/_utils/search_utils.js';
 
-import { schema } from '../../../test2/deps.js';
+import { schema } from '../../deps.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
 
 import { test } from 'node:test';

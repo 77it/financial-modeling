@@ -2,9 +2,11 @@
 
 import { deepFreeze } from '../../src/lib/obj_utils.js';
 
-import { assert, assertEquals, assertFalse, assertThrows } from '../deps.js';
+import { test } from 'node:test';
+import assert from 'node:assert';
+/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;
 
-Deno.test('test deepFreeze() on object', (t) => {
+t('test deepFreeze() on object', () => {
   const a = {};
   a.a = 99;
   a.b = 55;
@@ -16,61 +18,61 @@ Deno.test('test deepFreeze() on object', (t) => {
   deepFreeze(a);
 
   // editing a property
-  assertThrows(() => {
+  assert.throws(() => {
     a.a = 100;
   });
 
   // editing an inner property
-  assertThrows(() => {
+  assert.throws(() => {
     a.c.a = 100;
   });
 
   // adding a property
-  assertThrows(() => {
+  assert.throws(() => {
     a.d = 100;
   });
 
   // adding an element to an array
-  assertThrows(() => {
+  assert.throws(() => {
     a.c.e.push(6);
   });
 });
 
-Deno.test('test deepFreeze() on array', (t) => {
+t('test deepFreeze() on array', () => {
   const arr = [1, 2, { a: 999 }, 4, 5, []];
   deepFreeze(arr);
 
   // adding an element to an array
-  assertThrows(() => { arr.push(6); });
+  assert.throws(() => { arr.push(6); });
 
   // editing an inner property
-  assertThrows(() => { arr[2].a = 100; });
+  assert.throws(() => { arr[2].a = 100; });
 
   // editing an inner array
-  assertThrows(() => { arr[5].push(5); });
+  assert.throws(() => { arr[5].push(5); });
 });
 
-Deno.test('test deepFreeze() function', (t) => {
+t('test deepFreeze() function', () => {
   function fun () {
     return 999;
   }
 
   // we can add a property to a function
   fun.a = 99;
-  assertEquals(fun.a, 99);
+  assert.deepStrictEqual(fun.a, 99);
 
   // after deepFreeze, we cannot add a property to a function
   deepFreeze(fun);
-  assertThrows(() => { fun.d = 100; });
+  assert.throws(() => { fun.d = 100; });
 });
 
-Deno.test('test deepFreeze() string, numbers', (t) => {
+t('test deepFreeze() string, numbers', () => {
   // non-freezable values are returned as is
-  assertEquals(deepFreeze(9), 9);
-  assertEquals(deepFreeze('abc'), 'abc');
+  assert.deepStrictEqual(deepFreeze(9), 9);
+  assert.deepStrictEqual(deepFreeze('abc'), 'abc');
 });
 
-Deno.test('test deepFreeze() class, class instance', (t) => {
+t('test deepFreeze() class, class instance', () => {
   class A {
     #private_value = 100;
 
@@ -94,18 +96,18 @@ Deno.test('test deepFreeze() class, class instance', (t) => {
   // before freeze, we can add a property to a class instance, and overwrite them
   a.a = 44;
   a.b = 55;
-  assertEquals(a.a, 44);
-  assertEquals(a.b, 55);
+  assert.deepStrictEqual(a.a, 44);
+  assert.deepStrictEqual(a.b, 55);
 
   // after deepFreeze, we cannot modify or add a property to a class instance
   deepFreeze(a);
-  assertThrows(() => { a.d = 100; });
-  assertThrows(() => { a.a = 100; });
+  assert.throws(() => { a.d = 100; });
+  assert.throws(() => { a.a = 100; });
 
   // also after deepFreeze, we can modify private properties
-  assertEquals(a.get_private_value(), 100);
+  assert.deepStrictEqual(a.get_private_value(), 100);
   a.set_private_value(200);
-  assertEquals(a.get_private_value(), 200);
+  assert.deepStrictEqual(a.get_private_value(), 200);
   a.set_private_value('abc');
-  assertEquals(a.get_private_value(), 'abc');
+  assert.deepStrictEqual(a.get_private_value(), 'abc');
 });

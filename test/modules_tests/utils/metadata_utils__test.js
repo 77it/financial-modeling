@@ -4,7 +4,7 @@ import { SimObject_Metadata } from '../../../src/engine/simobject/parts/simobjec
 import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
-import { eqObj } from '../../../test2/deps.js';
+import { eqObj } from '../../deps.js';
 
 t('ActiveMetadata tests - invalid input', async () => {
   //@ts-ignore
