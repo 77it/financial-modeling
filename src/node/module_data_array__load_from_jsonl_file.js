@@ -1,8 +1,8 @@
 export { moduleDataArray_LoadFromJsonlFile };
 
-import readline from 'node:readline';
-import fs from 'node:fs';
 import { ModuleData } from '../engine/modules/module_data.js';
+import { readUtf8TextFileRemovingBOM } from './read_utf8_text_file_removing_bom.js';
+import { isNullOrWhiteSpace } from '../lib/string_utils.js';
 
 /**
  * Returns a ModuleData from a JSONL file
@@ -10,32 +10,20 @@ import { ModuleData } from '../engine/modules/module_data.js';
  * @return {Promise<ModuleData[]>} deserialized ModuleData
  */
 async function moduleDataArray_LoadFromJsonlFile (jsonlFilePath) {
-  // see https://nodejs.org/api/readline.html
   const _jsonlFilePath = (jsonlFilePath instanceof URL) ? jsonlFilePath.pathname : jsonlFilePath;
+  // remove leading slash
   const __jsonlFilePath = _jsonlFilePath.startsWith('/') ? _jsonlFilePath.slice(1) : _jsonlFilePath;
 
-  const fileStream = fs.createReadStream(__jsonlFilePath, 'utf8');
+  const jsonTxt = readUtf8TextFileRemovingBOM(__jsonlFilePath);
 
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
-  });
-
-  const jsonLines = [];
-  for await (const line of rl) {
-    if (line?.trim())
-      jsonLines.push(line);
-  }
-  fileStream.close();
+  // split jsonTxt in lines (LF, CRLF)
+  const jsonLines = jsonTxt.split(/\r?\n/);
 
   // loop jsonLines and parse content to ModuleData
   const moduleDataArray = [];
   for (let json of jsonLines) {
-    // Remove BOM if present
-    if (json.charCodeAt(0) === 0xFEFF) {
-      json = json.substr(1);
-    }
-    moduleDataArray.push(new ModuleData(JSON.parse(json)));
+    if (!isNullOrWhiteSpace(json))
+      moduleDataArray.push(new ModuleData(JSON.parse(json)));
   }
 
   return moduleDataArray;
