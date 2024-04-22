@@ -1,10 +1,9 @@
 // run with --allow-read --allow-write --allow-net --allow-run
 
-import { existsSync } from '../../src/node/exists_sync.js';
+import { deleteFile } from '../../src/node/delete_file.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
-import fs from 'node:fs';
 
 import { main } from '../../src/main-treasury-temp.js';
 
@@ -14,9 +13,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
 
-if (existsSync(ERROR_FILE)) {
-  fs.unlinkSync(ERROR_FILE);
-}
+deleteFile(ERROR_FILE);
 
 // set cwd/current working directory to current folder (the folder of this file)
 chdir(dirname(fileURLToPath(import.meta.url)));

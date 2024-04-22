@@ -19,7 +19,7 @@ import { parseArgs } from 'node:util';
 import process from 'node:process';
 import fs from 'node:fs';
 
-import { existsSync } from './node/exists_sync.js';
+import { deleteFile } from './node/delete_file.js';
 import { convertExcelToModuleDataArray } from './node/convert_excel_to_moduledata_array.js';
 //#endregion node imports
 
@@ -112,9 +112,7 @@ async function main ({
   ledgerDebugFlag = false
 }) {
   // Delete the file before writing to it
-  if (fs.existsSync(errorsFilePath)) {
-    fs.unlinkSync(errorsFilePath);
-  }
+  deleteFile(errorsFilePath);
 
   let _exitCode = 0;
 
@@ -181,9 +179,7 @@ async function main ({
       // Create a writable stream; see https://nodejs.org/api/fs.html#fscreatewritestreampath-options
       const _output = `${outputFolder}/${_scenario}.jsonl`;
       // Delete the file before writing to it
-      if (fs.existsSync(_output)) {
-        fs.unlinkSync(_output);
-      }
+      deleteFile(_output);
 
       // declare array buffer in which to store strings to write to `_output` file
       /** @type {string[]} */
@@ -234,8 +230,8 @@ async function main ({
     _exitCode = 1;
   } finally {
     // if exit code is 0, delete errors file
-    if (_exitCode === 0 && existsSync(errorsFilePath)) {
-      fs.unlinkSync(errorsFilePath);  // throws if file does not exist
+    if (_exitCode === 0) {
+      deleteFile(errorsFilePath);
     }
     // Rather than calling process.exit() directly, the code should set the process.exitCode and allow the process to exit naturally
     // by avoiding scheduling any additional work for the event loop

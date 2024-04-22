@@ -3,7 +3,7 @@
 import { downloadFromUrl } from '../../src/node/download_from_url.js';
 
 import { existsSync } from '../../src/node/exists_sync.js';
-import fs from 'node:fs';
+import { deleteFile } from '../../src/node/delete_file.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -17,5 +17,5 @@ t('downloadFromUrl tests', async () => {
 
   assert(existsSync(filepath));
 
-  fs.unlinkSync(filepath);  // throws if file does not exist
+  deleteFile(filepath);
 });

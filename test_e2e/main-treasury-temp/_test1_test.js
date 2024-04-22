@@ -1,10 +1,10 @@
 // run with --allow-read --allow-write --allow-net --allow-run --allow-env
 
-import { existsSync } from '../../src/node/exists_sync.js';
+import { readUtf8TextFileRemovingBOM } from '../../src/node/read_utf8_text_file_removing_bom.js';
+import { deleteFile } from '../../src/node/delete_file.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
-import fs from 'node:fs';
 
 import { main } from '../../src/main-treasury-temp.js';
 
@@ -14,9 +14,7 @@ import assert from 'node:assert';
 
 import { DEBUG_FLAG, ERROR_FILE } from './_test_settings.js';
 
-if (existsSync(ERROR_FILE)) {
-  fs.unlinkSync(ERROR_FILE);
-}
+deleteFile(ERROR_FILE);
 
 // set cwd/current working directory to current folder (the folder of this file)
 chdir(dirname(fileURLToPath(import.meta.url)));
@@ -30,7 +28,7 @@ t('main-treasury-temp tests with ./user_data__non_existent_module.xlsx', async (
     ledgerDebugFlag: DEBUG_FLAG
   });
 
-  const _errors = fs.readFileSync(ERROR_FILE, 'utf8');
+  const _errors = readUtf8TextFileRemovingBOM(ERROR_FILE);
   //console.log(_errors);
 
   assert(_errors.includes(`error loading module`));

@@ -1,10 +1,11 @@
 // run with --allow-read --allow-write --allow-net --allow-run --allow-env
 
+import { readUtf8TextFileRemovingBOM } from '../../src/node/read_utf8_text_file_removing_bom.js';
 import { existsSync } from '../../src/node/exists_sync.js';
+import { deleteFile } from '../../src/node/delete_file.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
-import fs from 'node:fs';
 
 import { main } from '../../src/main-treasury-temp.js';
 
@@ -16,9 +17,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
 
-if (existsSync(ERROR_FILE)) {
-  fs.unlinkSync(ERROR_FILE);
-}
+deleteFile(ERROR_FILE);
 
 // set cwd/current working directory to current folder (the folder of this file)
 chdir(dirname(fileURLToPath(import.meta.url)));
@@ -44,8 +43,8 @@ t('main-treasury-temp tests with ./user_data__no_settings.xlsx', async () => {
   });
 
   assert.deepStrictEqual(
-    fs.readFileSync(`./${JSONL_OUTPUT}`, 'utf8'),
-    fs.readFileSync(`./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`, 'utf8'));
+    readUtf8TextFileRemovingBOM(`./${JSONL_OUTPUT}`),
+    readUtf8TextFileRemovingBOM(`./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`));
 
-  fs.unlinkSync(`./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`);
+  deleteFile(`./${BASE_TEST_FILENAME}__expected_trn.jsonl.tmp`);
 });

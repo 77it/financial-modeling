@@ -5,6 +5,7 @@ export { downloadFromUrl };
 import fs from 'node:fs';
 import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
+import { deleteFile } from './delete_file.js';
 
 /**
  * Download from `url` a file zipped in gzip and unzip it
@@ -18,10 +19,7 @@ async function downloadFromUrl ({ url, filepath }) {
   const dir = path.dirname(filepath);
   fs.mkdirSync(dir, { recursive: true });
 
-  // try to delete `filepath`
-  try {
-    fs.unlinkSync(filepath);
-  } catch (_) { }
+  deleteFile(filepath);
 
   // open destination file
   const dest = fs.createWriteStream(filepath);

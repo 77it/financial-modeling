@@ -1,8 +1,9 @@
 export { convertExcelToModuleDataArray };
 
-import fs from 'node:fs';
 import process from 'node:process';
 import { execFileSync } from 'node:child_process';
+import { readUtf8TextFileRemovingBOM } from './read_utf8_text_file_removing_bom.js';
+import { deleteFile } from './delete_file.js';
 
 import { ModuleData } from '../engine/modules/module_data.js';
 import { moduleDataArray_LoadFromJsonlFile } from './module_data_array__load_from_jsonl_file.js';
@@ -62,7 +63,7 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
 
   // throw error if there are errors
   if (exit_code !== 0 || existsSync(tempErrorsFilePath)) {
-    const errorsText = fs.readFileSync(tempErrorsFilePath, 'utf8');  // see https://nodejs.org/api/fs.html#fsreadfilesyncpath-options
+    const errorsText = readUtf8TextFileRemovingBOM(tempErrorsFilePath);
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }
 
@@ -75,9 +76,7 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
   const moduleDataArray = await moduleDataArray_LoadFromJsonlFile(jsonlOutput);
 
   // delete temporary file
-  try {
-    fs.unlinkSync(jsonlOutput);
-  } catch (_) { }
+  deleteFile(jsonlOutput);
 
   // return `modulesData`
   return moduleDataArray;
