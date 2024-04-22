@@ -281,3 +281,6 @@ ModelManifest.xml
 /test_e2e/_end_to_end_tests/main-treasury-temp/b.jsonl
 /test_e2e/_end_to_end_tests/main-treasury-temp/a.jsonl
 /test_e2e/main-treasury-temp/errors.txt
+/tests/_end_to_end_tests/main-treasury-temp/a.jsonl
+/tests/_end_to_end_tests/main-treasury-temp/b.jsonl
+/tests/_end_to_end_tests/main-treasury-temp/base.jsonl
