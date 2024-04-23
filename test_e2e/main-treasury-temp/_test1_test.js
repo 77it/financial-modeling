@@ -5,6 +5,7 @@ import { deleteFile } from '../../src/node/delete_file.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
+import process from 'node:process';
 
 import { main } from '../../src/main-treasury-temp.js';
 
@@ -33,4 +34,8 @@ t('main-treasury-temp tests with ./user_data__non_existent_module.xlsx', async (
 
   assert(_errors.includes(`error loading module`));
   assert(_errors.includes(`xxxyyy99___non_existent_module__888_missingmissing`));
+  assert.deepStrictEqual(process.exitCode, 1);
+
+  // reset exit code to prevent failure of test under node.js
+  process.exitCode = 0;
 });
