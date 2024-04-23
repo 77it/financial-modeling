@@ -1,6 +1,6 @@
 // run with --allow-read --allow-write --allow-net --allow-run --allow-env
 
-import { convertExcelSheetToLedgerTrnJsonlFile } from '../deno/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
+import { convertExcelSheetToLedgerTrnJsonlFile } from '../utils/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
 
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';

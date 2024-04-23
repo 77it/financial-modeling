@@ -1,30 +1,27 @@
-export { convertExcelToModuleDataArray };
+export { convertExcelSheetToLedgerTrnJsonlFile };
 
 import { execFileSync } from 'node:child_process';
 
-import { readUtf8TextFileRemovingBOM } from './read_utf8_text_file_removing_bom.js';
-import { deleteFile } from './delete_file.js';
-import { platformIsWindows } from './platform_is_windows.js';
-
-import { ModuleData } from '../engine/modules/module_data.js';
-import { moduleDataArray_LoadFromJsonlFile } from './module_data_array__load_from_jsonl_file.js';
-
-import { existsSync } from './exists_sync.js';
-import { downloadFromUrl } from './download_from_url.js';
+import { existsSync } from '../../src/node/exists_sync.js';
+import { platformIsWindows } from '../../src/node/platform_is_windows.js';
+import { downloadFromUrl } from '../../src/node/download_from_url.js';
+import { readUtf8TextFileRemovingBOM } from '../../src/node/read_utf8_text_file_removing_bom.js';
 
 //#region OPTIONS
-const OPTIONS__CONVERTER_EXE_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.6/Converter.exe';
-const OPTIONS__CONVERTER_EXE_NAME = '../../bin/converter.exe';
+const OPTIONS__CONVERTER_EXE_GZ_URL = 'https://github.com/77it/financial-modeling-binaries/releases/download/v0.0.6/Converter2.exe';
+const OPTIONS__CONVERTER_EXE_NAME = '../bin/converter2.exe';
 
 //#endregion OPTIONS
 
 /**
- * Convert Excel file to an array of `moduleData`
+ * Convert Excel file to a JSONL file with ledger transactions
  * @param {Object} p
  * @param {string} p.excelInput - Excel file with user input
- * @return {Promise<ModuleData[]>} - Array of `ModuleData` objects
+ * @param {string} p.jsonlOutput - JSONL file with ledger transactions
+ * @param {string} p.sheetName - Excel sheet name
+ * @returns {Promise<void>}
  */
-async function convertExcelToModuleDataArray ({ excelInput }) {
+async function convertExcelSheetToLedgerTrnJsonlFile ({ excelInput, jsonlOutput, sheetName }) {
   if (!platformIsWindows)
     throw new Error('platform not supported');
 
@@ -37,19 +34,18 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
   // download and decompress OPTIONS__CONVERTER_EXE_GZ_URL
   if (!existsSync(converterExePath))
     await downloadFromUrl(
-      { url: OPTIONS__CONVERTER_EXE_URL, filepath: converterExePath });
+      { url: OPTIONS__CONVERTER_EXE_GZ_URL, filepath: converterExePath });
 
-  //#region convert Excel input file to JSONL `modulesData` calling Converter program
-  const jsonlOutput = excelInput + '.dump.jsonl.tmp';
+  //#region convert Excel input file to JSONL file with ledger transactions
   const tempErrorsFilePath = excelInput + '.errors.tmp';
 
   const args = [
-    'excel-modules-to-jsonl-modules',
+    'excel-sheet-to-jsonl-ledger-trn',
     '--input', excelInput,
+    '--sheetname', sheetName,
     '--output', jsonlOutput,
     '--errors', tempErrorsFilePath
-  ]
-
+  ];
   const { stdout_string, exit_code } = (() => {
     try {
       // see https://www.freecodecamp.org/news/node-js-child-processes-everything-you-need-to-know-e69498fe970a/
@@ -61,7 +57,7 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
       return {stdout_string: '', exit_code: error.status};
     }
   })();
-  //#endregion convert Excel input file to JSONL `modulesData` calling Converter program
+  //#endregion convert Excel input file to JSONL file with ledger transactions
 
   // throw error if there are errors
   if (exit_code !== 0 || existsSync(tempErrorsFilePath)) {
@@ -73,13 +69,4 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
   if (!existsSync(jsonlOutput)) {
     throw new Error(`Errors during conversion of the Excel input file: output file ${jsonlOutput} does not exist`);
   }
-
-  // load `jsonlOutput` JSONL file to `moduleData` array
-  const moduleDataArray = await moduleDataArray_LoadFromJsonlFile(jsonlOutput);
-
-  // delete temporary file
-  deleteFile(jsonlOutput);
-
-  // return `modulesData`
-  return moduleDataArray;
 }
