@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 import { main } from '../../src/main-treasury-temp.js';
 
-import { convertExcelSheetToLedgerTrnJsonlFile } from '../utils/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
+import { convertExcelSheetToLedgerTrnJsonlFile } from '../node/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
 
 import { DEBUG_FLAG, ERROR_FILE } from './_test_settings.js';
 
