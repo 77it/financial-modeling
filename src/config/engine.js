@@ -1,6 +1,10 @@
+import { deepFreeze } from '../lib/obj_utils.js';
+
 //#region config used by engine and Excel UI
 export const SIMULATION_NAME = '$';
 export const SCENARIO_BASE = 'base';
+export const FML_PREFIX = ['`', '='];  // prefix to mark formulas in the Excel UI and in the engine
+deepFreeze(FML_PREFIX);
 //#endregion config used by engine and Excel UI
 
 //#region modules config, used by engine and Excel UI
@@ -27,6 +31,6 @@ export const IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES = '$';
 
 //#region other config
 // If true, the validation of the data is disabled in 'schema_validation_utils.js/validateObj()' and 'schema_validation_utils.js/validate()';
-// not recommended to set this to true, is usable for testing purposes or to speed up the execution of the engine, thanks to the absence of validation
+// not recommended to set this to true, is usable for testing purposes or (maybe) to speed up the execution of the engine, thanks to the absence of validation
 export const DISABLE_VALIDATION = false;
 //#endregion other config
