@@ -295,9 +295,9 @@ class DriversRepo {
       let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
       // strip the time part from the date (if the date is != Date(0))
       _endDate = (_endDate.getTime() !== 0) ? stripTimeToLocalDate(_endDate) : _endDate;
-      // if `endDate` is lower than `date`, throw
+      // if `endDate` is lower than `date`, invert the two dates
       if (_endDate.getTime() < _date.getTime())
-        throw new Error(`Invalid parameters: 'endDate' (${_endDate}) (original value ${endDate}) is lower than 'date' (${_date})`);
+        [_date, _endDate] = [_endDate, _date];
 
       const _dateMilliseconds = _date.getTime();  // date to search for
       const _endDateMilliseconds = _endDate.getTime();  // date to search for
