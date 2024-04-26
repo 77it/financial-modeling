@@ -23,25 +23,41 @@ t('YAML tests', () => {
 
   //#region parsing object with key not separated from value, works only if the key is enclosed in "";
   // otherwise, returns `null` (converted to `undefined` in our library) as value
-  let parsed_keys_not_separated_from_values = parseYAML('{"Main":999.159, "Main2":"abcd", Name:"Y88 x", mamma:ciao}');
-  // test key definition
+  let parsed_keys_not_separated_from_values = parseYAML('{"Main":999.159, "Main2":"abcd", Name:"Y88:x", mamma:\'ciao\', mamma3 :99, mamma2:ciao2, mamma-ciao, :ciaociao}');
+  //#region test key definition
+  // keys defined without sanitization
   assert("Main" in parsed_keys_not_separated_from_values);
   assert("Main2" in parsed_keys_not_separated_from_values);
-  assert(!("Name" in parsed_keys_not_separated_from_values));  // not defined
-  assert("Name:\"Y88 x\"" in parsed_keys_not_separated_from_values);  // defined, key made of key+value
-  assert(!("mamma" in parsed_keys_not_separated_from_values));  // not defined
-  assert("mamma:ciao" in parsed_keys_not_separated_from_values);  // defined, key made of key+value
+  assert("mamma-ciao" in parsed_keys_not_separated_from_values);
+  assert(":ciaociao" in parsed_keys_not_separated_from_values);
+  // defined because key is sanitized and split in key and value
+  assert("Name" in parsed_keys_not_separated_from_values);
+  assert("mamma" in parsed_keys_not_separated_from_values);
+  assert("mamma2" in parsed_keys_not_separated_from_values);
+  // defined because key is sanitized and space is removed
+  assert("mamma3" in parsed_keys_not_separated_from_values);
+  // without sanitization, with direct YAML parsing this key would be defined, with space in it!
+  assert(!("mamma3 " in parsed_keys_not_separated_from_values));
+  // without sanitization, with direct YAML parsing this key would be defined; is not because the key is sanitized and split in key and value
+  assert(!("Name:\"Y88 x\"" in parsed_keys_not_separated_from_values));
+  assert(!("mamma:\'ciao\'" in parsed_keys_not_separated_from_values));
+  assert(!("mamma2:ciao2" in parsed_keys_not_separated_from_values));
+  //#endregion test key definition
+
   // test key values
   assert.deepStrictEqual(parsed_keys_not_separated_from_values.Main, 999.159);
   assert.deepStrictEqual(parsed_keys_not_separated_from_values.Main2, "abcd");
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values['Name'], undefined);  // undefined key
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values['Name:"Y88 x"'], null);  // key defined, null value
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values['mamma'], undefined);  // undefined key
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values['mamma:ciao'], null);  // key defined, null value
+  assert.deepStrictEqual(parsed_keys_not_separated_from_values.Name, "Y88:x");  // defined because key is sanitized and split in key and value
+  assert.deepStrictEqual(parsed_keys_not_separated_from_values.mamma, "ciao");  // defined because key is sanitized and split in key and value
+  assert.deepStrictEqual(parsed_keys_not_separated_from_values.mamma2, "ciao2");  // defined because key is sanitized and split in key and value
+  assert.deepStrictEqual(parsed_keys_not_separated_from_values.mamma3, 99);
+  assert.deepStrictEqual(parsed_keys_not_separated_from_values['mamma-ciao'], null);
+  assert.deepStrictEqual(parsed_keys_not_separated_from_values[':ciaociao'], null);
   //#endregion
 
   //#region parsing strings with and without quotes, returns the string
   assert.deepStrictEqual(parseYAML('"ciao"'), 'ciao');
+  assert.deepStrictEqual(parseYAML("'ciao'"), 'ciao');
   assert.deepStrictEqual(parseYAML('ciao'), 'ciao');
   //#endregion
 
@@ -65,12 +81,15 @@ t('YAML tests', () => {
   //#endregion
 
   //#region parsing object (works with ' and ")
-  const txt = '{\'Main\':999.159, Name: \'Y88 x\', num: -1, mamma : ciao}';
+  const txt = '{\'Main\':999.159, Name: \'Y88 x\', num: -1, mamma : ciao, mamma2 : 99, mamma3 :88}';
   let parsed = parseYAML(txt);
   assert.deepStrictEqual(parsed.Main, 999.159);
   assert.deepStrictEqual(parsed.Name, 'Y88 x');
   assert.deepStrictEqual(parsed.num, -1);
   assert.deepStrictEqual(parsed.mamma, 'ciao');
+  assert.deepStrictEqual(parsed.mamma2, 99);
+  assert.deepStrictEqual(parsed.mamma3, 88);
+  assert(!(parsed["mamma3 "] === 88));  // without sanitization, the key would be with space!
 
   const txtB = '{"Main":999.159, Name: "Y88 x", num: -1, mamma : ciao}';
   let parsedB = parseYAML(txtB);
