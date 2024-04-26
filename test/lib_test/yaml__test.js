@@ -23,7 +23,7 @@ t('YAML tests', () => {
 
   //#region parsing object with key not separated from value, works only if the key is enclosed in "";
   // otherwise, returns `null` (converted to `undefined` in our library) as value
-  let parsed_keys_not_separated_from_values = parseYAML('{"Main":999.159, "Main2":"abcd", Name:"Y88:x", mamma:\'ciao\', mamma3 :99, mamma2:ciao2, mamma-ciao, :ciaociao}');
+  let parsed_keys_not_separated_from_values = parseYAML('{"Main":999.159, \'Main2\':"abcd", Name:"Y88:x", mamma:\'ciao\', mamma3 :99, mamma2:ciao2, mamma-ciao, :ciaociao}');
   //#region test key definition
   // keys defined without sanitization
   assert("Main" in parsed_keys_not_separated_from_values);
@@ -81,7 +81,7 @@ t('YAML tests', () => {
   //#endregion
 
   //#region parsing object (works with ' and ")
-  const txt = '{\'Main\':999.159, Name: \'Y88 x\', num: -1, mamma : ciao, mamma2 : 99, mamma3 :88}';
+  const txt = '{\'Main\':999.159, Name: \'Y88 x\', num: -1, \'mamma\':\'ciao\', mamma2 : 99, mamma3 :88}';
   let parsed = parseYAML(txt);
   assert.deepStrictEqual(parsed.Main, 999.159);
   assert.deepStrictEqual(parsed.Name, 'Y88 x');
@@ -91,7 +91,7 @@ t('YAML tests', () => {
   assert.deepStrictEqual(parsed.mamma3, 88);
   assert(!(parsed["mamma3 "] === 88));  // without sanitization, the key would be with space!
 
-  const txtB = '{"Main":999.159, Name: "Y88 x", num: -1, mamma : ciao}';
+  const txtB = '{"Main":999.159, Name: "Y88 x", num: -1, "mamma":"ciao"}';
   let parsedB = parseYAML(txtB);
   assert.deepStrictEqual(parsedB.Main, 999.159);
   assert.deepStrictEqual(parsedB.Name, 'Y88 x');
