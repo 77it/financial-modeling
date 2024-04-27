@@ -27,6 +27,10 @@ export const DECIMAL_PLACES = 4;
 // config used during init of Settings and Drivers classes
 export const IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES = '$$';
 export const IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES = '$';
+
+// Formula and YAML cache size
+export const FML_CACHE_SIZE = 10_000;
+export const YAML_CACHE_SIZE = 10_000;
 //#endregion internal engine config
 
 //#region other config
