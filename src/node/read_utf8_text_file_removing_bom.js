@@ -9,6 +9,9 @@ import fs from 'node:fs';
 export function readUtf8TextFileRemovingBOM (path) {
   // see https://nodejs.org/api/fs.html#fsreadfilesyncpath-options
   let _fileContent = fs.readFileSync(path, 'utf8');
+  // EF BB BF is the UTF-8 encoding of the Unicode code point U+FEFF
+  // see https://stackoverflow.com/questions/54247407/why-utf-8-bom-bytes-efbbbf-can-be-replaced-by-ufeff
+  // see https://it.wikipedia.org/wiki/Byte_Order_Mark
   if (_fileContent.charCodeAt(0) === 0xFEFF) {
     _fileContent = _fileContent.slice(1);
   }
