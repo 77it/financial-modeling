@@ -21,9 +21,14 @@ t('YAML tests', () => {
   assert.deepStrictEqual(parseYAML('null'), null);
   //#endregion
 
+  // parsing an object without {} goes in error then is returned undefined
+  let parsed_object_without_parens = parseYAML('Main: 89, Ciao: 99');
+  assert(parsed_object_without_parens === undefined);
+
   //#region parsing object with key not separated from value, works only if the key is enclosed in "";
   // otherwise, returns `null` (converted to `undefined` in our library) as value
   let parsed_keys_not_separated_from_values = parseYAML('{"Main":999.159, \'Main2\':"abcd", Name:"Y88:x", mamma:\'ciao\', mamma3 :99, mamma2:ciao2, mamma-ciao, :ciaociao}');
+  assert(typeof parsed_keys_not_separated_from_values === 'object');
   //#region test key definition
   // keys defined without sanitization
   assert("Main" in parsed_keys_not_separated_from_values);
