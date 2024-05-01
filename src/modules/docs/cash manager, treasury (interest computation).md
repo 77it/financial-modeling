@@ -1,3 +1,5 @@
+see https://docs.google.com/document/d/1II6fAbf7S_EybOsmlmXETNPRTzoQpA3o7h-x2TPTUeY/edit#heading=h.6eoikrhrb22r
+
 # taskLock SIMULATION__INTERCOMPANY_CASHMANAGER__DAILY_ACTIVITY 
 
 At EOD, transfer excess cash from Unit to Unit, following rules taken from some input tables.
