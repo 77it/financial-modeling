@@ -286,7 +286,7 @@ class DriversRepo {
         return _parsedValue;
       else if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
         return sanitize({ value: _parsedValue, sanitization: sanitizationType });
-      else
+      else if (typeof sanitizationType === 'object')
         return sanitizeObj({ obj: _parsedValue, sanitization: sanitizationType });
     }
     // if `endDate` is defined, returns an array of values defined between `date` and `endDate`
@@ -314,12 +314,12 @@ class DriversRepo {
         _retArray = _retArray.map(_item => parseJSON5(_item));
 
       // sanitize the value if requested
-      if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
-        _retArray = _retArray.map(_item => sanitize({ value: _item, sanitization: sanitizationType }));
+      if (isNullOrWhiteSpace(sanitizationType))
+        return _retArray;
+      else if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
+        return _retArray.map(_item => sanitize({ value: _item, sanitization: sanitizationType }));
       else if (typeof sanitizationType === 'object')
-        _retArray = _retArray.map(_item => sanitizeObj({ obj: _item, sanitization: sanitizationType }));
-
-      return _retArray;
+        return _retArray.map(_item => sanitizeObj({ obj: _item, sanitization: sanitizationType }));
     }
   }
 
