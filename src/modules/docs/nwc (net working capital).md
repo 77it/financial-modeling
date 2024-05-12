@@ -4,15 +4,21 @@
 
 _Funziona solo nei giorni di simulazione, non nei giorni historical._
 
-Modulo di Simulation, ogni giorno scarica crediti e debiti commerciali alive con scadenza:
-* scarica crediti e debiti alive da Ledger chiamando `getAliveBsSimObjectsWithExpiredPrincipalToPay()`
-* scarica gli SO per le scadenze maturate (che hanno un piano di ammortamento scaduto a fine giornata);
-  se il saldo residuo = 0, setta alive = false
-* definisce su /config/nwc la lista dei tipi di accounting da scaricare
+Modulo di Simulation, ogni giorno:
+1) interroga crediti e debiti alive da Ledger chiamando `getAliveBsSimObjectsWithExpiredPrincipalToManage()`
+2) scarica gli SO per le scadenze maturate (che hanno un piano di ammortamento scaduto a fine giornata);
+3) se dopo lo scarico se il saldo residuo = 0, setta alive = false
 
-Scarica anche i SimObject intercompany collegati:
-* quando processa lo scarico di un SimObject e trova che questo è collegato a un altro con `vsSimObjectName`
-  scarica automaticamente anche l'altro SimObject // see >vsSimObjectName_note_20231111
+Note:
+* scarica tutti i SimObject con piano di ammortamento scaduto 
+* poiché il piano può avere segni positivi o negativi, quando il segno è negativo si incrementano debiti/crediti,
+  facendo in contropartita movimenti VsCash; 
+  quando il segno è positivo, riduce crediti e debiti commerciali, muovendo sempre in contropartita VsCash
+
+Lo scarico dei SimObject intercompany collegati da `vsSimObjectName` non è necessario farlo da NWC perché ledger
+ha un metodo `alignBsSimObjectsLinkedWithVsSimObjectName` che si occupa di allineare i piani dei SimObject collegati
+(se il loro saldo è identico, altrimenti non vegnono allineati), quindi processando man mano tutti i SimObject
+con piano scaduto a fine giornata i SimObject intercompany verranno allineati. 
 
 Viene caricato automaticamente da Engine se il lock non è definito.
 

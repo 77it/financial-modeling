@@ -159,7 +159,7 @@ class Ledger {
    * @param {Object} p
    * @param {string} [p.type] - SimObject type. If missing, retrieve all, if present retrieve only the specified type.
    * @returns {SimObject[]} */
-  getAliveBsSimObjectsWithExpiredPrincipalToPay ({ type }) {
+  getAliveBsSimObjectsWithExpiredPrincipalToManage ({ type }) {
     // TODO return a list of SO
     // * alive BS SimObjects
     // * with principal to pay (date of a payment is <= today)

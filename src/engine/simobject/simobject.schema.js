@@ -52,7 +52,7 @@ const simObject_Schema = {
   //#endregion properties common only to some kind of SimObjects
 
   //#region properties NOT EXPORTED TO JSON DUMP
-  vsSimObjectName: schema.STRING_TYPE,  // This is the name of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
+  vsSimObjectName: schema.STRING_TYPE,  // See notes below. This is the name of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
   //[REPLACED] //vsSimObjectId: schema.STRING_TYPE,  // REPLACED WITH `vsSimObjectName` because we will can't set in both linked SimObjects the Id of the other, because the other will not exist yet; instead the name can be set in both linked SimObjects
   versionId: schema.NUMBER_TYPE,
   //[REMOVED] //previousVersionId: schema.STRING_TYPE,
@@ -65,9 +65,8 @@ const simObject_Schema = {
 # vsSimObjectName   #vsSimObjectName_note_20231111
 This property must be set with intercompanyInfo__VsUnitId, to define the linked Unit of which is referenced a SimObject by name.
 
-Can be used to extinguish the linked SimObjects when the first is closed.
-Can be used to pay the daily schedule payments of the linked SimObjects but only if the residual value of the
-two SimObject is the same before the payment and if the schedule is the same; otherwise ignore the payment.
+Can be used to align automatically the payment schedule of the linked SimObjects but only if the residual value of the
+two SimObject is the same before. See Ledger and NWC notes.
 
 If this property is set in one SimObject A only and is missing from the linked SimObject B
 the two SimObjects A & B will be considered linked and will be treated as if they have an opposite/matching vsSimObjectName & intercompanyInfo__VsUnitId.
