@@ -36,10 +36,10 @@ function doubleEntrySideFromSimObjectType (type) {
         return DoubleEntrySide_enum.BALANCESHEET_DEBIT;
     else if (_type.startsWith('BS_EQUITY__') || _type.startsWith('BS_LIABILITY__'))
         return DoubleEntrySide_enum.BALANCESHEET_CREDIT;
+    else if (_type.startsWith('IS_EXPENSE__') || _type.startsWith('IS_PROFITLOSS__NETINCOMEORLOSS__'))  // NETINCOMEORLOSS__ is treated as a cost
+        return DoubleEntrySide_enum.INCOMESTATEMENT_DEBIT;
     else if (_type.startsWith('IS_INCOME__') || _type.startsWith('IS_PROFITLOSS__'))
         return DoubleEntrySide_enum.INCOMESTATEMENT_CREDIT;
-    else if (_type.startsWith('IS_EXPENSE__'))
-        return DoubleEntrySide_enum.INCOMESTATEMENT_DEBIT;
     else if (_type.startsWith('MEMO'))
         return DoubleEntrySide_enum.MEMO;
     else
