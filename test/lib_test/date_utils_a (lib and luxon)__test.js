@@ -287,6 +287,19 @@ t('differenceInCalendarDaysOfUTCDates - returns the number of calendar days (1 d
  * @param {function} differenceInCalendarDaysOfLocalDates
  */
 function differenceInCalendarDays_test1 (differenceInCalendarDaysOfLocalDates) {
+  // In Javascript, are not representable hours in the day of the daylight saving time change
+  // (e.g. 1917/03/01 00:00 Italy daylight saving, because doesn't exist and instead exist 1917/03/01 01:00).
+  // Then this test, tested in Italy, works, also if cause to the daylight saving time change, the date is 1917/03/01 01:00.
+  //
+  // See this (not) bug discussion with the date-fns author  https://github.com/date-fns/date-fns/issues/3767#issuecomment-2053698643
+  t('returns the number of calendar days between a day that has daylight saving', () => {
+    const result = differenceInCalendarDaysOfLocalDates(
+      new Date(1917, 3 /* Apr */, 3, 0, 0),
+      new Date(1917, 3 /* Apr */, 1, 0, 0)
+    );
+    assert(result === 2);
+  });
+
   t('returns the number of calendar days between the given dates (2022-05-31 - 2022-05-30)', () => {
     const result = differenceInCalendarDaysOfLocalDates(
       new Date(2022, 4 /* May */, 31, 0, 0),
@@ -303,7 +316,7 @@ function differenceInCalendarDays_test1 (differenceInCalendarDaysOfLocalDates) {
     assert(result === -1);
   });
 
-  t('returns the number of calendar days between the given dates (2011 - 2010)', () => {
+  t('returns the number of calendar days between the given dates (2011 - 2010) with hours', () => {
     const result = differenceInCalendarDaysOfLocalDates(
       new Date(2011, 6 /* Jul */, 2, 18, 0),
       new Date(2010, 6 /* Jul */, 2, 6, 0)
@@ -311,7 +324,7 @@ function differenceInCalendarDays_test1 (differenceInCalendarDaysOfLocalDates) {
     assert(result === 365);
   });
 
-  t('returns the number of calendar days between the given dates (2013 - 2012)', () => {
+  t('returns the number of calendar days between the given dates (2013 - 2012) with hours', () => {
     const result = differenceInCalendarDaysOfLocalDates(
       new Date(2013, 6 /* Jul */, 2, 18, 0),
       new Date(2012, 6 /* Jul */, 2, 6, 0)
@@ -319,7 +332,7 @@ function differenceInCalendarDays_test1 (differenceInCalendarDaysOfLocalDates) {
     assert(result === 365);
   });
 
-  t('the difference is less than a day,in the same calendar day', () => {
+  t('the difference is less than a day,in the same calendar day with hours and minutes', () => {
     const result = differenceInCalendarDaysOfLocalDates(
       new Date(2014, 8 /* Sep */, 5, 0, 1),
       new Date(2014, 8 /* Sep */, 5, 23, 58)
@@ -327,7 +340,7 @@ function differenceInCalendarDays_test1 (differenceInCalendarDaysOfLocalDates) {
     assert(result === 0);
   });
 
-  t('the difference is the whole day,in the same calendar day', () => {
+  t('the difference is the whole day,in the same calendar day with hours and minutes', () => {
     const result = differenceInCalendarDaysOfLocalDates(
       new Date(2014, 8 /* Sep */, 5, 0, 0),
       new Date(2014, 8 /* Sep */, 5, 23, 59)
