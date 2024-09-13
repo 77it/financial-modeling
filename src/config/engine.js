@@ -5,7 +5,7 @@ export const SIMULATION_NAME = '$';
 export const SCENARIO_BASE = 'base';
 export const FML_PREFIX = ['`'];  // prefix to mark formulas in the Excel UI and in the engine
 deepFreeze(FML_PREFIX);
-export const ARRAY_ARITHMETIC_PREFIX = '=';  // prefix to mark formulas in the Excel UI and in the engine
+export const ARRAY_ARITHMETIC_PREFIX = '<';  // prefix to mark formulas in the Excel UI and in the engine
 //#endregion config used by engine and Excel UI
 
 //#region modules config, used by engine and Excel UI
