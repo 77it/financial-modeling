@@ -21,7 +21,8 @@ const DEFAULT_BIGINT = BigInt(0);
  * Sanitize value returning a sanitized value without modifying the original value.
  * Accepted sanitization types are many: see `schema.js`; class is 'function', class instance is 'object';
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
- * To sanitize a value with a function pass the function as sanitization type: the function will be called with the value to sanitize as parameter.
+ * To sanitize a value applying a function, pass a static class containing the methods .sanitize() and .validate()
+ *   the sanitization function will be called as class.sanitize() with the value to sanitize as parameter.
  * For optional values (null/undefined are accepted) append '?' to the type.
  * For enum sanitization use an array of values (values will be ignored, optionally validated).
  * Sanitization types ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
@@ -73,8 +74,9 @@ function sanitize ({ value, sanitization, options, validate = false }) {
     let _value;
     try {
       //@ts-ignore
-      _value = sanitization(value);
+      _value = sanitization.sanitize(value);
     } catch (_) {
+      // if it goes in error returns the not-sanitized value
       _value = value;
     }
     if (validate)

@@ -12,9 +12,10 @@ const SUCCESS = '';
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
  * For optional values (null/undefined are accepted) append '?' to the type.
  * For enum validation use an array of values.
- * To validate that a value is instance of a class or a function pass the class or function as validation.
- * To validate that a value is an array of instances of a class or a function pass as validation an array containing one element, the class or function.
- * As types you can use also exported const as 'ANY_TYPE'.
+ * To validate a value applying a function, pass a static class containing the methods .sanitize() and .validate()
+ *   the validation function will be called as class.validate() with the value to validate as parameter;
+ *   the validation function throws an error if the validation fails
+ * As types value you can use also exported const as 'ANY_TYPE'.
  * @param {Object} p
  * @param {*} p.value - Value to validate
  * @param {*} p.validation - Validation type (string, array of strings, class or function, array containing a class or function)
@@ -115,10 +116,18 @@ function _validateValue ({ value, validation, errorMsg }) {
 
     return `${errorMsg} = ${value}, must be one of ${validation}`;
   } else if (typeof validation === 'function') {
-    if (value instanceof validation)
+    // if validation is a class apply the .validate() method, that will throw an error if the validation fails
+    try {
+      //@ts-ignore
+      validation.validate(value);
       return SUCCESS;
-
-    return `${errorMsg} = ${value}, must be an instance of a function or class`;
+    } catch (error) {
+      // if it goes in error, returns the error message or a default message if empty
+      if (error.message.trim() === "")
+        return "validation error";
+      else
+        return error.message;
+    }
   } else if (typeof validation === 'string') {
     let optionalValidation = false;
     let validationType = validation.toString().trim().toLowerCase();

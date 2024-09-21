@@ -3,10 +3,6 @@ import * as s from '../../src/lib/schema_sanitization_utils.js';
 
 import { isValidDate } from '../../src/lib/date_utils.js';
 
-// from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
-// @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
-import { Big } from 'https://cdn.jsdelivr.net/npm/big.js@6.2.1/big.min.mjs';
-
 import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;
@@ -597,14 +593,14 @@ t('test sanitize() - array of bigint number type + validation', async () => {
   s.sanitize({ value: 'aaa', sanitization: t, validate: true });
 });
 
-t('test sanitize() - big.js type + validation (use the Big function to sanitize the value)', async () => {
-  const t = Big;
+t('test sanitize() - custom function type + validation (use the SanitizationValidationClass class to sanitize the value)', async () => {
+  const t = SanitizationValidationClass;
   assert.deepStrictEqual(JSON.stringify(undefined), JSON.stringify(s.sanitize({ value: undefined, sanitization: t })));
   assert.deepStrictEqual(JSON.stringify(null), JSON.stringify(s.sanitize({ value: null, sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(new Big(999)), JSON.stringify(s.sanitize({ value: 999, sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(new Big(999)), JSON.stringify(s.sanitize({ value: '999', sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(new Big(0)), JSON.stringify(s.sanitize({ value: '0', sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(''), JSON.stringify(s.sanitize({ value: '', sanitization: t })));
+  assert.deepStrictEqual(JSON.stringify(SanitizationValidationClass.sanitize(999)), JSON.stringify(s.sanitize({ value: 999, sanitization: t })));
+  assert.deepStrictEqual(JSON.stringify(SanitizationValidationClass.sanitize(999)), JSON.stringify(s.sanitize({ value: '999', sanitization: t })));
+  assert.deepStrictEqual(JSON.stringify(SanitizationValidationClass.sanitize(0)), JSON.stringify(s.sanitize({ value: '0', sanitization: t })));
+  assert.deepStrictEqual(JSON.stringify(10), JSON.stringify(s.sanitize({ value: '', sanitization: t })));
   assert.deepStrictEqual(JSON.stringify('abc'), JSON.stringify(s.sanitize({ value: 'abc', sanitization: t })));
   assert.deepStrictEqual(JSON.stringify(new Date(2022, 11, 25)), JSON.stringify(s.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
   assert.deepStrictEqual(JSON.stringify(new Date(NaN)), JSON.stringify(s.sanitize({ value: new Date(NaN), sanitization: t })));
@@ -614,13 +610,13 @@ t('test sanitize() - big.js type + validation (use the Big function to sanitize 
   s.sanitize({ value: 999, sanitization: t, validate: true });
 });
 
-t('test sanitize() - array of big.js type + validation (use the Big function to sanitize the value)', async () => {
-  const t = [Big];
-  assert.deepStrictEqual(JSON.stringify([new Big(1), new Big(2), 'a']), JSON.stringify(s.sanitize({ value: [1, 2, 'a'], sanitization: t })));
+t('test sanitize() - array of custom function type + validation (use the SanitizationValidationClass class to sanitize the value)', async () => {
+  const t = [SanitizationValidationClass];
+  assert.deepStrictEqual(JSON.stringify([SanitizationValidationClass.sanitize(1), SanitizationValidationClass.sanitize(2), 'a']), JSON.stringify(s.sanitize({ value: [1, 2, 'a'], sanitization: t })));
   assert.deepStrictEqual(JSON.stringify([undefined]), JSON.stringify(s.sanitize({ value: undefined, sanitization: t })));
   assert.deepStrictEqual(JSON.stringify([null]), JSON.stringify(s.sanitize({ value: null, sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify([new Big(999)]), JSON.stringify(s.sanitize({ value: 999, sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(['']), JSON.stringify(s.sanitize({ value: '', sanitization: t })));
+  assert.deepStrictEqual(JSON.stringify([SanitizationValidationClass.sanitize(999)]), JSON.stringify(s.sanitize({ value: 999, sanitization: t })));
+  assert.deepStrictEqual(JSON.stringify([10]), JSON.stringify(s.sanitize({ value: '', sanitization: t })));
   assert.deepStrictEqual(JSON.stringify(['abc']), JSON.stringify(s.sanitize({ value: 'abc', sanitization: t })));
   assert.deepStrictEqual(JSON.stringify([new Date(2022, 11, 25)]), JSON.stringify(s.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
   assert.deepStrictEqual(JSON.stringify([new Date(NaN)]), JSON.stringify(s.sanitize({ value: new Date(NaN), sanitization: t })));
@@ -629,3 +625,39 @@ t('test sanitize() - array of big.js type + validation (use the Big function to 
   s.sanitize({ value: 999, sanitization: t, validate: true });
   s.sanitize({ value: '999', sanitization: t, validate: true });
 });
+
+/**
+ * A class to sanitize and validate
+ */
+class SanitizationValidationClass {
+  /**
+   * Method to sanitize an input value: if number or string, add 10;
+   * if not number after conversion return input value.
+   * If of different type, return input
+   * @param {*} input - The value to be sanitized
+   * @returns {*} - The sanitized value
+   */
+  static sanitize(input) {
+    if (typeof input !== 'string' && typeof input !== 'number') {
+      return input; // Return input unchanged if it's not a string or number
+    }
+    const num = Number(input);
+    if (isNaN(num)) {
+      return input;
+    }
+    return num + 10;
+  }
+
+  /**
+   * Method to validate an input value: if number returns "";
+   * If of different type, return error message
+   * @param {*} input - The value to be validated
+   * @throws {Error} Validation error
+   */
+  static validate(input) {
+    if (typeof input === 'number')
+      return "";
+    else
+      return "not a number";
+  }
+}
