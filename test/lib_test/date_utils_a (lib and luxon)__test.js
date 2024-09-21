@@ -1,3 +1,9 @@
+export {
+  differenceInCalendarDays_test1,
+  differenceInCalendarDays_test2,
+  differenceInCalendarDays_test3
+}
+
 import {
   isValidDate,
   parseJsonToLocalDate,
@@ -9,7 +15,6 @@ import {
   localDateToExcelSerialDate,
   getEndOfMonthOfLocalDate
 } from '../../src/lib/date_utils.js';
-import { differenceInCalendarDays_luxon } from './date_utils_a__differenceInCalendarDays_luxon.js';
 import { localDateToUTC, stripTimeToLocalDate, localDateToStringYYYYMMDD } from '../../src/lib/date_utils.js';
 
 import { test } from 'node:test';
@@ -350,7 +355,6 @@ function differenceInCalendarDays_test1 (differenceInCalendarDaysOfLocalDates) {
 }
 
 differenceInCalendarDays_test1(differenceInCalendarDays_lib);
-differenceInCalendarDays_test1(differenceInCalendarDays_luxon);
 //#endregion differenceInCalendarDaysOfLocalDates #1
 
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts (MIT license)
@@ -449,7 +453,6 @@ function differenceInCalendarDays_test2 (differenceInCalendarDaysOfLocalDates) {
 }
 
 differenceInCalendarDays_test2(differenceInCalendarDays_lib);
-differenceInCalendarDays_test2(differenceInCalendarDays_luxon);
 //#endregion differenceInCalendarDaysOfLocalDates #2
 
 // DST TESTS inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts (MIT license)
@@ -558,7 +561,6 @@ function differenceInCalendarDays_test3 (differenceInCalendarDaysOfLocalDates) {
 }
 
 differenceInCalendarDays_test3(differenceInCalendarDays_lib);
-differenceInCalendarDays_test3(differenceInCalendarDays_luxon);
 //#endregion differenceInCalendarDaysOfLocalDates #3 - DST
 
 t('excelSerialDateToUTCDate', () => {
