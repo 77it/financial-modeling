@@ -124,9 +124,9 @@ function _validateValue ({ value, validation, errorMsg }) {
     } catch (error) {
       // if it goes in error, returns the error message or a default message if empty
       if (error.message.trim() === "")
-        return "validation error";
+        return `${errorMsg} = ${value}, validation error`;
       else
-        return error.message;
+        return `${errorMsg} = ${value}, ${error.message}`;
     }
   } else if (typeof validation === 'string') {
     let optionalValidation = false;

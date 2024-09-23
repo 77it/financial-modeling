@@ -1,9 +1,7 @@
 import { validateObj } from '../../src/lib/schema_validation_utils.js';
 import * as S from '../../src/lib/schema.js';
 
-// from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
-// @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
-import { Big } from 'https://cdn.jsdelivr.net/npm/big.js@6.2.1/big.min.mjs';
+import { SanitizationValidationClass } from './SanitizationValidationClass.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -111,8 +109,8 @@ t('test validateObj(), valid, complex object, names with and without quotes', ()
     'bigInt_number': BigInt(10),
     'arrBigInt': [BigInt(10), BigInt(9), BigInt(0)],
     'arrBigInt_number': [BigInt(10), BigInt(9), BigInt(0)],
-    'big_js': new Big(10),
-    'arrBig_js': [new Big(10), new Big(9), Big(0)],
+    'big_js': 10,
+    'arrBig_js': [19, 9, 0],
     'extraValueNotValidated': 999
   };
 
@@ -141,8 +139,8 @@ t('test validateObj(), valid, complex object, names with and without quotes', ()
     bigInt_number: S.BIGINT_NUMBER_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
     arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
-    big_js: Big,
-    arrBig_js: [Big],
+    big_js: SanitizationValidationClass,
+    arrBig_js: [SanitizationValidationClass],
     any: S.ANY_TYPE,
   };
 
@@ -345,7 +343,7 @@ t('test validateObj(), not valid, array is of wrong type', () => {
     arrObj: [{ a: 0 }, { b: 'b' }, 99],
     arrBigInt: [BigInt(10), 0, BigInt(0)],
     arrBigInt_number: [BigInt(10), 0, BigInt(0)],
-    arrBig_js: [new Big(10), 0, Big(0)],
+    arrBig_js: [10, 0, "0"],
   };
 
   const validation = {
@@ -359,7 +357,7 @@ t('test validateObj(), not valid, array is of wrong type', () => {
     arrObj: S.ARRAY_OF_OBJECTS_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
     arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
-    arrBig_js: [Big],
+    arrBig_js: [SanitizationValidationClass],
   };
 
   let _error;
@@ -379,7 +377,7 @@ t('test validateObj(), not valid, array is of wrong type', () => {
   assert(_error.includes('"arrObj array error, [\\"Value = 99, must be an object\\"]"'));
   assert(_error.includes('"arrBigInt array error, [\\"Value = 0, must be an instance of BigInt\\"]"'));
   assert(_error.includes('"arrBigInt_number array error, [\\"Value = 0, must be an instance of BigInt\\"]"'));
-  assert(_error.includes('"arrBig_js array error, [\\"Value = 0, must be an instance of a function or class\\"]"'));
+  assert(_error.includes('"arrBig_js array error, [\\"Value = 0, is not a number\\"]"'));
 });
 
 t('test validateObj(), not valid, null/undefined/not a str parameter', () => {
@@ -503,7 +501,7 @@ t('test validateObj(), not valid, null/undefined/not BigInt number parameter', (
   assert(_error.includes('["big = null, must be an instance of BigInt","big2 = undefined, must be an instance of BigInt","big3 = 999, must be an instance of BigInt","big4 = 999999999999999999999, is BigInt but the value is too big to be safely converted to a number"]'));
 });
 
-t('test validateObj(), not valid, null/undefined/not Big.js parameter', () => {
+t('test validateObj(), not valid, null/undefined/not failing SanitizationValidationClass.validate()', () => {
   const objToValidate = {
     big: null,
     big2: undefined,
@@ -511,9 +509,9 @@ t('test validateObj(), not valid, null/undefined/not Big.js parameter', () => {
   };
 
   const validation = {
-    big: Big,
-    big2: Big,
-    big3: Big,
+    big: SanitizationValidationClass,
+    big2: SanitizationValidationClass,
+    big3: SanitizationValidationClass,
   };
 
   let _error;
@@ -522,8 +520,7 @@ t('test validateObj(), not valid, null/undefined/not Big.js parameter', () => {
   } catch (error) {
     _error = error.message;
   }
-
-  assert(_error.includes('["big = null, must be an instance of a function or class","big2 = undefined, must be an instance of a function or class","big3 = 999, must be an instance of a function or class"]'));
+  assert(_error.includes('Validation error: ["big = null, is not a number","big2 = undefined, is not a number"]'));
 });
 
 t('test validateObj(), not valid, null/undefined/not a bool parameter', () => {

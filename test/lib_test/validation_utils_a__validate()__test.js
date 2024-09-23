@@ -1,9 +1,7 @@
 import * as S from '../../src/lib/schema.js';
 import * as v from '../../src/lib/schema_validation_utils.js';
 
-// from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
-// @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
-import { Big } from 'https://cdn.jsdelivr.net/npm/big.js@6.2.1/big.min.mjs';
+import { SanitizationValidationClass } from './SanitizationValidationClass.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -91,8 +89,8 @@ t('test validate(), valid, all cases', () => {
   v.validate({ value: BigInt(10), validation: S.BIGINT_NUMBER_TYPE });
   v.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: S.ARRAY_OF_BIGINT_TYPE });
   v.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE });
-  v.validate({ value: new Big(10), validation: Big });
-  v.validate({ value: [new Big(10), new Big(9), new Big(0)], validation: [Big] });
+  v.validate({ value: 10, validation: SanitizationValidationClass });  // validate true if value is number
+  v.validate({ value: [10, 9, 0], validation: [SanitizationValidationClass] });  // validate true if value is number
   v.validate({ value: 999, validation: S.ANY_TYPE });
 });
 
@@ -447,16 +445,17 @@ t('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    v.validate({ value: 99, validation: Big });
+    v.validate({ value: "99", validation: SanitizationValidationClass });  // validate false if value is not a number
   } catch (error) {
     _error = error.message;
   }
-  
-  assert(_error.includes('Value = 99, must be an instance of a function or class'));
+
+  console.log(_error);
+  assert(_error.includes('Value = 99, is not a number'));
 
   _error = '';
   try {
-    v.validate({ value: 99, validation: [Big] });
+    v.validate({ value: "99", validation: [SanitizationValidationClass] });  // validate false if value is not a number
   } catch (error) {
     _error = error.message;
   }
@@ -465,10 +464,10 @@ t('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    v.validate({ value: [new Big(10), 0, Big(0)], validation: [Big] });
+    v.validate({ value: [10, "0", 0], validation: [SanitizationValidationClass] });
   } catch (error) {
     _error = error.message;
   }
   
-  assert(_error.includes('Value = 0, must be an instance of a function or class'));
+  assert(_error.includes('Value = 0, is not a number'));
 });

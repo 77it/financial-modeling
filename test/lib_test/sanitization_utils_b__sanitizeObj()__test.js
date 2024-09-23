@@ -3,9 +3,7 @@ import * as s from '../../src/lib/schema_sanitization_utils.js';
 import { eq2 } from '../../src/lib/obj_utils.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToUTCDate, excelSerialDateToLocalDate } from '../../src/lib/date_utils.js';
 
-// from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
-// @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
-import { Big } from 'https://cdn.jsdelivr.net/npm/big.js@6.2.1/big.min.mjs';
+import { SanitizationValidationClass } from './SanitizationValidationClass.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -155,9 +153,7 @@ t('test sanitizeObj() - complex type + validate=true test', async () => {
     arrObj: [{ a: 0 }, { b: 'b' }],
     arrObj2: { a: 0 },
     obj: { a: 999 },
-    fun: _fun,
     any: 999,
-    symbol: _sym,
     bigInt: 10,
     bigInt_number: 10,
     arrBigInt: [10, '9', 0],
@@ -169,6 +165,18 @@ t('test sanitizeObj() - complex type + validate=true test', async () => {
     extraValueBool: true,
     extraValueDate: new Date(123),
   };
+
+  let clone_objToSanitize= structuredClone(objToSanitize);
+
+  // add function and symbol property to objects, after cloning, because cloning a function is not possible
+  //@ts-ignore
+  objToSanitize.fun = _fun;
+  //@ts-ignore
+  clone_objToSanitize.fun = _fun;
+  //@ts-ignore
+  objToSanitize.symbol = _sym;
+  //@ts-ignore
+  clone_objToSanitize.symbol = _sym;
 
   const expObj = {
     str: '999',
@@ -205,8 +213,8 @@ t('test sanitizeObj() - complex type + validate=true test', async () => {
     bigInt_number: BigInt(10),
     arrBigInt: [BigInt(10), BigInt(9), BigInt(0)],
     arrBigInt_number: [BigInt(10), BigInt(9), BigInt(0)],
-    big_js: new Big(10),
-    arrBig_js: [new Big(10), new Big(9), Big(0)],
+    big_js: SanitizationValidationClass.sanitize(10),
+    arrBig_js: [SanitizationValidationClass.sanitize(10), SanitizationValidationClass.sanitize(9), SanitizationValidationClass.sanitize(0)],
     extraValueStr: 'abc',
     extraValueNum: 999,
     extraValueBool: true,
@@ -251,8 +259,8 @@ t('test sanitizeObj() - complex type + validate=true test', async () => {
     bigInt_number: S.BIGINT_NUMBER_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
     arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
-    big_js: Big,
-    arrBig_js: [Big],
+    big_js: SanitizationValidationClass,
+    arrBig_js: [SanitizationValidationClass],
     any: S.ANY_TYPE,
     extraValueMissingRequiredStr: S.STRING_TYPE,
     extraValueMissingRequiredNum: S.NUMBER_TYPE,
@@ -266,10 +274,14 @@ t('test sanitizeObj() - complex type + validate=true test', async () => {
   //@ts-ignore
   const replacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
 
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
-
   assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({
     obj: objToSanitize,
+    sanitization: sanitization,
+    options
+  }), replacer), JSON.stringify(expObj, replacer));
+
+  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({
+    obj: clone_objToSanitize,
     sanitization: sanitization,
     validate: true,
     options
