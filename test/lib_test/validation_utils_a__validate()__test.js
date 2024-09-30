@@ -15,7 +15,7 @@ t('test validate(): undefined is not not valid `any` type + personalized error m
   const objToValidate = undefined;
   const validation = S.ANY_TYPE;
 
-  let _error;
+  let _error = "";
   try {
     v.validate({ value: objToValidate, validation: validation, errorMsg: 'ValX' });
   } catch (error) {
@@ -29,7 +29,7 @@ t('test validate(): null is not not valid `any` type + personalized error messag
   const objToValidate = null;
   const validation = S.ANY_TYPE;
 
-  let _error;
+  let _error = "";
   try {
     v.validate({ value: objToValidate, validation: validation });
   } catch (error) {
@@ -181,7 +181,7 @@ t('test validate(), valid, all cases, with optional types', () => {
 });
 
 t('test validate(), not valid, all cases', () => {
-  let _error;
+  let _error = '';
   try {
     v.validate({ value: 99, validation: S.STRING_TYPE });
   } catch (error) {

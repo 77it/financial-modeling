@@ -22,7 +22,7 @@ t('SimObject_Metadata tests - test error, array of different length', async () =
     const p1 = { metadata__Name: ['AA'], metadata__Value: ['BB'], metadata__PercentageWeight: [] };
     const _1 = new SimObject_Metadata(p1);
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   assert.deepStrictEqual(_error, 'length of metadata arrays must be equal, got name = 1, value = 1, weight= 0');
 });
@@ -33,7 +33,7 @@ t('SimObject_Metadata tests - test error, extraneous property not present in val
     const p1 = { extraneous_property: 99, metadata__Name: ['AA'], metadata__Value: ['BB'], metadata__PercentageWeight: [0.5] };
     const _1 = new SimObject_Metadata(p1);
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   assert.deepStrictEqual(_error, 'Validation error: ["extraneous_property is not a valid key, is missing from validation object"]');
 });

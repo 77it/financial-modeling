@@ -142,13 +142,18 @@ t('SimObject.simObjectToDto() & .with() without value tests', async () => {
   const _so_With_Dto = simObjectToDto(_so_With);
 
   // try to change the value of the DTO, but the changes will go in error, because the DTO is frozen
-  try {_so_With_Dto.type = 'abcd';}
-  catch (e) {_error = e.message;}
+  try {
+    _so_With_Dto.type = 'abcd';
+  } catch (error) {
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
+  }
   assert.deepStrictEqual(_error, "Cannot assign to read only property 'type' of object '#<SimObjectDto>'");
   try {
     //@ts-ignore
-    _so_With_Dto.newField = 44;}
-  catch (e) {_error = e.message;}
+    _so_With_Dto.newField = 44;
+  } catch (error) {
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
+  }
   assert.deepStrictEqual(_error, "Cannot add property newField, object is not extensible");
 
   assert.deepStrictEqual(JSON.stringify(_so_With_Dto), JSON.stringify(_soDump_Expected));
