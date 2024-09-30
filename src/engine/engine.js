@@ -353,7 +353,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     this error is intercepted here, and will be recorded a 'debug_error' SimObject, then the execution ends with an error.
      */
 
-    const _error = error.stack?.toString() ?? error.toString();
+    const _error = (error instanceof Error) ? error.stack?.toString() ?? error.toString() : 'Unknown error occurred';
     _ledger.unlock();
     _ledger?.newDebugErrorSimObject(new NewDebugSimObjectDto({ description: _error }));
     _ledger?.forceCommitWithoutValidation();

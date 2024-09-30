@@ -54,7 +54,7 @@ async function convertExcelSheetToLedgerTrnJsonlFile ({ excelInput, jsonlOutput,
       return {stdout_string: stdout_string, exit_code: 0};
     } catch (error) {
       console.log(error);
-      return {stdout_string: '', exit_code: error.status};
+      return {stdout_string: '', exit_code: 1};
     }
   })();
   //#endregion convert Excel input file to JSONL file with ledger transactions

@@ -224,7 +224,7 @@ async function main ({
     }
     //#endregion loop scenarios
   } catch (error) {
-    const _error = error.stack?.toString() ?? error.toString();
+    const _error = (error instanceof Error) ? error.stack?.toString() ?? error.toString() : 'Unknown error occurred';
     console.log(_error);
     fs.appendFileSync(errorsFilePath, _error, 'utf8');
     _exitCode = 1;
@@ -332,7 +332,7 @@ async function _getFunctionFromUrl ({
           return _module[functionName];
         }
       } catch (error) {
-        _lastImportError = error.stack?.toString() ?? error.toString();  // save the last error and go on with the loop trying the next cdnURI
+        _lastImportError = (error instanceof Error) ? error.stack?.toString() ?? error.toString() : 'Unknown error occurred';  // save the last error and go on with the loop trying the next cdnURI
       }
     }
     throw new Error(`error loading module ${url}, error: ${_lastImportError}`);

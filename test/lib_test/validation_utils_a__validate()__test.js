@@ -19,7 +19,7 @@ t('test validate(): undefined is not not valid `any` type + personalized error m
   try {
     v.validate({ value: objToValidate, validation: validation, errorMsg: 'ValX' });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('ValX = undefined, must be !== null or undefined'));
@@ -33,7 +33,7 @@ t('test validate(): null is not not valid `any` type + personalized error messag
   try {
     v.validate({ value: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = null, must be !== null or undefined'));
@@ -185,7 +185,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.STRING_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 99, must be string'));
@@ -194,7 +194,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 'AA', validation: S.STRINGLOWERCASETRIMMED_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = AA, must be a lowercase trimmed string'));
@@ -203,7 +203,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: '   aa   ', validation: S.STRINGLOWERCASETRIMMED_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value =    aa   , must be a lowercase trimmed string'));
@@ -212,7 +212,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 'aa', validation: S.STRINGUPPERCASETRIMMED_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = aa, must be an uppercase trimmed string'));
@@ -221,7 +221,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: '   AA   ', validation: S.STRINGUPPERCASETRIMMED_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value =    AA   , must be an uppercase trimmed string'));
@@ -230,7 +230,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 'aa', validation: S.NUMBER_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = aa, must be a valid number'));
@@ -239,7 +239,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.BOOLEAN_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 99, must be boolean'));
@@ -248,7 +248,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.DATE_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 99, must be a valid date'));
@@ -258,7 +258,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 'aaaX', validation: [11, 'aa', 'aaa', 55] });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Validation error: Value = aaaX, must be one of 11,aa,aaa,55'));
@@ -267,7 +267,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.ARRAY_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 99, must be an array'));
@@ -276,7 +276,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.ARRAY_OF_STRINGS_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value array error, must be an array'));
@@ -285,7 +285,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value array error, must be an array'));
@@ -294,7 +294,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: ['AA', 'aa', '   aa   '], validation: S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('["Value = AA, must be a lowercase trimmed string","Value =    aa   , must be a lowercase trimmed string"]'));
@@ -303,7 +303,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value array error, must be an array'));
@@ -312,7 +312,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: ['aa', 'AA', '   AA   '], validation: S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('["Value = aa, must be an uppercase trimmed string","Value =    AA   , must be an uppercase trimmed string"]'));
@@ -321,7 +321,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.ARRAY_OF_NUMBERS_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value array error, must be an array'));
@@ -330,7 +330,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.ARRAY_OF_DATES_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value array error, must be an array'));
@@ -339,7 +339,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.ARRAY_OF_BOOLEANS_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value array error, must be an array'));
@@ -348,7 +348,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.ARRAY_OF_OBJECTS_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value array error, must be an array'));
@@ -357,7 +357,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.OBJECT_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 99, must be an object'));
@@ -366,7 +366,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.FUNCTION_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 99, must be a function'));
@@ -375,7 +375,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.SYMBOL_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 99, must be a symbol'));
@@ -384,7 +384,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.BIGINT_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 99, must be an instance of BigInt'));
@@ -393,7 +393,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.BIGINT_NUMBER_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 99, must be an instance of BigInt'));
@@ -402,7 +402,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: BigInt('999999999999999999999'), validation: S.BIGINT_NUMBER_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 999999999999999999999, is BigInt but the value is too big to be safely converted to a number'));
@@ -411,7 +411,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.ARRAY_OF_BIGINT_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value array error, must be an array'));
@@ -420,7 +420,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: [BigInt(10), 0, BigInt(0)], validation: S.ARRAY_OF_BIGINT_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 0, must be an instance of BigInt'));
@@ -429,7 +429,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: 99, validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value array error, must be an array'));
@@ -438,7 +438,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: [BigInt('999999999999999999999'), BigInt(10), 0, BigInt(0)], validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('["Value = 999999999999999999999, is BigInt but the value is too big to be safely converted to a number","Value = 0, must be an instance of BigInt"]'));
@@ -447,7 +447,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: "99", validation: SanitizationValidationClass });  // validate false if value is not a number
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   console.log(_error);
@@ -457,7 +457,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: "99", validation: [SanitizationValidationClass] });  // validate false if value is not a number
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value array error, must be an array'));
@@ -466,7 +466,7 @@ t('test validate(), not valid, all cases', () => {
   try {
     v.validate({ value: [10, "0", 0], validation: [SanitizationValidationClass] });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 0, is not a number'));
