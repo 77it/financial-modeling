@@ -1,9 +1,7 @@
 import { validateObj } from '../../src/lib/schema_validation_utils.js';
 import * as S from '../../src/lib/schema.js';
 
-// from https://github.com/MikeMcl/big.js/ & https://www.npmjs.com/package/big.js   // backup in https://github.com/77it/big.js
-// @deno-types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts"
-import { Big } from 'https://cdn.jsdelivr.net/npm/big.js@6.2.1/big.min.mjs';
+import { SanitizationValidationClass } from './SanitizationValidationClass.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -54,11 +52,11 @@ t('test validateObj(), not valid, any type is undefined', () => {
     b: S.NUMBER_TYPE
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('a = undefined, must be !== null or undefined'));
@@ -72,11 +70,11 @@ t('test validateObj(), not valid, any type is null', () => {
     b: S.NUMBER_TYPE
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('a = null, must be !== null or undefined'));
@@ -111,8 +109,8 @@ t('test validateObj(), valid, complex object, names with and without quotes', ()
     'bigInt_number': BigInt(10),
     'arrBigInt': [BigInt(10), BigInt(9), BigInt(0)],
     'arrBigInt_number': [BigInt(10), BigInt(9), BigInt(0)],
-    'big_js': new Big(10),
-    'arrBig_js': [new Big(10), new Big(9), Big(0)],
+    'big_js': 10,
+    'arrBig_js': [19, 9, 0],
     'extraValueNotValidated': 999
   };
 
@@ -141,8 +139,8 @@ t('test validateObj(), valid, complex object, names with and without quotes', ()
     bigInt_number: S.BIGINT_NUMBER_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
     arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
-    big_js: Big,
-    arrBig_js: [Big],
+    big_js: SanitizationValidationClass,
+    arrBig_js: [SanitizationValidationClass],
     any: S.ANY_TYPE,
   };
 
@@ -273,11 +271,11 @@ t('test validateObj(), not valid, simple object + personalized error message', (
     b: S.STRING_TYPE
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation, errorMsg: 'personalized error message' });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('b = 99, must be string'));
@@ -300,11 +298,11 @@ t('test validateObj(), not valid, objects in array', () => {
     valB: S.OBJECT_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate.arr, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('valB = 999, must be an object'));
@@ -323,11 +321,11 @@ t('test validateObj(), not valid, missing keys', () => {
     enum: [11, 'aa', 'aaa', 55],
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   console.log(_error);
   assert(_error.includes('["obj is missing","fun is missing","enum = undefined, must be one of 11,aa,aaa,55"]'));
@@ -345,7 +343,7 @@ t('test validateObj(), not valid, array is of wrong type', () => {
     arrObj: [{ a: 0 }, { b: 'b' }, 99],
     arrBigInt: [BigInt(10), 0, BigInt(0)],
     arrBigInt_number: [BigInt(10), 0, BigInt(0)],
-    arrBig_js: [new Big(10), 0, Big(0)],
+    arrBig_js: [10, 0, "0"],
   };
 
   const validation = {
@@ -359,14 +357,14 @@ t('test validateObj(), not valid, array is of wrong type', () => {
     arrObj: S.ARRAY_OF_OBJECTS_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
     arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
-    arrBig_js: [Big],
+    arrBig_js: [SanitizationValidationClass],
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["arr = 999, must be an array"'));
@@ -379,7 +377,7 @@ t('test validateObj(), not valid, array is of wrong type', () => {
   assert(_error.includes('"arrObj array error, [\\"Value = 99, must be an object\\"]"'));
   assert(_error.includes('"arrBigInt array error, [\\"Value = 0, must be an instance of BigInt\\"]"'));
   assert(_error.includes('"arrBigInt_number array error, [\\"Value = 0, must be an instance of BigInt\\"]"'));
-  assert(_error.includes('"arrBig_js array error, [\\"Value = 0, must be an instance of a function or class\\"]"'));
+  assert(_error.includes('"arrBig_js array error, [\\"Value = 0, is not a number\\"]"'));
 });
 
 t('test validateObj(), not valid, null/undefined/not a str parameter', () => {
@@ -395,11 +393,11 @@ t('test validateObj(), not valid, null/undefined/not a str parameter', () => {
     str3: S.STRING_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["str = null, must be string","str2 = undefined, must be string","str3 = 999, must be string"]'));
@@ -420,11 +418,11 @@ t('test validateObj(), not valid, null/undefined/NaN/infinity num parameter', ()
     num4: S.NUMBER_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["num = null, must be a valid number","num2 = undefined, must be a valid number","num3 = NaN, must be a valid number","num4 = Infinity, must be a valid number"]'));
@@ -445,11 +443,11 @@ t('test validateObj(), not valid, null/undefined/not a date/invalid date paramet
     date4: S.DATE_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["date = null, must be a valid date","date2 = undefined, must be a valid date","date3 = 999, must be a valid date","date4 = Invalid Date, must be a valid date"]'));
@@ -468,11 +466,11 @@ t('test validateObj(), not valid, null/undefined/not BigInt parameter', () => {
     big3: S.BIGINT_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["big = null, must be an instance of BigInt","big2 = undefined, must be an instance of BigInt","big3 = 999, must be an instance of BigInt"]'));
@@ -497,13 +495,13 @@ t('test validateObj(), not valid, null/undefined/not BigInt number parameter', (
   try {
     validateObj({ obj: objToValidate, validation: validation2 });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["big = null, must be an instance of BigInt","big2 = undefined, must be an instance of BigInt","big3 = 999, must be an instance of BigInt","big4 = 999999999999999999999, is BigInt but the value is too big to be safely converted to a number"]'));
 });
 
-t('test validateObj(), not valid, null/undefined/not Big.js parameter', () => {
+t('test validateObj(), not valid, null/undefined/not failing SanitizationValidationClass.validate()', () => {
   const objToValidate = {
     big: null,
     big2: undefined,
@@ -511,19 +509,18 @@ t('test validateObj(), not valid, null/undefined/not Big.js parameter', () => {
   };
 
   const validation = {
-    big: Big,
-    big2: Big,
-    big3: Big,
+    big: SanitizationValidationClass,
+    big2: SanitizationValidationClass,
+    big3: SanitizationValidationClass,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
-
-  assert(_error.includes('["big = null, must be an instance of a function or class","big2 = undefined, must be an instance of a function or class","big3 = 999, must be an instance of a function or class"]'));
+  assert(_error.includes('Validation error: ["big = null, is not a number","big2 = undefined, is not a number"]'));
 });
 
 t('test validateObj(), not valid, null/undefined/not a bool parameter', () => {
@@ -539,11 +536,11 @@ t('test validateObj(), not valid, null/undefined/not a bool parameter', () => {
     bool3: S.BOOLEAN_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["bool = null, must be boolean","bool2 = undefined, must be boolean","bool3 = 999, must be boolean"]'));
@@ -562,11 +559,11 @@ t('test validateObj(), not valid, null/undefined/not an array parameter', () => 
     arr3: S.ARRAY_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["arr = null, must be an array","arr2 = undefined, must be an array","arr3 = 999, must be an array"]'));
@@ -585,11 +582,11 @@ t('test validateObj(), not valid, null/undefined/not an object parameter', () =>
     obj3: S.OBJECT_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["obj = null, must be an object","obj2 = undefined, must be an object","obj3 = 999, must be an object"]'));
@@ -608,11 +605,11 @@ t('test validateObj(), not valid, null/undefined/not a function parameter', () =
     fun3: S.FUNCTION_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["fun = null, must be a function","fun2 = undefined, must be a function","fun3 = 999, must be a function"]'));
@@ -625,11 +622,11 @@ t('test validateObj(), not valid, string instead of object', () => {
     date: S.DATE_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: notAnObjToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('\'obj\' parameter must be an object'));
@@ -642,11 +639,11 @@ t('test validateObj(), not valid (not existing), unknown type', () => {
     str: 'unknownType',
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert(_error.includes('["str type is unrecognized"]'));
@@ -679,11 +676,11 @@ t('test validateObj(), strict flag, invalid plain object (extraneous keys)', () 
     b: S.STRING_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation, strict: true });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert.deepStrictEqual(_error, 'Validation error: ["c is not a valid key, is missing from validation object","d is not a valid key, is missing from validation object"]');
@@ -730,11 +727,11 @@ t('test validateObj(), strict flag, invalid class instance (extraneous keys)', (
     b: S.STRING_TYPE,
   };
 
-  let _error;
+  let _error = "";
   try {
     validateObj({ obj: objToValidate, validation: validation, strict: true });
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
 
   assert.deepStrictEqual(_error, 'Validation error: ["c is not a valid key, is missing from validation object","d is not a valid key, is missing from validation object"]');

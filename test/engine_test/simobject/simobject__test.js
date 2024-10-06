@@ -53,7 +53,7 @@ t('SimObject tests - test error, metadata array of different length', async () =
   try {
     new SimObject(p1);
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   assert.deepStrictEqual(_error, 'length of metadata arrays must be equal, got name = 1, value = 0, weight= 0');
 });
@@ -66,7 +66,7 @@ t('SimObject tests - test error, extraneous property not present in validation o
   try {
     new SimObject(p1);
   } catch (error) {
-    _error = error.message;
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   assert.deepStrictEqual(_error, 'Validation error: ["extraneous_property is not a valid key, is missing from validation object"]');
 });

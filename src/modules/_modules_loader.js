@@ -90,7 +90,7 @@ class ModulesLoader {
             return;
           }
         } catch (error) {
-          _lastImportError = error.stack?.toString() ?? error.toString();  // save the last error and go on with the loop trying the next cdnURI
+          _lastImportError = (error instanceof Error) ? error.stack?.toString() ?? error.toString() : 'Unknown error occurred';  // save the last error and go on with the loop trying the next cdnURI
         }
       }
       throw new Error(`error loading module ${_URI}, error: ${_lastImportError}`);

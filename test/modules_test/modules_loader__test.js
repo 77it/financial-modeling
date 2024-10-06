@@ -57,11 +57,11 @@ t('test addClassFromObject, class defined here', () => {
 //#region test addClassFromURI
 t('test ERROR addClassFromURI, not existing URI', async () => {
   const _URI = 'https://this-uri-is-not-existing.com';
-  let _error;
+  let _error = "";
   try {
     await modulesLoader.addClassFromURI({ moduleName: 'ValuesB2', moduleEngineURI: _URI });
-  } catch (e) {
-    _error = e.toString();
+  } catch (error) {
+    _error = (error instanceof Error) ? error.toString() : 'Unknown error occurred';
   }
   assert(_error.includes('https://this-uri-is-not-existing.com'));
 });
@@ -255,11 +255,11 @@ t('test add from class, get it, and then from uri (throw for same URI/name), the
   assert.deepStrictEqual(__ValuesB.valueX, 9999);
 
   // try to add from uri (throw for same URI/name)
-  let _error;
+  let _error = "";
   try {
     await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI });
-  } catch (e) {
-    _error = e.toString();
+  } catch (error) {
+    _error = (error instanceof Error) ? error.toString() : 'Unknown error occurred';
   }
   assert(_error.includes('moduleEngineURI/moduleName already exists'));
 

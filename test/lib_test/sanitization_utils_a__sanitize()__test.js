@@ -1,6 +1,7 @@
 import * as S from '../../src/lib/schema.js';
 import * as s from '../../src/lib/schema_sanitization_utils.js';
 
+import { SanitizationValidationClass } from './SanitizationValidationClass.js';
 import { isValidDate } from '../../src/lib/date_utils.js';
 
 import { test } from 'node:test';
@@ -625,39 +626,3 @@ t('test sanitize() - array of custom function type + validation (use the Sanitiz
   s.sanitize({ value: 999, sanitization: t, validate: true });
   s.sanitize({ value: '999', sanitization: t, validate: true });
 });
-
-/**
- * A class to sanitize and validate
- */
-class SanitizationValidationClass {
-  /**
-   * Method to sanitize an input value: if number or string, add 10;
-   * if not number after conversion return input value.
-   * If of different type, return input
-   * @param {*} input - The value to be sanitized
-   * @returns {*} - The sanitized value
-   */
-  static sanitize(input) {
-    if (typeof input !== 'string' && typeof input !== 'number') {
-      return input; // Return input unchanged if it's not a string or number
-    }
-    const num = Number(input);
-    if (isNaN(num)) {
-      return input;
-    }
-    return num + 10;
-  }
-
-  /**
-   * Method to validate an input value: if number returns "";
-   * If of different type, return error message
-   * @param {*} input - The value to be validated
-   * @throws {Error} Validation error
-   */
-  static validate(input) {
-    if (typeof input === 'number')
-      return "";
-    else
-      return "not a number";
-  }
-}

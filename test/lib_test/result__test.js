@@ -26,7 +26,11 @@ t('Result class tests: success', () => {
   try {
     throw new Error('err reason');
   } catch (error) {
-    const result_error = new Result({ success: false, error: error.stack?.toString() ?? error.toString() });
+    const result_error =
+      new Result({
+        success: false,
+        error: (error instanceof Error) ? error.stack?.toString() ?? error.toString() : 'Unknown error occurred'
+      });
     assert.deepStrictEqual(result_error.success, false);
     assert(result_error.error !== undefined);
     assert.deepStrictEqual(result_error.value, undefined);
