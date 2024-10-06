@@ -1,7 +1,7 @@
 export { ModuleData };
 
 import * as schema from '../../lib/schema.js';
-import { sanitizeObj } from '../../lib/schema_sanitization_utils.js';
+import { sanitize } from '../../lib/schema_sanitization_utils.js';
 
 // ModuleData is not immutable nor has the clone method, because the object is passed only to the modules that will use it
 class ModuleData {
@@ -30,9 +30,9 @@ class ModuleData {
    */
   constructor (p) {
     // sanitize and validate p
-    sanitizeObj(
+    sanitize(
       {
-        obj: p,
+        value: p,
         sanitization: {
           moduleName: schema.STRING_TYPE,
           moduleAlias: schema.STRING_TYPE,
@@ -44,9 +44,9 @@ class ModuleData {
       });
 
     // validate tables array
-    sanitizeObj(
+    sanitize(
       {
-        obj: p.tables,
+        value: p.tables,
         sanitization: { tableName: schema.STRING_TYPE, table: schema.ARRAY_OF_OBJECTS_TYPE },
         validate: true
       });

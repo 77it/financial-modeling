@@ -1,7 +1,7 @@
 export { sanitizeModuleData };
 
 import * as CONST from '../../config/modules/_const.js';
-import { ModuleData, schema, validateObj, sanitizeObj, eq2, parseYAML, parseJSON5 } from '../../deps.js';
+import { ModuleData, schema, validateObj, sanitize, eq2, parseYAML, parseJSON5 } from '../../deps.js';
 
 /**
  * Sanitize and parse values of moduleData tables in place (without cloning moduleData).
@@ -65,9 +65,9 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
 
     // if .sanitization is not null and is an object, sanitize with it
     if (_pss.sanitization != null && typeof _pss.sanitization === 'object') {
-      sanitizeObj(
+      sanitize(
         {
-          obj: _table.table,
+          value: _table.table,
           sanitization: _pss.sanitization,
           options: _pss?.sanitizationOptions,
           keyInsensitiveMatch: true

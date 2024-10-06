@@ -1,7 +1,7 @@
 ﻿export { Ledger };
 
 import * as schema from '../../lib/schema.js';
-import { sanitize, sanitizeObj } from '../../lib/schema_sanitization_utils.js';
+import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import { validate, validateObj } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
@@ -82,8 +82,8 @@ class Ledger {
    * @param {boolean} p.roundingModeIsRound Rounding mode to use when storing numbers in the ledger; if true, use Math.round(), otherwise use Math.floor()
    */
   constructor ({ appendTrnDump, decimalPlaces, roundingModeIsRound }) {
-    const _p = sanitizeObj({
-      obj: { decimalPlaces, roundingModeIsRound },
+    const _p = sanitize({
+      value: { decimalPlaces, roundingModeIsRound },
       sanitization: { decimalPlaces: schema.NUMBER_TYPE, roundingModeIsRound: schema.BOOLEAN_TYPE }
     });
 
@@ -257,7 +257,7 @@ class Ledger {
    * @param {NewSimObjectDto} newSimObjectDto
    */
   newSimObject (newSimObjectDto) {
-    sanitizeObj({ obj: newSimObjectDto, sanitization: newSimObjectDto_Schema });
+    sanitize({ value: newSimObjectDto, sanitization: newSimObjectDto_Schema });
     // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
     validateObj({ obj: newSimObjectDto, validation: newSimObjectDto_Schema, strict:true });
 
@@ -412,7 +412,7 @@ class Ledger {
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   #newDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
-    sanitizeObj({ obj: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Schema });
+    sanitize({ value: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Schema });
     //skip validation, this method is private and can't be called with wrong types  //validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation.concat(SimObjectErrorDebugTypes_enum_validation) });
 
     const debug_moduleInfo = this.#currentDebugModuleInfo;

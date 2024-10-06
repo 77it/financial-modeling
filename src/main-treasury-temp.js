@@ -24,7 +24,7 @@ import { convertExcelToModuleDataArray } from './node/convert_excel_to_moduledat
 //#endregion node imports
 
 //#region local imports
-import { Result, schema, sanitize, sanitizeObj, parseJSON5, isNullOrWhiteSpace, eq2, get2 } from './deps.js';
+import { Result, schema, sanitize, parseJSON5, isNullOrWhiteSpace, eq2, get2 } from './deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
@@ -274,8 +274,8 @@ function _get_SimulationSetting_FromModuleDataArray ({
           for (const _tableSrc of moduleData.tables) {
             if (eq2(_tableSrc.tableName, table.tableName)) {
               const _table = structuredClone(_tableSrc.table);  // clone _tableSrc to avoid to store the sanitization effect
-              sanitizeObj({
-                obj: _table,
+              sanitize({
+                value: _table,
                 sanitization: SETTINGS_SANITIZATION
               });
               for (const row of _table) {

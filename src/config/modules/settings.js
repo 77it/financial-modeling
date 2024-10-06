@@ -33,7 +33,7 @@ const tablesInfo = {
 // - tableName: name of the table in the database
 // - parse: [OPTIONAL] parse method for the column, done before sanitization
 // - sanitization: [OPTIONAL] sanitization method for the columns; if not present, the column will not be sanitized
-// - sanitizationOptions: [OPTIONAL] options for sanitization `sanitizeObj` function
+// - sanitizationOptions: [OPTIONAL] options for sanitization `sanitize()` function
 /** @type {{tableName: string, parse?: *, sanitization?: *, sanitizationOptions?: *}[]} */
 const moduleSanitization = [
   {

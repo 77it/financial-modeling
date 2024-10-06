@@ -1,6 +1,6 @@
 export { ModulesLoader };
 
-import { schema, validateObj, sanitizeObj } from '../deps.js';
+import { schema, validateObj, sanitize } from '../deps.js';
 import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
 import { engine } from '../engine/engine.js';
 
@@ -128,8 +128,8 @@ class ModulesLoader {
    * @return {string}
    */
   #classesRepoBuildKey ({ moduleEngineURI, moduleName }) {
-    const _p = sanitizeObj({
-      obj: { moduleEngineURI, moduleName },
+    const _p = sanitize({
+      value: { moduleEngineURI, moduleName },
       sanitization: { moduleEngineURI: schema.STRING_TYPE, moduleName: schema.STRINGLOWERCASETRIMMED_TYPE },
       validate: true
     });

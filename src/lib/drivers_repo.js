@@ -1,7 +1,7 @@
 ﻿export { DriversRepo };
 
 import * as schema from './schema.js';
-import { sanitize, sanitizeObj } from './schema_sanitization_utils.js';
+import { sanitize } from './schema_sanitization_utils.js';
 import { validate } from './schema_validation_utils.js';
 import { stripTimeToLocalDate, localDateToStringYYYYMMDD } from './date_utils.js';
 import { parseJSON5 } from './json5.js';
@@ -121,8 +121,8 @@ class DriversRepo {
       const _inputItemClone = { ..._inputItem };
 
       // sanitize the input object, only fields `date` and `value`
-      sanitizeObj({
-        obj: _inputItemClone,
+      sanitize({
+        value: _inputItemClone,
         sanitization: {
           date: schema.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
           value: this.#sanitizationType
@@ -130,7 +130,7 @@ class DriversRepo {
       });
 
       // if date is not present, set it to new Date(0); if date is present, strip the time part from the date (if the date is != Date(0))
-      // (check for `_inputItemClone?.date` because typescript can't understand that `sanitizeObj` sanitize invalid dates)
+      // (check for `_inputItemClone?.date` because typescript can't understand that `sanitize` sanitize invalid dates)
       _inputItemClone.date = (_inputItemClone?.date && _inputItemClone?.date.getTime() !== 0) ? stripTimeToLocalDate(_inputItemClone?.date) : new Date(0);
 
       const _key = this.#driversRepoBuildKey({ scenario: _inputItemClone.scenario, unit: _inputItemClone.unit, name: _inputItemClone.name });
@@ -287,7 +287,7 @@ class DriversRepo {
       else if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
         return sanitize({ value: _parsedValue, sanitization: sanitizationType });
       else if (typeof sanitizationType === 'object')
-        return sanitizeObj({ obj: _parsedValue, sanitization: sanitizationType });
+        return sanitize({ value: _parsedValue, sanitization: sanitizationType });
     }
     // if `endDate` is defined, returns an array of values defined between `date` and `endDate`
     else {
@@ -319,7 +319,7 @@ class DriversRepo {
       else if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
         return _retArray.map(_item => sanitize({ value: _item, sanitization: sanitizationType }));
       else if (typeof sanitizationType === 'object')
-        return _retArray.map(_item => sanitizeObj({ obj: _item, sanitization: sanitizationType }));
+        return _retArray.map(_item => sanitize({ value: _item, sanitization: sanitizationType }));
     }
   }
 
@@ -344,8 +344,8 @@ class DriversRepo {
    * @return {string}
    */
   #driversRepoBuildKey ({ scenario, unit, name }) {
-    const _p = sanitizeObj({
-      obj: { scenario, unit, name },
+    const _p = sanitize({
+      value: { scenario, unit, name },
       sanitization: { scenario: schema.STRING_TYPE, unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
       validate: true
     });

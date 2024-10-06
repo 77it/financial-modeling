@@ -213,7 +213,7 @@ t('Drivers tests', async () => {
       '{a: 99, b: false, c: [1, 2, \'3\', "4"]}');
   });
 
-  t('get() with parseAsJSON5 and sanitizationType as object (then sanitizeObj())', async () => {
+  t('get() with parseAsJSON5 and sanitizationType as object (then sanitize())', async () => {
     assert.deepStrictEqual(
       drivers.get({
         scenario: 'SCENARIO1',

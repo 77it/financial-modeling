@@ -5,7 +5,7 @@ import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
 import { SettingsSchemas, SettingsSanitizationOptions } from '../config/settings.schemas.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
-import { sanitize, sanitizeObj, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
+import { sanitize, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
 
 export class Module {
   #name = MODULE_NAME;
@@ -133,10 +133,10 @@ export class Module {
           const _sanitization = get2(SettingsSchemas, get2(row, table.columns.NAME)) ?? '';
 
           let _sanitizedValue;
-          // if `_sanitization` is an object but not an array, sanitize the value with `sanitizeObj` function
+          // if `_sanitization` is an object but not an array, sanitize the value with `sanitize` function
           if (_sanitization != null && typeof _sanitization === 'object' && !Array.isArray(_sanitization)) {
-            _sanitizedValue = sanitizeObj({
-              obj: _value,
+            _sanitizedValue = sanitize({
+              value: _value,
               sanitization: _sanitization,
               options: SettingsSanitizationOptions,
               keyInsensitiveMatch: true
