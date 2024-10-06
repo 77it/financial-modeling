@@ -1,7 +1,7 @@
 export { SimObject_Metadata };
 
 import { simObject_Metadata_Schema } from './simobject_metadata.schema.js';
-import { validateObj } from '../../../lib/schema_validation_utils.js';
+import { validate } from '../../../lib/schema_validation_utils.js';
 
 // SimObject_Metadata class. This class can be used to store the metadata part of a SimObject
 class SimObject_Metadata {
@@ -23,7 +23,7 @@ class SimObject_Metadata {
    * @param {number[]} p.metadata__PercentageWeight
    */
   constructor (p) {
-    validateObj({ obj: p, validation: simObject_Metadata_Schema, strict: true });
+    validate({ value: p, validation: simObject_Metadata_Schema, strict: true });
 
     // length of metadata arrays must be equal
     if (p.metadata__Name.length !== p.metadata__Value.length || p.metadata__Name.length !== p.metadata__PercentageWeight.length)

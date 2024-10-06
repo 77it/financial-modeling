@@ -2,7 +2,7 @@
 
 import * as schema from '../../lib/schema.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
-import { validate, validateObj } from '../../lib/schema_validation_utils.js';
+import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
 import { SimObject } from '../simobject/simobject.js';
@@ -259,7 +259,7 @@ class Ledger {
   newSimObject (newSimObjectDto) {
     sanitize({ value: newSimObjectDto, sanitization: newSimObjectDto_Schema });
     // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
-    validateObj({ obj: newSimObjectDto, validation: newSimObjectDto_Schema, strict:true });
+    validate({ value: newSimObjectDto, validation: newSimObjectDto_Schema, strict:true });
 
     if (this.#simObjectTypes_enum_map.has(newSimObjectDto.type) === false)
       throw new Error(`SimObject type ${newSimObjectDto.type} is not recognized`);

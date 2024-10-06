@@ -1,6 +1,6 @@
 export { ModulesLoader };
 
-import { schema, validateObj, sanitize } from '../deps.js';
+import { schema, validate, sanitize } from '../deps.js';
 import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
 import { engine } from '../engine/engine.js';
 
@@ -49,7 +49,7 @@ class ModulesLoader {
       moduleEngineURI: schema.STRING_TYPE,
       classObj: schema.ANY_TYPE
     };
-    validateObj({ obj: p, validation: _validation });
+    validate({ value: p, validation: _validation });
 
     const repoKey = this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: p.moduleName });
     if (!(this.#classesRepo.has(repoKey)))
@@ -68,8 +68,8 @@ class ModulesLoader {
    * @throws {Error} Will throw an error if loading module fails.
    */
   async addClassFromURI (p) {
-    validateObj({
-      obj: p,
+    validate({
+      value: p,
       validation: { moduleName: schema.STRING_TYPE, moduleEngineURI: schema.STRING_TYPE }
     });
 
@@ -111,7 +111,7 @@ class ModulesLoader {
       moduleName: schema.STRING_TYPE,
       moduleEngineURI: schema.STRING_TYPE
     };
-    validateObj({ obj: p, validation: _validation });
+    validate({ value: p, validation: _validation });
 
     const _ret = this.#classesRepo.get(this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: p.moduleName }));
     if (_ret === undefined)

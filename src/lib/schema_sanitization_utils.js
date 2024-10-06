@@ -2,7 +2,7 @@ export { sanitize };
 
 import * as schema from './schema.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, localDateToUTC } from './date_utils.js';
-import { validate as validateFunc, validateObj as validateObjFunc } from './schema_validation_utils.js';
+import { validate as validateFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
 
 //#region defaults
@@ -397,7 +397,7 @@ function _sanitizeObj ({ obj, sanitization, options, validate = false, keyInsens
   }
 
   if (validate)
-    return validateObjFunc({ obj: retValue, validation: sanitization });
+    return validateFunc({ value: retValue, validation: sanitization });
   else
     return retValue;
 

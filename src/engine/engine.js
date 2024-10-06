@@ -5,7 +5,7 @@ import * as CFG from '../config/engine.js';
 
 import * as schema from '../lib/schema.js';
 import { sanitize } from '../lib/schema_sanitization_utils.js';
-import { validateObj } from '../lib/schema_validation_utils.js';
+import { validate } from '../lib/schema_validation_utils.js';
 import { stripTimeToLocalDate } from '../lib/date_utils.js';
 import { Result } from '../lib/result.js';
 import { isStringOrBooleanTrue } from '../lib/boolean_utils.js';
@@ -42,8 +42,8 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
   const _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });
 
   try {
-    validateObj({
-      obj: { modulesData, modules, scenarioName, appendTrnDump, ledgerDebug },
+    validate({
+      value: { modulesData, modules, scenarioName, appendTrnDump, ledgerDebug },
       validation: {
         modulesData: schema.ARRAY_TYPE,
         modules: schema.ARRAY_TYPE,

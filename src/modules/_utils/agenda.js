@@ -1,6 +1,6 @@
 export { Agenda };
 
-import { schema, sanitize, validate, validateObj, stripTimeToLocalDate, localDateToStringYYYYMMDD } from '../../deps.js';
+import { schema, sanitize, validate, stripTimeToLocalDate, localDateToStringYYYYMMDD } from '../../deps.js';
 
 class Agenda {
   /**
@@ -37,8 +37,8 @@ class Agenda {
    */
   set ({ date, isSimulation, data }) {
     // validate input parameters
-    validateObj({
-      obj: { date,  isSimulation, data },
+    validate({
+      value: { date,  isSimulation, data },
       validation: { date: schema.ANY_TYPE, isSimulation: schema.BOOLEAN_TYPE, data: schema.ANY_TYPE }
     });
 

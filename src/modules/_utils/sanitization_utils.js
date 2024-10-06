@@ -1,7 +1,7 @@
 export { sanitizeModuleData };
 
 import * as CONST from '../../config/modules/_const.js';
-import { ModuleData, schema, validateObj, sanitize, eq2, parseYAML, parseJSON5 } from '../../deps.js';
+import { ModuleData, schema, validate, sanitize, eq2, parseYAML, parseJSON5 } from '../../deps.js';
 
 /**
  * Sanitize and parse values of moduleData tables in place (without cloning moduleData).
@@ -16,8 +16,8 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   if (moduleData?.tables == null) return moduleData;
   if (moduleSanitization == null) return moduleData;
 
-  validateObj({
-    obj: moduleSanitization, validation: {
+  validate({
+    value: moduleSanitization, validation: {
       tableName: schema.STRING_TYPE,
       parse: schema.OBJECT_TYPE + '?',
       sanitization: schema.OBJECT_TYPE + '?',

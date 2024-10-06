@@ -35,7 +35,7 @@ export const YAML_CACHE_SIZE = 10_000;
 //#endregion internal engine config
 
 //#region other config
-// If true, the validation of the data is disabled in 'schema_validation_utils.js/validateObj()' and 'schema_validation_utils.js/validate()';
+// If true, the validation of the data is disabled in 'schema_validation_utils.js/validate()';
 // not recommended to set this to true, is usable for testing purposes or (maybe) to speed up the execution of the engine, thanks to the absence of validation
 export const DISABLE_VALIDATION = false;
 //#endregion other config
