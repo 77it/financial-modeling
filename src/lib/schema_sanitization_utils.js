@@ -1,4 +1,4 @@
-export { sanitize, sanitizeObj };
+export { sanitize };
 
 import * as schema from './schema.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, localDateToUTC } from './date_utils.js';
@@ -18,7 +18,12 @@ const DEFAULT_BIGINT = BigInt(0);
 //#endregion defaults
 
 /**
- * Sanitize value returning a sanitized value without modifying the original value.
+ * Sanitize Value; if value is an Object or Array, modify it in place and return the same object to allow chaining.
+ *
+ * If `sanitization` parameter is an object, sanitize as described in "Object Sanitization"
+ * otherwise sanitize as described in "Value Sanitization".
+ *
+ * # Value Sanitization
  * Accepted sanitization types are many: see `schema.js`; class is 'function', class instance is 'object';
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
  * To sanitize a value applying a function, pass a static class containing the methods .sanitize() and .validate()
@@ -32,9 +37,21 @@ const DEFAULT_BIGINT = BigInt(0);
  * With `STRING_TYPE` whitespaces are trimmed if the string is empty.
  * String to dates are parsed as JSON to dates (in local time or UTC, depending on options.dateUTC).
  * Number to dates are considered by default Excel serial dates (stripping hours); can be changed with options.
+ *
+ * # Object Sanitization
+ * Sanitize Object, modifying it in place and returning the same object to allow chaining.
+ * If obj is array, the sanitization is done on contained objects;
+ * array are sanitized without cloning them.
+ * If obj is null/undefined or other non-objects returns empty object {}.
+ * Sanitization is an object with keys corresponding to the keys of the object to sanitize and values corresponding to the sanitization types;
+ * accepted types are many: see `schema.js`; class is 'function', class instance is 'object';
+ * for optional parameters (null/undefined are accepted) append '?' to type, e.g. 'any?', 'string?', 'number?', etc.
+ * If sanitization is an array, skip the sanitization because it is an enum that can't be applied to an object.
+ * For enum sanitization use an array of values (values will be ignored, optionally validated).
+ * Object keys missing from the sanitization object are ignored and not sanitized.
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
- * @param {*} p.sanitization - Sanitization type (string, array of strings, function, array containing a function)
+ * @param {*} p.sanitization - Sanitization type (object, string, array of strings, function, array containing a function)
  * @param {Object} [p.options]
  * @param {string} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
  * @param {boolean} [p.options.dateUTC=false]
@@ -43,11 +60,12 @@ const DEFAULT_BIGINT = BigInt(0);
  * @param {*} [p.options.defaultDate=new Date(0)]
  * @param {*} [p.options.defaultBigInt=BigInt(0)]
  * @param {boolean} [p.validate=false] - Optional validation flag
+ * @param {boolean} [p.keyInsensitiveMatch=false] - Used only if `sanitization` is an object; optionally match keys between sanitization and obj to sanitize in a case insensitive way (case and trim)
  * @return {*} Sanitized value
  */
-function sanitize ({ value, sanitization, options, validate = false }) {
-  if (typeof sanitization !== 'string' && !Array.isArray(sanitization) && typeof sanitization !== 'function')
-    throw new Error(`'sanitization' parameter must be a string, an array or a function`);
+function sanitize ({ value, sanitization, options, validate = false, keyInsensitiveMatch = false }) {
+  if (typeof sanitization == null)
+    throw new Error(`'sanitization' parameter can't be null or undefined`);
 
   if (options == null) options = {};  // sanitize options, otherwise the following code won't work
   const _NUMBER_TO_DATE = ('numberToDate' in options) ? options.numberToDate : DEFAULT__NUMBER_TO_DATE;
@@ -59,7 +77,25 @@ function sanitize ({ value, sanitization, options, validate = false }) {
   const _DEFAULT_DATE = ('defaultDate' in options) ? options.defaultDate : DEFAULT_DATE;
   const _DEFAULT_BIGINT = ('defaultBigInt' in options) ? options.defaultBigInt : DEFAULT_BIGINT;
 
-  if (Array.isArray(sanitization)) {
+  // if `sanitization` is an object & not an array, sanitize the object with `_sanitizeObj()`
+  //
+  // if `sanitization` is an array and `sanitization[0]` is a function, use it to sanitize the array
+  // otherwise, the sanitization array is considered an enum and is used only for validation
+  //
+  // if `sanitization` is a function, use it to sanitize the value
+  //
+  // else, continue with the sanitization
+  if (typeof sanitization === 'object' && !Array.isArray(sanitization)) {
+    return _sanitizeObj({
+      obj: value,
+      sanitization:
+      sanitization,
+      options: options,
+      validate: validate,
+      keyInsensitiveMatch: keyInsensitiveMatch
+    })
+  }
+  else if (Array.isArray(sanitization)) {
     let _value = value;
 
     // if sanitization[0] is a function, use it to sanitize the array
@@ -318,16 +354,8 @@ function sanitize ({ value, sanitization, options, validate = false }) {
 }
 
 /**
- * Sanitize Object, modifying it in place and returning the same object to allow chaining.
- * If obj is array, the sanitization is done on contained objects;
- * array are sanitized without cloning them.
- * If obj is null/undefined or other non-objects returns empty object {}.
- * Sanitization is an object with keys corresponding to the keys of the object to sanitize and values corresponding to the sanitization types;
- * accepted types are many: see `schema.js`; class is 'function', class instance is 'object';
- * for optional parameters (null/undefined are accepted) append '?' to type, e.g. 'any?', 'string?', 'number?', etc.
- * If sanitization is an array, skip the sanitization because it is an enum that can't be applied to an object.
- * For enum sanitization use an array of values (values will be ignored, optionally validated).
- * Object keys missing from the sanitization object are ignored and not sanitized.
+ * See function description of `function sanitize`, section "# Object Sanitization"
+ *
  * @param {Object} p
  * @param {*} p.obj - Object to sanitize
  * @param {*} p.sanitization - Sanitization object; e.g.  {key1: 'string', key2: 'number?'}
@@ -342,7 +370,7 @@ function sanitize ({ value, sanitization, options, validate = false }) {
  * @param {boolean} [p.keyInsensitiveMatch=false] - Optionally match keys between sanitization and obj to sanitize in a case insensitive way (case and trim)
  * @return {*} Sanitized object
  */
-function sanitizeObj ({ obj, sanitization, options, validate = false, keyInsensitiveMatch = false }) {
+function _sanitizeObj ({ obj, sanitization, options, validate = false, keyInsensitiveMatch = false }) {
   let retValue;
 
   if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object

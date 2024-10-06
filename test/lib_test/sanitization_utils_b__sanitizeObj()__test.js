@@ -9,20 +9,20 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;
 
-t('test sanitizeObj() - sanitization = {} means no sanitization', async () => {
+t('test sanitize() with object sanitization - sanitization = {} means no sanitization', async () => {
   const objToSanitize = { a: '11', b: 99 };
-  assert.deepStrictEqual(s.sanitizeObj({ obj: objToSanitize, sanitization: {} }), objToSanitize);
+  assert.deepStrictEqual(s.sanitize({ value: objToSanitize, sanitization: {} }), objToSanitize);
 });
 
-t('test sanitizeObj() - null, undefined and other non-objects are coerced to {}', async () => {
+t('test sanitize() with object sanitization - null, undefined and other non-objects are coerced to {}', async () => {
   const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
-  assert.deepStrictEqual(s.sanitizeObj({ obj: null, sanitization: sanitization }), {});
-  assert.deepStrictEqual(s.sanitizeObj({ obj: undefined, sanitization: sanitization }), {});
-  assert.deepStrictEqual(s.sanitizeObj({ obj: 999, sanitization: sanitization }), {});
-  assert.deepStrictEqual(s.sanitizeObj({ obj: Symbol(), sanitization: sanitization }), {});
+  assert.deepStrictEqual(s.sanitize({ value: null, sanitization: sanitization }), {});
+  assert.deepStrictEqual(s.sanitize({ value: undefined, sanitization: sanitization }), {});
+  assert.deepStrictEqual(s.sanitize({ value: 999, sanitization: sanitization }), {});
+  assert.deepStrictEqual(s.sanitize({ value: Symbol(), sanitization: sanitization }), {});
 });
 
-t('test sanitizeObj() - class: class Type is coerced to {}, class instance is object and sanitized normally', async () => {
+t('test sanitize() with object sanitization - class: class Type is coerced to {}, class instance is object and sanitized normally', async () => {
   class TestClass {
     /**
      * @param {{a: string, b: string}} p
@@ -37,22 +37,22 @@ t('test sanitizeObj() - class: class Type is coerced to {}, class instance is ob
   const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
 
   // class Type is coerced to {}
-  assert.deepStrictEqual(s.sanitizeObj({ obj: TestClass, sanitization: sanitization }), {});
+  assert.deepStrictEqual(s.sanitize({ value: TestClass, sanitization: sanitization }), {});
 
   // class instance is object and sanitized normally
   assert.deepStrictEqual(
-    JSON.stringify(s.sanitizeObj({ obj: testClassInstance, sanitization: sanitization, validate: true })),
+    JSON.stringify(s.sanitize({ value: testClassInstance, sanitization: sanitization, validate: true })),
     JSON.stringify({ a: '0', b: 99 })
   );
 });
 
-t('test sanitizeObj() - FAILING can\'t sanitize single part of an object, only the entire object (can\'t sanitize a deconstructed object)', async () => {
+t('test sanitize() with object sanitization - FAILING can\'t sanitize single part of an object, only the entire object (can\'t sanitize a deconstructed object)', async () => {
   const a = '0';
   const b = '99';
   const expObj = { a: 0, b: 99 };
   const sanitization = { a: S.NUMBER_TYPE, b: S.NUMBER_TYPE };
   /* `a` `b` are not sanitized */
-  s.sanitizeObj({ obj: { a, b }, sanitization: sanitization });
+  s.sanitize({ value: { a, b }, sanitization: sanitization });
   /* FAILS */
   // @ts-ignore
   assert(!eq2({ a, b }, expObj));
@@ -61,30 +61,30 @@ t('test sanitizeObj() - FAILING can\'t sanitize single part of an object, only t
   //
   // 1. construct another object
   const _p1 = { a, b };
-  s.sanitizeObj({ obj: _p1, sanitization: sanitization });
+  s.sanitize({ value: _p1, sanitization: sanitization });
   // @ts-ignore
   assert.deepStrictEqual(_p1, expObj);
   // 2. save the returned object
-  const _p2 = s.sanitizeObj({ obj: { a, b }, sanitization: sanitization });
+  const _p2 = s.sanitize({ value: { a, b }, sanitization: sanitization });
   assert.deepStrictEqual(_p2, expObj);
 
 });
 
-t('test sanitizeObj() - simple object', async () => {
+t('test sanitize() with object sanitization - simple object', async () => {
   const objToSanitize = { a: '11', b: 99 };
   const expObj = { a: 11, b: '99' };
   const sanitization = { a: S.NUMBER_TYPE, b: S.STRING_TYPE };
-  assert.deepStrictEqual(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
+  assert.deepStrictEqual(s.sanitize({ value: objToSanitize, sanitization: sanitization }), expObj);
 });
 
-t('test sanitizeObj() - `any` type', async () => {
+t('test sanitize() with object sanitization - `any` type', async () => {
   const objToSanitize = { a: undefined, b: null, c: 99 };
   const expObj = { a: undefined, b: null, c: 99 };
   const sanitization = { a: S.ANY_TYPE, b: S.ANY_TYPE, c: S.NUMBER_TYPE };
-  assert.deepStrictEqual(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization }), expObj);
+  assert.deepStrictEqual(s.sanitize({ value: objToSanitize, sanitization: sanitization }), expObj);
 });
 
-t('test sanitizeObj() - complex type, local date', async () => {
+t('test sanitize() with object sanitization - complex type, local date', async () => {
   const objToSanitize = {
     date: '1999-12-31T23:59:59',
     date2: '1999-12-31',
@@ -114,12 +114,12 @@ t('test sanitizeObj() - complex type, local date', async () => {
     extraValueMissingRequiredDate: S.DATE_TYPE,
   };
 
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization })), JSON.stringify(expObj));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization })), JSON.stringify(expObj));
 
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, validate: true })), JSON.stringify(expObj));
 });
 
-t('test sanitizeObj() - complex type + validate=true test', async () => {
+t('test sanitize() with object sanitization - complex type + validate=true test', async () => {
   const options = { dateUTC: true };
 
   const _fun = () => {console.log('mamma');};
@@ -274,29 +274,29 @@ t('test sanitizeObj() - complex type + validate=true test', async () => {
   //@ts-ignore
   const replacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
 
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({
-    obj: objToSanitize,
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({
+    value: objToSanitize,
     sanitization: sanitization,
     options
   }), replacer), JSON.stringify(expObj, replacer));
 
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({
-    obj: clone_objToSanitize,
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({
+    value: clone_objToSanitize,
     sanitization: sanitization,
     validate: true,
     options
   }), replacer), JSON.stringify(expObj, replacer));
 });
 
-t('test sanitizeObj() - enum type', async () => {
+t('test sanitize() with object sanitization - enum type', async () => {
   // test undefined with enum type
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
 
   // test enum type
-  assert.throws(() => s.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
+  assert.throws(() => s.sanitize({ value: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
 });
 
-t('test sanitizeObj() - custom sanitization for string, number, date, bigint', async () => {
+t('test sanitize() with object sanitization - custom sanitization for string, number, date, bigint', async () => {
   const options = {
     defaultString: 'mamma',
     defaultNumber: 999,
@@ -350,68 +350,68 @@ t('test sanitizeObj() - custom sanitization for string, number, date, bigint', a
 
   let wrongValue = null;
   let objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
 
   wrongValue = undefined;
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
 
   wrongValue = { ciao: 999 };
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
 
   wrongValue = NaN;
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj, replacer));
 
   wrongValue = 0;
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
 
   wrongValue = -0;
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
 
   wrongValue = 0n;
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0, replacer));
 
   wrongValue = '0';
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0Str, replacer));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_0Str, replacer));
 
   wrongValue = '';
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
 
   wrongValue = '   ';
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: objToSanitize, sanitization: sanitization, options }), replacer), JSON.stringify(expObj_EmptyStr, replacer));
 });
 
-t('test sanitizeObj() - enum type in property', async () => {
+t('test sanitize() with object sanitization - enum type in property', async () => {
   // test that when the property 'a' is missing in the object, it pass the validation of an enum containing undefined
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), JSON.stringify({}));
 
   // test that enum sanitization is ignored + validation
-  assert.throws(() => s.sanitizeObj({ obj: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
+  assert.throws(() => s.sanitize({ value: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
 });
 
-t('test sanitizeObj() - enum array as sanitization is ignored', async () => {
+t('test sanitize() with object sanitization - enum array as sanitization is ignored', async () => {
   // test that enum sanitization is ignored
-  assert.deepStrictEqual(JSON.stringify(s.sanitizeObj({ obj: {}, sanitization: [11, undefined, 'aa', 'aaa', 55], validate: false })), JSON.stringify({}));
+  assert.deepStrictEqual(JSON.stringify(s.sanitize({ value: {}, sanitization: [11, undefined, 'aa', 'aaa', 55], validate: false })), JSON.stringify({}));
 });
 
-t('test sanitizeObj() - keyInsensitiveMatch option test + add a missing sanitization key', async () => {
+t('test sanitize() with object sanitization - keyInsensitiveMatch option test + add a missing sanitization key', async () => {
   const objToSanitize = {
     str: 999,
     num: '123',
@@ -445,7 +445,7 @@ t('test sanitizeObj() - keyInsensitiveMatch option test + add a missing sanitiza
     NUM3: S.NUMBER_TYPE + S.OPTIONAL,  // this key is not present in `objToSanitize` and WILL NOT be added because it's optional
   };
 
-  assert(eq2(s.sanitizeObj({ obj: objToSanitize, sanitization: sanitization, keyInsensitiveMatch: true }), expObj));
+  assert(eq2(s.sanitize({ value: objToSanitize, sanitization: sanitization, keyInsensitiveMatch: true }), expObj));
 
-  assert(eq2(s.sanitizeObj({ obj: objToSanitize_withOptionalValue, sanitization: sanitization, keyInsensitiveMatch: true }), expObj_withOptionalValue));
+  assert(eq2(s.sanitize({ value: objToSanitize_withOptionalValue, sanitization: sanitization, keyInsensitiveMatch: true }), expObj_withOptionalValue));
 });
