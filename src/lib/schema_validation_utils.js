@@ -1,12 +1,19 @@
 import { DISABLE_VALIDATION } from '../config/engine.js';
 
-export { validate, validateObj };
+export { validate };
 
 import * as schema from './schema.js';
 
 const SUCCESS = '';
 
 /**
+ * Validate input Value and return it to allow chaining.
+ * If validation fails, throw an error.
+ *
+ * If `validation` parameter is an object, validate as described in "Object Validation"
+ * otherwise validate as described in "Value Validation".
+ *
+ * # Value Validation
  * Validate value, throw error for validation error.
  * Accepted validation types are many: see exported strings; class is 'function', class instance is 'object'.
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
@@ -16,74 +23,57 @@ const SUCCESS = '';
  *   the validation function will be called as class.validate() with the value to validate as parameter;
  *   the validation function throws an error if the validation fails
  * As types value you can use also exported const as 'ANY_TYPE'.
- * @param {Object} p
- * @param {*} p.value - Value to validate
- * @param {*} p.validation - Validation type (string, array of strings, class or function, array containing a class or function)
- * @param {string} [p.errorMsg] - Optional error message
- * @return {*} Validated value
- * @throws {Error} Will throw an error if the validation fails
- */
-// see https://github.com/iarna/aproba for inspiration
-function validate ({ value, validation, errorMsg }) {
-  if (DISABLE_VALIDATION)
-    return value;
-
-  if (typeof validation !== 'string' && !Array.isArray(validation) && typeof validation !== 'function')
-    throw new Error(`'validation' parameter must be a string, an array or a function`);
-  if (errorMsg != null && typeof errorMsg !== 'string')
-    throw new Error(`'errorMsg' parameter must be null/undefined or string`);
-
-  const validationResult = _validateValue({
-    value: value,
-    validation: validation,
-    errorMsg: errorMsg
-  });
-
-  if (validationResult)
-    throw new Error(`Validation error: ${validationResult}`);
-
-  return value;
-}
-
-/**
+ *
+ * # Object Validation
  * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
  * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
  * As types, you can use also exported const as 'ANY_TYPE'.
  * @param {Object} p
- * @param {*} p.obj - Object to validate
- * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}
+ * @param {*} p.value - Value to validate
+ * @param {*} p.validation - Validation type (string, array of strings, class or function, array containing a class or function)
  * @param {string} [p.errorMsg] - Optional error message
- * @param {boolean} [p.strict = false] - Optional strict flag, default false; if true check that there are no extra keys other than validation keys in the validated object.
- * @return {*} Validated value
+ * @param {boolean} [p.strict = false] - Used only if `validation` is an object; optional, default false; if true check that there are no extra keys other than validation keys in the validated object.
+ * @return {*} Validated value, to allow function chaining
  * @throws {Error} Will throw an error if the validation fails
  */
 // see https://github.com/iarna/aproba for inspiration
-function validateObj ({ obj, validation, errorMsg, strict = false }) {
+function validate ({ value, validation, errorMsg, strict = false}) {
   if (DISABLE_VALIDATION)
-    return obj;
+    return value;
 
-  if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
-    throw new Error(`'obj' parameter must be an object`);
-  if (validation == null || typeof validation !== 'object')  // double check, because typeof null is object
-    throw new Error(`'validation' parameter must be an object`);
+  if (validation == null)
+    throw new Error(`'validation' parameter can't be null or undefined`);
+
+  if (typeof validation !== 'string' && typeof validation !== 'object' && !Array.isArray(validation) && typeof validation !== 'function')
+    throw new Error(`'validation' parameter must be a string, an object, an array or a function`);
   if (errorMsg != null && typeof errorMsg !== 'string')
     throw new Error(`'errorMsg' parameter must be null/undefined or string`);
 
-  const validationResult = _validateObj({
-    obj: obj,
-    validation: validation,
-    strict: strict
-  });
+  let validationResult = "";
 
-  if (validationResult) {
-    if (errorMsg == null)  // null or undefined
-      throw new Error(`Validation error: ${validationResult}`);
-    else
-      throw new Error(`${errorMsg}: ${validationResult}`);
+  // if `validation` is an object & not an array, validate the object with `_validateObj()`
+  //
+  // else, validate the object with `_validateValue()`
+  if (typeof validation === 'object' && !Array.isArray(validation)) {
+    validationResult = _validateObj({
+      obj: value,
+      validation: validation,
+      errorMsg: errorMsg,
+      strict: strict
+    });
+  } else {
+    validationResult = _validateValue({
+      value: value,
+      validation: validation,
+      errorMsg: errorMsg
+    });
   }
 
-  return obj;
+  if (validationResult)
+    throw new Error(`Validation error: ${validationResult}`);
+
+  return value;
 }
 
 /**
@@ -299,6 +289,47 @@ function _validateValue ({ value, validation, errorMsg }) {
 
 /**
  @private
+ * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
+  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
+  * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
+  * As types, you can use also exported const as 'ANY_TYPE'.
+ * @param {Object} p
+ * @param {*} p.obj - Object to validate
+ * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}
+ * @param {string} [p.errorMsg] - Optional error message
+ * @param {boolean} [p.strict = false] - Optional strict flag, default false; if true check that there are no extra keys other than validation keys in the validated object.
+ * @return {string} Return empty string for success; return error string for validation error.
+ */
+// see https://github.com/iarna/aproba for inspiration
+function _validateObj ({ obj, validation, errorMsg, strict = false }) {
+  if (DISABLE_VALIDATION)
+    return SUCCESS;
+
+  if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
+    return `'obj' parameter must be an object`;
+  if (validation == null || typeof validation !== 'object')  // double check, because typeof null is object
+    return `'validation' parameter must be an object`;
+  if (errorMsg != null && typeof errorMsg !== 'string')
+    return `'errorMsg' parameter must be null/undefined or string`;
+
+  const validationResult = __validateObj({
+    obj: obj,
+    validation: validation,
+    strict: strict
+  });
+
+  if (validationResult) {
+    if (errorMsg == null)  // null or undefined
+      return `${validationResult}`;
+    else
+      return `${errorMsg}: ${validationResult}`;
+  }
+
+  return SUCCESS;
+}
+
+/**
+ @private
  * validation function of an object
  * @param {Object} p
  * @param {*} p.obj - Object to validate
@@ -306,7 +337,7 @@ function _validateValue ({ value, validation, errorMsg }) {
  * @param {boolean} [p.strict] - Strict flag; if true check that there are no extra keys other than validation keys in the validated object.
  * @return {string} Return empty string for success; return error string for validation error.
  */
-function _validateObj ({ obj, validation, strict }) {
+function __validateObj ({ obj, validation, strict }) {
   /** @type {string[]} */
   const errors = [];
 

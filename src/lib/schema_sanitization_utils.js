@@ -18,7 +18,7 @@ const DEFAULT_BIGINT = BigInt(0);
 //#endregion defaults
 
 /**
- * Sanitize Value; if value is an Object or Array, modify it in place and return the same object to allow chaining.
+ * Sanitize input Value and return it to allow chaining; if value is an Object or Array, modify it in place and return the same object.
  *
  * If `sanitization` parameter is an object, sanitize as described in "Object Sanitization"
  * otherwise sanitize as described in "Value Sanitization".
@@ -39,7 +39,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * Number to dates are considered by default Excel serial dates (stripping hours); can be changed with options.
  *
  * # Object Sanitization
- * Sanitize Object, modifying it in place and returning the same object to allow chaining.
+ * Sanitize Object, modifying it in place and returning the same object to allow function chaining.
  * If obj is array, the sanitization is done on contained objects;
  * array are sanitized without cloning them.
  * If obj is null/undefined or other non-objects returns empty object {}.
@@ -60,12 +60,14 @@ const DEFAULT_BIGINT = BigInt(0);
  * @param {*} [p.options.defaultDate=new Date(0)]
  * @param {*} [p.options.defaultBigInt=BigInt(0)]
  * @param {boolean} [p.validate=false] - Optional validation flag
- * @param {boolean} [p.keyInsensitiveMatch=false] - Used only if `sanitization` is an object; optionally match keys between sanitization and obj to sanitize in a case insensitive way (case and trim)
+ * @param {boolean} [p.keyInsensitiveMatch=false] - Used only if `sanitization` is an object; optional, default false; if true match keys between sanitization and obj to sanitize in a case insensitive way (case and trim)
  * @return {*} Sanitized value
  */
 function sanitize ({ value, sanitization, options, validate = false, keyInsensitiveMatch = false }) {
-  if (typeof sanitization == null)
+  if (sanitization == null)
     throw new Error(`'sanitization' parameter can't be null or undefined`);
+  if (typeof sanitization !== 'string' && typeof sanitization !== 'object' && !Array.isArray(sanitization) && typeof sanitization !== 'function')
+    throw new Error(`'sanitization' parameter must be a string, an object, an array or a function`);
 
   if (options == null) options = {};  // sanitize options, otherwise the following code won't work
   const _NUMBER_TO_DATE = ('numberToDate' in options) ? options.numberToDate : DEFAULT__NUMBER_TO_DATE;
@@ -94,8 +96,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
       validate: validate,
       keyInsensitiveMatch: keyInsensitiveMatch
     })
-  }
-  else if (Array.isArray(sanitization)) {
+  } else if (Array.isArray(sanitization)) {
     let _value = value;
 
     // if sanitization[0] is a function, use it to sanitize the array
@@ -354,6 +355,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
 }
 
 /**
+ @private
  * See function description of `function sanitize`, section "# Object Sanitization"
  *
  * @param {Object} p
