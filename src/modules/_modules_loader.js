@@ -113,6 +113,7 @@ class ModulesLoader {
     };
     validate({ value: p, validation: _validation });
 
+    /** @type {{class: *, cdnURI: string} | undefined} */
     const _ret = this.#classesRepo.get(this.#classesRepoBuildKey({ moduleEngineURI: p.moduleEngineURI, moduleName: p.moduleName }));
     if (_ret === undefined)
       return undefined;

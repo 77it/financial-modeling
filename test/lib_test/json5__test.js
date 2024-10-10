@@ -4,6 +4,7 @@ import { parseJSON5 } from '../../src/lib/json5.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
+import { parseYAML } from '../../src/lib/yaml.js';
 /** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;
 
 t('JSON5 tests', () => {
@@ -26,6 +27,12 @@ t('JSON5 tests', () => {
   assert.deepStrictEqual(parseJSON5('ciao'), undefined);
   //#endregion parsing null and undefined
 
+  //#region parsing a number with decimal separated by comma, returns undefined
+  // because the number is not recognized as a number, but as an invalid string
+  assert.deepStrictEqual(parseJSON5('999,159'), undefined);
+  assert.deepStrictEqual(parseJSON5('999, 159'), undefined);
+  //#endregion parsing a number with decimal separated by comma, returns a undefined
+
   //#region parsing numbers returns the number
   assert.deepStrictEqual(parseJSON5(999), 999);
   //#endregion parsing numbers returns the number
@@ -45,6 +52,12 @@ t('JSON5 tests', () => {
   //#endregion parsing object serialized in string
 
   //#region parsing array of something
+  // array with comma separated numbers in an array are not recognized as numbers nor string, but split at every ,
+  const txt1 = '[1, 2, 1,1 , 2,2]';
+  let parsed1 = parseJSON5(txt1);
+  assert.deepStrictEqual(parsed1, [1, 2, 1, 1, 2, 2]);
+  assert.notDeepStrictEqual(parsed1, [1, 2, '1,1', '2,2']);
+
   const txt2 = '[[\'2023-01-05\' , 155343.53] , [\'2023-02-05\',100000],{start:\'2024-06-01\', NP:2, npy:2}]';
   let parsed2 = parseJSON5(txt2);
   assert.deepStrictEqual(parsed2[0], ['2023-01-05', 155343.53]);
