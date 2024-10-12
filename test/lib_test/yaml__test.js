@@ -21,7 +21,8 @@ t('YAML tests', () => {
   assert.deepStrictEqual(parseYAML('null'), null);
   //#endregion
 
-  // parsing a number with decimal separated by comma, returns a string
+  // parsing a number with decimal separated by comma, returns a string.
+  // is not a problem if later the string is converted to a number in some way
   assert.deepStrictEqual(parseYAML('999,159'), '999,159');
   assert.deepStrictEqual(parseYAML('999, 159'), '999, 159');
 
@@ -109,11 +110,22 @@ t('YAML tests', () => {
   //#endregion
 
   //#region parsing array of something, strings also without quotes
-  // array with comma separated numbers in an array are not recognized as numbers nor string, but split at every ,
-  const txt1 = '[1, 2, 1,1 , 2,2]';
-  let parsed1 = parseYAML(txt1);
-  assert.deepStrictEqual(parsed1, [1, 2, 1, 1, 2, 2]);
-  assert.notDeepStrictEqual(parsed1, [1, 2, '1,1', '2,2']);
+  // parsing one or more numbers with decimal separated by comma in an array breaks them, splitting at every comma
+  // (array with comma separated numbers in an array are not recognized as numbers nor string, but split at every ,)
+  const txt1a = '[1,1]';
+  let parsed1a = parseYAML(txt1a);
+  assert.notDeepStrictEqual(parsed1a, ['1,1']);  // should be in that way, but it's not
+  assert.deepStrictEqual(parsed1a, [1, 1]);  // wrong, number is split at comma
+  const txt1b = '[1, 2, 1,1 , 2,2]';
+  let parsed1b = parseYAML(txt1b);
+  assert.notDeepStrictEqual(parsed1b, [1, 2, '1,1', '2,2']);  // should be in that way, but it's not
+  assert.deepStrictEqual(parsed1b, [1, 2, 1, 1, 2, 2]);  // wrong, number are split at comma
+
+  // when numbers are quoted, they are correctly not split
+  const txt1c = "[1, 2, '1,1' , '2,2']";
+  let parsed1c = parseYAML(txt1c);
+  assert.deepStrictEqual(parsed1c, [1, 2, '1,1', '2,2']);
+
 
   const txt2 = '[[\'2023-01-05\' , 155343.53] , [\'2023-02-05\',100000],{start: \'2024-06-01\', NP: 2, npy: 2}]';
   let parsed2 = parseYAML(txt2);
