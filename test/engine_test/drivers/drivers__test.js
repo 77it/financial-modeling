@@ -15,7 +15,7 @@ t('Drivers tests', async () => {
   });
 
   const input = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 55 },  // #driver0, mutable, ignored
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 999 },  // #driver0, mutable, ignored
 
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), value: '55' },  // #driver1[0], sanitized
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC', value: '66' },  //  #driver2   value without date, set to Date(0), sanitized
