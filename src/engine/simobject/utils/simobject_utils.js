@@ -1,4 +1,11 @@
-﻿export { simObjectToDto, simObjectToJsonDumpDto, splitPrincipal, toBigInt, bigIntToNumberWithDecimals, bigIntToStringWithDecimals };
+﻿export {
+  simObjectToDto,
+  simObjectToJsonDumpDto,
+  splitPrincipal,
+  toBigInt,
+  bigIntToNumberWithDecimals,
+  bigIntToStringWithDecimals
+};
 
 import { SimObject } from '../simobject.js';
 import { SimObjectDto } from '../simobjectdto.js';
@@ -38,7 +45,7 @@ function simObjectToDto (simObject) {
     is_Link__SimObjId: simObject.is_Link__SimObjId,
     vsSimObjectName: simObject.vsSimObjectName,
     versionId: simObject.versionId,
-    extras: structuredCloneOrClone(simObject.extras),
+    extras: _structuredCloneOrClone(simObject.extras),
   }));
 }
 
@@ -51,7 +58,7 @@ function simObjectToJsonDumpDto (simObject) {
   return deepFreeze(new SimObjectJsonDumpDto({
     type: simObject.type,
     id: simObject.id,
-    date: dateToISOString(simObject.dateTime),
+    date: _dateToISOString(simObject.dateTime),
     name: simObject.name,
     description: simObject.description,
     mutableDescription: simObject.mutableDescription,
@@ -70,7 +77,7 @@ function simObjectToJsonDumpDto (simObject) {
     commandGroup__Id: simObject.commandGroup__Id,
     commandGroup__DebugDescription: simObject.commandGroup__DebugDescription,
     bs_Principal__PrincipalToPay_IndefiniteExpiryDate: bigIntToStringWithDecimals(simObject.bs_Principal__PrincipalToPay_IndefiniteExpiryDate, simObject.decimalPlaces),
-    bs_Principal__PrincipalToPay_AmortizationSchedule__Date: simObject.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => dateToISOString(date)),
+    bs_Principal__PrincipalToPay_AmortizationSchedule__Date: simObject.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => _dateToISOString(date)),
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: simObject.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((big) => bigIntToStringWithDecimals(big, simObject.decimalPlaces)),
     is_Link__SimObjId: simObject.is_Link__SimObjId,
   }));
@@ -87,15 +94,9 @@ function simObjectToJsonDumpDto (simObject) {
  * @param {boolean} opt.roundingModeIsRound
  * @returns {{principalIndefiniteExpiryDate: bigint, principalAmortizationSchedule: bigint[]}}
  */
-function splitPrincipal ({
-    value,
-    bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-    bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
-  },
-  {
-    decimalPlaces,
-    roundingModeIsRound
-  }
+function splitPrincipal (
+  /* p */ {value, bs_Principal__PrincipalToPay_IndefiniteExpiryDate, bs_Principal__PrincipalToPay_AmortizationSchedule__Principal },
+  /* opt */{decimalPlaces, roundingModeIsRound}
 ) {
   const _value = toBigInt(value, decimalPlaces, roundingModeIsRound);
   const principalAmortizationSchedule = bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => toBigInt(number, decimalPlaces, roundingModeIsRound));
@@ -127,8 +128,8 @@ function splitPrincipal ({
 }
 
 /**
- * This function is used to convert a number to a BigInt, preserving a given number of decimal places.
- * If `#roundingModeIsRound` is true, the number is rounded to the given number of decimal places.
+ * This function is used to convert a number to a BigInt, preserving a given number of decimal places and rounding/truncating the rest.
+ * If `#roundingModeIsRound` is true, the number is rounded as Excel does ("Round half away from zero") to the given number of decimal places.
  * If `#roundingModeIsRound` false, the number is truncated to the given number of decimal places.
  * @param {number} n - number to convert
  * @param {number} decimalPlaces
@@ -136,11 +137,21 @@ function splitPrincipal ({
  * @returns {bigint}
  */
 function toBigInt (n, decimalPlaces, roundingModeIsRound) {
-  if (roundingModeIsRound) return BigInt(Math.round(n * 10 ** decimalPlaces));
-  return BigInt(Math.trunc(n * 10 ** decimalPlaces));
+  const integer = _moveTheDecimalPointToTheRight(n, decimalPlaces);
+  if (roundingModeIsRound) {
+    const rounded = _roundHalfAwayFromZero(integer);
+    return BigInt(rounded);
+  }
+  else {
+    const truncated = Math.trunc(integer);
+    return BigInt(truncated);
+  }
 }
 
-/** Convert Big to number, converting to a number with a fixed number of decimal places
+/**
+ * Convert Big to number, converting to a number with a fixed number of decimal places.
+ * We don't need to manipulate the number string because integer are well represented as floating point numbers
+ * then dividing by 10 ** decimalPlaces won't cause loss of precision.
  * @param {bigint} big
  * @param {number} decimalPlaces
  * @returns {number}
@@ -149,7 +160,7 @@ function bigIntToNumberWithDecimals (big, decimalPlaces) {
   return Number(big) / (10 ** decimalPlaces);
 }
 
-/** Convert Big to number, converting to a number with a fixed number of decimal places
+/** Convert Big to string, converting to a number with a fixed number of decimal places
  * @param {bigint} big
  * @param {number} decimalPlaces
  * @returns {string}
@@ -166,12 +177,13 @@ function bigIntToStringWithDecimals (big, decimalPlaces) {
 //#region private functions
 
 /**
- * Try to clone the extras object using the clone() method; if the clone method is not defined, try cloning with structuredClone; cloning fails, an exception is raised
+ @private
+ * Try to clone the extras object using the clone() method; if the clone method is not defined, try cloning with structuredClone; cloning fails, an evalueeption is raised
  * @param {*} obj
  * @returns {*}
  * @throws {Error} if clone() or structuredClone() fails
  */
-function structuredCloneOrClone (obj) {
+function _structuredCloneOrClone (obj) {
   if (obj?.clone)
     return obj.clone();
   else
@@ -179,12 +191,46 @@ function structuredCloneOrClone (obj) {
 }
 
 /** Convert date to ISO string with the current time zone as if it were UTC, stripping time
+ @private
  * @param {Date} date
  * @returns {string}
  */
-function dateToISOString (date) {
+function _dateToISOString (date) {
   // build a UTC date with parts of the date, then convert to ISO string
   return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString();
 }
 
+/** Move the decimal point to the right by `decimalPlaces` positions (manipulating the number string to prevent loss of precision)
+ * Without this function, 10.075 * 10 ** 2 = 1007.4999999999999
+ @private
+ * @param {number} n - The number to convert
+ * @param {number} dp - The number of decimal places
+ * @returns {number}
+ */
+function _moveTheDecimalPointToTheRight(n, dp) {
+  // Convert the number to a string and split it into integer and fractional parts
+  const [integerPart, fractionalPart = ''] = n.toString().split('.');
+
+  // Pad the fractional part with zeros to ensure it has at least `dp` digits
+  const paddedFractionalPart = fractionalPart.padEnd(dp, '0');
+
+  // Concatenate the integer part and the padded fractional part, moving the decimal point to the right by `dp` positions
+  const resultString = integerPart + paddedFractionalPart.slice(0, dp) + '.' + paddedFractionalPart.slice(dp);
+
+  // Convert the resulting string back to a number and return it
+  return parseFloat(resultString);
+}
+
+/** Round n as Excel does ("Round half away from zero").
+ * In Excel
+ *    1.4 >  1    1.5 >  2    2.4 >  2     2.5 >  3
+ *   -1.4 > -1   -1.5 > -2   -2.4 > -2    -2.5 > -3
+ @private
+ * @param {number} n - The number to round.
+ * @returns {number}
+ */
+function _roundHalfAwayFromZero(n) {
+  const sign = Math.sign(n);
+  return sign * Math.round(Math.abs(n));
+}
 //#endregion private functions

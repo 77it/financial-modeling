@@ -129,6 +129,7 @@ function _parseJsonDate (argument, opt) {
 
     //#region local functions
     /**
+     @private
      * @param {number} year
      * @param {number} month
      * @param {number} date
@@ -137,7 +138,6 @@ function _parseJsonDate (argument, opt) {
      * @param {number} [seconds=0]
      * @param {number} [ms=0]
      * @returns {Date}
-     * @private
      */
     function _newDate (year, month, date, hours = 0, minutes = 0, seconds = 0, ms = 0) {
       if (_asUTC) {
