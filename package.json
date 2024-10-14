@@ -1,7 +1,6 @@
 {
   "type": "module",
   "devDependencies": {
-    "@types/node": "^20.16.10",
-    "@hapi/code": "^9.0.3"
+    "@types/node": "^20.16.10"
   }
 }
