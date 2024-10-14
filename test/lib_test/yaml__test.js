@@ -36,7 +36,9 @@ t('YAML tests', () => {
   assert.deepStrictEqual(parseYAML('{ UnitA!Driver }'), { 'UnitA!Driver': null });
   // parsing an object with [] as key, returns undefined
   assert.deepStrictEqual(parseYAML('{ Driver[20240101] }'), undefined);
+  assert.deepStrictEqual(parseYAML('{Driver[20240101]}'), undefined);
   assert.deepStrictEqual(parseYAML('{ UnitA!Driver[20240101] }'), undefined);
+  assert.deepStrictEqual(parseYAML('{UnitA!Driver[20240101]}'), undefined);
 
   // parsing an object with key/value splitting without spaces is parsed correctly
   assert.deepStrictEqual(parseYAML('{abc:value}'), { abc: 'value' });
