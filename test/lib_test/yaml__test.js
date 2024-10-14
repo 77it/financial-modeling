@@ -30,8 +30,13 @@ t('YAML tests', () => {
   assert.deepStrictEqual(parseYAML('Main: 89, Ciao: 99'), undefined);
 
   // parsing an object without key/value splitting as `{abc}` returns an object with a key with undefined value
-  assert.deepStrictEqual(parseYAML('{abc}'), { abc: null });
-  assert.deepStrictEqual(parseYAML('{ abc }'), { abc: null });
+  assert.deepStrictEqual(parseYAML('{Driver}'), { Driver: null });
+  assert.deepStrictEqual(parseYAML('{ Driver }'), { Driver: null });
+  assert.deepStrictEqual(parseYAML('{ Driver }'), { Driver: null });
+  assert.deepStrictEqual(parseYAML('{ UnitA!Driver }'), { 'UnitA!Driver': null });
+  // parsing an object with [] as key, returns undefined
+  assert.deepStrictEqual(parseYAML('{ Driver[20240101] }'), undefined);
+  assert.deepStrictEqual(parseYAML('{ UnitA!Driver[20240101] }'), undefined);
 
   // parsing an object with key/value splitting without spaces is parsed correctly
   assert.deepStrictEqual(parseYAML('{abc:value}'), { abc: 'value' });
@@ -39,7 +44,7 @@ t('YAML tests', () => {
 
   // parsing object with key not separated from value, works only if the key is enclosed in "";
   // otherwise, returns `null` (converted to `undefined` in our library) as value
-  let parsed_keys_not_separated_from_values = parseYAML('{"Main":999.159, \'Main2\':"abcd", Name:"Y88:x", mamma:\'ciao\', mamma3 :99, mamma2:ciao2, mamma-ciao, :ciaociao}');
+  let parsed_keys_not_separated_from_values = parseYAML('{"Main":999.159, \'Main2\':"abcd", Name:"Y88:x", mamma:\'ciao\', mamma3 :99, mamma2:ciao2, mamma-ciao, :ciaociao, "UnitA!Driver[20240101]":ciao ciao}');
   assert.deepStrictEqual(
     parsed_keys_not_separated_from_values,
     {
@@ -50,7 +55,8 @@ t('YAML tests', () => {
       mamma3 :99,
       mamma2: 'ciao2',
       'mamma-ciao': null,
-      ':ciaociao': null
+      ':ciaociao': null,
+      'UnitA!Driver[20240101]':'ciao ciao'
     });
 
   //#region parsing strings with and without quotes, returns the string
