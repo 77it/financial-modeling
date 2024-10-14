@@ -27,43 +27,31 @@ t('YAML tests', () => {
   assert.deepStrictEqual(parseYAML('999, 159'), '999, 159');
 
   // parsing an object without {} goes in error then is returned undefined
-  let parsed_object_without_parens = parseYAML('Main: 89, Ciao: 99');
-  assert(parsed_object_without_parens === undefined);
+  assert.deepStrictEqual(parseYAML('Main: 89, Ciao: 99'), undefined);
 
-  //#region parsing object with key not separated from value, works only if the key is enclosed in "";
+  // parsing an object without key/value splitting as `{abc}` returns an object with a key with undefined value
+  assert.deepStrictEqual(parseYAML('{abc}'), { abc: null });
+  assert.deepStrictEqual(parseYAML('{ abc }'), { abc: null });
+
+  // parsing an object with key/value splitting without spaces is parsed correctly
+  assert.deepStrictEqual(parseYAML('{abc:value}'), { abc: 'value' });
+  assert.deepStrictEqual(parseYAML('{abc:999}'), { abc: 999 });
+
+  // parsing object with key not separated from value, works only if the key is enclosed in "";
   // otherwise, returns `null` (converted to `undefined` in our library) as value
   let parsed_keys_not_separated_from_values = parseYAML('{"Main":999.159, \'Main2\':"abcd", Name:"Y88:x", mamma:\'ciao\', mamma3 :99, mamma2:ciao2, mamma-ciao, :ciaociao}');
-  assert(typeof parsed_keys_not_separated_from_values === 'object');
-  //#region test key definition
-  // keys defined without sanitization
-  assert("Main" in parsed_keys_not_separated_from_values);
-  assert("Main2" in parsed_keys_not_separated_from_values);
-  assert("mamma-ciao" in parsed_keys_not_separated_from_values);
-  assert(":ciaociao" in parsed_keys_not_separated_from_values);
-  // defined because key is sanitized and split in key and value
-  assert("Name" in parsed_keys_not_separated_from_values);
-  assert("mamma" in parsed_keys_not_separated_from_values);
-  assert("mamma2" in parsed_keys_not_separated_from_values);
-  // defined because key is sanitized and space is removed
-  assert("mamma3" in parsed_keys_not_separated_from_values);
-  // without sanitization, with direct YAML parsing this key would be defined, with space in it!
-  assert(!("mamma3 " in parsed_keys_not_separated_from_values));
-  // without sanitization, with direct YAML parsing this key would be defined; is not because the key is sanitized and split in key and value
-  assert(!("Name:\"Y88 x\"" in parsed_keys_not_separated_from_values));
-  assert(!("mamma:\'ciao\'" in parsed_keys_not_separated_from_values));
-  assert(!("mamma2:ciao2" in parsed_keys_not_separated_from_values));
-  //#endregion test key definition
-
-  // test key values
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values.Main, 999.159);
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values.Main2, "abcd");
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values.Name, "Y88:x");  // defined because key is sanitized and split in key and value
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values.mamma, "ciao");  // defined because key is sanitized and split in key and value
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values.mamma2, "ciao2");  // defined because key is sanitized and split in key and value
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values.mamma3, 99);
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values['mamma-ciao'], null);
-  assert.deepStrictEqual(parsed_keys_not_separated_from_values[':ciaociao'], null);
-  //#endregion
+  assert.deepStrictEqual(
+    parsed_keys_not_separated_from_values,
+    {
+      Main: 999.159,
+      Main2: 'abcd',
+      Name: 'Y88:x',
+      mamma: 'ciao',
+      mamma3 :99,
+      mamma2: 'ciao2',
+      'mamma-ciao': null,
+      ':ciaociao': null
+    });
 
   //#region parsing strings with and without quotes, returns the string
   assert.deepStrictEqual(parseYAML('"ciao"'), 'ciao');
@@ -125,7 +113,6 @@ t('YAML tests', () => {
   const txt1c = "[1, 2, '1,1' , '2,2']";
   let parsed1c = parseYAML(txt1c);
   assert.deepStrictEqual(parsed1c, [1, 2, '1,1', '2,2']);
-
 
   const txt2 = '[[\'2023-01-05\' , 155343.53] , [\'2023-02-05\',100000],{start: \'2024-06-01\', NP: 2, npy: 2}]';
   let parsed2 = parseYAML(txt2);
