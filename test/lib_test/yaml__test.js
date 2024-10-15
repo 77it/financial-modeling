@@ -29,9 +29,19 @@ t('YAML tests', () => {
   // parsing an object without {} goes in error then is returned undefined
   assert.deepStrictEqual(parseYAML('Main: 89, Ciao: 99'), undefined);
 
+  // parsing a driver as a string (without {}) returns a string
+  assert.deepStrictEqual(parseYAML('Driver'), 'Driver');
+  assert.deepStrictEqual(parseYAML(' Driver '), 'Driver');
+  assert.deepStrictEqual(parseYAML(' UnitA!Driver '), 'UnitA!Driver');
+  assert.deepStrictEqual(parseYAML(' Driver[20240101] '), 'Driver[20240101]');
+  assert.deepStrictEqual(parseYAML(' UnitA!Driver[20240101] '), 'UnitA!Driver[20240101]');
+  // parsing string starting with @ returns undefined only if it's the first char
+  assert.deepStrictEqual(parseYAML(' @UnitA!Driver '), undefined);
+  assert.deepStrictEqual(parseYAML('@UnitA!Driver[20240101]'), undefined);
+  assert.deepStrictEqual(parseYAML('Unit@A!Driver@[@]@'), 'Unit@A!Driver@[@]@');
+
   // parsing an object without key/value splitting as `{abc}` returns an object with a key with undefined value
   assert.deepStrictEqual(parseYAML('{Driver}'), { Driver: null });
-  assert.deepStrictEqual(parseYAML('{ Driver }'), { Driver: null });
   assert.deepStrictEqual(parseYAML('{ Driver }'), { Driver: null });
   assert.deepStrictEqual(parseYAML('{ UnitA!Driver }'), { 'UnitA!Driver': null });
   // parsing an object with [] as key, returns undefined
@@ -39,6 +49,11 @@ t('YAML tests', () => {
   assert.deepStrictEqual(parseYAML('{Driver[20240101]}'), undefined);
   assert.deepStrictEqual(parseYAML('{ UnitA!Driver[20240101] }'), undefined);
   assert.deepStrictEqual(parseYAML('{UnitA!Driver[20240101]}'), undefined);
+  // parsing object starting with @ returns undefined only if it's the first char
+  assert.deepStrictEqual(parseYAML('{ @UnitA!Driver }'), undefined);
+  assert.deepStrictEqual(parseYAML('{@UnitA!Driver[20240101]}'), undefined);
+  assert.deepStrictEqual(parseYAML('{Unit@A!Driver@}'), { 'Unit@A!Driver@': null });
+
 
   // parsing an object with key/value splitting without spaces is parsed correctly
   assert.deepStrictEqual(parseYAML('{abc:value}'), { abc: 'value' });
