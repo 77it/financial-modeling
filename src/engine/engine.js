@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-inner-declarations  // ignore the rule because we want to allow inner declarations of functions
 export { engine };
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
@@ -278,8 +279,12 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
         return _newDate;
     }
 
-    /** Build an array of taskLocks sequence entries
-     * @param {taskLocksRawCallSequenceEntry[]} taskLocksRawCallSequence
+    /** From the list of taskLocks name and flag, build an array of taskLocks callable functions
+     *
+     * Loop the list of taskLocks name and flag, and for each entry:
+     * - if `isSimulation` is true, search the taskLock in the default Unit and save it in the return array
+     * - if `isSimulation` is false, search the taskLock in all Units different from default and save them in the return array
+     * @param {taskLocksRawCallSequenceEntry_NameAndFlag[]} taskLocksRawCallSequence
      * @return {taskLocksCallSequenceEntry[]}
      */
     function buildTaskLocksSequenceArray (taskLocksRawCallSequence) {
@@ -292,10 +297,11 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
         const _name = sanitize({ value: _entry.name, sanitization: schema.STRING_TYPE });
 
         if (_isSimulation) {
-          if (_taskLocks.isDefined({ name: _name }))
-            _taskLocksSequenceArray.push({ taskLock: _taskLocks.get({ name: _name }), debugModuleInfo: _taskLocks.getDebugModuleInfo({ name: _name }) });
-        } else {  // if not simulation, search in all Units different from default
-          // get the list of Locks with a specific name NOT defined on default Unit, then push them in the array
+          // in the following methods, when unit is undefined, it means default Unit
+          if (_taskLocks.isDefined({ unit: undefined, name: _name }))
+            _taskLocksSequenceArray.push({ taskLock: _taskLocks.get({ unit: undefined, name: _name }), debugModuleInfo: _taskLocks.getDebugModuleInfo({ unit: undefined, name: _name }) });
+        } else {  // if the flag says that the task lock is not defined on simulation, search in all Units different from default
+          // get the list of Locks with a specific name defined on Units different from default Unit, then push them in the array
           _taskLocks.getListOfAllTaskLocksNotDefinedInTheDefaultUnit({ name: _name }).forEach(entry => {
             _taskLocksSequenceArray.push({
               taskLock: entry.taskLock,
@@ -386,13 +392,13 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
 /**
  @typedef {Object} taskLocksCallSequenceEntry
- @property {*} taskLock
- @property {string} debugModuleInfo
+ @property {*} taskLock - this is the taskLock callable function
+ @property {string} debugModuleInfo - debug info about the module that defined the taskLock
  */
 
 /**
- @typedef {Object} taskLocksRawCallSequenceEntry
- @property {boolean} isSimulation
- @property {string} name
+ @typedef {Object} taskLocksRawCallSequenceEntry_NameAndFlag
+ @property {boolean} isSimulation - true if the taskLock is defined in simulation, false if it is defined in unit
+ @property {string} name - the name of the taskLock
  */
 //#endregion types definitions
