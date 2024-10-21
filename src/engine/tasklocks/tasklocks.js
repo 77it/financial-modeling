@@ -85,12 +85,12 @@ class TaskLocks {
   }
 
   /**
-   * Get a list of all TaskLocks not defined in the default unit
+   * Get list of all TaskLocks not defined in the default unit
    * @param {Object} p
    * @param {string} p.name - TaskLock name
    * @return {{unit: string, taskLock: *, debugModuleInfo: string}[]} array of unit names, TaskLocks and debugModuleInfo
    */
-  getListOfNotDefaultUnitLocks ({ name }) {
+  getListOfAllTaskLocksNotDefinedInTheDefaultUnit ({ name }) {
     const _ret = [];
 
     // loop over keys and values of this.#taskLocksRepo

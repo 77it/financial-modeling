@@ -296,7 +296,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
             _taskLocksSequenceArray.push({ taskLock: _taskLocks.get({ name: _name }), debugModuleInfo: _taskLocks.getDebugModuleInfo({ name: _name }) });
         } else {  // if not simulation, search in all Units different from default
           // get the list of Locks with a specific name NOT defined on default Unit, then push them in the array
-          _taskLocks.getListOfNotDefaultUnitLocks({ name: _name }).forEach(entry => {
+          _taskLocks.getListOfAllTaskLocksNotDefinedInTheDefaultUnit({ name: _name }).forEach(entry => {
             _taskLocksSequenceArray.push({
               taskLock: entry.taskLock,
               debugModuleInfo: entry.debugModuleInfo
