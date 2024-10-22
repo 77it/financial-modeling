@@ -107,7 +107,12 @@ class DriversRepo {
     /** @type {string[]} */
     const arrayOfErrors = [];
 
-    // loop all entries, saving in a set the keys of the drivers that are not already present
+    // loop all entries, saving in a set the keys of the drivers that are already present.
+    // this is needed because we won't add drivers already present in the repo before the call to this method;
+    // during the method run we add drivers while looping the input array, then if an immutable driver is present in more than
+    // one row at some point we'll find it as present, if we will query `this.#driversRepo` at every loop of the input array;
+    // instead, using `_keysAlreadyDefinedBeforeSet` we are sure to not add the immutable drivers that were present, as stated,
+    // before the call to this method.
     const _keysAlreadyDefinedBeforeSet = new Set();
     for (const _item of p) {
       const _key = this.#driversRepoBuildKey({ scenario: _item.scenario, unit: _item.unit, name: _item.name });
@@ -115,7 +120,7 @@ class DriversRepo {
         _keysAlreadyDefinedBeforeSet.add(_key);
     }
 
-    // loop all entries, adding only the drivers in the set
+    // loop all entries, adding the drivers in the set and updating the others, if not immutable
     for (const _inputItem of p) {
       // shallow clone _inputItem, to build a new object and be able to add properties to it without changing the original object (doesn't clone the properties of the object, only creates a new object with the same properties)
       const _inputItemClone = { ..._inputItem };
@@ -164,9 +169,12 @@ class DriversRepo {
         deepFreeze(_inputItemClone.value);
       }
 
+      // if the driver is missing, add it to the repo
       if (!(this.#driversRepo.has(_key))) {
         this.#driversRepo.set(_key, [{ dateMilliseconds: _inputItemClone.date?.getTime() ?? 0, value: _inputItemClone.value }]);
-      } else {
+      }
+      // if the driver is present, update it
+      else {
         const _dateMilliseconds = _inputItemClone.date?.getTime() ?? 0;
         const _driver = this.#driversRepo.get(_key);
         if (_driver) {
