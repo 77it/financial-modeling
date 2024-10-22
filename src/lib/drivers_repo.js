@@ -130,13 +130,12 @@ class DriversRepo {
         value: _inputItemClone,
         sanitization: {
           date: schema.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
+          name: schema.STRING_TYPE,
+          scenario: schema.STRING_TYPE + schema.OPTIONAL,
+          unit: schema.STRING_TYPE + schema.OPTIONAL,
           value: this.#sanitizationType
         }
       });
-
-      // if date is not present, set it to new Date(0); if date is present, strip the time part from the date (if the date is != Date(0))
-      // (check for `_inputItemClone?.date` because typescript can't understand that `sanitize` sanitize invalid dates)
-      _inputItemClone.date = (_inputItemClone?.date && _inputItemClone?.date.getTime() !== 0) ? stripTimeToLocalDate(_inputItemClone?.date) : new Date(0);
 
       const _key = this.#driversRepoBuildKey({ scenario: _inputItemClone.scenario, unit: _inputItemClone.unit, name: _inputItemClone.name });
 
@@ -159,10 +158,16 @@ class DriversRepo {
         continue;
       }
 
-      // if the driver has date different from Date(0) and the driver is immutable without dates, reset the date to Date(0)
-      if (_isImmutableWithoutDates && _inputItemClone.date?.getTime() !== 0) {
-        _inputItemClone.date = new Date(0);
-      }
+      // date milliseconds:<p>
+      // * if date is present & if the date is != Date(0), strip the time part from the date, then get the milliseconds;<p>
+      // ** if the milliseconds are different from 0 and the driver is immutable without dates, reset them to 0;<p>
+      // * else, set it to 0.<p>
+      // (check for `_inputItemClone?.date` because typescript can't understand that `sanitize` sanitize invalid dates)
+      const _inputDateMillisecond = (() => {
+        if (_inputItemClone?.date && _inputItemClone?.date.getTime() !== 0) {
+          if (_isImmutableWithoutDates) { return 0; } else { return stripTimeToLocalDate(_inputItemClone?.date).getTime(); }
+        } else { return 0; }
+      })();
 
       // if the flag `freezeValues` is true, deep freeze the value
       if (this.#freezeValues) {
@@ -171,11 +176,10 @@ class DriversRepo {
 
       // if the driver is missing, add it to the repo
       if (!(this.#driversRepo.has(_key))) {
-        this.#driversRepo.set(_key, [{ dateMilliseconds: _inputItemClone.date?.getTime() ?? 0, value: _inputItemClone.value }]);
+        this.#driversRepo.set(_key, [{ dateMilliseconds: _inputDateMillisecond, value: _inputItemClone.value }]);
       }
       // if the driver is present, update it
       else {
-        const _dateMilliseconds = _inputItemClone.date?.getTime() ?? 0;
         const _driver = this.#driversRepo.get(_key);
         if (_driver) {
           let _toAppendFlag = true;
@@ -186,22 +190,22 @@ class DriversRepo {
           // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
           // 3) if _toAppendFlag is still true, append date and value at the end of the array
           for (let i = 0; i < _driver.length; i++) {
-            if (_driver[i].dateMilliseconds === _dateMilliseconds) {
+            if (_driver[i].dateMilliseconds === _inputDateMillisecond) {
               if (_isMutable)
                 _driver[i].value = _inputItemClone.value;
               else
-                arrayOfErrors.push(`Driver ${_key} is immutable and the date ${localDateToStringYYYYMMDD(_inputItemClone.date)} is already present`);
+                arrayOfErrors.push(`Driver ${_key} is immutable and the date ${localDateToStringYYYYMMDD(new Date(_inputDateMillisecond))} is already present`);
               _toAppendFlag = false;
               break;
-            } else if (_driver[i].dateMilliseconds > _dateMilliseconds) {
-              _driver.splice(i, 0, { dateMilliseconds: _dateMilliseconds, value: _inputItemClone.value });
+            } else if (_driver[i].dateMilliseconds > _inputDateMillisecond) {
+              _driver.splice(i, 0, { dateMilliseconds: _inputDateMillisecond, value: _inputItemClone.value });
               _toAppendFlag = false;
               break;
             }
           }
 
           if (_toAppendFlag)
-            _driver.push({ dateMilliseconds: _dateMilliseconds, value: _inputItemClone.value });
+            _driver.push({ dateMilliseconds: _inputDateMillisecond, value: _inputItemClone.value });
         }
       }
     }
@@ -381,7 +385,7 @@ class DriversRepo {
    * @param {number} target - The target dateMilliseconds to search for.
    * @returns {number} The position at or before the target dateMilliseconds, or -1 if not found.
    */
-  #binarySearch_position_atOrBefore_dateMilliseconds(driverArray, target) {
+  #binarySearch_position_atOrBefore_dateMilliseconds (driverArray, target) {
     let low = 0;
     let high = driverArray.length - 1;
     let result = -1;
