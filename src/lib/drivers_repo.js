@@ -217,7 +217,7 @@ class DriversRepo {
    * @return {undefined|*|*[]} Driver; if not found, returns undefined;
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns an array of values defined between `date` and `endDate`.
-   * Returned data is not cloned, but with `freezeValues` option = true the values are deep frozen.
+   * Returned data is not cloned, but with `freezeValues` option = true the values are deep-frozen.
    */
   get ({ scenario, unit, name, date, endDate, parseAsJSON5 = false, sanitizationType, search = false }) {
     let _key = this.#driversRepoBuildKey({ scenario, unit, name });
@@ -270,24 +270,23 @@ class DriversRepo {
       const _dateMilliseconds = _date.getTime();  // date to search for
       let _ret = undefined;
 
-      // search for the right Driver, saving the date closest (but not greater) to the requested date
-      for (const _item of _driver) {
-        // data is ordered by date, so if the date is greater than the requested date, break
-        if (_item.dateMilliseconds > _dateMilliseconds)
-          break;
-        _ret = _item.value;
+      // binary search of `_dateMilliseconds` in `_driver` array; -1 if not found
+      const foundPositionOf__dateMilliseconds_in__driver_array =
+        this.#binarySearch_position_atOrBefore_dateMilliseconds(_driver, _dateMilliseconds);
+
+      // if the date is found, set the return value
+      if (foundPositionOf__dateMilliseconds_in__driver_array !== -1) {
+        _ret = _driver[foundPositionOf__dateMilliseconds_in__driver_array].value;
       }
 
       // parse as JSON5 if requested
-      const _parsedValue = (parseAsJSON5) ? parseJSON5(_ret) : _ret;
+      const _parsedRet = (parseAsJSON5) ? parseJSON5(_ret) : _ret;
 
       // sanitize the value if requested
       if (isNullOrWhiteSpace(sanitizationType))
-        return _parsedValue;
-      else if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
-        return sanitize({ value: _parsedValue, sanitization: sanitizationType });
-      else if (typeof sanitizationType === 'object')
-        return sanitize({ value: _parsedValue, sanitization: sanitizationType });
+        return _parsedRet;
+      else
+        return sanitize({ value: _parsedRet, sanitization: sanitizationType });
     }
     // if `endDate` is defined, returns an array of values defined between `date` and `endDate`
     else {
@@ -303,10 +302,20 @@ class DriversRepo {
       const _endDateMilliseconds = _endDate.getTime();  // date to search for
       let _retArray = [];
 
-      // save all drivers between `_dateMilliseconds` and `_endDateMilliseconds`
-      for (const _item of _driver) {
-        if (_item.dateMilliseconds >= _dateMilliseconds && _item.dateMilliseconds <= _endDateMilliseconds)
-          _retArray.push(_item.value);
+      // binary search of `_dateMilliseconds` in `_driver` array; -1 if not found
+      let foundPositionOf__dateMilliseconds_in__driver_array =
+        this.#binarySearch_position_atOrBefore_dateMilliseconds(_driver, _dateMilliseconds);
+
+      // if the date is not found, set to zero, to start from the beginning of the array
+      if (foundPositionOf__dateMilliseconds_in__driver_array === -1)
+        foundPositionOf__dateMilliseconds_in__driver_array = 0;
+
+      // loop from `foundPositionOf__dateMilliseconds_in__driver_array` to the end of the array
+      // and save all drivers between `_dateMilliseconds` and `_endDateMilliseconds`
+      for (let i = foundPositionOf__dateMilliseconds_in__driver_array; i < _driver.length; i++) {
+        if (_driver[i].dateMilliseconds > _endDateMilliseconds)
+          break;
+        _retArray.push(_driver[i].value);
       }
 
       // parse all elements contained in the _retArray as JSON5 if requested
@@ -316,9 +325,7 @@ class DriversRepo {
       // sanitize the value if requested
       if (isNullOrWhiteSpace(sanitizationType))
         return _retArray;
-      else if (typeof sanitizationType === 'string' || Array.isArray(sanitizationType) || typeof sanitizationType === 'function')
-        return _retArray.map(_item => sanitize({ value: _item, sanitization: sanitizationType }));
-      else if (typeof sanitizationType === 'object')
+      else
         return _retArray.map(_item => sanitize({ value: _item, sanitization: sanitizationType }));
     }
   }
@@ -358,6 +365,32 @@ class DriversRepo {
       unit: _p.unit.trim().toLowerCase(),
       name: _p.name.trim().toLowerCase()
     });
+  }
+
+  /**
+   * Perform a binary search to find the position at or before the target dateMilliseconds.
+   * @param {Array<{dateMilliseconds: number, value: *}>} driverArray - The array to search.
+   * @param {number} target - The target dateMilliseconds to search for.
+   * @returns {number} The position at or before the target dateMilliseconds, or -1 if not found.
+   */
+  #binarySearch_position_atOrBefore_dateMilliseconds(driverArray, target) {
+    let low = 0;
+    let high = driverArray.length - 1;
+    let result = -1;
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      if (driverArray[mid].dateMilliseconds === target) {
+        return mid;
+      } else if (driverArray[mid].dateMilliseconds < target) {
+        result = mid;
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    return result;
   }
 
   //#endregion private methods
