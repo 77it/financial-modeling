@@ -1,4 +1,6 @@
-﻿export { DriversRepo };
+﻿import { taskLocksBeforeEverythingElse } from '../config/tasklocks_call_sequence.js.js';
+
+export { DriversRepo };
 
 import * as schema from './schema.js';
 import { sanitize } from './schema_sanitization_utils.js';
@@ -270,16 +272,19 @@ class DriversRepo {
     if (!_driver)
       return undefined;
 
-    // missing dates will be set to this.#today
-    let _date = (date === undefined || date === null) ? this.#today : date;
-    // invalid date will be set to new Date(0)
-    _date = sanitize({ value: _date, sanitization: schema.DATE_TYPE });
-    // strip the time part from the date (if the date is != Date(0))
-    _date = (_date.getTime() !== 0) ? stripTimeToLocalDate(_date) : _date;
+    // date milliseconds:<p>
+    // * missing dates will be set to this.#today;<p>
+    // * invalid date will be set to new Date(0);<p>
+    // * strip the time part from the date (if the date is != Date(0))<p>
+    const _dateMilliseconds = (() => {
+      let _date = (date === undefined || date === null) ? this.#today : date;
+      _date = sanitize({ value: _date, sanitization: schema.DATE_TYPE });
+      _date = (_date.getTime() !== 0) ? stripTimeToLocalDate(_date) : _date;
+      return _date.getTime();
+    })();
 
     // if `endDate` is not defined, returns the value defined before or at `date`
     if (endDate === undefined || endDate === null) {
-      const _dateMilliseconds = _date.getTime();  // date to search for
       let _ret = undefined;
 
       // binary search of `_dateMilliseconds` in `_driver` array; -1 if not found
@@ -302,30 +307,35 @@ class DriversRepo {
     }
     // if `endDate` is defined, returns an array of values defined between `date` and `endDate`
     else {
-      // invalid date will be set to new Date(0)
-      let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
-      // strip the time part from the date (if the date is != Date(0))
-      _endDate = (_endDate.getTime() !== 0) ? stripTimeToLocalDate(_endDate) : _endDate;
-      // if `endDate` is lower than `date`, invert the two dates
-      if (_endDate.getTime() < _date.getTime())
-        [_date, _endDate] = [_endDate, _date];
+      // start & end date milliseconds.<p>
+      // end milliseconds:<p>
+      // * invalid date will be set to new Date(0);<p>
+      // * strip the time part from the date (if the date is != Date(0))<p>
+      // if end milliseconds is lower than `_dateMilliseconds`, invert the two dates and returns them
+      /** @type {{start: number, end: number}} */
+      const _milliseconds = (() => {
+        let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
+        _endDate = (_endDate.getTime() !== 0) ? stripTimeToLocalDate(_endDate) : _endDate;
+        if (_endDate.getTime() < _dateMilliseconds)
+          return { start: _endDate.getTime(), end: _dateMilliseconds };
+        else
+          return { start: _dateMilliseconds, end: _endDate.getTime() };
+      })();
 
-      const _dateMilliseconds = _date.getTime();  // date to search for
-      const _endDateMilliseconds = _endDate.getTime();  // date to search for
       let _retArray = [];
 
       // binary search of `_dateMilliseconds` in `_driver` array; -1 if not found
       let foundPositionOf__dateMilliseconds_in__driver_array =
-        this.#binarySearch_position_atOrBefore_dateMilliseconds(_driver, _dateMilliseconds);
+        this.#binarySearch_position_atOrBefore_dateMilliseconds(_driver, _milliseconds.start);
 
       // if the date is not found, set to zero, to start from the beginning of the array
       if (foundPositionOf__dateMilliseconds_in__driver_array === -1)
         foundPositionOf__dateMilliseconds_in__driver_array = 0;
 
       // loop from `foundPositionOf__dateMilliseconds_in__driver_array` to the end of the array
-      // and save all drivers between `_dateMilliseconds` and `_endDateMilliseconds`
+      // and save all drivers between `_milliseconds.start` and `_milliseconds.end`
       for (let i = foundPositionOf__dateMilliseconds_in__driver_array; i < _driver.length; i++) {
-        if (_driver[i].dateMilliseconds > _endDateMilliseconds)
+        if (_driver[i].dateMilliseconds > _milliseconds.end)
           break;
         _retArray.push(_driver[i].value);
       }
