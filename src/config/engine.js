@@ -29,9 +29,8 @@ export const DECIMAL_PLACES = 4;
 // config used during init of Settings and Drivers classes
 export const IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES = '$$';
 export const IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES = '$';
-// Set only for immutable drivers that may change at the end of the day (IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES);
-// for immutable drivers (IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES), it doesn't make sense; mutable drivers do not exist.
-export const DAILY_DRIVER_PREFIXES = new GlobalValue(['$Daily']);
+// This value is replaced, during engine execution, with value of simulation setting `$$DAILY_DRIVER_PREFIXES`.
+export const DAILY_DRIVER_PREFIXES = new GlobalValue([]);
 
 // Formula and YAML cache size
 export const FML_CACHE_SIZE = 10_000;

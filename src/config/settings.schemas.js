@@ -3,6 +3,8 @@
 // here is not defined the YAML parsing, because parse option is set in Settings module config file `src/config/modules/settings.js`
 // object 'moduleSanitization'
 
+import { DAILY_DRIVER_PREFIXES } from './engine.js';
+
 export { SettingsSchemas, SettingsSanitizationOptions };
 
 import { Simulation } from './settings_names.js';
@@ -27,6 +29,7 @@ const SettingsSchemas = {
   [Simulation.$$CURRENCY]: schema.STRING_TYPE,
   [Simulation.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE]: schema.DATE_TYPE,
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: schema.NUMBER_TYPE,
+  [Simulation.$$DAILY_DRIVER_PREFIXES]: schema.ARRAY_OF_STRINGS_TYPE,
 
   // immutable: with dates
   [Simulation.$MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE]: schema.NUMBER_TYPE,

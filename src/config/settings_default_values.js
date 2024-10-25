@@ -15,7 +15,10 @@ const SettingsDefaultValues = {
   [Simulation.$$CURRENCY]: Currency_enum.UNDEFINED,
   [Simulation.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE]: new Date(0),
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: 12,
-  [Simulation.DEFAULT_SPLIT]: [1,1,1,1,1,1,1,1,1,1,1,1],  // default split of things, 12 equal months (e.g. of Income Statement items)
+  [Simulation.$$DEFAULT_SPLIT]: [1,1,1,1,1,1,1,1,1,1,1,1],  // default split of things, 12 equal months (e.g. of Income Statement items)
+  // Set only for immutable drivers that may change at the end of the day (IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES);
+  // for immutable drivers (IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES), it doesn't make sense; mutable drivers do not exist.
+  [Simulation.$$DAILY_DRIVER_PREFIXES]: ['$Daily'],
 
   // value of immutable settings with dates if nothing else is set
   [Simulation.$MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE]: 100,
