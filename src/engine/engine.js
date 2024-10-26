@@ -71,6 +71,9 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
       prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES
     });
+    // set global variable DRIVER_PREFIXES__ZERO_IF_NOT_SET with the value from Settings
+    CFG.DRIVER_PREFIXES__ZERO_IF_NOT_SET.set(_settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET }));
+
     // init Drivers repo
     const _drivers = new Drivers({
       currentScenario: scenarioName, baseScenario: CFG.SCENARIO_BASE,
@@ -78,6 +81,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
       prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES
     });
+
     // init TaskLocks repo
     const _taskLocks = new TaskLocks({ defaultUnit: CFG.SIMULATION_NAME });
     //#endregion variables declaration
