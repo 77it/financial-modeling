@@ -132,23 +132,12 @@ export class Module {
           // if the setting name is not found in SettingsSchemas, the sanitization is set to empty string '' and the setting value is not sanitized
           const _sanitization = get2(SettingsSchemas, get2(row, table.columns.NAME)) ?? '';
 
-          let _sanitizedValue;
-          // if `_sanitization` is an object but not an array, sanitize the value with `sanitize` function
-          if (_sanitization != null && typeof _sanitization === 'object' && !Array.isArray(_sanitization)) {
-            _sanitizedValue = sanitize({
-              value: _value,
-              sanitization: _sanitization,
-              options: SettingsSanitizationOptions,
-              keyInsensitiveMatch: true
-            });
-          } else {
-            // if `_sanitization` is not object, sanitize the value with `sanitize` function
-            _sanitizedValue = sanitize({
-              value: _value,
-              sanitization: _sanitization,
-              options: SettingsSanitizationOptions
-            });
-          }
+          const _sanitizedValue = sanitize({
+            value: _value,
+            sanitization: _sanitization,
+            options: SettingsSanitizationOptions,
+            keyInsensitiveMatch: true
+          });
 
           // create setting reading scenario, unit, name, date from row (key match trim & case insensitive)
           this.#simulationContext.setSetting([{
