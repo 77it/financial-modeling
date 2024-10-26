@@ -39,7 +39,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     ____) |  _| |_  | |  | | | |__| | | |____   / ____ \     | |     _| |_  | |__| | | |\  |           ____) |    | |     / ____ \  | | \ \     | |
    |_____/  |_____| |_|  |_|  \____/  |______| /_/    \_\    |_|    |_____|  \____/  |_| \_|          |_____/     |_|    /_/    \_\ |_|  \_\    |_|
    */
-  // define _ledger here to be able to use it in the `catch` block
+  // init _ledger here, to be able to use it in the `catch` block
   const _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });
 
   try {
@@ -64,18 +64,21 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     const _moduleDataArray = modulesData;
     const _modulesArray = modules;
 
+    // init Settings repo
     const _settings = new Settings({
       currentScenario: scenarioName, baseScenario: CFG.SCENARIO_BASE,
       defaultUnit: CFG.SIMULATION_NAME,
       prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
       prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES
     });
+    // init Drivers repo
     const _drivers = new Drivers({
       currentScenario: scenarioName, baseScenario: CFG.SCENARIO_BASE,
       defaultUnit: CFG.SIMULATION_NAME,
       prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
       prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES
     });
+    // init TaskLocks repo
     const _taskLocks = new TaskLocks({ defaultUnit: CFG.SIMULATION_NAME });
     //#endregion variables declaration
 
