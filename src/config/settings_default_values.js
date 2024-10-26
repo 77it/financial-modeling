@@ -18,7 +18,7 @@ const SettingsDefaultValues = {
   [Simulation.$$DEFAULT_SPLIT]: [1,1,1,1,1,1,1,1,1,1,1,1],  // default split of things, 12 equal months (e.g. of Income Statement items)
   // Set only for immutable drivers that may change at the end of the day (IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES);
   // for immutable drivers (IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES), it doesn't make sense; mutable drivers do not exist.
-  [Simulation.$$DAILY_DRIVER_PREFIXES]: ['$Daily'],
+  [Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET]: ['$Daily'],
 
   // value of immutable settings with dates if nothing else is set
   [Simulation.$MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE]: 100,

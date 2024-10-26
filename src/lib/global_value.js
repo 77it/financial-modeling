@@ -5,16 +5,24 @@
 export class GlobalValue {
   /** @type {boolean} */
   #isLocked; // flag to lock setting once the default is returned
+  /** @type {boolean} */
+  #hasValue; // flag that is true only if the value is ever set
   /** @type {any} */
   #value; // private field to store the value
 
   /**
    * Create a GlobalValue instance.
-   * @param {any} defaultValue - The default fallback value.
+   * If a default value is not provided, the value must be set before calling get().
+   * @param {any} [defaultValue] - Optional, the default fallback value.
    */
   constructor(defaultValue) {
-    this.#value = defaultValue;
     this.#isLocked = false;
+    this.#hasValue = false;
+
+    if (arguments.length !== 0) {
+      this.#value = defaultValue;
+      this.#hasValue = true;
+    }
   }
 
   /**
@@ -24,16 +32,27 @@ export class GlobalValue {
    */
   set(newValue) {
     if (!this.#isLocked) {
-      this.#value = newValue;
-      this.#isLocked = true; // Lock the value
+      if (arguments.length !== 0) {
+        this.#value = newValue;
+        this.#isLocked = true; // Lock the value
+        this.#hasValue = true;
+      } else {
+        throw new Error('Set value must be provided.');
+      }
     }
   }
 
   /**
    * Get the current value, then value becomes locked and can't be reset anymore.
+   * If the value is not set during init nor after with set() before calling get(), an error is thrown.
    * @returns {any} The current value.
+   * @throws {Error} If the value is not set during init nor after with set() before calling get().
    */
   get() {
+    if (!this.#hasValue) {
+      throw new Error('Value must be set before calling get().');
+    }
+
     this.#isLocked = true; // Lock the value
     return this.#value;
   }

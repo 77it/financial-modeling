@@ -29,7 +29,7 @@ const SettingsSchemas = {
   [Simulation.$$CURRENCY]: schema.STRING_TYPE,
   [Simulation.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE]: schema.DATE_TYPE,
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: schema.NUMBER_TYPE,
-  [Simulation.$$DAILY_DRIVER_PREFIXES]: schema.ARRAY_OF_STRINGS_TYPE,
+  [Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET]: schema.ARRAY_OF_STRINGS_TYPE,
 
   // immutable: with dates
   [Simulation.$MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE]: schema.NUMBER_TYPE,
