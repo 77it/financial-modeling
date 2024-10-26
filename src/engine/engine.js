@@ -5,11 +5,11 @@ import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as CFG from '../config/engine.js';
 
 import * as schema from '../lib/schema.js';
+import { eq2 } from '../lib/obj_utils.js';
 import { sanitize } from '../lib/schema_sanitization_utils.js';
 import { validate } from '../lib/schema_validation_utils.js';
 import { stripTimeToLocalDate } from '../lib/date_utils.js';
 import { Result } from '../lib/result.js';
-import { isStringOrBooleanTrue } from '../lib/boolean_utils.js';
 
 import { Ledger } from './ledger/ledger.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
@@ -152,14 +152,11 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       _startDate = updateStartDate({ actualDate: _startDate, newDate: module?.startDate });  // set or update _startDate
     });
     // read `$$SIMULATION_END_DATE` from settings
-    _endDate = sanitize({
-      value: _settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE }),
-      sanitization: schema.DATE_TYPE + schema.OPTIONAL
-    });
+    _endDate = _settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE });
     // if `_startDate` is still undefined, set it to default value (Date(0))
     if (_startDate == null) _startDate = stripTimeToLocalDate(new Date(0));
-    // if `_endDate` is still undefined, set it to default value (to 10 years from now, at the end of the year)
-    if (_endDate == null) _endDate = stripTimeToLocalDate(new Date(new Date().getFullYear() + CFG.DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31));
+    // if `_endDate` is still undefined or equal to Date(0), set it to default value (to 10 years from now, at the end of the year)
+    if (_endDate == null || eq2(_endDate, new Date(0))) _endDate = stripTimeToLocalDate(new Date(new Date().getFullYear() + CFG.DEFAULT_NUMBER_OF_YEARS_FROM_TODAY, 11, 31));
 
     //#endregion set `_startDate`/`_endDate`
 
@@ -322,13 +319,10 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
      * @param {Settings} p.settings
      */
     function setDebugLevelOnLedger ({ debugParameter, settings }) {
-      const _debugFlagFromParameter = sanitize({ value: debugParameter, sanitization: schema.STRINGLOWERCASETRIMMED_TYPE });
-      const _debugFlagFromSettings = sanitize({
-        value: settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG }),
-        sanitization: schema.STRINGLOWERCASETRIMMED_TYPE
-      });
+      const _debugFlagFromParameter = sanitize({ value: debugParameter, sanitization: schema.BOOLEAN_TYPE });
+      const _debugFlagFromSettings = settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DEBUG_FLAG });
 
-      if (isStringOrBooleanTrue(_debugFlagFromParameter) || isStringOrBooleanTrue(_debugFlagFromSettings))
+      if (_debugFlagFromParameter || _debugFlagFromSettings)
         _ledger.setDebug();
     }
 

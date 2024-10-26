@@ -16,6 +16,7 @@ import {
   getEndOfMonthOfLocalDate
 } from '../../src/lib/date_utils.js';
 import { localDateToUTC, stripTimeToLocalDate, localDateToStringYYYYMMDD } from '../../src/lib/date_utils.js';
+import { differenceInCalendarDays_luxon } from './date_utils_a__differenceInCalendarDays_luxon.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -355,6 +356,7 @@ function differenceInCalendarDays_test1 (differenceInCalendarDaysOfLocalDates) {
 }
 
 differenceInCalendarDays_test1(differenceInCalendarDays_lib);
+differenceInCalendarDays_test1(differenceInCalendarDays_luxon);
 //#endregion differenceInCalendarDaysOfLocalDates #1
 
 // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts (MIT license)
@@ -429,30 +431,44 @@ function differenceInCalendarDays_test2 (differenceInCalendarDaysOfLocalDates) {
     const resultIsNegative = isNegativeZero(result);
     assert(resultIsNegative === false);
   });
-
-  t('returns NaN if the first date is `Invalid Date`', () => {
-    const result = differenceInCalendarDaysOfLocalDates(
-      new Date(NaN),
-      new Date(2017, 0 /* Jan */, 1)
-    );
-    assert(isNaN(result));
-  });
-
-  t('returns NaN if the second date is `Invalid Date`', () => {
-    const result = differenceInCalendarDaysOfLocalDates(
-      new Date(2017, 0 /* Jan */, 1),
-      new Date(NaN)
-    );
-    assert(isNaN(result));
-  });
-
-  t('returns NaN if the both dates are `Invalid Date`', () => {
-    const result = differenceInCalendarDaysOfLocalDates(new Date(NaN), new Date(NaN));
-    assert(isNaN(result));
-  });
 }
 
 differenceInCalendarDays_test2(differenceInCalendarDays_lib);
+differenceInCalendarDays_test2(differenceInCalendarDays_luxon);
+
+/**
+ * Test methods that throws with invalid dates
+ * @param {function} differenceInCalendarDaysOfLocalDates
+ */
+function differenceInCalendarDays_test2__throws (differenceInCalendarDaysOfLocalDates) {
+  t('throws if the first date is `Invalid Date`', () => {
+    assert.throws(() => {
+      differenceInCalendarDaysOfLocalDates(
+        new Date(NaN),
+        new Date(2017, 0 /* Jan */, 1)
+      );
+    });
+  });
+
+  t('throws if the second date is `Invalid Date`', () => {
+    assert.throws(() => {
+      differenceInCalendarDaysOfLocalDates(
+        new Date(2017, 0 /* Jan */, 1),
+        new Date(NaN)
+      );
+    });
+  });
+
+  t('throws if the both dates are `Invalid Date`', () => {
+    assert.throws(() => {
+      differenceInCalendarDaysOfLocalDates(new Date(NaN), new Date(NaN));
+    });
+  });
+}
+
+differenceInCalendarDays_test2__throws(differenceInCalendarDays_lib);
+// those methods are not tested with luxon because won't throw; instead in our method we implemented the check
+//differenceInCalendarDays_test2__throws(differenceInCalendarDays_luxon);
 //#endregion differenceInCalendarDaysOfLocalDates #2
 
 // DST TESTS inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts (MIT license)
@@ -561,6 +577,7 @@ function differenceInCalendarDays_test3 (differenceInCalendarDaysOfLocalDates) {
 }
 
 differenceInCalendarDays_test3(differenceInCalendarDays_lib);
+differenceInCalendarDays_test3(differenceInCalendarDays_luxon);
 //#endregion differenceInCalendarDaysOfLocalDates #3 - DST
 
 t('excelSerialDateToUTCDate', () => {
@@ -595,7 +612,9 @@ t('localDateToExcelSerialDate', () => {
   assert.deepStrictEqual(368, localDateToExcelSerialDate(new Date(1901, 0, 2, 0, 0, 0)));
   assert.deepStrictEqual(28384, localDateToExcelSerialDate(new Date(1977, 8, 16, 0, 0, 0)));
   assert.deepStrictEqual(44920, localDateToExcelSerialDate(new Date(2022, 11, 25, 0, 0, 0)));
-  assert.deepStrictEqual(NaN, localDateToExcelSerialDate(new Date(NaN)));
+  assert.throws(() => {
+    localDateToExcelSerialDate(new Date(NaN));
+  });
 });
 
 t('localDateToUTC', () => {

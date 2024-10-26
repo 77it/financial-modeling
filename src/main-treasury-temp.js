@@ -24,7 +24,7 @@ import { convertExcelToModuleDataArray } from './node/convert_excel_to_moduledat
 //#endregion node imports
 
 //#region local imports
-import { Result, schema, sanitize, parseJSON5, isNullOrWhiteSpace, eq2, get2 } from './deps.js';
+import { Result, schema, sanitize, parseYAML, isNullOrWhiteSpace, eq2, get2 } from './deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
@@ -162,7 +162,7 @@ async function main ({
       moduleDataArray: _moduleDataArray,
       settingName: SETTINGS_NAMES.Simulation.$$SCENARIOS
     });
-    const _$$SCENARIOS_parsed_array = parseJSON5(_$$SCENARIOS_setting);
+    const _$$SCENARIOS_parsed_array = parseYAML(_$$SCENARIOS_setting);
     const _$$SCENARIOS = sanitize({
       value: _$$SCENARIOS_parsed_array,
       sanitization: schema.ARRAY_OF_STRINGS_TYPE

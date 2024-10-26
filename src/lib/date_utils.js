@@ -165,6 +165,7 @@ function _parseJsonDate (argument, opt) {
  * @param {Date} dateLeft - the later date
  * @param {Date} dateRight - the earlier date
  * @returns {number} the number of calendar days
+ * @throws {Error} if dates are not valid
  *
  * @example
  * // How many calendar days are between
@@ -182,10 +183,13 @@ function _parseJsonDate (argument, opt) {
  * )
  * //=> 1
  */
-function differenceInCalendarDaysOfLocalDates (
-  dateLeft,
-  dateRight
-) {
+function differenceInCalendarDaysOfLocalDates (dateLeft, dateRight) {
+  if (!isValidDate(dateLeft))
+    throw new Error(`Invalid date ${dateLeft}`);
+
+  if (!isValidDate(dateRight))
+    throw new Error(`Invalid date ${dateRight}`);
+
   const MILLISECONDS_IN_DAY = 86400000;
 
   const startOfDayLeft = startOfDayOfLocalDates(dateLeft);
@@ -228,14 +232,18 @@ function differenceInCalendarDaysOfLocalDates (
  * @param {Date} dateLeft - the later date
  * @param {Date} dateRight - the earlier date
  * @returns {number} the number of calendar days
+ * @throws {Error} if dates are not valid
  *
  * @example
  * See differenceInCalendarDaysOfLocalDates
  */
-function differenceInCalendarDaysOfUTCDates (
-  dateLeft,
-  dateRight,
-) {
+function differenceInCalendarDaysOfUTCDates (dateLeft, dateRight) {
+  if (!isValidDate(dateLeft))
+    throw new Error(`Invalid date ${dateLeft}`);
+
+  if (!isValidDate(dateRight))
+    throw new Error(`Invalid date ${dateRight}`);
+
   const MILLISECONDS_IN_DAY = 86400000;
 
   const startOfDayLeft = startOfDayOfUTCDates(dateLeft);
@@ -312,8 +320,12 @@ function excelSerialDateToLocalDate (excelSerialDate) {
  *
  * @param {Date} localDate
  * @returns {number} the converted Excel serial date
+ * @throws {Error} if localDate is not valid
  */
 function localDateToExcelSerialDate (localDate) {
+  if (!isValidDate(localDate))
+    throw new Error(`Invalid date ${localDate}`);
+
   try {
     // because Excel incorrectly treats 1900 as a leap year, then tests that the date to convert is not less than 1900-03-01
     // see https://stackoverflow.com/a/67130235/5288052
@@ -335,8 +347,12 @@ function localDateToExcelSerialDate (localDate) {
  * @param {Date} date - the date to add the months to
  * @param {number} amount - the amount of days to be added
  * @returns {Date} the new date with the days added
+ * @throws {Error} if the date is not valid
  */
 function addDaysToLocalDate(date, amount) {
+  if (!isValidDate(date))
+    throw new Error(`Invalid date ${date}`);
+
   if (isNaN(amount)) return new Date(date);
   if (!amount) {
     return new Date(date);
@@ -361,8 +377,12 @@ function addDaysToLocalDate(date, amount) {
  * @param {Date} date - the UTC date to add the months to
  * @param {number} amount - the amount of days to be added
  * @returns {Date} the new UTC date with the days added
+ * @throws {Error} if the date is not valid
  */
 function addDaysToUTCDate(date, amount) {
+  if (!isValidDate(date))
+    throw new Error(`Invalid date ${date}`);
+
   if (isNaN(amount)) return new Date(date);
   if (!amount) {
     return new Date(date);
@@ -377,15 +397,17 @@ function addDaysToUTCDate(date, amount) {
  * @param {Date} date - the date to add the months to
  * @param {number} amount - the amount of months to be added. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
  * @returns {Date} the new date with the months added
+ * @throws {Error} if the date is not valid
  *
  * @example
  * Add 5 months to 2014/09/01 => 2015/02/01
  * Add 2 months to 2014/12/31 => 2015/02/28
  * Add 2 months to 2023/12/31 => 2024/02/29  // leap year
  */
-function addMonthsToLocalDate (
-  date,
-  amount) {
+function addMonthsToLocalDate (date, amount) {
+  if (!isValidDate(date))
+    throw new Error(`Invalid date ${date}`);
+
   const _date = new Date(date);
   if (isNaN(amount)) return new Date(date);
   if (!amount) {
@@ -433,12 +455,16 @@ function addMonthsToLocalDate (
  *
  * @param {Date} date - the date to get the end of the month
  * @returns {Date} the end of the month date
+ * @throws {Error} if the date is not valid
  *
  * @example
  * 2014/09/01 => 2014/09/30
  * 2014/12/31 => 2014/12/31
  */
 function getEndOfMonthOfLocalDate (date) {
+  if (!isValidDate(date))
+    throw new Error(`Invalid date ${date}`);
+
   // The JS Date object supports date math by accepting out-of-bounds values for
   // month, day, etc. For example, new Date(2020, 0, 0) returns 31 Dec 2019 and
   // new Date(2020, 13, 1) returns 1 Feb 2021.  This is *almost* the behavior we
@@ -459,11 +485,18 @@ function getEndOfMonthOfLocalDate (date) {
  * @param {Date} date1
  * @param {Date} date2
  * @returns {boolean}
+ * @throws {Error} if dates are not valid
  */
 function compareLocalDatesIgnoringTime (date1, date2) {
+  if (!isValidDate(date1))
+    throw new Error(`Invalid date ${date1}`);
+
+  if (!isValidDate(date2))
+    throw new Error(`Invalid date ${date2}`);
+
   return date1.getFullYear() === date2.getFullYear() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getDate() === date2.getDate();
+  date1.getMonth() === date2.getMonth() &&
+  date1.getDate() === date2.getDate();
 }
 
 /**
@@ -472,8 +505,12 @@ function compareLocalDatesIgnoringTime (date1, date2) {
  *
  * @param {Date} date
  * @returns {Date}
+ * @throws {Error} if the date is not valid
  */
 function localDateToUTC (date) {
+  if (!isValidDate(date))
+    throw new Error(`Invalid date ${date}`);
+
   return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
 }
 
@@ -493,12 +530,13 @@ function localDateToStringYYYYMMDD (date) {
  *
  * @param {Date} date
  * @returns {Date}
+ * @throws {Error} if the date is not valid
  */
 function stripTimeToLocalDate (date) {
-  if (isValidDate(date))
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  else
-    return date;
+  if (!isValidDate(date))
+    throw new Error(`Invalid date ${date}`);
+
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 /**
@@ -506,10 +544,11 @@ function stripTimeToLocalDate (date) {
  *
  * @param {Date} date
  * @returns {Date}
+ * @throws {Error} if the date is not valid
  */
 function stripTimeToUTCDate (date) {
-  if (isValidDate(date))
-    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-  else
-    return date;
+  if (!isValidDate(date))
+    throw new Error(`Invalid date ${date}`);
+
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }

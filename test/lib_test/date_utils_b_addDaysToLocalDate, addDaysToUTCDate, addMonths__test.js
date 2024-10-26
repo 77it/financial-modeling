@@ -149,9 +149,10 @@ t('handles dates before 100 AD', () => {
   assert.deepStrictEqual(result, expectedResult);
 });
 
-t('returns `Invalid Date` if the given date is invalid', () => {
-  const result = addMonthsToLocalDate(new Date(NaN), 5);
-  assert(result instanceof Date && isNaN(result.getTime()));
+t('throws if the given date is invalid', () => {
+  assert.throws(() => {
+    addMonthsToLocalDate(new Date(NaN), 5);
+  });
 });
 
 t('returns `Invalid Date` if the given amount is NaN', () => {
