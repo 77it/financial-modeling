@@ -1,0 +1,15 @@
+Error: error loading module ./xxxyyy99___non_existent_module__888_missingmissing.js, error: TypeError: Module not found "file:///C:/e3/@gitwk/PUBLIC/financial-modeling/src/modules/xxxyyy99___non_existent_module__888_missingmissing.js".
+    at async ModulesLoader.addClassFromURI (file:///C:/e3/@gitwk/PUBLIC/financial-modeling/src/modules/_modules_loader.js:87:27)
+    at async _init_modules_classes__loading_Modules_fromUri (file:///C:/e3/@gitwk/PUBLIC/financial-modeling/src/main-treasury-temp.js:362:7)
+    at async main (file:///C:/e3/@gitwk/PUBLIC/financial-modeling/src/main-treasury-temp.js:142:27)
+    at async file:///C:/e3/@gitwk/PUBLIC/financial-modeling/test_e2e/main-treasury-temp/user_data__non_existent_module/_test.js:24:3
+    at async innerWrapped (ext:cli/40_test.js:191:5)
+    at async exitSanitizer (ext:cli/40_test.js:107:27)
+    at async outerWrapped (ext:cli/40_test.js:134:14)
+    at ModulesLoader.addClassFromURI (file:///C:/e3/@gitwk/PUBLIC/financial-modeling/src/modules/_modules_loader.js:96:13)
+    at async _init_modules_classes__loading_Modules_fromUri (file:///C:/e3/@gitwk/PUBLIC/financial-modeling/src/main-treasury-temp.js:362:7)
+    at async main (file:///C:/e3/@gitwk/PUBLIC/financial-modeling/src/main-treasury-temp.js:142:27)
+    at async file:///C:/e3/@gitwk/PUBLIC/financial-modeling/test_e2e/main-treasury-temp/user_data__non_existent_module/_test.js:24:3
+    at async innerWrapped (ext:cli/40_test.js:191:5)
+    at async exitSanitizer (ext:cli/40_test.js:107:27)
+    at async outerWrapped (ext:cli/40_test.js:134:14)

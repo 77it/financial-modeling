@@ -1,15 +1,15 @@
-// run with --allow-read --allow-write --allow-net --allow-run --allow-env
+// run with --allow-read --allow-write --allow-net --allow-run --allow-env --allow-import
 
-import { readUtf8TextFileRemovingBOM } from '../../src/node/read_utf8_text_file_removing_bom.js';
-import { existsSync } from '../../src/node/exists_sync.js';
-import { deleteFile } from '../../src/node/delete_file.js';
+import { main } from './deps.js';
+
+import { readUtf8TextFileRemovingBOM } from './deps.js';
+import { existsSync } from './deps.js';
+import { deleteFile } from './deps.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
 
-import { main } from '../../src/main-treasury-temp.js';
-
-import { convertExcelSheetToLedgerTrnJsonlFile } from '../node/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
+import { convertExcelSheetToLedgerTrnJsonlFile } from './deps.js';
 
 import { DEBUG_FLAG, ERROR_FILE } from './_test_settings.js';
 

@@ -1,11 +1,11 @@
-// run with --allow-read --allow-write --allow-net --allow-run
+// run with --allow-read --allow-write --allow-net --allow-run --allow-env --allow-import
 
-import { deleteFile } from '../../src/node/delete_file.js';
+import { main } from './deps.js';
+
+import { deleteFile } from './deps.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
-
-import { main } from '../../src/main-treasury-temp.js';
 
 import { DEBUG_FLAG, ERROR_FILE } from './_test_settings.js';
 
