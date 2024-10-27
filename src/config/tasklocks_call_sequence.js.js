@@ -5,8 +5,8 @@ import { deepFreeze, ensureArrayValuesAreUnique } from '../lib/obj_utils.js';
 
 /** @type {taskLocksRawCallSequenceEntry_NameAndFlag[]} */
 const taskLocksBeforeEverythingElse = [
-  { isSimulation: true, name: TaskLocks_Names.SIMULATION__SET_SIMULATION_SETTINGS },
-  { isSimulation: true, name: TaskLocks_Names.SIMULATION__SET_MISSING_SETTINGS_WITH_DEFAULT_VALUE },
+  { isSimulation: true, name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__SET },
+  { isSimulation: true, name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__MISSING__SET_WITH_DEFAULT_VALUE },
 ];
 deepFreeze(taskLocksBeforeEverythingElse);
 ensureArrayValuesAreUnique(Object.values(taskLocksBeforeEverythingElse));
