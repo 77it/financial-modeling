@@ -1,13 +1,13 @@
 // run with --allow-read --allow-write --allow-net --allow-run --allow-env --allow-import
 
-import { main } from './deps.js';
+import { main } from '../deps.js';
 
-import { deleteFile } from './deps.js';
+import { deleteFile } from '../deps.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
 
-import { DEBUG_FLAG, ERROR_FILE } from './_test_settings.js';
+import { DEBUG_FLAG, ERROR_FILE } from '../_test_settings.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
