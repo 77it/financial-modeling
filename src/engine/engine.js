@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-inner-declarations  // ignore the rule because we want to allow inner declarations of functions
-export { engine };
+export { engine, simulationContext};
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as CFG from '../config/engine.js';
@@ -11,6 +11,7 @@ import { sanitize } from '../lib/schema_sanitization_utils.js';
 import { validate } from '../lib/schema_validation_utils.js';
 import { stripTimeToLocalDate } from '../lib/date_utils.js';
 import { Result } from '../lib/result.js';
+import { GlobalValue } from '../lib/global_value.js';
 
 import { Ledger } from './ledger/ledger.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
@@ -21,6 +22,9 @@ import { Settings } from './settings/settings.js';
 import { TaskLocks } from './tasklocks/tasklocks.js';
 import { SimulationContext } from './context/simulationcontext.js';
 import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
+
+// exported simulationContext for whom may require it (e.g. tests)
+const simulationContext = new GlobalValue();
 
 /**
  * @param {Object} p
@@ -91,24 +95,25 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     //#endregion set TaskLocks with engine functions
 
     //#region set context
-    const simulationContext = new SimulationContext({
+    const _simulationContext = new SimulationContext({
       drivers: _drivers,
       settings: _settings,
       taskLocks: _taskLocks,
       ledger: _ledger
     });
+    simulationContext.set(_simulationContext);  // save the simulationContext in a global variable accessible from outside, e.g. tests
     //#endregion set context
 
     _ledger.lock();  // lock Ledger before starting the Simulation
 
-    //# call `init()` passing a cloned `moduleData` and `simulationContext` to each module
+    //# call `init()` passing a cloned `moduleData` and `_simulationContext` to each module
     for (let i = 0; i < _modulesArray.length; i++) {
       setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
       _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
       _taskLocks.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
 
       if (_modulesArray[i]?.init != null)
-        _modulesArray[i]?.init({ moduleData: structuredClone(_moduleDataArray[i]), simulationContext });
+        _modulesArray[i]?.init({ moduleData: structuredClone(_moduleDataArray[i]), simulationContext: _simulationContext });
     }
 
     //# call `setTaskLocksBeforeTheSimulationStarts()`

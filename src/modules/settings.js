@@ -1,5 +1,6 @@
-// here is not defined the YAML parsing, because parse option is set in Settings module config file `src/config/modules/settings.js`
-// object 'moduleSanitization', imported and used below
+// here is not defined the YAML parsing, because parse option is set in the object 'moduleSanitization'
+// in the settings module config file `src/config/modules/settings.js`
+// imported and used below
 import { MODULE_NAME, tablesInfo, moduleSanitization } from '../config/modules/settings.js';
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
