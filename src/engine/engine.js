@@ -3,6 +3,7 @@ export { engine };
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as CFG from '../config/engine.js';
+import { TaskLocks_Names } from '../config/tasklocks_names.js';
 
 import * as schema from '../lib/schema.js';
 import { eq2 } from '../lib/obj_utils.js';
@@ -71,8 +72,6 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
       prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES
     });
-    // set global variable DRIVER_PREFIXES__ZERO_IF_NOT_SET with the value from Settings
-    CFG.DRIVER_PREFIXES__ZERO_IF_NOT_SET.set(_settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET }));
 
     // init Drivers repo
     const _drivers = new Drivers({
@@ -85,6 +84,11 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     // init TaskLocks repo
     const _taskLocks = new TaskLocks({ defaultUnit: CFG.SIMULATION_NAME });
     //#endregion variables declaration
+
+    //#region set TaskLocks with engine functions
+    // Task to set global values in the JS engine configuration with values from Simulation Settings
+    _taskLocks.set({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__JS_ENGINE_CONFIGURATION__GLOBAL_VALUES__SET, value: setEngineConfigurationGlobalValuesWithValuesFromSimulationSettings });
+    //#endregion set TaskLocks with engine functions
 
     //#region set context
     const simulationContext = new SimulationContext({
@@ -344,6 +348,9 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
         throw new Error(`FATAL ERROR: after calling module ${_ledger.getDebugModuleInfo()} a transaction is open`);
     }
 
+    function setEngineConfigurationGlobalValuesWithValuesFromSimulationSettings() {
+      CFG.DRIVER_PREFIXES__ZERO_IF_NOT_SET.set(_settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET }));
+    }
     //#endregion local function inside try() section
   } catch (error) {
     /*

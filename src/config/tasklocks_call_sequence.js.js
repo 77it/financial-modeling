@@ -7,6 +7,7 @@ import { deepFreeze, ensureArrayValuesAreUnique } from '../lib/obj_utils.js';
 const taskLocksBeforeEverythingElse = [
   { isSimulation: true, name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__SET },
   { isSimulation: true, name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__MISSING__SET_WITH_DEFAULT_VALUE },
+  { isSimulation: true, name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__JS_ENGINE_CONFIGURATION__GLOBAL_VALUES__SET },
 ];
 deepFreeze(taskLocksBeforeEverythingElse);
 ensureArrayValuesAreUnique(Object.values(taskLocksBeforeEverythingElse));
