@@ -160,7 +160,7 @@ class Ledger {
    * @param {string} [p.type] - SimObject type. If missing, retrieve all, if present retrieve only the specified type.
    * @returns {SimObject[]} */
   getAliveBsSimObjectsWithExpiredPrincipalToManage ({ type }) {
-    // TODO return a list of SO
+    // TODO return a list of SimObjects
     // * alive BS SimObjects
     // * with principal to pay (date of a payment is <= today)
     // * for all Units
@@ -174,7 +174,7 @@ class Ledger {
    * @param {string} [p.id] - SimObject Id
    * @returns {SimObject | undefined} */
   getSimObjectById ({ id }) {
-    // TODO return SO by id
+    // TODO return SimObjects by id
     // * throw if Id is not string with a value
     // * return undefined if not found
     // SO is cloned before being returned
@@ -192,6 +192,18 @@ class Ledger {
     // * throw if Name/Unit are not string with a value
     // * return undefined if not found
     // SO is cloned before being returned
+    //@ts-ignore
+    return null;
+  }
+
+  /**
+   * Get the list of all SimObjects for all Units moved the previous day
+   * @returns {SimObject[]} */
+  getSimObjectsMovedYesterday () {
+    // TODO return a list of SimObjects
+    // * all SO moved yesterday
+    // * for all Units
+    // all SO are cloned before being returned
     //@ts-ignore
     return null;
   }
