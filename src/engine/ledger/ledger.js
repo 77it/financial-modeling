@@ -198,6 +198,8 @@ class Ledger {
 
   /**
    * Get the list of all SimObjects for all Units moved the previous day
+   *
+   * This can be one of the ledger methods used as accounting query methods
    * @returns {SimObject[]} */
   getSimObjectsMovedYesterday () {
     // TODO return a list of SimObjects
