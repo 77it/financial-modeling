@@ -1,6 +1,6 @@
 // this is the module used to set fallback default TaskLocks
 
-import { ModuleData, SimulationContext } from '../deps.js';
+import { ModuleData, SimulationContext } from '../../deps.js';
 
 const MODULE_NAME = '_set_default_tasklocks';
 

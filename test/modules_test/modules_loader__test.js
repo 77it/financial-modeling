@@ -1,4 +1,4 @@
-// run with `deno test --allow-read --allow-net THIS-FILE-NAME`
+// run with `deno test --allow-import --allow-read
 
 import { ModulesLoader } from '../../src/modules/_modules_loader.js';
 import { ModuleData } from '../../src/engine/modules/module_data.js';
@@ -67,7 +67,7 @@ t('test ERROR addClassFromURI, not existing URI', async () => {
 });
 
 t('test addClassFromURI, alongside module (using ModuleData class)', async () => {
-  const _URI = './modules_loader_test_module.js';
+  const _URI = './tests/modules_loader_test_module.js';
   const _moduleDataParameters = {
     moduleName: 'ValuesB',
     moduleEngineURI: _URI,
@@ -89,7 +89,7 @@ t('test addClassFromURI, alongside module (using ModuleData class)', async () =>
 });
 
 t('test addClassFromURI, adding \'.js\' extension', async () => {
-  const _URI = './modules_loader_test_module';
+  const _URI = './tests/modules_loader_test_module';
   await modulesLoader.addClassFromURI({ moduleName: 'ValuesB', moduleEngineURI: _URI });
 
   const query = modulesLoader.get({ moduleName: 'ValuesB', moduleEngineURI: _URI });
@@ -104,7 +104,7 @@ t('test addClassFromURI, adding \'.js\' extension', async () => {
 
 t('test addClassFromURI, empty URI, meaningless URI', async () => {
   const _URI_spaces = '  ';
-  const _moduleName = 'MODULES_LOADER_TEST_MODULE';
+  const _moduleName = 'TESTS/MODULES_LOADER_TEST_MODULE';
   await modulesLoader.addClassFromURI({ moduleName: _moduleName, moduleEngineURI: _URI_spaces });
 
   const query_spaces = modulesLoader.get({ moduleName: _moduleName, moduleEngineURI: _URI_spaces });
@@ -241,7 +241,7 @@ t('test modulesLoader_Resolve, GitHub URI transformation to CDN (raw and normal 
 
 //#region test addClassFromObject & addClassFromURI
 t('test add from class, get it, and then from uri (throw for same URI/name), then get the first class', async () => {
-  const _URI = './modules_loader_test_module.js';
+  const _URI = './tests/modules_loader_test_module.js';
   const _moduleName = 'duplicateModule';
 
   // add from class

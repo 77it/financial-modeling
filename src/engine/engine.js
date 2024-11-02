@@ -60,11 +60,6 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     });
     if (modulesData.length !== modules.length) throw new Error('modulesData.length !== modules.length');
 
-    // add to `modules` the module to add default TaskLocks + a dummy `modulesData`
-    xxx PIPPO add C:\e3\@gitwk\PUBLIC\financial-modeling\src\modules\_default_tasklocks.js;
-    modules.push(new ModuleXXX());
-    modulesData.push(null);
-
     //#region variables declaration
     /** @type {undefined|Date} */
     let _startDate = undefined;

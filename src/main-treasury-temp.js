@@ -6,7 +6,7 @@
  one may navigate the labyrinthine world of finance,
  and emerge victorious on the other side.
  May this code serve as a guide and a beacon of hope,
- to all who dare to venture forth into the realm of numbers. 
+ to all who dare to venture forth into the realm of numbers.
 */
 
 // run with
@@ -30,6 +30,8 @@ import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';
 import { ModulesLoader } from './modules/_modules_loader.js';
 import { Module } from './modules/_sample_module.js';
+
+import { DEFAULT_TASKLOCKS_LOADER__MODULE_PATH } from './config/tasklocks_defaults.js';
 
 import { MODULE_NAME as SETTINGS_MODULE_NAME, tablesInfo as SETTINGS_TABLES_INFO, moduleSanitization as SETTINGS_SANITIZATION } from './config/modules/settings.js';
 import * as SETTINGS_NAMES from './config/settings_names.js';
@@ -170,6 +172,12 @@ async function main ({
 
     if (isNullOrWhiteSpace(_$$SCENARIOS[0]))  // if first scenario is empty, set it to base scenario
       _$$SCENARIOS[0] = CFG.SCENARIO_BASE;
+
+    // add as last values before engine run to `_modulesArray` the module to add default TaskLocks + a dummy to `_moduleDataArray`
+    const defaultTasklocksLoaderModule = await import(DEFAULT_TASKLOCKS_LOADER__MODULE_PATH);
+    const _dummyModuleData = new ModuleData({ moduleName: '', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '', tables: [] });
+    _modulesArray.push(new defaultTasklocksLoaderModule());
+    _moduleDataArray.push(_dummyModuleData);
 
     //#region loop scenarios
     for (const _scenario of _$$SCENARIOS) {
