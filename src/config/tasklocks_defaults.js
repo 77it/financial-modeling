@@ -2,4 +2,4 @@
 
 export { DEFAULT_TASKLOCKS_LOADER__MODULE_PATH };
 
-const DEFAULT_TASKLOCKS_LOADER__MODULE_PATH = "./default_tasklocks/_set_default_tasklocks.js"
+const DEFAULT_TASKLOCKS_LOADER__MODULE_PATH = "./modules/default_tasklocks/_set_default_tasklocks.js"

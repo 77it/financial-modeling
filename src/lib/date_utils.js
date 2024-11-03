@@ -526,7 +526,8 @@ function localDateToStringYYYYMMDD (date) {
 }
 
 /**
- * Accept a date and return a date with only the year, month and day (stripping the time part)
+ * Accept a date and return a date with only the year, month and day (stripping the time part).
+ * If Date == Date(0) doesn't strip the time part and return Date(0).
  *
  * @param {Date} date
  * @returns {Date}
@@ -536,7 +537,10 @@ function stripTimeToLocalDate (date) {
   if (!isValidDate(date))
     throw new Error(`Invalid date ${date}`);
 
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  if (date.getTime() !== 0)
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  else
+    return date;
 }
 
 /**

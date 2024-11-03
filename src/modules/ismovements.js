@@ -6,8 +6,6 @@ import { ModuleData, SimulationContext, eq2 } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
 export class Module {
-  #name = MODULE_NAME;
-
   //#region private fields
   /** @type {boolean} */
   #alive;
@@ -36,7 +34,7 @@ export class Module {
     this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = new Date(0);
   }
 
-  get name () { return this.#name; }
+  get name () { return MODULE_NAME; }
 
   get alive () { return this.#alive; }
 

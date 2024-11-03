@@ -89,11 +89,6 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     const _taskLocks = new TaskLocks({ defaultUnit: CFG.SIMULATION_NAME });
     //#endregion variables declaration
 
-    //#region set TaskLocks with engine functions
-    // Task to set global values in the JS engine configuration with values from Simulation Settings
-    _taskLocks.set({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__JS_ENGINE_CONFIGURATION__GLOBAL_VALUES__SET, value: taskLock_setEngineConfigurationGlobalValuesWithValuesFromSimulationSettings });
-    //#endregion set TaskLocks with engine functions
-
     //#region set context
     const _simulationContext = new SimulationContext({
       drivers: _drivers,
@@ -117,7 +112,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
     //# call `setTaskLocksBeforeTheSimulationStarts()`
     for (let i = 0; i < _modulesArray.length; i++) {
-      if (_modulesArray[i].alive) {
+      if (_modulesArray[i].alive !== false ) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
         _modulesArray[i]?.setTaskLocksBeforeTheSimulationStarts?.();  // call method only if it exists
       }
@@ -138,7 +133,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
     //# call `setDriversAndSettingsBeforeTheSimulationStarts()`
     for (let i = 0; i < _modulesArray.length; i++) {
-      if (_modulesArray[i].alive) {
+      if ( _modulesArray[i].alive !== false ) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
         _modulesArray[i]?.setDriversAndSettingsBeforeTheSimulationStarts?.();  // call method only if it exists
       }
@@ -146,7 +141,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
     //# call `prepareDataForDailyModeling()`
     for (let i = 0; i < _modulesArray.length; i++) {
-      if (_modulesArray[i].alive) {
+      if ( _modulesArray[i].alive !== false ) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
         _modulesArray[i]?.prepareDataForDailyModeling?.();  // call method only if it exists
       }
@@ -185,7 +180,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
       //# call `beforeDailyModeling()`
       for (let i = 0; i < _modulesArray.length; i++) {
-        if (_modulesArray[i].alive) {
+        if ( _modulesArray[i].alive !== false ) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
           _modulesArray[i]?.beforeDailyModeling?.({ today });  // call method only if it exists
         }
@@ -195,7 +190,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
       //# call `dailyModeling()`
       for (let i = 0; i < _modulesArray.length; i++) {
-        if (_modulesArray[i].alive) {
+        if ( _modulesArray[i].alive !== false ) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
           _modulesArray[i]?.dailyModeling?.({ today });  // call method only if it exists
           ensureNoTransactionIsOpen();
@@ -215,7 +210,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
     //# call `oneTimeAfterTheSimulationEnds()`
     for (let i = 0; i < _modulesArray.length; i++) {
-      if (_modulesArray[i].alive) {
+      if ( _modulesArray[i].alive !== false ) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
         _modulesArray[i]?.oneTimeAfterTheSimulationEnds?.();  // call method only if it exists
         ensureNoTransactionIsOpen();
@@ -266,16 +261,20 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
      * @return {undefined|Date} - Return the updated simulation start date
      */
     function updateStartDate ({ actualDate, newDate }) {
-      const _newDate = stripTimeToLocalDate(sanitize({
+      let _newDate = sanitize({
         value: newDate,
         sanitization: schema.DATE_TYPE + schema.OPTIONAL
-      }));
-      if (_newDate == null)
+      });
+
+      if (_newDate == null) {
         return actualDate;
-      if (actualDate == null)
-        return _newDate;
-      if (_newDate < actualDate)
-        return _newDate;
+      } else {
+        _newDate = stripTimeToLocalDate(_newDate);
+        if (actualDate == null)
+          return _newDate;
+        if (_newDate < actualDate)
+          return _newDate;
+      }
     }
 
     /** From the list of taskLocks name and flag, build an array of taskLocks callable functions
@@ -337,10 +336,6 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     function ensureNoTransactionIsOpen () {
       if (_ledger.transactionIsOpen())
         throw new Error(`FATAL ERROR: after calling module ${_ledger.getDebugModuleInfo()} a transaction is open`);
-    }
-
-    function taskLock_setEngineConfigurationGlobalValuesWithValuesFromSimulationSettings() {
-      CFG.DRIVER_PREFIXES__ZERO_IF_NOT_SET.set(_settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET }));
     }
     //#endregion local function inside try() section
   } catch (error) {

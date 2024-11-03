@@ -24,8 +24,6 @@ import { SimObject_Metadata_set } from './_utils/metadata_utils.js';
 import { ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace, mergeNewKeys } from '../deps.js';
 
 export class Module {
-  #name = MODULE_NAME;
-
   //#region private fields
   /** @type {boolean} */
   #alive;
@@ -79,7 +77,7 @@ export class Module {
     this.#agenda = undefined;
   }
 
-  get name () { return this.#name; }
+  get name () { return MODULE_NAME; }
 
   get alive () { return this.#alive; }
 

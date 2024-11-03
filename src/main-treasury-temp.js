@@ -176,7 +176,7 @@ async function main ({
     // add as last values before engine run to `_modulesArray` the module to add default TaskLocks + a dummy to `_moduleDataArray`
     const defaultTasklocksLoaderModule = await import(DEFAULT_TASKLOCKS_LOADER__MODULE_PATH);
     const _dummyModuleData = new ModuleData({ moduleName: '', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '', tables: [] });
-    _modulesArray.push(new defaultTasklocksLoaderModule());
+    _modulesArray.push(new defaultTasklocksLoaderModule.Module());
     _moduleDataArray.push(_dummyModuleData);
 
     //#region loop scenarios

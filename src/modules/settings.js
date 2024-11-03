@@ -9,8 +9,6 @@ import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { sanitize, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
 
 export class Module {
-  #name = MODULE_NAME;
-
   //#region private fields
   /** @type {boolean} */
   #alive;
@@ -32,7 +30,7 @@ export class Module {
     this.#simulationContext = undefined;
   }
 
-  get name () { return this.#name; }
+  get name () { return MODULE_NAME; }
 
   get alive () { return this.#alive; }
 
@@ -52,19 +50,18 @@ export class Module {
     this.#simulationContext = simulationContext;
   }
 
-  /** Set TaskLocks */
+  /** Set TaskLocks before the simulation starts (can be defined also during simulation, if needed) */
   setTaskLocksBeforeTheSimulationStarts () {
     // set tasks that will be executed later to set settings value
     this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__SET, value: this.#setSimulationSettings });
-    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__MISSING__SET_WITH_DEFAULT_VALUE, value: this.#setMissingSettingsWithDefaultValue });
   }
 
-  /** Set Settings and Drivers */
+  /** Set Settings and Drivers (can be defined also during simulation, if needed) */
   setDriversAndSettingsBeforeTheSimulationStarts () {
     this.#setActiveSettings();
   }
 
-  /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse */
+  /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse; process moduleData before daily modeling */
   prepareDataForDailyModeling () {
     this.#setActiveSettings();
   }
@@ -96,19 +93,6 @@ export class Module {
   /** Set Simulation Settings */
   #setSimulationSettings = () => {
     this.#setSettingsFromATable(tablesInfo.SET);
-  };
-
-  /** Set Settings Default Values, only if they don't have a value already defined */
-  #setMissingSettingsWithDefaultValue = () => {
-    // loop `SettingsDefaultValues` keys and set a new Setting if it doesn't exist or if it has a null/undefined value
-    for (const settingDefault_Key of Object.keys(SettingsDefaultValues)) {
-      if (this.#simulationContext.getSetting({ name: settingDefault_Key }) != null) continue;
-
-      this.#simulationContext.setSetting([{
-        name: settingDefault_Key,
-        value: SettingsDefaultValues[settingDefault_Key]
-      }]);
-    }
   };
 
   /** Set Active Settings */

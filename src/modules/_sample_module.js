@@ -18,8 +18,6 @@ const MODULE_NAME = '_sample_module';
 const tablesInfo = {};  // when implemented, should be imported from '../config/modules/_sample_module.js'
 
 export class Module {
-  #name = MODULE_NAME;
-
   //#region private fields
   /** @type {boolean} */
   #alive;
@@ -48,7 +46,7 @@ export class Module {
     this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = new Date(0);
   }
 
-  get name () { return this.#name; }
+  get name () { return MODULE_NAME; }
 
   get alive () { return this.#alive; }
 
