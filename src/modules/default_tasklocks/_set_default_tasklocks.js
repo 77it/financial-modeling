@@ -37,12 +37,13 @@ export class Module {
   /** Set TaskLocks */
   setTaskLocksBeforeTheSimulationStarts () {
     // set default TaskLocks
-    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__MISSING__SET_WITH_DEFAULT_VALUE, value: this.#setMissingSettingsWithDefaultValue });
-    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__JS_ENGINE_CONFIGURATION__GLOBAL_VALUES__SET, value: this.#setJsEngineConfigurationGlobalValuesFromSimulationSettings });
+    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__MISSING__SET_WITH_DEFAULT_VALUE, value: this.#taskLock_setMissingSettingsWithDefaultValue });
+    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__JS_ENGINE_CONFIGURATION__GLOBAL_VALUES__SET, value: this.#taskLock_setJsEngineConfigurationGlobalValuesFromSimulationSettings });
   }
 
+  // is an arrow function because it is used as a callback
   /** Set Settings Default Values, only if they don't have a value already defined */
-  #setMissingSettingsWithDefaultValue = () => {
+  #taskLock_setMissingSettingsWithDefaultValue = () => {
     // loop `SettingsDefaultValues` keys and set a new Setting if it doesn't exist or if it has a null/undefined value
     for (const settingDefault_Key of Object.keys(SettingsDefaultValues)) {
       if (this.#simulationContext.getSetting({ name: settingDefault_Key }) != null) continue;
@@ -54,8 +55,9 @@ export class Module {
     }
   };
 
+  // is an arrow function because it is used as a callback
   /** Set Js Engine Configuration Global Values from Simulation Settings */
-  #setJsEngineConfigurationGlobalValuesFromSimulationSettings = () => {
+  #taskLock_setJsEngineConfigurationGlobalValuesFromSimulationSettings = () => {
     CFG.DRIVER_PREFIXES__ZERO_IF_NOT_SET.set(this.#simulationContext.getSetting({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET }));
   };
 }

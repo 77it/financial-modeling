@@ -53,7 +53,7 @@ export class Module {
   /** Set TaskLocks before the simulation starts (can be defined also during simulation, if needed) */
   setTaskLocksBeforeTheSimulationStarts () {
     // set tasks that will be executed later to set settings value
-    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__SET, value: this.#setSimulationSettings });
+    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__SET, value: this.#taskLock_setSimulationSettings });
   }
 
   /** Set Settings and Drivers (can be defined also during simulation, if needed) */
@@ -90,8 +90,9 @@ export class Module {
     this.#setActiveSettings();
   }
 
+  // is an arrow function because it is used as a callback
   /** Set Simulation Settings */
-  #setSimulationSettings = () => {
+  #taskLock_setSimulationSettings = () => {
     this.#setSettingsFromATable(tablesInfo.SET);
   };
 
