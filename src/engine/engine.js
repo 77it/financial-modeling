@@ -169,13 +169,6 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
     //#endregion set `_startDate`/`_endDate`
 
-    //#region lock what can't be no more modified during the daily modeling
-    //TODO-LOCK
-    //_settings.lockImmutables();  // lock further definition of immutable values
-    //_drivers.lockImmutables();  // lock further definition of immutable values
-    //_taskLocks.lock();  // lock TaskLocks
-    //#endregion lock what can't be no more modified during the daily modeling
-
     //#region call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
     for (const today = _startDate; today <= _endDate; today.setDate(today.getDate() + 1)) {
       _ledger.lock();  // lock Ledger at the beginning of each day

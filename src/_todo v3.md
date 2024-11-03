@@ -4,10 +4,9 @@
 
 Sequenza delle attività di engine.js:
 * before starting the Simulation, without being able to change the accounting (Ledger is still "closed"):
-    1) call all modules methods `oneTimeBeforeTheSimulationStarts`
-       * to set the #taskLocks
-       * to set the #drivers
-    2) freeze Drivers and Locks repository
+  * call all modules methods `oneTimeBeforeTheSimulationStarts`
+    * to set the #taskLocks
+    * to set the #drivers
 * giornalmente, chiamate ai moduli in ordine di scrittura su Excel:
     * setta il driver $.TODAY con la data corrente (JS Date object)  #$_TODAY_driver
     * modules method call `beforeDailyModeling` // ledger is closed here; do some actions useful for the next day, computing >ebitda_const_id for example

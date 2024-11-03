@@ -68,17 +68,17 @@ export class Module {
     this.#simulationContext = simulationContext;
   }
 
-  /** Set TaskLocks */
+  /** Set TaskLocks before the simulation starts (can be defined also during simulation, if needed) */
   setTaskLocksBeforeTheSimulationStarts () {
     // set TaskLocks
   }
 
-  /** Set Settings and Drivers */
+  /** Set Settings and Drivers (can be defined also during simulation, if needed) */
   setDriversAndSettingsBeforeTheSimulationStarts () {
     // set Settings and Drivers
   }
 
-  /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse; work on moduleData before daily modeling */
+  /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse; process moduleData before daily modeling */
   prepareDataForDailyModeling () {
     // read from Settings Unit Historical end and save the value
     this.#ACTIVE_UNIT = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
