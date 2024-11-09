@@ -1,5 +1,5 @@
 import { deepFreeze } from '../lib/obj_utils.js';
-import { GlobalValue } from '../lib/global_value.js';
+import { GlobalImmutableValue } from '../lib/global_immutable_value.js';
 
 //#region config used by engine and Excel UI
 export const SIMULATION_NAME = '$';
@@ -30,7 +30,7 @@ export const DECIMAL_PLACES = 4;
 export const IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES = '$$';
 export const IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES = '$';
 // This value is replaced, during engine execution, with value of simulation setting `$$DRIVER_PREFIXES__ZERO_IF_NOT_SET`.
-export const DRIVER_PREFIXES__ZERO_IF_NOT_SET = new GlobalValue();
+export const DRIVER_PREFIXES__ZERO_IF_NOT_SET = new GlobalImmutableValue();
 
 // Formula and YAML cache size
 export const FML_CACHE_SIZE = 10_000;

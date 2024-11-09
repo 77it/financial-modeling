@@ -1,8 +1,13 @@
+export { GlobalImmutableValue };
+
+import { deepFreeze } from './obj_utils.js';
+
 /**
- * Class representing a global value with a default that can be set only once.
+ * Class representing a global immutable value with a default that can be set only once.
  * If the default value is ever returned, the value becomes locked and cannot be changed.
+ * The passed value is deep-frozen before storing it.
  */
-export class GlobalValue {
+class GlobalImmutableValue {
   /** @type {boolean} */
   #isLocked; // flag to lock setting once the default is returned
   /** @type {boolean} */
@@ -11,7 +16,7 @@ export class GlobalValue {
   #value; // private field to store the value
 
   /**
-   * Create a GlobalValue instance.
+   * Create a GlobalImmutableValue instance.
    * If a default value is not provided, the value must be set before calling get().
    * @param {any} [defaultValue] - Optional, the default fallback value.
    */
@@ -20,7 +25,7 @@ export class GlobalValue {
     this.#hasValue = false;
 
     if (arguments.length !== 0) {
-      this.#value = defaultValue;
+      this.#value = deepFreeze(defaultValue);
       this.#hasValue = true;
     }
   }
@@ -33,7 +38,7 @@ export class GlobalValue {
   set(newValue) {
     if (!this.#isLocked) {
       if (arguments.length !== 0) {
-        this.#value = newValue;
+        this.#value = deepFreeze(newValue);
         this.#isLocked = true; // Lock the value
         this.#hasValue = true;
       } else {

@@ -11,7 +11,7 @@ import { sanitize } from '../lib/schema_sanitization_utils.js';
 import { validate } from '../lib/schema_validation_utils.js';
 import { stripTimeToLocalDate } from '../lib/date_utils.js';
 import { Result } from '../lib/result.js';
-import { GlobalValue } from '../lib/global_value.js';
+import { GlobalImmutableValue } from '../lib/global_immutable_value.js';
 
 import { Ledger } from './ledger/ledger.js';
 import { NewDebugSimObjectDto } from './ledger/commands/newdebugsimobjectdto.js';
@@ -24,7 +24,7 @@ import { SimulationContext } from './context/simulationcontext.js';
 import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
 
 // exported simulationContext for whom may require it (e.g. tests)
-const simulationContext = new GlobalValue();
+const simulationContext = new GlobalImmutableValue();
 
 /**
  * @param {Object} p
