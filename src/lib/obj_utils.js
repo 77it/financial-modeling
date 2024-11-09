@@ -16,20 +16,27 @@ function deepFreeze (object) {
     return object;
 
   try {
-    // Retrieve the property names defined on object
-    const propNames = Reflect.ownKeys(object);
+    // if object is a map, loop and freeze its values: loop every key and replace with frozen value
+    if (object instanceof Map) {
+      for (const [key, value] of object) {
+        object.set(key, deepFreeze(value));
+      }
+    } else {
+      // Retrieve the property names defined on object
+      const propNames = Reflect.ownKeys(object);
 
-    // Freeze properties before freezing self
-    for (const name of propNames) {
-      const value = object[name];
+      // Freeze properties before freezing self
+      for (const name of propNames) {
+        const value = object[name];
 
-      if ((value && typeof value === 'object') || typeof value === 'function') {
-        deepFreeze(value);
+        if ((value && typeof value === 'object') || typeof value === 'function') {
+          deepFreeze(value);
+        }
       }
     }
 
     return Object.freeze(object);
-  } catch (e) {
+  } catch (_) {
     return object;
   }
 }

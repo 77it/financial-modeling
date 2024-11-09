@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;
 
-t('test deepFreeze() on object', () => {
+t('test deepFreeze() on object: not allowed to add or edit elements', () => {
   const a = {};
   a.a = 99;
   a.b = 55;
@@ -38,7 +38,34 @@ t('test deepFreeze() on object', () => {
   });
 });
 
-t('test deepFreeze() on array', () => {
+t('test deepFreeze() on map: NOT FROZEN; IS ALLOWED to add or replace key values; is NOT allowed to edit values', () => {
+  const a = new Map();
+  a.set('a', 99);
+  a.set('b', 55);
+  a.set('c', {a: 88, b: 77, e: [1, 2, 3, 4, 5]});
+
+  deepFreeze(a);
+
+  // adding a key is allowed
+  a.set('d', 99);
+  assert.deepStrictEqual(a.get('d'), 99);
+
+  // replacing a key is allowed
+  a.set('a', '100');
+  assert.deepStrictEqual(a.get('a'), '100');
+
+  // editing an inner property of an object is not allowed
+  assert.throws(() => {
+    a.get('c').a = 100;
+  });
+
+  // adding an element to an array is not allowed
+  assert.throws(() => {
+    a.get('c').e.push(6);
+  });
+});
+
+t('test deepFreeze() on array: not allowed to add or edit elements', () => {
   const arr = [1, 2, { a: 999 }, 4, 5, []];
   deepFreeze(arr);
 
@@ -52,7 +79,7 @@ t('test deepFreeze() on array', () => {
   assert.throws(() => { arr[5].push(5); });
 });
 
-t('test deepFreeze() function', () => {
+t('test deepFreeze() function: after deepFreeze, we cannot add a property to a function', () => {
   function fun () {
     return 999;
   }
@@ -66,13 +93,12 @@ t('test deepFreeze() function', () => {
   assert.throws(() => { fun.d = 100; });
 });
 
-t('test deepFreeze() string, numbers', () => {
-  // non-freezable values are returned as is
+t('test deepFreeze() string, numbers: non-freezable values are returned as is', () => {
   assert.deepStrictEqual(deepFreeze(9), 9);
   assert.deepStrictEqual(deepFreeze('abc'), 'abc');
 });
 
-t('test deepFreeze() class, class instance', () => {
+t('test deepFreeze() class, class instance: after deepFreeze, we cannot modify or add a property to a class instance', () => {
   class A {
     #private_value = 100;
 
