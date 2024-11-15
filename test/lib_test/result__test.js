@@ -7,17 +7,18 @@ import assert from 'node:assert';
 t('Result class tests: success', () => {
   const result_success_for_void = new Result({ success: true });
   assert.deepStrictEqual(result_success_for_void.success, true);
-  assert.deepStrictEqual(result_success_for_void.error, undefined);
+  assert.deepStrictEqual(result_success_for_void.error, '');  // error is sanitized to string
   assert.deepStrictEqual(result_success_for_void.value, undefined);
 
-  const result_success_for_void2 = new Result({ success: true, error: '' });
-  assert.deepStrictEqual(result_success_for_void2.success, true);
+  //@ts-ignore
+  const result_success_for_void2 = new Result({ success: 1, error: '' });
+  assert.deepStrictEqual(result_success_for_void2.success, true);  // success is sanitized to boolean
   assert.deepStrictEqual(result_success_for_void2.error, '');
   assert.deepStrictEqual(result_success_for_void2.value, undefined);
 
   const result_success = new Result({ success: true, value: 999 });
   assert.deepStrictEqual(result_success.success, true);
-  assert.deepStrictEqual(result_success.error, undefined);
+  assert.deepStrictEqual(result_success.error, '');  // error is sanitized to string
   assert.deepStrictEqual(result_success.value, 999);
 
   // stack is a not standard property

@@ -1,5 +1,8 @@
 export { Result };
 
+import { sanitize } from './schema_sanitization_utils.js';
+import * as schema from './schema.js';
+
 class Result {
   /** @type {boolean} */
   success;
@@ -13,14 +16,17 @@ class Result {
    * param can be {{success: true, value?: *} | {success:false, error: string}}
    */
   constructor ({ success, value, error }) {
-    if (success && error) {
+    const _error = sanitize({value: error, sanitization: schema.STRING_TYPE})
+    const _success = sanitize({value: success, sanitization: schema.BOOLEAN_TYPE})
+
+    if (_success && _error) {
       throw new Error('success and error cannot be both true');
     }
-    if (!success && !error) {
+    if (!_success && !_error) {
       throw new Error('success and error cannot be both false');
     }
-    this.success = success;
+    this.success = _success;
+    this.error = _error;
     this.value = value;
-    this.error = error;
   }
 }

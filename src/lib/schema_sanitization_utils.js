@@ -24,8 +24,9 @@ const DEFAULT_BIGINT = BigInt(0);
  * otherwise sanitize as described in "Value Sanitization".
  *
  * # Value Sanitization
- * Accepted sanitization types are many: see `schema.js`; class is 'function', class instance is 'object';
+ * Accepted sanitization types are many: see `schema.js` (class is 'function', class instance is 'object');
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
+ * To sanitize an object, pass one as   {key1: STRING_TYPE, key2: NUMBER_TYPE + OPTIONAL}
  * To sanitize a value applying a function, pass a static class containing the methods .sanitize() and .validate()
  *   the sanitization function will be called as class.sanitize() with the value to sanitize as parameter.
  * For optional values (null/undefined are accepted) append '?' to the type.
