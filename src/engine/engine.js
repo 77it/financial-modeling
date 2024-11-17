@@ -96,7 +96,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       taskLocks: _taskLocks,
       ledger: _ledger
     });
-    simulationContext.set(_simulationContext);  // save the simulationContext in a global variable accessible from outside, e.g. tests
+    simulationContext.setOneTimeBeforeRead(_simulationContext);  // save the simulationContext in a global variable accessible from outside, e.g. tests
     //#endregion set context
 
     _ledger.lock();  // lock Ledger before starting the Simulation

@@ -10,15 +10,15 @@ t('global variable test', () => {
   assert.deepStrictEqual(myGlobalVariable.isLocked(), false);
   assert.deepStrictEqual(myGlobalVariable.get(), "default");
   assert.deepStrictEqual(myGlobalVariable.isLocked(), true);
-  myGlobalVariable.set("new value");  // the set is ignored
+  myGlobalVariable.setOneTimeBeforeRead("new value");  // the set is ignored
   assert.deepStrictEqual(myGlobalVariable.get(), "default");
 
   // set a default value, set a new value, try to set a new new value -> ignored
   const myGlobalVariable2 = new GlobalImmutableValue("default");
   assert.deepStrictEqual(myGlobalVariable2.isLocked(), false);
-  myGlobalVariable2.set("new value");  // the set is accepted
+  myGlobalVariable2.setOneTimeBeforeRead("new value");  // the set is accepted
   assert.deepStrictEqual(myGlobalVariable2.isLocked(), true);
-  myGlobalVariable2.set("new new value");  // the second set is ignored
+  myGlobalVariable2.setOneTimeBeforeRead("new new value");  // the second set is ignored
   assert.deepStrictEqual(myGlobalVariable2.get(), "new value");
 
   // init without value -> not locked, try to get, throw
@@ -29,7 +29,7 @@ t('global variable test', () => {
   // init with a value -> set a new value -> locked -> try to get, success
   const myGlobalVariable3b = new GlobalImmutableValue(999);
   assert.deepStrictEqual(myGlobalVariable3b.isLocked(), false);
-  myGlobalVariable3b.set(["new value"]);  // the set is accepted
+  myGlobalVariable3b.setOneTimeBeforeRead(["new value"]);  // the set is accepted
   assert.deepStrictEqual(myGlobalVariable3b.isLocked(), true);
   assert.deepStrictEqual(myGlobalVariable3b.get(), ["new value"]);
 
@@ -41,10 +41,10 @@ t('global variable test', () => {
   // init without value -> try to set without value -> throw
   const myGlobalVariable4 = new GlobalImmutableValue();
   //@ts-ignore
-  assert.throws(() => { myGlobalVariable4.set(); });
+  assert.throws(() => { myGlobalVariable4.setOneTimeBeforeRead(); });
 
   // init with a value -> try to set without value -> throw
   const myGlobalVariable5 = new GlobalImmutableValue(999);
   //@ts-ignore
-  assert.throws(() => { myGlobalVariable5.set(); });
+  assert.throws(() => { myGlobalVariable5.setOneTimeBeforeRead(); });
 });

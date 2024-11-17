@@ -59,6 +59,6 @@ export class Module {
   // is an arrow function because it is used as a callback
   /** Set Js Engine Configuration Global Values from Simulation Settings */
   #taskLock_setJsEngineConfigurationGlobalValuesFromSimulationSettings = () => {
-    GLOBALS.DRIVER_PREFIXES__ZERO_IF_NOT_SET.set(this.#simulationContext.getSetting({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET }));
+    GLOBALS.DRIVER_PREFIXES__ZERO_IF_NOT_SET.setOneTimeBeforeRead(this.#simulationContext.getSetting({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET }));
   };
 }

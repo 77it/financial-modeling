@@ -31,11 +31,11 @@ class GlobalImmutableValue {
   }
 
   /**
-   * Set a new value (one time), but only if it hasn't been locked yet.<p>
+   * Set a new value (one time), but only if it hasn't been locked yet (will be locked after the first read or set).<p>
    * If the value is locked, the set is ignored.
    * @param {any} newValue - The new value to set.
    */
-  set(newValue) {
+  setOneTimeBeforeRead(newValue) {
     if (!this.#isLocked) {
       if (arguments.length !== 0) {
         this.#value = deepFreeze(newValue);
