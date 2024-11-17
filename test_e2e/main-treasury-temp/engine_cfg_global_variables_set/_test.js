@@ -12,7 +12,7 @@ import { DEBUG_FLAG, ERROR_FILE, SIMULATION_JSONL_OUTPUT } from '../_test_settin
 
 //import { simulationContext } from '../../../src/engine/engine.js';
 //import { SimulationContext } from '../../../src/engine/context/simulationcontext.js';
-import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../../src/config/engine.js';
+import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../../src/config/globals.js';
 import { SettingsDefaultValues } from '../../../src/config/settings_default_values.js';
 import { Simulation as SimulationSettingNames } from '../../../src/config/settings_names.js';
 
