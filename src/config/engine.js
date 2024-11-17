@@ -10,6 +10,9 @@ export const ARRAY_ARITHMETIC_PREFIX = '<';  // prefix to mark formulas in the E
 //#endregion config used by engine and Excel UI
 
 //#region modules config, used by engine and Excel UI
+// We need HISTORICAL_COLUMN_PREFIX to prevent mismatching of historical data with simulation data when changes the Simulation Start Date.
+// We need SIMULATION_COLUMN_PREFIX to be sure that dates wrote in Excel aren't converted in other locales as happens in italian locale
+// (and when dates are in tables header are string and not numbers anymore, then JavaScript can't recognize them as dates).
 export const SIMULATION_COLUMN_PREFIX = '#';
 export const HISTORICAL_COLUMN_PREFIX = 'H#';
 

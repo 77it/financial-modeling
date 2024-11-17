@@ -9,9 +9,10 @@ export { localDateToUTC, localDateToStringYYYYMMDD, stripTimeToLocalDate, stripT
 // creating RegExp for later use
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
 const regExp_YYYYMMDDTHHMMSSMMMZ = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/;
-const regExp_partsYYYYMMDD_minus = /^(\d{4})-(\d{2})-(\d{2})$/;
-const regExp_partsYYYYMMDD_slash = /^(\d{4})\/(\d{2})\/(\d{2})$/;
-const regExp_partsYYYYMMDD_dot = /^(\d{4})\.(\d{2})\.(\d{2})$/;
+const regExp_YYYYMMDD_minusSep = /^(\d{4})-(\d{2})-(\d{2})$/;
+const regExp_YYYYMMDD_slashSep = /^(\d{4})\/(\d{2})\/(\d{2})$/;
+const regExp_YYYYMMDD_dotSep = /^(\d{4})\.(\d{2})\.(\d{2})$/;
+const regExp_YYYYMMDD_withoutSep = /^(\d{4})(\d{2})(\d{2})$/;
 
 /**
  * Check whether the date is valid
@@ -87,11 +88,13 @@ function _parseJsonDate (argument, opt) {
     // match YYYY-MM-DDTHH:MM:SS.MMMZ
     const parts = argument.trim().match(regExp_YYYYMMDDTHHMMSSMMMZ);
     // match YYYY-MM-DD
-    const partsYYYYMMDD_minus = argument.trim().match(regExp_partsYYYYMMDD_minus);
+    const partsYYYYMMDD_minus = argument.trim().match(regExp_YYYYMMDD_minusSep);
     // match YYYY/MM/DD
-    const partsYYYYMMDD_slash = argument.trim().match(regExp_partsYYYYMMDD_slash);
+    const partsYYYYMMDD_slash = argument.trim().match(regExp_YYYYMMDD_slashSep);
     // match YYYY.MM.DD
-    const partsYYYYMMDD_dot = argument.trim().match(regExp_partsYYYYMMDD_dot);
+    const partsYYYYMMDD_dot = argument.trim().match(regExp_YYYYMMDD_dotSep);
+    // match YYYYMMDD without separator
+    const partsYYYYMMDD_withoutSep = argument.trim().match(regExp_YYYYMMDD_withoutSep);
     if (parts) {
       // Group 8 matches the sign
       return _newDate(
@@ -123,6 +126,13 @@ function _parseJsonDate (argument, opt) {
         +partsYYYYMMDD_dot[1],
         +partsYYYYMMDD_dot[2] - 1,
         +partsYYYYMMDD_dot[3]
+      );
+    } else if (partsYYYYMMDD_withoutSep) {
+      // YYYYMMDD date without separator
+      return _newDate(
+        +partsYYYYMMDD_withoutSep[1],
+        +partsYYYYMMDD_withoutSep[2] - 1,
+        +partsYYYYMMDD_withoutSep[3]
       );
     }
     return new Date(NaN);
