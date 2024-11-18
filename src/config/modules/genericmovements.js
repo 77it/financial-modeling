@@ -1,6 +1,7 @@
 export { MODULE_NAME, tablesInfo, moduleSanitization };
 
 import * as CFG from '../engine.js';
+import * as GLOBALS from '../globals.js';
 import { schema, deepFreeze } from '../../deps.js';
 
 const MODULE_NAME = 'genericmovements';
@@ -22,8 +23,8 @@ const tablesInfo = {
       ACCOUNTING_OPPOSITE_TYPE: 'vs type',
       SIMOBJECT_NAME: 'name'
     },
-    simulationColumnPrefix: CFG.SIMULATION_COLUMN_PREFIX,
-    historicalColumnPrefix: CFG.HISTORICAL_COLUMN_PREFIX
+    simulationColumnPrefix: GLOBALS.SIMULATION_COLUMN_PREFIX.get(),
+    historicalColumnPrefix: GLOBALS.HISTORICAL_COLUMN_PREFIX.get()
   }
 };
 

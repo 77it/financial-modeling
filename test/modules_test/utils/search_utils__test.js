@@ -1,7 +1,9 @@
 import { xlookup, moduleDataLookup, searchDateKeys } from '../../../src/modules/_utils/search_utils.js';
+import { eq2 } from '../../../src/lib/obj_utils.js';
 
 import { schema } from '../../deps.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
+import * as GLOBALS from '../../../src/config/globals.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -193,33 +195,58 @@ t('moduleDataLookup test: test search', async () => {
 });
 
 t('searchDateKeys test', async () => {
-  const obj = {
-    '#2023-12-25T05:20:10': 1,  // time part is stripped
-    b: 2,  // ignored, not starting with prefix
-    99: 2,  // ignored, not starting with prefix
-    '#2023/01/29': 3,
-    '#2023/01/XX': 3,  // ignored, not parsable as a date
-  };
+  {  // test SIMULATION_COLUMN_PREFIX
+    const obj = {
+      '#2023-12-25T05:20:10': 1,  // time part is stripped
+      b: 2,  // ignored, not starting with prefix
+      99: 2,  // ignored, not starting with prefix
+      '#2023/01/29': 3,
+      '#2023/01/XX': 3,  // ignored, not parsable as a date
+    };
 
-  const exp = [
-    { key: '#2023-12-25T05:20:10', date: new Date(2023, 11, 25) },
-    { key: '#2023/01/29', date: new Date(2023, 0, 29) }
-  ];
+    const exp = [
+      { key: '#2023/01/29', date: new Date(2023, 0, 29) },
+      { key: '#2023-12-25T05:20:10', date: new Date(2023, 11, 25) },
+    ];
 
-  const obj2 = {
-    'h#2023-12-25': 1,
-    b: 2,  // ignored, not starting with prefix
-    99: 2,  // ignored, not starting with prefix
-    'H#2023/01/29': 3,
-    'H#2023/01/XX': 3,  // ignored, not parsable as a date
-  };
+    assert.deepStrictEqual(searchDateKeys({ obj, prefix: GLOBALS.SIMULATION_COLUMN_PREFIX.get() }), exp);
+  }
 
-  const exp2 = [
-    { key: 'h#2023-12-25', date: new Date(2023, 11, 25) },  // case insensitive
-    { key: 'H#2023/01/29', date: new Date(2023, 0, 29) }
-  ];
+  {  // test without prefix, passing a map instead of object
+    //@ts-ignore   otherwise the Map init returns a type error
+    const obj = new Map([
+      ['2023-12-25T05:20:10', 1],  // time part is stripped
+      ['b', 2],  // ignored, not starting with prefix
+      [99, 2],  // ignored, not starting with prefix
+      ['20241231', 4],
+      ['2023/01/29', 3],
+      ['2023/01/XX', 3],  // ignored, not parsable as a date
+    ]);
 
-  assert.deepStrictEqual(JSON.stringify(searchDateKeys({ obj, prefix: '#' })), JSON.stringify(exp));
-  assert.deepStrictEqual(JSON.stringify(searchDateKeys({ obj: obj2, prefix: 'H#' })), JSON.stringify(exp2));
-  assert.deepStrictEqual(JSON.stringify(searchDateKeys({ obj: obj2, prefix: 'h#' })), JSON.stringify(exp2));  // case insensitive
+    const exp = [
+      { key: '2023/01/29', date: new Date(2023, 0, 29) },
+      { key: '2023-12-25T05:20:10', date: new Date(2023, 11, 25) },
+      { key: '20241231', date: new Date(2024, 11, 31) },
+    ];
+
+    assert.deepStrictEqual(searchDateKeys({ obj, prefix: '' }), exp);
+  }
+
+  {  // test HISTORICAL_COLUMN_PREFIX (also case insensitive)
+    const obj = {
+      'h#2023-12-25': 1,
+      b: 2,  // ignored, not starting with prefix
+      99: 2,  // ignored, not starting with prefix
+      'H#2023/01/29': 3,
+      'H#2023/01/XX': 3,  // ignored, not parsable as a date
+    };
+
+    const exp = [
+      { key: 'H#2023/01/29', date: new Date(2023, 0, 29) },
+      { key: 'h#2023-12-25', date: new Date(2023, 11, 25) },  // case insensitive
+    ];
+
+    assert.deepStrictEqual(searchDateKeys({ obj: obj, prefix: GLOBALS.HISTORICAL_COLUMN_PREFIX.get() }), exp);
+    assert.deepStrictEqual(searchDateKeys({ obj: obj, prefix: GLOBALS.HISTORICAL_COLUMN_PREFIX.get().toLowerCase() }), exp);  // case insensitive
+  }
 });
