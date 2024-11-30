@@ -1,7 +1,7 @@
 // TODO to implement
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import { MODULE_NAME, tablesInfo, moduleSanitization } from '../config/modules/ismovements.js';
+import { tablesInfo, moduleSanitization } from '../config/modules/ismovements.js';
 import { ModuleData, SimulationContext, eq2 } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
@@ -33,8 +33,6 @@ export class Module {
     this.#ACTIVE_UNIT = '';
     this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = new Date(0);
   }
-
-  get name () { return MODULE_NAME; }
 
   get alive () { return this.#alive; }
 

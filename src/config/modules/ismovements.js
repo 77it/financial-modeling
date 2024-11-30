@@ -1,10 +1,8 @@
 // TODO to implement
 
-export { MODULE_NAME, tablesInfo, moduleSanitization };
+export { tablesInfo, moduleSanitization };
 
 import { schema, deepFreeze } from '../../deps.js';
-
-const MODULE_NAME = 'ismovements';
 
 const tablesInfo = {
   SETTINGS: {

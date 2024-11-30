@@ -14,7 +14,6 @@ import * as SETTINGS_NAMES from '../config/settings_names.js';
 import { ModuleData, SimulationContext } from '../deps.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 
-const MODULE_NAME = '_sample_module';
 const tablesInfo = {};  // when implemented, should be imported from '../config/modules/_sample_module.js'
 
 export class Module {
@@ -45,8 +44,6 @@ export class Module {
     this.#ACTIVE_UNIT = '';
     this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = new Date(0);
   }
-
-  get name () { return MODULE_NAME; }
 
   get alive () { return this.#alive; }
 

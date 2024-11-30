@@ -15,7 +15,7 @@ Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a 
  */
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import { MODULE_NAME, tablesInfo, moduleSanitization } from '../config/modules/genericmovements.js';
+import { tablesInfo, moduleSanitization } from '../config/modules/genericmovements.js';
 import { Agenda } from './_utils/Agenda.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
@@ -76,8 +76,6 @@ export class Module {
     //@ts-ignore
     this.#agenda = undefined;
   }
-
-  get name () { return MODULE_NAME; }
 
   get alive () { return this.#alive; }
 

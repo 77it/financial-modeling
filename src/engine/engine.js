@@ -248,6 +248,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
     /** Return debug info about the current module, to be used in the ledger, drivers and taskLocks
      * @param {ModuleData} moduleData
+     * @return {string}
      */
     function getDebugModuleInfo (moduleData) {
       return `scenario: '${scenarioName}', moduleName: '${moduleData?.moduleName}', moduleEngineURI: '${moduleData?.moduleEngineURI}', moduleSourceLocation: '${moduleData?.moduleSourceLocation}'`;

@@ -1,10 +1,8 @@
-export { MODULE_NAME, tablesInfo, moduleSanitization };
+export { tablesInfo, moduleSanitization };
 
 import * as CFG from '../engine.js';
 import * as GLOBALS from '../globals.js';
 import { schema, deepFreeze } from '../../deps.js';
-
-const MODULE_NAME = 'genericmovements';
 
 const tablesInfo = {
   SETTINGS: {
