@@ -116,8 +116,8 @@ export class Module {
       const _tSet = tablesInfo.SET;
       if (eq2(_currTab.tableName, _tSet.tableName)) {
         // search data column keys named as dates in _currTab.table[0]
-        const _simulationColumns = searchDateKeys({ obj: _currTab.table[0], prefix: _tSet.simulationColumnPrefix });
-        const _historicalColumns = searchDateKeys({ obj: _currTab.table[0], prefix: _tSet.historicalColumnPrefix });
+        const _simulationColumns = searchDateKeys({ obj: _currTab.table[0], prefix: this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.$$SIMULATION_COLUMN_PREFIX }) });
+        const _historicalColumns = searchDateKeys({ obj: _currTab.table[0], prefix: this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX }) });
 
         for (const row of _currTab.table) {
           // TODO loop table and save data to agenda;

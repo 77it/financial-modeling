@@ -20,9 +20,7 @@ const tablesInfo = {
       ACCOUNTING_TYPE: 'type',
       ACCOUNTING_OPPOSITE_TYPE: 'vs type',
       SIMOBJECT_NAME: 'name'
-    },
-    simulationColumnPrefix: GLOBALS.SIMULATION_COLUMN_PREFIX.get(),
-    historicalColumnPrefix: GLOBALS.HISTORICAL_COLUMN_PREFIX.get()
+    }
   }
 };
 

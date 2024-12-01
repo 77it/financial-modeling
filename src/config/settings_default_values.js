@@ -6,6 +6,12 @@ import { Currency_enum } from '../engine/simobject/enums/currency_enum.js';
 import { SimObjectTypes_enum } from '../engine/simobject/enums/simobject_types_enum.js';
 import { deepFreeze } from '../lib/obj_utils.js';
 
+// to prevent error "TS7053 Element implicitly has an 'any' type because expression of type 'string' can't be used to index type..." we must use one of the following JSDOC signature for the following object
+// we must use one of the following JSDOC signature for the object {}
+//    /** @type {Record<string, any>} */
+//    /** @type {{[index: string]:any}} */
+// from https://stackoverflow.com/a/56833507 + https://stackoverflow.com/questions/56833469/typescript-error-ts7053-element-implicitly-has-an-any-type
+/** @type {Record<string, any>} */
 const SettingsDefaultValues = {
   // values of immutable settings if nothing else is set
   [Simulation.$$DEBUG_FLAG]: false,
@@ -15,10 +21,13 @@ const SettingsDefaultValues = {
   [Simulation.$$CURRENCY]: Currency_enum.UNDEFINED,
   [Simulation.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE]: new Date(0),
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: 12,
-  [Simulation.$$DEFAULT_SPLIT]: [1,1,1,1,1,1,1,1,1,1,1,1],  // default split of things, 12 equal months (e.g. of Income Statement items)
+  // default split of things, 12 equal months (e.g. of Income Statement items)
+  [Simulation.$$DEFAULT_SPLIT]: [1,1,1,1,1,1,1,1,1,1,1,1],
   // Set only for immutable drivers that may change at the end of the day (IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES);
   // for immutable drivers (IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES), it doesn't make sense; mutable drivers do not exist.
   [Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET]: ['$Daily'],
+  [Simulation.$$SIMULATION_COLUMN_PREFIX]: '#',
+  [Simulation.$$HISTORICAL_COLUMN_PREFIX]: 'H#',
 
   // value of immutable settings with dates if nothing else is set
   [Simulation.$MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE]: 100,
