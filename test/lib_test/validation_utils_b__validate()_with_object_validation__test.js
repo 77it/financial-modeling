@@ -231,7 +231,7 @@ t('test validate() with object validation - valid, object with and without optio
   validate({ value: nullObject, validation: validation });
 });
 
-t('test validate() with object validation - valid, nested object', () => {
+t('test validate() with object validation - valid, nested object in array', () => {
   const objToValidate = {
     str: 'string',
     arr: [
@@ -241,7 +241,21 @@ t('test validate() with object validation - valid, nested object', () => {
 
   const validation = {
     valA: S.STRING_TYPE,
-    valB: S.OBJECT_TYPE,
+    valB: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
+  };
+
+  validate({ value: objToValidate.arr[0], validation: validation });
+});
+
+t('test validate() with object validation - valid, nested object', () => {
+  const objToValidate = {
+    str: 'string',
+    val: { valA: 'aaa', valB: { a: 999 } }
+  };
+
+  const validation = {
+    valA: S.STRING_TYPE,
+    valB: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
   };
 
   validate({ value: objToValidate.arr[0], validation: validation });

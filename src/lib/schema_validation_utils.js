@@ -50,30 +50,47 @@ function validate ({ value, validation, errorMsg, strict = false}) {
   if (errorMsg != null && typeof errorMsg !== 'string')
     throw new Error(`'errorMsg' parameter must be null/undefined or string`);
 
-  let validationResult = "";
+  const validationResult = _validationDispatcher({
+    value: value,
+    validation: validation,
+    errorMsg: errorMsg,
+    strict: strict
+  });
 
+  if (validationResult)
+    throw new Error(`Validation error: ${validationResult}`);
+
+  return value;
+}
+
+/**
+ @private
+ * Dispatch validations between value and object
+ * @param {Object} p
+ * @param {*} p.value - Value to validate
+ * @param {*} p.validation - Validation type (string, array of strings, class or function, array containing a class or function)
+ * @param {string} [p.errorMsg] - Optional error message
+ * @param {boolean} [p.strict = false] - Used only if `validation` is an object; optional, default false; if true check that there are no extra keys other than validation keys in the validated object.
+ * @return {string} Return empty string for success; return error string for validation error.
+ */
+function _validationDispatcher ({ value, validation, errorMsg, strict = false}) {
   // if `validation` is an object & not an array, validate the object with `_validateObj()`
   //
   // else, validate the object with `_validateValue()`
   if (typeof validation === 'object' && !Array.isArray(validation)) {
-    validationResult = _validateObj({
+    return _validateObj({
       obj: value,
       validation: validation,
       errorMsg: errorMsg,
       strict: strict
     });
   } else {
-    validationResult = _validateValue({
+    return _validateValue({
       value: value,
       validation: validation,
       errorMsg: errorMsg
     });
   }
-
-  if (validationResult)
-    throw new Error(`Validation error: ${validationResult}`);
-
-  return value;
 }
 
 /**
@@ -390,7 +407,7 @@ function __validateObj ({ obj, validation, strict }) {
           continue;  // skip validation
         }
 
-        const validationResult = _validateValue({
+        const validationResult = _validationDispatcher({
           value: _obj[key],
           validation: validation[key],
           errorMsg: key
