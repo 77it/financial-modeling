@@ -596,15 +596,15 @@ t('test sanitize() - array of bigint number type + validation', async () => {
 
 t('test sanitize() - custom function type + validation (use the SanitizationValidationClass class to sanitize the value)', async () => {
   const t = SanitizationValidationClass;
-  assert.deepStrictEqual(JSON.stringify(undefined), JSON.stringify(s.sanitize({ value: undefined, sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(null), JSON.stringify(s.sanitize({ value: null, sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(SanitizationValidationClass.sanitize(999)), JSON.stringify(s.sanitize({ value: 999, sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(SanitizationValidationClass.sanitize(999)), JSON.stringify(s.sanitize({ value: '999', sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(SanitizationValidationClass.sanitize(0)), JSON.stringify(s.sanitize({ value: '0', sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(10), JSON.stringify(s.sanitize({ value: '', sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify('abc'), JSON.stringify(s.sanitize({ value: 'abc', sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(new Date(2022, 11, 25)), JSON.stringify(s.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(new Date(NaN)), JSON.stringify(s.sanitize({ value: new Date(NaN), sanitization: t })));
+  assert.deepStrictEqual((undefined), (s.sanitize({ value: undefined, sanitization: t })));
+  assert.deepStrictEqual((null), (s.sanitize({ value: null, sanitization: t })));
+  assert.deepStrictEqual((SanitizationValidationClass.sanitize(999)), (s.sanitize({ value: 999, sanitization: t })));
+  assert.deepStrictEqual((SanitizationValidationClass.sanitize(999)), (s.sanitize({ value: '999', sanitization: t })));
+  assert.deepStrictEqual((SanitizationValidationClass.sanitize(0)), (s.sanitize({ value: '0', sanitization: t })));
+  assert.deepStrictEqual((10), (s.sanitize({ value: '', sanitization: t })));
+  assert.deepStrictEqual(('abc'), (s.sanitize({ value: 'abc', sanitization: t })));
+  assert.deepStrictEqual((new Date(2022, 11, 25)), (s.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
+  assert.deepStrictEqual((new Date(NaN)), (s.sanitize({ value: new Date(NaN), sanitization: t })));
 
   // sanitize + validate
   s.sanitize({ value: 0, sanitization: t, validate: true });
@@ -613,14 +613,14 @@ t('test sanitize() - custom function type + validation (use the SanitizationVali
 
 t('test sanitize() - array of custom function type + validation (use the SanitizationValidationClass class to sanitize the value)', async () => {
   const t = [SanitizationValidationClass];
-  assert.deepStrictEqual(JSON.stringify([SanitizationValidationClass.sanitize(1), SanitizationValidationClass.sanitize(2), 'a']), JSON.stringify(s.sanitize({ value: [1, 2, 'a'], sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify([undefined]), JSON.stringify(s.sanitize({ value: undefined, sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify([null]), JSON.stringify(s.sanitize({ value: null, sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify([SanitizationValidationClass.sanitize(999)]), JSON.stringify(s.sanitize({ value: 999, sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify([10]), JSON.stringify(s.sanitize({ value: '', sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify(['abc']), JSON.stringify(s.sanitize({ value: 'abc', sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify([new Date(2022, 11, 25)]), JSON.stringify(s.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
-  assert.deepStrictEqual(JSON.stringify([new Date(NaN)]), JSON.stringify(s.sanitize({ value: new Date(NaN), sanitization: t })));
+  assert.deepStrictEqual(([SanitizationValidationClass.sanitize(1), SanitizationValidationClass.sanitize(2), 'a']), (s.sanitize({ value: [1, 2, 'a'], sanitization: t })));
+  assert.deepStrictEqual(([undefined]), (s.sanitize({ value: undefined, sanitization: t })));
+  assert.deepStrictEqual(([null]), (s.sanitize({ value: null, sanitization: t })));
+  assert.deepStrictEqual(([SanitizationValidationClass.sanitize(999)]), (s.sanitize({ value: 999, sanitization: t })));
+  assert.deepStrictEqual(([10]), (s.sanitize({ value: '', sanitization: t })));
+  assert.deepStrictEqual((['abc']), (s.sanitize({ value: 'abc', sanitization: t })));
+  assert.deepStrictEqual(([new Date(2022, 11, 25)]), (s.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
+  assert.deepStrictEqual(([new Date(NaN)]), (s.sanitize({ value: new Date(NaN), sanitization: t })));
 
   // sanitize + validate
   s.sanitize({ value: 999, sanitization: t, validate: true });
