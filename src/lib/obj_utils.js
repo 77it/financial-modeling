@@ -94,7 +94,7 @@ function get2 (obj, key) {
     key = key.toString();
 
   // if obj has the key, return it
-  if (obj.hasOwnProperty(key))
+  if (Object.prototype.hasOwnProperty.call(obj, key))
     return obj[key];
 
   let retVal = undefined;
@@ -137,7 +137,7 @@ function mergeNewKeys ({ target, source }) {
 
     // loop on source keys; if keys are of the source object (and not inherited), copy them to target if target does not have them
     for (const key in source) {
-      if (source.hasOwnProperty(key) && !target.hasOwnProperty(key))
+      if (Object.prototype.hasOwnProperty.call(source, key) && !Object.prototype.hasOwnProperty.call(target, key))
         target[key] = source[key];
     }
 
