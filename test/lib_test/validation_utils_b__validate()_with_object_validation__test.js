@@ -237,16 +237,25 @@ t('test validate() with object validation - valid, nested object in array OR as 
     arrOrObj: [
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }],
+    str2: 'string2',
+    arrOrObj2: { valA: 'aaa2', valB: { a: 9999 } },
+    str3: 'string3',
   };
 
   const objToValidate_nestedObjInProperty = {
     str: 'string',
-    arrOrObj: { valA: 'aaa', valB: { a: 999 } }
+    arrOrObj: { valA: 'aaa', valB: { a: 999 } },
+    str2: 'string2',
+    arrOrObj2: { valA: 'aaa2', valB: { a: 9999 } },
+    str3: 'string3',
   };
 
   const validation = {
     str: S.STRING_TYPE,
+    str2: S.STRING_TYPE,
+    str3: S.STRING_TYPE,
     arrOrObj: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
+    arrOrObj2: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
   };
 
   validate({ value: objToValidate_nestedObjInArray, validation: validation });

@@ -296,7 +296,61 @@ t('test sanitize() with object sanitization - enum type', async () => {
   assert.throws(() => s.sanitize({ value: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
 });
 
-t('test sanitize() with object sanitization - custom sanitization for string, number, date, bigint', async () => {
+t('test sanitize() - nested object in array OR as a single object in a property', () => {
+  const objToSanitize_nestedObjInArray = {
+    str: 999,
+    arrOrObj: [
+      { valA: 99, valB: { a: '999' } },
+      { valA: 999, valB: { a: '9990' } }],
+    str2: 888,
+    arrOrObj2: { valA: 555, valB: { a: '9999' } },
+    str3: 777,
+  };
+
+  const objToSanitize_nestedObjInArray_expected = {
+    str: '999',
+    arrOrObj: [
+      { valA: '99', valB: { a: 999 } },
+      { valA: '999', valB: { a: 9990 } }],
+    str2: '888',
+    arrOrObj2: { valA: '555', valB: { a: 9999 } },
+    str3: '777',
+  };
+
+  const objToSanitize_nestedObjInProperty = {
+    str: 999,
+    arrOrObj: { valA: 99, valB: { a: '999' } },
+    str2: 888,
+    arrOrObj2: { valA: 555, valB: { a: '9999' } },
+    str3: 777,
+  };
+
+  const objToSanitize_nestedObjInProperty_expected = {
+    str: '999',
+    arrOrObj: { valA: '99', valB: { a: 999 } },
+    str2: '888',
+    arrOrObj2: { valA: '555', valB: { a: 9999 } },
+    str3: '777',
+  };
+
+  const sanitization = {
+    str: S.STRING_TYPE,
+    str2: S.STRING_TYPE,
+    str3: S.STRING_TYPE,
+    arrOrObj: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
+    arrOrObj2: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
+  };
+
+  assert.deepStrictEqual(
+    s.sanitize({ value: objToSanitize_nestedObjInArray, sanitization: sanitization }),
+    objToSanitize_nestedObjInArray_expected);
+
+  assert.deepStrictEqual(
+    s.sanitize({ value: objToSanitize_nestedObjInProperty, sanitization: sanitization }),
+    objToSanitize_nestedObjInProperty_expected);
+});
+
+t('test sanitize() with object sanitization - custom default sanitization values for string, number, date, bigint', async () => {
   const options = {
     defaultString: 'mamma',
     defaultNumber: 999,
