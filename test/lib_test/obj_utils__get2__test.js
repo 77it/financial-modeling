@@ -7,7 +7,6 @@ import assert from 'node:assert';
 t('test get2(), get keys from object in a case insensitive way', () => {
   const obj = {
     "a": 999,
-    "A": 888,
     "B": 555,
     " C ": 'abc',
     888: 10,
@@ -16,7 +15,6 @@ t('test get2(), get keys from object in a case insensitive way', () => {
 
   assert.deepStrictEqual(get2(obj, 'a'), 999);
   assert.deepStrictEqual(get2(obj, '  A  '), 999);
-  assert.deepStrictEqual(get2(obj, 'A'), 888);
   assert.deepStrictEqual(get2(obj, '  B  '), 555);
   assert.deepStrictEqual(get2(obj, 'b'), 555);
   assert.deepStrictEqual(get2(obj, ' C '), 'abc');
@@ -34,9 +32,23 @@ t('test get2(), get keys from object in a case insensitive way', () => {
   //@ts-ignore
   assert.deepStrictEqual(get2(true, 'a'), undefined);
 
-  // test that get with non-string key returns undefined
+  // test that get with number or string key returns the same
   assert.deepStrictEqual(get2(obj, 888), 10);
   assert.deepStrictEqual(get2(obj, "888"), 10);
   assert.deepStrictEqual(get2(obj, 999), 20);
   assert.deepStrictEqual(get2(obj, "999"), 20);
+});
+
+t('test get2(), throw if there is more than one key with case insensitive match', () => {
+  // test that get2 throws if there are two keys that match the query
+  const obj = {
+    "aAA": 999,
+    "AAA": 888,
+    "B": 555,
+    " C ": 'abc',
+    888: 10,
+    "999": 20
+  }
+
+  assert.throws(() => get2(obj, 'aaa'));
 });

@@ -78,6 +78,7 @@ function eq2 (a, b) {
  * @param {Record<string, any>} obj
  * @param {string|number} key
  * @returns {any}
+ * @throws {Error} if during the case insensitive search, two keys are found that match the query
  */
 function get2 (obj, key) {
   // if obj or key are null or undefined, return undefined
@@ -96,14 +97,23 @@ function get2 (obj, key) {
   if (obj.hasOwnProperty(key))
     return obj[key];
 
-  // if obj has the key after trim & case insensitive, return it
+  let retVal = undefined;
+  let found = false;
+
+  // if obj has the key after trim & case insensitive, save it for later return and set ro true the found flag
   for (const _key in obj) {
-    if (eq2(_key, key))
-      return obj[_key];
+    if (eq2(_key, key)) {
+      if (found)
+        throw new Error(`two keys found that match the query: ${key}`);
+      else {
+        found = true;
+        retVal = obj[_key];
+      }
+    }
   }
 
   // else return undefined
-  return undefined;
+  return retVal;
 }
 
 /**
