@@ -231,37 +231,29 @@ t('test validate() with object validation - valid, object with and without optio
   validate({ value: nullObject, validation: validation });
 });
 
-t('test validate() with object validation - valid, nested object in array', () => {
-  const objToValidate = {
+t('test validate() with object validation - valid, nested object in array OR as a single object in a property', () => {
+  const objToValidate_nestedObjInArray = {
     str: 'string',
-    arr: [
+    arrOrObj: [
       { valA: 'aaa', valB: { a: 999 } },
       { valA: 'aaaX', valB: { a: 9990 } }],
   };
 
-  const validation = {
-    valA: S.STRING_TYPE,
-    valB: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
-  };
-
-  validate({ value: objToValidate.arr[0], validation: validation });
-});
-
-t('test validate() with object validation - valid, nested object', () => {
-  const objToValidate = {
+  const objToValidate_nestedObjInProperty = {
     str: 'string',
-    val: { valA: 'aaa', valB: { a: 999 } }
+    arrOrObj: { valA: 'aaa', valB: { a: 999 } }
   };
 
   const validation = {
-    valA: S.STRING_TYPE,
-    valB: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
+    str: S.STRING_TYPE,
+    arrOrObj: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
   };
 
-  validate({ value: objToValidate.arr[0], validation: validation });
+  validate({ value: objToValidate_nestedObjInArray, validation: validation });
+  validate({ value: objToValidate_nestedObjInProperty, validation: validation });
 });
 
-t('test validate() with object validation - valid, objects in array', () => {
+t('test validate() with object validation - valid, objects in array with OBJECT_TYPE', () => {
   const objToValidate = {
     str: 'string',
     arr: [
