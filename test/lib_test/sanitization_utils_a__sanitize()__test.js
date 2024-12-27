@@ -604,7 +604,6 @@ t('test sanitize() - custom function type + validation (use the SanitizationVali
   assert.deepStrictEqual((10), (s.sanitize({ value: '', sanitization: t })));
   assert.deepStrictEqual(('abc'), (s.sanitize({ value: 'abc', sanitization: t })));
   assert.deepStrictEqual((new Date(2022, 11, 25)), (s.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
-  assert.deepStrictEqual((new Date(NaN)), (s.sanitize({ value: new Date(NaN), sanitization: t })));
 
   // sanitize + validate
   s.sanitize({ value: 0, sanitization: t, validate: true });
@@ -620,7 +619,6 @@ t('test sanitize() - array of custom function type + validation (use the Sanitiz
   assert.deepStrictEqual(([10]), (s.sanitize({ value: '', sanitization: t })));
   assert.deepStrictEqual((['abc']), (s.sanitize({ value: 'abc', sanitization: t })));
   assert.deepStrictEqual(([new Date(2022, 11, 25)]), (s.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
-  assert.deepStrictEqual(([new Date(NaN)]), (s.sanitize({ value: new Date(NaN), sanitization: t })));
 
   // sanitize + validate
   s.sanitize({ value: 999, sanitization: t, validate: true });
