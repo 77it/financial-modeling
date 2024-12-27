@@ -186,8 +186,10 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
       try {
         if (value == null)
           retValue = _DEFAULT_NUMBER;
-        else
+        else {
           retValue = isFinite(Number(value)) ? Number(value) : _DEFAULT_NUMBER;
+          retValue = Object.is(retValue, -0) ? 0 : retValue;  // convert -0 to 0
+        }
       } catch (_) {
         retValue = _DEFAULT_NUMBER;
       }
