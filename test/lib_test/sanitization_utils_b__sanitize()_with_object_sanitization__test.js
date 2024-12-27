@@ -426,6 +426,7 @@ t('test sanitize() with object sanitization - custom default sanitization values
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_0));
 
+  // when sanitizing number, -0 is sanitized to 0
   wrongValue = -0;
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
