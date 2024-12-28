@@ -479,7 +479,7 @@ t('test validate() - test throw when a sanitization function doesn\'t return `Va
   try {
     v.validate({ value: 'aaaX', validation: t });
   } catch (err) {
-    //@ts-ignore
+    //@ts-ignore err.message unknown type
     assert.deepStrictEqual('validation function must return a `ValidateSanitizeResult` object', err.message);
   }
 });
