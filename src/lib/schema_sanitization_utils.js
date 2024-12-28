@@ -113,6 +113,9 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
     // if sanitization is a function call it and read the validation and sanitization result stored in the `ValidateSanitizeResult` type
     /** @type {ValidateSanitizeResult} */
     const validationResult = sanitization(value);
+    if (!(validationResult instanceof ValidateSanitizeResult))
+      throw new Error('sanitization function must return a `ValidateSanitizeResult` object');
+
     if (validate)
       return validateFunc({ value: validationResult.sanitizedValue, validation: sanitization });
     else

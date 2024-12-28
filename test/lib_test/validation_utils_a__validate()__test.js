@@ -471,3 +471,16 @@ t('test validate(), not valid, all cases', () => {
   
   assert(_error.includes('Value = 0, is not a number'));
 });
+
+t('test validate() - test throw when a sanitization function doesn\'t return `ValidateSanitizeResult` type', async () => {
+  // WRONG validation function that doesn't return `ValidateSanitizeResult` type
+  const t = /** @param {*} value */ (value) => { return 0 };
+
+  try {
+    v.validate({ value: 'aaaX', validation: t });
+  } catch (err) {
+    //@ts-ignore
+    assert.deepStrictEqual('validation function must return a `ValidateSanitizeResult` object', err.message);
+  }
+});
+

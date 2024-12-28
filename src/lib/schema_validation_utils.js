@@ -124,6 +124,8 @@ function _validateValue ({ value, validation, errorMsg }) {
     // if validation is a function call it and read the validation result stored in the `ValidateSanitizeResult` type
     /** @type {ValidateSanitizeResult} */
     const validationResult = validation(value);
+    if (!(validationResult instanceof ValidateSanitizeResult))
+      throw new Error('validation function must return a `ValidateSanitizeResult` object');
 
     if (validationResult.isValid)
       return SUCCESS;

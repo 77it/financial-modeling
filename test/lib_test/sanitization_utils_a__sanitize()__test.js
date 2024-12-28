@@ -594,6 +594,18 @@ t('test sanitize() - array of bigint number type + validation', async () => {
   s.sanitize({ value: 'aaa', sanitization: t, validate: true });
 });
 
+t('test sanitize() - test throw when a sanitization function doesn\'t return `ValidateSanitizeResult` type', async () => {
+  // WRONG sanitization function that doesn't return `ValidateSanitizeResult` type
+  const t = /** @param {*} value */ (value) => { return 0 };
+
+  try {
+    s.sanitize({ value: 'aaaX', sanitization: t });
+  } catch (err) {
+    //@ts-ignore
+    assert.deepStrictEqual('sanitization function must return a `ValidateSanitizeResult` object', err.message);
+  }
+});
+
 t('test sanitize() - custom function type + validation (use the validateSanitizeFunction_TestTemp function to sanitize the value)', async () => {
   const t = validateSanitizeFunction_TestTemp;
   assert.deepStrictEqual((undefined), (s.sanitize({ value: undefined, sanitization: t })));
@@ -624,3 +636,4 @@ t('test sanitize() - array of custom function type + validation (use the validat
   s.sanitize({ value: 999, sanitization: t, validate: true });
   s.sanitize({ value: '999', sanitization: t, validate: true });
 });
+
