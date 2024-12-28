@@ -1,7 +1,7 @@
 import { validate } from '../../src/lib/schema_validation_utils.js';
 import * as S from '../../src/lib/schema.js';
 
-import { SanitizationValidationClass } from './SanitizationValidationClass.js';
+import { validateSanitizeFunction_TestTemp } from './validateSanitizeFunction_TestTemp.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -139,8 +139,8 @@ t('test validate() with object validation - valid, complex object, names with an
     bigInt_number: S.BIGINT_NUMBER_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
     arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
-    big_js: SanitizationValidationClass,
-    arrBig_js: [SanitizationValidationClass],
+    big_js: validateSanitizeFunction_TestTemp,
+    arrBig_js: [validateSanitizeFunction_TestTemp],
     any: S.ANY_TYPE,
   };
 
@@ -372,7 +372,7 @@ t('test validate() with object validation - not valid, array is of wrong type', 
     arrObj: S.ARRAY_OF_OBJECTS_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
     arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
-    arrBig_js: [SanitizationValidationClass],
+    arrBig_js: [validateSanitizeFunction_TestTemp],
   };
 
   let _error = "";
@@ -516,7 +516,7 @@ t('test validate() with object validation - not valid, null/undefined/not BigInt
   assert(_error.includes('["big = null, must be an instance of BigInt","big2 = undefined, must be an instance of BigInt","big3 = 999, must be an instance of BigInt","big4 = 999999999999999999999, is BigInt but the value is too big to be safely converted to a number"]'));
 });
 
-t('test validate() with object validation - not valid, null/undefined/not failing SanitizationValidationClass.validate()', () => {
+t('test validate() with object validation - not valid, null/undefined/not failing validateSanitizeFunction_TestTemp', () => {
   const objToValidate = {
     big: null,
     big2: undefined,
@@ -524,9 +524,9 @@ t('test validate() with object validation - not valid, null/undefined/not failin
   };
 
   const validation = {
-    big: SanitizationValidationClass,
-    big2: SanitizationValidationClass,
-    big3: SanitizationValidationClass,
+    big: validateSanitizeFunction_TestTemp,
+    big2: validateSanitizeFunction_TestTemp,
+    big3: validateSanitizeFunction_TestTemp,
   };
 
   let _error = "";

@@ -30,7 +30,7 @@ const tablesInfo = {
 
 // array of objects, used by `sanitizeModuleData` function.
 // keys explanation:
-// - tableName: name of the table in the database
+// - tableName: name of the table to sanitize, used by `sanitizeModuleData` to match one of the input tables with the related sanitization settings
 // - parse: [OPTIONAL] parse method for the column, done before sanitization
 // - sanitization: [OPTIONAL] sanitization method for the columns; if not present, the column will not be sanitized
 // - sanitizationOptions: [OPTIONAL] options for sanitization `sanitize()` function

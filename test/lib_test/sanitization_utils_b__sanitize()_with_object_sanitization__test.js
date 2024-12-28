@@ -3,7 +3,7 @@ import * as s from '../../src/lib/schema_sanitization_utils.js';
 import { eq2 } from '../../src/lib/obj_utils.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToUTCDate, excelSerialDateToLocalDate } from '../../src/lib/date_utils.js';
 
-import { SanitizationValidationClass } from './SanitizationValidationClass.js';
+import { validateSanitizeFunction_TestTemp } from './validateSanitizeFunction_TestTemp.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -213,8 +213,8 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
     bigInt_number: BigInt(10),
     arrBigInt: [BigInt(10), BigInt(9), BigInt(0)],
     arrBigInt_number: [BigInt(10), BigInt(9), BigInt(0)],
-    big_js: SanitizationValidationClass.sanitize(10),
-    arrBig_js: [SanitizationValidationClass.sanitize(10), SanitizationValidationClass.sanitize(9), SanitizationValidationClass.sanitize(0)],
+    big_js: validateSanitizeFunction_TestTemp(10).sanitizedValue,
+    arrBig_js: [validateSanitizeFunction_TestTemp(10).sanitizedValue, validateSanitizeFunction_TestTemp(9).sanitizedValue, validateSanitizeFunction_TestTemp(0).sanitizedValue],
     extraValueStr: 'abc',
     extraValueNum: 999,
     extraValueBool: true,
@@ -259,8 +259,8 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
     bigInt_number: S.BIGINT_NUMBER_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
     arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
-    big_js: SanitizationValidationClass,
-    arrBig_js: [SanitizationValidationClass],
+    big_js: validateSanitizeFunction_TestTemp,
+    arrBig_js: [validateSanitizeFunction_TestTemp],
     any: S.ANY_TYPE,
     extraValueMissingRequiredStr: S.STRING_TYPE,
     extraValueMissingRequiredNum: S.NUMBER_TYPE,

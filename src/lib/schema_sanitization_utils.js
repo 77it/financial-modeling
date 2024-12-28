@@ -1,6 +1,7 @@
 export { sanitize };
 
 import * as schema from './schema.js';
+import { ValidateSanitizeResult } from './validate_sanitize_result.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, localDateToUTC } from './date_utils.js';
 import { validate as validateFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
@@ -27,8 +28,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * Accepted sanitization types are many: see `schema.js` (class is 'function', class instance is 'object');
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
  * To sanitize an object, pass one as   {key1: STRING_TYPE, key2: NUMBER_TYPE + OPTIONAL}
- * To sanitize a value applying a function, pass a static class containing the methods .sanitize() and .validate()
- *   the sanitization function will be called as class.sanitize() with the value to sanitize as parameter.
+ * To sanitize a value applying a function, pass a function returning with class `ValidateSanitizeResult` the validation result and the sanitized value.
  * For optional values (null/undefined are accepted) append '?' to the type.
  * For enum sanitization use an array of values (values will be ignored, optionally validated).
  * Sanitization types ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
@@ -52,7 +52,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * Object keys missing from the sanitization object are ignored and not sanitized.
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
- * @param {*} p.sanitization - Sanitization type (object, string, array of strings, function, array containing a function)
+ * @param {*} p.sanitization - Sanitization type (object, string, array of strings, sanitization function, array containing a sanitization function)
  * @param {Object} [p.options]
  * @param {string} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
  * @param {boolean} [p.options.dateUTC=false]
@@ -60,9 +60,10 @@ const DEFAULT_BIGINT = BigInt(0);
  * @param {*} [p.options.defaultNumber=0]
  * @param {*} [p.options.defaultDate=new Date(0)]
  * @param {*} [p.options.defaultBigInt=BigInt(0)]
- * @param {boolean} [p.validate=false] - Optional validation flag
+ * @param {boolean} [p.validate=false] - Optional validation flag; if true validate the value after sanitization, throwing an error if the validation fails
  * @param {boolean} [p.keyInsensitiveMatch=false] - Used only if `sanitization` is an object; optional, default false; if true match keys between sanitization and obj to sanitize in a case insensitive way (case and trim)
  * @return {*} Sanitized value
+ * @throws {Error} Will throw an error if the validation fails
  */
 function sanitize ({ value, sanitization, options, validate = false, keyInsensitiveMatch = false }) {
   if (sanitization == null)
@@ -109,18 +110,13 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
     else
       return _value;
   } else if (typeof sanitization === 'function') {
-    let _value;
-    try {
-      //@ts-ignore
-      _value = sanitization.sanitize(value);
-    } catch (_) {
-      // if it goes in error returns the not-sanitized value
-      _value = value;
-    }
+    // if sanitization is a function call it and read the validation and sanitization result stored in the `ValidateSanitizeResult` type
+    /** @type {ValidateSanitizeResult} */
+    const validationResult = sanitization(value);
     if (validate)
-      return validateFunc({ value: _value, validation: sanitization });
+      return validateFunc({ value: validationResult.sanitizedValue, validation: sanitization });
     else
-      return _value;
+      return validationResult.sanitizedValue;
   }
 
   let optionalSanitization = false;

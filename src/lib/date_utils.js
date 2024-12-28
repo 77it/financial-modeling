@@ -73,6 +73,7 @@ function parseJsonToUTCDate (argument) {
 /**
  * Private function to parse a JSON date string (local or UTC)
  *
+ @private
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
  * @param {Object} [opt]
  * @param {boolean} [opt.asUTC=true] If true, the date will be parsed as UTC, otherwise as local time

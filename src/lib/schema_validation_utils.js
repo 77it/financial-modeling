@@ -1,8 +1,8 @@
-import { DISABLE_VALIDATION } from '../config/engine.js';
-
 export { validate };
 
+import { DISABLE_VALIDATION } from '../config/engine.js';
 import * as schema from './schema.js';
+import { ValidateSanitizeResult } from './validate_sanitize_result.js';
 
 const SUCCESS = '';
 
@@ -19,9 +19,7 @@ const SUCCESS = '';
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
  * For optional values (null/undefined are accepted) append '?' to the type.
  * For enum validation use an array of values.
- * To validate a value applying a function, pass a static class containing the methods .sanitize() and .validate()
- *   the validation function will be called as class.validate() with the value to validate as parameter;
- *   the validation function throws an error if the validation fails
+ * To validate a value applying a function, pass a function returning with class `ValidateSanitizeResult` the validation result and the sanitized value.
  * As types value you can use also exported const as 'ANY_TYPE'.
  *
  * # Object Validation
@@ -31,7 +29,7 @@ const SUCCESS = '';
  * As types, you can use also exported const as 'ANY_TYPE'.
  * @param {Object} p
  * @param {*} p.value - Value to validate
- * @param {*} p.validation - Validation type (string, array of strings, class or function, array containing a class or function)
+ * @param {*} p.validation - Validation type (string, array of strings, validation function, array containing a validation function)
  * @param {string} [p.errorMsg] - Optional error message
  * @param {boolean} [p.strict = false] - Used only if `validation` is an object; optional, default false; if true check that there are no extra keys other than validation keys in the validated object.
  * @return {*} Validated value, to allow function chaining
@@ -68,7 +66,7 @@ function validate ({ value, validation, errorMsg, strict = false}) {
  * Dispatch validations between value and object
  * @param {Object} p
  * @param {*} p.value - Value to validate
- * @param {*} p.validation - Validation type (string, array of strings, class or function, array containing a class or function)
+ * @param {*} p.validation - Validation type (string, array of strings, validation function, array containing a validation function)
  * @param {string} [p.errorMsg] - Optional error message
  * @param {boolean} [p.strict = false] - Used only if `validation` is an object; optional, default false; if true check that there are no extra keys other than validation keys in the validated object.
  * @return {string} Return empty string for success; return error string for validation error.
@@ -98,7 +96,7 @@ function _validationDispatcher ({ value, validation, errorMsg, strict = false}) 
  * validation function of a single value
  * @param {Object} p
  * @param {*} p.value - Value to validate
- * @param {*} p.validation - Validation type (string, array of strings, class or function, array containing a class or function)
+ * @param {*} p.validation - Validation type (string, array of strings, validation function, array containing a validation function)
  * @param {string} [p.errorMsg] - Optional error message
  * @return {string} Return empty string for success; return error string for validation error.
  */
@@ -123,22 +121,14 @@ function _validateValue ({ value, validation, errorMsg }) {
 
     return `${errorMsg} = ${value}, must be one of ${validation}`;
   } else if (typeof validation === 'function') {
-    // if validation is a class apply the .validate() method, that will throw an error if the validation fails
-    try {
-      //@ts-ignore
-      validation.validate(value);
+    // if validation is a function call it and read the validation result stored in the `ValidateSanitizeResult` type
+    /** @type {ValidateSanitizeResult} */
+    const validationResult = validation(value);
+
+    if (validationResult.isValid)
       return SUCCESS;
-    } catch (error) {
-      if ((error instanceof Error)) {
-        // if it goes in error, returns the error message or a default message if empty
-        if (error.message.trim() === "")
-          return `${errorMsg} = ${value}, validation error`;
-        else
-          return `${errorMsg} = ${value}, ${error.message}`;
-      }
-      else
-        return `${errorMsg} = ${value}, validation error`;
-    }
+    else
+      return `${errorMsg} = ${value}, ${validationResult.validationErrors}`;
   } else if (typeof validation === 'string') {
     let optionalValidation = false;
     let validationType = validation.toString().trim().toLowerCase();
