@@ -173,7 +173,7 @@ async function main ({
     if (isNullOrWhiteSpace(_$$SCENARIOS[0]))  // if first scenario is empty, set it to base scenario
       _$$SCENARIOS[0] = CFG.SCENARIO_BASE;
 
-    // add as last values before engine run to `_modulesArray` the module to add default TaskLocks + a dummy to `_moduleDataArray`
+    // before scenario/engine run add, as last module, the module to add default TaskLocks + dummy module data
     const defaultTasklocksLoaderModule = await import(DEFAULT_TASKLOCKS_LOADER__MODULE_PATH);
     const _dummyModuleData = new ModuleData({ moduleName: '', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '', tables: [] });
     _modulesArray.push(new defaultTasklocksLoaderModule.Module());

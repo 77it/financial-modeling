@@ -9,9 +9,13 @@ import { NewSimObjectDto } from '../ledger/commands/newsimobjectdto.js';
 import { NewDebugSimObjectDto } from '../ledger/commands/newdebugsimobjectdto.js';
 
 class SimulationContext {
+  /** @type {Drivers} */
   #drivers;
+  /** @type {Settings} */
   #settings;
+  /** @type {TaskLocks} */
   #taskLocks;
+  /** @type {Ledger} */
   #ledger;
 
   /**

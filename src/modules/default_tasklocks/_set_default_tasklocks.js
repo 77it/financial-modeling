@@ -7,8 +7,6 @@ import * as CFG from '../../config/engine.js';
 import * as GLOBALS from '../../config/globals.js';
 import { TaskLocks_Names } from '../../config/tasklocks_names.js';
 
-const MODULE_NAME = '_set_default_tasklocks';
-
 export class Module {
   //#region private fields
   /** @type {SimulationContext} */
@@ -19,8 +17,6 @@ export class Module {
     //@ts-ignore
     this.#simulationContext = undefined;
   }
-
-  get name () { return MODULE_NAME; }
 
   /**
    * Get SimulationContext and ModuleData, save them.
