@@ -145,6 +145,7 @@ t('test sanitize() - number type + validation', async () => {
 
 t('test sanitize() - boolean type', async () => {
   const t = S.BOOLEAN_TYPE;
+  assert.deepStrictEqual(false, s.sanitize({ value: false, sanitization: t }));
   assert.deepStrictEqual(false, s.sanitize({ value: 'false', sanitization: t }));  // string 'false' = false
   assert.deepStrictEqual(false, s.sanitize({ value: 'FaLsE', sanitization: t }));  // string 'false' = false
   assert.deepStrictEqual(false, s.sanitize({ value: '  FaLsE  ', sanitization: t }));  // string 'false' = false
@@ -154,14 +155,14 @@ t('test sanitize() - boolean type', async () => {
   assert.deepStrictEqual(false, s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(false, s.sanitize({ value: -0, sanitization: t }));
   assert.deepStrictEqual(false, s.sanitize({ value: 0, sanitization: t }));
+
+  assert.deepStrictEqual(true, s.sanitize({ value: true, sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: 1, sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: -1, sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: new Date(NaN), sanitization: t }));
-  assert.deepStrictEqual(true, s.sanitize({ value: true, sanitization: t }));
-  assert.deepStrictEqual(false, s.sanitize({ value: false, sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: 'true', sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: 'TrUe', sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: '  TrUe   ', sanitization: t }));

@@ -215,37 +215,30 @@ class Ledger {
   //#region COMMIT methods
   /**
    * Commit the current transaction, if any.
+   * Commit means pushing the transaction to the ledger dump, then reset the current transaction.
    * @throws {Error} If the transaction is not valid, not squared, etc.
    */
   commit () {
-    if (this.#isLocked)
-      throw new Error('Ledger is locked');
-
     if (this.#currentTransaction.length === 0) return;
 
     // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
 
-    // convert this.#currentTransaction to SimObjectJsonDumpDto, then stringify
-    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObjectToJsonDumpDto(simObject));
-    this.#appendTrnDump(JSON.stringify(simObjectJsonDumpDtoArray));
-
-    // reset the current transaction
-    this.#currentTransaction = [];
+    this.forceCommitWithoutValidation();
   }
 
   /**
    * BEWARE: this method must be called only by the engine, then must not be exported to modules.
-   * Commit the current transaction without any validation
+   * Commit the current transaction without any validation.
+   * Commit means pushing the transaction to the ledger dump, then reset the current transaction.
    */
   forceCommitWithoutValidation () {
-    if (this.#isLocked)
-      throw new Error('Ledger is locked');
-
     if (this.#currentTransaction.length === 0) return;
 
     // convert this.#currentTransaction to SimObjectJsonDumpDto, then stringify
     const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObjectToJsonDumpDto(simObject));
     this.#appendTrnDump(JSON.stringify(simObjectJsonDumpDtoArray));
+
+    // TODO switch on SimObjectDebugTypes_enum to call the right callbacks to append the debug info
 
     // reset the current transaction
     this.#currentTransaction = [];
