@@ -9,8 +9,8 @@ import { SimObject } from '../simobject/simobject.js';
 import { simObjectToDto, simObjectToJsonDumpDto, splitPrincipal, toBigInt } from '../simobject/utils/simobject_utils.js';
 import { doubleEntrySideFromSimObjectType } from '../simobject/enums/doubleentryside_enum.js';
 import { SimObjectTypes_enum } from '../simobject/enums/simobject_types_enum.js';
-import { SimObjectDebugTypes_enum, SimObjectDebugTypes_enum_validation } from '../simobject/enums/simobject_debugtypes_enum.js';
-import { SimObjectErrorDebugTypes_enum, SimObjectErrorDebugTypes_enum_validation } from '../simobject/enums/simobject_errordebugtypes_enum.js';
+import { SimObjectDebugTypes_enum } from '../simobject/enums/simobject_debugtypes_enum.js';
+import { SimObjectErrorDebugTypes_enum } from '../simobject/enums/simobject_errordebugtypes_enum.js';
 import { DoubleEntrySide_enum } from '../simobject/enums/doubleentryside_enum.js';
 import { Currency_enum } from '../simobject/enums/currency_enum.js';
 
@@ -54,6 +54,9 @@ class Ledger {
   /** Map to store SimObjectTypes_enum object
    * @type {Map<string, string>} */
   #simObjectTypes_enum_map;
+  /** Map to store SimObjectDebugTypes_enum object
+   * @type {Map<string, string>} */
+  #SimObjectDebugTypes_enum_map;
   /** @type {SimObject[]} */
   #currentTransaction;
   /** @type {Date} */
@@ -94,6 +97,7 @@ class Ledger {
     this.#appendTrnDump = appendTrnDump;
     this.#simObjectsRepo = new Map();
     this.#simObjectTypes_enum_map = new Map(Object.entries(SimObjectTypes_enum));
+    this.#SimObjectDebugTypes_enum_map = new Map(Object.entries(SimObjectDebugTypes_enum));
     this.#currentTransaction = [];
     this.#lastId = 0;
     this.#lastCommandId = 0;
@@ -238,7 +242,7 @@ class Ledger {
     const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObjectToJsonDumpDto(simObject));
     this.#appendTrnDump(JSON.stringify(simObjectJsonDumpDtoArray));
 
-    // TODO switch on SimObjectDebugTypes_enum to call the right callbacks to append the debug info
+    // TODO switch on #SimObjectDebugTypes_enum_map to call the right callbacks to append the debug info
 
     // reset the current transaction
     this.#currentTransaction = [];
@@ -385,7 +389,9 @@ class Ledger {
     this.#currentTransaction.push(simObject);
 
     // if SimObject type is a debug type, return without adding it to the repository
-    if (SimObjectDebugTypes_enum_validation.includes(simObject.type)) return;
+    // check that kay simObject.type is included in SimObjectDebugTypes_enum
+    if (this.#SimObjectDebugTypes_enum_map.has(simObject.type))
+      return;
 
     // add or update the SimObject in the repository
     this.#simObjectsRepo.set(simObject.id, simObject);
