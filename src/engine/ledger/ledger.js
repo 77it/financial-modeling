@@ -280,6 +280,8 @@ class Ledger {
     const _value = toBigInt(newSimObjectDto.value, this.#decimalPlaces, this.#roundingModeIsRound);
     const _writingValue = _value;  // writingValue is equal to value
 
+    // `splitPrincipal` is used to split a principal value in indefinite and amortization schedule values
+    // distributing it proportionally across the amortization schedule if needed.
     const { principalIndefiniteExpiryDate, principalAmortizationSchedule } = splitPrincipal(
       newSimObjectDto, {
         decimalPlaces: this.#decimalPlaces,

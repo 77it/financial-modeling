@@ -29,6 +29,28 @@ t('splitPrincipal() tests #1, split with Indefinite + Schedule', async () => {
   assert.deepStrictEqual(principalAmortizationSchedule, expectedPrincipalAmortizationSchedule);
 });
 
+t('splitPrincipal() tests #1bis, split with Indefinite + Incomplete Schedule', async () => {
+  const value = 1000;
+  const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 6;
+  const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [100, 100, 100];
+
+  const { principalIndefiniteExpiryDate, principalAmortizationSchedule } = splitPrincipal({
+      value,
+      bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
+      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
+    }, {
+      decimalPlaces,
+      roundingModeIsRound
+    }
+  );
+
+  const expectedPrincipalIndefiniteExpiryDate = 6_0000n;
+  const expectedPrincipalAmortizationSchedule = [331_3333n, 331_3333n, 331_3334n];
+
+  assert.deepStrictEqual(principalIndefiniteExpiryDate, expectedPrincipalIndefiniteExpiryDate);
+  assert.deepStrictEqual(principalAmortizationSchedule, expectedPrincipalAmortizationSchedule);
+});
+
 t('splitPrincipal() tests #2, split with Indefinite + Schedule testing conversion to number', async () => {
   const value = 999;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 10;

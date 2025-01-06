@@ -84,7 +84,16 @@ function simObjectToJsonDumpDto (simObject) {
 }
 
 /**
- * This function is used to split a principal value in indefinite and amortization schedule values.
+ * This function is used to split a principal value in indefinite and amortization schedule values
+ * distributing it proportionally across the amortization schedule if needed.
+ *
+ * Steps:
+ * 1. Convert input values to BigInt.
+ * 2. If the sum of the indefinite expiry date principal and the amortization schedule principal equals the total value, return values.
+ * 3. If the indefinite expiry date principal is zero and the amortization schedule is empty, set the indefinite expiry date principal to the total value.
+ * 4a. If the amortization schedule is not empty and the values do not match, calculate the residual value and distribute it proportionally across the amortization schedule.
+ * 4b. If the sum of the amortization schedule is not equal to the value to split, add the difference to the last value of the amortization schedule.
+ *
  * @param {Object} p
  * @param {number} p.value - principal value to split
  * @param {number} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
