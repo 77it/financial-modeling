@@ -33,9 +33,9 @@ export class Module {
 
   /** Set TaskLocks */
   setTaskLocksBeforeTheSimulationStarts () {
-    // set default TaskLocks
-    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__MISSING__SET_WITH_DEFAULT_VALUE, value: this.#taskLock_setMissingSettingsWithDefaultValue });
-    this.#simulationContext.setTaskLock({ name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__JS_ENGINE_CONFIGURATION__GLOBAL_VALUES__SET, value: this.#taskLock_setJsEngineConfigurationGlobalValuesFromSimulationSettings });
+    // set default TaskLocks on Simulation (when unit is empty or missing the default unit is used)
+    this.#simulationContext.setTaskLock({ unit: '', name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__MISSING__SET_WITH_DEFAULT_VALUE, value: this.#taskLock_setMissingSettingsWithDefaultValue });
+    this.#simulationContext.setTaskLock({ unit: '', name: TaskLocks_Names.SIMULATION__SIMULATION_SETTINGS__JS_ENGINE_CONFIGURATION__GLOBAL_VALUES__SET, value: this.#taskLock_setJsEngineConfigurationGlobalValuesFromSimulationSettings });
   }
 
   // is an arrow function because it is used as a callback
