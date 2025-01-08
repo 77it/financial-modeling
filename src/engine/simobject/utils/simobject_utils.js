@@ -45,7 +45,7 @@ function simObjectToDto (simObject) {
     is_Link__SimObjId: simObject.is_Link__SimObjId,
     vsSimObjectName: simObject.vsSimObjectName,
     versionId: simObject.versionId,
-    extras: _structuredCloneOrClone(simObject.extras),
+    extras: structuredClone(simObject.extras),
   }));
 }
 
@@ -184,20 +184,6 @@ function bigIntToStringWithDecimals (big, decimalPlaces) {
 }
 
 //#region private functions
-
-/**
- @private
- * Try to clone the extras object using the clone() method; if the clone method is not defined, try cloning with structuredClone; cloning fails, an evalueeption is raised
- * @param {*} obj
- * @returns {*}
- * @throws {Error} if clone() or structuredClone() fails
- */
-function _structuredCloneOrClone (obj) {
-  if (obj?.clone)
-    return obj.clone();
-  else
-    return structuredClone(obj);
-}
 
 /** Convert date to ISO string with the current time zone as if it were UTC, stripping time
  @private

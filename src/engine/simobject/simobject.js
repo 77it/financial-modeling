@@ -98,7 +98,7 @@ class SimObject {
 
   get versionId () { return this.#versionId; }
 
-  get extras () { return this.#StructuredCloneOrClone(this.#extras); }
+  get extras () { return structuredClone(this.#extras); }
 
   //#endregion getters
 
@@ -185,7 +185,7 @@ class SimObject {
     this.#is_Link__SimObjId = p.is_Link__SimObjId;
     this.#vsSimObjectName = p.vsSimObjectName.toUpperCase().trim();
     this.#versionId = p.versionId;
-    this.#extras = this.#StructuredCloneOrClone(p.extras);
+    this.#extras = structuredClone(p.extras);
   }
 
   /**
@@ -294,19 +294,6 @@ class SimObject {
   }
 
   //#region private methods
-  /**
-   * Try to clone the extras object using the clone() method; if the clone method is not defined, try cloning with structuredClone; cloning fails, an exception is raised
-   * @param {*} obj
-   * @returns {*}
-   * @throws {Error} if clone() or structuredClone() fails
-   */
-  #StructuredCloneOrClone (obj) {
-    if (obj?.clone)
-      return obj.clone();
-    else
-      return structuredClone(obj);
-  }
-
   /**
    * Accept a date and return a date with only the year, month and day (stripping the time part)
    *
