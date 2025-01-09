@@ -15,7 +15,7 @@ import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, get2, parseJsonToLocalDa
  * sanitization if missing, no sanitization is performed;
  * sanitizationOptions is optional.
  * @returns {*}
- * */
+ */
 function moduleDataLookup (
   moduleData,
   {
