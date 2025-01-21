@@ -1,17 +1,17 @@
-export { SimObject_Metadata_set };
+export { ConvertYamlStringToSimObject_Metadata };
 
 import { SimObject_Metadata } from '../../engine/simobject/parts/simobject_metadata.js';
 import { schema, sanitize, parseYAML, isNullOrWhiteSpace } from '../../deps.js';
 
 /** Get a string, parse it as YAML, return an instance of SimObject_Metadata.
- * Init set the class from a string.
  * The string will be probably read from settings, and must be in YAML format (object or array of objects):
  *   [{ type: c/c, value: bank, weight: 0.2}, {type: line of business, value: canteen, weight: 0.3 }]
  *   { type: c/c, value: bank, weight: 0.2}
+ * If the creation of `SimObject_Metadata` class fails, is set to empty arrays.
  * @param {string} source
  * @returns {SimObject_Metadata}
  */
-function SimObject_Metadata_set (source) {
+function ConvertYamlStringToSimObject_Metadata (source) {
   // parse source as YAML
   const _parsed = parseYAML(source);
 

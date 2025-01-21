@@ -8,6 +8,7 @@ import { ModuleData, isNullOrWhiteSpace, sanitize, eq2, get2, parseJsonToLocalDa
  * Optionally sanitize the result; if no match is found, return undefined, optionally sanitized.
  * If `string_insensitive_match` is true: `tableName` and `lookup_value` (if string) are matched in a case insensitive & trim way,
  * `lookup_column` and `return_column` are get directly and if not found they are matched with all keys in a case insensitive & trim way.
+ * `return_first_match` if true, return the first match, otherwise the last match.
  * @param {ModuleData} moduleData
  * @param {{tableName: string, lookup_value: *, lookup_column: string, return_column: string, return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: string, sanitizationOptions?: Object }} opt
  * return_first_match default = true;

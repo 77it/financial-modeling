@@ -1,5 +1,4 @@
 import { xlookup, moduleDataLookup, searchDateKeys } from '../../../src/modules/_utils/search_utils.js';
-import { eq2 } from '../../../src/lib/obj_utils.js';
 
 import { schema } from '../../deps.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
@@ -234,7 +233,7 @@ t('searchDateKeys test', async () => {
     assert.deepStrictEqual(searchDateKeys({ obj, prefix: '' }), exp);
   }
 
-  {  // test $$HISTORICAL_COLUMN_PREFIX (also case insensitive)
+  {  // test $$HISTORICAL_COLUMN_PREFIX (also case insensitive detection of the prefix)
     const obj = {
       'h#2023-12-25': 1,
       b: 2,  // ignored, not starting with prefix
@@ -245,7 +244,7 @@ t('searchDateKeys test', async () => {
 
     const exp = [
       { key: 'H#2023/01/29', date: new Date(2023, 0, 29) },
-      { key: 'h#2023-12-25', date: new Date(2023, 11, 25) },  // case insensitive
+      { key: 'h#2023-12-25', date: new Date(2023, 11, 25) },  // case insensitive detection of the prefix
     ];
 
     assert.deepStrictEqual(searchDateKeys({ obj: obj, prefix: SETTINGS_DEFAULT_VALUES[SETTINGS_NAMES.$$HISTORICAL_COLUMN_PREFIX] }), exp);

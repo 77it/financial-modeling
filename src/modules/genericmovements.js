@@ -20,7 +20,7 @@ import { Agenda } from './_utils/Agenda.js';
 import { sanitizeModuleData } from './_utils/sanitization_utils.js';
 import { moduleDataLookup, searchDateKeys } from './_utils/search_utils.js';
 import { SimObject_Metadata } from '../engine/simobject/parts/simobject_metadata.js';
-import { SimObject_Metadata_set } from './_utils/metadata_utils.js';
+import { ConvertYamlStringToSimObject_Metadata } from './_utils/metadata_utils.js';
 import { ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace, mergeNewKeys } from '../deps.js';
 
 export class Module {
@@ -101,7 +101,7 @@ export class Module {
 
     // read from Settings ACTIVE_UNIT & ACTIVE_METADATA and save the values
     this.#ACTIVE_UNIT = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
-    this.#activeMetadata = SimObject_Metadata_set(this.#simulationContext.getSetting({ unit: this.#ACTIVE_UNIT, name: SETTINGS_NAMES.Simulation.ACTIVE_METADATA }));
+    this.#activeMetadata = ConvertYamlStringToSimObject_Metadata(this.#simulationContext.getSetting({ unit: this.#ACTIVE_UNIT, name: SETTINGS_NAMES.Simulation.ACTIVE_METADATA }));
 
     // init Agenda with #ACTIVE_UNIT & reading from settings $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     this.#agenda = new Agenda({ simulationStartDate: this.#simulationContext.getSetting({ unit: this.#ACTIVE_UNIT, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE }) });
