@@ -1,5 +1,4 @@
 import { YAMLtoSimObject_Metadata } from '../../../src/modules/_utils/yaml_to_simobject_metadata.js';
-import { SimObject_Metadata } from '../../../src/engine/simobject/parts/simobject_metadata.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

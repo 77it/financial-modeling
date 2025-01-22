@@ -1,25 +1,13 @@
 // run it with `deno bench`
+/*
+benchmark                      time/iter (avg)        iter/s      (min … max)           p75      p99     p995
+------------------------------ ----------------------------- --------------------- --------------------------
+moduleDataLookup - benchmark          443.6 ms           2.3 (403.1 ms … 478.9 ms) 457.7 ms 478.9 ms 478.9 ms
+ */
 
-import { xlookup, moduleDataLookup } from '../../../src/modules/_utils/search_utils.js';
+import { moduleDataLookup } from '../../../src/modules/_utils/search/module_data_lookup.js';
 
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
-import { assertEquals } from 'https://deno.land/std@0.171.0/testing/asserts.ts';
-
-Deno.bench('xlookup - benchmark', () => {
-  const loopCount = 1_000_000;
-
-  const lookup_array = [99, 1, 'two', 3, 'four', 99, ' FiVe ', 6, 'seven'];
-  const return_array = ['ninenine', 'one', 2, 'three', 4, 'NINENINE', 5, 'six', 7];
-
-  const p = { lookup_value: 99, lookup_array, return_array, return_first_match: false };
-
-  // loop `loopCount` times
-  for (let i = 0; i < loopCount; i++) {
-    const aaa = xlookup(p);
-    if (aaa !== 'NINENINE')
-      throw new Error('xlookup() failed');
-  }
-});
 
 Deno.bench('moduleDataLookup - benchmark', () => {
   const loopCount = 1_000_000;
