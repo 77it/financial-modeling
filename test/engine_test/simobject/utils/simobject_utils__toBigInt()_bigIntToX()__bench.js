@@ -8,7 +8,9 @@ bigIntToNumberWithDecimals() benchmark            4.3 ms         230.6 (  3.6 ms
 bigIntToStringWithDecimals() benchmark            8.6 ms         116.5 (  7.8 ms …  11.9 ms)   8.7 ms  11.9 ms  11.9 ms
  */
 
-import { toBigInt, bigIntToNumberWithDecimals, bigIntToStringWithDecimals } from '../../../../src/engine/simobject/utils/simobject_utils.js';
+import { toBigInt } from '../../../../src/engine/simobject/utils/to_bigint.js';
+import { bigIntToNumberWithDecimals } from '../../../../src/engine/simobject/utils/bigint_to_number_with_decimals.js';
+import { bigIntToStringWithDecimals } from '../../../../src/engine/simobject/utils/bigint_to_string_with_decimals.js';
 import assert from 'node:assert';
 
 const loopCount = 100_000;

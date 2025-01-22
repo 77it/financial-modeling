@@ -1,5 +1,6 @@
 import { SimObject } from '../../../../src/engine/simobject/simobject.js';
-import { simObjectToJsonDumpDto, toBigInt } from '../../../../src/engine/simobject/utils/simobject_utils.js';
+import { simObjectToJsonDumpDto } from '../../../../src/engine/simobject/utils/simobject_to_json_dump_dto.js';
+import { toBigInt } from '../../../../src/engine/simobject/utils/to_bigint.js';
 import { SimObjectTypes_enum } from '../../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../../src/engine/simobject/enums/doubleentryside_enum.js';
 

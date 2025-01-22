@@ -1,4 +1,4 @@
-import { toBigInt } from '../../../../src/engine/simobject/utils/simobject_utils.js';
+import { toBigInt } from '../../../../src/engine/simobject/utils/to_bigint.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

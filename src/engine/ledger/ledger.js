@@ -6,8 +6,11 @@ import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
 import { SimObject } from '../simobject/simobject.js';
-import { simObjectToDto, simObjectToJsonDumpDto, splitPrincipal, toBigInt } from '../simobject/utils/simobject_utils.js';
-import { doubleEntrySideFromSimObjectType } from '../simobject/enums/doubleentryside_enum.js';
+import { simObjectToDto } from '../simobject/utils/simobject_to_dto.js';
+import { simObjectToJsonDumpDto } from '../simobject/utils/simobject_to_json_dump_dto.js';
+import { splitPrincipal } from '../simobject/utils/split_principal.js';
+import { toBigInt } from '../simobject/utils/to_bigint.js';
+import { doubleEntrySideFromSimObjectType } from '../simobject/enums/doubleentryside_from_simobject_type.js';
 import { SimObjectTypes_enum } from '../simobject/enums/simobject_types_enum.js';
 import { SimObjectDebugTypes_enum } from '../simobject/enums/simobject_debugtypes_enum.js';
 import { SimObjectErrorDebugTypes_enum } from '../simobject/enums/simobject_errordebugtypes_enum.js';

@@ -1,4 +1,6 @@
-import { splitPrincipal, bigIntToNumberWithDecimals, bigIntToStringWithDecimals } from '../../../../src/engine/simobject/utils/simobject_utils.js';
+import { splitPrincipal } from '../../../../src/engine/simobject/utils/split_principal.js';
+import { bigIntToNumberWithDecimals } from '../../../../src/engine/simobject/utils/bigint_to_number_with_decimals.js';
+import { bigIntToStringWithDecimals } from '../../../../src/engine/simobject/utils/bigint_to_string_with_decimals.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
