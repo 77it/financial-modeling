@@ -1,4 +1,4 @@
-export { ConvertYamlStringToSimObject_Metadata };
+export { YAMLtoSimObject_Metadata };
 
 import { SimObject_Metadata } from '../../engine/simobject/parts/simobject_metadata.js';
 import { schema, sanitize, parseYAML, isNullOrWhiteSpace } from '../../deps.js';
@@ -11,7 +11,7 @@ import { schema, sanitize, parseYAML, isNullOrWhiteSpace } from '../../deps.js';
  * @param {string} source
  * @returns {SimObject_Metadata}
  */
-function ConvertYamlStringToSimObject_Metadata (source) {
+function YAMLtoSimObject_Metadata (source) {
   // parse source as YAML
   const _parsed = parseYAML(source);
 
