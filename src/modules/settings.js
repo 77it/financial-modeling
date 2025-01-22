@@ -5,7 +5,7 @@ import { tablesInfo, moduleSanitization } from '../config/modules/settings.js';
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsDefaultValues } from '../config/settings_default_values.js';
 import { SettingsSchemas, SettingsSanitizationOptions } from '../config/settings.schemas.js';
-import { sanitizeModuleData } from './_utils/sanitization_utils.js';
+import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 import { sanitize, ModuleData, SimulationContext, eq2, get2 } from '../deps.js';
 
 export class Module {

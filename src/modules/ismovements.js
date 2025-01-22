@@ -3,7 +3,7 @@
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import { tablesInfo, moduleSanitization } from '../config/modules/ismovements.js';
 import { ModuleData, SimulationContext, eq2 } from '../deps.js';
-import { sanitizeModuleData } from './_utils/sanitization_utils.js';
+import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 
 export class Module {
   //#region private fields

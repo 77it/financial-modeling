@@ -1,4 +1,4 @@
-import { sanitizeModuleData } from '../../../src/modules/_utils/sanitization_utils.js';
+import { sanitizeModuleData } from '../../../src/modules/_utils/sanitize_module_data.js';
 
 import * as CONST from '../../../src/config/modules/_const.js';
 import * as schema from '../../../src/lib/schema.js';

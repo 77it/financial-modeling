@@ -12,7 +12,7 @@ Every module that wants to interrupt program execution for a fatal error throws 
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import { ModuleData, SimulationContext } from '../deps.js';
-import { sanitizeModuleData } from './_utils/sanitization_utils.js';
+import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 
 const tablesInfo = {};  // when implemented, should be imported from '../config/modules/_sample_module.js'
 
