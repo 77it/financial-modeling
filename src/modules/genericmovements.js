@@ -68,16 +68,17 @@ export class Module {
     this.#alive = true;
     this.#startDate = undefined;
     this.#ACTIVE_UNIT = '';
-    //@ts-ignore
+    //@ts-ignore  will be set later
     this.#activeMetadata = undefined;
-    //@ts-ignore
+    //@ts-ignore  will be set later
     this.#moduleData = undefined;
-    //@ts-ignore
+    //@ts-ignore  will be set later
     this.#simulationContext = undefined;
-    //@ts-ignore
+    //@ts-ignore  will be set later
     this.#agenda = undefined;
   }
 
+  /** @returns {boolean} */
   get alive () { return this.#alive; }
 
   /** @returns {undefined|Date} */
@@ -138,7 +139,7 @@ export class Module {
             this.#agenda.set({
               date: _column.date,
               isSimulation: false,
-              data: new set_data({ value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name })
+              data: new AgendaData({ value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name })
             });
           }
 
@@ -150,7 +151,7 @@ export class Module {
             this.#agenda.set({
               date: _column.date,
               isSimulation: true,
-              data: new set_data({ value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name })
+              data: new AgendaData({ value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name })
             });
           }
         }
@@ -175,8 +176,11 @@ export class Module {
   }
 }
 
-// internal class used to store data in the agenda
-class set_data {
+/**
+ * Private class used to store data in the agenda
+ * @private
+ */
+class AgendaData {
   /**
    * @param {{value: number, accounting_type: string, accounting_opposite_type: string, simObject_name: string}} p
    */

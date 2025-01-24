@@ -36,15 +36,16 @@ export class Module {
   constructor () {
     this.#alive = true;
     this.#startDate = undefined;
-    //@ts-ignore
+    //@ts-ignore  will be set later
     this.#moduleData = undefined;
-    //@ts-ignore
+    //@ts-ignore  will be set later
     this.#simulationContext = undefined;
 
     this.#ACTIVE_UNIT = '';
     this.#SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE = new Date(0);
   }
 
+  /** @returns {boolean} */
   get alive () { return this.#alive; }
 
   /** @returns {undefined|Date} */
