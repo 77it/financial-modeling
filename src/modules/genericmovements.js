@@ -32,12 +32,13 @@ export class Module {
   #startDate;
   /** @type {ModuleData} */
   #moduleData;
-  /** @type {SimulationContext} */
-  #simulationContext;
+  /** Simulation Context
+   * @type {SimulationContext} */
+  #ctx;
   /** @type {Agenda} */
   #agenda;
   /** @type {string} */
-  #ACTIVE_UNIT;
+  #active_unit;
   /** @type {SimObject_Metadata} */
   #activeMetadata;
 
@@ -45,7 +46,7 @@ export class Module {
   /** @type {undefined|string} */
   #accounting_type__default;
   #accounting_type__default__moduleDataLookup = {
-    lookup_value: 'type',
+    lookup_value: tablesInfo.SETTINGS.names.TYPE,
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
     tableName: tablesInfo.SETTINGS.tableName,
     lookup_column: tablesInfo.SETTINGS.columns.NAME,
@@ -54,7 +55,7 @@ export class Module {
   /** @type {undefined|string} */
   #accounting_opposite_type__default;
   #accounting_opposite_type__default__moduleDataLookup = {
-    lookup_value: 'vs type',
+    lookup_value: tablesInfo.SETTINGS.names.VS_TYPE,
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
     tableName: tablesInfo.SETTINGS.tableName,
     lookup_column: tablesInfo.SETTINGS.columns.NAME,
@@ -67,13 +68,13 @@ export class Module {
   constructor () {
     this.#alive = true;
     this.#startDate = undefined;
-    this.#ACTIVE_UNIT = '';
+    this.#active_unit = '';
     //@ts-ignore  will be set later
     this.#activeMetadata = undefined;
     //@ts-ignore  will be set later
     this.#moduleData = undefined;
     //@ts-ignore  will be set later
-    this.#simulationContext = undefined;
+    this.#ctx = undefined;
     //@ts-ignore  will be set later
     this.#agenda = undefined;
   }
@@ -94,7 +95,7 @@ export class Module {
     // save moduleData, after sanitizing it (call it with 'Object.values' to generate an array of all sanitizations)
     this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization });
     // save simulationContext
-    this.#simulationContext = simulationContext;
+    this.#ctx = simulationContext;
   }
 
   /** Get info from TaskLocks, Settings and Drivers, and save them for later reuse */
@@ -102,57 +103,67 @@ export class Module {
     if (this.#moduleData?.tables == null) return;
 
     // read from Settings ACTIVE_UNIT & ACTIVE_METADATA and save the values
-    this.#ACTIVE_UNIT = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
-    this.#activeMetadata = YAMLtoSimObject_Metadata(this.#simulationContext.getSetting({ unit: this.#ACTIVE_UNIT, name: SETTINGS_NAMES.Simulation.ACTIVE_METADATA }));
+    this.#active_unit = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
+    this.#activeMetadata = YAMLtoSimObject_Metadata(this.#ctx.getSetting({ unit: this.#active_unit, name: SETTINGS_NAMES.Simulation.ACTIVE_METADATA }));
 
-    // init Agenda with #ACTIVE_UNIT & reading from settings $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
-    this.#agenda = new Agenda({ simulationStartDate: this.#simulationContext.getSetting({ unit: this.#ACTIVE_UNIT, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE }) });
+    // init Agenda with #active_unit & reading from settings $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
+    this.#agenda = new Agenda({ simulationStartDate: this.#ctx.getSetting({ unit: this.#active_unit, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE }) });
 
     this.#accounting_type__default = moduleDataLookup(this.#moduleData, this.#accounting_type__default__moduleDataLookup);
     this.#accounting_opposite_type__default = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type__default__moduleDataLookup);
     if (isNullOrWhiteSpace(this.#accounting_opposite_type__default))
-      this.#accounting_opposite_type__default = this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE });
+      this.#accounting_opposite_type__default = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE });
 
     // loop all tables
-    for (const _currTab of this.#moduleData.tables) {
-      const _tSet = tablesInfo.SET;
-      if (eq2(_currTab.tableName, _tSet.tableName)) {
-        // search data column keys named as dates in _currTab.table[0]
-        const _simulationColumns = searchDateKeys({ obj: _currTab.table[0], prefix: this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.$$SIMULATION_COLUMN_PREFIX }) });
-        const _historicalColumns = searchDateKeys({ obj: _currTab.table[0], prefix: this.#simulationContext.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX }) });
+    for (const currTab of this.#moduleData.tables) {
+      const tSet = tablesInfo.SET.columns;
+      if (eq2(currTab.tableName, tablesInfo.SET.tableName)) {
+        // search data column keys named as dates in currTab.table[0]
+        const simulationColumns = searchDateKeys({ obj: currTab.table[0], prefix: this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$SIMULATION_COLUMN_PREFIX }) });
+        const historicalColumns = searchDateKeys({ obj: currTab.table[0], prefix: this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX }) });
 
-        for (const row of _currTab.table) {
+        for (const row of currTab.table) {
           // TODO loop table and save data to agenda;
-          // skip not active data
 
-          const _accounting_type = get2(row, _tSet.columns.ACCOUNTING_TYPE) ?? this.#accounting_type__default;
-          const _accounting_opposite_type = get2(row, _tSet.columns.ACCOUNTING_OPPOSITE_TYPE) ?? this.#accounting_opposite_type__default;
-          const _simObject_name = get2(row, _tSet.columns.SIMOBJECT_NAME) ?? '';
+          if (!get2(row, tSet.INACTIVE)) {
+            const simulation_input = get2(row, tSet.SIMULATION_INPUT);
+            const accounting_type = get2(row, tSet.ACCOUNTING_TYPE) ?? this.#accounting_type__default;
+            const accounting_opposite_type = get2(row, tSet.ACCOUNTING_OPPOSITE_TYPE) ?? this.#accounting_opposite_type__default;
+            const simObject_name = get2(row, tSet.SIMOBJECT_NAME) ?? '';
 
-          if (isNullOrWhiteSpace(_accounting_type) || isNullOrWhiteSpace(_accounting_opposite_type)) continue;
+            const warning = [];
+            if (isNullOrWhiteSpace(accounting_type))
+              warning.push('Accounting type is missing');
+            if (isNullOrWhiteSpace(accounting_opposite_type))
+              warning.push('Accounting opposite type is missing');
+            if (warning.length > 0){
+              this.#ctx.warning(warning);
+              continue;
+            }
 
-          // loop `_historicalColumns`
-          for (const _column of _historicalColumns) {
-            const _value = sanitize({ value: row[_column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
-            if (_value == null) continue;
+            // loop `historicalColumns`
+            for (const column of historicalColumns) {
+              const value = sanitize({ value: row[column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
 
-            this.#agenda.set({
-              date: _column.date,
-              isSimulation: false,
-              data: new AgendaData({ value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name })
-            });
-          }
+              if (value == null) continue;
+              this.#agenda.set({
+                date: column.date,
+                isSimulation: false,
+                data: new AgendaData({ value, accounting_type, accounting_opposite_type, simObject_name, simulation_input })
+              });
+            }
 
-          // loop `_simulationColumns`
-          for (const _column of _simulationColumns) {
-            const _value = sanitize({ value: row[_column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
-            if (_value == null) continue;
+            // loop `simulationColumns`
+            for (const column of simulationColumns) {
+              const value = sanitize({ value: row[column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
 
-            this.#agenda.set({
-              date: _column.date,
-              isSimulation: true,
-              data: new AgendaData({ value: _value, accounting_type: _accounting_type, accounting_opposite_type: _accounting_opposite_type, simObject_name: _simObject_name })
-            });
+              if (value == null) continue;
+              this.#agenda.set({
+                date: column.date,
+                isSimulation: true,
+                data: new AgendaData({ value, accounting_type, accounting_opposite_type, simObject_name, simulation_input })
+              });
+            }
           }
         }
       }
@@ -182,12 +193,13 @@ export class Module {
  */
 class AgendaData {
   /**
-   * @param {{value: number, accounting_type: string, accounting_opposite_type: string, simObject_name: string}} p
+   * @param {{value: number, accounting_type: string, accounting_opposite_type: string, simObject_name: string, simulation_input?: * }} p
    */
-  constructor ({ value, accounting_type, accounting_opposite_type, simObject_name }) {
+  constructor ({ value, accounting_type, accounting_opposite_type, simObject_name, simulation_input }) {
     this.value = value;
     this.accounting_type = accounting_type;
     this.accounting_opposite_type = accounting_opposite_type;
     this.simObject_name = simObject_name;
+    this.simulation_input = simulation_input;
   }
 }

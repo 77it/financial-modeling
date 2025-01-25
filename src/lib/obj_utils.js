@@ -75,9 +75,10 @@ function eq2 (a, b) {
 /**
  * Get value from an object, querying the key in a case insensitive way.
  * Try to get the exact key, then try to get the key after trim & case insensitive.
- * @param {Record<string, any>} obj
- * @param {string|number} key
- * @returns {any}
+ * Returns undefined if key is not found.
+ * @param {Record<string, *>} obj
+ * @param {string | number} key
+ * @returns {undefined | *}
  * @throws {Error} if during the case insensitive search, two keys are found that match the query
  */
 function get2 (obj, key) {

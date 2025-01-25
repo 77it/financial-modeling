@@ -1,3 +1,5 @@
+import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
+
 export { SimulationContext };
 
 // Classes imported for type checking only
@@ -7,6 +9,7 @@ import { TaskLocks } from '../tasklocks/tasklocks.js';
 import { Ledger } from '../ledger/ledger.js';
 import { NewSimObjectDto } from '../ledger/commands/newsimobjectdto.js';
 import { NewDebugSimObjectDto } from '../ledger/commands/newdebugsimobjectdto.js';
+import { SimObjectDebugTypes_enum } from '../simobject/enums/simobject_debugtypes_enum.js';
 
 class SimulationContext {
   /** @type {Drivers} */
@@ -157,41 +160,40 @@ class SimulationContext {
    * Add a SimObject to the transaction
    * @param {NewSimObjectDto} newSimObjectDto
    */
-  newSimObject (newSimObjectDto) {
-    this.#ledger.newSimObject(newSimObjectDto);
+  append (newSimObjectDto) {
+    this.#ledger.appendSimObject(newSimObjectDto);
   }
 
   /**
    * Add a DEBUG_DEBUG SimObject to the transaction
    * @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
-  newDebugDebugSimObject (newDebugSimObjectDto) {
-    this.#ledger.newDebugDebugSimObject(newDebugSimObjectDto);
+  debug (newDebugSimObjectDto) {
+    this.#ledger.appendDebugDebugSimObject(newDebugSimObjectDto);
   }
 
   /**
    * Add a DEBUG_INFO SimObject to the transaction
    * @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
-  newDebugInfoSimObject (newDebugSimObjectDto) {
-    this.#ledger.newDebugInfoSimObject(newDebugSimObjectDto);
+  info (newDebugSimObjectDto) {
+    this.#ledger.appendDebugInfoSimObject(newDebugSimObjectDto);
   }
 
   /**
-   * Add a DEBUG_WARNING SimObject to the transaction
-   * @param {NewDebugSimObjectDto} newDebugSimObjectDto
+   * Add a DEBUG_WARNING to the transaction from SimObject, string or string array
+   * @param {NewDebugSimObjectDto | string | string[]} message
    */
-  newDebugWarningSimObject (newDebugSimObjectDto) {
-    this.#ledger.newDebugWarningSimObject(newDebugSimObjectDto);
-  }
+  warning (message) {
+    if (message instanceof NewDebugSimObjectDto){
+      this.#ledger.appendDebugWarningSimObject(message);
+      return;
+    }
 
-  /**
-   * Add a DEBUG_WARNING SimObject to the transaction if the input string or array of strings is not empty
-   * @param {Object} p
-   * @param {string} p.title
-   * @param {string|string[]} p.message
-   */
-  newDebugWarningSimObjectFromErrorString ({ title, message }) {
-    this.#ledger.newDebugWarningSimObjectFromErrorString({ title, message });
+    // converts a string to itself (without quotes), an empty array to "", an array to comma separated string
+    const _message = message.toString();
+
+    if (isNullOrWhiteSpace(_message)) return;
+    this.#ledger.appendDebugWarningSimObject(new NewDebugSimObjectDto({ description: _message }));
   }
 }

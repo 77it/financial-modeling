@@ -270,7 +270,7 @@ class Ledger {
    * Add a SimObject to the transaction
    * @param {NewSimObjectDto} newSimObjectDto
    */
-  newSimObject (newSimObjectDto) {
+  appendSimObject (newSimObjectDto) {
     sanitize({ value: newSimObjectDto, sanitization: newSimObjectDto_Schema });
     // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
     validate({ value: newSimObjectDto, validation: newSimObjectDto_Schema, strict:true });
@@ -336,39 +336,24 @@ class Ledger {
    * Add a DEBUG_DEBUG SimObject to the transaction
    * @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
-  newDebugDebugSimObject (newDebugSimObjectDto) {
-    this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_DEBUG, newDebugSimObjectDto);
+  appendDebugDebugSimObject (newDebugSimObjectDto) {
+    this.#appendDebugSimObject(SimObjectDebugTypes_enum.DEBUG_DEBUG, newDebugSimObjectDto);
   }
 
   /**
    * Add a DEBUG_INFO SimObject to the transaction
    * @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
-  newDebugInfoSimObject (newDebugSimObjectDto) {
-    this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_INFO, newDebugSimObjectDto);
+  appendDebugInfoSimObject (newDebugSimObjectDto) {
+    this.#appendDebugSimObject(SimObjectDebugTypes_enum.DEBUG_INFO, newDebugSimObjectDto);
   }
 
   /**
    * Add a DEBUG_WARNING SimObject to the transaction
    * @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
-  newDebugWarningSimObject (newDebugSimObjectDto) {
-    this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_WARNING, newDebugSimObjectDto);
-  }
-
-  /**
-   * Add a DEBUG_WARNING SimObject to the transaction if the input string or array of strings is not empty
-   * @param {Object} p
-   * @param {string} p.title
-   * @param {string|string[]} p.message
-   */
-  newDebugWarningSimObjectFromErrorString ({ title, message }) {
-    if (Array.isArray(message) && message.length === 0) return;
-    if (isNullOrWhiteSpace(message)) return;
-
-    // create message: if message is an array, stringify it; otherwise, convert it to string
-    const _message = (Array.isArray(message)) ? `${title}: ${JSON.stringify(message)}` : `${title}: ${message.toString()}`;
-    this.#newDebugSimObject(SimObjectDebugTypes_enum.DEBUG_WARNING, new NewDebugSimObjectDto({ description: _message }));
+  appendDebugWarningSimObject (newDebugSimObjectDto) {
+    this.#appendDebugSimObject(SimObjectDebugTypes_enum.DEBUG_WARNING, newDebugSimObjectDto);
   }
 
   /**
@@ -376,8 +361,8 @@ class Ledger {
    * Add a DEBUG_ERROR SimObject to the transaction
    * @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
-  newDebugErrorSimObject (newDebugSimObjectDto) {
-    this.#newDebugSimObject(SimObjectErrorDebugTypes_enum.DEBUG_ERROR, newDebugSimObjectDto);
+  ONLY_FOR_ENGINE_USAGE_appendDebugErrorSimObject (newDebugSimObjectDto) {
+    this.#appendDebugSimObject(SimObjectErrorDebugTypes_enum.DEBUG_ERROR, newDebugSimObjectDto);
   }
 
   //#endregion SIMOBJECT methods
@@ -429,7 +414,7 @@ class Ledger {
    @param {string} simObjectDebugType
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
-  #newDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
+  #appendDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
     sanitize({ value: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Schema });
     //skip validation, this method is private and can't be called with wrong types  //validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation.concat(SimObjectErrorDebugTypes_enum_validation) });
 

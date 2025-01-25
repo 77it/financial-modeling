@@ -11,15 +11,19 @@ const tablesInfo = {
       NAME: 'name',
       VALUE: 'value'
     },
+    names: {
+      TYPE: 'type',
+      VS_TYPE: 'vs type',
+    }
   },
   SET: {
     tableName: 'set',
     columns: {
-      ACTIVE: 'active',  // boolean flag to mark a row for execution or not
-      SIMULATION_INPUT: 'simulation input',
+      INACTIVE: 'inactive',  // boolean flag to mark a row for execution or not
+      SIMULATION_INPUT: 'simulation input',  // input for the simulation (loan description, etc.)
       ACCOUNTING_TYPE: 'type',
       ACCOUNTING_OPPOSITE_TYPE: 'vs type',
-      SIMOBJECT_NAME: 'name'
+      SIMOBJECT_NAME: 'name'  // SimObject name
     }
   }
 };
@@ -36,7 +40,7 @@ const moduleSanitization = [
   {
     tableName: tablesInfo.SET.tableName,
     sanitization: {
-      [tablesInfo.SET.columns.ACTIVE]: schema.BOOLEAN_TYPE,
+      [tablesInfo.SET.columns.INACTIVE]: schema.BOOLEAN_TYPE,
       [tablesInfo.SET.columns.SIMULATION_INPUT]: schema.ANY_TYPE,
       [tablesInfo.SET.columns.ACCOUNTING_TYPE]: schema.STRINGUPPERCASETRIMMED_TYPE,
       [tablesInfo.SET.columns.ACCOUNTING_OPPOSITE_TYPE]: schema.STRINGUPPERCASETRIMMED_TYPE,
