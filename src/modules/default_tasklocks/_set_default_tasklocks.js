@@ -59,6 +59,8 @@ export class Module {
   // is an arrow function because it is used as a callback, and it needs to access the class private fields
   /** Set Js Engine Configuration Global Values from Simulation Settings */
   #taskLock_setJsEngineConfigurationGlobalValuesFromSimulationSettings = () => {
+    // read settings from Simulation Unit
     GLOBALS.DRIVER_PREFIXES__ZERO_IF_NOT_SET.setOneTimeBeforeRead(this.#simulationContext.getSetting({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET }));
+    GLOBALS.DEFAULT_ACCOUNTING_VS_TYPE.setOneTimeBeforeRead(this.#simulationContext.getSetting({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE }));
   };
 }

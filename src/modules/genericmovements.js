@@ -1,19 +1,5 @@
 // TODO to implement
 
-// IMPLEMENTATION NOTES
-/*
-# describe as JSON5 loan as start date, end date, tasso iniziale, tasso attuale + capitale residuo a fine periodo (es fine anno, 25 mln)
-
-Calcola piano #1 con capitale 1.000.000 e precisione 4, tasso 1,5%
-Calcola piano #2, es 25.000.000, tasso 2,3% impostando:
-* Scadenze future con le rate dalla successiva alla data di bilancio alla fine
-* Quota capitale nuove rate: capitale singola scadenza piano #1 / 1mln * 25mln
-* Capitale residuo: ricalcolato rata per rata con la nuova quota capitale (capitale rata precedente - capitale calcolato al punto precedente)
-* Interessi nuove rate: interessi singola scadenza piano #1 / 1,5 * 2,3 / capitale residuo #1 * capitale residuo #2
-
-Useful because the plan don’t start at 31.12.XXXX but we have to regenerate a plan to split the dates
- */
-
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import { tablesInfo, moduleSanitization } from '../config/modules/genericmovements.js';
 import { Agenda } from './_utils/Agenda.js';
@@ -109,9 +95,11 @@ export class Module {
     // init Agenda with #active_unit & reading from settings $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     this.#agenda = new Agenda({ simulationStartDate: this.#ctx.getSetting({ unit: this.#active_unit, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE }) });
 
+    // read values from module's settings table
     this.#accounting_type__default = moduleDataLookup(this.#moduleData, this.#accounting_type__default__moduleDataLookup);
     this.#accounting_opposite_type__default = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type__default__moduleDataLookup);
     if (isNullOrWhiteSpace(this.#accounting_opposite_type__default))
+      // read settings from current Unit then as fallback from Simulation Unit
       this.#accounting_opposite_type__default = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE });
 
     // loop all tables
@@ -123,8 +111,6 @@ export class Module {
         const historicalColumns = searchDateKeys({ obj: currTab.table[0], prefix: this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX }) });
 
         for (const row of currTab.table) {
-          // TODO loop table and save data to agenda;
-
           if (!get2(row, tSet.INACTIVE)) {
             const simulation_input = get2(row, tSet.SIMULATION_INPUT);
             const accounting_type = get2(row, tSet.ACCOUNTING_TYPE) ?? this.#accounting_type__default;
@@ -182,8 +168,7 @@ export class Module {
 
     // add activeMetadata to current SimObject with 'mergeNewKeys'
 
-    // if 'accounting_opposite_type' is 'SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT',
-    // use the utility function 'squareTrnWithCash'
+    // use the utility function 'squareTrn' (write it in 'square_trn.js')
   }
 }
 
