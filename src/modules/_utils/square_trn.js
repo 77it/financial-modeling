@@ -13,7 +13,7 @@ const CASH_DEFAULT_NAME = BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME;
  * @param {Ledger} p.ledger
  */
 function squareTrn ({ ledger, unit, type }) {
-  // TODO funzione di modules/utils che crea una voce di cassa a completamento dello sbilancio corrente (es VsCash)
+  // TODO funzione di modules/utils che crea una voce di cassa a completamento dello sbilancio corrente (es Vs Cash)
   xxx; // read the current ledger unbalanced amount and create a cash entry to balance it
 
   // se è missing la voce contabile di quadratura leggila da globals.DEFAULT_ACCOUNTING_VS_TYPE
