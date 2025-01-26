@@ -1,4 +1,5 @@
 export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
+
 import { schema } from '../../deps.js';
 import { validate } from '../../deps.js';
 import { addMonthsToLocalDate } from '../../deps.js';
