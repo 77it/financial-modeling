@@ -1,6 +1,6 @@
 export { moduleDataLookup };
 
-import { ModuleData, isNullOrWhiteSpace, sanitize, schema, eq2, get2 } from '../../../deps.js';
+import { ModuleData, isNullOrWhiteSpace, sanitize, schema, eq2, get2 } from '../../deps.js';
 
 /**
  * Search table `tableName` in ModuleData, then value `lookup_value` in column `lookup_column`,

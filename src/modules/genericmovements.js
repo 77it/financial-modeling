@@ -7,7 +7,7 @@ import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 import { moduleDataLookup } from './_utils/search/module_data_lookup.js';
 import { searchDateKeys } from './_utils/search/search_date_keys.js';
 import { YAMLtoSimObject_Metadata } from './_utils/yaml_to_simobject_metadata.js';
-import { SimObject_Metadata, ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace } from '../deps.js';
+import { SimObject_Metadata, ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace } from './deps.js';
 
 export class Module {
   //#region private fields

@@ -24,7 +24,7 @@ import { convertExcelToModuleDataArray } from './node/convert_excel_to_moduledat
 //#endregion node imports
 
 //#region local imports
-import { Result, schema, sanitize, parseYAML, isNullOrWhiteSpace, eq2, get2 } from './deps.js';
+import { Result, schema, sanitize, parseYAML, isNullOrWhiteSpace, eq2, get2 } from './modules/deps.js';
 
 import { ModuleData } from './engine/modules/module_data.js';
 import { modulesLoader_Resolve } from './engine/modules/modules_loader__resolve.js';

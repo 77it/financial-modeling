@@ -1,7 +1,7 @@
 export { MODULE_NAME, tablesInfo, moduleSanitization };
 
 import * as CONST from './_const.js';
-import { schema, deepFreeze } from '../../deps.js';
+import { schema, deepFreeze } from '../../modules/deps.js';
 
 const MODULE_NAME = 'settings';
 

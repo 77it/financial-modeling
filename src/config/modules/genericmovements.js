@@ -2,7 +2,7 @@ export { tablesInfo, moduleSanitization };
 
 import * as CFG from '../engine.js';
 import * as GLOBALS from '../globals.js';
-import { schema, deepFreeze } from '../../deps.js';
+import { schema, deepFreeze } from '../../modules/deps.js';
 
 const tablesInfo = {
   SETTINGS: {

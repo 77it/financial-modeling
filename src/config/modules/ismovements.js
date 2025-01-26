@@ -2,7 +2,7 @@
 
 export { tablesInfo, moduleSanitization };
 
-import { schema, deepFreeze } from '../../deps.js';
+import { schema, deepFreeze } from '../../modules/deps.js';
 
 const tablesInfo = {
   SETTINGS: {

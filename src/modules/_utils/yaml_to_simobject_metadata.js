@@ -1,6 +1,6 @@
 export { YAMLtoSimObject_Metadata };
 
-import { SimObject_Metadata, schema, sanitize, parseYAML, isNullOrWhiteSpace } from '../../deps.js';
+import { SimObject_Metadata, schema, sanitize, parseYAML, isNullOrWhiteSpace } from '../deps.js';
 
 /** Get a string, parse it as YAML, return an instance of SimObject_Metadata.
  * The string will be probably read from settings, and must be in YAML format (object or array of objects):

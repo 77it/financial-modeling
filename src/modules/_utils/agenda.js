@@ -1,6 +1,6 @@
 export { Agenda };
 
-import { schema, sanitize, validate, stripTimeToLocalDate, localDateToStringYYYYMMDD } from '../../deps.js';
+import { schema, sanitize, validate, stripTimeToLocalDate, localDateToStringYYYYMMDD } from '../deps.js';
 
 class Agenda {
   /**

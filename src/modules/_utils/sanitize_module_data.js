@@ -1,7 +1,7 @@
 export { sanitizeModuleData };
 
 import * as CONST from '../../config/modules/_const.js';
-import { ModuleData, schema, validate, sanitize, eq2, parseYAML, parseJSON5 } from '../../deps.js';
+import { ModuleData, schema, validate, sanitize, eq2, parseYAML, parseJSON5 } from '../deps.js';
 
 /**
  * Sanitize and parse values of moduleData tables in place (without cloning moduleData).

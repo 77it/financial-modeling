@@ -1,7 +1,7 @@
 export { squareTrn };
 
 import { BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME } from '../../config/engine.js';
-import { Ledger, SimObjectTypes_enum } from '../../deps.js';
+import { Ledger, SimObjectTypes_enum } from '../deps.js';
 
 const CASH_TYPE = SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT;
 const CASH_DEFAULT_NAME = BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME;

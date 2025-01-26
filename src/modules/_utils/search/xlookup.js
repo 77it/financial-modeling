@@ -1,6 +1,6 @@
 export { xlookup };
 
-import { sanitize, eq2 } from '../../../deps.js';
+import { sanitize, eq2 } from '../../deps.js';
 
 // inspired to https://support.microsoft.com/en-us/office/xlookup-function-b7fd680e-6d10-43e6-84f9-88eae8bf5929
 /**

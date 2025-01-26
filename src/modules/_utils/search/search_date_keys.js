@@ -1,6 +1,6 @@
 export { searchDateKeys };
 
-import { isNullOrWhiteSpace, parseJsonToLocalDate, isValidDate, stripTimeToLocalDate } from '../../../deps.js';
+import { isNullOrWhiteSpace, parseJsonToLocalDate, isValidDate, stripTimeToLocalDate } from '../../deps.js';
 
 /** Search in an object or Map keys starting with a specific prefix (case-insensitive) that can be parsed as a Date.
  * If an object key is not parsable as a Date, it is ignored.

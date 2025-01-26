@@ -1,7 +1,7 @@
 // this is the module used to set fallback default TaskLocks
 
 //#region imports
-import { ModuleData, SimulationContext } from '../../deps.js';
+import { ModuleData, SimulationContext } from '../deps.js';
 import * as SETTINGS_NAMES from '../../config/settings_names.js';
 import { SettingsDefaultValues } from '../../config/settings_default_values.js';
 import * as CFG from '../../config/engine.js';
