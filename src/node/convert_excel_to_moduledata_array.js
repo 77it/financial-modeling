@@ -25,13 +25,13 @@ const OPTIONS__CONVERTER_EXE_NAME = '../../bin/converter.exe';
  * @return {Promise<ModuleData[]>} - Array of `ModuleData` objects
  */
 async function convertExcelToModuleDataArray ({ excelInput }) {
-  if (!platformIsWindows)
+  if (!platformIsWindows())
     throw new Error('platform not supported');
 
-  // build a path with OPTIONS__CONVERTER_EXE_NAME and this file path + normalize to windows path
+  // build a path with OPTIONS__CONVERTER_EXE_NAME and this file path + normalize the path for Windows by removing the leading slash if it exists
   // see https://github.com/denoland/deno/issues/1286#issuecomment-643624186
   // & https://developer.mozilla.org/en-US/docs/Web/API/URL
-  const _converterExePath = (new URL(OPTIONS__CONVERTER_EXE_NAME, import.meta.url)).pathname;
+  const _converterExePath = new URL(OPTIONS__CONVERTER_EXE_NAME, import.meta.url).pathname;
   const converterExePath = _converterExePath.startsWith('/') ? _converterExePath.slice(1) : _converterExePath;
 
   // download and decompress OPTIONS__CONVERTER_EXE_GZ_URL

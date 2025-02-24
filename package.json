@@ -1,5 +1,8 @@
 {
   "type": "module",
+  "dependencies": {
+    "pyodide": "^0.27.2"
+  },
   "devDependencies": {
     "@types/node": "^22.8.7"
   }

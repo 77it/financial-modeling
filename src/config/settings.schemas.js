@@ -3,8 +3,6 @@
 // here is not defined the YAML parsing, because parse option is set in Settings module config file `src/config/modules/settings.js`
 // object 'moduleSanitization'
 
-import { DAILY_DRIVER_PREFIXES } from './engine.js';
-
 export { SettingsSchemas, SettingsSanitizationOptions };
 
 import { Simulation } from './settings_names.js';
@@ -32,6 +30,7 @@ const SettingsSchemas = {
   [Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET]: schema.ARRAY_OF_STRINGS_TYPE,
   [Simulation.$$SIMULATION_COLUMN_PREFIX]: schema.ARRAY_OF_STRINGS_TYPE,
   [Simulation.$$HISTORICAL_COLUMN_PREFIX]: schema.ARRAY_OF_STRINGS_TYPE,
+  [Simulation.$$PYTHON_ADVANCED_FORECAST_FLAG]: schema.BOOLEAN_TYPE,
 
   // immutable: with dates
   [Simulation.$MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE]: schema.NUMBER_TYPE,

@@ -69,4 +69,12 @@ class GlobalImmutableValue {
   isLocked() {
     return this.#isLocked;
   }
+
+  /**
+   * Synonym for isLocked().
+   * @returns {boolean} True if the value is set, otherwise false.
+   */
+  isSet() {
+    return this.isLocked();
+  }
 }

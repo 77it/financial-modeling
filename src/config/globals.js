@@ -7,5 +7,7 @@ import { Simulation } from './settings_names.js';
 // This value is replaced, during engine execution, with value of simulation setting `$$DRIVER_PREFIXES__ZERO_IF_NOT_SET`.
 export const DRIVER_PREFIXES__ZERO_IF_NOT_SET = new GlobalImmutableValue(SettingsDefaultValues[Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET]);
 export const DEFAULT_ACCOUNTING_VS_TYPE = new GlobalImmutableValue(SettingsDefaultValues[Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE]);
+// set by main if `Simulation.$$PYTHON_ADVANCED_FORECAST_FLAG` is true
+export const PYTHON_FORECAST = new GlobalImmutableValue();
 
 //#endregion internal engine config

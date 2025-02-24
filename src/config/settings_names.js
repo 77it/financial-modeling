@@ -25,6 +25,7 @@ const Simulation = {
   // for this reason we choose to have dates written in Excel as strings with prefix and converting them during modules execution to dates).
   $$SIMULATION_COLUMN_PREFIX: '$$SIMULATION_COLUMN_PREFIX',
   $$HISTORICAL_COLUMN_PREFIX: '$$HISTORICAL_COLUMN_PREFIX',  // We need $$HISTORICAL_COLUMN_PREFIX to prevent mismatching of historical data with simulation data when changes the Simulation Start Date.
+  $$PYTHON_ADVANCED_FORECAST_FLAG: '$$PYTHON_ADVANCED_FORECAST_FLAG',  // if true load python code to calculate advanced forecast
 
   // immutable: with dates
   $MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE: '$MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE',  // if > 1 will be divided by 100

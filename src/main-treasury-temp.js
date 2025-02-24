@@ -32,6 +32,9 @@ import { ModulesLoader } from './modules/_modules_loader.js';
 import { Module } from './modules/_sample_module.js';
 
 import { DEFAULT_TASKLOCKS_LOADER__MODULE_PATH } from './config/tasklocks_defaults.js';
+import { PYTHON_FORECAST__CLASS_PATH } from './config/python.js';
+
+import { PYTHON_FORECAST } from './config/globals.js';
 
 import { MODULE_NAME as SETTINGS_MODULE_NAME, tablesInfo as SETTINGS_TABLES_INFO, moduleSanitization as SETTINGS_SANITIZATION } from './config/modules/settings.js';
 import * as SETTINGS_NAMES from './config/settings_names.js';
@@ -172,6 +175,22 @@ async function main ({
 
     if (isNullOrWhiteSpace(_$$SCENARIOS[0]))  // if first scenario is empty, set it to base scenario
       _$$SCENARIOS[0] = CFG.SCENARIO_BASE;
+
+    // store python forecast funtion in Gloals if the setting flag is true
+    //
+    // read setting
+    const _$$PYTHON_ADVANCED_FORECAST_FLAG = _get_SimulationSetting_FromModuleDataArray({
+      moduleDataArray: _moduleDataArray,
+      settingName: SETTINGS_NAMES.Simulation.$$PYTHON_ADVANCED_FORECAST_FLAG,
+      settingSanitization: schema.BOOLEAN_TYPE
+    });
+    // if flag is true, set Global value with Python function
+    if (_$$PYTHON_ADVANCED_FORECAST_FLAG) {
+      const pythonForecastModule = await import(PYTHON_FORECAST__CLASS_PATH);
+      const pythonForecastInstance = new pythonForecastModule.PythonForecast();
+      await pythonForecastInstance.loadPython();
+      PYTHON_FORECAST.setOneTimeBeforeRead(pythonForecastInstance.callPythonForecastFunction);
+    }
 
     // before scenario/engine run add, as last module, the module to add default TaskLocks + dummy module data
     const defaultTasklocksLoaderModule = await import(DEFAULT_TASKLOCKS_LOADER__MODULE_PATH);

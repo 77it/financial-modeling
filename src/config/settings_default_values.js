@@ -28,6 +28,7 @@ const SettingsDefaultValues = {
   [Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET]: ['$Daily'],
   [Simulation.$$SIMULATION_COLUMN_PREFIX]: ['F'],
   [Simulation.$$HISTORICAL_COLUMN_PREFIX]: ['', 'H'],
+  [Simulation.$$PYTHON_ADVANCED_FORECAST_FLAG]: false,
 
   // value of immutable settings with dates if nothing else is set
   [Simulation.$MAJORITY_SHAREHOLDERS_EQUITY_PERCENTAGE]: 100,
