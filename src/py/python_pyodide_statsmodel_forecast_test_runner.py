@@ -9,6 +9,8 @@ values = [
 
 mod.forecast_data(months, values)
 
+print("dates\n")
+print(mod.dates)
 print("mean\n")
 print(mod.mean)
 print("pi_lower\n")

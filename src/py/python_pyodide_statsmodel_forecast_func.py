@@ -9,7 +9,7 @@ pi_lower = None
 pi_upper = None
 
 def forecast_data(months, values):
-    global mean, pi_lower, pi_upper
+    global dates, mean, pi_lower, pi_upper
 
     data = {
         "Month": months,
@@ -21,7 +21,7 @@ def forecast_data(months, values):
     # df = pd.concat([df, df])  # Duplicate the data, to fit 24 months
     # Convert the 'Month' column to a datetime format
     df_data.set_index('Month', inplace=True)
-    df_data.index = pd.date_range(start='1/1/2020', periods=len(df_data), freq='ME')
+    df_data.index = pd.date_range(start='1/1/2020', periods=len(df_data), freq='M')
 
     # Interpolate missing data (if any)
     df_data['Values'] = df_data['Values'].interpolate()
@@ -54,7 +54,8 @@ def forecast_data(months, values):
     df_pred = pred.summary_frame(alpha=0.05)
     print(df_pred)
 
-    # assert that the data returned by `get_prediction` is similar to the data returned by Excel FORECAST.ETS function
+    # export values to global
+    dates = df_pred.index.strftime('%Y-%m-%d').tolist()  # convert DatetimeIndex to an array of strings
     mean = df_pred['mean'].values
     pi_lower = df_pred['pi_lower'].values
     pi_upper = df_pred['pi_upper'].values

@@ -47,7 +47,7 @@ export class PythonForecast {
   /**
    * @param months {number[]}
    * @param values {number[]}
-   * @return {Promise<{mean: number[], pi_lower: number[], pi_upper: number[]}>}
+   * @return {Promise<{dates: string[], mean: number[], pi_lower: number[], pi_upper: number[]}>}
    */
   callPythonForecastFunction = async (months, values) => {
     // Send data to Python
@@ -56,10 +56,11 @@ export class PythonForecast {
     await this.#pyodide.runPythonAsync("forecast_data(months, values)");
 
     // Retrieve data from Python
+    const dates = this.#pyodide.globals.get("dates").toJs();
     const mean = this.#pyodide.globals.get("mean").toJs();
     const pi_lower = this.#pyodide.globals.get("pi_lower").toJs();
     const pi_upper = this.#pyodide.globals.get("pi_upper").toJs();
 
-    return { mean, pi_lower, pi_upper };
+    return { dates, mean, pi_lower, pi_upper };
   }
 }

@@ -45,10 +45,16 @@ t('python_load_cfg_global_variables_set', async () => {
     8.9,8.1,6.95,9,10.1,11.2,12.8,9,10.1,10.2,10.99,13,
     10,9,8,10,11,12,14,10,11,11,12,14];
 
+  // loop to show the speed of the Python function
   for (let i = 0; i < 10; i++) {
     const result = await PYTHON_FORECAST.get()(months, values);
-    console.log(result.mean);
   }
+
+  // read and test answer (get the mehod from a Global variable)
+  const result = await PYTHON_FORECAST.get()(months, values);
+  assert(result.dates.length === 12);
+  assert(result.mean.length === 12);
+
   //#endregion run PYTHON_FORECAST global variable, 10 times
 
   deleteFile(`./${SIMULATION_JSONL_OUTPUT}`);
