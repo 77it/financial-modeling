@@ -1,7 +1,8 @@
+// from https://github.com/77it/formula/blob/aeb95946d444466d96cd7a9864c78a4530124f74/test/index.js
+// with little edits
+
 //@ts-nocheck
-import { describe, it } from "jsr:@std/testing/bdd";
-import { Parser } from '../../../vendor/formula/formula.js';
-import { expect } from "jsr:@std/expect";  // see https://jsr.io/@std/expect
+import { expect, describe, it } from 'npm:jest';
 
 describe('Formula', () => {
 
