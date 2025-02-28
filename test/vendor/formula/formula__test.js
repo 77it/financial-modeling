@@ -2,7 +2,10 @@
 // with little edits
 
 //@ts-nocheck
-import { expect, describe, it } from 'npm:jest';
+//import { expect, describe, it } from 'jest';
+import * as XXX from '@jest/globals';
+
+console.log(XXX);
 
 describe('Formula', () => {
 
