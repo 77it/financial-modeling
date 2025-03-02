@@ -10,16 +10,16 @@ import assert from 'node:assert';
 t('searchDateKeys test', async () => {
   {  // test SETTINGS_NAMES.Simulation.$$SIMULATION_COLUMN_PREFIX
     const obj = {
-      '#2023-12-25T05:20:10': 1,  // time part is stripped
+      'F2023-12-25T05:20:10': 1,  // time part is stripped
       b: 2,  // ignored, not starting with prefix
       99: 2,  // ignored, not starting with prefix
-      '#2023/01/29': 3,
-      '#2023/01/XX': 3,  // ignored, not parsable as a date
+      'f2023/01/29': 3,  // lowercase works
+      'f2023/01/XX': 3,  // ignored, not parsable as a date
     };
 
     const exp = [
-      { key: '#2023/01/29', date: new Date(2023, 0, 29) },
-      { key: '#2023-12-25T05:20:10', date: new Date(2023, 11, 25) },
+      { key: 'f2023/01/29', date: new Date(2023, 0, 29) },
+      { key: 'F2023-12-25T05:20:10', date: new Date(2023, 11, 25) },
     ];
 
     assert.deepStrictEqual(searchDateKeys({ obj, prefix: SETTINGS_DEFAULT_VALUES[SETTINGS_NAMES.$$SIMULATION_COLUMN_PREFIX] }), exp);
@@ -42,24 +42,25 @@ t('searchDateKeys test', async () => {
       { key: '20241231', date: new Date(2024, 11, 31) },
     ];
 
-    assert.deepStrictEqual(searchDateKeys({ obj, prefix: '' }), exp);
+    assert.deepStrictEqual(searchDateKeys({ obj, prefix: [''] }), exp);
   }
 
   {  // test $$HISTORICAL_COLUMN_PREFIX (also case insensitive detection of the prefix)
     const obj = {
-      'h#2023-12-25': 1,
-      b: 2,  // ignored, not starting with prefix
-      99: 2,  // ignored, not starting with prefix
-      'H#2023/01/29': 3,
-      'H#2023/01/XX': 3,  // ignored, not parsable as a date
+      'h2023-12-25': 1,
+      b: 2,  // ignored, not parsable as a date
+      99: 2,  // ignored, not parsable as a date
+      'H2023/01/29': 3,
+      '2023/01/30': 3, // allows also dates without prefix
+      'H2023/01/XX': 3,  // ignored, not parsable as a date
     };
 
     const exp = [
-      { key: 'H#2023/01/29', date: new Date(2023, 0, 29) },
-      { key: 'h#2023-12-25', date: new Date(2023, 11, 25) },  // case insensitive detection of the prefix
+      { key: 'H2023/01/29', date: new Date(2023, 0, 29) },
+      { key: '2023/01/30', date: new Date(2023, 0, 30) },
+      { key: 'h2023-12-25', date: new Date(2023, 11, 25) },  // case insensitive detection of the prefix
     ];
 
     assert.deepStrictEqual(searchDateKeys({ obj: obj, prefix: SETTINGS_DEFAULT_VALUES[SETTINGS_NAMES.$$HISTORICAL_COLUMN_PREFIX] }), exp);
-    assert.deepStrictEqual(searchDateKeys({ obj: obj, prefix: SETTINGS_DEFAULT_VALUES[SETTINGS_NAMES.$$HISTORICAL_COLUMN_PREFIX].toLowerCase() }), exp);  // case insensitive
   }
 });

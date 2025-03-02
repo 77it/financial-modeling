@@ -1,11 +1,162 @@
-// from https://github.com/77it/formula/blob/aeb95946d444466d96cd7a9864c78a4530124f74/test/index.js
-// with little edits
-
 //@ts-nocheck
-//import { expect, describe, it } from 'jest';
-import * as XXX from '@jest/globals';
 
-console.log(XXX);
+// from https://github.com/77it/formula/blob/aeb95946d444466d96cd7a9864c78a4530124f74/test/index.js
+// with the addition of region "BDD Jest-like globals"
+
+import { Parser } from '../../../vendor/formula/formula.js';
+import assert from 'node:assert';
+import { describe as describe_node, it as it_node } from 'node:test';
+
+/*
+  ____    _____    _____        _____     ____    _       __     __  ______   _____   _        _
+ |  _ \  |  __ \  |  __ \      |  __ \   / __ \  | |      \ \   / / |  ____| |_   _| | |      | |
+ | |_) | | |  | | | |  | |     | |__) | | |  | | | |       \ \_/ /  | |__      | |   | |      | |
+ |  _ <  | |  | | | |  | |     |  ___/  | |  | | | |        \   /   |  __|     | |   | |      | |
+ | |_) | | |__| | | |__| |     | |      | |__| | | |____     | |    | |       _| |_  | |____  | |____
+ |____/  |_____/  |_____/      |_|       \____/  |______|    |_|    |_|      |_____| |______| |______|
+ */
+//#region BDD Jest-like globals
+
+/**
+ * Creates an object with Jest-like test globals.
+ * @returns {Promise<{describe: function, it: function}>} An object containing `describe` and `it` functions.
+ */
+async function createDescribeAndItForNodeAndDeno() {
+    let _describe;
+    let _it;
+
+    // /** @type {any} */ const describe = (typeof Deno !== 'undefined') ? await import { describe } from "jsr:@std/testing/bdd" : describe_node;  // to force testing under Deno with its logic and internals
+
+    // if Deno is defined, import the BDD module from its standard library
+    if (typeof Deno !== 'undefined') {
+        const bdd = await import ("jsr:@std/testing/bdd");
+        _describe = bdd.describe;
+        _it = bdd.it;
+    } else {
+        _describe = describe_node;
+        _it = it_node;
+    }
+
+    return {describe: _describe, it: _it};
+}
+
+const { describe, it } = await createDescribeAndItForNodeAndDeno();
+
+// Create Jest‑style global `expect` function
+if (typeof expect === "undefined") {
+    globalThis.expect = (received) => {
+        const matchers = {
+            toBe(expected) {
+                assert.strictEqual(
+                  received,
+                  expected,
+                  `Expected ${received} to be ${expected}`
+                );
+            },
+            toEqual(expected) {
+                assert.deepStrictEqual(
+                  received,
+                  expected,
+                  `Expected ${JSON.stringify(received)} to equal ${JSON.stringify(expected)}`
+                );
+            },
+            toThrow(expectedError) {
+                let threw = false;
+                try {
+                    received();
+                } catch (error) {
+                    threw = true;
+                    if (expectedError) {
+                        if (typeof expectedError === 'string') {
+                            assert.strictEqual(
+                              error.message,
+                              expectedError,
+                              `Expected error message "${error.message}" to be "${expectedError}"`
+                            );
+                        } else if (error instanceof expectedError) {
+                            return;
+                        } else {
+                            throw new assert.AssertionError({
+                                message: `Expected error to be instance of ${expectedError.name}, but got ${error.constructor.name}`,
+                                actual: error.constructor.name,
+                                expected: expectedError.name,
+                            });
+                        }
+                    }
+                }
+                if (!threw) {
+                    throw new assert.AssertionError({
+                        message: 'Expected function to throw an error, but it did not',
+                    });
+                }
+            },
+            toBeNull() {
+                assert.strictEqual(
+                  received,
+                  null,
+                  `Expected ${received} to be null`
+                );
+            }
+        };
+
+        return {
+            ...matchers,
+            not: {
+                toBe(expected) {
+                    assert.notStrictEqual(
+                      received,
+                      expected,
+                      `Expected ${received} not to be ${expected}`
+                    );
+                },
+                toEqual(expected) {
+                    assert.notDeepStrictEqual(
+                      received,
+                      expected,
+                      `Expected ${JSON.stringify(received)} not to equal ${JSON.stringify(expected)}`
+                    );
+                },
+                toThrow(expectedError) {
+                    let threw = false;
+                    try {
+                        received();
+                    } catch (error) {
+                        threw = true;
+                        if (expectedError) {
+                            if (typeof expectedError === 'string') {
+                                assert.notStrictEqual(
+                                  error.message,
+                                  expectedError,
+                                  `Expected error message "${error.message}" not to be "${expectedError}"`
+                                );
+                            } else if (error instanceof expectedError) {
+                                throw new assert.AssertionError({
+                                    message: `Expected error not to be instance of ${expectedError.name}, but it was`,
+                                    actual: error.constructor.name,
+                                    expected: expectedError.name,
+                                });
+                            }
+                        }
+                    }
+                    if (!threw) {
+                        return;
+                    }
+                    throw new assert.AssertionError({
+                        message: 'Expected function not to throw an error, but it did',
+                    });
+                },
+                toBeNull() {
+                    assert.notStrictEqual(
+                      received,
+                      null,
+                      `Expected ${received} not to be null`
+                    );
+                }
+            }
+        };
+    };
+}
+//#endregion BDD Jest-like globals
 
 describe('Formula', () => {
 
