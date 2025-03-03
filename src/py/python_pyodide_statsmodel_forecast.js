@@ -8,7 +8,7 @@ https://til.simonwillison.net/deno/pyodide-sandbox
 */
 
 import fs from 'node:fs';
-import pyodideModule from "pyodide/pyodide.js";
+import pyodideModule from 'pyodide/pyodide.js';
 
 import { platformIsWindows } from '../node/platform_is_windows.js';
 import { PYTHON_FORECAST__PYTHON_PATH_RELATIVE_TO_CLASS } from '../config/python.js';

@@ -1,4 +1,4 @@
-import process from "node:process";
+import process from 'node:process';
 
 /**
  * @return {boolean} - true if the platform is Windows

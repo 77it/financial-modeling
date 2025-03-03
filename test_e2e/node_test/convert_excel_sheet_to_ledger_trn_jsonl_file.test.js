@@ -9,7 +9,7 @@ import fs from 'node:fs';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
-/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
+/** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
 // set cwd/current working directory to current folder (the folder of this file)
 chdir(dirname(fileURLToPath(import.meta.url)));

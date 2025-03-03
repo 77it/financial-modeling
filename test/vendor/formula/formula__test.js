@@ -25,8 +25,6 @@ async function createDescribeAndItForNodeAndDeno() {
     let _describe;
     let _it;
 
-    // /** @type {any} */ const describe = (typeof Deno !== 'undefined') ? await import { describe } from "jsr:@std/testing/bdd" : describe_node;  // to force testing under Deno with its logic and internals
-
     // if Deno is defined, import the BDD module from its standard library
     if (typeof Deno !== 'undefined') {
         const bdd = await import ("jsr:@std/testing/bdd");

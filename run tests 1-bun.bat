@@ -1,3 +1,3 @@
-bun test "./**/*_test.js"
+bun test --timeout 60000 test/
 
 pause

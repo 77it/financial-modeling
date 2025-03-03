@@ -11,7 +11,7 @@ import process from 'node:process';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
-/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;  // to force testing under Deno with its logic and internals
+/** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
 import { DEBUG_FLAG, ERROR_FILE } from '../_test_settings.js';
 
