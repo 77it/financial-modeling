@@ -8,7 +8,7 @@ import * as financial from 'https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/fi
 
 import { test } from 'node:test';
 import assert from 'node:assert';
-/** @type {any} */ const t = (typeof Deno !== 'undefined') ? Deno.test : test;
+/** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
 import { pmt } from 'https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/financial.esm.js';
 
