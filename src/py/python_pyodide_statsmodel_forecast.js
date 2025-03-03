@@ -29,7 +29,7 @@ export class PythonForecast {
     //
     // build a path with PYTHON_FORECAST__PYTHON_PATH_RELATIVE_TO_CLASS and this file path + normalize the path for Windows by removing the leading slash if it exists
     let srcPath = new URL(PYTHON_FORECAST__PYTHON_PATH_RELATIVE_TO_CLASS, import.meta.url).pathname;
-    srcPath = srcPath.startsWith('/') ? srcPath.slice(1) : srcPath;
+    srcPath = (platformIsWindows() && srcPath.startsWith('/')) ? srcPath.slice(1) : srcPath;
     const py_source = fs.readFileSync(srcPath, 'utf8');
 
     this.#pyodide = await pyodideModule.loadPyodide();
