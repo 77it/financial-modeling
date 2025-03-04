@@ -25,9 +25,13 @@ async function createDescribeAndItForNodeAndDeno() {
     let _describe;
     let _it;
 
-    // if Deno is defined, import the BDD module from its standard library
+    // if Deno or Bun are defined, import the BDD module from its standard library, otherwise import from Node.js
     if (typeof Deno !== 'undefined') {
         const bdd = await import ("jsr:@std/testing/bdd");
+        _describe = bdd.describe;
+        _it = bdd.it;
+    } else if (typeof Bun !== 'undefined') {
+        const bdd = await import('bun:test');
         _describe = bdd.describe;
         _it = bdd.it;
     } else {
