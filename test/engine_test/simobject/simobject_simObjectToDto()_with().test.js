@@ -148,14 +148,17 @@ t('SimObject.simObjectToDto() & .with() without value tests', async () => {
   } catch (error) {
     _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
-  assert.deepStrictEqual(_error, "Cannot assign to read only property 'type' of object '#<SimObjectDto>'");
+  assert(_error === "Cannot assign to read only property 'type' of object '#<SimObjectDto>'"
+    || _error === "Attempted to assign to readonly property.");  // second message is for Bun platform
   try {
     //@ts-ignore
     _so_With_Dto.newField = 44;
   } catch (error) {
     _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
-  assert.deepStrictEqual(_error, "Cannot add property newField, object is not extensible");
+  console.log(_error);
+  assert(_error === "Cannot add property newField, object is not extensible"
+    || _error === "Attempting to define property on object that is not extensible.");  // second message is for Bun platform
 
   assert.deepStrictEqual(JSON.stringify(_so_With_Dto), JSON.stringify(_soDump_Expected));
 
