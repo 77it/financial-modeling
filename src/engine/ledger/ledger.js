@@ -65,6 +65,8 @@ class Ledger {
   /** @type {Date} */
   #today;
   /** @type {number} */
+  #lastSequentialId;
+  /** @type {number} */
   #lastId;
   /** @type {number} */
   #lastCommandId;
@@ -102,6 +104,7 @@ class Ledger {
     this.#simObjectTypes_enum_map = new Map(Object.entries(SimObjectTypes_enum));
     this.#SimObjectDebugTypes_enum_map = new Map(Object.entries(SimObjectDebugTypes_enum));
     this.#currentTransaction = [];
+    this.#lastSequentialId = 0;
     this.#lastId = 0;
     this.#lastCommandId = 0;
     this.#lastTransactionId = 0;
@@ -146,6 +149,16 @@ class Ledger {
   //#endregion SET methods
 
   //#region GET/QUERY methods
+  /** @returns {number} */
+  getNextSequentialId () {
+    return ++this.#lastSequentialId;
+  }
+
+  /** @returns {string} */
+  getNextSequentialIdString () {
+    return this.getNextSequentialId().toString();
+  }
+
   /** @returns {string} */
   getDebugModuleInfo () {
     return this.#currentDebugModuleInfo;
