@@ -81,6 +81,8 @@ class ModulesLoader {
         _URI = `./${p.moduleName.trim().toLowerCase()}.js`;
 
       // DYNAMIC IMPORT (works with DENO, BROWSER and NODE with option --experimental-network-imports)
+      // We don’t use fetch combined with Function() to evaluate code because this approach doesn't support importing online modules that, in turn, import online files relative to them.
+      // Furthermore, we export with `getEngine ()` Engine loaded locally; finally, in main.js, we use `_modulesLoader` that loads simulation modules, online or local to it
       let _lastImportError = '';
       for (const _cdnURI of this.#modulesLoader_Resolve(_URI)) {
         try {
