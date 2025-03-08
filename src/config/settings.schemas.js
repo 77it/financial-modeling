@@ -21,7 +21,6 @@ const SettingsSchemas = {
   [Simulation.$$ENGINE_URL]: schema.STRING_TYPE,
   [Simulation.$$DEBUG_FLAG]: schema.BOOLEAN_TYPE,
   [Simulation.$$SIMULATION_END_DATE]: schema.DATE_TYPE,
-  [Simulation.$$NUMBER_STRING_DECIMAL_SEPARATOR]: schema.STRING_TYPE,
   [Simulation.$$HISTORICAL_VOICE_BALANCING]: schema.STRING_TYPE,
   [Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE]: schema.STRING_TYPE,
   [Simulation.$$CURRENCY]: schema.STRING_TYPE,

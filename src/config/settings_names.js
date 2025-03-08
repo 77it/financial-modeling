@@ -11,7 +11,10 @@ const Simulation = {
   $$ENGINE_URL: '$$ENGINE_URL',
   $$DEBUG_FLAG: '$$DEBUG_FLAG',
   $$SIMULATION_END_DATE: '$$SIMULATION_END_DATE',  // movements after SIMULATION_END_DATE are not processed by the simulation engine
-  $$NUMBER_STRING_DECIMAL_SEPARATOR: '$$NUMBER_STRING_DECIMAL_SEPARATOR',  // dot as decimal separator | comma as decimal separator; used to interpret, on columns that should contain numbers, strings that need to be converted to numbers
+  // THIS SETTING WAS REMOVED because there are compatibility problems:
+  // * when you merge Excel input from other simulations with different decimal settings
+  // * with YAML/JSON parsing, because all array with numbers separated with a comma with be split to every comma: e.g.  parseYAML('[1,1]') != [1, 1]
+  // REMOVED  //$$NUMBER_STRING_DECIMAL_SEPARATOR: 'REMOVED SETTING',
   $$HISTORICAL_VOICE_BALANCING: '$$HISTORICAL_VOICE_BALANCING',  // if we are in the historical period, each processed line of IS and BS is unbalanced, and we balance it using this accounting entry; balancing writing is done with the description "historical balancing"
   $$DEFAULT_ACCOUNTING_VS_TYPE: '$$DEFAULT_ACCOUNTING_VS_TYPE',  // default type for balancing accounting entries
   $$CURRENCY: '$$CURRENCY',

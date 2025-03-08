@@ -15,7 +15,6 @@ import { deepFreeze } from '../lib/obj_utils.js';
 const SettingsDefaultValues = {
   // values of immutable settings if nothing else is set
   [Simulation.$$DEBUG_FLAG]: false,
-  [Simulation.$$NUMBER_STRING_DECIMAL_SEPARATOR]: '.',
   [Simulation.$$HISTORICAL_VOICE_BALANCING]: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   [Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE]: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   [Simulation.$$CURRENCY]: Currency_enum.UNDEFINED,
