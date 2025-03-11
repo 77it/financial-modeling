@@ -1,20 +1,32 @@
-// run with `deno test --allow-read THIS-FILE-NAME`
+// run with `deno test --allow-read
 
 import { moduleDataArray_LoadFromJsonlFile } from '../../../src/node/module_data_array__load_from_jsonl_file.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
+import { UNPRINTABLE_CHAR, UNPRINTABLE_CHAR_REGEXP } from '../../../src/config/engine.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
+t('test removal of ASCII 31 unprintable character', async () => {
+  const testStringWithUnprintableChar = 'test' + UNPRINTABLE_CHAR + 'test';
+  const serialized_testStringWithUnprintableChar = JSON.stringify(testStringWithUnprintableChar);
+  console.log(serialized_testStringWithUnprintableChar);
+  assert.deepStrictEqual(serialized_testStringWithUnprintableChar, '"test\\u001ftest"');
+
+  const serialized_testStringWithoutUnprintableChar = serialized_testStringWithUnprintableChar.replace(UNPRINTABLE_CHAR_REGEXP, '');
+  assert.deepStrictEqual(serialized_testStringWithoutUnprintableChar, '"testtest"');
+});
+
+
 t('moduleData test: read multiline file', async () => {
   const filename = new URL('module_data__test_data+whitespace.jsonl', import.meta.url);  // see https://github.com/denoland/deno/issues/1286#issuecomment-643624186
   //const filename = "./module_data__test_data.jsonl";
 
-  const _json = await moduleDataArray_LoadFromJsonlFile(filename);
+  const _json = moduleDataArray_LoadFromJsonlFile(filename);
 
   console.log(_json[0].moduleName);
-  assert.deepStrictEqual(_json[0].moduleName, 'vendite');
+  assert.deepStrictEqual(_json[0].moduleName, 'vendite999');
   console.log(_json[1].moduleName);
   assert.deepStrictEqual(_json[1].moduleName, 'settingsx');
 });

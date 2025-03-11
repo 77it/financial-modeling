@@ -2,6 +2,7 @@ export { moduleDataArray_LoadFromJsonlFile };
 
 import { ModuleData } from '../engine/modules/module_data.js';
 import { readUtf8TextFileRemovingBOM } from './read_utf8_text_file_removing_bom.js';
+import { UNPRINTABLE_CHAR_REGEXP } from '../config/engine.js';
 import { isNullOrWhiteSpace } from '../lib/string_utils.js';
 import { platformIsWindows } from './platform_is_windows.js';
 
@@ -23,8 +24,10 @@ function moduleDataArray_LoadFromJsonlFile (jsonlFilePath) {
   // loop jsonLines and parse content to ModuleData
   const moduleDataArray = [];
   for (const json of jsonLines) {
-    if (!isNullOrWhiteSpace(json))
-      moduleDataArray.push(new ModuleData(JSON.parse(json)));
+    if (!isNullOrWhiteSpace(json)) {
+      const jsonWithoutUnprintableChar = json.replace(UNPRINTABLE_CHAR_REGEXP, '');
+      moduleDataArray.push(new ModuleData(JSON.parse(jsonWithoutUnprintableChar)));
+    }
   }
 
   return moduleDataArray;
