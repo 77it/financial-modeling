@@ -96,10 +96,13 @@ t('YAML tests', () => {
   //#region parsing dates (only to UTC date or string)
   dpeq(pyml('2023-01-05T00:00:00.000Z'), localDateToUTC(new Date(2023, 0, 5)));  // converted to UTC Date
   dpeq(pyml('2023-01-05'), localDateToUTC(new Date(2023, 0, 5)));  // converted to UTC Date
-  dpeq(pyml('2023-1-05'), '2023-1-05');  // YYYY-M-DD is converted to string
-  dpeq(pyml('2023-01-5'), '2023-01-5');  // YYYY-MM-D is converted to string
-  dpeq(pyml('2023-01'), '2023-01');  // YYYY-MM is converted to string
+  dpeq(pyml('2023-1-05'), '2023-1-05');  // YYYY-M-DD is not a date and left as string
+  dpeq(pyml('2023-01-5'), '2023-01-5');  // YYYY-MM-D is not a date and left as string
+  dpeq(pyml('2023-01'), '2023-01');  // YYYY-MM is not a date and left as string
   dpeq(pyml('2023'), 2023);  // YYYY is converted to number
+
+  dpeq(pyml('2023/01/05'), '2023/01/05');  // YYYY-M-DD is not a YAML date and left as string
+  dpeq(pyml('2023.01.05'), '2023.01.05');  // YYYY-M-DD is not a YAML date and left as string
   //#endregion
 
   //#region parsing range of dates
