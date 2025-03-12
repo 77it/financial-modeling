@@ -38,6 +38,12 @@ t('parseJsonToLocalDate as Date - short date 2021-01-09', () => {
   assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
 });
 
+t('parseJsonToLocalDate as Date - short date 2021-1-9 is invalid', () => {
+  const date = '2021-1-9';
+  const parsedDate = parseJsonToLocalDate(date);
+  assert(isNaN(parsedDate.getTime()));
+});
+
 t('parseJsonToLocalDate as Date - short date 2021/01/09', () => {
   const date = '2021/01/09';
   const parsedDate = parseJsonToLocalDate(date);
@@ -45,11 +51,23 @@ t('parseJsonToLocalDate as Date - short date 2021/01/09', () => {
   assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
 });
 
+t('parseJsonToLocalDate as Date - short date 2021/1/9 is invalid', () => {
+  const date = '2021/1/9';
+  const parsedDate = parseJsonToLocalDate(date);
+  assert(isNaN(parsedDate.getTime()));
+});
+
 t('parseJsonToLocalDate as Date - short date 2021.01.09', () => {
   const date = '2021.01.09';
   const parsedDate = parseJsonToLocalDate(date);
   const expectedDate = new Date(2021, 0, 9);
   assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
+});
+
+t('parseJsonToLocalDate as Date - short date 2021.1.9 is invalid', () => {
+  const date = '2021.1.9';
+  const parsedDate = parseJsonToLocalDate(date);
+  assert(isNaN(parsedDate.getTime()));
 });
 
 t('parseJsonToLocalDate as Date - short date 20210109 without separator', () => {

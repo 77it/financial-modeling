@@ -9,9 +9,7 @@ export { localDateToUTC, localDateToStringYYYYMMDD, stripTimeToLocalDate, stripT
 // creating RegExp for later use
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
 const regExp_YYYYMMDDTHHMMSSMMMZ = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/;
-const regExp_YYYYMMDD_minusSep = /^(\d{4})-(\d{2})-(\d{2})$/;
-const regExp_YYYYMMDD_slashSep = /^(\d{4})\/(\d{2})\/(\d{2})$/;
-const regExp_YYYYMMDD_dotSep = /^(\d{4})\.(\d{2})\.(\d{2})$/;
+const regExp_YYYYMMDD_minusSlashDotSep = /^(\d{4})[-./](\d{2})[-./](\d{2})$/;
 const regExp_YYYYMMDD_withoutSep = /^(\d{4})(\d{2})(\d{2})$/;
 
 /**
@@ -88,12 +86,8 @@ function _parseJsonDate (argument, opt) {
 
     // match YYYY-MM-DDTHH:MM:SS.MMMZ
     const parts = argument.trim().match(regExp_YYYYMMDDTHHMMSSMMMZ);
-    // match YYYY-MM-DD
-    const partsYYYYMMDD_minus = argument.trim().match(regExp_YYYYMMDD_minusSep);
-    // match YYYY/MM/DD
-    const partsYYYYMMDD_slash = argument.trim().match(regExp_YYYYMMDD_slashSep);
-    // match YYYY.MM.DD
-    const partsYYYYMMDD_dot = argument.trim().match(regExp_YYYYMMDD_dotSep);
+    // match YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD
+    const partsYYYYMMDD = argument.trim().match(regExp_YYYYMMDD_minusSlashDotSep);
     // match YYYYMMDD without separator
     const partsYYYYMMDD_withoutSep = argument.trim().match(regExp_YYYYMMDD_withoutSep);
     if (parts) {
@@ -107,26 +101,12 @@ function _parseJsonDate (argument, opt) {
         +parts[6],
         +((parts[7] || '0') + '00').substring(0, 3)
       );
-    } else if (partsYYYYMMDD_minus) {
+    } else if (partsYYYYMMDD) {
       // YYYY-MM-DD date
       return _newDate(
-        +partsYYYYMMDD_minus[1],
-        +partsYYYYMMDD_minus[2] - 1,
-        +partsYYYYMMDD_minus[3]
-      );
-    } else if (partsYYYYMMDD_slash) {
-      // YYYY/MM/DD date
-      return _newDate(
-        +partsYYYYMMDD_slash[1],
-        +partsYYYYMMDD_slash[2] - 1,
-        +partsYYYYMMDD_slash[3]
-      );
-    } else if (partsYYYYMMDD_dot) {
-      // YYYY.MM.DD date
-      return _newDate(
-        +partsYYYYMMDD_dot[1],
-        +partsYYYYMMDD_dot[2] - 1,
-        +partsYYYYMMDD_dot[3]
+        +partsYYYYMMDD[1],
+        +partsYYYYMMDD[2] - 1,
+        +partsYYYYMMDD[3]
       );
     } else if (partsYYYYMMDD_withoutSep) {
       // YYYYMMDD date without separator
