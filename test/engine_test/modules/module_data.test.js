@@ -2,19 +2,19 @@
 
 import { moduleDataArray_LoadFromJsonlFile } from '../../../src/node/module_data_array__load_from_jsonl_file.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
-import { UNPRINTABLE_CHAR, UNPRINTABLE_CHAR_REGEXP } from '../../../src/config/engine.js';
+import { UNPRINTABLE_CHAR, JSON_UNPRINTABLE_CHAR_REGEXP } from '../../../src/config/engine.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
-t('test removal of ASCII 31 unprintable character', async () => {
+t('test removal of SERIALIZED ASCII 31 (not ASCII 31 char) unprintable character', async () => {
   const testStringWithUnprintableChar = 'test' + UNPRINTABLE_CHAR + 'test';
   const serialized_testStringWithUnprintableChar = JSON.stringify(testStringWithUnprintableChar);
   console.log(serialized_testStringWithUnprintableChar);
   assert.deepStrictEqual(serialized_testStringWithUnprintableChar, '"test\\u001ftest"');
 
-  const serialized_testStringWithoutUnprintableChar = serialized_testStringWithUnprintableChar.replace(UNPRINTABLE_CHAR_REGEXP, '');
+  const serialized_testStringWithoutUnprintableChar = serialized_testStringWithUnprintableChar.replace(JSON_UNPRINTABLE_CHAR_REGEXP, '');
   assert.deepStrictEqual(serialized_testStringWithoutUnprintableChar, '"testtest"');
 });
 
@@ -26,7 +26,7 @@ t('moduleData test: read multiline file', async () => {
   const _json = moduleDataArray_LoadFromJsonlFile(filename);
 
   console.log(_json[0].moduleName);
-  assert.deepStrictEqual(_json[0].moduleName, 'vendite999');
+  assert.deepStrictEqual(_json[0].moduleName, '\u001fvendite\u001f999\u001f');  // '\u001f', the ASCII 31 unprintable character, is not removed. will be removed by main calling `normalizeModuleData` function taken from the engine file
   console.log(_json[1].moduleName);
   assert.deepStrictEqual(_json[1].moduleName, 'settingsx');
 });

@@ -147,7 +147,7 @@ async function main ({
     const _modulesArray = await _init_modules_classes__loading_Modules_fromUri(
       { modulesLoader: _modulesLoader, moduleDataArray: _moduleDataArray });
 
-    // get engine from a Setting (from `moduleDataArray`) or, as a fallback, from ModulesLoader function;
+    // get `engine` and `normalizeModuleData` functions from a Setting (from `moduleDataArray`) or, as a fallback, from ModulesLoader function;
     // the fallback engine is loaded from the same root of ModulesLoader,
     // in that way the engine can be more aligned with the modules loaded from ModulesLoader
     const _$$ENGINE_URL = _get_SimulationSetting_FromModuleDataArray({
@@ -160,6 +160,12 @@ async function main ({
       functionName: 'engine',
       debug: moduleResolverDebugFlag,
       fallbackFunction: _modulesLoader.getEngine()
+    });
+    const _normalizeModuleData = await _getFunctionFromUrl({
+      url: _$$ENGINE_URL,
+      functionName: 'normalizeModuleData',
+      debug: moduleResolverDebugFlag,
+      fallbackFunction: _modulesLoader.getNormalizeModuleData()
     });
 
     // get scenarios from `moduleDataArray`
@@ -176,7 +182,7 @@ async function main ({
     if (isNullOrWhiteSpace(_$$SCENARIOS[0]))  // if first scenario is empty, set it to base scenario
       _$$SCENARIOS[0] = CFG.SCENARIO_BASE;
 
-    // store python forecast funtion in Gloals if the setting flag is true
+    // store python forecast function in Globals if the setting flag is true
     //
     // read setting
     const _$$PYTHON_ADVANCED_FORECAST_FLAG = _get_SimulationSetting_FromModuleDataArray({
@@ -197,6 +203,9 @@ async function main ({
     const _dummyModuleData = new ModuleData({ moduleName: '', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '', tables: [] });
     _modulesArray.push(new defaultTasklocksLoaderModule.Module());
     _moduleDataArray.push(_dummyModuleData);
+
+    // normalize module data
+    _normalizeModuleData(_moduleDataArray);
 
     //#region loop scenarios
     for (const _scenario of _$$SCENARIOS) {

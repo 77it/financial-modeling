@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-inner-declarations  // ignore the rule because we want to allow inner declarations of functions
-export { engine, simulationContext};
+export { engine, normalizeModuleData, simulationContext };
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as CFG from '../config/engine.js';
@@ -370,6 +370,50 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
    |_|  \_\ |______|    |_|     \____/  |_|  \_\ |_| \_|   |_____/   \____/   \_____|  \_____| |______| |_____/  |_____/
    */
   return new Result({ success: true });
+}
+
+/**
+ * Normalize the tables in ModuleData:
+ * - remove ASCII 31 invisible unprintable control character from the table values
+ * - lowercase keys; if the key is already present append the string ".N" similar to Python Pandas (e.g., key, key.1, key.2)
+ * @param {ModuleData[]} modulesData - Array of `ModuleData` objects
+ * @returns {void}
+ */
+function normalizeModuleData (modulesData) {
+  for (const moduleData of modulesData) {  // loop modulesData
+    for (const tableDataAndName of moduleData.tables) {  // loop tables
+      const table = tableDataAndName.table;
+      for (let row = 0; row < table.length; row++) {  // loop rows
+        const rowKeys = Object.keys(table[row]);  // extract row keys
+        for (const key of rowKeys) {  // loop row keys
+          //#region if the table value is a string, remove ASCII 31 invisible unprintable control character from it
+          if (typeof table[row][key] === 'string') {
+            table[row][key] = table[row][key].replace(CFG.UNPRINTABLE_CHAR_REGEXP, '');
+          }
+          //#endregion
+
+          //#region make the key lowercase
+          let newKey = key.toLowerCase();  // make the key lowercase
+          if (newKey === key) continue;  // if the key was already lowercase, skip loop
+
+          // if `newKey` is already present in the row,
+          // loop while `${newKey}.${id}` is not unique, appending the string ".N" similar to what does Python Pandas (e.g., key, key.1, key.2)
+          if (newKey in table[row]) {
+            let id = 1;
+            while (`${newKey}.${id}` in table[row]) {
+              id++;
+            }
+            newKey = `${newKey}.${id}`;  // set the new key to the unique value
+          }
+
+          // replace `newKey` with `key` in the table row
+          table[row][newKey] = table[row][key];
+          delete table[row][key];
+          //#endregion make the key lowercase
+        }
+      }
+    }
+  }
 }
 
 //#region types definitions

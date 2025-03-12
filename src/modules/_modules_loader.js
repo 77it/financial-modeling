@@ -2,7 +2,7 @@ export { ModulesLoader };
 
 import { schema, validate, sanitize } from './deps.js';
 import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
-import { engine } from '../engine/engine.js';
+import { engine, normalizeModuleData } from '../engine/engine.js';
 
 const DEFAULT_CLASSNAME = 'Module';
 
@@ -29,12 +29,21 @@ class ModulesLoader {
   }
 
   /**
-   Returns an engine loaded from the same root of ModulesLoader;
+   Returns `engine` function loaded from the same root of ModulesLoader;
    in that way the engine can be more aligned with the modules loaded from ModulesLoader
    * @return {*}
    */
   getEngine () {
     return engine;
+  }
+
+  /**
+   Returns `normalizeModuleData` function loaded from the same root of ModulesLoader;
+   in that way the normalizing function can be more aligned with the modules loaded from ModulesLoader
+   * @return {*}
+   */
+  getNormalizeModuleData () {
+    return normalizeModuleData;
   }
 
   /**
