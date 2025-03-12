@@ -7,7 +7,7 @@ import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 import { moduleDataLookup } from './_utils/search/module_data_lookup.js';
 import { searchDateKeys } from './_utils/search/search_date_keys.js';
 import { YAMLtoSimObject_Metadata } from './_utils/yaml_to_simobject_metadata.js';
-import { SimObject_Metadata, ModuleData, SimulationContext, schema, sanitize, eq2, get2, isNullOrWhiteSpace } from './deps.js';
+import { SimObject_Metadata, ModuleData, SimulationContext, schema, sanitize, eq2, isNullOrWhiteSpace } from './deps.js';
 
 export class Module {
   //#region private fields
@@ -110,11 +110,11 @@ export class Module {
         const historicalColumns = searchDateKeys({ obj: currTab.table[0], prefix: this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX }) });
 
         for (const row of currTab.table) {
-          if (!get2(row, tSet.INACTIVE)) {
-            const simulation_input = get2(row, tSet.SIMULATION_INPUT);
-            const accounting_type = get2(row, tSet.ACCOUNTING_TYPE) ?? this.#accounting_type__default;
-            const accounting_opposite_type = get2(row, tSet.ACCOUNTING_OPPOSITE_TYPE) ?? this.#accounting_opposite_type__default;
-            const simObject_name = get2(row, tSet.SIMOBJECT_NAME) ?? '';
+          if (row[tSet.INACTIVE]) {
+            const simulation_input = row[tSet.SIMULATION_INPUT];
+            const accounting_type = row[tSet.ACCOUNTING_TYPE] ?? this.#accounting_type__default;
+            const accounting_opposite_type = row[tSet.ACCOUNTING_OPPOSITE_TYPE] ?? this.#accounting_opposite_type__default;
+            const simObject_name = row[tSet.SIMOBJECT_NAME] ?? '';
 
             const warning = [];
             if (isNullOrWhiteSpace(accounting_type))
