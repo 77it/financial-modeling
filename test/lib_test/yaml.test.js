@@ -57,10 +57,13 @@ t('YAML tests', () => {
   dpeq(pyml('{@UnitA!Driver[20240101]}'), undefined);
   dpeq(pyml('{Unit@A!Driver@}'), { 'Unit@A!Driver@': null });
 
-
-  // parsing an object with key/value splitting without spaces is parsed correctly
+  // parsing an object with key/value without spaces is parsed correctly, with key and value split by the function `parseYAML`
+  // also is not a standard YAML feature
   dpeq(pyml('{abc:value}'), { abc: 'value' });
   dpeq(pyml('{abc:999}'), { abc: 999 });
+  // the split is NOT done for 'abc:999' because the key 'abc' already exists in the object
+  dpeq(pyml('{abc: 888, abc:999}'), { abc: 888,  "abc:999": null });
+  dpeq(pyml('{abc:888, abc:999}'), { abc: 888,  "abc:999": null });
 
   // parsing object with key not separated from value, works only if the key is enclosed in "";
   // otherwise, returns `null` (converted to `undefined` in our library) as value
@@ -93,6 +96,8 @@ t('YAML tests', () => {
   //#region parsing dates (only to UTC date or string)
   dpeq(pyml('2023-01-05T00:00:00.000Z'), localDateToUTC(new Date(2023, 0, 5)));  // converted to UTC Date
   dpeq(pyml('2023-01-05'), localDateToUTC(new Date(2023, 0, 5)));  // converted to UTC Date
+  dpeq(pyml('2023-1-05'), '2023-1-05');  // YYYY-M-DD is converted to string
+  dpeq(pyml('2023-01-5'), '2023-01-5');  // YYYY-MM-D is converted to string
   dpeq(pyml('2023-01'), '2023-01');  // YYYY-MM is converted to string
   dpeq(pyml('2023'), 2023);  // YYYY is converted to number
   //#endregion
