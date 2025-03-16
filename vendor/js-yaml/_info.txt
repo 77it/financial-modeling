@@ -1,5 +1,5 @@
 from   https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.mjs
-+ added `//@ts-nocheck` to the file
++ added some code: see on top of the file to see comments about it
 
 npm   https://www.npmjs.com/package/js-yaml
 
