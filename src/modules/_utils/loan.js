@@ -29,35 +29,19 @@ import * as financial from '../../../vendor/financial/financial.esm.js';
 //#region TODO
 
 // TODO subito
-// getMortgagePaymentsOfAConstantPaymentLoan
-/*
-aggiungi campi:
-* paymentDate: 'exactDate', 'startOfMonth', 'endOfMonth'  // optional; if omitted is 'exactDate' // vedi https://cdn.jsdelivr.net/npm/@danacita/loanjs@1.1.6/src/repaymentSchedule.ts per gestione anno bisestile
-* [OPZ] dp (number): The number of digits to appear after the decimal point (decimal places, precision). If this argument is omitted, is 4. [1] [2]
-output, array di:
-* data in UTC  // con 0 mostra la data di inizio piano
-* capitale residuo
-[1] Piano di ammortamento: internamente taglia a N decimali (default 4) quando scrivi i piani; l'ultimo sfrido di quadratura addebitalo sull'ultima rata.
-4 è scelto in quanto è usato anche nel formato "Fixed Decimal Number" https://learn.microsoft.com/en-us/power-bi/connect-data/desktop-data-types
-[2] // codice per troncare
-const message = Number(SOME-NUMBER.toFixed(4));  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed
-
-*/
-// poi test: confrontalo con piani generati da excel
-// gracepPeriod 0
-// 6 rate bimestrali
 
 // funzione per calcolo di interessi a partire da un piano con quote capitali già calcolate
 /*
 `getInterestPayments`
   funzione per calcolo interessi a partire da un piano generato da `getMortgagePaymentsOfAConstantPaymentLoan` (per piano francese) o da altri metodi (per altri tipi di piani)
   Se il capitale in qualche riga è negativo accettalo, vuol dire che c'è un incremento di debito.
-input:
-* number: interestOnlyNrOfPayments  // number of interest-only payments, added to `nrOfPayments`   // see https://www.consumerfinance.gov/ask-cfpb/what-is-an-interest-only-loan-en-101/
+
+Input:
+* array di date in local date
+* array di quota capitale  // il capitale iniziale su cui fare il calcolo è la somma delle quote capitale
 * string: interestCalcMethod: "365/365" | "365/360" | "30/360"
   See https://www.adventuresincre.com/lenders-calcs/
   See https://github.com/jutunen/Paydown.js/blob/master/src/paydown.js per tasso /360 o /365
-* number: nrOfPaymentsInAYear  // 12 for monthly, 1 for yearly
 * number: rate  // spread or fixed rate: when there is the field `ratesList` this is the spread
 * {date, number}[]: ratesList  // optional, sequence of variable rates
 * number: cap  // optional
