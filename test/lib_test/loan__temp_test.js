@@ -9,8 +9,6 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
-import { pmt } from 'https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/financial.esm.js';
-
 //#region test my loan code, with comparison with `financial` library'
 t('calculatePeriodicPaymentAmountOfAConstantPaymentLoan #1', async () => {
   const ppa_myCode = calculatePeriodicPaymentAmountOfAConstantPaymentLoan({
