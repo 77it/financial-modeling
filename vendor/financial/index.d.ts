@@ -1,48 +1,14 @@
-//@ts-nocheck
-function _unsupportedIterableToArray(o, minLen) {
-  if (!o) return;
-  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-  var n = Object.prototype.toString.call(o).slice(8, -1);
-  if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(o);
-  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-}
-function _arrayLikeToArray(arr, len) {
-  if (len == null || len > arr.length) len = arr.length;
-  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-  return arr2;
-}
-function _createForOfIteratorHelperLoose(o, allowArrayLike) {
-  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
-  if (it) return (it = it.call(o)).next.bind(it);
-  if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-    if (it) o = it;
-    var i = 0;
-    return function () {
-      if (i >= o.length) return {
-        done: true
-      };
-      return {
-        done: false,
-        value: o[i++]
-      };
-    };
-  }
-  throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-
 /**
  * When payments are due
  *
  * @since v0.0.12
  */
-var PaymentDueTime;
-(function (PaymentDueTime) {
-  /** Payments due at the beginning of a period (1) */
-  PaymentDueTime["Begin"] = "begin";
-  /** Payments are due at the end of a period (0) */
-  PaymentDueTime["End"] = "end";
-})(PaymentDueTime || (PaymentDueTime = {}));
+export declare enum PaymentDueTime {
+    /** Payments due at the beginning of a period (1) */
+    Begin = "begin",// 1
+    /** Payments are due at the end of a period (0) */
+    End = "end"
+}
 /**
  * Compute the future value.
  *
@@ -90,18 +56,7 @@ var PaymentDueTime;
  *
  * [Wheeler, D. A., E. Rathke, and R. Weir (Eds.) (2009, May)](http://www.oasis-open.org/committees/documents.php?wg_abbrev=office-formulaOpenDocument-formula-20090508.odt).
  */
-function fv(rate, nper, pmt, pv, when) {
-  if (when === void 0) {
-    when = PaymentDueTime.End;
-  }
-  var isRateZero = rate === 0;
-  if (isRateZero) {
-    return -(pv + pmt * nper);
-  }
-  var temp = Math.pow(1 + rate, nper);
-  var whenMult = when === PaymentDueTime.Begin ? 1 : 0;
-  return -pv * temp - pmt * (1 + rate * whenMult) / rate * (temp - 1);
-}
+export declare function fv(rate: number, nper: number, pmt: number, pv: number, when?: PaymentDueTime): number;
 /**
  * Compute the payment against loan principal plus interest.
  *
@@ -157,20 +112,7 @@ function fv(rate, nper, pmt, pv, when) {
  *
  * [Wheeler, D. A., E. Rathke, and R. Weir (Eds.) (2009, May)](http://www.oasis-open.org/committees/documents.php?wg_abbrev=office-formulaOpenDocument-formula-20090508.odt).
  */
-function pmt(rate, nper, pv, fv, when) {
-  if (fv === void 0) {
-    fv = 0;
-  }
-  if (when === void 0) {
-    when = PaymentDueTime.End;
-  }
-  var isRateZero = rate === 0;
-  var temp = Math.pow(1 + rate, nper);
-  var whenMult = when === PaymentDueTime.Begin ? 1 : 0;
-  var maskedRate = isRateZero ? 1 : rate;
-  var fact = isRateZero ? nper : (1 + maskedRate * whenMult) * (temp - 1) / maskedRate;
-  return -(fv + pv * temp) / fact;
-}
+export declare function pmt(rate: number, nper: number, pv: number, fv?: number, when?: PaymentDueTime): number;
 /**
  * Compute the number of periodic payments.
  *
@@ -211,21 +153,7 @@ function pmt(rate, nper, pv, fv, when) {
  * fv + pv + pmt * nper = 0
  * ```
  */
-function nper(rate, pmt, pv, fv, when) {
-  if (fv === void 0) {
-    fv = 0;
-  }
-  if (when === void 0) {
-    when = PaymentDueTime.End;
-  }
-  var isRateZero = rate === 0;
-  if (isRateZero) {
-    return -(fv + pv) / pmt;
-  }
-  var whenMult = when === PaymentDueTime.Begin ? 1 : 0;
-  var z = pmt * (1 + rate * whenMult) / rate;
-  return Math.log((-fv + z) / (pv + z)) / Math.log(1 + rate);
-}
+export declare function nper(rate: number, pmt: number, pv: number, fv?: number, when?: PaymentDueTime): number;
 /**
  * Compute the interest portion of a payment.
  *
@@ -277,31 +205,7 @@ function nper(rate, pmt, pv, fv, when) {
  * pmt = ppmt + ipmt
  * ```
  */
-function ipmt(rate, per, nper, pv, fv, when) {
-  if (fv === void 0) {
-    fv = 0;
-  }
-  if (when === void 0) {
-    when = PaymentDueTime.End;
-  }
-  // Payments start at the first period, so payments before that
-  // don't make any sense.
-  if (per < 1) {
-    return Number.NaN;
-  }
-  // If payments occur at the beginning of a period and this is the
-  // first period, then no interest has accrued.
-  if (when === PaymentDueTime.Begin && per === 1) {
-    return 0;
-  }
-  var totalPmt = pmt(rate, nper, pv, fv, when);
-  var ipmtVal = _rbl(rate, per, totalPmt, pv, when) * rate;
-  // If paying at the beginning we need to discount by one period
-  if (when === PaymentDueTime.Begin && per > 1) {
-    ipmtVal = ipmtVal / (1 + rate);
-  }
-  return ipmtVal;
-}
+export declare function ipmt(rate: number, per: number, nper: number, pv: number, fv?: number, when?: PaymentDueTime): number;
 /**
  * Compute the payment against loan principal.
  *
@@ -316,16 +220,7 @@ function ipmt(rate, per, nper, pv, fv, when) {
  *
  * @since v0.0.14
  */
-function ppmt(rate, per, nper, pv, fv, when) {
-  if (fv === void 0) {
-    fv = 0;
-  }
-  if (when === void 0) {
-    when = PaymentDueTime.End;
-  }
-  var total = pmt(rate, nper, pv, fv, when);
-  return total - ipmt(rate, per, nper, pv, fv, when);
-}
+export declare function ppmt(rate: number, per: number, nper: number, pv: number, fv?: number, when?: PaymentDueTime): number;
 /**
  * Calculates the present value of an annuity investment based on constant-amount
  * periodic payments and a constant interest rate.
@@ -378,19 +273,7 @@ function ppmt(rate, per, nper, pv, fv, when) {
  *
  * [Wheeler, D. A., E. Rathke, and R. Weir (Eds.) (2009, May)](http://www.oasis-open.org/committees/documents.php?wg_abbrev=office-formulaOpenDocument-formula-20090508.odt).
  */
-function pv(rate, nper, pmt, fv, when) {
-  if (fv === void 0) {
-    fv = 0;
-  }
-  if (when === void 0) {
-    when = PaymentDueTime.End;
-  }
-  var whenMult = when === PaymentDueTime.Begin ? 1 : 0;
-  var isRateZero = rate === 0;
-  var temp = Math.pow(1 + rate, nper);
-  var fact = isRateZero ? nper : (1 + rate * whenMult) * (temp - 1) / rate;
-  return -(fv + pmt * fact) / temp;
-}
+export declare function pv(rate: number, nper: number, pmt: number, fv?: number, when?: PaymentDueTime): number;
 /**
  * Compute the rate of interest per period
  *
@@ -437,36 +320,7 @@ function pv(rate, nper, pmt, fv, when) {
  *
  * [Wheeler, D. A., E. Rathke, and R. Weir (Eds.) (2009, May)](http://www.oasis-open.org/committees/documents.php?wg_abbrev=office-formulaOpenDocument-formula-20090508.odt).
  */
-function rate(nper, pmt, pv, fv, when, guess, tol, maxIter) {
-  if (when === void 0) {
-    when = PaymentDueTime.End;
-  }
-  if (guess === void 0) {
-    guess = 0.1;
-  }
-  if (tol === void 0) {
-    tol = 1e-6;
-  }
-  if (maxIter === void 0) {
-    maxIter = 100;
-  }
-  var rn = guess;
-  var iterator = 0;
-  var close = false;
-  while (iterator < maxIter && !close) {
-    var rnp1 = rn - _gDivGp(rn, nper, pmt, pv, fv, when);
-    var diff = Math.abs(rnp1 - rn);
-    close = diff < tol;
-    iterator++;
-    rn = rnp1;
-  }
-  // if exausted all the iterations and the result is not
-  // close enough, returns `NaN`
-  if (!close) {
-    return Number.NaN;
-  }
-  return rn;
-}
+export declare function rate(nper: number, pmt: number, pv: number, fv: number, when?: PaymentDueTime, guess?: number, tol?: number, maxIter?: number): number;
 /**
  * Return the Internal Rate of Return (IRR).
  *
@@ -528,59 +382,7 @@ function rate(nper, pmt, pv, fv, when, guess, tol, maxIter) {
  * - L. J. Gitman, "Principles of Managerial Finance, Brief," 3rd ed.,
  *  Addison-Wesley, 2003, pg. 348.
  */
-function irr(values, guess, tol, maxIter) {
-  if (guess === void 0) {
-    guess = 0.1;
-  }
-  if (tol === void 0) {
-    tol = 1e-6;
-  }
-  if (maxIter === void 0) {
-    maxIter = 100;
-  }
-  // Based on https://gist.github.com/ghalimi/4591338 by @ghalimi
-  // ASF licensed (check the link for the full license)
-  // Credits: algorithm inspired by Apache OpenOffice
-  // Initialize dates and check that values contains at
-  // least one positive value and one negative value
-  var dates = [];
-  var positive = false;
-  var negative = false;
-  for (var i = 0; i < values.length; i++) {
-    dates[i] = i === 0 ? 0 : dates[i - 1] + 365;
-    if (values[i] > 0) {
-      positive = true;
-    }
-    if (values[i] < 0) {
-      negative = true;
-    }
-  }
-  // Return error if values does not contain at least one positive
-  // value and one negative value
-  if (!positive || !negative) {
-    return Number.NaN;
-  }
-  // Initialize guess and resultRate
-  var resultRate = guess;
-  // Implement Newton's method
-  var newRate = 0;
-  var epsRate = 0;
-  var resultValue = 0;
-  var iteration = 0;
-  var contLoop = true;
-  do {
-    resultValue = _irrResult(values, dates, resultRate);
-    newRate = resultRate - resultValue / _irrResultDeriv(values, dates, resultRate);
-    epsRate = Math.abs(newRate - resultRate);
-    resultRate = newRate;
-    contLoop = epsRate > tol && Math.abs(resultValue) > tol;
-  } while (contLoop && ++iteration < maxIter);
-  if (contLoop) {
-    return Number.NaN;
-  }
-  // Return internal rate of return
-  return resultRate;
-}
+export declare function irr(values: number[], guess?: number, tol?: number, maxIter?: number): number;
 /**
  * Returns the NPV (Net Present Value) of a cash flow series.
  *
@@ -645,11 +447,7 @@ function irr(values, guess, tol, maxIter) {
  * L. J. Gitman, "Principles of Managerial Finance, Brief,"
  * 3rd ed., Addison-Wesley, 2003, pg. 346.
  */
-function npv(rate, values) {
-  return values.reduce(function (acc, curr, i) {
-    return acc + curr / Math.pow(1 + rate, i);
-  }, 0);
-}
+export declare function npv(rate: number, values: number[]): number;
 /**
  * Calculates the Modified Internal Rate of Return.
  *
@@ -663,92 +461,4 @@ function npv(rate, values) {
  *
  * @since v0.1.0
  */
-function mirr(values, financeRate, reinvestRate) {
-  var positive = false;
-  var negative = false;
-  for (var _iterator = _createForOfIteratorHelperLoose(values), _step; !(_step = _iterator()).done;) {
-    var value = _step.value;
-    if (value > 0) {
-      positive = true;
-    }
-    if (value < 0) {
-      negative = true;
-    }
-  }
-  // Return error if values does not contain at least one
-  // positive value and one negative value
-  if (!positive || !negative) {
-    return Number.NaN;
-  }
-  var numer = Math.abs(npv(reinvestRate, values.map(function (x) {
-    return x > 0 ? x : 0;
-  })));
-  var denom = Math.abs(npv(financeRate, values.map(function (x) {
-    return x < 0 ? x : 0;
-  })));
-  return Math.pow(numer / denom, 1 / (values.length - 1)) * (1 + reinvestRate) - 1;
-}
-/**
- * This function is here to simply have a different name for the 'fv'
- * function to not interfere with the 'fv' keyword argument within the 'ipmt'
- * function.  It is the 'remaining balance on loan' which might be useful as
- * it's own function, but is easily calculated with the 'fv' function.
- *
- * @private
- */
-function _rbl(rate, per, pmt, pv, when) {
-  return fv(rate, per - 1, pmt, pv, when);
-}
-/**
- * Evaluates `g(r_n)/g'(r_n)`, where:
- *
- * ```
- * g = fv + pv * (1+rate) ** nper + pmt * (1+rate * when)/rate * ((1+rate) ** nper - 1)
- * ```
- *
- * @private
- */
-function _gDivGp(r, n, p, x, y, when) {
-  var w = when === PaymentDueTime.Begin ? 1 : 0;
-  var t1 = Math.pow(r + 1, n);
-  var t2 = Math.pow(r + 1, n - 1);
-  var g = y + t1 * x + p * (t1 - 1) * (r * w + 1) / r;
-  var gp = n * t2 * x - p * (t1 - 1) * (r * w + 1) / Math.pow(r, 2) + n * p * t2 * (r * w + 1) / r + p * (t1 - 1) * w / r;
-  return g / gp;
-}
-/**
- * Calculates the resulting amount.
- *
- * Based on https://gist.github.com/ghalimi/4591338 by @ghalimi
- * ASF licensed (check the link for the full license)
- *
- * @private
- */
-function _irrResult(values, dates, rate) {
-  var r = rate + 1;
-  var result = values[0];
-  for (var i = 1; i < values.length; i++) {
-    result += values[i] / Math.pow(r, (dates[i] - dates[0]) / 365);
-  }
-  return result;
-}
-/**
- * Calculates the first derivation
- *
- * Based on https://gist.github.com/ghalimi/4591338 by @ghalimi
- * ASF licensed (check the link for the full license)
- *
- * @private
- */
-function _irrResultDeriv(values, dates, rate) {
-  var r = rate + 1;
-  var result = 0;
-  for (var i = 1; i < values.length; i++) {
-    var frac = (dates[i] - dates[0]) / 365;
-    result -= frac * values[i] / Math.pow(r, frac + 1);
-  }
-  return result;
-}
-
-export { PaymentDueTime, fv, ipmt, irr, mirr, nper, npv, pmt, ppmt, pv, rate };
-//# sourceMappingURL=financial.esm.js.map
+export declare function mirr(values: number[], financeRate: number, reinvestRate: number): number;

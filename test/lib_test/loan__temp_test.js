@@ -1,10 +1,9 @@
+// test with   deno --test --allow-import
+
 import { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan } from '../../src/modules/_utils/loan.js';
 
-// home   https://github.com/lmammino/financial  // backup repository   https://github.com/77it/financial
-// npm   https://www.npmjs.com/package/financial/v/0.1.3
-// file index   https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/
-// @deno-types="https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/financial.d.ts"
-import * as financial from 'https://cdn.jsdelivr.net/npm/financial@0.1.3/dist/financial.esm.js';
+// @deno-types="../../vendor/financial/index.d.ts"
+import * as financial from '../../vendor/financial/financial.esm.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
