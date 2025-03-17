@@ -4,6 +4,7 @@
     "pyodide": "^0.27.2"
   },
   "devDependencies": {
-    "@types/node": "^22.8.7"
+    "@types/node": "^22.8.7",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }
