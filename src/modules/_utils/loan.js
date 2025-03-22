@@ -26,48 +26,6 @@ https://www.adventuresincre.com/lenders-calcs/
 // @deno-types="../../../vendor/financial/index.d.ts"
 import * as financial from '../../../vendor/financial/financial.esm.js';
 
-//#region TODO
-
-// TODO subito
-
-// funzione per calcolo di interessi a partire da un piano con quote capitali già calcolate
-/*
-`getInterestPayments`
-  funzione per calcolo interessi a partire da un piano generato da `getMortgagePaymentsOfAConstantPaymentLoan` (per piano francese) o da altri metodi (per altri tipi di piani)
-  Se il capitale in qualche riga è negativo accettalo, vuol dire che c'è un incremento di debito.
-
-Input:
-* array di date in local date
-* array di quota capitale  // il capitale iniziale su cui fare il calcolo è la somma delle quote capitale
-* string: interestCalcMethod: "365/365" | "365/360" | "30/360"
-  See https://www.adventuresincre.com/lenders-calcs/
-  See https://github.com/jutunen/Paydown.js/blob/master/src/paydown.js per tasso /360 o /365
-* number: rate  // spread or fixed rate: when there is the field `ratesList` this is the spread
-* {date, number}[]: ratesList  // optional, sequence of variable rates
-* number: cap  // optional
-* number: floor  // optional
-* bool: negativeRateIsZero  // optional, quando tasso+spread < 0 considera zero
-*/
-
-
-// funzione per ricalcolo quote capitale con singole rate prese da Excel
-/*
-`CustomSchedule`
-  Funzione che consente di calcolare correttamente le quote di capitale a partire da piani le cui rate di capitale sono state prese su Excel.
-  Poiché la somma delle rate può essere imperfetta rispetto al capitale residuo, per evitare problemi ricalcoliamo con questa funzione le quote di ogni rata.
-  Logica di funzionamento:
-    il parametro `principalPayments` contiene un array principal, considerati come quote di `startingPrincipal`;
-    si sommano tutte le quote e si divide `startingPrincipal` per esse; con l'ultima quota l'importo residuo deve essere zero.
-  Gli interessi non sono oggetto di questa funzione (possono essere digitati/calcolati su Excel
-  oppure calcolati con i parametri di tasso da Execl, alimentando la funzione `getInterestPayments`).
-parametri:
-* numero: startingPrincipal
-* dates: Date[]  // array di date
-* number[]: principalPayments
-return {dates: Date[], principalPayments: number[]}
- */
-//#endregion TODO
-
 /**
  * @param {Object} p
  * @param {number} p.annualInterestRate
