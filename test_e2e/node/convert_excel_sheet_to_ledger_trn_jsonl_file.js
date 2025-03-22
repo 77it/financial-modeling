@@ -29,7 +29,7 @@ async function convertExcelSheetToLedgerTrnJsonlFile ({ excelInput, jsonlOutput,
   // see https://github.com/denoland/deno/issues/1286#issuecomment-643624186
   // & https://developer.mozilla.org/en-US/docs/Web/API/URL
   const _converterExePath = (new URL(OPTIONS__CONVERTER_EXE_NAME, import.meta.url)).pathname;
-  const converterExePath = _converterExePath.startsWith('/') ? _converterExePath.slice(1) : _converterExePath;
+  const converterExePath = (platformIsWindows() && _converterExePath.startsWith('/')) ? _converterExePath.slice(1) : _converterExePath;
 
   // download and decompress OPTIONS__CONVERTER_EXE_GZ_URL
   if (!existsSync(converterExePath))
