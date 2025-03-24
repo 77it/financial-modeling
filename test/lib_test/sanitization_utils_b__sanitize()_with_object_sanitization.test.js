@@ -297,6 +297,14 @@ t('test sanitize() with object sanitization - enum type', async () => {
 });
 
 t('test sanitize() - nested object in array OR as a single object in a property', () => {
+  const sanitization = {
+    str: S.STRING_TYPE,
+    str2: S.STRING_TYPE,
+    str3: S.STRING_TYPE,
+    arrOrObj: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
+    arrOrObj2: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
+  };
+
   const objToSanitize_nestedObjInArray = {
     str: 999,
     arrOrObj: [
@@ -331,14 +339,6 @@ t('test sanitize() - nested object in array OR as a single object in a property'
     str2: '888',
     arrOrObj2: { valA: '555', valB: { a: 9999 } },
     str3: '777',
-  };
-
-  const sanitization = {
-    str: S.STRING_TYPE,
-    str2: S.STRING_TYPE,
-    str3: S.STRING_TYPE,
-    arrOrObj: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
-    arrOrObj2: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
   };
 
   assert.deepStrictEqual(
