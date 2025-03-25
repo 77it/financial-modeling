@@ -25,6 +25,9 @@ const SUCCESS = '';
  * # Object Validation
  * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
+ * If validation is an array:
+ *   if is an array containing a single object [{OBJ}], the validation will be on an array containing that object;
+ *   in any other case the array will be considered an enum, ignored during sanitization, optionally validated.
  * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
  * As types, you can use also exported const as 'ANY_TYPE'.
  * @param {Object} p

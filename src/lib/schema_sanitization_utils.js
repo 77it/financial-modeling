@@ -30,7 +30,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * To sanitize an object, pass one as   {key1: STRING_TYPE, key2: NUMBER_TYPE + OPTIONAL}
  * To sanitize a value applying a function, pass a function returning with class `ValidateSanitizeResult` the validation result and the sanitized value.
  * For optional values (null/undefined are accepted) append '?' to the type.
- * For enum sanitization use an array of values (values will be ignored, optionally validated).
+ * enum will be ignored during sanitization, optionally validated.
  * Sanitization types ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
@@ -47,8 +47,9 @@ const DEFAULT_BIGINT = BigInt(0);
  * Sanitization is an object with keys corresponding to the keys of the object to sanitize and values corresponding to the sanitization types;
  * accepted types are many: see `schema.js`; class is 'function', class instance is 'object';
  * for optional parameters (null/undefined are accepted) append '?' to type, e.g. 'any?', 'string?', 'number?', etc.
- * If sanitization is an array, skip the sanitization because it is an enum that can't be applied to an object.
- * For enum sanitization use an array of values (values will be ignored, optionally validated).
+ * If sanitization is an array:
+ *   if is an array containing a single object [{OBJ}], the sanitization will be on an array containing that object;
+ *   in any other case the array will be considered an enum, ignored during sanitization, optionally validated.
  * Object keys missing from the sanitization object are ignored and not sanitized.
  * @param {Object} p
  * @param {*} p.value - Value to sanitize
