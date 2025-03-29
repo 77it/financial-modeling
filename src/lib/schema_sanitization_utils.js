@@ -30,6 +30,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * To sanitize an object, pass one as   {key1: STRING_TYPE, key2: NUMBER_TYPE + OPTIONAL}
  * To sanitize a value applying a function, pass a function returning with class `ValidateSanitizeResult` the validation result and the sanitized value.
  * For optional values (null/undefined are accepted) append '?' to the type.
+ * If sanitization is an array containing a single function [{func}], the sanitization will be done with the function and an array will be returned.
  * enum will be ignored during sanitization, optionally validated.
  * Sanitization types ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
  * Array are sanitized without cloning them.
@@ -48,7 +49,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * accepted types are many: see `schema.js`; class is 'function', class instance is 'object';
  * for optional parameters (null/undefined are accepted) append '?' to type, e.g. 'any?', 'string?', 'number?', etc.
  * If sanitization is an array:
- *   if is an array containing a single object [{OBJ}], the sanitization will be on an array containing that object;
+ *   if is an array containing a single object [{obj}], the sanitization will be done with the object and an array will be returned;
  *   in any other case the array will be considered an enum, ignored during sanitization, optionally validated.
  * Object keys missing from the sanitization object are ignored and not sanitized.
  * @param {Object} p
@@ -72,7 +73,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
   if (typeof sanitization !== 'string' && typeof sanitization !== 'object' && !Array.isArray(sanitization) && typeof sanitization !== 'function')
     throw new Error(`'sanitization' parameter must be a string, an object, an array or a function`);
 
-  if (options == null) options = {};  // sanitize options, otherwise the following code won't work
+  if (options == null) options = {};  // init sanitize options, otherwise the following code won't work
   const _NUMBER_TO_DATE = ('numberToDate' in options) ? options.numberToDate : DEFAULT__NUMBER_TO_DATE;
   validateFunc({ value: _NUMBER_TO_DATE, validation: [schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE, schema.NUMBER_TO_DATE_OPTS__JS_SERIAL_DATE, schema.NUMBER_TO_DATE_OPTS__NO_CONVERSION] });
   /** @type {boolean} */
@@ -82,45 +83,44 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
   const _DEFAULT_DATE = ('defaultDate' in options) ? options.defaultDate : DEFAULT_DATE;
   const _DEFAULT_BIGINT = ('defaultBigInt' in options) ? options.defaultBigInt : DEFAULT_BIGINT;
 
-  // if `sanitization` is an object & not an array, sanitize the object with `_sanitizeObj()`
+  // if `sanitization` is an array
+  // * and `sanitization[0]` is an object, sanitize as object returning an array as output;
+  // * and `sanitization[0]` is a function, use it to sanitize the array;
+  // * otherwise, the sanitization array is considered an enum and is used only for validation.
   //
-  // if `sanitization` is an array and `sanitization[0]` is a function, use it to sanitize the array
-  // otherwise, the sanitization array is considered an enum and is used only for validation
-  //
-  // if `sanitization` is a function, use it to sanitize the value
-  //
-  // else, continue with the sanitization
-  if (typeof sanitization === 'object' && !Array.isArray(sanitization)) {
-    return _sanitizeObj({
-      obj: value,
-      sanitization:
-      sanitization,
-      options: options,
-      validate: validate,
-      keyInsensitiveMatch: keyInsensitiveMatch
-    })
-  } else if (Array.isArray(sanitization)) {
-    let _value = value;
+  // if `sanitization` is not an array sanitize as object, or function, or following the sanitization type
+  // if Array
+  if (Array.isArray(sanitization)) {
+    // if array is long 1 && sanitization[0] is an object, sanitize as object with flag to generate an array as output
+    if (sanitization.length === 1 && typeof sanitization[0] === 'object') {
+      value = _sanitizeObj({
+        obj: value, sanitization: sanitization[0], toArray: true, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch
+      })
+    // if array is long 1 && sanitization[0] is a function, use it to sanitize the array
+    } else if (sanitization.length === 1 && typeof sanitization[0] === 'function') {
+      value = _sanitizeArray({ array: value, sanitization: sanitization[0] });
+    } else {
+      // at this point the array is considered enum, not sanitized
+    }
 
-    // if sanitization[0] is a function, use it to sanitize the array
-    if (typeof sanitization[0] === 'function')
-      _value = _sanitizeArray({ array: _value, sanitization: sanitization[0] });
+    return _validateIfTrue({ value: value, validation: sanitization, flag: validate });
+  } else {  // if !Array
+    if (typeof sanitization === 'object') {  // if !Array & Object
+      value = _sanitizeObj({
+        obj: value, sanitization: sanitization, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch })
 
-    if (validate)
-      return validateFunc({ value: _value, validation: sanitization });
-    else
-      return _value;
-  } else if (typeof sanitization === 'function') {
-    // if sanitization is a function call it and read the validation and sanitization result stored in the `ValidateSanitizeResult` type
-    /** @type {ValidateSanitizeResult} */
-    const validationResult = sanitization(value);
-    if (!(validationResult instanceof ValidateSanitizeResult))
-      throw new Error('sanitization function must return a `ValidateSanitizeResult` object');
+      return _validateIfTrue({ value: value, validation: sanitization, flag: validate });
+    } else if (typeof sanitization === 'function') {  // if function
+      // if sanitization is a function call it and read the validation and sanitization result stored in the `ValidateSanitizeResult` type
+      /** @type {ValidateSanitizeResult} */
+      const validationResult = sanitization(value);
+      if (!(validationResult instanceof ValidateSanitizeResult))
+        throw new Error('sanitization function must return a `ValidateSanitizeResult` object');
 
-    if (validate)
-      return validateFunc({ value: validationResult.sanitizedValue, validation: sanitization });
-    else
-      return validationResult.sanitizedValue;
+      return _validateIfTrue({ value: validationResult.sanitizedValue, validation: sanitization, flag: validate });
+    } else {
+      // continue below with sanitization following the sanitization type
+    }
   }
 
   let optionalSanitization = false;
@@ -315,46 +315,63 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
         `sanitization error, ${sanitizationType} type is unrecognized`);
   }
 
-  if (validate)
-    return validateFunc({ value: retValue, validation: sanitization });
-  else
-    return retValue;
+  return _validateIfTrue({ value: retValue, validation: sanitization, flag: validate });
 
   //#region local functions
   /**
    * Local sanitization function
+   *
+   * Being a local function, reads `options` from the parent function
+   *
    * @param {Object} p
    * @param {[*]} p.array - Array to sanitize
    * @param {string|function} p.sanitization - Sanitization string or function
    * @return {*} Sanitized array
    */
   function _sanitizeArray ({ array, sanitization }) {
-    if (!Array.isArray(array))  // if `value` is not an array return a new array with `value` as first element
+    if (!Array.isArray(array))  // if `value` is not an array return a new array with sanitized `value` as first element
       return [sanitize({ value: array, sanitization: sanitization, options: options })];
 
     for (let i = 0; i < array.length; i++) {  // sanitize every element of the array
       array[i] = sanitize({ value: array[i], sanitization: sanitization, options: options });
     }
-
     return array;
   }
-
-  /**
-   * Local function to check if a value is empty string or whitespace
-   * @param {*} value
-   * @returns {boolean}
-   */
-  function _isEmptyOrWhiteSpace (value) {
-    try {
-      if (typeof value !== 'string')
-        return false;
-      return value === '' || value.toString().trim() === '';
-    } catch (e) {
-      return false;
-    }
-  }
-
   //#endregion local functions
+}
+
+//#region private functions
+/**
+ @private
+ * Private function: Validate if flag is true; always returns the input value
+ * @param {Object} p
+ * @param {*} p.value - Value to be optionally validate
+ * @param {*} p.validation - Validation object
+ * @param {boolean} p.flag - Validation flag
+ * @return {*} Input value
+ * @throws {Error} Will throw an error if the validation fails
+ */
+function _validateIfTrue ({ value, validation, flag }) {
+  if (flag)
+    return validateFunc({ value: value, validation: validation });
+  else
+    return value;
+}
+
+/**
+ @private
+ * Private function: Check if a value is empty string or whitespace
+ * @param {*} value
+ * @returns {boolean}
+ */
+function _isEmptyOrWhiteSpace (value) {
+  try {
+    if (typeof value !== 'string')
+      return false;
+    return value === '' || value.toString().trim() === '';
+  } catch (e) {
+    return false;
+  }
 }
 
 /**
@@ -364,6 +381,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
  * @param {Object} p
  * @param {*} p.obj - Object to sanitize
  * @param {*} p.sanitization - Sanitization object; e.g.  {key1: 'string', key2: 'number?'}
+ * @param {boolean} [p.toArray=false] - Optional flag to generate an array as output
  * @param {Object} [p.options]
  * @param {string} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
  * @param {boolean} [p.options.dateUTC=false]
@@ -375,12 +393,13 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
  * @param {boolean} [p.keyInsensitiveMatch=false] - Optionally match keys between sanitization and obj to sanitize in a case insensitive way (case and trim)
  * @return {*} Sanitized object
  */
-function _sanitizeObj ({ obj, sanitization, options, validate = false, keyInsensitiveMatch = false }) {
+function _sanitizeObj ({ obj, sanitization, toArray = false, options, validate = false, keyInsensitiveMatch = false }) {
   let retValue;
 
   if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
-    retValue = {};  // return an empty object if `obj` is not an object
-  else if (sanitization == null || typeof sanitization !== 'object' || Array.isArray(sanitization))  // double check, because typeof null is object and typeof array is object
+    obj = {};  // init `obj` to an empty object if is not an object, and continue with sanitization
+
+  if (sanitization == null || typeof sanitization !== 'object' || Array.isArray(sanitization))  // double check, because typeof null is object and typeof array is object
     retValue = obj;
   else if (Array.isArray(obj)) {
     for (const elem of obj) {
@@ -399,11 +418,12 @@ function _sanitizeObj ({ obj, sanitization, options, validate = false, keyInsens
       retValue = _sanitizeObj2(obj);
   }
 
-  if (validate)
-    return validateFunc({ value: retValue, validation: sanitization });
-  else
-    return retValue;
+  if (toArray && !Array.isArray(retValue))
+    retValue = [retValue];
 
+  return _validateIfTrue({ value: retValue, validation: sanitization, flag: validate });
+
+  //#region local functions
   /**
    * Local sanitization function
    * @param {*} _obj - Object to sanitize
@@ -411,10 +431,6 @@ function _sanitizeObj ({ obj, sanitization, options, validate = false, keyInsens
    */
   function _sanitizeObj2 (_obj) {
     for (const key of Object.keys(sanitization)) {
-      // skip enum sanitization
-      if (Array.isArray(sanitization[key]) && typeof sanitization[key][0] !== 'function')
-        continue;
-
       // if sanitization key is missing in the object to sanitize and the sanitization is optional, skip sanitization
       const optionalSanitization =
         (typeof sanitization[key] === 'string') &&
@@ -441,10 +457,6 @@ function _sanitizeObj ({ obj, sanitization, options, validate = false, keyInsens
       if (_sanitization == null)
         continue;
 
-      // skip enum sanitization (if the sanitization array contains values different from functions means that it is an enum)
-      if (Array.isArray(_sanitization) && typeof _sanitization[0] !== 'function')
-        continue;
-
       _obj[key] = sanitize({ value: _obj[key], sanitization: get2(sanitization, key), options: options });
     }
 
@@ -464,4 +476,6 @@ function _sanitizeObj ({ obj, sanitization, options, validate = false, keyInsens
     }
     return _obj;
   }
+  //#endregion local functions
 }
+//#endregion private functions

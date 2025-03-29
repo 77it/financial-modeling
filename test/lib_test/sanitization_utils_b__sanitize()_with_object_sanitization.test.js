@@ -14,18 +14,24 @@ t('test sanitize() with object sanitization - sanitization = {} means no sanitiz
   assert.deepStrictEqual(s.sanitize({ value: objToSanitize, sanitization: {} }), objToSanitize);
 });
 
-t('test sanitize() with object sanitization - null, undefined and other non-objects are coerced to {}', async () => {
+t('test sanitize() with object sanitization - null, undefined and other non-objects are coerced to {} with properties set to default values, {} if properties are optional', async () => {
+  const sanitWOptProp = { a: S.STRING_TYPE + S.OPTIONAL, b: S.NUMBER_TYPE + S.OPTIONAL };
+  assert.deepStrictEqual(s.sanitize({ value: null, sanitization: sanitWOptProp }), {});
+  assert.deepStrictEqual(s.sanitize({ value: undefined, sanitization: sanitWOptProp }), {});
+  assert.deepStrictEqual(s.sanitize({ value: 999, sanitization: sanitWOptProp }), {});
+  assert.deepStrictEqual(s.sanitize({ value: Symbol(), sanitization: sanitWOptProp }), {});
+
   const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
-  assert.deepStrictEqual(s.sanitize({ value: null, sanitization: sanitization }), {});
-  assert.deepStrictEqual(s.sanitize({ value: undefined, sanitization: sanitization }), {});
-  assert.deepStrictEqual(s.sanitize({ value: 999, sanitization: sanitization }), {});
-  assert.deepStrictEqual(s.sanitize({ value: Symbol(), sanitization: sanitization }), {});
+  assert.deepStrictEqual(s.sanitize({ value: null, sanitization: sanitization }), { a: "", b:0 });
+  assert.deepStrictEqual(s.sanitize({ value: undefined, sanitization: sanitization }), { a: "", b:0 });
+  assert.deepStrictEqual(s.sanitize({ value: 999, sanitization: sanitization }), { a: "", b:0 });
+  assert.deepStrictEqual(s.sanitize({ value: Symbol(), sanitization: sanitization }), { a: "", b:0 });
 });
 
-t('test sanitize() with object sanitization - class: class Type is coerced to {}, class instance is object and sanitized normally', async () => {
+t('test sanitize() with object sanitization - class: class Type is coerced to {} with properties set to default values; class instance is object and sanitized normally', async () => {
   class TestClass {
     /**
-     * @param {{a: string, b: string}} p
+     * @param {{a: number, b: string}} p
      */
     constructor ({ a, b }) {
       this.a = a;
@@ -33,29 +39,30 @@ t('test sanitize() with object sanitization - class: class Type is coerced to {}
     }
   }
 
-  const testClassInstance = new TestClass({ a: '0', b: '99' });
+  const testClassInstance = new TestClass({ a: 0, b: '99' });
   const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
 
-  // class Type is coerced to {}
-  assert.deepStrictEqual(s.sanitize({ value: TestClass, sanitization: sanitization }), {});
+  // class Type is coerced to {} with properties set to default values
+  assert.deepStrictEqual(s.sanitize({ value: TestClass, sanitization: sanitization }), { a: "", b:0 });
+
+  s.sanitize({ value: testClassInstance, sanitization: sanitization, validate: true });
 
   // class instance is object and sanitized normally
   assert.deepStrictEqual(
-    JSON.stringify(s.sanitize({ value: testClassInstance, sanitization: sanitization, validate: true })),
-    JSON.stringify({ a: '0', b: 99 })
+    { a: testClassInstance.a, b: testClassInstance.b },
+    { a: '0', b: 99 }
   );
 });
 
 t('test sanitize() with object sanitization - FAILING can\'t sanitize single part of an object, only the entire object (can\'t sanitize a deconstructed object)', async () => {
   const a = '0';
   const b = '99';
+  const expObjNotSanitized = { a: '0', b: '99' };
   const expObj = { a: 0, b: 99 };
   const sanitization = { a: S.NUMBER_TYPE, b: S.NUMBER_TYPE };
   /* `a` `b` are not sanitized */
   s.sanitize({ value: { a, b }, sanitization: sanitization });
-  /* FAILS */
-  // @ts-ignore
-  assert(!eq2({ a, b }, expObj));
+  assert.deepStrictEqual({ a, b }, expObjNotSanitized);
 
   // to sanitize object parameters, there are two ways, construct another object or save the returned object
   //
@@ -288,11 +295,29 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
   })), (expObj));
 });
 
-t('test sanitize() with object sanitization - enum type', async () => {
-  // test undefined with enum type
-  assert.deepStrictEqual((s.sanitize({ value: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), ({}));
+t('test sanitize() empty object with an object for sanitization', async () => {
+  const objToSanitize = {};
+  const expObj = {a: 0, b: 0};
+  const sanitization = { a: S.NUMBER_TYPE, b: S.NUMBER_TYPE };
 
-  // test enum type
+  assert.deepStrictEqual(
+    s.sanitize({ value: objToSanitize, sanitization: sanitization }),
+    expObj);
+});
+
+t('test sanitize() with object sanitization - enum type in property', async () => {
+  // test object property validate with enum type, success
+  assert.deepStrictEqual((s.sanitize({ value: {a: 999}, sanitization: { a: [11, 'aa', 999, 55] }, validate: true })), {a: 999});
+
+  // test that when the property 'a' is missing in the object, the property 'a' is added, and it passes the validation of an enum containing undefined
+  assert.deepStrictEqual(
+    s.sanitize({ value: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true }),
+    {a: undefined});
+
+  // test that when the property 'a' is missing in the object, the property 'a' is added, but fails the validation if undefined is missing from the enum
+  assert.throws(() => s.sanitize({ value: { }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
+
+  // test that enum sanitization is ignored + validation fails
   assert.throws(() => s.sanitize({ value: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
 });
 
@@ -303,6 +328,8 @@ t('test sanitize() - nested object in array OR as a single object in a property'
     str3: S.STRING_TYPE,
     arrOrObj: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
     arrOrObj2: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
+    nestedObjInArray: [ { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} } ],
+    nestedObjInArrayWithOptionalProperties: [ { valA: S.STRING_TYPE + S.OPTIONAL, valB: { a: S.NUMBER_TYPE + S.OPTIONAL} } ]
   };
 
   const objToSanitize_nestedObjInArray = {
@@ -313,6 +340,8 @@ t('test sanitize() - nested object in array OR as a single object in a property'
     str2: 888,
     arrOrObj2: { valA: 555, valB: { a: '9999' } },
     str3: 777,
+    nestedObjInArray: { valA: 5551, valB: { a: '99997' } },
+    nestedObjInArrayWithOptionalProperties: [{ valA: 5552, valB: { a: '99998' } }]
   };
 
   const objToSanitize_nestedObjInArray_expected = {
@@ -323,6 +352,8 @@ t('test sanitize() - nested object in array OR as a single object in a property'
     str2: '888',
     arrOrObj2: { valA: '555', valB: { a: 9999 } },
     str3: '777',
+    nestedObjInArrayWithOptionalProperties: [{ valA: '5552', valB: { a: 99998 } }],
+    nestedObjInArray: [{ valA: '5551', valB: { a: 99997 } }],  // an array is missing in input, is added after sanitization
   };
 
   const objToSanitize_nestedObjInProperty = {
@@ -339,6 +370,8 @@ t('test sanitize() - nested object in array OR as a single object in a property'
     str2: '888',
     arrOrObj2: { valA: '555', valB: { a: 9999 } },
     str3: '777',
+    nestedObjInArray: [ { valA: "", valB: {a: 0} } ],
+    nestedObjInArrayWithOptionalProperties: [ { valB: {} } ]
   };
 
   assert.deepStrictEqual(
@@ -451,14 +484,6 @@ t('test sanitize() with object sanitization - custom default sanitization values
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_EmptyStr));
-});
-
-t('test sanitize() with object sanitization - enum type in property', async () => {
-  // test that when the property 'a' is missing in the object, it pass the validation of an enum containing undefined
-  assert.deepStrictEqual((s.sanitize({ value: {}, sanitization: { a: [11, undefined, 'aa', 'aaa', 55] }, validate: true })), ({}));
-
-  // test that enum sanitization is ignored + validation
-  assert.throws(() => s.sanitize({ value: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
 });
 
 t('test sanitize() with object sanitization - enum array as sanitization is ignored', async () => {
