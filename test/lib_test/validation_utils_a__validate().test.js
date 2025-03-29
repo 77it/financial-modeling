@@ -90,7 +90,7 @@ t('test validate(), valid, all cases', () => {
   v.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: S.ARRAY_OF_BIGINT_TYPE });
   v.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE });
   v.validate({ value: 10, validation: validateSanitizeFunction_TestTemp });  // validate true if value is number
-  v.validate({ value: [10, 9, 0], validation: [validateSanitizeFunction_TestTemp] });  // validate true if value is number
+  v.validate({ value: [10, 9, 0], validation: [validateSanitizeFunction_TestTemp] });  // validate true if value is number in an array
   v.validate({ value: 999, validation: S.ANY_TYPE });
 });
 
@@ -464,12 +464,21 @@ t('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    v.validate({ value: [10, "0", 0], validation: [validateSanitizeFunction_TestTemp] });
+    v.validate({ value: [10, "0", 0], validation: [validateSanitizeFunction_TestTemp] });  // validate false if a value in the array is not a number
   } catch (error) {
     _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
   
   assert(_error.includes('Value = 0, is not a number'));
+
+  _error = '';
+  try {
+    v.validate({ value: 10, validation: [validateSanitizeFunction_TestTemp] });  // validate false if value is not an array
+  } catch (error) {
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
+  }
+
+  assert(_error.includes('Validation error: Value array error, must be an array'));
 });
 
 t('test validate() - test throw when a sanitization function doesn\'t return `ValidateSanitizeResult` type', async () => {

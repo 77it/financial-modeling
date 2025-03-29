@@ -231,6 +231,28 @@ t('test validate() with object validation - valid, object with and without optio
   validate({ value: nullObject, validation: validation });
 });
 
+t('test validate() with object validation - valid, nested object in array', () => {
+  const objToValidate_Wrong_MissingArray = {
+    objInArray: { valA: 'aaa2', valB: { a: 9999 } }
+  };
+
+  const objToValidate = {
+    objInArray: [{ valA: 'aaa2', valB: { a: 9999 } }]
+  };
+
+  const objToValidate2 = {
+    objInArray: [{ valA: 'aaa2', valB: { a: 9999 }},  { valA: 'aaa3', valB: { a: 0 }}]
+  };
+
+  const validation = {
+    objInArray: [{ valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} }]
+  };
+
+  validate({ value: objToValidate, validation: validation });
+  validate({ value: objToValidate2, validation: validation });
+  assert.throws(() => validate({ value: objToValidate_Wrong_MissingArray, validation: validation }));
+});
+
 t('test validate() with object validation - valid, nested object in array OR as a single object in a property', () => {
   const objToValidate_nestedObjInArray = {
     str: 'string',

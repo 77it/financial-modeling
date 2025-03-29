@@ -3,8 +3,12 @@ export { validate };
 import { DISABLE_VALIDATION } from '../config/engine.js';
 import * as schema from './schema.js';
 import { ValidateSanitizeResult } from './validate_sanitize_result.js';
+import { GlobalImmutableValue } from './global_immutable_value.js';
 
 const SUCCESS = '';
+// Strict flag; if true check that there are no extra keys other than validation keys in the validated object.
+// set only during init
+let STRICT = false;
 
 /**
  * Validate input Value and return it to allow chaining.
@@ -18,16 +22,18 @@ const SUCCESS = '';
  * Accepted validation types are many: see exported strings; class is 'function', class instance is 'object'.
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
  * For optional values (null/undefined are accepted) append '?' to the type.
- * For enum validation use an array of values.
- * To validate a value applying a function, pass a function returning with class `ValidateSanitizeResult` the validation result and the sanitized value.
+ * To validate a value applying a function, pass a function returning in an instance of class `ValidateSanitizeResult` the validation result and the sanitized value.
  * As types value you can use also exported const as 'ANY_TYPE'.
+ *
+ * # Array validation (enum ecc)
+ * If validation is an array:
+ *   if is an array containing a single object [{obj}], the validation will expect an array containing that object;
+ *   if is an array containing a single function [{func}], the validation will expect an array containing a value validated by the function;
+ *   in any other case the array will be considered an enum, ignored during sanitization, optionally validated.
  *
  * # Object Validation
  * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
- * If validation is an array:
- *   if is an array containing a single object [{OBJ}], the validation will be on an array containing that object;
- *   in any other case the array will be considered an enum, ignored during sanitization, optionally validated.
  * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
  * As types, you can use also exported const as 'ANY_TYPE'.
  * @param {Object} p
@@ -39,7 +45,7 @@ const SUCCESS = '';
  * @throws {Error} Will throw an error if the validation fails
  */
 // see https://github.com/iarna/aproba for inspiration
-function validate ({ value, validation, errorMsg, strict = false}) {
+function validate ({ value, validation, errorMsg, strict = false }) {
   if (DISABLE_VALIDATION)
     return value;
 
@@ -51,11 +57,12 @@ function validate ({ value, validation, errorMsg, strict = false}) {
   if (errorMsg != null && typeof errorMsg !== 'string')
     throw new Error(`'errorMsg' parameter must be null/undefined or string`);
 
+  STRICT = strict;
+
   const validationResult = _validationDispatcher({
     value: value,
     validation: validation,
-    errorMsg: errorMsg,
-    strict: strict
+    errorMsg: errorMsg
   });
 
   if (validationResult)
@@ -71,10 +78,9 @@ function validate ({ value, validation, errorMsg, strict = false}) {
  * @param {*} p.value - Value to validate
  * @param {*} p.validation - Validation type (string, array of strings, validation function, array containing a validation function)
  * @param {string} [p.errorMsg] - Optional error message
- * @param {boolean} [p.strict = false] - Used only if `validation` is an object; optional, default false; if true check that there are no extra keys other than validation keys in the validated object.
  * @return {string} Return empty string for success; return error string for validation error.
  */
-function _validationDispatcher ({ value, validation, errorMsg, strict = false}) {
+function _validationDispatcher ({ value, validation, errorMsg}) {
   // if `validation` is an object & not an array, validate the object with `_validateObj()`
   //
   // else, validate the object with `_validateValue()`
@@ -82,8 +88,7 @@ function _validationDispatcher ({ value, validation, errorMsg, strict = false}) 
     return _validateObj({
       obj: value,
       validation: validation,
-      errorMsg: errorMsg,
-      strict: strict
+      errorMsg: errorMsg
     });
   } else {
     return _validateValue({
@@ -110,15 +115,23 @@ function _validateValue ({ value, validation, errorMsg }) {
   if (errorMsg == null) errorMsg = 'Value';
 
   if (Array.isArray(validation)) {
-    // Class or Functions are of type 'function'
-    if (typeof validation[0] === 'function') {
+    // if array is long 1 && validation[0] is an object, use it to do the validation
+    if (validation.length === 1 && typeof validation[0] === 'object') {
+      const validationResult = _validateArray({ array: value, validation: validation[0] });
+      if (validationResult)
+        return `${errorMsg} array error, ${validationResult}`;
+
+      return SUCCESS;
+      // if array is long 1 && validation[0] is a function (a Class or a Functions), use it to do the validation
+    } else if (validation.length === 1 && typeof validation[0] === 'function') {
       const validationResult = _validateArray({ array: value, validation: validation[0] });
       if (validationResult)
         return `${errorMsg} array error, ${validationResult}`;
 
       return SUCCESS;
     }
-    // if validation is not a function
+
+    // if validation is not a function validate as enum array
     if (validation.includes(value))
       return SUCCESS;
 
@@ -287,7 +300,7 @@ function _validateValue ({ value, validation, errorMsg }) {
       return `must be an array`;
 
     for (const elem of array) {
-      const validationResult = _validateValue({
+      const validationResult = _validationDispatcher({  // because validation can be also an object
         value: elem,
         validation: validation
       });
@@ -309,11 +322,10 @@ function _validateValue ({ value, validation, errorMsg }) {
  * @param {*} p.obj - Object to validate
  * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}
  * @param {string} [p.errorMsg] - Optional error message
- * @param {boolean} [p.strict = false] - Optional strict flag, default false; if true check that there are no extra keys other than validation keys in the validated object.
  * @return {string} Return empty string for success; return error string for validation error.
  */
 // see https://github.com/iarna/aproba for inspiration
-function _validateObj ({ obj, validation, errorMsg, strict = false }) {
+function _validateObj ({ obj, validation, errorMsg }) {
   if (DISABLE_VALIDATION)
     return SUCCESS;
 
@@ -326,8 +338,7 @@ function _validateObj ({ obj, validation, errorMsg, strict = false }) {
 
   const validationResult = __validateObj({
     obj: obj,
-    validation: validation,
-    strict: strict
+    validation: validation
   });
 
   if (validationResult) {
@@ -346,10 +357,9 @@ function _validateObj ({ obj, validation, errorMsg, strict = false }) {
  * @param {Object} p
  * @param {*} p.obj - Object to validate
  * @param {*} p.validation - Validation object {key1: 'typeA', key2: 'typeB'}
- * @param {boolean} [p.strict] - Strict flag; if true check that there are no extra keys other than validation keys in the validated object.
  * @return {string} Return empty string for success; return error string for validation error.
  */
-function __validateObj ({ obj, validation, strict }) {
+function __validateObj ({ obj, validation }) {
   /** @type {string[]} */
   const errors = [];
 
@@ -376,7 +386,7 @@ function __validateObj ({ obj, validation, strict }) {
    */
   function _validateObj2 (_obj) {
     // if `strict` flag is true, check that there are no extra keys other than validation keys in the validated object
-    if (strict)
+    if (STRICT)
       for (const key2 of Object.keys(_obj))
         if (!(key2 in validation))
           errors.push(`${key2} is not a valid key, is missing from validation object`);
@@ -407,7 +417,6 @@ function __validateObj ({ obj, validation, strict }) {
           validation: validation[key],
           errorMsg: key
         });
-
         if (validationResult) errors.push(validationResult);
       }
     }

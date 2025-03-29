@@ -95,8 +95,8 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
     if (sanitization.length === 1 && typeof sanitization[0] === 'object') {
       value = _sanitizeObj({
         obj: value, sanitization: sanitization[0], toArray: true, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch
-      })
-    // if array is long 1 && sanitization[0] is a function, use it to sanitize the array
+      });
+      // if array is long 1 && sanitization[0] is a function, use it to sanitize the array
     } else if (sanitization.length === 1 && typeof sanitization[0] === 'function') {
       value = _sanitizeArray({ array: value, sanitization: sanitization[0] });
     } else {
@@ -107,7 +107,8 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
   } else {  // if !Array
     if (typeof sanitization === 'object') {  // if !Array & Object
       value = _sanitizeObj({
-        obj: value, sanitization: sanitization, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch })
+        obj: value, sanitization: sanitization, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch
+      });
 
       return _validateIfTrue({ value: value, validation: sanitization, flag: validate });
     } else if (typeof sanitization === 'function') {  // if function
@@ -337,6 +338,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
     }
     return array;
   }
+
   //#endregion local functions
 }
 
@@ -476,6 +478,8 @@ function _sanitizeObj ({ obj, sanitization, toArray = false, options, validate =
     }
     return _obj;
   }
+
   //#endregion local functions
 }
+
 //#endregion private functions
