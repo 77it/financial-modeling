@@ -5,21 +5,22 @@ import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
 t('global variable test', () => {
-  // set a default value, get it -> lock, try to set a new value -> ignored
+  // set a default value, get it -> lock, try to set a new value -> throw, reset and set a new value
   const myGlobalVariable = new GlobalImmutableValue("default");
   assert.deepStrictEqual(myGlobalVariable.isLocked(), false);
   assert.deepStrictEqual(myGlobalVariable.get(), "default");
   assert.deepStrictEqual(myGlobalVariable.isLocked(), true);
-  myGlobalVariable.setOneTimeBeforeRead("new value");  // the set is ignored
-  assert.deepStrictEqual(myGlobalVariable.get(), "default");
+  assert.throws(() => { myGlobalVariable.setOneTimeBeforeRead("new value"); });
+  myGlobalVariable.reset();  // reset
+  myGlobalVariable.setOneTimeBeforeRead("new value");
+  assert.deepStrictEqual(myGlobalVariable.get(), "new value");
 
   // set a default value, set a new value, try to set a new new value -> ignored
   const myGlobalVariable2 = new GlobalImmutableValue("default");
   assert.deepStrictEqual(myGlobalVariable2.isLocked(), false);
   myGlobalVariable2.setOneTimeBeforeRead("new value");  // the set is accepted
   assert.deepStrictEqual(myGlobalVariable2.isLocked(), true);
-  myGlobalVariable2.setOneTimeBeforeRead("new new value");  // the second set is ignored
-  assert.deepStrictEqual(myGlobalVariable2.get(), "new value");
+  assert.throws(() => { myGlobalVariable2.setOneTimeBeforeRead("new new value"); });
 
   // init without value -> not locked, try to get, throw
   const myGlobalVariable3 = new GlobalImmutableValue();

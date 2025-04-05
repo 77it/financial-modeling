@@ -31,9 +31,19 @@ class GlobalImmutableValue {
   }
 
   /**
+   * Reset the value and unlock it.
+   */
+  reset() {
+    this.#isLocked = false;
+    this.#hasValue = false;
+    this.#value = undefined;
+  }
+
+  /**
    * Set a new value (one time), but only if it hasn't been locked yet (will be locked after the first read or set).<p>
    * If the value is locked, the set is ignored.
    * @param {any} newValue - The new value to set.
+   * @throws {Error} If the value is locked, throw an error.
    */
   setOneTimeBeforeRead(newValue) {
     if (!this.#isLocked) {
@@ -44,6 +54,8 @@ class GlobalImmutableValue {
       } else {
         throw new Error('Set value must be provided.');
       }
+    } else {
+      throw new Error('Value is already locked. Cannot set a new value.');
     }
   }
 
