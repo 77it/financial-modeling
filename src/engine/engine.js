@@ -22,6 +22,7 @@ import { Settings } from './settings/settings.js';
 import { TaskLocks } from './tasklocks/tasklocks.js';
 import { SimulationContext } from './context/simulationcontext.js';
 import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
+import * as GLOBALS from "../config/globals.js";
 
 // exported simulationContext for whom may require it (e.g. tests)
 const simulationContext = new GlobalImmutableValue();
@@ -59,6 +60,12 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       }
     });
     if (modulesData.length !== modules.length) throw new Error('modulesData.length !== modules.length');
+
+    //reset globals
+    for (const instance /** @type {GlobalImmutableValue} */ of Object.values(GLOBALS))
+      if (typeof instance.reset === "function")
+        instance.reset();
+    simulationContext.reset();
 
     //#region variables declaration
     /** @type {undefined|Date} */
