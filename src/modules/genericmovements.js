@@ -110,7 +110,7 @@ export class Module {
         const historicalColumns = searchDateKeys({ obj: currTab.table[0], prefix: this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX }) });
 
         for (const row of currTab.table) {
-          if (row[tSet.INACTIVE]) {
+          if (!row[tSet.INACTIVE]) {
             const simulation_input = row[tSet.SIMULATION_INPUT];
             const accounting_type = row[tSet.ACCOUNTING_TYPE] ?? this.#accounting_type__default;
             const accounting_opposite_type = row[tSet.ACCOUNTING_OPPOSITE_TYPE] ?? this.#accounting_opposite_type__default;

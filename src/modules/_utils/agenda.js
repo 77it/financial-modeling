@@ -6,6 +6,10 @@ class Agenda {
   /**
    Map to store things to do:
    keys are strings of ISO serialization of date (with `localDateToStringYYYYMMDD`), values are an array of {isSimulation: boolean, data: *}
+
+   BEWARE: You cannot directly use a Date object as a key in a JavaScript Map because Map uses object references for keys,
+   so two Date objects with the same value are treated as different keys, and to ensure consistent behavior,
+   you should convert the Date to a string (e.g., ISO format) or a number (e.g., timestamp).
    * @type {Map<string, {isSimulation: boolean, data: *}[]>} */
   #repo;
   /** @type {Date} */
@@ -29,7 +33,7 @@ class Agenda {
    * Append an Agenda item to a day, ignoring the time part of the date.
    * If the simulation flag is true but the date is before the simulation start date, the item is ignored, otherwise it is added.
    * @param {Object} p
-   * @param {*} p.date - Date (will be sanitized to date); if the date is invalid, throw
+   * @param {*} p.date - Date (will be sanitized to local date without time); if the date is invalid, throw
    * @param {boolean} p.isSimulation - True if the item is for the simulation, false if it is for the historical period
    * @param {*} p.data - Agenda item data
    * @throws {Error} if `set__simulation_start_date` is not called before
@@ -43,7 +47,7 @@ class Agenda {
     });
 
     // sanitize date to Date (default date NaN); if the date is invalid, throw.
-    let _date = sanitize({ value: date, sanitization: schema.DATE_TYPE, options: { defaultDate: new Date(NaN) } });
+    const _date = sanitize({ value: date, sanitization: schema.DATE_TYPE, options: { defaultDate: new Date(NaN) } });
     validate({ value: _date, validation: schema.DATE_TYPE });
 
     // if the simulation flag is true but the date is before the simulation start date, the item is ignored; and vice versa.
