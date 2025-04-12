@@ -2,10 +2,10 @@
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import { tablesInfo, moduleSanitization } from '../config/modules/genericmovements.js';
-import { Agenda } from './_utils/Agenda.js';
+import { Agenda } from './_utils/agenda.js';
 import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 import { moduleDataLookup } from './_utils/search/module_data_lookup.js';
-import { searchDateKeys } from './_utils/search/search_date_keys.js';
+import { classifyDateString, DATE_CLASSIFICATION } from './_utils/search/classify_date_string.js';
 import { YAMLtoSimObject_Metadata } from './_utils/yaml_to_simobject_metadata.js';
 import { SimObject_Metadata, ModuleData, SimulationContext, schema, sanitize, eq2, isNullOrWhiteSpace } from './deps.js';
 
@@ -104,10 +104,10 @@ export class Module {
     // loop all tables
     for (const currTab of this.#moduleData.tables) {
       const tSet = tablesInfo.SET.columns;
+
       if (eq2(currTab.tableName, tablesInfo.SET.tableName)) {
-        // search data column keys named as dates in currTab.table[0]
-        const simulationColumns = searchDateKeys({ obj: currTab.table[0], prefix: this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$SIMULATION_COLUMN_PREFIX }) });
-        const historicalColumns = searchDateKeys({ obj: currTab.table[0], prefix: this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX }) });
+        const simulationDatePrefix = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$SIMULATION_COLUMN_PREFIX });
+        const historicalDatePrefix = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX });
 
         for (const row of currTab.table) {
           if (!row[tSet.INACTIVE]) {
@@ -126,26 +126,24 @@ export class Module {
               continue;
             }
 
-            // loop `historicalColumns`
-            for (const column of historicalColumns) {
-              const value = sanitize({ value: row[column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
+            // loop all keys of the current row:
+            // * classify the key to check if is a valid date, and if the date is Simulation or Historical
+            // * if the date is valid, add an entry to Agenda
+            for (const key of Object.keys(row)) {
+              /** @type {{classification: DATE_CLASSIFICATION, date: undefined|Date}} */
+              const {classification, date} = classifyDateString({dateString: key, simulationPrefix: simulationDatePrefix, historicalPrefix: historicalDatePrefix});
+              if (classification === DATE_CLASSIFICATION.INVALID)
+                continue;
 
-              if (value == null) continue;
+              const isSimulation = classification === DATE_CLASSIFICATION.SIMULATION;
+
+              const value = sanitize({ value: row[key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
+              if (value == null)
+                continue;
+
               this.#agenda.set({
-                date: column.date,
-                isSimulation: false,
-                data: new AgendaData({ value, accounting_type, accounting_opposite_type, simObject_name, simulation_input })
-              });
-            }
-
-            // loop `simulationColumns`
-            for (const column of simulationColumns) {
-              const value = sanitize({ value: row[column.key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
-
-              if (value == null) continue;
-              this.#agenda.set({
-                date: column.date,
-                isSimulation: true,
+                date: date,
+                isSimulation: isSimulation,
                 data: new AgendaData({ value, accounting_type, accounting_opposite_type, simObject_name, simulation_input })
               });
             }
