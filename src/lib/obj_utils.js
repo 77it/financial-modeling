@@ -1,4 +1,4 @@
-export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys };
+export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortNumbersAndDatesByDate };
 
 import { deepEqual } from '../../vendor/fast-equals/fast-equals.js';
 
@@ -145,4 +145,44 @@ function mergeNewKeys ({ target, source }) {
   } catch (e) {
     return target;
   }
+}
+
+/**
+ * Sorts arrays of numbers and dates together by the dates in ascending or descending order.
+ *
+ * @param {number[]} numbers - An array of numbers.
+ * @param {Date[]} dates - An array of Date objects.
+ * @param {boolean} [ascending=true] - Optional. Sort order. true for ascending (earliest date first), false for descending.
+ * @returns {{sortedNumbers: number[], sortedDates: Date[]}} - The sorted numbers and dates.
+ * @throws {Error} If the input arrays have different lengths.
+ */
+function sortNumbersAndDatesByDate(numbers, dates, ascending = true) {
+  // Check to ensure both arrays have the same length.
+  if (numbers.length !== dates.length) {
+    throw new Error("The arrays must have the same length.");
+  }
+  if (numbers.length === 0) {
+    return { sortedNumbers: [], sortedDates: [] }; // Return empty arrays if input is empty
+  }
+
+  // Combine numbers and dates into an array of objects.
+  const combined = numbers.map((num, index) => ({
+    num,
+    date: dates[index]
+  }));
+
+  // Sorting the combined array by the 'date' key in ascending or descending order
+  // `.getTime()` is required to prevent the error
+  // TS2363 [ERROR]: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+  if (ascending)
+    combined.sort((a, b) => a.date.getTime() - b.date.getTime());
+  else
+    combined.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  // Separate the numbers and dates from the combined array.
+  const sortedNumbers = combined.map(item => item.num);
+  const sortedDates = combined.map(item => item.date);
+
+  // Return an object with both sorted arrays.
+  return { sortedNumbers, sortedDates };
 }
