@@ -1,6 +1,7 @@
 ﻿export { splitPrincipal };
 
 import { toBigInt } from './to_bigint.js';
+import { sortValuesAndDatesByDate } from '../../../lib/obj_utils.js';
 
 /**
  * This function is used to split a principal value in indefinite and amortization schedule values
@@ -12,18 +13,20 @@ import { toBigInt } from './to_bigint.js';
  * 3. If the indefinite expiry date principal is zero and the amortization schedule is empty, set the indefinite expiry date principal to the total value.
  * 4a. If the amortization schedule is not empty and the values do not match, calculate the residual value and distribute it proportionally across the amortization schedule.
  * 4b. If the sum of the amortization schedule is not equal to the value to split, add the difference to the last value of the amortization schedule.
+ * 5. Sorts principal array and dates array together by the dates in ascending order.
  *
  * @param {Object} p
  * @param {number} p.value - principal value to split
  * @param {number} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
  * @param {number[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
+ * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date Array used to sort the amortization schedule
  * @param {Object} opt
  * @param {number} opt.decimalPlaces
  * @param {boolean} opt.roundingModeIsRound
- * @returns {{principalIndefiniteExpiryDate: bigint, principalAmortizationSchedule: bigint[]}}
+ * @returns {{principalIndefiniteExpiryDate: bigint, principalAmortizationSchedule: bigint[], principalAmortizationDates: Date[]}}
  */
 function splitPrincipal (
-  /* p */ {value, bs_Principal__PrincipalToPay_IndefiniteExpiryDate, bs_Principal__PrincipalToPay_AmortizationSchedule__Principal },
+  /* p */ {value, bs_Principal__PrincipalToPay_IndefiniteExpiryDate, bs_Principal__PrincipalToPay_AmortizationSchedule__Principal, bs_Principal__PrincipalToPay_AmortizationSchedule__Date },
   /* opt */{decimalPlaces, roundingModeIsRound}
 ) {
   const _value = toBigInt(value, decimalPlaces, roundingModeIsRound);
@@ -52,5 +55,14 @@ function splitPrincipal (
     }
   }
 
-  return { principalIndefiniteExpiryDate, principalAmortizationSchedule };
+  const {sortedValues, sortedDates} = sortValuesAndDatesByDate({
+    values: principalAmortizationSchedule,
+    dates: bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+  });
+
+  return {
+    principalIndefiniteExpiryDate: principalIndefiniteExpiryDate,
+    principalAmortizationSchedule: sortedValues,
+    principalAmortizationDates: sortedDates
+  };
 }

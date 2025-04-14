@@ -8,7 +8,7 @@ export { isNullOrWhiteSpace } from '../lib/string_utils.js';
 export { isStringOrBooleanTrue, isStringOrBooleanFalse } from '../lib/boolean_utils.js';
 export { parseYAML } from '../lib/yaml.js';
 export { parseJSON5 } from '../lib/json5.js';
-export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortNumbersAndDatesByDate } from '../lib/obj_utils.js';
+export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortValuesAndDatesByDate } from '../lib/obj_utils.js';
 
 export { Ledger } from '../engine/ledger/ledger.js';
 export { SimulationContext } from '../engine/context/simulationcontext.js';
