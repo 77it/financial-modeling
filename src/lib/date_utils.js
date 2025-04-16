@@ -382,6 +382,7 @@ function addDaysToUTCDate(date, amount) {
 }
 
 // inspired to https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts (MIT license)
+// + addition to handle the end of month case
 /**
  * Add the specified number of months to the given local date.
  *
@@ -391,15 +392,21 @@ function addDaysToUTCDate(date, amount) {
  * @throws {Error} if the date is not valid
  *
  * @example
- * Add 5 months to 2014/09/01 => 2015/02/01
- * Add 2 months to 2014/12/31 => 2015/02/28
- * Add 2 months to 2023/12/31 => 2024/02/29  // leap year
+ * Add  5 months to 2014/09/01 => 2015/02/01
+ * Add  2 months to 2014/12/31 => 2015/02/28
+ * Add  2 months to 2023/12/31 => 2024/02/29  // leap year
+ * 
+ * Adding a month to the end-of-month date results in the end of the post-addition month.
+ * Add 12 months to 2023/02/28 => 2024/02/29  // leap year
+ * Add  2 months to 2024/02/29 => 2024/04/30  // leap year
+ * Add  3 months to 2024/02/29 => 2024/05/31  // leap year
+ * Add  2 months to 2015/02/28 => 2015/04/30
+ * Add  3 months to 2015/02/28 => 2015/05/31
  */
 function addMonthsToLocalDate (date, amount) {
   if (!isValidDate(date))
     throw new Error(`Invalid date ${date}`);
 
-  const _date = new Date(date);
   if (isNaN(amount)) return new Date(date);
   if (!amount) {
     // If 0 months, no-op to avoid changing times in the hour before end of DST
@@ -414,26 +421,36 @@ function addMonthsToLocalDate (date, amount) {
   // we'll default to the end of the desired month by adding 1 to the desired
   // month and using a date of 0 to back up one day to the end of the desired
   // month.
-  const dayOfMonth = _date.getDate();
-  const endOfDesiredMonth = new Date(_date);
-  endOfDesiredMonth.setMonth(_date.getMonth() + amount + 1, 0);
-  const daysInMonth = endOfDesiredMonth.getDate();
-  if (dayOfMonth >= daysInMonth) {
+  const dayOfOriginalMonth = date.getDate();
+  const lastDayOfOriginalMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const isOriginalDateLastDayOfMonth = dayOfOriginalMonth === lastDayOfOriginalMonth;
+
+  const newDate = new Date(date);
+  newDate.setMonth(date.getMonth() + amount + 1, 0);
+  const dayOfNewMonth = newDate.getDate();
+  if (dayOfOriginalMonth >= dayOfNewMonth) {
     // If we're already at the end of the month, then this is the correct date
     // and we're done.
-    return endOfDesiredMonth;
+    return newDate;
+  } else if (isOriginalDateLastDayOfMonth) {
+    // If the original date was the last day of the month, then we need to set
+    // the new date to the last day of the new month.
+    const lastDayOfNewMonth = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0).getDate();
+    newDate.setDate(lastDayOfNewMonth);
+    return newDate;
   } else {
     // Otherwise, we now know that setting the original day-of-month value won't
     // cause an overflow, so set the desired day-of-month. Note that we can't
-    // just set the date of `endOfDesiredMonth` because that object may have had
+    // just set the date of `newDate` variable because that object may have had
     // its time changed in the unusual case where a DST transition was on
     // the last day of the month and its local time was in the hour skipped or
-    // repeated next to a DST transition.  So we use `date` instead which is
+    // repeated next to a DST transition.  So we use `_date` variable instead which is
     // guaranteed to still have the original time.
+    const _date = new Date(date);
     _date.setFullYear(
-      endOfDesiredMonth.getFullYear(),
-      endOfDesiredMonth.getMonth(),
-      dayOfMonth
+      newDate.getFullYear(),
+      newDate.getMonth(),
+      dayOfOriginalMonth
     );
     return _date;
   }

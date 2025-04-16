@@ -126,7 +126,33 @@ t('does not mutate the original date', () => {
   assert.deepStrictEqual(date, new Date(2014, 8 /* Sep */, 1));
 });
 
-t('works well if the desired month has fewer days and the provided date is in the last day of a month', () => {
+t('works well also if the desired month has more days than the original date and the provided date is in the last day of a month', () => {
+  // Add 4 months to 2015/02/28 => 2015/05/31
+  assert.deepStrictEqual(addMonthsToLocalDate(new Date(2015, 1 /* Feb */, 28), 3),
+    new Date(2015, 4 /* Maj */, 31));
+
+  // Add 12 months to 2023/02/28 => 2024/02/29  // leap year
+  assert.deepStrictEqual(addMonthsToLocalDate(new Date(2023, 1 /* Feb */, 28), 12),
+    new Date(2024, 1 /* Feb */, 29));
+
+  // Add 2 months to 2024/02/29 => 2024/04/30  // leap year
+  assert.deepStrictEqual(addMonthsToLocalDate(new Date(2024, 1 /* Feb */, 29), 2),
+    new Date(2024, 3 /* Apr */, 30));
+
+  // Add 3 months to 2024/02/29 => 2024/05/31  // leap year
+  assert.deepStrictEqual(addMonthsToLocalDate(new Date(2024, 1 /* Feb */, 29), 3),
+    new Date(2024, 4 /* Maj */, 31));
+
+  // Add 2 months to 2015/02/28 => 2015/04/30
+  assert.deepStrictEqual(addMonthsToLocalDate(new Date(2015, 1 /* Feb */, 28), 2),
+    new Date(2015, 3 /* Apr */, 30));
+
+  // Add 3 months to 2015/02/28 => 2015/05/31
+  assert.deepStrictEqual(addMonthsToLocalDate(new Date(2015, 1 /* Feb */, 28), 3),
+    new Date(2015, 4 /* Maj */, 31));
+});
+
+t('works well also if the desired month has fewer days and the provided date is in the last day of a month', () => {
   const date = new Date(2014, 11 /* Dec */, 31);
   const result = addMonthsToLocalDate(date, 2);
   assert.deepStrictEqual(result, new Date(2015, 1 /* Feb */, 28));
