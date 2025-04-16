@@ -1,4 +1,4 @@
-﻿export { splitPrincipal };
+﻿export { SplitAndSortPrincipal };
 
 import { toBigInt } from './to_bigint.js';
 import { sortValuesAndDatesByDate } from '../../../lib/obj_utils.js';
@@ -25,13 +25,20 @@ import { sortValuesAndDatesByDate } from '../../../lib/obj_utils.js';
  * @param {boolean} opt.roundingModeIsRound
  * @returns {{principalIndefiniteExpiryDate: bigint, principalAmortizationSchedule: bigint[], principalAmortizationDates: Date[]}}
  */
-function splitPrincipal (
+function SplitAndSortPrincipal (
   /* p */ {value, bs_Principal__PrincipalToPay_IndefiniteExpiryDate, bs_Principal__PrincipalToPay_AmortizationSchedule__Principal, bs_Principal__PrincipalToPay_AmortizationSchedule__Date },
   /* opt */{decimalPlaces, roundingModeIsRound}
 ) {
   const _value = toBigInt(value, decimalPlaces, roundingModeIsRound);
-  const principalAmortizationSchedule = bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => toBigInt(number, decimalPlaces, roundingModeIsRound));
   let principalIndefiniteExpiryDate = toBigInt(bs_Principal__PrincipalToPay_IndefiniteExpiryDate, decimalPlaces, roundingModeIsRound);
+  const unsorted_principalAmortizationSchedule = bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => toBigInt(number, decimalPlaces, roundingModeIsRound));
+
+  // sort values and dates, by date
+  const {sortedValues: principalAmortizationSchedule, sortedDates: principalAmortizationDates} = sortValuesAndDatesByDate({
+    values: unsorted_principalAmortizationSchedule,
+    dates: bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+  });
+
   if (_value === principalIndefiniteExpiryDate + principalAmortizationSchedule.reduce((a, b) => a + b, 0n)) {
     // if `principalIndefiniteExpiryDate` + `principalAmortizationSchedule` is equal to `_value`, do nothing
   } else if (principalIndefiniteExpiryDate === 0n && principalAmortizationSchedule.length === 0) {
@@ -55,14 +62,9 @@ function splitPrincipal (
     }
   }
 
-  const {sortedValues, sortedDates} = sortValuesAndDatesByDate({
-    values: principalAmortizationSchedule,
-    dates: bs_Principal__PrincipalToPay_AmortizationSchedule__Date
-  });
-
   return {
     principalIndefiniteExpiryDate: principalIndefiniteExpiryDate,
-    principalAmortizationSchedule: sortedValues,
-    principalAmortizationDates: sortedDates
+    principalAmortizationSchedule: principalAmortizationSchedule,
+    principalAmortizationDates: principalAmortizationDates
   };
 }

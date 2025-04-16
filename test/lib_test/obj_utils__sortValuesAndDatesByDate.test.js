@@ -8,6 +8,9 @@ t('obj utils sortNumbersAndDatesByDate() test - array-sort on content of another
   const numbers = [10, 20, 30, 40];
   const dates= [ new Date('2024-01-05'), new Date('2023-11-18'), new Date('2024-03-10'), new Date('2023-08-22')];
 
+  const original_numbers = structuredClone(numbers);
+  const original_dates = structuredClone(dates);
+
   const exp_numbers = [40, 20, 10, 30];
   const exp_dates= [ new Date('2023-08-22'), new Date('2023-11-18'), new Date('2024-01-05'), new Date('2024-03-10') ]
 
@@ -16,6 +19,9 @@ t('obj utils sortNumbersAndDatesByDate() test - array-sort on content of another
     const { sortedValues, sortedDates } = sortValuesAndDatesByDate({values: numbers, dates: dates});
     assert.deepStrictEqual(sortedValues, exp_numbers);
     assert.deepStrictEqual(sortedDates, exp_dates);
+    // test that original arrays are not changed
+    assert.deepStrictEqual(numbers, original_numbers);
+    assert.deepStrictEqual(dates, original_dates);
   }
 
   // test descending
@@ -23,12 +29,18 @@ t('obj utils sortNumbersAndDatesByDate() test - array-sort on content of another
     const { sortedValues, sortedDates } = sortValuesAndDatesByDate({values: numbers, dates: dates, ascending:false});
     assert.deepStrictEqual(sortedValues, exp_numbers.toReversed());
     assert.deepStrictEqual(sortedDates, exp_dates.toReversed());
+    // test that original arrays are not changed
+    assert.deepStrictEqual(numbers, original_numbers);
+    assert.deepStrictEqual(dates, original_dates);
   }
 });
 
 t('obj utils sortNumbersAndDatesByDate() test - test with BigInt instead of numbers', () => {
   const numbers = [10n, 20n, 30n, 40n];
   const dates= [ new Date('2024-01-05'), new Date('2023-11-18'), new Date('2024-03-10'), new Date('2023-08-22')];
+
+  const original_numbers = structuredClone(numbers);
+  const original_dates = structuredClone(dates);
 
   const exp_numbers = [40n, 20n, 10n, 30n];
   const exp_dates= [ new Date('2023-08-22'), new Date('2023-11-18'), new Date('2024-01-05'), new Date('2024-03-10') ]
@@ -38,6 +50,9 @@ t('obj utils sortNumbersAndDatesByDate() test - test with BigInt instead of numb
     const { sortedValues, sortedDates } = sortValuesAndDatesByDate({values: numbers, dates: dates});
     assert.deepStrictEqual(sortedValues, exp_numbers);
     assert.deepStrictEqual(sortedDates, exp_dates);
+    // test that original arrays are not changed
+    assert.deepStrictEqual(numbers, original_numbers);
+    assert.deepStrictEqual(dates, original_dates);
   }
 
   // test descending
@@ -45,6 +60,9 @@ t('obj utils sortNumbersAndDatesByDate() test - test with BigInt instead of numb
     const { sortedValues, sortedDates } = sortValuesAndDatesByDate({values: numbers, dates: dates, ascending: false});
     assert.deepStrictEqual(sortedValues, exp_numbers.toReversed());
     assert.deepStrictEqual(sortedDates, exp_dates.toReversed());
+    // test that original arrays are not changed
+    assert.deepStrictEqual(numbers, original_numbers);
+    assert.deepStrictEqual(dates, original_dates);
   }
 });
 
