@@ -1,7 +1,7 @@
 import { validate } from '../../src/lib/schema_validation_utils.js';
 import * as S from '../../src/lib/schema.js';
 
-import { validateSanitizeFunction_TestTemp } from './validateSanitizeFunction_TestTemp.js';
+import { validateSanitizeFunction_TestAsset } from './validateSanitizeFunction_TestAsset.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -139,8 +139,8 @@ t('test validate() with object validation - valid, complex object, names with an
     bigInt_number: S.BIGINT_NUMBER_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
     arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
-    big_js: validateSanitizeFunction_TestTemp,
-    arrBig_js: [validateSanitizeFunction_TestTemp],
+    big_js: validateSanitizeFunction_TestAsset,
+    arrBig_js: [validateSanitizeFunction_TestAsset],
     any: S.ANY_TYPE,
   };
 
@@ -394,7 +394,7 @@ t('test validate() with object validation - not valid, array is of wrong type', 
     arrObj: S.ARRAY_OF_OBJECTS_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
     arrBigInt_number: S.ARRAY_OF_BIGINT_NUMBER_TYPE,
-    arrBig_js: [validateSanitizeFunction_TestTemp],
+    arrBig_js: [validateSanitizeFunction_TestAsset],
   };
 
   let _error = "";
@@ -546,9 +546,9 @@ t('test validate() with object validation - not valid, null/undefined/not failin
   };
 
   const validation = {
-    big: validateSanitizeFunction_TestTemp,
-    big2: validateSanitizeFunction_TestTemp,
-    big3: validateSanitizeFunction_TestTemp,
+    big: validateSanitizeFunction_TestAsset,
+    big2: validateSanitizeFunction_TestAsset,
+    big3: validateSanitizeFunction_TestAsset,
   };
 
   let _error = "";

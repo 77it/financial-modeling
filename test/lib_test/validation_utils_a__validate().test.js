@@ -1,7 +1,7 @@
 import * as S from '../../src/lib/schema.js';
 import * as v from '../../src/lib/schema_validation_utils.js';
 
-import { validateSanitizeFunction_TestTemp } from './validateSanitizeFunction_TestTemp.js';
+import { validateSanitizeFunction_TestAsset } from './validateSanitizeFunction_TestAsset.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -89,8 +89,8 @@ t('test validate(), valid, all cases', () => {
   v.validate({ value: BigInt(10), validation: S.BIGINT_NUMBER_TYPE });
   v.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: S.ARRAY_OF_BIGINT_TYPE });
   v.validate({ value: [BigInt(10), BigInt(9), BigInt(0)], validation: S.ARRAY_OF_BIGINT_NUMBER_TYPE });
-  v.validate({ value: 10, validation: validateSanitizeFunction_TestTemp });  // validate true if value is number
-  v.validate({ value: [10, 9, 0], validation: [validateSanitizeFunction_TestTemp] });  // validate true if value is number in an array
+  v.validate({ value: 10, validation: validateSanitizeFunction_TestAsset });  // validate true if value is number
+  v.validate({ value: [10, 9, 0], validation: [validateSanitizeFunction_TestAsset] });  // validate true if value is number in an array
   v.validate({ value: 999, validation: S.ANY_TYPE });
 });
 
@@ -445,7 +445,7 @@ t('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    v.validate({ value: "99", validation: validateSanitizeFunction_TestTemp });  // validate false if value is not a number
+    v.validate({ value: "99", validation: validateSanitizeFunction_TestAsset });  // validate false if value is not a number
   } catch (error) {
     _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
@@ -455,7 +455,7 @@ t('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    v.validate({ value: "99", validation: [validateSanitizeFunction_TestTemp] });  // validate false if value is not a number
+    v.validate({ value: "99", validation: [validateSanitizeFunction_TestAsset] });  // validate false if value is not a number
   } catch (error) {
     _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
@@ -464,7 +464,7 @@ t('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    v.validate({ value: [10, "0", 0], validation: [validateSanitizeFunction_TestTemp] });  // validate false if a value in the array is not a number
+    v.validate({ value: [10, "0", 0], validation: [validateSanitizeFunction_TestAsset] });  // validate false if a value in the array is not a number
   } catch (error) {
     _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }
@@ -473,7 +473,7 @@ t('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    v.validate({ value: 10, validation: [validateSanitizeFunction_TestTemp] });  // validate false if value is not an array
+    v.validate({ value: 10, validation: [validateSanitizeFunction_TestAsset] });  // validate false if value is not an array
   } catch (error) {
     _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }

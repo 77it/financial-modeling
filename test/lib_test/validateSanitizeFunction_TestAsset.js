@@ -9,7 +9,7 @@ import { ValidateSanitizeResult } from '../../src/lib/validate_sanitize_result.j
  * @param {*} input - The value to be sanitized
  * @returns {ValidateSanitizeResult} - The validation result/sanitized value
  */
-export function validateSanitizeFunction_TestTemp (input) {
+export function validateSanitizeFunction_TestAsset (input) {
   let validationErrors = '';
   let validationResult = true;
   let sanitizedValue;

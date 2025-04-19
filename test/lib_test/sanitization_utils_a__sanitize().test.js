@@ -1,7 +1,7 @@
 import * as S from '../../src/lib/schema.js';
 import * as s from '../../src/lib/schema_sanitization_utils.js';
 
-import { validateSanitizeFunction_TestTemp } from './validateSanitizeFunction_TestTemp.js';
+import { validateSanitizeFunction_TestAsset } from './validateSanitizeFunction_TestAsset.js';
 import { isValidDate } from '../../src/lib/date_utils.js';
 
 import { test } from 'node:test';
@@ -608,12 +608,12 @@ t('test sanitize() - test throw when a sanitization function doesn\'t return `Va
 });
 
 t('test sanitize() - custom function type + validation (use the validateSanitizeFunction_TestTemp function to sanitize the value)', async () => {
-  const t = validateSanitizeFunction_TestTemp;
+  const t = validateSanitizeFunction_TestAsset;
   assert.deepStrictEqual((undefined), (s.sanitize({ value: undefined, sanitization: t })));
   assert.deepStrictEqual((null), (s.sanitize({ value: null, sanitization: t })));
-  assert.deepStrictEqual((validateSanitizeFunction_TestTemp(999).sanitizedValue), (s.sanitize({ value: 999, sanitization: t })));
-  assert.deepStrictEqual((validateSanitizeFunction_TestTemp(999).sanitizedValue), (s.sanitize({ value: '999', sanitization: t })));
-  assert.deepStrictEqual((validateSanitizeFunction_TestTemp(0).sanitizedValue), (s.sanitize({ value: '0', sanitization: t })));
+  assert.deepStrictEqual((validateSanitizeFunction_TestAsset(999).sanitizedValue), (s.sanitize({ value: 999, sanitization: t })));
+  assert.deepStrictEqual((validateSanitizeFunction_TestAsset(999).sanitizedValue), (s.sanitize({ value: '999', sanitization: t })));
+  assert.deepStrictEqual((validateSanitizeFunction_TestAsset(0).sanitizedValue), (s.sanitize({ value: '0', sanitization: t })));
   assert.deepStrictEqual((10), (s.sanitize({ value: '', sanitization: t })));
   assert.deepStrictEqual(('abc'), (s.sanitize({ value: 'abc', sanitization: t })));
   assert.deepStrictEqual((new Date(2022, 11, 25)), (s.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
@@ -624,11 +624,11 @@ t('test sanitize() - custom function type + validation (use the validateSanitize
 });
 
 t('test sanitize() - array of custom function type + validation (use the validateSanitizeFunction_TestTemp function to sanitize the value)', async () => {
-  const t = [validateSanitizeFunction_TestTemp];
-  assert.deepStrictEqual(([validateSanitizeFunction_TestTemp(1).sanitizedValue, validateSanitizeFunction_TestTemp(2).sanitizedValue, validateSanitizeFunction_TestTemp('a').sanitizedValue]), (s.sanitize({ value: [1, 2, 'a'], sanitization: t })));
+  const t = [validateSanitizeFunction_TestAsset];
+  assert.deepStrictEqual(([validateSanitizeFunction_TestAsset(1).sanitizedValue, validateSanitizeFunction_TestAsset(2).sanitizedValue, validateSanitizeFunction_TestAsset('a').sanitizedValue]), (s.sanitize({ value: [1, 2, 'a'], sanitization: t })));
   assert.deepStrictEqual(([undefined]), (s.sanitize({ value: undefined, sanitization: t })));
   assert.deepStrictEqual(([null]), (s.sanitize({ value: null, sanitization: t })));
-  assert.deepStrictEqual(([validateSanitizeFunction_TestTemp(999).sanitizedValue]), (s.sanitize({ value: 999, sanitization: t })));
+  assert.deepStrictEqual(([validateSanitizeFunction_TestAsset(999).sanitizedValue]), (s.sanitize({ value: 999, sanitization: t })));
   assert.deepStrictEqual(([10]), (s.sanitize({ value: '', sanitization: t })));
   assert.deepStrictEqual((['abc']), (s.sanitize({ value: 'abc', sanitization: t })));
   assert.deepStrictEqual(([new Date(2022, 11, 25)]), (s.sanitize({ value: new Date(2022, 11, 25), sanitization: t })));
