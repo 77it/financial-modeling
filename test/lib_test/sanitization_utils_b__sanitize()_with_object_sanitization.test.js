@@ -321,7 +321,7 @@ t('test sanitize() with object sanitization - enum type in property', async () =
   assert.throws(() => s.sanitize({ value: { a: 999 }, sanitization: { a: [11, 'aa', 'aaa', 55] }, validate: true }));
 });
 
-t('test sanitize() - nested object in array OR as a single object in a property', () => {
+t('test sanitize() - nested object in array (array of objects) OR as a single object in a property', () => {
   const sanitization = {
     str: S.STRING_TYPE,
     str2: S.STRING_TYPE,

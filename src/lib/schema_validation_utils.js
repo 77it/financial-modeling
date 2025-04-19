@@ -3,8 +3,8 @@ export { validate };
 import { DISABLE_VALIDATION } from '../config/engine.js';
 import * as schema from './schema.js';
 import { ValidateSanitizeResult } from './validate_sanitize_result.js';
-import { GlobalImmutableValue } from './global_immutable_value.js';
 
+const ALLOWS_OBJECTS_IN_ARRAY_FLAG = false;  // hardcoded option, by now objects contained in array are considered an error
 const SUCCESS = '';
 // Strict flag; if true check that there are no extra keys other than validation keys in the validated object.
 // set only during init
@@ -27,12 +27,12 @@ let STRICT = false;
  *
  * # Array validation (enum ecc)
  * If validation is an array:
- *   if is an array containing a single object [{obj}], the validation will expect an array containing that object;
- *   if is an array containing a single function [{func}], the validation will expect an array containing a value validated by the function;
+ *   if is an array containing a single object '[{obj}]', the validation will expect an array containing that object;
+ *   if is an array containing a single function '[func]', the validation will expect an array containing a value validated by the function;
  *   in any other case the array will be considered an enum, ignored during sanitization, optionally validated.
  *
  * # Object Validation
- * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
+ * Validate Object, throw error for validation error. If obj is array instead of an object, throw. To validate an array containing an object use '[{obj}]'.
  * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
  * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
  * As types, you can use also exported const as 'ANY_TYPE'.
@@ -88,6 +88,7 @@ function _validationDispatcher ({ value, validation, errorMsg}) {
     return _validateObj({
       obj: value,
       validation: validation,
+      allowsObjectsInArray: ALLOWS_OBJECTS_IN_ARRAY_FLAG,
       errorMsg: errorMsg
     });
   } else {
@@ -314,18 +315,19 @@ function _validateValue ({ value, validation, errorMsg }) {
 
 /**
  @private
- * Validate Object, throw error for validation error. If obj is array, the validation is done on contained objects.
+ * Validate Object, throw error for validation error. If obj is array instead of an object, throw. To validate an array containing an object use '[{obj}]'.
   * Accepted types are: 'any', 'string', 'number', 'boolean', 'date', 'array', 'object', 'function', 'symbol'; class is 'function', class instance is 'object'.
   * For optional parameters (null/undefined are accepted) use 'any?', 'string?', 'number?', 'boolean?', 'date?', 'array?', 'object?', 'function?', 'symbol?'.
   * As types, you can use also exported const as 'ANY_TYPE'.
  * @param {Object} p
  * @param {*} p.obj - Object to validate
  * @param {*} p.validation - Validation object {key1: 'string', key2: 'number?'}
+ * @param {boolean} p.allowsObjectsInArray - Flag to allow objects in array; if false, the object to validate can't be contained in an array
  * @param {string} [p.errorMsg] - Optional error message
  * @return {string} Return empty string for success; return error string for validation error.
  */
 // see https://github.com/iarna/aproba for inspiration
-function _validateObj ({ obj, validation, errorMsg }) {
+function _validateObj ({ obj, validation, errorMsg, allowsObjectsInArray }) {
   if (DISABLE_VALIDATION)
     return SUCCESS;
 
@@ -338,7 +340,8 @@ function _validateObj ({ obj, validation, errorMsg }) {
 
   const validationResult = __validateObj({
     obj: obj,
-    validation: validation
+    validation: validation,
+    allowsObjectsInArray: allowsObjectsInArray
   });
 
   if (validationResult) {
@@ -357,9 +360,10 @@ function _validateObj ({ obj, validation, errorMsg }) {
  * @param {Object} p
  * @param {*} p.obj - Object to validate
  * @param {*} p.validation - Validation object {key1: 'typeA', key2: 'typeB'}
+ * @param {boolean} p.allowsObjectsInArray - Flag to allow objects in array; if false, the object to validate can't be contained in an array
  * @return {string} Return empty string for success; return error string for validation error.
  */
-function __validateObj ({ obj, validation }) {
+function __validateObj ({ obj, validation, allowsObjectsInArray }) {
   /** @type {string[]} */
   const errors = [];
 
@@ -368,7 +372,10 @@ function __validateObj ({ obj, validation }) {
   if (validation == null || typeof validation !== 'object')  // double check, because typeof null is object
     throw new Error(`'validation' parameter must be an object`);
 
-  if (Array.isArray(obj)) {
+  if (!allowsObjectsInArray && Array.isArray(obj)) {
+    errors.push(`${JSON.stringify((obj))} is an array and not an object`);
+  }
+  else if (Array.isArray(obj)) {
     for (const elem of obj) {
       _validateObj2(elem);
     }

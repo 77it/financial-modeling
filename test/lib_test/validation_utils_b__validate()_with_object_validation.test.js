@@ -232,6 +232,10 @@ t('test validate() with object validation - valid, object with and without optio
 });
 
 t('test validate() with object validation - valid, nested object in array', () => {
+  const validation = {
+    objInArray: [{ valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} }]
+  };
+
   const objToValidate_Wrong_MissingArray = {
     objInArray: { valA: 'aaa2', valB: { a: 9999 } }
   };
@@ -244,16 +248,14 @@ t('test validate() with object validation - valid, nested object in array', () =
     objInArray: [{ valA: 'aaa2', valB: { a: 9999 }},  { valA: 'aaa3', valB: { a: 0 }}]
   };
 
-  const validation = {
-    objInArray: [{ valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} }]
-  };
-
   validate({ value: objToValidate, validation: validation });
   validate({ value: objToValidate2, validation: validation });
   assert.throws(() => validate({ value: objToValidate_Wrong_MissingArray, validation: validation }));
 });
 
 t('test validate() with object validation - valid, nested object in array OR as a single object in a property', () => {
+  // disabled test, cause to property `ALLOWS_OBJECTS_IN_ARRAY_FLAG` in file `schema_validation_utils.js` set to FALSE this won't work anymore
+  /*
   const objToValidate_nestedObjInArray = {
     str: 'string',
     arrOrObj: [
@@ -263,6 +265,7 @@ t('test validate() with object validation - valid, nested object in array OR as 
     arrOrObj2: { valA: 'aaa2', valB: { a: 9999 } },
     str3: 'string3',
   };
+  */
 
   const objToValidate_nestedObjInProperty = {
     str: 'string',
@@ -280,11 +283,14 @@ t('test validate() with object validation - valid, nested object in array OR as 
     arrOrObj2: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE} },
   };
 
-  validate({ value: objToValidate_nestedObjInArray, validation: validation });
+  // disabled test, cause to property `ALLOWS_OBJECTS_IN_ARRAY_FLAG` in file `schema_validation_utils.js` set to FALSE this won't work anymore
+  //validate({ value: objToValidate_nestedObjInArray, validation: validation });
   validate({ value: objToValidate_nestedObjInProperty, validation: validation });
 });
 
 t('test validate() with object validation - valid, objects in array with OBJECT_TYPE', () => {
+  // disabled test, cause to property `ALLOWS_OBJECTS_IN_ARRAY_FLAG` in file `schema_validation_utils.js` set to FALSE this won't work anymore
+  /*
   const objToValidate = {
     str: 'string',
     arr: [
@@ -298,6 +304,7 @@ t('test validate() with object validation - valid, objects in array with OBJECT_
   };
 
   validate({ value: objToValidate.arr, validation: validation });
+  */
 });
 
 t('test validate() with object validation - not valid, simple object + personalized error message', () => {
@@ -319,7 +326,32 @@ t('test validate() with object validation - not valid, simple object + personali
   assert(_error.includes('personalized error message'));
 });
 
+t('test validate() with object validation - not valid, if an object is expected, validating an array is an error', () => {
+  const objToValidate = {
+    str: 'string',
+    arr: [
+      { valA: 'aaa', valB: { a: 999 } }
+    ],
+  };
+
+  const validation = {
+    valA: S.STRING_TYPE,
+    valB: S.OBJECT_TYPE,
+  };
+
+  let _error = "";
+  try {
+    validate({ value: objToValidate.arr, validation: validation });
+  } catch (error) {
+    _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
+  }
+
+  assert(_error.includes('is an array and not an object'));
+});
+
 t('test validate() with object validation - not valid, objects in array', () => {
+  // disabled test, cause to property `ALLOWS_OBJECTS_IN_ARRAY_FLAG` in file `schema_validation_utils.js` set to FALSE this won't work anymore
+  /*
   const objToValidate = {
     str: 'string',
     arr: [
@@ -344,6 +376,7 @@ t('test validate() with object validation - not valid, objects in array', () => 
 
   assert(_error.includes('valB = 999, must be an object'));
   assert(_error.includes('valB = 1, must be an object'));
+  */
 });
 
 t('test validate() with object validation - not valid, missing keys', () => {

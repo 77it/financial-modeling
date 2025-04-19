@@ -30,7 +30,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * To sanitize an object, pass one as   {key1: STRING_TYPE, key2: NUMBER_TYPE + OPTIONAL}
  * To sanitize a value applying a function, pass a function returning with class `ValidateSanitizeResult` the validation result and the sanitized value.
  * For optional values (null/undefined are accepted) append '?' to the type.
- * If sanitization is an array containing a single function [{func}], the sanitization will be done with the function and an array will be returned.
+ * If sanitization is an array containing a single function [func], the sanitization will be done with the function and an array will be returned.
  * enum will be ignored during sanitization, optionally validated.
  * Sanitization types ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
  * Array are sanitized without cloning them.
