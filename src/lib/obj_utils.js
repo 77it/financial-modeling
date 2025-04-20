@@ -1,4 +1,4 @@
-export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortValuesAndDatesByDate };
+export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortValuesAndDatesByDate, sortManyValuesAndDatesByDate };
 
 import { deepEqual } from '../../vendor/fast-equals/fast-equals.js';
 
@@ -186,4 +186,52 @@ function sortValuesAndDatesByDate({ values, dates, ascending = true }) {
 
   // Return an object with both sorted arrays.
   return { sortedValues, sortedDates };
+}
+
+/**
+ * Sorts multiple parallel arrays of any type by a corresponding array of dates.
+ *
+ * @param {Object} p
+ * @param {*[][]} p.arrays - An array of arrays to sort in parallel. Each inner array must have the same length as `dates`.
+ * @param {Date[]} p.dates - An array of Date objects used for sorting.
+ * @param {boolean} [p.ascending=true] - Optional. Sort order. true for ascending (earliest date first), false for descending.
+ * @returns {{ sortedArrays: *[][], sortedDates: Date[] }}
+ *   - `sortedArrays`: a new array of arrays, each inner array sorted to match `sortedDates`.
+ *   - `sortedDates`: the dates array sorted in the requested order.
+ * @throws {Error} If the inner arrays lengths differ from `dates.length`.
+ */
+function sortManyValuesAndDatesByDate({ arrays, dates, ascending = true }) {
+  const n = dates.length;
+
+  // Ensure each array to sort has the same length as the dates array
+  if (!arrays.every(arr => arr.length === n)) {
+    throw new Error(
+      `All arrays must have the same length as dates (${n}).`
+    );
+  }
+
+  // Early exit for empty input
+  if (n === 0) {
+    return {
+      sortedArrays: arrays.map(() => []),
+      sortedDates: []
+    };
+  }
+
+  // Generate an array of indices [0, 1, ..., n-1]
+  const idx = dates.map((_, i) => i)
+    .sort((a, b) => {
+      const diff = dates[a].getTime() - dates[b].getTime();
+      return ascending ? diff : -diff;
+    });
+
+  // Apply the permutation to dates
+  const sortedDates = idx.map(i => dates[i]);
+
+  // Apply the same permutation to each of the input arrays
+  const sortedArrays = arrays.map(arr =>
+    idx.map(i => arr[i])
+  );
+
+  return { sortedArrays, sortedDates };
 }
