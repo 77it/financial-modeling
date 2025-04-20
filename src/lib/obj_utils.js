@@ -1,6 +1,16 @@
-export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortValuesAndDatesByDate, sortManyValuesAndDatesByDate };
+export {
+  deepFreeze,
+  ensureArrayValuesAreUnique,
+  eq2,
+  get2,
+  mergeNewKeys,
+  sortValuesAndDatesByDate,
+  sortManyValuesAndDatesByDate,
+  binarySearch_position_atOrBefore
+};
 
 import { deepEqual } from '../../vendor/fast-equals/fast-equals.js';
+import { isNullOrWhiteSpace } from './string_utils.js';
 
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 /**
@@ -234,4 +244,40 @@ function sortManyValuesAndDatesByDate({ arrays, dates, ascending = true }) {
   );
 
   return { sortedArrays, sortedDates };
+}
+
+/**
+ * Perform a binary search to find the position at or before the target dateMilliseconds.
+ * @param {Object} p
+ * @param {*[]} p.array - The array to search.
+ * @param {*} p.target - The value to search for.
+ * @param {boolean} [p.dateArray=false] - Optional. If true, the array is assumed to contain date objects.
+ * @param {string} [p.keyName=''] - Optional. If provided, the array elements are expected to be objects and the search done in this key.
+ * @returns {number} The position at or before the target, or -1 if not found.
+ */
+function binarySearch_position_atOrBefore ({array, target, dateArray = false, keyName = ''}) {
+  let low = 0;
+  let high = array.length - 1;
+  let result = -1;
+
+  const keyIsDefined = !isNullOrWhiteSpace(keyName);
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+
+    const valueToSearch = keyIsDefined ?
+      (dateArray ? array[mid][keyName].getTime() : array[mid][keyName]) :
+      (dateArray ? array[mid].getTime() : array[mid]);
+
+    if (valueToSearch === target) {
+      return mid;
+    } else if (valueToSearch < target) {
+      result = mid;
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+
+  return result;
 }
