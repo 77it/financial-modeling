@@ -34,7 +34,7 @@ import { Module } from './modules/_sample_module.js';
 import { DEFAULT_TASKLOCKS_LOADER__MODULE_PATH } from './config/tasklocks_defaults.js';
 import { PYTHON_FORECAST__CLASS_PATH, PYTHON_FORECAST__CLASS_NAME, PYTHON_FORECAST__CLASS_METHOD_NAME } from './config/python.js';
 
-import { PYTHON_FORECAST } from './config/globals.js';
+import { PYTHON_FORECAST_GLOBAL_INSTANCE } from './config/python.js';
 
 import { MODULE_NAME as SETTINGS_MODULE_NAME, tablesInfo as SETTINGS_TABLES_INFO, moduleSanitization as SETTINGS_SANITIZATION } from './config/modules/settings.js';
 import * as SETTINGS_NAMES from './config/settings_names.js';
@@ -195,7 +195,7 @@ async function main ({
       const pythonForecastModule = await import(PYTHON_FORECAST__CLASS_PATH);
       const pythonForecastInstance = new pythonForecastModule[PYTHON_FORECAST__CLASS_NAME]();
       await pythonForecastInstance.loadPython();
-      PYTHON_FORECAST.setOneTimeBeforeRead(pythonForecastInstance[PYTHON_FORECAST__CLASS_METHOD_NAME]);
+      PYTHON_FORECAST_GLOBAL_INSTANCE.setOneTimeBeforeRead(pythonForecastInstance[PYTHON_FORECAST__CLASS_METHOD_NAME]);
     }
 
     // before scenario/engine run add, as last module, the module to add default TaskLocks + dummy module data

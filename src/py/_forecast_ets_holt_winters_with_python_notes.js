@@ -24,7 +24,7 @@ otherwise we can't set the Simulation Setting $$PYTHON_ADVANCED_FORECAST_FLAG to
 Internals of Python inside this project:
 * main reads the value of the Simulation Setting $$PYTHON_ADVANCED_FORECAST_FLAG
 * if setting is TRUE then it loads the Python code whose location is defined in 'src/config/python.js' file [1]
-* saves the python method [2] in the `GlobalImmutableValue` in 'src/config/globals.js' PYTHON_FORECAST
+* saves the python method [2] in the `GlobalImmutableValue` in 'src/config/python.js' PYTHON_FORECAST_GLOBAL_INSTANCE
 
 [1] class PYTHON_FORECAST__CLASS_NAME from file PYTHON_FORECAST__CLASS_PATH
 [2] method PYTHON_FORECAST__CLASS_METHOD_NAME

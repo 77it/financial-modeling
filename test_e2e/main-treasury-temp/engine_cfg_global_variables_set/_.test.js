@@ -13,7 +13,7 @@ import { DEBUG_FLAG, ERROR_FILE, SIMULATION_JSONL_OUTPUT } from '../_test_settin
 //import { simulationContext } from '../../../src/engine/engine.js';
 //import { SimulationContext } from '../../../src/engine/context/simulationcontext.js';
 import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../../src/config/globals.js';
-import { PYTHON_FORECAST } from '../../../src/config/globals.js';
+import { PYTHON_FORECAST_GLOBAL_INSTANCE } from '../../../src/config/python.js';
 import { SettingsDefaultValues } from '../../../src/config/settings_default_values.js';
 import { Simulation as SimulationSettingNames } from '../../../src/config/settings_names.js';
 
@@ -44,8 +44,8 @@ t('engine_cfg_global_variables_set', async () => {
     DRIVER_PREFIXES__ZERO_IF_NOT_SET.get(),
     SettingsDefaultValues[SimulationSettingNames.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET]);
 
-  console.log(`PYTHON_FORECAST.isSet(): ${PYTHON_FORECAST.isSet()}`);
-  assert(!PYTHON_FORECAST.isSet());
+  console.log(`PYTHON_FORECAST_GLOBAL_INSTANCE.isSet(): ${PYTHON_FORECAST_GLOBAL_INSTANCE.isSet()}`);
+  assert(!PYTHON_FORECAST_GLOBAL_INSTANCE.isSet());
 
   deleteFile(`./${SIMULATION_JSONL_OUTPUT}`);
 });

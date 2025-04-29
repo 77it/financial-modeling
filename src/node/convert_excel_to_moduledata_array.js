@@ -58,14 +58,15 @@ async function convertExcelToModuleDataArray ({ excelInput }) {
       return {stdout_string: stdout_string, exit_code: 0};
     } catch (error) {
       console.log(error);
-      return {stdout_string: '', exit_code: 1};
+      return {stdout_string: error, exit_code: 1};
     }
   })();
   //#endregion convert Excel input file to JSONL `modulesData` calling Converter program
 
   // throw error if there are errors
   if (exit_code !== 0 || existsSync(tempErrorsFilePath)) {
-    const errorsText = readUtf8TextFileRemovingBOM(tempErrorsFilePath);
+    // if 'tempErrorsFilePath' does not exist, the error is 'stdout_string'
+    const errorsText = existsSync(tempErrorsFilePath) ? readUtf8TextFileRemovingBOM(tempErrorsFilePath) : stdout_string;
     throw new Error(`Errors during conversion of the Excel input file: ${errorsText}`);
   }
 
