@@ -17,15 +17,16 @@ function sanitizeModuleData ({ moduleData, moduleSanitization }) {
   if (moduleSanitization == null) return moduleData;
 
   validate({
-    value: moduleSanitization, validation: {
+    value: moduleSanitization,
+    validation: [{
       tableName: schema.STRING_TYPE,
       parse: schema.OBJECT_TYPE + '?',
       sanitization: schema.OBJECT_TYPE + '?',
       sanitizationOptions: schema.OBJECT_TYPE + '?'
-    }
+    }]
   });
 
-  // loop moduleData tables
+  // loop moduleData tables to parse and sanitize them, table by table
   for (const _table of moduleData.tables) {
     // search for `_table.tableName` in `moduleSanitization` array (in a case insensitive way); if not found, `_pss` is undefined
     // if found, `_pss` contains the parsing and sanitization settings object for the table

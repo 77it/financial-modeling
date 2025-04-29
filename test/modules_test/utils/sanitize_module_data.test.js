@@ -16,6 +16,9 @@ t('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim matc
   tablesInfo.tA = {};
   tablesInfo.tA.tableName = 'TABA';
   tablesInfo.tA.columns = { name: '  naMe  ', value: '  vAlue ' };
+  // If obj is array, the sanitization is done on contained objects.
+  // If sanitization is an array containing a single object [{obj}], the sanitization will be done with the object and an array will be returned.
+  // In that case sanitization IS NOT an array, then the sanitization will be done against the object.
   tablesInfo.tA.sanitization = {
     [tablesInfo.tA.columns.name]: schema.ANY_TYPE,
     [tablesInfo.tA.columns.value]: schema.ANY_TYPE
@@ -23,10 +26,13 @@ t('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim matc
   tablesInfo.tB = {};
   tablesInfo.tB.tableName = 'TABB';
   tablesInfo.tB.columns = { name: '  NAme', value: '  valuE  ' };
-  tablesInfo.tB.sanitization = {
+  // If obj is array, the sanitization is done on contained objects.
+  // If sanitization is an array containing a single object [{obj}], the sanitization will be done with the object and an array will be returned.
+  // In that case sanitization IS an array, then the sanitization will be done against the object contained in the array.
+  tablesInfo.tB.sanitization = [{
     [tablesInfo.tB.columns.name]: schema.STRINGUPPERCASETRIMMED_TYPE,
     [tablesInfo.tB.columns.value]: schema.STRINGUPPERCASETRIMMED_TYPE
-  };
+  }];
   tablesInfo.toParse_tC = {};
   tablesInfo.toParse_tC.tableName = 'TABc';
   tablesInfo.toParse_tC.columns = { name: '  naME', value: '  VALue  ' };
@@ -34,6 +40,9 @@ t('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim matc
     [tablesInfo.toParse_tC.columns.name]: CONST.YAML_PARSE,
     [tablesInfo.toParse_tC.columns.value]: CONST.JSON5_PARSE
   };
+  // If obj is array, the sanitization is done on contained objects.
+  // If sanitization is an array containing a single object [{obj}], the sanitization will be done with the object and an array will be returned.
+  // In that case sanitization IS NOT an array, then the sanitization will be done against the object.
   tablesInfo.toParse_tC.sanitization = {
     [tablesInfo.toParse_tC.columns.name]: schema.ANY_TYPE,
     [tablesInfo.toParse_tC.columns.value]: schema.ANY_TYPE
@@ -50,12 +59,12 @@ t('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim matc
   ];
 
   const tableB_1_data = [
-    { name: 99, value: 'ninenine' },
+    { name: 99, value: '  ninenine' },
     { 'NAMe': 'two', value: 2 },
   ];
 
   const tableB_2_data = [
-    { name: 99, 'VALUe   ': 'ninenine2' },
+    { name: 99, 'VALUe   ': '   ninenine2   ' },
     { name: 'two', value: 2 },
   ];
 

@@ -43,7 +43,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * # Object Sanitization
  * Sanitize Object, modifying it in place and returning the same object to allow function chaining.
  * If obj is array, the sanitization is done on contained objects;
- * array are sanitized without cloning them.
+ * arrays are sanitized without cloning them.
  * If obj is null/undefined or other non-objects returns empty object {}.
  * Sanitization is an object with keys corresponding to the keys of the object to sanitize and values corresponding to the sanitization types;
  * accepted types are many: see `schema.js`; class is 'function', class instance is 'object';
