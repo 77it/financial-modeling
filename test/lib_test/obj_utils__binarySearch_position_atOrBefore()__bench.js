@@ -13,17 +13,19 @@ obj utils binarySearch_position_atOrBefore(), 1.000.000 loop          722.3 ms  
 
 import { binarySearch_position_atOrBefore, deepFreeze } from '../../src/lib/obj_utils.js';
 
-import { test } from 'node:test';
-import assert from 'node:assert';
-
-/** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
-
 const loopCount = 1_000_000;
 
-/** @type {any} */ const dataArray = [];
+/** @type {any} */
+const dataArray = [];
 const keyName = 'key';
 for (let i = 1; i <= 60; i++) {
   dataArray.push({ [keyName]: i });
+}
+
+// create a map with values of dataArray as keys
+const dataMap = new Map();
+for (let i = 0; i < dataArray.length; i++) {
+  dataMap.set(dataArray[i][keyName], i);
 }
 
 // generate an array with 7 numbers from 1 to 60 to search
@@ -40,3 +42,25 @@ Deno.bench(`obj utils binarySearch_position_atOrBefore(), ${loopCount.toLocaleSt
     }
   }
 });
+
+// 5 years of 12 months of data (60 entries), 5 random searches
+Deno.bench(`comparable test: search same keys in an map, ${loopCount.toLocaleString('it-IT')} loop`, () => {
+  const notFreezableValue = 'abc';
+
+  // loop `loopCount` times
+  for (let i = 0; i < loopCount; i++) {
+    for (let j = 0; j < fiveNumbersToSearch.length; j++) {
+      const key = fiveNumbersToSearch[j];
+      queryMap(key);
+    }
+  }
+});
+
+/**
+ * Queries the map for a given key.
+ * @param {number} key - The key to query the map.
+ * @returns {number} - The value associated with the key in the map.
+ */
+function queryMap(key) {
+  return dataMap.get(key);
+}
