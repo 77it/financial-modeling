@@ -231,7 +231,7 @@ class DriversRepo {
    * @return {undefined|*|*[]} Driver; if not found, returns undefined;
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns an array of values defined between `date` and `endDate`.
-   * Returned data is not cloned, but with `freezeValues` option = true the values are deep-frozen.
+   * Returned data is not cloned, but with `freezeValues` option = true in the constructor the values are deep-frozen before saving them.
    */
   get ({ scenario, unit, name, date, endDate, parseAsJSON5 = false, sanitizationType, search = false }) {
     let _key = this.#driversRepoBuildKey({ scenario, unit, name });
