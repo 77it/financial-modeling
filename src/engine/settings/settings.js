@@ -65,15 +65,16 @@ class Settings {
    * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Setting name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
-   * @return {undefined|*} Setting; if not found, returns undefined;
+   * @return {*} returns the Setting value;
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
    * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
    * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).
    * Returned data is not cloned because Settings are stored with `freezeValues` option = true then the values are deep frozen.
+   * @throws {Error} Throws if the Setting to get is not defined. If `search` is true, throws only if the search fails.
    */
   get ({ scenario, unit, name, date }) {
-      return this.#driversRepo.get({ scenario, unit, name, date, search: true });
+      return this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined: true });
   }
 
   /**

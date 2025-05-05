@@ -66,21 +66,22 @@ class Drivers {
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
    * @param {'sum'|'average'|'min'|'max'} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
-   * @return {undefined|number} Driver; if not found, returns undefined;
+   * @return {number} returns the Driver value;
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
    * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
    * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).
    * Returned data is not cloned because Drivers are numbers then immutable by default.
+   * @throws {Error} Throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
    */
   get ({ scenario, unit, name, date, endDate, calc }) {
     // if `endDate` is not defined, returns the value defined before or at `date`
     if (endDate == null)
-      return this.#driversRepo.get({ scenario, unit, name, date, search: true });
+      return this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined: true });
     // if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`
     else {
       /** @type {number[]} */
-      const _retArray = this.#driversRepo.get({ scenario, unit, name, date, endDate, search: true });
+      const _retArray = this.#driversRepo.get({ scenario, unit, name, date, endDate, search: true, throwIfNotDefined: true });
       // switch on `calc`
       switch (calc) {
         case 'sum':

@@ -15,7 +15,7 @@ t('Drivers tests', async () => {
   });
 
   const input = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 999 },  // #driver0, mutable, ignored
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 999 },  // #driver0, mutable, ignored (not added)
 
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), value: '55' },  // #driver1[0], sanitized
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC', value: '66' },  //  #driver2   value without date, set to Date(0), sanitized
@@ -40,9 +40,9 @@ t('Drivers tests', async () => {
   ];
   drivers.set(input2);
 
-  // query with all parameters empty: undefined
+  // query with all parameters empty: throws, because the driver is not found
   //@ts-ignore
-    assert.deepStrictEqual(drivers.get({ }), undefined);
+  assert.throws(() => drivers.get({}));
 
   // throws if the query parameter is not an object
   //@ts-ignore
@@ -50,12 +50,12 @@ t('Drivers tests', async () => {
 
 
   // query with wrong parameters: undefined
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIOAAA', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // wrong scenario
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitBBB', name: '$driver XYZ', date: new Date(2022, 11, 24) }), undefined);  // wrong unit
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver CCC', date: new Date(2022, 11, 24) }), undefined);  // wrong name
+  assert.throws(() => drivers.get({ scenario: 'SCENARIOAAA', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }));  // wrong scenario
+  assert.throws(() => drivers.get({ scenario: 'SCENARIO1', unit: 'UnitBBB', name: '$driver XYZ', date: new Date(2022, 11, 24) }));  // wrong unit
+  assert.throws(() => drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver CCC', date: new Date(2022, 11, 24) }));  // wrong name
 
   // #driver0 tests
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25) }), undefined);  // mutable, ignored
+  assert.throws(() => drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25) }));  // mutable driver, not added, then get fails
 
   // #driver1[0] tests
   assert.deepStrictEqual(drivers.isDefined({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ'}), true);
