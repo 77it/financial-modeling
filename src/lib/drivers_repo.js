@@ -127,15 +127,15 @@ class DriversRepo {
       // shallow clone _inputItem, to build a new object and be able to add properties to it without changing the original object (doesn't clone the properties of the object, only creates a new object with the same properties)
       const _inputItemClone = { ..._inputItem };
 
-      // sanitize the input object, only fields `date` and `value`
+      // sanitize the input object, only fields `date`;
+      // doesn't sanitize `value` because during get can be parsed or not as json5, then at this moment is not possible to sanitize it
       sanitize({
         value: _inputItemClone,
         sanitization: {
           date: schema.DATE_TYPE,  // missing or invalid dates will be set to new Date(0)
           name: schema.STRING_TYPE,
           scenario: schema.STRING_TYPE + schema.OPTIONAL,
-          unit: schema.STRING_TYPE + schema.OPTIONAL,
-          value: this.#sanitizationType
+          unit: schema.STRING_TYPE + schema.OPTIONAL
         }
       });
 
@@ -224,20 +224,21 @@ class DriversRepo {
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
    * @param {boolean} [p.parseAsJSON5=false] - Optional flag to parse the value as JSON5
-   * @param {string|string[]|Object} [p.sanitizationType] - Optional type for value sanitization (can be string, array of string, object)
    * @param {boolean} [p.search=false] - Optional flag to search for recursive search of the driver:
    * read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
    * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base)
+   * @param {boolean} [p.throwIfNotDefined=false] Optional flag to throw. See @throws for description of this option.
    * @return {undefined|*|*[]} Driver; if not found, returns undefined;
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns an array of values defined between `date` and `endDate`.
    * Returned data is not cloned, but with `freezeValues` option = true in the constructor the values are deep-frozen before saving them.
+   * @throws {Error} If `throwIfNotDefined` is true, throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
    */
-  get ({ scenario, unit, name, date, endDate, parseAsJSON5 = false, sanitizationType, search = false }) {
+  get ({ scenario, unit, name, date, endDate, parseAsJSON5 = false, search = false, throwIfNotDefined = false }) {
     let _key = this.#driversRepoBuildKey({ scenario, unit, name });
     if (!this.#driversRepo.has(_key)) {
       if (!search)
-        return undefined;
+        return undefined_Or_throwIfNotDefined();
       else {
         const _baseScenario = this.#baseScenario;
         const _defaultUnit = this.#defaultUnit;
@@ -264,13 +265,13 @@ class DriversRepo {
         }
 
         if (!_foundFlag)
-          return undefined;
+          return undefined_Or_throwIfNotDefined();
       }
     }
 
     const _driver = this.#driversRepo.get(_key);
-    if (!_driver)
-      return undefined;
+    // shouldn't be null at this point, but we do this test to prevent error "TS2345 [ERROR]: Argument of type [...] is not assignable to parameter of type [...]'
+    if (_driver == null) return undefined;
 
     // date milliseconds:<p>
     // * missing dates will be set to this.#today;<p>
@@ -300,10 +301,10 @@ class DriversRepo {
       const _parsedRet = (parseAsJSON5) ? parseJSON5(_ret) : _ret;
 
       // sanitize the value if requested
-      if (isNullOrWhiteSpace(sanitizationType))
+      if (isNullOrWhiteSpace(this.#sanitizationType))
         return _parsedRet;
       else
-        return sanitize({ value: _parsedRet, sanitization: sanitizationType });
+        return sanitize({ value: _parsedRet, sanitization: this.#sanitizationType });
     }
     // if `endDate` is defined, returns an array of values defined between `date` and `endDate`
     else {
@@ -345,11 +346,24 @@ class DriversRepo {
         _retArray = _retArray.map(_item => parseJSON5(_item));
 
       // sanitize the value if requested
-      if (isNullOrWhiteSpace(sanitizationType))
+      if (isNullOrWhiteSpace(this.#sanitizationType))
         return _retArray;
       else
-        return _retArray.map(_item => sanitize({ value: _item, sanitization: sanitizationType }));
+        return _retArray.map(_item => sanitize({ value: _item, sanitization: this.#sanitizationType }));
     }
+
+    //#region local functions
+    /**
+     * @return {undefined} If `throwIfNotDefined` is false returns undefined
+     * @throws {Error} If `throwIfNotDefined` is true throws
+     */
+    function undefined_Or_throwIfNotDefined() {
+      if (throwIfNotDefined)
+        throw new Error(`get() of ${JSON.stringify({ scenario, unit, name })} failed`);
+      else
+        return undefined;
+    }
+    //#endregion local functions
   }
 
   /**
