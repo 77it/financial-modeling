@@ -242,7 +242,10 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
     }
     case schema.ARRAY_TYPE: {
       if (!Array.isArray(value))  // if `value` is not an array return a new array with `value` as first element
-        retValue = [value];
+        if (value == null)
+          retValue = [];
+        else
+          retValue = [value];
       else
         retValue = value;
       break;

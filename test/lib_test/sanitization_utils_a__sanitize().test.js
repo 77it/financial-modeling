@@ -248,8 +248,8 @@ t('test sanitize() - array (enum) type + validation', async () => {
 t('test sanitize() - array type', async () => {
   const t = S.ARRAY_TYPE;
   assert.deepStrictEqual([1, 2, 'a'], s.sanitize({ value: [1, 2, 'a'], sanitization: t }));
-  assert.deepStrictEqual([undefined], s.sanitize({ value: undefined, sanitization: t }));
-  assert.deepStrictEqual([null], s.sanitize({ value: null, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([999], s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual([''], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual(['abc'], s.sanitize({ value: 'abc', sanitization: t }));
