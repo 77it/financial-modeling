@@ -1,6 +1,4 @@
-﻿import { taskLocksBeforeEverythingElse } from '../config/tasklocks_call_sequence.js.js';
-
-export { DriversRepo };
+﻿export { DriversRepo };
 
 import * as schema from './schema.js';
 import { sanitize } from './schema_sanitization_utils.js';
@@ -8,16 +6,16 @@ import { validate } from './schema_validation_utils.js';
 import { stripTimeToLocalDate, localDateToStringYYYYMMDD } from './date_utils.js';
 import { parseJSON5 } from './json5.js';
 import { isNullOrWhiteSpace } from './string_utils.js';
-import { deepFreeze } from './obj_utils.js';
+import { deepFreeze, binarySearch_position_atOrBefore } from './obj_utils.js';
 
 // This is a base class used to build Settings and Drivers repositories
 class DriversRepo {
   /**
-   Map to store Drivers:
+   Map to store Drivers and Settings:
    keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
-   values are an array of {date: number [1], value: number} ordered by date
+   values are an array of {date: number [1], value: *} ordered by date
    [1] number obtained with `date.getTime()`
-   * @type {Map<string, {dateMilliseconds: number, value: number}[]>} */
+   * @type {Map<string, {dateMilliseconds: number, value: *}[]>} */
   #driversRepo;
   /** @type {string} */
   #currentScenario;
@@ -166,7 +164,7 @@ class DriversRepo {
       // * else, set it to 0.<p>
       // (check for `_inputItemClone?.date` because typescript can't understand that `sanitize` sanitize invalid dates)
       const _inputDateMillisecond = (() => {
-        if (_inputItemClone?.date && _inputItemClone?.date.getTime() !== 0) {
+        if (_inputItemClone?.date) {
           if (_isImmutableWithoutDates) { return 0; } else { return stripTimeToLocalDate(_inputItemClone?.date).getTime(); }
         } else { return 0; }
       })();
@@ -273,14 +271,14 @@ class DriversRepo {
     // shouldn't be null at this point, but we do this test to prevent error "TS2345 [ERROR]: Argument of type [...] is not assignable to parameter of type [...]'
     if (_driver == null) return undefined;
 
-    // date milliseconds:<p>
+    // sanitize input date to milliseconds:<p>
     // * missing dates will be set to this.#today;<p>
     // * invalid date will be set to new Date(0);<p>
     // * strip the time part from the date (if the date is != Date(0))<p>
     const _dateMilliseconds = (() => {
       let _date = (date === undefined || date === null) ? this.#today : date;
       _date = sanitize({ value: _date, sanitization: schema.DATE_TYPE });
-      _date = (_date.getTime() !== 0) ? stripTimeToLocalDate(_date) : _date;
+      _date = stripTimeToLocalDate(_date);
       return _date.getTime();
     })();
 
@@ -316,7 +314,7 @@ class DriversRepo {
       /** @type {{start: number, end: number}} */
       const _milliseconds = (() => {
         let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
-        _endDate = (_endDate.getTime() !== 0) ? stripTimeToLocalDate(_endDate) : _endDate;
+        _endDate = stripTimeToLocalDate(_endDate);
         if (_endDate.getTime() < _dateMilliseconds)
           return { start: _endDate.getTime(), end: _dateMilliseconds };
         else
@@ -410,23 +408,12 @@ class DriversRepo {
    * @returns {number} The position at or before the target dateMilliseconds, or -1 if not found.
    */
   #binarySearch_position_atOrBefore_dateMilliseconds (driverArray, target) {
-    let low = 0;
-    let high = driverArray.length - 1;
-    let result = -1;
-
-    while (low <= high) {
-      const mid = Math.floor((low + high) / 2);
-      if (driverArray[mid].dateMilliseconds === target) {
-        return mid;
-      } else if (driverArray[mid].dateMilliseconds < target) {
-        result = mid;
-        low = mid + 1;
-      } else {
-        high = mid - 1;
-      }
-    }
-
-    return result;
+    return binarySearch_position_atOrBefore({
+      array: driverArray,
+      target: target,
+      dateArray: false,
+      keyName: 'dateMilliseconds'
+    });
   }
 
   //#endregion private methods
