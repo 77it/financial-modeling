@@ -4,10 +4,10 @@ import * as CONST from '../../config/modules/_const.js';
 import { ModuleData, schema, validate, sanitize, eq2, parseYAML, parseJSON5 } from '../deps.js';
 
 /**
- * Sanitize and parse values of moduleData tables in place (without cloning moduleData).
+ * Parse then Sanitize values of moduleData tables in place (without cloning moduleData).
  * tableName is matched between moduleData and moduleSanitization in a case insensitive & trim way.
- * sanitization and parsing is also done in a case insensitive & trim way, matching the keys of the object to sanitize to the sanitization object keys.
- * parsing is done before sanitization, with YAML or JSON5 (values from config/modules/_const.js), only for the keys specified in the sanitization object.
+ * Parsing and Sanitization are also done in a case insensitive & trim way, matching the keys of the object to sanitize to the sanitization object keys.
+ * Parsing is done before Sanitization, with YAML or JSON5 (values from config/modules/_const.js), only for the keys specified in the sanitization object.
  * @param {Object} p
  * @param {ModuleData} p.moduleData
  * @param {{tableName: string, parse?: *, sanitization?: *, sanitizationOptions?: *}[]} p.moduleSanitization

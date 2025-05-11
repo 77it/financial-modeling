@@ -323,21 +323,22 @@ class DriversRepo {
 
       let _retArray = [];
 
-      // binary search of `_dateMilliseconds` in `_driver` array; -1 if not found
-      let foundPositionOf__dateMilliseconds_in__driver_array =
-        this.#binarySearch_position_atOrBefore_dateMilliseconds(_driver, _milliseconds.start);
+      // binary search of `_milliseconds.end` in `_driver` array; -1 if not found
+      let foundPositionOf__endDate_in__driver_array =
+        this.#binarySearch_position_atOrBefore_dateMilliseconds(_driver, _milliseconds.end);
 
-      // if the date is not found, set to zero, to start from the beginning of the array
-      if (foundPositionOf__dateMilliseconds_in__driver_array === -1)
-        foundPositionOf__dateMilliseconds_in__driver_array = 0;
+      // if the end date is not found, set to the end of the array
+      if (foundPositionOf__endDate_in__driver_array === -1)
+        foundPositionOf__endDate_in__driver_array = _driver.length;
 
-      // loop from `foundPositionOf__dateMilliseconds_in__driver_array` to the end of the array
+      // loop from `foundPositionOf__endDate_in__driver_array` to the start of the array
       // and save all drivers between `_milliseconds.start` and `_milliseconds.end`
-      for (let i = foundPositionOf__dateMilliseconds_in__driver_array; i < _driver.length; i++) {
-        if (_driver[i].dateMilliseconds > _milliseconds.end)
+      for (let i = foundPositionOf__endDate_in__driver_array; i >= 0; i--) {
+        if (_driver[i].dateMilliseconds < _milliseconds.start)
           break;
         _retArray.push(_driver[i].value);
       }
+      _retArray.reverse();  // invert the values of `_retArray`, because we looped from the end to the start of the array
 
       // parse all elements contained in the _retArray as JSON5 if requested
       if (parseAsJSON5)
