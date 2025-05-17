@@ -39,6 +39,9 @@ deltaName(SimObjectType, SimObjectName, amount): se c'è un SimObject con nome+t
 
 square(Unit), return number: restituisce il valore della squadratura di un unità, ovvero la somma degli importi dei SO di tipo BalanceSheet e di tipo IncomeStatement che hanno come unità quella indicata. Se l’unità di conto non esiste, restituisce 0.
 
+alignAmortizationScheduleOfLinkedVsSimObjectName(): allinea i piani dei SimObject collegati (indefinite e principal) non scaricando il valore del SimObject (lo fa `AmortizationScheduler`) ma solo allineando il piano di ammortamento (se il loro saldo è identico, altrimenti i piani non vengono allineati)
+Vedi nota di implementazione su OneNote
+
  */
 
 // SimObjects storage and edits, #queue
@@ -290,6 +293,8 @@ class Ledger {
 
     if (this.#simObjectTypes_enum_map.has(newSimObjectDto.type) === false)
       throw new Error(`SimObject type ${newSimObjectDto.type} is not recognized`);
+
+    // TODO implement and call `alignAmortizationScheduleOfLinkedVsSimObjectName()`
 
     const debug_moduleInfo = (this.#debug) ? this.#currentDebugModuleInfo : '';
 
