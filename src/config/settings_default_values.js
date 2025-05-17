@@ -15,8 +15,10 @@ import { deepFreeze } from '../lib/obj_utils.js';
 const SettingsDefaultValues = {
   // values of immutable settings if nothing else is set
   [Simulation.$$DEBUG_FLAG]: false,
-  [Simulation.$$HISTORICAL_VOICE_BALANCING]: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
+  [Simulation.$$HISTORICAL_SQUARE_VOICE_BS]: SimObjectTypes_enum.BS_EQUITY__RESERVES__RELATEDTOMAJORITYSHAREHOLDERS,  // square with equity because using Cash Account will create problem with VsNoCash voices
+  [Simulation.$$HISTORICAL_SQUARE_VOICE_IS]: SimObjectTypes_enum.IS_PROFITLOSS__NETINCOMEORLOSS__RELATEDTOMAJORITYSHAREHOLDERS,
   [Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE]: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
+  [Simulation.$$SQUARE_TOLERANCE]: 2,  // 2 should be enough for all cases; if you need more, you can set it in the simulation settings
   [Simulation.$$CURRENCY]: Currency_enum.UNDEFINED,
   [Simulation.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE]: new Date(0),
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: 12,

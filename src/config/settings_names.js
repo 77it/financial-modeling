@@ -15,8 +15,10 @@ const Simulation = {
   // * when you merge Excel input from other simulations with different decimal settings
   // * with YAML/JSON parsing, because all array with numbers separated with a comma with be split to every comma: e.g.  parseYAML('[1,1]') != [1, 1]
   // REMOVED  //$$NUMBER_STRING_DECIMAL_SEPARATOR: 'REMOVED SETTING',
-  $$HISTORICAL_VOICE_BALANCING: '$$HISTORICAL_VOICE_BALANCING',  // if we are in the historical period, each processed line of IS and BS is unbalanced, and we balance it using this accounting entry; balancing writing is done with the description "historical balancing"
-  $$DEFAULT_ACCOUNTING_VS_TYPE: '$$DEFAULT_ACCOUNTING_VS_TYPE',  // default type for balancing accounting entries
+  $$HISTORICAL_SQUARE_VOICE_BS: '$$HISTORICAL_SQUARE_VOICE_BS',  // if we are in the historical period, each processed line of BS is unbalanced, and we balance it using this accounting entry; balancing writing is done with the description "historical balancing" (square, squaring)
+  $$HISTORICAL_SQUARE_VOICE_IS: '$$HISTORICAL_SQUARE_VOICE_IS',  // if we are in the historical period, each processed line of IS is unbalanced, and we balance it using this accounting entry; balancing writing is done with the description "historical balancing" (square, squaring)
+  $$DEFAULT_ACCOUNTING_VS_TYPE: '$$DEFAULT_ACCOUNTING_VS_TYPE',  // default type for balancing accounting entries (square, squaring)
+  $$SQUARE_TOLERANCE: '$$SQUARE_TOLERANCE',  // tolerance used when squaring some writings; the unbalanced part is squared with $$HISTORICAL_SQUARE_VOICE_BS or $$HISTORICAL_SQUARE_VOICE_IS (historical writings) or $$DEFAULT_ACCOUNTING_VS_TYPE (simulation writings)
   $$CURRENCY: '$$CURRENCY',
   $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE: '$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE',
   $$END_OF_THE_FISCAL_YEAR__MONTH: '$$END_OF_THE_FISCAL_YEAR__MONTH',
