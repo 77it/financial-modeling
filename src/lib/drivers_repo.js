@@ -10,6 +10,7 @@ import { deepFreeze, binarySearch_position_atOrBefore } from './obj_utils.js';
 
 // This is a base class used to build Settings and Drivers repositories
 class DriversRepo {
+  //#region data properties
   /**
    Map to store Drivers and Settings:
    keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
@@ -17,6 +18,42 @@ class DriversRepo {
    [1] number obtained with `date.getTime()`
    * @type {Map<string, {dateMilliseconds: number, value: *}[]>} */
   #driversRepo;
+
+  /** Set to store the list of obsolete drivers (the one that have to be generated again).
+   Regeneration set again values in the data structures `#firstDates`, `#lastDates`, `#driverDatesBeforeOrExact`, `#driverDatesAfterOrExact`
+   * @type {Set<string>} */
+  #obsoleteIds;
+
+  /**
+   Map to store Drivers and their first dates;
+   keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
+   values are the first date in milliseconds of the array contained in `#driversRepo`, obtained with `date.getTime()`
+   * @type {Map<string, number[]>} */
+  #firstDates;
+  /**
+   Map to store Drivers and their last dates;
+   keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
+   values are the last date in milliseconds of the array contained in `#driversRepo`, obtained with `date.getTime()`
+   * @type {Map<string, number[]>} */
+  #lastDates;
+
+  /**
+   Map to store Drivers and Drivers dates;
+   Map <index = ID> of Map <index = date from firstDate to lastDate [1] [2], value = position in array of values of `#driversRepo`>
+   [1] for each dates in this map, the saved position in the array points to a date that is before or equal to the date in the key;
+   [2] number obtained with `date.getTime()`
+   * @type {Map<string, Map<number, number>>} */
+  #driverDatesBeforeOrExact;
+
+  /**
+   Map to store Drivers and Drivers dates;
+   Map <index = ID> of Map <index = date from firstDate to lastDate [1] [2], value = position in array of values of `#driversRepo`>
+   [1] for each dates in this map, the saved position in the array points to a date that is after or equal to the date in the key;
+   [2] number obtained with `date.getTime()`
+   * @type {Map<string, Map<number, number>>} */
+  #driverDatesAfterOrExact;
+  //#endregion data properties
+
   /** @type {string} */
   #currentScenario;
   /** @type {string} */
@@ -76,6 +113,8 @@ class DriversRepo {
     this.#driversRepo = new Map();
     this.#currentDebugModuleInfo = '';
     this.#today = new Date(0);
+
+    xxx TODO init new data structures;
   }
 
   /** @param {string} debugModuleInfo */
