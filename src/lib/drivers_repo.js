@@ -111,10 +111,14 @@ class DriversRepo {
     this.#freezeValues = sanitize({ value: freezeValues, sanitization: schema.BOOLEAN_TYPE, validate: true });
 
     this.#driversRepo = new Map();
+    this.#obsoleteIds = new Set();
+    this.#firstDates = new Map();
+    this.#lastDates = new Map();
+    this.#driverDatesBeforeOrExact = new Map();
+    this.#driverDatesAfterOrExact = new Map();
+
     this.#currentDebugModuleInfo = '';
     this.#today = new Date(0);
-
-    xxx TODO init new data structures;
   }
 
   /** @param {string} debugModuleInfo */
@@ -216,6 +220,7 @@ class DriversRepo {
       // if the driver is missing, add it to the repo
       if (!(this.#driversRepo.has(_key))) {
         this.#driversRepo.set(_key, [{ dateMilliseconds: _inputDateMillisecond, value: _inputItemClone.value }]);
+        this.#obsoleteIds.add(_key);
       }
       // if the driver is present, update it
       else {
@@ -230,14 +235,17 @@ class DriversRepo {
           // 3) if _toAppendFlag is still true, append date and value at the end of the array
           for (let i = 0; i < _driver.length; i++) {
             if (_driver[i].dateMilliseconds === _inputDateMillisecond) {
-              if (_isMutable)
+              if (_isMutable) {
                 _driver[i].value = _inputItemClone.value;
-              else
+                this.#obsoleteIds.add(_key);
+              } else {
                 arrayOfErrors.push(`Driver ${_key} is immutable and the date ${localDateToStringYYYYMMDD(new Date(_inputDateMillisecond))} is already present`);
+              }
               _toAppendFlag = false;
               break;
             } else if (_driver[i].dateMilliseconds > _inputDateMillisecond) {
               _driver.splice(i, 0, { dateMilliseconds: _inputDateMillisecond, value: _inputItemClone.value });
+              this.#obsoleteIds.add(_key);
               _toAppendFlag = false;
               break;
             }
@@ -245,6 +253,7 @@ class DriversRepo {
 
           if (_toAppendFlag)
             _driver.push({ dateMilliseconds: _inputDateMillisecond, value: _inputItemClone.value });
+            this.#obsoleteIds.add(_key);
         }
       }
     }
@@ -273,6 +282,7 @@ class DriversRepo {
    */
   get ({ scenario, unit, name, date, endDate, parseAsJSON5 = false, search = false, throwIfNotDefined = false }) {
     let _key = this.#driversRepoBuildKey({ scenario, unit, name });
+    this.#updateIndexesOfObsoleteDrivers(_key);
     if (!this.#driversRepo.has(_key)) {
       if (!search)
         return undefined_Or_throwIfNotDefined();
@@ -456,5 +466,41 @@ class DriversRepo {
     });
   }
 
+  /**
+   * Update the indexes of obsolete drivers
+   * @param {string} key - The key of the driver to update if obsolete
+   * @returns {void}
+   */
+  #updateIndexesOfObsoleteDrivers(key) {
+    if (this.#obsoleteIds.has(key)) {
+      this.#obsoleteIds.delete(key);  // remove the key from the set of obsolete drivers
+
+      XXX todo implement;
+      /*
+      this.#firstDates = new Map();
+      this.#lastDates = new Map();
+      this.#driverDatesBeforeOrExact = new Map();
+      this.#driverDatesAfterOrExact = new Map();
+       */
+
+      const _driver = this.#driversRepo.get(key);
+      if (_driver) {
+        const _firstDate = _driver[0].dateMilliseconds;
+        const _lastDate = _driver[_driver.length - 1].dateMilliseconds;
+
+        this.#firstDates.set(key, _firstDate);
+        this.#lastDates.set(key, _lastDate);
+
+        // update the indexes of the driver dates
+        this.#driverDatesBeforeOrExact.set(key, new Map());
+        this.#driverDatesAfterOrExact.set(key, new Map());
+
+        for (const _item of _driver) {
+          this.#driverDatesBeforeOrExact.get(key)?.set(_item.dateMilliseconds, _item.value);
+          this.#driverDatesAfterOrExact.get(key)?.set(_item.dateMilliseconds, _item.value);
+        }
+      }
+    }
+  }
   //#endregion private methods
 }
