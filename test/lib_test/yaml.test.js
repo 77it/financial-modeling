@@ -33,7 +33,11 @@ t('YAML test, parsing specific to custom library, most interesting tests of not 
   dpeq(parse2('Main: 89, Ciao: 99'), 'Main: 89, Ciao: 99');
 
   // parsing an object with key/value without spaces and without "" is parsed correctly with custom parsing `parse2`:
+  // (parsing an object with key containing whitespace without quotes will split key by : returning correctly key/value pair)
   // key and value split by the function `parseYAML`
+  dpeq(parse2('{a b c:value, c c c:value2}'), { "a b c": "value", "c c c": "value2" });
+  dpeq(parse2('{a b c:value}'), { "a b c": "value" });
+  dpeq(parse2('{ab c:value}'), { "ab c": "value" });
   dpeq(parse2('{abc:value}'), { abc: 'value' });
   dpeq(parse2('{abc:999}'), { abc: 999 });
   // the split is NOT done for 'abc:999' because the key 'abc' already exists in the object
@@ -96,6 +100,11 @@ t('YAML tests, parse specific to standard library', () => {
 
   // parsing an object without {} goes in error then is returned undefined
   dpeq(parse1('Main: 89, Ciao: 99'), undefined);
+
+  // parsing an object with key containing whitespace without quotes returns null as value and everything as key
+  dpeq(parse1('{ab c:value}'), { "ab c:value": null });
+  dpeq(parse1('{a b c:value}'), { "a b c:value": null });
+  dpeq(parse1('{a b c:value, c c c:value2}'), { "a b c:value": null, "c c c:value2": null });
 
   //#region parsing dates (only to UTC date or string)
   dpeq(parse1('2023-01-05T00:00:00.000Z'), localDateToUTC(new Date(2023, 0, 5)));  // converted to UTC Date
@@ -162,7 +171,11 @@ t('YAML tests, parse with custom and standard library', () => {
     dpeq(parse0('{ Driver }'), { Driver: null });
     dpeq(parse0('{ UnitA!Driver }'), { 'UnitA!Driver': null });
 
+    // normal object parsing
     dpeq(parse0('{"abc":value}'), { abc: "value" });
+
+    // parsing an object with key containing whitespace with quotes is parded correctly
+    dpeq(parse0('{"ab c":value}'), { "ab c": "value" });
 
     //#region parsing strings with and without quotes, returns the string
     dpeq(parse0('"ciao"'), 'ciao');
