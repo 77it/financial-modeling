@@ -3,7 +3,7 @@
 import * as schema from './schema.js';
 import { sanitize } from './schema_sanitization_utils.js';
 import { validate } from './schema_validation_utils.js';
-import { stripTimeToLocalDate, localDateToStringYYYYMMDD } from './date_utils.js';
+import { stripTimeToLocalDate, localDateToStringYYYYMMDD, addDaysToLocalDate } from './date_utils.js';
 import { parseJSON5 } from './json5.js';
 import { isNullOrWhiteSpace } from './string_utils.js';
 import { deepFreeze, binarySearch_position_atOrBefore } from './obj_utils.js';
@@ -25,29 +25,18 @@ class DriversRepo {
   #obsoleteIds;
 
   /**
-   Map to store Drivers and their first dates;
-   keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
-   values are the first date in milliseconds of the array contained in `#driversRepo`, obtained with `date.getTime()`
-   * @type {Map<string, number[]>} */
-  #firstDates;
-  /**
-   Map to store Drivers and their last dates;
-   keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
-   values are the last date in milliseconds of the array contained in `#driversRepo`, obtained with `date.getTime()`
-   * @type {Map<string, number[]>} */
-  #lastDates;
-
-  /**
-   Map to store Drivers and Drivers dates;
-   Map <index = ID> of Map <index = date from firstDate to lastDate [1] [2], value = position in array of values of `#driversRepo`>
+   Map to store Drivers and Drivers dates positions in the drivers array got from `#driversRepo`;
+   Map <index = DriverID [0]> of Map <index = date (milliseconds) from firstDate to lastDate [1] [2], value = position in array of values of `#driversRepo`>
+   [0] built with `#driversRepoBuildKey` method
    [1] for each dates in this map, the saved position in the array points to a date that is before or equal to the date in the key;
    [2] number obtained with `date.getTime()`
    * @type {Map<string, Map<number, number>>} */
   #driverDatesBeforeOrExact;
 
   /**
-   Map to store Drivers and Drivers dates;
-   Map <index = ID> of Map <index = date from firstDate to lastDate [1] [2], value = position in array of values of `#driversRepo`>
+   Map to store Drivers and Drivers dates positions in the drivers array got from `#driversRepo`;
+   Map <index = DriverID [0]> of Map <index = date (milliseconds) from firstDate to lastDate [1] [2], value = position in array of values of `#driversRepo`>
+   [0] built with `#driversRepoBuildKey` method
    [1] for each dates in this map, the saved position in the array points to a date that is after or equal to the date in the key;
    [2] number obtained with `date.getTime()`
    * @type {Map<string, Map<number, number>>} */
@@ -112,8 +101,6 @@ class DriversRepo {
 
     this.#driversRepo = new Map();
     this.#obsoleteIds = new Set();
-    this.#firstDates = new Map();
-    this.#lastDates = new Map();
     this.#driverDatesBeforeOrExact = new Map();
     this.#driverDatesAfterOrExact = new Map();
 
@@ -229,21 +216,24 @@ class DriversRepo {
           let _toAppendFlag = true;
           // loop _driver array:
           // 1) if the date is already present
-          //    1.1) if `_isImmutable` don't add it (ignore it) and set _toAppendFlag to false
-          //    1.2) if `_isMutable` replace the value and set _toAppendFlag to false
+          //    1.0) set _toAppendFlag to false
+          //    1.1) if `_isImmutable` don't add it (ignore it appending an error)
+          //    1.2) if `_isMutable` replace the value
           // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
           // 3) if _toAppendFlag is still true, append date and value at the end of the array
           for (let i = 0; i < _driver.length; i++) {
             if (_driver[i].dateMilliseconds === _inputDateMillisecond) {
               if (_isMutable) {
-                _driver[i].value = _inputItemClone.value;
+                _driver[i].value = _inputItemClone.value;  // 1.2) replace the value
                 this.#obsoleteIds.add(_key);
               } else {
+                // 1.1) don't add it (ignore it appending an error)
                 arrayOfErrors.push(`Driver ${_key} is immutable and the date ${localDateToStringYYYYMMDD(new Date(_inputDateMillisecond))} is already present`);
               }
               _toAppendFlag = false;
               break;
             } else if (_driver[i].dateMilliseconds > _inputDateMillisecond) {
+              // 2) insert date and value at the right position between other dates
               _driver.splice(i, 0, { dateMilliseconds: _inputDateMillisecond, value: _inputItemClone.value });
               this.#obsoleteIds.add(_key);
               _toAppendFlag = false;
@@ -251,9 +241,11 @@ class DriversRepo {
             }
           }
 
-          if (_toAppendFlag)
+          if (_toAppendFlag) {
+            // 3) append date and value at the end of the array
             _driver.push({ dateMilliseconds: _inputDateMillisecond, value: _inputItemClone.value });
             this.#obsoleteIds.add(_key);
+          }
         }
       }
     }
@@ -282,7 +274,200 @@ class DriversRepo {
    */
   get ({ scenario, unit, name, date, endDate, parseAsJSON5 = false, search = false, throwIfNotDefined = false }) {
     let _key = this.#driversRepoBuildKey({ scenario, unit, name });
-    this.#updateIndexesOfObsoleteDrivers(_key);
+
+    if (!this.#driversRepo.has(_key)) {
+      if (!search)
+        return undefined_Or_throwIfNotDefined();
+      else {
+        const _baseScenario = this.#baseScenario;
+        const _defaultUnit = this.#defaultUnit;
+        let _foundFlag = false;
+        // search from Default Unit (if Unit != Default)
+        if (unit !== _defaultUnit) {
+          _key = this.#driversRepoBuildKey({ scenario, unit: _defaultUnit, name });
+          if (this.#driversRepo.has(_key))
+            _foundFlag = true;
+        }
+
+        // search from Base Scenario (if Scenario != Base) and same Unit
+        if (!_foundFlag && scenario !== _baseScenario) {
+          _key = this.#driversRepoBuildKey({ scenario: _baseScenario, unit, name });
+          if (this.#driversRepo.has(_key))
+            _foundFlag = true;
+        }
+
+        // search from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base)
+        if (!_foundFlag && scenario !== _baseScenario && unit !== _defaultUnit) {
+          _key = this.#driversRepoBuildKey({ scenario: _baseScenario, unit: _defaultUnit, name });
+          if (this.#driversRepo.has(_key))
+            _foundFlag = true;
+        }
+
+        if (!_foundFlag)
+          return undefined_Or_throwIfNotDefined();
+      }
+    }
+
+    this.#updateIndexesOfObsoleteDrivers(_key);  // update index of obsolete drivers, if needed
+
+    const _driver = this.#driversRepo.get(_key);
+    // shouldn't be null at this point, but we do this test to prevent error "TS2345 [ERROR]: Argument of type [...] is not assignable to parameter of type [...]'
+    if (_driver == null) return undefined;
+
+    // sanitize input date to milliseconds:<p>
+    // * missing dates will be set to this.#today;<p>
+    // * invalid date will be set to new Date(0);<p>
+    // * strip the time part from the date (if the date is != Date(0))<p>
+    const _dateMs = (() => {
+      let _date = (date === undefined || date === null) ? this.#today : date;
+
+      XXX cache; MAKE FUNCTION TO SANITIZE AND STRIP AFTER LOOKING TO MAP CACHE; TEST JSON VS STRIP THEN BUILD FUNCTION TO JSON AND GET MAP OR STRIP;
+      _date = sanitize({ value: _date, sanitization: schema.DATE_TYPE });
+      _date = stripTimeToLocalDate(_date);
+
+      return _date.getTime();
+    })();
+
+    // compute `_firstDate` and `_lastDate` milliseconds and position
+    const _firstDateMs = _driver[0].dateMilliseconds;
+    const _firstDatePos = 0;
+    const _lastDateMs = _driver[_driver.length - 1].dateMilliseconds;
+    const _lastDatePos = _driver.length - 1;
+
+    // if `endDate` is not defined, returns the value defined before or at `date`
+    if (endDate == null) {
+      let _ret = undefined;
+      let _positionOfDateInDriverArray = undefined;
+
+      // 1) if `_dateMs` is before the first date in which the driver is defined, leave the return position to undefined
+      // 2) if `_dateMs` is after the last date in which the driver is defined, set the return position to the last date
+      if (_dateMs < _firstDateMs) {
+        // 1) leave the return position to undefined
+      } else if (_dateMs > _lastDateMs) {
+        // 2) set the return position to the last date
+        _positionOfDateInDriverArray = _lastDatePos;
+      } else {
+        // get `_dateMs` from `#driverDatesBeforeOrExact`, undefined if not found
+        //@ts-ignore `this.#driverDatesBeforeOrExact.get(_key)` is never null
+        _positionOfDateInDriverArray = this.#driverDatesBeforeOrExact.get(_key).get(_dateMs);
+      }
+
+      // if the date is found, set the return value
+      if (_positionOfDateInDriverArray !== undefined) {
+        _ret = _driver[_positionOfDateInDriverArray].value;
+      }
+
+      // parse as JSON5 if requested
+      const _parsedRet = (parseAsJSON5) ? parseJSON5(_ret) : _ret;
+
+      // sanitize the value if requested
+      if (isNullOrWhiteSpace(this.#sanitizationType))
+        return _parsedRet;
+      else
+        return sanitize({ value: _parsedRet, sanitization: this.#sanitizationType });
+    }
+    // if `endDate` is defined, returns an array of values defined between `date` and `endDate`
+    else {
+      // start & end date milliseconds.<p>
+      // end milliseconds:<p>
+      // * invalid date will be set to new Date(0);<p>
+      // * strip the time part from the date (if the date is != Date(0))<p>
+      // if end milliseconds is lower than `_dateMs`, invert the two dates and returns them
+      /** @type {{start: number, end: number}} */
+      const _milliseconds = (() => {
+        XXX cache;
+        let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
+        const _endDateMs = stripTimeToLocalDate(_endDate).getTime();
+
+        if (_endDateMs < _dateMs)
+          return { start: _endDateMs, end: _dateMs };
+        else
+          return { start: _dateMs, end: _endDateMs };
+      })();
+
+      let _retArray = [];
+
+      // if `.start` and `.end` are both before the first date of the driver, return an empty array
+      if (_milliseconds.start < _firstDateMs && _milliseconds.end < _firstDateMs)
+        return [];
+
+      // if `.start` and `.end` are both after the last date of the driver, return an empty array
+      if (_milliseconds.start > _lastDateMs && _milliseconds.end > _lastDateMs)
+        return [];
+
+      // set `_firstDateToReturnPos`: position from `#driverDatesAfterOrExact` or the first date position if it's before it
+      const _firstDateToReturnPos = (() => {
+        //@ts-ignore `this.#driverDatesAfterOrExact.get(_key)` is never null
+        const _positionOfDateInDriverArray = this.#driverDatesAfterOrExact.get(_key).get(_milliseconds.start);
+          if (_positionOfDateInDriverArray !== undefined)
+            return _positionOfDateInDriverArray;
+          else
+            return _firstDatePos;
+      })();
+
+      // set `_lastDateToReturnPos`: position from `#driverDatesBeforeOrExact` or the last date position if it's after it
+      const _lastDateToReturnPos = (() => {
+        //@ts-ignore `this.#driverDatesBeforeOrExact.get(_key)` is never null
+        const _positionOfDateInDriverArray = this.#driverDatesBeforeOrExact.get(_key).get(_milliseconds.end);
+        if (_positionOfDateInDriverArray !== undefined)
+          return _positionOfDateInDriverArray;
+        else
+          return _lastDatePos;
+      })();
+
+      // loop from first to last position to return
+      for (let i = _firstDateToReturnPos; i <= _lastDateToReturnPos; i++) {
+        _retArray.push(_driver[i].value);
+      }
+
+      // parse all elements contained in the _retArray as JSON5 if requested
+      if (parseAsJSON5)
+        _retArray = _retArray.map(_item => parseJSON5(_item));
+
+      // sanitize the value if requested
+      if (isNullOrWhiteSpace(this.#sanitizationType))
+        return _retArray;
+      else
+        return _retArray.map(_item => sanitize({ value: _item, sanitization: this.#sanitizationType }));
+    }
+
+    //#region local functions
+    /**
+     * @return {undefined} If `throwIfNotDefined` is false returns undefined
+     * @throws {Error} If `throwIfNotDefined` is true throws
+     */
+    function undefined_Or_throwIfNotDefined () {
+      if (throwIfNotDefined)
+        throw new Error(`get() of ${JSON.stringify({ scenario, unit, name })} failed`);
+      else
+        return undefined;
+    }
+
+    //#endregion local functions
+  }
+
+  /**
+   * Get a Driver
+   * @param {Object} p
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} p.name - Driver name
+   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
+   * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
+   * @param {boolean} [p.parseAsJSON5=false] - Optional flag to parse the value as JSON5
+   * @param {boolean} [p.search=false] - Optional flag to search for recursive search of the driver:
+   * read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
+   * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base)
+   * @param {boolean} [p.throwIfNotDefined=false] Optional flag to throw. See @throws for description of this option.
+   * @return {undefined|*|*[]} Driver; if not found, returns undefined;
+   * if `endDate` is not defined, returns the value defined before or at `date`;
+   * if `endDate` is defined, returns an array of values defined between `date` and `endDate`.
+   * Returned data is not cloned, but with `freezeValues` option = true in the constructor the values are deep-frozen before saving them.
+   * @throws {Error} If `throwIfNotDefined` is true, throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
+   */
+  SUPERDEDED_get_without_indexing ({ scenario, unit, name, date, endDate, parseAsJSON5 = false, search = false, throwIfNotDefined = false }) {
+    let _key = this.#driversRepoBuildKey({ scenario, unit, name });
+
     if (!this.#driversRepo.has(_key)) {
       if (!search)
         return undefined_Or_throwIfNotDefined();
@@ -332,7 +517,7 @@ class DriversRepo {
     })();
 
     // if `endDate` is not defined, returns the value defined before or at `date`
-    if (endDate === undefined || endDate === null) {
+    if (endDate == null) {
       let _ret = undefined;
 
       // binary search of `_dateMilliseconds` in `_driver` array; -1 if not found
@@ -355,6 +540,10 @@ class DriversRepo {
     }
     // if `endDate` is defined, returns an array of values defined between `date` and `endDate`
     else {
+      // compute `_firstDate` and `_lastDate` milliseconds
+      const _firstDateMs = _driver[0].dateMilliseconds;
+      const _lastDateMs = _driver[_driver.length - 1].dateMilliseconds;
+
       // start & end date milliseconds.<p>
       // end milliseconds:<p>
       // * invalid date will be set to new Date(0);<p>
@@ -363,14 +552,22 @@ class DriversRepo {
       /** @type {{start: number, end: number}} */
       const _milliseconds = (() => {
         let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
-        _endDate = stripTimeToLocalDate(_endDate);
-        if (_endDate.getTime() < _dateMilliseconds)
-          return { start: _endDate.getTime(), end: _dateMilliseconds };
+        const _endDateMs = stripTimeToLocalDate(_endDate).getTime();
+        if (_endDateMs < _dateMilliseconds)
+          return { start: _endDateMs, end: _dateMilliseconds };
         else
-          return { start: _dateMilliseconds, end: _endDate.getTime() };
+          return { start: _dateMilliseconds, end: _endDateMs };
       })();
 
       let _retArray = [];
+
+      // if `.start` and `.end` are both before the first date of the driver, return an empty array
+      if (_milliseconds.start < _firstDateMs && _milliseconds.end < _firstDateMs)
+        return [];
+
+      // if `.start` and `.end` are both after the last date of the driver, return an empty array
+      if (_milliseconds.start > _lastDateMs && _milliseconds.end > _lastDateMs)
+        return [];
 
       // binary search of `_milliseconds.end` in `_driver` array; -1 if not found
       let foundPositionOf__endDate_in__driver_array =
@@ -405,12 +602,13 @@ class DriversRepo {
      * @return {undefined} If `throwIfNotDefined` is false returns undefined
      * @throws {Error} If `throwIfNotDefined` is true throws
      */
-    function undefined_Or_throwIfNotDefined() {
+    function undefined_Or_throwIfNotDefined () {
       if (throwIfNotDefined)
         throw new Error(`get() of ${JSON.stringify({ scenario, unit, name })} failed`);
       else
         return undefined;
     }
+
     //#endregion local functions
   }
 
@@ -435,6 +633,8 @@ class DriversRepo {
    * @return {string}
    */
   #driversRepoBuildKey ({ scenario, unit, name }) {
+    XXX cache;
+
     const _p = sanitize({
       value: { scenario, unit, name },
       sanitization: { scenario: schema.STRING_TYPE, unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
@@ -471,36 +671,75 @@ class DriversRepo {
    * @param {string} key - The key of the driver to update if obsolete
    * @returns {void}
    */
-  #updateIndexesOfObsoleteDrivers(key) {
+  #updateIndexesOfObsoleteDrivers (key) {
     if (this.#obsoleteIds.has(key)) {
       this.#obsoleteIds.delete(key);  // remove the key from the set of obsolete drivers
 
-      XXX todo implement;
-      /*
-      this.#firstDates = new Map();
-      this.#lastDates = new Map();
-      this.#driverDatesBeforeOrExact = new Map();
-      this.#driverDatesAfterOrExact = new Map();
-       */
+      const _driver = this.#driversRepo.get(key);  // get the driver from the repo
 
-      const _driver = this.#driversRepo.get(key);
-      if (_driver) {
-        const _firstDate = _driver[0].dateMilliseconds;
-        const _lastDate = _driver[_driver.length - 1].dateMilliseconds;
+      // shouldn't be null at this point, but we do this test to prevent error "TS2345 [ERROR]: Argument of type [...] is not assignable to parameter of type [...]'
+      if (_driver == null)
+        throw new Error(`Logical error: Driver with key ${key} of which indexes should be updated is not present in the repo`);
 
-        this.#firstDates.set(key, _firstDate);
-        this.#lastDates.set(key, _lastDate);
+      // set `#firstDates` and `#lastDates`
+      const _firstDate = _driver[0].dateMilliseconds;
+      const _lastDate = _driver[_driver.length - 1].dateMilliseconds;
 
-        // update the indexes of the driver dates
-        this.#driverDatesBeforeOrExact.set(key, new Map());
-        this.#driverDatesAfterOrExact.set(key, new Map());
+      // create a map with all driver milliseconds as key and the position in the data array as value
+      /** @type {Map<number, number>} */
+      const _map1_driver_keyMilliseconds_valuePositionInDriverArray = new Map();
+      for (let i = 0; i < _driver.length; i++) {
+        _map1_driver_keyMilliseconds_valuePositionInDriverArray.set(_driver[i].dateMilliseconds, i);
+      }
 
-        for (const _item of _driver) {
-          this.#driverDatesBeforeOrExact.get(key)?.set(_item.dateMilliseconds, _item.value);
-          this.#driverDatesAfterOrExact.get(key)?.set(_item.dateMilliseconds, _item.value);
+      // create two empty maps that will store the dates index of `#driverDatesBeforeOrExact` and `#driverDatesAfterOrExact`
+      /** @type {Map<number, number>} */
+      const _map2a_driverDatesBeforeOrExact_keyMilliseconds_valuePositionInDriverArray = new Map();
+      /** @type {Map<number, number>} */
+      const _map2b_driverDatesAfterOrExact_keyMilliseconds_valuePositionInDriverArray = new Map();
+
+      // loop from `_firstDate` to `_lastDate`, incrementing by one day
+      let _currentDateDate = stripTimeToLocalDate(new Date(_firstDate));
+      const _lastDateDate = stripTimeToLocalDate(new Date(_lastDate));
+      let _previousFoundPosition = -1;
+      while (true) {
+        //#region if `_currentDateDate` is found in milliseconds map, set the found position in `#driverDatesBeforeOrExact` and `#driverDatesAfterOrExact`
+        const _currentDateMilliseconds = _currentDateDate.getTime();
+        const _positionInDriverArray = _map1_driver_keyMilliseconds_valuePositionInDriverArray.get(_currentDateMilliseconds);
+        if (_positionInDriverArray != null) {
+          // store for later reuse the `_positionInDriverArray` in `_previousFoundPosition`
+          _previousFoundPosition = _positionInDriverArray;
+          // set the found position in `#driverDatesBeforeOrExact` and `#driverDatesAfterOrExact`
+          _map2a_driverDatesBeforeOrExact_keyMilliseconds_valuePositionInDriverArray.set(_currentDateMilliseconds, _positionInDriverArray);
+          _map2b_driverDatesAfterOrExact_keyMilliseconds_valuePositionInDriverArray.set(_currentDateMilliseconds, _positionInDriverArray);
+          //#endregion if `_currentDateDate` is found in milliseconds map [...]
+        } else {
+          //#region if `_currentDateDate` is NOT found in milliseconds map
+          // set the previous found position in `#driverDatesBeforeOrExact`:
+          // because dates are ordered, every defined date is in `_map1`, then if we didn't find the current date we are searching
+          // it means that the position of the date before or exact is the previously found position
+          _map2a_driverDatesBeforeOrExact_keyMilliseconds_valuePositionInDriverArray.set(_currentDateMilliseconds, _previousFoundPosition);
+          // set the previous found position + 1 in `#driverDatesAfterOrExact`
+          // because dates are ordered, every defined date is in `_map1`, then if we didn't find the current date we are searching
+          // it means that the position of the date after or exact is the next date (that is the previously found position + 1)
+          _map2b_driverDatesAfterOrExact_keyMilliseconds_valuePositionInDriverArray.set(_currentDateMilliseconds, _previousFoundPosition + 1);
+          //#endregion if `_currentDateDate` is NOT found in milliseconds map
+        }
+
+        // increment `_currentDateDate` by one day
+        _currentDateDate = stripTimeToLocalDate(addDaysToLocalDate(_currentDateDate, 1));
+
+        // if `_currentDateDate` is greater than `_lastDateDate`, break the loop
+        if (_currentDateDate.getTime() > _lastDateDate.getTime()) {
+          break;
         }
       }
+
+      // save the maps in `#driverDatesBeforeOrExact` and `#driverDatesAfterOrExact`
+      this.#driverDatesBeforeOrExact.set(key, _map2a_driverDatesBeforeOrExact_keyMilliseconds_valuePositionInDriverArray);
+      this.#driverDatesAfterOrExact.set(key, _map2b_driverDatesAfterOrExact_keyMilliseconds_valuePositionInDriverArray);
     }
   }
+
   //#endregion private methods
 }

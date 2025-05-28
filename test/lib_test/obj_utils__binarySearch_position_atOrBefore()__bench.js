@@ -8,7 +8,8 @@ file:///C:/Users/virgo/github/PUBLIC/financial-modeling/test/lib_test/obj_utils_
 
 benchmark                                                      time/iter (avg)        iter/s      (min … max)           p75      p99     p995
 -------------------------------------------------------------- ----------------------------- --------------------- --------------------------
-obj utils binarySearch_position_atOrBefore(), 1.000.000 loop          722.3 ms           1.4 (577.5 ms … 825.0 ms) 773.5 ms 825.0 ms 825.0 ms
+obj utils binarySearch_position_atOrBefore(), 1.000.000 loop          324.8 ms           3.1 (307.2 ms … 359.9 ms) 331.6 ms 359.9 ms 359.9 ms
+comparable test: search same keys in a map, 1.000.000 loop             6.3 ms         158.2 (  3.0 ms …  71.2 ms)   5.1 ms  71.2 ms  71.2 ms
  */
 
 import { binarySearch_position_atOrBefore, deepFreeze } from '../../src/lib/obj_utils.js';
@@ -44,7 +45,7 @@ Deno.bench(`obj utils binarySearch_position_atOrBefore(), ${loopCount.toLocaleSt
 });
 
 // 5 years of 12 months of data (60 entries), 5 random searches
-Deno.bench(`comparable test: search same keys in an map, ${loopCount.toLocaleString('it-IT')} loop`, () => {
+Deno.bench(`comparable test: search same keys in a map, ${loopCount.toLocaleString('it-IT')} loop`, () => {
   const notFreezableValue = 'abc';
 
   // loop `loopCount` times
