@@ -98,7 +98,9 @@ class SimObject {
 
   get versionId () { return this.#versionId; }
 
-  get extras () { return structuredClone(this.#extras); }
+  // TODO replace extras with new properties
+  // shallow copy with three dots operator (is copied only the first layer of object, not recursively)
+  get extras () { return {...this.#extras}; }
 
   //#endregion getters
 
@@ -185,7 +187,8 @@ class SimObject {
     this.#is_Link__SimObjId = p.is_Link__SimObjId;
     this.#vsSimObjectName = p.vsSimObjectName.toUpperCase().trim();
     this.#versionId = p.versionId;
-    this.#extras = structuredClone(p.extras);
+    // TODO replace extras with new properties
+    this.#extras = {...p.extras};  // shallow copy with three dots operator (is copied only the first layer of object, not recursively)
   }
 
   /**

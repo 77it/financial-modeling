@@ -38,6 +38,7 @@ function simObjectToDto (simObject) {
     is_Link__SimObjId: simObject.is_Link__SimObjId,
     vsSimObjectName: simObject.vsSimObjectName,
     versionId: simObject.versionId,
-    extras: structuredClone(simObject.extras),
+    // TODO replace extras with new properties
+    extras: {...simObject.extras},  // shallow copy with three dots operator (is copied only the first layer of object, not recursively)
   }));
 }

@@ -309,7 +309,9 @@ function _get_SimulationSetting_FromModuleDataArray ({
         if (eq2(moduleData.moduleName, SETTINGS_MODULE_NAME)) {
           for (const _tableSrc of moduleData.tables) {
             if (eq2(_tableSrc.tableName, table.tableName)) {
-              const _table = structuredClone(_tableSrc.table);  // clone _tableSrc to avoid to store the sanitization effect
+              // clone _tableSrc to avoid to store the sanitization effect
+              // because we can't know if the sanitization applied by the module will be different
+              const _table = structuredClone(_tableSrc.table);
               sanitize({
                 value: _table,
                 sanitization: SETTINGS_SANITIZATION

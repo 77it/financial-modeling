@@ -114,7 +114,8 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
       _taskLocks.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
 
-      _modulesArray[i]?.init?.({ moduleData: structuredClone(_moduleDataArray[i]), simulationContext: _simulationContext });  // call method only if it exists
+      // call method only if it exists
+      _modulesArray[i]?.init?.({ moduleData: structuredClone(_moduleDataArray[i]), simulationContext: _simulationContext });
     }
 
     //# call `setTaskLocksBeforeTheSimulationStarts()`
