@@ -633,22 +633,20 @@ class DriversRepo {
    * @return {string}
    */
   #driversRepoBuildKey ({ scenario, unit, name }) {
-    XXX cache;
-
+    // skip for speed reasons of code execution
+    /*
     const _p = sanitize({
       value: { scenario, unit, name },
       sanitization: { scenario: schema.STRING_TYPE, unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
       validate: true
     });
+    */
 
-    if (isNullOrWhiteSpace(_p.scenario)) _p.scenario = this.#currentScenario;
-    if (isNullOrWhiteSpace(_p.unit)) _p.unit = this.#defaultUnit;
+    if (isNullOrWhiteSpace(scenario)) scenario = this.#currentScenario;
+    if (isNullOrWhiteSpace(unit)) unit = this.#defaultUnit;
 
-    return JSON.stringify({
-      scenario: _p.scenario.trim().toLowerCase(),
-      unit: _p.unit.trim().toLowerCase(),
-      name: _p.name.trim().toLowerCase()
-    });
+    //@ts-ignore `scenario`, `unit` and `name` are always strings at this point
+    return `{scenario: ${scenario.trim().toLowerCase()}, unit: ${unit.trim().toLowerCase()}, name: ${name.trim().toLowerCase()}}`;
   }
 
   /**

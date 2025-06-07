@@ -123,16 +123,16 @@ class TaskLocks {
    * @return {string}
    */
   #taskLocksRepoBuildKey ({ unit, name }) {
+    // skip for speed reasons of code execution
+    /*
     const _p = sanitize({
       value: { unit, name },
       sanitization: { unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
       validate: true
     });
-    if (isNullOrWhiteSpace(_p.unit)) _p.unit = this.#defaultUnit;
-    return JSON.stringify({
-      unit: _p.unit.trim().toLowerCase(),
-      name: _p.name.trim().toLowerCase()
-    });
+    */
+    if (isNullOrWhiteSpace(unit)) unit = this.#defaultUnit;
+    return `{unit: ${unit.trim().toLowerCase()}, name: ${name.trim().toLowerCase()}}`;
   }
 
   //#endregion private methods
