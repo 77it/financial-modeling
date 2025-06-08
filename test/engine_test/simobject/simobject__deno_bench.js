@@ -1,37 +1,24 @@
-// run it with `node --import ./__node__register-hooks.js`
-// run it with `run --allow-read --allow-write --allow-net --allow-import`
-
-// docs https://benchmarkjs.com/
+// run it with `deno bench`
 
 /*
-P16s
-
-# With Validation (4/5 times slower than without validation)
-circa 17 seconds for 1 million SimObjects
-
-NODEJS run
-SimObject benchmark: normal use x 57,606 ops/sec ±5.09% (64 runs sampled)
-
-DENO run
-SimObject benchmark: normal use x 61,084 ops/sec ±3.25% (63 runs sampled)
-
-# Without Validation
-circa 4 seconds for 1 million SimObjects
-
-NODEJS run
-SimObject benchmark: normal use x 286,455 ops/sec ±3.46% (63 runs sampled)
-
-DENO run
-SimObject benchmark: normal use x 250,524 ops/sec ±7.24% (65 runs sampled)
+benchmark                            time (avg)        iter/s             (min … max)       p75       p99      p995
+------------------------------------------------------------------------------------- -----------------------------
+SimObject benchmark: normal use        1.47 s/iter           0.7    (980.76 ms … 1.99 s) 1.73 s 1.99 s 1.99 s
  */
-
-import * as Benchmark from "benchmark";
-const suite = new Benchmark.default.Suite('');
 
 import { SimObject } from '../../../src/engine/simobject/simobject.js';
 import { SimObjectTypes_enum } from '../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../src/engine/simobject/enums/doubleentryside_enum.js';
 import { toBigInt } from '../../../src/engine/simobject/utils/to_bigint.js';
+
+const loopCount = 100_000;
+
+Deno.bench("SimObject benchmark: normal use", () => {
+  // loop `loopCount` times
+  for (let i = 0; i < loopCount; i++) {
+    new SimObject(p);
+  }
+});
 
 const DECIMALPLACES = 4;
 const ROUNDINGMODEISROUND = true;
@@ -65,19 +52,3 @@ const p = {
   vsSimObjectName: '991',
   versionId: 1
 };
-
-// add tests
-suite.add('SimObject benchmark: normal use', function() {
-  new SimObject(p);
-})
-
-  // add listeners
-  .on('cycle', function(event) {
-    console.log(String(event.target));
-  })
-  .on('error', function (event) {
-    console.error(`Test "${event.target.name}" failed with error:`);
-    console.error(event.target.error); // logs the actual Error object
-  })
-  // run async
-  .run({ 'async': true });

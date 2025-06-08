@@ -5,6 +5,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.8.7",
+    "benchmark": "^2.1.4",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

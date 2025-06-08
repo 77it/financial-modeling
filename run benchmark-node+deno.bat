@@ -10,7 +10,7 @@ echo.
 echo NODEJS run
 echo.
 
-node --import ./__node__register-hooks.js "%FILE%"
+node --import ./src/node/__node__register-hooks.js "%FILE%"
 echo.
 
 echo DENO run
