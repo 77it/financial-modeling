@@ -2,7 +2,7 @@
 
 import * as schema from '../../lib/schema.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
-import { RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
+import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
 import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
@@ -288,7 +288,7 @@ class Ledger {
    * @param {NewSimObjectDto} newSimObjectDto
    */
   appendSimObject (newSimObjectDto) {
-    if (!RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS) {
+    if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS) {
       // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
       validate({ value: newSimObjectDto, validation: newSimObjectDto_Schema, strict:true });
     }
@@ -435,7 +435,7 @@ class Ledger {
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   #appendDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
-    if (!RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS) {
+    if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS) {
       // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
       validate({ value: newDebugSimObjectDto, validation: newDebugSimObjectDto_Schema, strict:true });
 

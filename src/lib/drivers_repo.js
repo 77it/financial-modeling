@@ -2,7 +2,7 @@
 
 import * as schema from './schema.js';
 import { sanitize } from './schema_sanitization_utils.js';
-import { RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS } from '../config/engine.js';
+import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../config/engine.js';
 import { validate } from './schema_validation_utils.js';
 import { stripTimeToLocalDate, localDateToStringYYYYMMDD, addDaysToLocalDate } from './date_utils.js';
 import { parseJSON5 } from './json5.js';
@@ -636,7 +636,7 @@ class DriversRepo {
   #driversRepoBuildKey ({ scenario, unit, name }) {
     const _p = { scenario, unit, name };
 
-    if (!RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS)
+    if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
       sanitize({
         value: _p,
         sanitization: { scenario: schema.STRING_TYPE, unit: schema.STRING_TYPE, name: schema.STRING_TYPE },

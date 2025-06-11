@@ -2,7 +2,7 @@
 
 import * as schema from '../../lib/schema.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
-import { RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
+import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
 import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
@@ -126,7 +126,7 @@ class TaskLocks {
   #taskLocksRepoBuildKey ({ unit, name }) {
     const _p = { unit, name };
 
-    if (!RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS)
+    if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
       sanitize({
         value: _p,
         sanitization: { unit: schema.STRING_TYPE, name: schema.STRING_TYPE },

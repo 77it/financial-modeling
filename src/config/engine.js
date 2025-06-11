@@ -2,7 +2,7 @@ import { deepFreeze } from '../lib/obj_utils.js';
 
 //#region debug and release config
 // If true, the debug validations and checks are disabled; this should be done in release mode, to speed up execution
-export const RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS = false;
+export const RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS = false;
 
 // If true, the validation of the data is disabled in 'schema_validation_utils.js/validate()';
 // not recommended to set this to true, is usable for testing purposes or (maybe) to speed up the execution of the engine, thanks to the absence of validation

@@ -1,4 +1,4 @@
-export { RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS } from '../config/engine.js';
+export { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../config/engine.js';
 
 export { Result } from '../lib/result.js';
 export * as schema from '../lib/schema.js';
