@@ -2,6 +2,7 @@
 
 import * as schema from './schema.js';
 import { sanitize } from './schema_sanitization_utils.js';
+import { RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS } from '../config/engine.js';
 import { validate } from './schema_validation_utils.js';
 import { stripTimeToLocalDate, localDateToStringYYYYMMDD, addDaysToLocalDate } from './date_utils.js';
 import { parseJSON5 } from './json5.js';
@@ -321,7 +322,7 @@ class DriversRepo {
     const _dateMs = (() => {
       let _date = (date === undefined || date === null) ? this.#today : date;
 
-      XXX cache; MAKE FUNCTION TO SANITIZE AND STRIP AFTER LOOKING TO MAP CACHE; TEST JSON VS STRIP THEN BUILD FUNCTION TO JSON AND GET MAP OR STRIP;
+      XXX;  // cache MAKE FUNCTION TO SANITIZE AND STRIP AFTER LOOKING TO MAP CACHE; TEST JSON VS STRIP THEN BUILD FUNCTION TO JSON AND GET MAP OR STRIP
       _date = sanitize({ value: _date, sanitization: schema.DATE_TYPE });
       _date = stripTimeToLocalDate(_date);
 
@@ -375,7 +376,7 @@ class DriversRepo {
       // if end milliseconds is lower than `_dateMs`, invert the two dates and returns them
       /** @type {{start: number, end: number}} */
       const _milliseconds = (() => {
-        XXX cache;
+        XXX;  // cache
         let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
         const _endDateMs = stripTimeToLocalDate(_endDate).getTime();
 
@@ -399,10 +400,10 @@ class DriversRepo {
       const _firstDateToReturnPos = (() => {
         //@ts-ignore `this.#driverDatesAfterOrExact.get(_key)` is never null
         const _positionOfDateInDriverArray = this.#driverDatesAfterOrExact.get(_key).get(_milliseconds.start);
-          if (_positionOfDateInDriverArray !== undefined)
-            return _positionOfDateInDriverArray;
-          else
-            return _firstDatePos;
+        if (_positionOfDateInDriverArray !== undefined)
+          return _positionOfDateInDriverArray;
+        else
+          return _firstDatePos;
       })();
 
       // set `_lastDateToReturnPos`: position from `#driverDatesBeforeOrExact` or the last date position if it's after it
@@ -633,20 +634,20 @@ class DriversRepo {
    * @return {string}
    */
   #driversRepoBuildKey ({ scenario, unit, name }) {
-    // skip for speed reasons of code execution
-    /*
-    const _p = sanitize({
-      value: { scenario, unit, name },
-      sanitization: { scenario: schema.STRING_TYPE, unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
-      validate: true
-    });
-    */
+    const _p = { scenario, unit, name };
 
-    if (isNullOrWhiteSpace(scenario)) scenario = this.#currentScenario;
-    if (isNullOrWhiteSpace(unit)) unit = this.#defaultUnit;
+    if (!RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS)
+      sanitize({
+        value: _p,
+        sanitization: { scenario: schema.STRING_TYPE, unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
+        validate: true
+      });
 
-    //@ts-ignore `scenario`, `unit` and `name` are always strings at this point
-    return `{scenario: ${scenario.trim().toLowerCase()}, unit: ${unit.trim().toLowerCase()}, name: ${name.trim().toLowerCase()}}`;
+    if (isNullOrWhiteSpace(_p.scenario)) _p.scenario = this.#currentScenario;
+    if (isNullOrWhiteSpace(_p.unit)) _p.unit = this.#defaultUnit;
+
+    //@ts-ignore `scenario`, `unit` and `name` are always strings at this point during debug (are sanitized); should be string during release, otherwise will go in error
+    return `{scenario: ${_p.scenario.trim().toLowerCase()}, unit: ${_p.unit.trim().toLowerCase()}, name: ${_p.name.trim().toLowerCase()}}`;
   }
 
   /**

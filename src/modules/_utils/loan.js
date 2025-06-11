@@ -3,6 +3,7 @@ export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmou
 import { schema } from '../deps.js';
 import { validate } from '../deps.js';
 import { addMonthsToLocalDate } from '../deps.js';
+import { RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS } from '../deps.js';
 
 // info about loans
 /*
@@ -67,7 +68,6 @@ function calculateAnnuityOfAConstantPaymentLoan ({
   });
 }
 
-
 /**
  * Compute the full schedule of a French amortization schedule (a series of constant payments at regular intervals)
  *
@@ -80,9 +80,10 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  * @param {number} [p.gracePeriod=0] optional, number of periods with interest-only payments
  * @return {{date: Date, paymentNo: number, interestPayment: number, principalPayment: number, totalMortgageRemaining: number}[]}
  */
-function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincipal, annualInterestRate, numberOfPayments , numberOfPaymentsInAYear, gracePeriod=0}) {
-  validate(
-    { value:
+function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincipal, annualInterestRate, numberOfPayments, numberOfPaymentsInAYear, gracePeriod = 0 }) {
+  if (!RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS)
+    validate({
+      value:
         {
           startDate,
           startingPrincipal,

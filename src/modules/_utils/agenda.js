@@ -40,15 +40,14 @@ class Agenda {
    * @throws {Error} if `date` is invalid
    */
   set ({ date, isSimulation, data }) {
+    // sanitize date to Date (default date NaN)
+    const _date = sanitize({ value: date, sanitization: schema.DATE_TYPE, options: { defaultDate: new Date(NaN) } });
+
     // validate input parameters
     validate({
-      value: { date,  isSimulation, data },
-      validation: { date: schema.ANY_TYPE, isSimulation: schema.BOOLEAN_TYPE, data: schema.ANY_TYPE }
+      value: { date: _date,  isSimulation, data },
+      validation: { date: schema.DATE_TYPE, isSimulation: schema.BOOLEAN_TYPE, data: schema.ANY_TYPE }
     });
-
-    // sanitize date to Date (default date NaN); if the date is invalid, throw.
-    const _date = sanitize({ value: date, sanitization: schema.DATE_TYPE, options: { defaultDate: new Date(NaN) } });
-    validate({ value: _date, validation: schema.DATE_TYPE });
 
     // if the simulation flag is true but the date is before the simulation start date, the item is ignored; and vice versa.
     const _todayIsSimulationDay = _date >= this.#simulation_start_date__last_historical_day_is_the_day_before;

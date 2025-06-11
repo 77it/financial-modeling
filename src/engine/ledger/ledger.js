@@ -2,6 +2,7 @@
 
 import * as schema from '../../lib/schema.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
+import { RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
 import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
@@ -287,9 +288,10 @@ class Ledger {
    * @param {NewSimObjectDto} newSimObjectDto
    */
   appendSimObject (newSimObjectDto) {
-    sanitize({ value: newSimObjectDto, sanitization: newSimObjectDto_Schema });
-    // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
-    validate({ value: newSimObjectDto, validation: newSimObjectDto_Schema, strict:true });
+    if (!RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS) {
+      // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
+      validate({ value: newSimObjectDto, validation: newSimObjectDto_Schema, strict:true });
+    }
 
     if (this.#simObjectTypes_enum_map.has(newSimObjectDto.type) === false)
       throw new Error(`SimObject type ${newSimObjectDto.type} is not recognized`);
@@ -433,8 +435,12 @@ class Ledger {
    @param {NewDebugSimObjectDto} newDebugSimObjectDto
    */
   #appendDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
-    sanitize({ value: newDebugSimObjectDto, sanitization: newDebugSimObjectDto_Schema });
-    //skip validation, this method is private and can't be called with wrong types  //validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation.concat(SimObjectErrorDebugTypes_enum_validation) });
+    if (!RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS) {
+      // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
+      validate({ value: newDebugSimObjectDto, validation: newDebugSimObjectDto_Schema, strict:true });
+
+      //skip validation of `simObjectDebugType`, this method is private and can't be called with wrong types  //validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation.concat(SimObjectErrorDebugTypes_enum_validation) });
+      }
 
     const debug_moduleInfo = this.#currentDebugModuleInfo;
 

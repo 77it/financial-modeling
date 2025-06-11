@@ -1,6 +1,7 @@
 export { SimObject };
 
 import { simObject_Schema } from './simobject.schema.js';
+import { RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS } from '../../config/engine.js'
 import { validate } from '../../lib/schema_validation_utils.js';
 
 // info
@@ -139,7 +140,8 @@ class SimObject {
    //unityOfMeasure: 'string',
    */
   constructor (p) {
-    validate({ value: p, validation: simObject_Schema, strict: true });
+    if (!RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS)
+      validate({ value: p, validation: simObject_Schema, strict: true });
 
     // value must be equal to indefinite + principal
     if (p.value !==

@@ -1,3 +1,5 @@
+export { RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS } from '../config/engine.js';
+
 export { Result } from '../lib/result.js';
 export * as schema from '../lib/schema.js';
 export { validate } from '../lib/schema_validation_utils.js';

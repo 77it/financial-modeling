@@ -2,6 +2,7 @@
 
 import * as schema from '../../lib/schema.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
+import { RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
 import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
@@ -123,16 +124,19 @@ class TaskLocks {
    * @return {string}
    */
   #taskLocksRepoBuildKey ({ unit, name }) {
-    // skip for speed reasons of code execution
-    /*
-    const _p = sanitize({
-      value: { unit, name },
-      sanitization: { unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
-      validate: true
-    });
-    */
-    if (isNullOrWhiteSpace(unit)) unit = this.#defaultUnit;
-    return `{unit: ${unit.trim().toLowerCase()}, name: ${name.trim().toLowerCase()}}`;
+    const _p = { unit, name };
+
+    if (!RELEASE__DISABLE_DEBUG_VALIDATIONS_AND_CHECKS)
+      sanitize({
+        value: _p,
+        sanitization: { unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
+        validate: true
+      });
+
+    if (isNullOrWhiteSpace(_p.unit)) _p.unit = this.#defaultUnit;
+
+    //@ts-ignore `unit` and `name` are always strings at this point during debug (are sanitized); should be string during release, otherwise will go in error
+    return `{unit: ${_p.unit.trim().toLowerCase()}, name: ${_p.name.trim().toLowerCase()}}`;
   }
 
   //#endregion private methods

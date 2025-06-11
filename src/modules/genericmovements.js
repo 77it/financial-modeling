@@ -128,7 +128,7 @@ export class Module {
 
             // loop all keys of the current row:
             // * classify the key to check if is a valid date, and if the date is Simulation or Historical
-            // * if the date is valid, add an entry to Agenda
+            // * if the date and the value are valid, add an entry to Agenda
             for (const key of Object.keys(row)) {
               /** @type {{classification: DATE_CLASSIFICATION, date: undefined|Date}} */
               const {classification, date} = classifyDateString({dateString: key, simulationPrefix: simulationDatePrefix, historicalPrefix: historicalDatePrefix});
