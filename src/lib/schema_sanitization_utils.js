@@ -27,25 +27,28 @@ const DEFAULT_BIGINT = BigInt(0);
  * # Value Sanitization
  * Accepted sanitization types are many: see `schema.js` (class is 'function', class instance is 'object');
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
- * To sanitize an object, pass one as   {key1: STRING_TYPE, key2: NUMBER_TYPE + OPTIONAL}
+ * To sanitize an object, see section below.
  * To sanitize a value applying a function, pass a function returning with class `ValidateSanitizeResult` the validation result and the sanitized value.
  * For optional values (null/undefined are accepted) append '?' to the type.
  * If sanitization is an array containing a single function [func], the sanitization will be done with the function and an array will be returned.
  * enum will be ignored during sanitization, optionally validated.
- * Sanitization types ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
+ * Sanitization types ANY_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
- * ANY_TYPE, OBJECT_TYPE, FUNCTION_TYPE, SYMBOL_TYPE are ignored and returned as is.
+ * ANY_TYPE, FUNCTION_TYPE, SYMBOL_TYPE are ignored and returned as is.
  * With `STRING_TYPE` whitespaces are trimmed if the string is empty.
  * String to dates are parsed as JSON to dates (in local time or UTC, depending on options.dateUTC).
  * Number to dates are considered by default Excel serial dates (stripping hours); can be changed with options.
  *
  * # Object Sanitization
+ * To sanitize an object pass one as `sanitization` parameter   {key1: STRING_TYPE, key2: NUMBER_TYPE + OPTIONAL}
+ * or pass the sanitization type OBJECT_TYPE or ARRAY_OF_OBJECTS_TYPE.
+ *
  * Sanitize Object, modifying it in place and returning the same object to allow function chaining.
  * If obj is array, the sanitization is done on contained objects;
  * arrays are sanitized without cloning them.
- * If obj is null/undefined or other non-objects returns empty object {}.
- * Sanitization is an object with keys corresponding to the keys of the object to sanitize and values corresponding to the sanitization types;
+ * If obj is null/undefined or other non-objects returns an empty object {}.
+ * `sanitization` parameter is an object with keys corresponding to the keys of the object to sanitize and values corresponding to the sanitization types;
  * accepted types are many: see `schema.js`; class is 'function', class instance is 'object';
  * for optional parameters (null/undefined are accepted) append '?' to type, e.g. 'any?', 'string?', 'number?', etc.
  * If sanitization is an array:
@@ -279,7 +282,9 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
       break;
     }
     case schema.OBJECT_TYPE: {
-      retValue = value;  // return value as is without sanitization
+      retValue = _sanitizeObj({
+        obj: value, sanitization: sanitization, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch
+      });
       break;
     }
     case schema.FUNCTION_TYPE: {
