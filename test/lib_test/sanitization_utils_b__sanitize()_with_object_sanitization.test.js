@@ -329,7 +329,9 @@ t('test sanitize() - nested object in array (array of objects) OR as a single ob
     str3: S.STRING_TYPE,
     arrOrObj: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE } },
     arrOrObj2: { valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE } },
+    arrOrObjWithAllOptionalProperties: { valA: S.STRING_TYPE + S.OPTIONAL },
     nestedObjInArray: [{ valA: S.STRING_TYPE, valB: { a: S.NUMBER_TYPE } }],
+    nestedObjInArrayWithAllOptionalProperties: [{ valA: S.STRING_TYPE + S.OPTIONAL }],
     nestedObjInArrayWithOptionalProperties: [{ valA: S.STRING_TYPE + S.OPTIONAL, valB: { a: S.NUMBER_TYPE + S.OPTIONAL } }]
   };
 
@@ -343,6 +345,8 @@ t('test sanitize() - nested object in array (array of objects) OR as a single ob
     arrOrObj2: { valA: '', valB: { a: 0, }, },
     nestedObjInArray: [{ valA: '', valB: { a: 0, }, },],
     nestedObjInArrayWithOptionalProperties: [{ valB: {}, },],
+    arrOrObjWithAllOptionalProperties: {},
+    nestedObjInArrayWithAllOptionalProperties: [{}],
   };
 
   const objToSanitize_null_properties = {
@@ -352,7 +356,9 @@ t('test sanitize() - nested object in array (array of objects) OR as a single ob
     arrOrObj2: null,
     str3: null,
     nestedObjInArray: null,
-    nestedObjInArrayWithOptionalProperties: null
+    nestedObjInArrayWithOptionalProperties: null,
+    arrOrObjWithAllOptionalProperties: null,
+    nestedObjInArrayWithAllOptionalProperties: null,
   };
 
   const objToSanitize_null_properties_expected = objToSanitize_null_expected;
@@ -366,7 +372,9 @@ t('test sanitize() - nested object in array (array of objects) OR as a single ob
     arrOrObj2: { valA: 555, valB: { a: '9999' } },
     str3: 777,
     nestedObjInArray: { valA: 5551, valB: { a: '99997' } },
-    nestedObjInArrayWithOptionalProperties: [{ valA: 5552, valB: { a: '99998' } }]
+    nestedObjInArrayWithOptionalProperties: [{ valA: 5552, valB: { a: '99998' } }],
+    arrOrObjWithAllOptionalProperties: {},
+    nestedObjInArrayWithAllOptionalProperties: [{}],
   };
 
   const objToSanitize_nestedObjInArray_expected = {
@@ -379,6 +387,8 @@ t('test sanitize() - nested object in array (array of objects) OR as a single ob
     str3: '777',
     nestedObjInArrayWithOptionalProperties: [{ valA: '5552', valB: { a: 99998 } }],
     nestedObjInArray: [{ valA: '5551', valB: { a: 99997 } }],  // an array is missing in input, is added after sanitization
+    arrOrObjWithAllOptionalProperties: {},
+    nestedObjInArrayWithAllOptionalProperties: [{}],
   };
 
   const objToSanitize_nestedObjInProperty = {
@@ -387,6 +397,8 @@ t('test sanitize() - nested object in array (array of objects) OR as a single ob
     str2: 888,
     arrOrObj2: { valA: 555, valB: { a: '9999' } },
     str3: 777,
+    arrOrObjWithAllOptionalProperties: {},
+    nestedObjInArrayWithAllOptionalProperties: [{}],
   };
 
   const objToSanitize_nestedObjInProperty_expected = {
@@ -396,7 +408,9 @@ t('test sanitize() - nested object in array (array of objects) OR as a single ob
     arrOrObj2: { valA: '555', valB: { a: 9999 } },
     str3: '777',
     nestedObjInArray: [{ valA: '', valB: { a: 0 } }],
-    nestedObjInArrayWithOptionalProperties: [{ valB: {} }]
+    nestedObjInArrayWithOptionalProperties: [{ valB: {} }],
+    arrOrObjWithAllOptionalProperties: {},
+    nestedObjInArrayWithAllOptionalProperties: [{}],
   };
 
   assert.deepStrictEqual(

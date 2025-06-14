@@ -448,6 +448,10 @@ t('test sanitize() - object type', async () => {
   assert.deepStrictEqual({}, s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual({}, s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual({}, s.sanitize({ value: 'abc', sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: [], sanitization: t }));
+  assert.deepStrictEqual([null], s.sanitize({ value: [null], sanitization: t }));
+  assert.deepStrictEqual([undefined], s.sanitize({ value: [undefined], sanitization: t }));
+  assert.deepStrictEqual([999], s.sanitize({ value: [999], sanitization: t }));
 
   const t2 = t + '?';
   assert.deepStrictEqual(obj, s.sanitize({ value: obj, sanitization: t2 }));
