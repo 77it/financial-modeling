@@ -1,25 +1,16 @@
 // run it with `deno bench --allow-import`
 
 /*
-    CPU | Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz
-Runtime | Deno 2.2.12 (x86_64-pc-windows-msvc)
-
-file:///C:/Users/virgo/github/PUBLIC/financial-modeling/test/lib_test/obj_utils__binarySearch_position_atOrBefore()__bench.js
-
-benchmark                                                      time/iter (avg)        iter/s      (min … max)           p75      p99     p995
--------------------------------------------------------------- ----------------------------- --------------------- --------------------------
-obj utils binarySearch_position_atOrBefore(), 1.000.000 loop          324.8 ms           3.1 (307.2 ms … 359.9 ms) 331.6 ms 359.9 ms 359.9 ms
-comparable test: search same keys in a map, 1.000.000 loop             6.3 ms         158.2 (  3.0 ms …  71.2 ms)   5.1 ms  71.2 ms  71.2 ms
+benchmark                                                                            time/iter (avg)        iter/s      (min … max)           p75      p99     p995
+------------------------------------------------------------------------------------ ----------------------------- --------------------- --------------------------
+driver get() benchmark, search single date, 1.000 loop                                         2.4 s           0.4 (   2.3 s …    2.6 s)    2.5 s    2.6 s    2.6 s
+driver SUPERDEDED_get_without_indexing() benchmark, search single date, 1.000 loop             3.7 s           0.3 (   3.6 s …    4.5 s)    3.7 s    4.5 s    4.5 s
  */
 
 import { DriversRepo } from '../../src/lib/drivers_repo.js';
 import { addDaysToLocalDate, addMonthsToLocalDate } from '../../src/lib/date_utils.js';
 import * as CFG from '../../src/config/engine.js';
 import * as schema from '../../src/lib/schema.js';
-
-import { sanitize } from '../../src/lib/schema_sanitization_utils.js';
-import { stripTimeToLocalDate } from '../../src/lib/date_utils.js';
-import { isNullOrWhiteSpace } from '../../src/lib/string_utils.js';
 
 const loopCount = 1_000;
 
