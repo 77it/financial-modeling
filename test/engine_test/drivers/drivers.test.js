@@ -32,7 +32,7 @@ t('Drivers tests', async () => {
   ];
   const _retErr = drivers.set(input);
   assert.deepStrictEqual(_retErr, [
-    'Driver {"scenario":"scenario1","unit":"unita","name":"driver xyz"} is mutable and this is not allowed'
+    'Driver {scenario: scenario1, unit: unita, name: driver xyz} is mutable and this is not allowed'
   ]);
 
   const input2 = [

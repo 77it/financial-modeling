@@ -4,6 +4,6 @@ ECHO I added a --preload to support import from https, but doesn't work with nes
 
 
 set TZ=Europe/Rome
-bun test --preload ./src/bun/__bun__https_import_plugin.js --timeout 60000 test/
+bun test --preload ./src/bun/__bun__https_import_plugin_v2.js --timeout 60000 test/
 
 pause

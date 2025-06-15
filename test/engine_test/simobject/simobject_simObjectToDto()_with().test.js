@@ -102,7 +102,8 @@ t('SimObject.simObjectToDto() & .with() without value tests', async () => {
     bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [0.0001, 0.0011, 0.0111, 0.0877],
     is_Link__SimObjId: '123',
     vsSimObjectName: '991AAA',
-    versionId: 2
+    versionId: 2,
+    extras: {}
   };
 
   const _soDump_Expected2_withExtras = {

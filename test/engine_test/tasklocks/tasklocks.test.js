@@ -33,7 +33,7 @@ t('TaskLocks tests', async () => {
   assert.deepStrictEqual(taskLocks.get({ unit: 'AAA', name: 'testFunc' })(), 99);
 
   // error getting non-existing TaskLock
-  assert.throws(() => taskLocks.get({ name: 'nonExisting' }), { message: `TaskLock '{"unit":"$","name":"nonexisting"}' is not defined.` });
+  assert.throws(() => taskLocks.get({ name: 'nonExisting' }), { message: `TaskLock '{unit: $, name: nonexisting}' is not defined.` });
 
   // testing defined TaskLock
   assert(taskLocks.isDefined({ name: 'testFunc' }));

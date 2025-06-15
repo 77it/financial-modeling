@@ -142,8 +142,8 @@ t('Settings tests', async () => {
   ];
   const _retErr = drivers.set(input4);
   assert.deepStrictEqual(_retErr, [
-    'Driver {"scenario":"scenario1","unit":"unita","name":"$$setting xyz-object1"} is immutable and the date 1970-01-01 is already present',
-    'Driver {"scenario":"scenario1","unit":"unita","name":"$$setting xyz-object1"} is immutable and the date 1970-01-01 is already present'
+    'Driver {scenario: scenario1, unit: unita, name: $$setting xyz-object1} is immutable and the date 1970-01-01 is already present',
+    'Driver {scenario: scenario1, unit: unita, name: $$setting xyz-object1} is immutable and the date 1970-01-01 is already present'
   ]);
 
   // #setting6[0] tests with wrong date (date not set by today, and no value set on Date(0))
