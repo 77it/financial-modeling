@@ -8,42 +8,49 @@ P16s
 
 # With Validation (4/5 times slower than without validation)
 RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS = false
-circa 4 seconds for 1.000 get for ~1.900 days
-circa 8 seconds for 1.000 get for ~1.900 days range
+circa 2,9 seconds for 1.000 get for ~1.900 days (344 ops/sec)
+circa 4,2 seconds for 1.000 get for ~1.900 days range (236 ops/sec)
 
 NODEJS run
 
-driver get() benchmark, search single date, for circa ~1.900 times x 267 ops/sec ±4.99% (60 runs sampled)
-driver SUPERDEDED_get_without_indexing() benchmark, search single date, for circa ~1.900 times x 147 ops/sec ±0.47% (81 runs sampled)
-driver get() benchmark, search range of dates, for circa ~1.900 times x 119 ops/sec ±1.05% (74 runs sampled)
-driver SUPERDEDED_get_without_indexing() benchmark, search range of dates, for circa ~1.900 times x 80.85 ops/sec ±0.42% (67 runs sampled)
+driver get() benchmark, search single date, for circa ~1.900 times x 369 ops/sec ±1.67% (78 runs sampled)
+driver SUPERDEDED_get_without_indexing() benchmark, search single date, for circa ~1.900 times x 218 ops/sec ±1.80% (77 runs sampled)
+driver get() benchmark, search range of dates, for circa ~1.900 times x 300 ops/sec ±1.83% (78 runs sampled)
+driver get() benchmark, search range of dates 3 days, for circa ~1.900 times x 318 ops/sec ±2.00% (80 runs sampled)
+driver SUPERDEDED_get_without_indexing() benchmark, search range of dates, for circa ~1.900 times x 130 ops/sec ±1.92% (73 runs sampled)
 
 DENO run
 
-driver get() benchmark, search single date, for circa ~1.900 times x 296 ops/sec ±5.17% (63 runs sampled)
-driver SUPERDEDED_get_without_indexing() benchmark, search single date, for circa ~1.900 times x 169 ops/sec ±0.92% (86 runs sampled)
-driver get() benchmark, search range of dates, for circa ~1.900 times x 126 ops/sec ±2.11% (72 runs sampled)
-driver SUPERDEDED_get_without_indexing() benchmark, search range of dates, for circa ~1.900 times x 85.24 ops/sec ±1.11% (74 runs sampled)
+driver get() benchmark, search single date, for circa ~1.900 times x 344 ops/sec ±5.01% (68 runs sampled)
+driver SUPERDEDED_get_without_indexing() benchmark, search single date, for circa ~1.900 times x 156 ops/sec ±0.49% (78 runs sampled)
+driver get() benchmark, search range of dates, for circa ~1.900 times x 236 ops/sec ±0.74% (85 runs sampled)
+driver get() benchmark, search range of dates 3 days, for circa ~1.900 times x 238 ops/sec ±0.92% (80 runs sampled)
+driver SUPERDEDED_get_without_indexing() benchmark, search range of dates, for circa ~1.900 times x 82.49 ops/sec ±1.26% (71 runs sampled)
 
 
 # Without Validation
 RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS = true
-circa 2 seconds for 1.000 get for ~1.900 days
-circa 6,3 seconds for 1.000 get for ~1.900 days range
+circa 1,57 seconds for 1.000 get for ~1.900 days (636 ops/sec)
+circa 2,45 seconds for 1.000 get for ~1.900 days range (407 ops/sec)
 
 NODEJS run
 
-driver get() benchmark, search single date, for circa ~1.900 times x 479 ops/sec ±5.91% (66 runs sampled)
-driver SUPERDEDED_get_without_indexing() benchmark, search single date, for circa ~1.900 times x 220 ops/sec ±0.47% (82 runs sampled)
-driver get() benchmark, search range of dates, for circa ~1.900 times x 157 ops/sec ±3.40% (76 runs sampled)
-driver SUPERDEDED_get_without_indexing() benchmark, search range of dates, for circa ~1.900 times x 104 ops/sec ±0.70% (75 runs sampled)
+RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS = true
+driver get() benchmark, search single date, for circa ~1.900 times x 636 ops/sec ±2.27% (79 runs sampled)
+driver SUPERDEDED_get_without_indexing() benchmark, search single date, for circa ~1.900 times x 293 ops/sec ±1.89% (73 runs sampled)
+driver get() benchmark, search range of dates, for circa ~1.900 times x 478 ops/sec ±1.51% (78 runs sampled)
+driver get() benchmark, search range of dates 3 days, for circa ~1.900 times x 489 ops/sec ±1.78% (78 runs sampled)
+driver SUPERDEDED_get_without_indexing() benchmark, search range of dates, for circa ~1.900 times x 151 ops/sec ±1.66% (74 runs sampled)
 
 DENO run
 
-driver get() benchmark, search single date, for circa ~1.900 times x 576 ops/sec ±6.03% (66 runs sampled)
-driver SUPERDEDED_get_without_indexing() benchmark, search single date, for circa ~1.900 times x 255 ops/sec ±0.85% (86 runs sampled)
-driver get() benchmark, search range of dates, for circa ~1.900 times x 175 ops/sec ±0.74% (83 runs sampled)
-driver SUPERDEDED_get_without_indexing() benchmark, search range of dates, for circa ~1.900 times x 108 ops/sec ±0.92% (79 runs sampled)
+RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS = true
+driver get() benchmark, search single date, for circa ~1.900 times x 682 ops/sec ±4.10% (73 runs sampled)
+driver SUPERDEDED_get_without_indexing() benchmark, search single date, for circa ~1.900 times x 245 ops/sec ±1.29% (80 runs sampled)
+driver get() benchmark, search range of dates, for circa ~1.900 times x 407 ops/sec ±1.32% (86 runs sampled)
+driver get() benchmark, search range of dates 3 days, for circa ~1.900 times x 413 ops/sec ±1.53% (83 runs sampled)
+driver SUPERDEDED_get_without_indexing() benchmark, search range of dates, for circa ~1.900 times x 104 ops/sec ±2.13% (77 runs sampled)
+
  */
 
 import * as Benchmark from "benchmark";
@@ -89,13 +96,23 @@ const searchArray = [];
   }
 }
 /** @type *[]} */
-const searchArray_range = [];
+const searchArray_range_1year = [];
 {
   let currentDateToSearch = new Date(2022, 11, 1);  // from the first of the month
   for (let i = 0; i < (365 * 5 + 60); i++) {  // loop for 5 years + 2 months
     currentDateToSearch = addDaysToLocalDate(currentDateToSearch, 1);
     const currentDateToSearch_end = addMonthsToLocalDate(currentDateToSearch, 12);  // range end, + 1 year
-    searchArray_range.push({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: currentDateToSearch, endDate: currentDateToSearch_end });
+    searchArray_range_1year.push({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: currentDateToSearch, endDate: currentDateToSearch_end });
+  }
+}
+/** @type *[]} */
+const searchArray_range_3days = [];
+{
+  let currentDateToSearch = new Date(2022, 11, 1);  // from the first of the month
+  for (let i = 0; i < (365 * 5 + 60); i++) {  // loop for 5 years + 2 months
+    currentDateToSearch = addDaysToLocalDate(currentDateToSearch, 1);
+    const currentDateToSearch_end = addDaysToLocalDate(currentDateToSearch, 3);  // range end, + 3 days
+    searchArray_range_3days.push({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: currentDateToSearch, endDate: currentDateToSearch_end });
   }
 }
 
@@ -115,14 +132,19 @@ suite.add('driver get() benchmark, search single date, for circa ~1.900 times', 
   })
 
   .add('driver get() benchmark, search range of dates, for circa ~1.900 times', function() {
-    for (let j = 0; j < searchArray_range.length; j++) {
-      const _result = drivers.get(searchArray_range[j]);
+    for (let j = 0; j < searchArray_range_1year.length; j++) {
+      const _result = drivers.get(searchArray_range_1year[j]);
     }
   })
 
+  .add('driver get() benchmark, search range of dates 3 days, for circa ~1.900 times', function() {
+    for (let j = 0; j < searchArray_range_3days.length; j++) {
+      const _result = drivers.get(searchArray_range_1year[j]);
+    }
+  })
   .add('driver SUPERDEDED_get_without_indexing() benchmark, search range of dates, for circa ~1.900 times', function() {
-    for (let j = 0; j < searchArray_range.length; j++) {
-      const _result = drivers.SUPERDEDED_get_without_indexing(searchArray_range[j]);
+    for (let j = 0; j < searchArray_range_1year.length; j++) {
+      const _result = drivers.SUPERDEDED_get_without_indexing(searchArray_range_1year[j]);
     }
   })
 

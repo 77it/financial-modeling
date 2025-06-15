@@ -364,7 +364,7 @@ class DriversRepo {
       const _parsedRet = (parseAsJSON5) ? parseJSON5(_ret) : _ret;
 
       // sanitize the value if requested
-      if (isNullOrWhiteSpace(this.#sanitizationType))
+      if (isNullOrWhiteSpace(this.#sanitizationType) || this.#sanitizationType === schema.ANY_TYPE)
         return _parsedRet;
       else
         return sanitize({ value: _parsedRet, sanitization: this.#sanitizationType });
@@ -425,7 +425,7 @@ class DriversRepo {
         _retArray = _retArray.map(_item => parseJSON5(_item));
 
       // sanitize the value if requested
-      if (isNullOrWhiteSpace(this.#sanitizationType))
+      if (isNullOrWhiteSpace(this.#sanitizationType) || this.#sanitizationType === schema.ANY_TYPE)
         return _retArray;
       else
         return _retArray.map(_item => sanitize({ value: _item, sanitization: this.#sanitizationType }));
