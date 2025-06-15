@@ -47,9 +47,9 @@ t('Drivers tests', async () => {
   assert.deepStrictEqual(
     errors1,
     [
-      'Driver {"scenario":"scenario1","unit":"unita","name":"$$driver abc"} is immutable and the date 1970-01-01 is already present',
-      'Driver {"scenario":"scenario1","unit":"unita","name":"$$driver abc"} is immutable and the date 1970-01-01 is already present',
-      'Driver {"scenario":"scenario1","unit":"unita","name":"$driver xyz"} is immutable and the date 2024-01-02 is already present',
+      'Driver {scenario: scenario1, unit: unita, name: $$driver abc} is immutable and the date 1970-01-01 is already present',
+      'Driver {scenario: scenario1, unit: unita, name: $$driver abc} is immutable and the date 1970-01-01 is already present',
+      'Driver {scenario: scenario1, unit: unita, name: $driver xyz} is immutable and the date 2024-01-02 is already present',
     ]
   );
   assert.deepStrictEqual(input, input_clone);  // input is not modified
@@ -64,15 +64,20 @@ t('Drivers tests', async () => {
   assert.deepStrictEqual(
     errors2,
     [
-      'Driver {"scenario":"scenario1","unit":"unita","name":"$$driver abc"} is immutable and it is already present',
-      'Driver {"scenario":"scenario1","unit":"unita","name":"$driver xyz"} is immutable and it is already present'
+      'Driver {scenario: scenario1, unit: unita, name: $$driver abc} is immutable and it is already present',
+      'Driver {scenario: scenario1, unit: unita, name: $driver xyz} is immutable and it is already present',
     ]
   );
   assert.deepStrictEqual(input2, input2_clone);  // input2 is not modified
 
-  // query with all parameters empty: undefined
+  // throws if the query parameter is an empty object
   //@ts-ignore
-  assert.deepStrictEqual(drivers.get({}), undefined);
+  assert.throws(() => drivers.get({}));
+
+  // throws if the query parameter is missing the name property
+  //@ts-ignore
+  assert.throws(() => drivers.get({ scenario: 'SCENARIOAAA', unit: 'UnitA', name: undefined, date: new Date(2022, 11, 24) }));
+  assert.throws(() => drivers.get({ scenario: 'SCENARIOAAA', unit: 'UnitA', name: '', date: new Date(2022, 11, 24) }));
 
   // throws if the query parameter is not an object
   //@ts-ignore

@@ -54,92 +54,13 @@ const searchArray = [];
   let currentDateToSearch = new Date(2022, 11, 1);  // from the first of the month
   for (let i = 0; i < (365 * 5 + 60); i++) {  // loop for 5 years + 2 months
     currentDateToSearch = addDaysToLocalDate(currentDateToSearch, 1);
-    searchArray.push({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: currentDateToSearch, value: i });
+    searchArray.push({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: currentDateToSearch });
   }
 }
 
 
 
 //xxx; testa range
-
-
-
-
-/** @type {any} */
-const dataArray = [];
-const keyName = 'key';
-for (let i = 1; i <= 6000; i++) {
-  dataArray.push({ [keyName]: i });
-}
-
-// create a map with values of dataArray as keys
-const dataMap = new Map();
-for (let i = 0; i < dataArray.length; i++) {
-  dataMap.set(i, i);
-}
-
-Deno.bench(`map get() test, ${loopCount.toLocaleString('it-IT')} loop`, () => {
-  for (let i = 0; i < loopCount; i++) {
-    for (let j = 0; j < searchArray.length; j++) {
-      dataMap.get(i);
-    }
-  }
-});
-
-
-
-
-
-
-
-
-Deno.bench(`string test, ${loopCount.toLocaleString('it-IT')} loop`, () => {
-  const str = "    MaMMa    ";
-
-  for (let i = 0; i < loopCount; i++) {
-    for (let j = 0; j < searchArray.length; j++) {
-      isNullOrWhiteSpace(str);
-      isNullOrWhiteSpace(str);
-
-      JSON.stringify({
-        scenario: str.trim().toLowerCase(),
-        unit: str.trim().toLowerCase(),
-        name: str.trim().toLowerCase()
-      });
-    }
-  }
-});
-
-Deno.bench(`sanitize test, ${loopCount.toLocaleString('it-IT')} loop`, () => {
-  const date = new Date(2022, 12, 15);
-
-  for (let i = 0; i < loopCount; i++) {
-    for (let j = 0; j < searchArray.length; j++) {
-      sanitize({ value: date, sanitization: schema.DATE_TYPE });
-    }
-  }
-});
-
-Deno.bench(`date methods #1, ${loopCount.toLocaleString('it-IT')} loop`, () => {
-  const date = new Date(2022, 12, 15);
-
-  for (let i = 0; i < loopCount; i++) {
-    for (let j = 0; j < searchArray.length; j++) {
-      stripTimeToLocalDate(date);
-    }
-  }
-});
-
-Deno.bench(`date methods #2, ${loopCount.toLocaleString('it-IT')} loop`, () => {
-  const date = new Date(2022, 12, 15);
-
-  for (let i = 0; i < loopCount; i++) {
-    for (let j = 0; j < searchArray.length; j++) {
-      date.getTime();
-    }
-  }
-});
-
 
 
 

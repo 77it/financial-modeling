@@ -126,14 +126,13 @@ class TaskLocks {
   #taskLocksRepoBuildKey ({ unit, name }) {
     const _p = { unit, name };
 
-    if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
-      sanitize({
-        value: _p,
-        sanitization: { unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
-        validate: true
-      });
-
     if (isNullOrWhiteSpace(_p.unit)) _p.unit = this.#defaultUnit;
+
+    if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
+      validate({
+        value: _p,
+        validation: { unit: schema.STRING_TYPE, name: schema.STRING_TYPE }
+      });
 
     //@ts-ignore `unit` and `name` are always strings at this point during debug (are sanitized); should be string during release, otherwise will go in error
     return `{unit: ${_p.unit.trim().toLowerCase()}, name: ${_p.name.trim().toLowerCase()}}`;

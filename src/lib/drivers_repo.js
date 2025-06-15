@@ -11,7 +11,7 @@ import { deepFreeze, binarySearch_position_atOrBefore } from './obj_utils.js';
 
 // This is a base class used to build Settings and Drivers repositories
 class DriversRepo {
-  //#region data properties
+  //#region data structures
   /**
    Map to store Drivers and Settings:
    keys are strings made of { scenario, unit, name } (built with `#driversRepoBuildKey` method),
@@ -42,7 +42,14 @@ class DriversRepo {
    [2] number obtained with `date.getTime()`
    * @type {Map<string, Map<number, number>>} */
   #driverDatesAfterOrExact;
-  //#endregion data properties
+
+  /**
+   Map to store milliseconds of dates with time not stripped, to get them stripped
+   keys are dates milliseconds not stripped, values are milliseconds stripped
+   [1] number obtained with `date.getTime()`
+   * @type {Map<number, number>} */
+  #datesMillisecondsCache;
+  //#endregion data structures
 
   /** @type {string} */
   #currentScenario;
@@ -104,6 +111,7 @@ class DriversRepo {
     this.#obsoleteIds = new Set();
     this.#driverDatesBeforeOrExact = new Map();
     this.#driverDatesAfterOrExact = new Map();
+    this.#datesMillisecondsCache = new Map();
 
     this.#currentDebugModuleInfo = '';
     this.#today = new Date(0);
@@ -317,16 +325,10 @@ class DriversRepo {
 
     // sanitize input date to milliseconds:<p>
     // * missing dates will be set to this.#today;<p>
-    // * invalid date will be set to new Date(0);<p>
     // * strip the time part from the date (if the date is != Date(0))<p>
     const _dateMs = (() => {
-      let _date = (date === undefined || date === null) ? this.#today : date;
-
-      XXX;  // cache MAKE FUNCTION TO SANITIZE AND STRIP AFTER LOOKING TO MAP CACHE; TEST JSON VS STRIP THEN BUILD FUNCTION TO JSON AND GET MAP OR STRIP
-      _date = sanitize({ value: _date, sanitization: schema.DATE_TYPE });
-      _date = stripTimeToLocalDate(_date);
-
-      return _date.getTime();
+      const _date = (date === undefined || date === null) ? this.#today : date;
+      return this.#stripTimeToDateAndConvertToMillisecondsWithCache({date: _date});
     })();
 
     // compute `_firstDate` and `_lastDate` milliseconds and position
@@ -371,14 +373,11 @@ class DriversRepo {
     else {
       // start & end date milliseconds.<p>
       // end milliseconds:<p>
-      // * invalid date will be set to new Date(0);<p>
       // * strip the time part from the date (if the date is != Date(0))<p>
       // if end milliseconds is lower than `_dateMs`, invert the two dates and returns them
       /** @type {{start: number, end: number}} */
       const _milliseconds = (() => {
-        XXX;  // cache
-        let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
-        const _endDateMs = stripTimeToLocalDate(_endDate).getTime();
+        const _endDateMs = this.#stripTimeToDateAndConvertToMillisecondsWithCache({date: endDate});
 
         if (_endDateMs < _dateMs)
           return { start: _endDateMs, end: _dateMs };
@@ -552,7 +551,7 @@ class DriversRepo {
       // if end milliseconds is lower than `_dateMilliseconds`, invert the two dates and returns them
       /** @type {{start: number, end: number}} */
       const _milliseconds = (() => {
-        let _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
+        const _endDate = sanitize({ value: endDate, sanitization: schema.DATE_TYPE });
         const _endDateMs = stripTimeToLocalDate(_endDate).getTime();
         if (_endDateMs < _dateMilliseconds)
           return { start: _endDateMs, end: _dateMilliseconds };
@@ -627,6 +626,25 @@ class DriversRepo {
 
   //#region private methods
   /**
+   * Strips the time part from a date and converts it to milliseconds.<p>
+   * Uses a cache to avoid recalculating the same date multiple times.<p>
+   * @param {Object} p
+   * @param {Date} p.date - Date to sanitize
+   * @return {number} Milliseconds of date stripped to local date
+   * @throws {Error} If `date` is not of Date type, will fail trying to execute `getTime()` method on the date
+   */
+  #stripTimeToDateAndConvertToMillisecondsWithCache ({ date }) {
+    const _milliseconds = date.getTime();
+    // get milliseconds from cache if present, otherwise strip time to local date and save in cache
+    let _timeStrippedMillisecondsFromCache = this.#datesMillisecondsCache.get(_milliseconds);
+    if (_timeStrippedMillisecondsFromCache == null) {
+      _timeStrippedMillisecondsFromCache = stripTimeToLocalDate(date).getTime();
+      this.#datesMillisecondsCache.set(_milliseconds, _timeStrippedMillisecondsFromCache);
+    }
+    return _timeStrippedMillisecondsFromCache;
+  }
+
+  /**
    * @param {Object} p
    * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
@@ -636,17 +654,17 @@ class DriversRepo {
   #driversRepoBuildKey ({ scenario, unit, name }) {
     const _p = { scenario, unit, name };
 
-    if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
-      sanitize({
-        value: _p,
-        sanitization: { scenario: schema.STRING_TYPE, unit: schema.STRING_TYPE, name: schema.STRING_TYPE },
-        validate: true
-      });
-
     if (isNullOrWhiteSpace(_p.scenario)) _p.scenario = this.#currentScenario;
     if (isNullOrWhiteSpace(_p.unit)) _p.unit = this.#defaultUnit;
+    if (isNullOrWhiteSpace(_p.name)) throw new Error(`Driver name is required, but it is not defined in ${JSON.stringify(_p)}`);
 
-    //@ts-ignore `scenario`, `unit` and `name` are always strings at this point during debug (are sanitized); should be string during release, otherwise will go in error
+    if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
+      validate({
+        value: _p,
+        validation: { scenario: schema.STRING_TYPE, unit: schema.STRING_TYPE, name: schema.STRING_TYPE }
+      });
+
+    //@ts-ignore `scenario`, `unit` and `name` must be strings, otherwise will go in error, that is the expected behaviour
     return `{scenario: ${_p.scenario.trim().toLowerCase()}, unit: ${_p.unit.trim().toLowerCase()}, name: ${_p.name.trim().toLowerCase()}}`;
   }
 
@@ -698,8 +716,8 @@ class DriversRepo {
       const _map2b_driverDatesAfterOrExact_keyMilliseconds_valuePositionInDriverArray = new Map();
 
       // loop from `_firstDate` to `_lastDate`, incrementing by one day
-      let _currentDateDate = stripTimeToLocalDate(new Date(_firstDate));
-      const _lastDateDate = stripTimeToLocalDate(new Date(_lastDate));
+      let _currentDateDate = new Date(_firstDate);
+      const _lastDateDate = new Date(_lastDate);
       let _previousFoundPosition = -1;
       while (true) {
         //#region if `_currentDateDate` is found in milliseconds map, set the found position in `#driverDatesBeforeOrExact` and `#driverDatesAfterOrExact`
