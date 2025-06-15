@@ -7,6 +7,7 @@
 P16s
 
 # With Validation (4/5 times slower than without validation)
+RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS = false
 circa 17 seconds for 1 million SimObjects
 
 NODEJS run
@@ -15,7 +16,10 @@ SimObject benchmark: normal use x 57,606 ops/sec ±5.09% (64 runs sampled)
 DENO run
 SimObject benchmark: normal use x 61,084 ops/sec ±3.25% (63 runs sampled)
 
+
+
 # Without Validation
+RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS = true
 circa 4 seconds for 1 million SimObjects
 
 NODEJS run
@@ -32,6 +36,7 @@ import { SimObject } from '../../../src/engine/simobject/simobject.js';
 import { SimObjectTypes_enum } from '../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../src/engine/simobject/enums/doubleentryside_enum.js';
 import { toBigInt } from '../../../src/engine/simobject/utils/to_bigint.js';
+import * as CFG from '../../../src/config/engine.js';
 
 const DECIMALPLACES = 4;
 const ROUNDINGMODEISROUND = true;
@@ -65,6 +70,8 @@ const p = {
   vsSimObjectName: '991',
   versionId: 1
 };
+
+console.log(`RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS = ${CFG.RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS}`);
 
 // add tests
 suite.add('SimObject benchmark: normal use', function() {
