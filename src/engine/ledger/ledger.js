@@ -77,7 +77,7 @@ class Ledger {
   /** @type {number} */
   #lastTransactionId;
   /** @type {boolean} */
-  #debug;
+  #debugFlag;
   /** @type {string} */
   #currentDebugModuleInfo;
   /** @type {number} */
@@ -113,7 +113,7 @@ class Ledger {
     this.#lastCommandId = 0;
     this.#lastTransactionId = 0;
     this.#today = new Date(0);
-    this.#debug = false;
+    this.#debugFlag = false;
     this.#currentDebugModuleInfo = '';
     this.#decimalPlaces = _p.decimalPlaces;
     this.#roundingModeIsRound = _p.roundingModeIsRound;
@@ -131,7 +131,7 @@ class Ledger {
    * Set the debug flag to true.
    */
   setDebug () {
-    this.#debug = true;
+    this.#debugFlag = true;
   }
 
   /** @param {Date} today */
@@ -290,7 +290,7 @@ class Ledger {
   appendSimObject (newSimObjectDto) {
     if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS) {
       // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
-      validate({ value: newSimObjectDto, validation: newSimObjectDto_Schema, strict:true });
+      validate({ value: newSimObjectDto, validation: newSimObjectDto_Schema, strict: true });
     }
 
     if (this.#simObjectTypes_enum_map.has(newSimObjectDto.type) === false)
@@ -298,7 +298,7 @@ class Ledger {
 
     // TODO implement and call `alignAmortizationScheduleOfLinkedVsSimObjectName()`
 
-    const debug_moduleInfo = (this.#debug) ? this.#currentDebugModuleInfo : '';
+    const debug_moduleInfo = (this.#debugFlag) ? this.#currentDebugModuleInfo : '';
 
     const _value = toBigInt(newSimObjectDto.value, this.#decimalPlaces, this.#roundingModeIsRound);
     const _writingValue = _value;  // writingValue is equal to value
@@ -337,7 +337,7 @@ class Ledger {
       writingValue: _writingValue,
       alive: _alive,
       command__Id: this.#getNextCommandId().toString(),
-      command__DebugDescription: (!isNullOrWhiteSpace(newSimObjectDto.command__DebugDescription)) ? (newSimObjectDto.command__DebugDescription ?? '') : debug_moduleInfo,
+      command__DebugDescription: newSimObjectDto.command__DebugDescription ?? debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription ?? '',
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: principalIndefiniteExpiryDate,
@@ -437,10 +437,10 @@ class Ledger {
   #appendDebugSimObject (simObjectDebugType, newDebugSimObjectDto) {
     if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS) {
       // validate to check that there are no extraneous properties, that would be ignored by the SimObject constructor, but could be a sign of a typo in the calling code
-      validate({ value: newDebugSimObjectDto, validation: newDebugSimObjectDto_Schema, strict:true });
+      validate({ value: newDebugSimObjectDto, validation: newDebugSimObjectDto_Schema, strict: true });
 
       //skip validation of `simObjectDebugType`, this method is private and can't be called with wrong types  //validation.validate({ value: simObjectDebugType, validation: SimObjectDebugTypes_enum_validation.concat(SimObjectErrorDebugTypes_enum_validation) });
-      }
+    }
 
     const debug_moduleInfo = this.#currentDebugModuleInfo;
 
@@ -463,7 +463,7 @@ class Ledger {
       writingValue: toBigInt(0, this.#decimalPlaces, this.#roundingModeIsRound),
       alive: false,
       command__Id: this.#getNextCommandId().toString(),
-      command__DebugDescription: (!isNullOrWhiteSpace(newDebugSimObjectDto.command__DebugDescription)) ? (newDebugSimObjectDto.command__DebugDescription ?? '') : debug_moduleInfo,
+      command__DebugDescription: newDebugSimObjectDto.command__DebugDescription ?? debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription ?? '',
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate: toBigInt(0, this.#decimalPlaces, this.#roundingModeIsRound),

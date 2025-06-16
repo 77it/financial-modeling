@@ -135,7 +135,7 @@ class TaskLocks {
       });
 
     //@ts-ignore `unit` and `name` are always strings at this point during debug (are sanitized); should be string during release, otherwise will go in error
-    return `{unit: ${_p.unit.trim().toLowerCase()}, name: ${_p.name.trim().toLowerCase()}}`;
+    return `{"unit": "${_p.unit.trim().toLowerCase()}", "name": "${_p.name.trim().toLowerCase()}"}`;
   }
 
   //#endregion private methods

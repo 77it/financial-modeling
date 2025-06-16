@@ -62,12 +62,29 @@ class SimulationContext {
    * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Setting name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
+   * @param {boolean} [p.throwIfNotDefined] - Optional flag to throw. See @throws for description of this option.
    * @return {undefined|*} Setting; if not found, returns undefined
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
+   * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
+   * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).
+   * Returned data is not cloned because Settings are stored with `freezeValues` option = true then the values are deep frozen.
+   * @throws {Error} If `throwIfNotDefined` is true, throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
    */
-  getSetting ({ scenario, unit, name, date }) {
-    return this.#settings.get({ scenario, unit, name, date });
+  getSetting ({ scenario, unit, name, date, throwIfNotDefined = true }) {
+    return this.#settings.get({ scenario, unit, name, date, throwIfNotDefined });
+  }
+
+  /**
+   * Check if a Setting is defined
+   * @param {Object} p
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
+   * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} p.name - Setting name
+   * @return {boolean}
+   */
+  isDefinedSetting ({ scenario, unit, name }) {
+    return this.#settings.isDefined({ scenario, unit, name });
   }
 
   /**

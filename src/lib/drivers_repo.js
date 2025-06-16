@@ -438,7 +438,7 @@ class DriversRepo {
      */
     function undefined_Or_throwIfNotDefined () {
       if (throwIfNotDefined)
-        throw new Error(`get() of ${JSON.stringify({ scenario, unit, name })} failed`);
+        throw new Error(`get() of ${JSON.stringify({ scenario, unit, name })} failed, not defined`);
       else
         return undefined;
     }
@@ -665,7 +665,7 @@ class DriversRepo {
       });
 
     //@ts-ignore `scenario`, `unit` and `name` must be strings, otherwise will go in error, that is the expected behaviour
-    return `{scenario: ${_p.scenario.trim().toLowerCase()}, unit: ${_p.unit.trim().toLowerCase()}, name: ${_p.name.trim().toLowerCase()}}`;
+    return `{"scenario": "${_p.scenario.trim().toLowerCase()}", "unit": "${_p.unit.trim().toLowerCase()}", "name": "${_p.name.trim().toLowerCase()}"}`;
   }
 
   /**

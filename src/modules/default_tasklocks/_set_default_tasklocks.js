@@ -47,7 +47,7 @@ export class Module {
   #taskLock_setMissingSettingsWithDefaultValue = () => {
     // loop `SettingsDefaultValues` keys and set a new Setting if it doesn't exist or if it has a null/undefined value
     for (const settingDefault_Key of Object.keys(SettingsDefaultValues)) {
-      if (this.#simulationContext.getSetting({ name: settingDefault_Key }) != null) continue;
+      if (this.#simulationContext.getSetting({ name: settingDefault_Key, throwIfNotDefined: false }) != null) continue;
 
       this.#simulationContext.setSetting([{
         name: settingDefault_Key,

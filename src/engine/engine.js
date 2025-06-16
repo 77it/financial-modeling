@@ -164,7 +164,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       _startDate = updateStartDate({ actualDate: _startDate, newDate: module?.startDate });  // set or update _startDate
     });
     // read `$$SIMULATION_END_DATE` from settings
-    _endDate = _settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE });
+    _endDate = _settings.get({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$SIMULATION_END_DATE, throwIfNotDefined: false });
     // if `_startDate` is still undefined, set it to default value (Date(0))
     if (_startDate == null) _startDate = stripTimeToLocalDate(new Date(0));
     // if `_endDate` is still undefined or equal to Date(0), set it to default value (to 10 years from now, at the end of the year)
