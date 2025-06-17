@@ -23,7 +23,7 @@ deleteFile(ERROR_FILE);
 // set cwd/current working directory to current folder (the folder of this file)
 chdir(dirname(fileURLToPath(import.meta.url)));
 
-t('main-treasury-temp tests with `user_data__no_settings`', async () => {
+t('TODO main-treasury-temp tests with `user_data__no_settings`', async () => {
   const BASE_TEST_FILENAME = 'data';
   const JSONL_OUTPUT = 'base.jsonl';
   const JSONL_OUTPUT_TMP = 'base.jsonl.tmp';

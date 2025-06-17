@@ -78,7 +78,8 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
     // init Settings repo
     const _settings = new Settings({
-      currentScenario: scenarioName, baseScenario: CFG.SCENARIO_BASE,
+      currentScenario: scenarioName,
+      baseScenario: CFG.SCENARIO_BASE,
       defaultUnit: CFG.SIMULATION_NAME,
       prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
       prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES
@@ -86,7 +87,8 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
     // init Drivers repo
     const _drivers = new Drivers({
-      currentScenario: scenarioName, baseScenario: CFG.SCENARIO_BASE,
+      currentScenario: scenarioName,
+      baseScenario: CFG.SCENARIO_BASE,
       defaultUnit: CFG.SIMULATION_NAME,
       prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
       prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES

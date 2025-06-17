@@ -94,12 +94,22 @@ class DriversRepo {
     freezeValues
   }) {
     this.#baseScenario = sanitize({ value: baseScenario, sanitization: schema.STRING_TYPE, validate: true });
+    if (isNullOrWhiteSpace(this.#baseScenario))
+      throw new Error('baseScenario cannot be null, undefined or empty');
     this.#currentScenario = sanitize({ value: currentScenario, sanitization: schema.STRING_TYPE, validate: true });
+    if (isNullOrWhiteSpace(this.#currentScenario))
+      throw new Error('currentScenario cannot be null, undefined or empty');
     this.#defaultUnit = sanitize({ value: defaultUnit, sanitization: schema.STRING_TYPE, validate: true });
+    if (isNullOrWhiteSpace(this.#defaultUnit))
+      throw new Error('defaultUnit cannot be null, undefined or empty');
     this.#sanitizationType = sanitize({ value: sanitizationType, sanitization: schema.STRING_TYPE, validate: true });
 
     this.#prefix__immutable_without_dates = sanitize({ value: prefix__immutable_without_dates, sanitization: schema.STRING_TYPE, validate: true });
+    if (isNullOrWhiteSpace(this.#prefix__immutable_without_dates))
+      throw new Error('prefix__immutable_without_dates cannot be null, undefined or empty');
     this.#prefix__immutable_with_dates = sanitize({ value: prefix__immutable_with_dates, sanitization: schema.STRING_TYPE, validate: true });
+    if (isNullOrWhiteSpace(this.#prefix__immutable_with_dates))
+      throw new Error('prefix__immutable_with_dates cannot be null, undefined or empty');
     // test that prefix__immutable_with_dates does not start with prefix__immutable_without_dates
     if (this.#prefix__immutable_with_dates.startsWith(this.#prefix__immutable_without_dates)) {
       throw new Error(`prefix__immutable_with_dates (${this.#prefix__immutable_with_dates}) cannot start with prefix__immutable_without_dates (${this.#prefix__immutable_without_dates})`);
@@ -656,7 +666,7 @@ class DriversRepo {
 
     if (isNullOrWhiteSpace(_p.scenario)) _p.scenario = this.#currentScenario;
     if (isNullOrWhiteSpace(_p.unit)) _p.unit = this.#defaultUnit;
-    if (isNullOrWhiteSpace(_p.name)) throw new Error(`Driver name is required, but it is not defined in ${JSON.stringify(_p)}`);
+    if (isNullOrWhiteSpace(_p.name)) throw new Error(`name is required, but it is not defined in ${JSON.stringify(_p)}`);
 
     if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
       validate({
@@ -665,7 +675,7 @@ class DriversRepo {
       });
 
     //@ts-ignore `scenario`, `unit` and `name` must be strings, otherwise will go in error, that is the expected behaviour
-    return `{"scenario": "${_p.scenario.trim().toLowerCase()}", "unit": "${_p.unit.trim().toLowerCase()}", "name": "${_p.name.trim().toLowerCase()}"}`;
+    return `{scenario: ${_p.scenario.trim().toLowerCase()}, unit: ${_p.unit.trim().toLowerCase()}, name: ${_p.name.trim().toLowerCase()}}`;
   }
 
   /**

@@ -89,7 +89,7 @@ export class Module {
 
     // read from Settings ACTIVE_UNIT & ACTIVE_METADATA and save the values
     this.#active_unit = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
-    this.#activeMetadata = YAMLtoSimObject_Metadata(this.#ctx.getSetting({ unit: this.#active_unit, name: SETTINGS_NAMES.Simulation.ACTIVE_METADATA }));
+    this.#activeMetadata = YAMLtoSimObject_Metadata(this.#ctx.getSetting({ unit: this.#active_unit, name: SETTINGS_NAMES.Simulation.ACTIVE_METADATA, throwIfNotDefined: false }));
 
     // init Agenda with #active_unit & reading from settings $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     this.#agenda = new Agenda({ simulationStartDate: this.#ctx.getSetting({ unit: this.#active_unit, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE }) });
@@ -105,16 +105,16 @@ export class Module {
     for (const currTab of this.#moduleData.tables) {
       const tSet = tablesInfo.SET.columns;
 
-      if (eq2(currTab.tableName, tablesInfo.SET.tableName)) {
-        const simulationDatePrefix = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$SIMULATION_COLUMN_PREFIX });
-        const historicalDatePrefix = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX });
+      const simulationDatePrefix = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$SIMULATION_COLUMN_PREFIX });
+      const historicalDatePrefix = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX });
 
+      if (eq2(currTab.tableName, tablesInfo.SET.tableName)) {
         for (const row of currTab.table) {
           if (!row[tSet.INACTIVE]) {
             const simulation_input = row[tSet.SIMULATION_INPUT];
             const accounting_type = row[tSet.ACCOUNTING_TYPE] ?? this.#accounting_type__default;
             const accounting_opposite_type = row[tSet.ACCOUNTING_OPPOSITE_TYPE] ?? this.#accounting_opposite_type__default;
-            const simObject_name = row[tSet.SIMOBJECT_NAME] ?? '';
+            const simObject_name = row[tSet.SIMOBJECT_NAME];  // is optional in the new SimObject schema `newsimobjectdto.schema.js`
 
             const warning = [];
             if (isNullOrWhiteSpace(accounting_type))

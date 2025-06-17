@@ -20,7 +20,7 @@ const SettingsDefaultValues = {
   [Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE]: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   [Simulation.$$SQUARE_TOLERANCE]: 2,  // 2 should be enough for all cases; if you need more, you can set it in the simulation settings
   [Simulation.$$CURRENCY]: Currency_enum.UNDEFINED,
-  [Simulation.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE]: new Date(0),
+  [Simulation.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE]: new Date(0),  // if not defined, the simulation will start from 1st January 1970
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: 12,
   // default split of things, 12 equal months (e.g. of Income Statement items)
   [Simulation.$$DEFAULT_SPLIT]: [1,1,1,1,1,1,1,1,1,1,1,1],

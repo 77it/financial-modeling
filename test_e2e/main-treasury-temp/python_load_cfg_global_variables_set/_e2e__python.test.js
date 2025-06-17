@@ -1,4 +1,4 @@
-// run with: test --allow-import --allow-read --allow-write --allow-env
+// run with: test --allow-read --allow-write --allow-net --allow-run --allow-env --allow-import
 
 import { main } from '../deps.js';
 

@@ -45,14 +45,17 @@ export class Module {
   // is an arrow function because it is used as a callback, and it needs to access the class private fields
   /** Set Settings Default Values, only if they don't have a value already defined */
   #taskLock_setMissingSettingsWithDefaultValue = () => {
-    // loop `SettingsDefaultValues` keys and set a new Setting if it doesn't exist or if it has a null/undefined value
+    // loop `SettingsDefaultValues` keys on default Unit and set a new Setting if are not defined;
+    // if are defined but with a null/undefined value, throw exception
     for (const settingDefault_Key of Object.keys(SettingsDefaultValues)) {
-      if (this.#simulationContext.getSetting({ name: settingDefault_Key, throwIfNotDefined: false }) != null) continue;
-
-      this.#simulationContext.setSetting([{
-        name: settingDefault_Key,
-        value: SettingsDefaultValues[settingDefault_Key]
-      }]);
+      if (!(this.#simulationContext.isDefinedSetting({ name: settingDefault_Key }))) {
+        this.#simulationContext.setSetting([{
+          name: settingDefault_Key,
+          value: SettingsDefaultValues[settingDefault_Key]
+        }]);
+      } else if (this.#simulationContext.getSetting({ name: settingDefault_Key }) == null) {
+        throw new Error(`Setting '${settingDefault_Key}' is defined on default Unit but has a null/undefined value.`);
+      }
     }
   };
 
@@ -60,7 +63,7 @@ export class Module {
   /** Set Js Engine Configuration Global Values from Simulation Settings */
   #taskLock_setJsEngineConfigurationGlobalValuesFromSimulationSettings = () => {
     // read settings from Simulation Unit
-    GLOBALS.DRIVER_PREFIXES__ZERO_IF_NOT_SET.setOneTimeBeforeRead(this.#simulationContext.getSetting({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET }));
-    GLOBALS.DEFAULT_ACCOUNTING_VS_TYPE.setOneTimeBeforeRead(this.#simulationContext.getSetting({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE }));
+    GLOBALS.DRIVER_PREFIXES__ZERO_IF_NOT_SET.setOneTimeBeforeRead(this.#simulationContext.getSetting({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET, throwIfNotDefined: false }));
+    GLOBALS.DEFAULT_ACCOUNTING_VS_TYPE.setOneTimeBeforeRead(this.#simulationContext.getSetting({ unit: CFG.SIMULATION_NAME, name: SETTINGS_NAMES.Simulation.$$DEFAULT_ACCOUNTING_VS_TYPE, throwIfNotDefined: false }));
   };
 }

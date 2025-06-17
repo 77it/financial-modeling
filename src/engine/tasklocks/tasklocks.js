@@ -127,6 +127,7 @@ class TaskLocks {
     const _p = { unit, name };
 
     if (isNullOrWhiteSpace(_p.unit)) _p.unit = this.#defaultUnit;
+    if (isNullOrWhiteSpace(_p.name)) throw new Error(`name is required, but it is not defined in ${JSON.stringify(_p)}`);
 
     if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
       validate({
@@ -135,7 +136,7 @@ class TaskLocks {
       });
 
     //@ts-ignore `unit` and `name` are always strings at this point during debug (are sanitized); should be string during release, otherwise will go in error
-    return `{"unit": "${_p.unit.trim().toLowerCase()}", "name": "${_p.name.trim().toLowerCase()}"}`;
+    return JSON.stringify({ unit: _p.unit.trim().toLowerCase(), name: _p.name.trim().toLowerCase() });
   }
 
   //#endregion private methods
