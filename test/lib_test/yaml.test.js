@@ -64,12 +64,17 @@ t('YAML test, parsing specific to custom library, most interesting tests of not 
 
   //#region custom parsing object (works with ' and ")
   const parsed = parse2('{\'Main\':999.159, Name: \'Y88 x\', num: -1, \'mamma\':\'ciao\', mamma2 : 99, mamma3 :88}');
-  dpeq(parsed.Main, 999.159);
-  dpeq(parsed.Name, 'Y88 x');
-  dpeq(parsed.num, -1);
-  dpeq(parsed.mamma, 'ciao');
-  dpeq(parsed.mamma2, 99);
-  dpeq(parsed.mamma3, 88);
+  dpeq(
+    parsed,
+    {
+      Main: 999.159,
+      Name: 'Y88 x',
+      num: -1,
+      mamma :'ciao',
+      mamma2: 99,
+      mamma3: 88,
+    });
+
   assert(!(parsed["mamma3 "] === 88));  // without sanitization, the key would be with space!
 });
 
@@ -232,6 +237,18 @@ t('YAML tests, parse with custom and standard library', () => {
     dpeq(parsed5[0].type, 'c/c');
     dpeq(parsed5[1].value, 'cantina');
     dpeq(parsed5[1].weight, 0.3);
+    //#endregion
+
+    //#region parsing object with array as properties
+    const parsed6 = parse0('{ name: [AA, AAA], value: [BB, BBB], weight: [0.5, 0.6] }');
+    dpeq(
+      parsed6,
+      {
+        name: ['AA', 'AAA'],
+        value: ['BB', 'BBB'],
+        weight: [0.5, 0.6]
+      }
+    );
     //#endregion
   }
 });

@@ -339,8 +339,12 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
    * @return {*} Sanitized array
    */
   function _sanitizeArray ({ array, sanitization }) {
-    if (!Array.isArray(array))  // if `value` is not an array return a new array with sanitized `value` as first element
-      return [sanitize({ value: array, sanitization: sanitization, options: options })];
+    if (!Array.isArray(array)) { // if `value` is not an array return a new array with sanitized `value` as first element
+      if (array == null)
+        return []
+      else
+        return [sanitize({ value: array, sanitization: sanitization, options: options })];
+    }
 
     for (let i = 0; i < array.length; i++) {  // sanitize every element of the array
       array[i] = sanitize({ value: array[i], sanitization: sanitization, options: options });

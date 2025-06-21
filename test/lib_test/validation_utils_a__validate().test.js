@@ -346,7 +346,7 @@ t('test validate(), not valid, all cases', () => {
 
   _error = '';
   try {
-    v.validate({ value: 99, validation: S.ARRAY_OF_OBJECTS_TYPE });
+    v.validate({ value: {mamma: 99}, validation: S.ARRAY_OF_OBJECTS_TYPE });  // error also if value is an object
   } catch (error) {
     _error = (error instanceof Error) ? error.message : 'Unknown error occurred';
   }

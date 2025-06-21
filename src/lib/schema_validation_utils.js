@@ -4,7 +4,7 @@ import { DISABLE_VALIDATION } from '../config/engine.js';
 import * as schema from './schema.js';
 import { ValidateSanitizeResult } from './validate_sanitize_result.js';
 
-const ALLOWS_OBJECTS_IN_ARRAY_FLAG = false;  // hardcoded option, by now objects contained in array are considered an error
+const ALLOWS_OBJECTS_IN_ARRAY_FLAG = false;  // hardcoded option, by now objects contained in array are considered an error if the validation expects an object
 const SUCCESS = '';
 // Strict flag; if true check that there are no extra keys other than validation keys in the validated object.
 // set only during init
@@ -338,39 +338,8 @@ function _validateObj ({ obj, validation, errorMsg, allowsObjectsInArray }) {
   if (errorMsg != null && typeof errorMsg !== 'string')
     return `'errorMsg' parameter must be null/undefined or string`;
 
-  const validationResult = __validateObj({
-    obj: obj,
-    validation: validation,
-    allowsObjectsInArray: allowsObjectsInArray
-  });
-
-  if (validationResult) {
-    if (errorMsg == null)  // null or undefined
-      return `${validationResult}`;
-    else
-      return `${errorMsg}: ${validationResult}`;
-  }
-
-  return SUCCESS;
-}
-
-/**
- @private
- * validation function of an object
- * @param {Object} p
- * @param {*} p.obj - Object to validate
- * @param {*} p.validation - Validation object {key1: 'typeA', key2: 'typeB'}
- * @param {boolean} p.allowsObjectsInArray - Flag to allow objects in array; if false, the object to validate can't be contained in an array
- * @return {string} Return empty string for success; return error string for validation error.
- */
-function __validateObj ({ obj, validation, allowsObjectsInArray }) {
   /** @type {string[]} */
   const errors = [];
-
-  if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
-    throw new Error(`'obj' parameter must be an object`);
-  if (validation == null || typeof validation !== 'object')  // double check, because typeof null is object
-    throw new Error(`'validation' parameter must be an object`);
 
   if (!allowsObjectsInArray && Array.isArray(obj)) {
     errors.push(`${JSON.stringify((obj))} is an array and not an object`);
@@ -382,8 +351,12 @@ function __validateObj ({ obj, validation, allowsObjectsInArray }) {
   } else
     _validateObj2(obj);
 
-  if (errors.length > 0)
-    return (JSON.stringify(errors));
+  if (errors.length > 0){
+    if (errorMsg == null)  // null or undefined
+      return `${JSON.stringify(errors)}`;
+    else
+      return `${errorMsg}: ${JSON.stringify(errors)}`;
+  }
 
   return SUCCESS;
 

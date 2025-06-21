@@ -6,8 +6,9 @@ import { Agenda } from './_utils/agenda.js';
 import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 import { moduleDataLookup } from './_utils/search/module_data_lookup.js';
 import { classifyDateString, DATE_CLASSIFICATION } from './_utils/search/classify_date_string.js';
-import { YAMLtoSimObject_Metadata } from './_utils/yaml_to_simobject_metadata.js';
-import { SimObject_Metadata, ModuleData, SimulationContext, schema, sanitize, eq2, isNullOrWhiteSpace } from './deps.js';
+import { SimObject_Metadata, schema, sanitize, eq2, isNullOrWhiteSpace } from './deps.js';
+// types import
+import { ModuleData as _ModuleData, SimulationContext as _SimulationContext } from './deps.js';
 
 export class Module {
   //#region private fields
@@ -15,10 +16,10 @@ export class Module {
   #alive;
   /** @type {undefined|Date} */
   #startDate;
-  /** @type {ModuleData} */
+  /** @type {_ModuleData} */
   #moduleData;
   /** Simulation Context
-   * @type {SimulationContext} */
+   * @type {_SimulationContext} */
   #ctx;
   /** @type {Agenda} */
   #agenda;
@@ -71,10 +72,10 @@ export class Module {
   get startDate () { return this.#startDate; }
 
   /**
-   * Get SimulationContext and ModuleData, save them.
+   * Get _SimulationContext and _ModuleData, save them.
    * @param {Object} p
-   * @param {ModuleData} p.moduleData
-   * @param {SimulationContext} p.simulationContext
+   * @param {_ModuleData} p.moduleData
+   * @param {_SimulationContext} p.simulationContext
    */
   init ({ moduleData, simulationContext }) {
     // save moduleData, after sanitizing it (call it with 'Object.values' to generate an array of all sanitizations)
@@ -89,7 +90,7 @@ export class Module {
 
     // read from Settings ACTIVE_UNIT & ACTIVE_METADATA and save the values
     this.#active_unit = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.ACTIVE_UNIT });
-    this.#activeMetadata = YAMLtoSimObject_Metadata(this.#ctx.getSetting({ unit: this.#active_unit, name: SETTINGS_NAMES.Simulation.ACTIVE_METADATA, throwIfNotDefined: false }));
+    this.#activeMetadata = new SimObject_Metadata(this.#ctx.getSetting({ unit: this.#active_unit, name: SETTINGS_NAMES.Simulation.ACTIVE_METADATA, throwIfNotDefined: false }));
 
     // init Agenda with #active_unit & reading from settings $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     this.#agenda = new Agenda({ simulationStartDate: this.#ctx.getSetting({ unit: this.#active_unit, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE }) });

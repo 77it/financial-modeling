@@ -266,8 +266,8 @@ t('test sanitize() - array type', async () => {
 t('test sanitize() - array of strings type', async () => {
   const t = S.ARRAY_OF_STRINGS_TYPE;
   assert.deepStrictEqual(['1', '2', 'a'], s.sanitize({ value: [1, 2, 'a'], sanitization: t }));
-  assert.deepStrictEqual([''], s.sanitize({ value: undefined, sanitization: t }));
-  assert.deepStrictEqual([''], s.sanitize({ value: null, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(['999'], s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual([''], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual(['abc'], s.sanitize({ value: 'abc', sanitization: t }));
@@ -293,8 +293,8 @@ t('test sanitize() - array of strings type', async () => {
 t('test sanitize() - array of strings lowercase trimmed type', async () => {
   const t = S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE;
   assert.deepStrictEqual(['1', '2', 'a'], s.sanitize({ value: [1, 2, '   a   '], sanitization: t }));
-  assert.deepStrictEqual([''], s.sanitize({ value: undefined, sanitization: t }));
-  assert.deepStrictEqual([''], s.sanitize({ value: null, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(['999'], s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual([''], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual(['abc'], s.sanitize({ value: 'abc', sanitization: t }));
@@ -320,8 +320,8 @@ t('test sanitize() - array of strings lowercase trimmed type', async () => {
 t('test sanitize() - array of strings uppercase trimmed type', async () => {
   const t = S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE;
   assert.deepStrictEqual(['1', '2', 'A'], s.sanitize({ value: [1, 2, '   a   '], sanitization: t }));
-  assert.deepStrictEqual([''], s.sanitize({ value: undefined, sanitization: t }));
-  assert.deepStrictEqual([''], s.sanitize({ value: null, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(['999'], s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual([''], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual(['ABC'], s.sanitize({ value: 'abc', sanitization: t }));
@@ -347,8 +347,8 @@ t('test sanitize() - array of strings uppercase trimmed type', async () => {
 t('test sanitize() - array of numbers type', async () => {
   const t = S.ARRAY_OF_NUMBERS_TYPE;
   assert.deepStrictEqual([1, 2, 0], s.sanitize({ value: [1, 2, 'a'], sanitization: t }));
-  assert.deepStrictEqual([0], s.sanitize({ value: undefined, sanitization: t }));
-  assert.deepStrictEqual([0], s.sanitize({ value: null, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([999], s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual([0], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual([0], s.sanitize({ value: 'abc', sanitization: t }));
@@ -373,8 +373,8 @@ t('test sanitize() - array of numbers type', async () => {
 t('test sanitize() - array of booleans type', async () => {
   const t = S.ARRAY_OF_BOOLEANS_TYPE;
   assert.deepStrictEqual([true, true, true], s.sanitize({ value: [1, 2, 'a'], sanitization: t }));
-  assert.deepStrictEqual([false], s.sanitize({ value: undefined, sanitization: t }));
-  assert.deepStrictEqual([false], s.sanitize({ value: null, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([true], s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual([false], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual([true], s.sanitize({ value: 'abc', sanitization: t }));
@@ -412,8 +412,8 @@ t('test sanitize() - array of dates type', async () => {
     sanitization: t,
     options
   }));
-  assert.deepStrictEqual([new Date(0)], s.sanitize({ value: undefined, sanitization: t, options }));
-  assert.deepStrictEqual([new Date(0)], s.sanitize({ value: null, sanitization: t, options }));
+  assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t, options }));
+  assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t, options }));
   assert.deepStrictEqual([new Date(Date.UTC(2022, 11, 25))], s.sanitize({ value: 44920, sanitization: t, options }));
   assert.deepStrictEqual([new Date(0)], s.sanitize({ value: '', sanitization: t, options }));
   assert.deepStrictEqual([new Date(0)], s.sanitize({ value: 'abc', sanitization: t, options }));
@@ -464,8 +464,8 @@ t('test sanitize() - array of objects type', async () => {
   const t = S.ARRAY_OF_OBJECTS_TYPE;
   const obj = { a: 1, b: 2, c: 'a' };
   assert.deepStrictEqual([obj], s.sanitize({ value: obj, sanitization: t }));
-  assert.deepStrictEqual([{}], s.sanitize({ value: undefined, sanitization: t }));
-  assert.deepStrictEqual( [{}], s.sanitize({ value: null, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
+  assert.deepStrictEqual( [], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([{}], s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual([{}], s.sanitize({ value: 'abc', sanitization: t }));
 
@@ -568,8 +568,8 @@ t('test sanitize() - bigint number type + validation', async () => {
 t('test sanitize() - array of bigint type + validation', async () => {
   const t = S.ARRAY_OF_BIGINT_TYPE;
   assert.deepStrictEqual([BigInt(1), BigInt(2), BigInt(0)], s.sanitize({ value: [1, 2, 'a'], sanitization: t }));
-  assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: undefined, sanitization: t }));
-  assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: null, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([BigInt(999)], s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: 'abc', sanitization: t }));
@@ -593,8 +593,8 @@ t('test sanitize() - array of bigint type + validation', async () => {
 t('test sanitize() - array of bigint number type + validation', async () => {
   const t = S.ARRAY_OF_BIGINT_NUMBER_TYPE;
   assert.deepStrictEqual([BigInt(1), BigInt(2), BigInt(0)], s.sanitize({ value: [1, 2, 'a'], sanitization: t }));
-  assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: undefined, sanitization: t }));
-  assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: null, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
+  assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([BigInt(999)], s.sanitize({ value: 999, sanitization: t }));
   assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: 'abc', sanitization: t }));
@@ -646,8 +646,8 @@ t('test sanitize() - custom function type + validation (use the validateSanitize
 t('test sanitize() - array of custom function type + validation (use the validateSanitizeFunction_TestTemp function to sanitize the value)', async () => {
   const t = [validateSanitizeFunction_TestAsset];
   assert.deepStrictEqual(([validateSanitizeFunction_TestAsset(1).sanitizedValue, validateSanitizeFunction_TestAsset(2).sanitizedValue, validateSanitizeFunction_TestAsset('a').sanitizedValue]), (s.sanitize({ value: [1, 2, 'a'], sanitization: t })));
-  assert.deepStrictEqual(([undefined]), (s.sanitize({ value: undefined, sanitization: t })));
-  assert.deepStrictEqual(([null]), (s.sanitize({ value: null, sanitization: t })));
+  assert.deepStrictEqual(([]), (s.sanitize({ value: undefined, sanitization: t })));
+  assert.deepStrictEqual(([]), (s.sanitize({ value: null, sanitization: t })));
   assert.deepStrictEqual(([validateSanitizeFunction_TestAsset(999).sanitizedValue]), (s.sanitize({ value: 999, sanitization: t })));
   assert.deepStrictEqual(([10]), (s.sanitize({ value: '', sanitization: t })));
   assert.deepStrictEqual((['abc']), (s.sanitize({ value: 'abc', sanitization: t })));

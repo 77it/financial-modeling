@@ -1,7 +1,8 @@
 export { SimObject_Metadata };
 
-import { simObject_Metadata_Schema } from './simobject_metadata.schema.js';
 import { validate } from '../../../lib/schema_validation_utils.js';
+import { Simulation } from '../../../config/settings_names.js';
+import { SettingsSchemas } from '../../../config/settings.schemas.js';
 
 // SimObject_Metadata class. This class can be used to store the metadata part of a SimObject
 class SimObject_Metadata {
@@ -18,20 +19,22 @@ class SimObject_Metadata {
   /**
    * SimObject_Metadata class
    * @param {Object} p
-   * @param {string[]} p.metadata__Name
-   * @param {string[]} p.metadata__Value
-   * @param {number[]} p.metadata__PercentageWeight
+   * @param {string[]} p.name
+   * @param {string[]} p.value
+   * @param {number[]} p.weight
    */
   constructor (p) {
-    validate({ value: p, validation: simObject_Metadata_Schema, strict: true });
+    // read validation from ACTIVE_METADATA setting schema
+    const validation = SettingsSchemas[Simulation.ACTIVE_METADATA];
+    validate({ value: p, validation, strict: true });
 
     // length of metadata arrays must be equal
-    if (p.metadata__Name.length !== p.metadata__Value.length || p.metadata__Name.length !== p.metadata__PercentageWeight.length)
-      throw new Error(`length of metadata arrays must be equal, got name = ${p.metadata__Name.length}, value = ${p.metadata__Value.length}, weight= ${p.metadata__PercentageWeight.length}`);
+    if (p.name.length !== p.value.length || p.name.length !== p.weight.length)
+      throw new Error(`length of metadata arrays must be equal, got name = ${p.name.length}, value = ${p.value.length}, weight= ${p.weight.length}`);
 
     // save arrays
-    this.metadata__Name = p.metadata__Name;
-    this.metadata__Value = p.metadata__Value;
-    this.metadata__PercentageWeight = p.metadata__PercentageWeight;
+    this.metadata__Name = p.name;
+    this.metadata__Value = p.value;
+    this.metadata__PercentageWeight = p.weight;
   }
 }
