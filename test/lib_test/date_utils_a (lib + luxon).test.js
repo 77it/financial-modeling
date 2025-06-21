@@ -512,7 +512,7 @@ function differenceInCalendarDays_test3 (differenceInCalendarDaysOfLocalDates) {
   // These tests were copy-pasted almost unchanged from DST tests for
   // `differenceInDays`
   const dstTransitions = getDstTransitions(2017);
-  console.log(dstTransitions);  // XXX TODO BUN BUG
+  console.log(dstTransitions);
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || Deno.env.get('TZ');
 
   if (dstTransitions.start === undefined || dstTransitions.end === undefined)
