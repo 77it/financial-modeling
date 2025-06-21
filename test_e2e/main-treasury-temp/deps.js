@@ -5,4 +5,7 @@ export { deleteFile } from '../../src/node/delete_file.js';
 export { existsSync } from '../../src/node/exists_sync.js';
 export { renameFile } from '../../src/node/rename_file.js';
 
+export { eq2 } from '../../src/lib/obj_utils.js';
+export { eqObj } from '../../test/lib/obj_utils.js';
+
 export { convertExcelSheetToLedgerTrnJsonlFile } from '../node/convert_excel_sheet_to_ledger_trn_jsonl_file.js';

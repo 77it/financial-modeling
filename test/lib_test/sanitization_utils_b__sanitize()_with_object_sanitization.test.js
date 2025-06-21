@@ -15,18 +15,20 @@ t('test sanitize() with object sanitization - sanitization = {} means no sanitiz
   assert.deepStrictEqual(s.sanitize({ value: objToSanitize, sanitization: {} }), objToSanitize);
 });
 
-t('test sanitize() with object sanitization - null, undefined and other non-objects are coerced to {} with properties set to default values, {} if properties are optional', async () => {
-  const sanitWOptProp = { a: S.STRING_TYPE + S.OPTIONAL, b: S.NUMBER_TYPE + S.OPTIONAL };
-  assert.deepStrictEqual(s.sanitize({ value: null, sanitization: sanitWOptProp }), {});
-  assert.deepStrictEqual(s.sanitize({ value: undefined, sanitization: sanitWOptProp }), {});
-  assert.deepStrictEqual(s.sanitize({ value: 999, sanitization: sanitWOptProp }), {});
-  assert.deepStrictEqual(s.sanitize({ value: Symbol(), sanitization: sanitWOptProp }), {});
-
+t('test sanitize() with object sanitization - null, undefined and other non-objects are coerced to {} with properties set to default values if properties are not optional', async () => {
   const sanitization = { a: S.STRING_TYPE, b: S.NUMBER_TYPE };
   assert.deepStrictEqual(s.sanitize({ value: null, sanitization: sanitization }), { a: '', b: 0 });
   assert.deepStrictEqual(s.sanitize({ value: undefined, sanitization: sanitization }), { a: '', b: 0 });
   assert.deepStrictEqual(s.sanitize({ value: 999, sanitization: sanitization }), { a: '', b: 0 });
   assert.deepStrictEqual(s.sanitize({ value: Symbol(), sanitization: sanitization }), { a: '', b: 0 });
+});
+
+t('test sanitize() with object sanitization - null, undefined and other non-objects are coerced to empty object {} if properties are all optional', async () => {
+  const sanitWOptProp = { a: S.STRING_TYPE + S.OPTIONAL, b: S.NUMBER_TYPE + S.OPTIONAL };
+  assert.deepStrictEqual(s.sanitize({ value: null, sanitization: sanitWOptProp }), {});
+  assert.deepStrictEqual(s.sanitize({ value: undefined, sanitization: sanitWOptProp }), {});
+  assert.deepStrictEqual(s.sanitize({ value: 999, sanitization: sanitWOptProp }), {});
+  assert.deepStrictEqual(s.sanitize({ value: Symbol(), sanitization: sanitWOptProp }), {});
 });
 
 t('test sanitize() with object sanitization - class: class Type is coerced to {} with properties set to default values; class instance is object and sanitized normally', async () => {

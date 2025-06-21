@@ -5,7 +5,7 @@ import { tablesInfo, moduleSanitization } from '../config/modules/settings.js';
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsSchemas, SettingsSanitizationOptions } from '../config/settings.schemas.js';
 import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
-import { sanitize, ModuleData, SimulationContext, eq2, get2 } from './deps.js';
+import { sanitize, validate, ModuleData, SimulationContext, eq2, get2 } from './deps.js';
 
 export class Module {
   //#region private fields
@@ -90,44 +90,61 @@ export class Module {
   // is an arrow function because it is used as a callback
   /** Set Simulation Settings */
   #taskLock_setSimulationSettings = () => {
-    this.#setSettingsFromATable(tablesInfo.SET);
+    this.#sanitizeValidateAndSetSettingsFromATable(tablesInfo.SET);
   };
 
   /** Set Active Settings */
   #setActiveSettings () {
-    this.#setSettingsFromATable(tablesInfo.ACTIVESET);
+    this.#sanitizeValidateAndSetSettingsFromATable(tablesInfo.ACTIVESET);
   }
 
-  /** Set Settings from a table, sanitizing values
-   * @param {{tableName: string, columns: { SCENARIO: string, UNIT: string, NAME: string, DATE: string, VALUE: string }}} table
-   * */
-  #setSettingsFromATable = (table) => {
+  /**
+   * Set Settings from a table, sanitizing values:
+   * - loop all tables in `this.#moduleData.tables`
+   * - if `tableInfo.tableName` matches the table name from the parameter in a case-insensitive way, loop all rows
+   * - for each row:
+   *   - read the value from the row using the column name from `tableInfo.columns.VALUE`
+   *   - sanitize and validate the value using the sanitization settings from `SettingsSchemas` object (the match is done in a case-insensitive way)
+   *   - if the sanitization is not found, simply set the value without sanitization
+   * @param {{tableName: string, columns: { SCENARIO: string, UNIT: string, NAME: string, DATE: string, VALUE: string }}} tableInfo
+   */
+  #sanitizeValidateAndSetSettingsFromATable = (tableInfo) => {
     if (this.#moduleData?.tables == null) return;
 
     // loop all tables
     for (const _table of this.#moduleData.tables) {
       // if tableName == table.name, loop all rows and create a setting for each entry
-      if (eq2(_table.tableName, table.tableName)) {
+      if (eq2(_table.tableName, tableInfo.tableName)) {
         for (const row of _table.table) {
           // read value from row (key match trim & case insensitive)
-          const _value = get2(row, table.columns.VALUE);
-          // takes the sanitization settings from SettingsSchemas object (the setting name is the key of the object);
-          // if the setting name is not found in SettingsSchemas, the sanitization is set to empty string '' and the setting value is not sanitized
-          const _sanitization = get2(SettingsSchemas, get2(row, table.columns.NAME)) ?? '';
+          const _value = get2(row, tableInfo.columns.VALUE);
+          // takes the sanitization settings from SettingsSchemas object
+          // (the setting name is the key of the object, the match is done in a case-insensitive way)
+          // if the setting name is not found in SettingsSchemas, the sanitization is set to undefined and the setting value is not sanitized
+          const _sanitization = get2(SettingsSchemas, get2(row, tableInfo.columns.NAME));
 
-          const _sanitizedValue = sanitize({
-            value: _value,
-            sanitization: _sanitization,
-            options: SettingsSanitizationOptions,
-            keyInsensitiveMatch: true
-          });
+          let _sanitizedValue = _value; // default value is not sanitized
+
+          if (_sanitization != null) {
+            _sanitizedValue = sanitize({
+              value: _value,
+              sanitization: _sanitization,
+              options: SettingsSanitizationOptions,
+              keyInsensitiveMatch: true,
+            });
+
+            validate({
+              value: _sanitizedValue,
+              validation: _sanitization
+            });
+          }
 
           // create setting reading scenario, unit, name, date from row (key match trim & case insensitive)
           this.#simulationContext.setSetting([{
-            scenario: get2(row, table.columns.SCENARIO),
-            unit: get2(row, table.columns.UNIT),
-            name: get2(row, table.columns.NAME),
-            date: get2(row, table.columns.DATE),
+            scenario: get2(row, tableInfo.columns.SCENARIO),
+            unit: get2(row, tableInfo.columns.UNIT),
+            name: get2(row, tableInfo.columns.NAME),
+            date: get2(row, tableInfo.columns.DATE),
             value: _sanitizedValue
           }]);
         }

@@ -43,6 +43,9 @@ const Simulation = {
   DEFAULT_INTEREST_ON_DEPOSITS: 'DEFAULT_INTEREST_ON_DEPOSITS',  // if > 1 will be divided by 100
   DEFAULT_PASSIVE_INTEREST_ON_OVERDRAFTS: 'DEFAULT_PASSIVE_INTEREST_ON_OVERDRAFTS',  // if > 1 will be divided by 100
 
+  // test settings
+  __TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST: '__TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST',
+
   // removed settings
   /*
   // removed because we prefer keeping `ACTIVE_METADATA` as a single setting that defines TYPE, VALUE and PERCENTAGEWEIGHT without settings duplication

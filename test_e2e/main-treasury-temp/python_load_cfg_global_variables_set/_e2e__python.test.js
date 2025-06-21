@@ -10,8 +10,6 @@ import { fileURLToPath } from 'node:url';
 
 import { DEBUG_FLAG, ERROR_FILE, SIMULATION_JSONL_OUTPUT } from '../_test_settings.js';
 
-//import { simulationContext } from '../../../src/engine/engine.js';
-//import { SimulationContext } from '../../../src/engine/context/simulationcontext.js';
 import { PYTHON_FORECAST_GLOBAL_INSTANCE } from '../../../src/config/python.js';
 
 import { test } from 'node:test';

@@ -1,9 +1,9 @@
-// deno-lint-ignore-file no-inner-declarations  // ignore the rule because we want to allow inner declarations of functions
-export { engine, normalizeModuleData, simulationContext };
+// deno-lint-ignore-file no-inner-declarations
+// (ignore the rule because we want to allow inner declarations of functions)
+export { engine, normalizeModuleData, _TEST_ONLY__simulationContext };
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
 import * as CFG from '../config/engine.js';
-import { TaskLocks_Names } from '../config/tasklocks_names.js';
 
 import * as schema from '../lib/schema.js';
 import { eq2 } from '../lib/obj_utils.js';
@@ -24,8 +24,8 @@ import { SimulationContext } from './context/simulationcontext.js';
 import * as TASKLOCKS_SEQUENCE from '../config/tasklocks_call_sequence.js.js';
 import * as GLOBALS from "../config/globals.js";
 
-// exported simulationContext for whom may require it (e.g. tests)
-const simulationContext = new GlobalImmutableValue();
+// exported _TEST_ONLY__simulationContext for whom may require it (e.g. tests)
+const _TEST_ONLY__simulationContext = new GlobalImmutableValue();
 
 /**
  * @param {Object} p
@@ -65,7 +65,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     for (const instance /** @type {GlobalImmutableValue} */ of Object.values(GLOBALS))
       if (typeof instance.reset === "function")
         instance.reset();
-    simulationContext.reset();
+    _TEST_ONLY__simulationContext.reset();
 
     //#region variables declaration
     /** @type {undefined|Date} */
@@ -105,7 +105,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       taskLocks: _taskLocks,
       ledger: _ledger
     });
-    simulationContext.setOneTimeBeforeRead(_simulationContext);  // save the simulationContext in a global variable accessible from outside, e.g. tests
+    _TEST_ONLY__simulationContext.setOneTimeBeforeRead(_simulationContext);  // save the _TEST_ONLY__simulationContext in a global variable accessible from outside, e.g. tests
     //#endregion set context
 
     _ledger.lock();  // lock Ledger before starting the Simulation
@@ -384,7 +384,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
 /**
  * Normalize the tables in ModuleData:
- * - remove ASCII 31 invisible unprintable control character from the table values
+ * - remove ASCII 31 invisible unprintable control character from the table values `CFG.UNPRINTABLE_CHAR_REGEXP`
  * - lowercase keys; if the key is already present append the string ".N" similar to Python Pandas (e.g., key, key.1, key.2)
  * @param {ModuleData[]} modulesData - Array of `ModuleData` objects
  * @returns {void}
