@@ -35,6 +35,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * Sanitization types ANY_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
  * Array are sanitized without cloning them.
  * A non-array value sanitized to array becomes an array with the value added as first element.
+ * Null/undefined are sanitized to an empty array [].
  * ANY_TYPE, FUNCTION_TYPE, SYMBOL_TYPE are ignored and returned as is.
  * With `STRING_TYPE` whitespaces are trimmed if the string is empty.
  * String to dates are parsed as JSON to dates (in local time or UTC, depending on options.dateUTC).
@@ -47,8 +48,8 @@ const DEFAULT_BIGINT = BigInt(0);
  * Sanitize Object, modifying it in place and returning the same object to allow function chaining.
  * If obj is array, the sanitization is done on contained objects;
  * arrays are sanitized without cloning them.
- * If obj is null/undefined or other non-objects returns an empty object {} with object sanitization.
- * If obj is null/undefined or other non-objects returns an array with an empty object [{}] with array of object sanitization.
+ * If obj is null/undefined or other non-objects returns an empty object {}.
+ * If obj is null/undefined or other non-objects returns an empty array [].
  * `sanitization` parameter is an object with keys corresponding to the keys of the object to sanitize and values corresponding to the sanitization types;
  * accepted types are many: see `schema.js`; class is 'function', class instance is 'object';
  * for optional parameters (null/undefined are accepted) append '?' to type, e.g. 'any?', 'string?', 'number?', etc.
@@ -95,27 +96,27 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
   // if `sanitization` is not an array sanitize as object, or function, or following the sanitization type
   // if Array
   if (Array.isArray(sanitization)) {
-    // if array is long 1 && sanitization[0] is an object, sanitize as object with flag to generate an array as output
+    // if sanitization array is long 1 && sanitization[0] is an object, sanitize as object with flag to generate an array as output
     if (sanitization.length === 1 && typeof sanitization[0] === 'object') {
-      value = _sanitizeObj({
+      value = _sanitizeToObjectOrArrayOfObjects({
         obj: value, sanitization: sanitization[0], toArray: true, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch
       });
       // if array is long 1 && sanitization[0] is a function, use it to sanitize the array
     } else if (sanitization.length === 1 && typeof sanitization[0] === 'function') {
-      value = _sanitizeArray({ array: value, sanitization: sanitization[0] });
+      value = _sanitizeToArray({ value: value, sanitization: sanitization[0] });
     } else {
       // at this point the array is considered enum, not sanitized
     }
 
     return _validateIfTrue({ value: value, validation: sanitization, flag: validate });
-  } else {  // if !Array
-    if (typeof sanitization === 'object') {  // if !Array & Object
-      value = _sanitizeObj({
-        obj: value, sanitization: sanitization, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch
+  } else {  // if sanitization !Array
+    if (typeof sanitization === 'object') {  // if sanitization !Array & is Object
+      value = _sanitizeToObjectOrArrayOfObjects({
+        obj: value, sanitization: sanitization, toArray: false, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch
       });
 
       return _validateIfTrue({ value: value, validation: sanitization, flag: validate });
-    } else if (typeof sanitization === 'function') {  // if function
+    } else if (typeof sanitization === 'function') {  // if sanitization is function
       // if sanitization is a function call it and read the validation and sanitization result stored in the `ValidateSanitizeResult` type
       /** @type {ValidateSanitizeResult} */
       const validationResult = sanitization(value);
@@ -124,6 +125,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
 
       return _validateIfTrue({ value: validationResult.sanitizedValue, validation: sanitization, flag: validate });
     } else {
+      // if sanitization is not an object and not a function
       // continue below with sanitization following the sanitization type
     }
   }
@@ -255,36 +257,36 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
       break;
     }
     case schema.ARRAY_OF_STRINGS_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: schema.STRING_TYPE });
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.STRING_TYPE });
       break;
     }
     case schema.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: schema.STRINGLOWERCASETRIMMED_TYPE });
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.STRINGLOWERCASETRIMMED_TYPE });
       break;
     }
     case schema.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: schema.STRINGUPPERCASETRIMMED_TYPE });
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.STRINGUPPERCASETRIMMED_TYPE });
       break;
     }
     case schema.ARRAY_OF_NUMBERS_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: schema.NUMBER_TYPE });
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.NUMBER_TYPE });
       break;
     }
     case schema.ARRAY_OF_BOOLEANS_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: schema.BOOLEAN_TYPE });
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.BOOLEAN_TYPE });
       break;
     }
     case schema.ARRAY_OF_DATES_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: schema.DATE_TYPE });
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.DATE_TYPE });
       break;
     }
     case schema.ARRAY_OF_OBJECTS_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: schema.OBJECT_TYPE });
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.OBJECT_TYPE });
       break;
     }
     case schema.OBJECT_TYPE: {
-      retValue = _sanitizeObj({
-        obj: value, sanitization: sanitization, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch
+      retValue = _sanitizeToObjectOrArrayOfObjects({
+        obj: value, sanitization: sanitization, toArray: false, options: options, validate: validate, keyInsensitiveMatch: keyInsensitiveMatch
       });
       break;
     }
@@ -313,11 +315,11 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
       break;
     }
     case schema.ARRAY_OF_BIGINT_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: schema.BIGINT_TYPE });
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.BIGINT_TYPE });
       break;
     }
     case schema.ARRAY_OF_BIGINT_NUMBER_TYPE: {
-      retValue = _sanitizeArray({ array: value, sanitization: schema.BIGINT_NUMBER_TYPE });
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.BIGINT_NUMBER_TYPE });
       break;
     }
     default:
@@ -334,22 +336,25 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
    * Being a local function, reads `options` from the parent function
    *
    * @param {Object} p
-   * @param {[*]} p.array - Array to sanitize
+   * @param {*} p.value - Value to sanitize
    * @param {string|function} p.sanitization - Sanitization string or function
    * @return {*} Sanitized array
    */
-  function _sanitizeArray ({ array, sanitization }) {
-    if (!Array.isArray(array)) { // if `value` is not an array return a new array with sanitized `value` as first element
-      if (array == null)
-        return []
+  function _sanitizeToArray ({ value, sanitization }) {
+    if (!Array.isArray(value)) { // if `value` is not an array
+      if (value == null)
+        // if `value` is not an array && is null/undefined, return an empty array
+        return [];
       else
-        return [sanitize({ value: array, sanitization: sanitization, options: options })];
+        // if `value` is not an array && is not null/undefined, return a new array with sanitized `value` as first element
+        return [sanitize({ value: value, sanitization: sanitization, options: options })];
     }
 
-    for (let i = 0; i < array.length; i++) {  // sanitize every element of the array
-      array[i] = sanitize({ value: array[i], sanitization: sanitization, options: options });
+    // if `value` is an array, sanitize every element of the array
+    for (let i = 0; i < value.length; i++) {
+      value[i] = sanitize({ value: value[i], sanitization: sanitization, options: options });
     }
-    return array;
+    return value;
   }
 
   //#endregion local functions
@@ -396,7 +401,7 @@ function _isEmptyOrWhiteSpace (value) {
  * @param {Object} p
  * @param {*} p.obj - Object to sanitize
  * @param {*} p.sanitization - Sanitization object; e.g.  {key1: 'string', key2: 'number?'}
- * @param {boolean} [p.toArray=false] - Optional flag to generate an array as output
+ * @param {boolean} p.toArray - Flag to generate an array as output
  * @param {Object} [p.options]
  * @param {string} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
  * @param {boolean} [p.options.dateUTC=false]
@@ -408,22 +413,24 @@ function _isEmptyOrWhiteSpace (value) {
  * @param {boolean} [p.keyInsensitiveMatch=false] - Optionally match keys between sanitization and obj to sanitize in a case insensitive way (case and trim)
  * @return {*} Sanitized object
  */
-function _sanitizeObj ({ obj, sanitization, toArray = false, options, validate = false, keyInsensitiveMatch = false }) {
+function _sanitizeToObjectOrArrayOfObjects ({ obj, sanitization, toArray, options, validate = false, keyInsensitiveMatch = false }) {
   let retValue;
 
-  if (obj == null || typeof obj !== 'object')  // double check, because typeof null is object
-    obj = {};  // init `obj` to an empty object if is not an object, and continue with sanitization
+  if (obj == null || typeof obj !== 'object') {  // catches null/undefined values and non-objects values
+    if (toArray)
+      return [];  // returns an empty array if `toArray` is true and the `obj` to sanitize is null/undefined or not an object
+    else
+      obj = {};  // init `obj` to an empty object if `toArray` is false && the `obj` to sanitize is null/undefined or not an object, and continue with sanitization
+  }
 
   if (sanitization == null || typeof sanitization !== 'object' || Array.isArray(sanitization))  // double check, because typeof null is object and typeof array is object
     retValue = obj;
   else if (Array.isArray(obj)) {
-    for (const elem of obj) {
-      for (let i = 0; i < obj.length; i++) {  // sanitize every element of the array
-        if (keyInsensitiveMatch)
-          obj[i] = _sanitizeObj2_keyInsensitiveMatch(obj[i]);
-        else
-          obj[i] = _sanitizeObj2(obj[i]);
-      }
+    for (let i = 0; i < obj.length; i++) {  // sanitize every element of the array
+      if (keyInsensitiveMatch)
+        obj[i] = _sanitizeObj2_keyInsensitiveMatch(obj[i]);
+      else
+        obj[i] = _sanitizeObj2(obj[i]);
     }
     retValue = obj;
   } else {

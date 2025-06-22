@@ -345,10 +345,82 @@ t('test sanitize() - nested object in array (array of objects) OR as a single ob
     str: '',
     arrOrObj: { valA: '', valB: { a: 0, }, },
     arrOrObj2: { valA: '', valB: { a: 0, }, },
-    nestedObjInArray: [{ valA: '', valB: { a: 0, }, },],
-    nestedObjInArrayWithOptionalProperties: [{ valB: {}, },],
+    nestedObjInArray: [],  // null is sanitized to empty array
+    nestedObjInArrayWithOptionalProperties: [],  // null is sanitized to empty array
     arrOrObjWithAllOptionalProperties: {},
+    nestedObjInArrayWithAllOptionalProperties: [],  // null is sanitized to empty array
+  };
+
+  const objToSanitize_allPropertiesToEmptyObject = {
+    str2: {},
+    str3: {},
+    str: {},
+    arrOrObj: {},
+    arrOrObj2: {},
+    nestedObjInArray: {},
+    nestedObjInArrayWithOptionalProperties: {},
+    arrOrObjWithAllOptionalProperties: {},
+    nestedObjInArrayWithAllOptionalProperties: {},
+  };
+
+  const objToSanitize_allPropertiesToEmptyObject_expected = {
+    str2: '',
+    str3: '',
+    str: '',
+    arrOrObj: { valA: '', valB: { a: 0, }, },
+    arrOrObj2: { valA: '', valB: { a: 0, }, },
+    nestedObjInArray: [{ valA: '', valB: { a: 0, }, },],  // empty object is sanitized to default object in an array
+    nestedObjInArrayWithOptionalProperties: [{ valB: {}, },],  // empty object is sanitized to default object in an array
+    arrOrObjWithAllOptionalProperties: {},
+    nestedObjInArrayWithAllOptionalProperties: [{}],  // empty object is sanitized to default object in an array
+  };
+
+  const objToSanitize_allPropertiesToArrayWithEmptyObject = {
+    str2: [{}],
+    str3: [{}],
+    str: [{}],
+    arrOrObj: [{}],
+    arrOrObj2: [{}],
+    nestedObjInArray: [{}],
+    nestedObjInArrayWithOptionalProperties: [{}],
+    arrOrObjWithAllOptionalProperties: [{}],
     nestedObjInArrayWithAllOptionalProperties: [{}],
+  };
+
+  const objToSanitize_allPropertiesToArrayWithEmptyObject_expected = {
+    str2: '[object Object]',
+    str3: '[object Object]',
+    str: '[object Object]',
+    arrOrObj: [{ valA: '', valB: { a: 0, }, }],  // array with empty object is sanitized to default object in an array
+    arrOrObj2: [{ valA: '', valB: { a: 0, }, }],  // array with empty object is sanitized to default object in an array
+    nestedObjInArray: [{ valA: '', valB: { a: 0, }, },],  // array with empty object is sanitized to default object in an array
+    nestedObjInArrayWithOptionalProperties: [{ valB: {}, },],  // array with empty object is sanitized to default object in an array
+    arrOrObjWithAllOptionalProperties: [{}],
+    nestedObjInArrayWithAllOptionalProperties: [{}],  // array with empty object is sanitized to default object in an array
+  };
+
+  const objToSanitize_allPropertiesToEmptyString = {
+    str2: '',
+    str3: '',
+    str: '',
+    arrOrObj: '',
+    arrOrObj2: '',
+    nestedObjInArray: '',
+    nestedObjInArrayWithOptionalProperties: '',
+    arrOrObjWithAllOptionalProperties: '',
+    nestedObjInArrayWithAllOptionalProperties: '',
+  };
+
+  const objToSanitize_allPropertiesToEmptyString_expected = {
+    str2: '',
+    str3: '',
+    str: '',
+    arrOrObj: { valA: '', valB: { a: 0, }, },
+    arrOrObj2: { valA: '', valB: { a: 0, }, },
+    nestedObjInArray: [],  // non-object is sanitized to empty array
+    nestedObjInArrayWithOptionalProperties: [],  // non-object is sanitized to empty array
+    arrOrObjWithAllOptionalProperties: {},
+    nestedObjInArrayWithAllOptionalProperties: [],  // non-object is sanitized to empty array
   };
 
   const objToSanitize_null_properties = {
@@ -399,6 +471,8 @@ t('test sanitize() - nested object in array (array of objects) OR as a single ob
     str2: 888,
     arrOrObj2: { valA: 555, valB: { a: '9999' } },
     str3: 777,
+    nestedObjInArray: [{}],  // contains an empty object, that will be sanitized to a default values object
+    nestedObjInArrayWithOptionalProperties: [{}],  // contains an empty object, that will be sanitized to a default values object
     arrOrObjWithAllOptionalProperties: {},
     nestedObjInArrayWithAllOptionalProperties: [{}],
   };
@@ -430,6 +504,18 @@ t('test sanitize() - nested object in array (array of objects) OR as a single ob
   assert.deepStrictEqual(
     s.sanitize({ value: objToSanitize_null_properties, sanitization: sanitization }),
     objToSanitize_null_properties_expected);
+
+  assert.deepStrictEqual(
+    s.sanitize({ value: objToSanitize_allPropertiesToEmptyObject, sanitization: sanitization }),
+    objToSanitize_allPropertiesToEmptyObject_expected);
+
+  assert.deepStrictEqual(
+    s.sanitize({ value: objToSanitize_allPropertiesToArrayWithEmptyObject, sanitization: sanitization }),
+    objToSanitize_allPropertiesToArrayWithEmptyObject_expected);
+
+  assert.deepStrictEqual(
+    s.sanitize({ value: objToSanitize_allPropertiesToEmptyString, sanitization: sanitization }),
+    objToSanitize_allPropertiesToEmptyString_expected);
 });
 
 t('test sanitize() with object sanitization - custom default sanitization values for string, number, date, bigint', async () => {
