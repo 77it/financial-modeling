@@ -21,7 +21,6 @@ class Settings {
       baseScenario,
       currentScenario,
       defaultUnit,
-      sanitizationType: schema.ANY_TYPE,
       prefix__immutable_without_dates,
       prefix__immutable_with_dates,
       allowMutable: true,

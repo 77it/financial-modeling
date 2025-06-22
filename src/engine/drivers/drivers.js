@@ -1,6 +1,7 @@
 ﻿export { Drivers };
 
 import { DriversRepo } from '../../lib/drivers_repo.js';
+import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import * as schema from '../../lib/schema.js';
 
 class Drivers {
@@ -21,7 +22,6 @@ class Drivers {
       baseScenario,
       currentScenario,
       defaultUnit,
-      sanitizationType: schema.NUMBER_TYPE,
       prefix__immutable_without_dates,
       prefix__immutable_with_dates,
       allowMutable: false,
@@ -54,6 +54,11 @@ class Drivers {
    * @returns {string[]} array of errors
    */
   set (p) {
+    // sanitize input to number
+    p.forEach(item => {
+      item.value = sanitize({ value: item.value, sanitization: schema.NUMBER_TYPE});
+    });
+
     return this.#driversRepo.set(p);
   }
 
@@ -76,12 +81,20 @@ class Drivers {
    */
   get ({ scenario, unit, name, date, endDate, calc }) {
     // if `endDate` is not defined, returns the value defined before or at `date`
-    if (endDate == null)
-      return this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined: true });
+    if (endDate == null) {
+      const _ret = this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined: true });
+      if (_ret == null)
+        return 0;
+      else
+        return _ret;
+    }
     // if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`
     else {
       /** @type {number[]} */
       const _retArray = this.#driversRepo.get({ scenario, unit, name, date, endDate, search: true, throwIfNotDefined: true });
+      // no values found, return 0
+      if (_retArray == null || _retArray.length === 0)
+        return 0;
       // switch on `calc`
       switch (calc) {
         case 'sum':

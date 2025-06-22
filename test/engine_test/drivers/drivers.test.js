@@ -84,6 +84,14 @@ t('Drivers tests', async () => {
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31), calc: 'min' }), 55);
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31), calc: 'max' }), 5555);
 
+  // #driver1, query of empty date range (will return an empty array [] then the returned value will be zero)
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2022, 11, 24) }), 0);  // query before driver date
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24) }), 0);  // query after driver date
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: 'sum' }), 0);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: 'average' }), 0);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: 'min' }), 0);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: 'max' }), 0);
+
   // #driver2 tests
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC' }), 66);  // query without date
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC', date: new Date(0) }), 66);  // query with date
