@@ -13,4 +13,4 @@ export const SimObjectDebugTypes_enum = {
 }
 deepFreeze(SimObjectDebugTypes_enum);
 
-export const SimObjectDebugTypes_enum_validation = ensureArrayValuesAreUnique(Object.values(SimObjectDebugTypes_enum));
+ensureArrayValuesAreUnique(Object.values(SimObjectDebugTypes_enum));

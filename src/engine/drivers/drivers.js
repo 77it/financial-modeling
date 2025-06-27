@@ -1,12 +1,24 @@
-﻿export { Drivers };
+﻿export { Drivers, GET_CALC };
 
 import { DriversRepo } from '../../lib/drivers_repo.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import * as schema from '../../lib/schema.js';
 
+
+/** @typedef {'sum' | 'average' | 'min' | 'max'} GetCalcType */
+const GET_CALC = {
+  SUM: 'sum',
+  AVERAGE: 'average',
+  MIN: 'min',
+  MAX: 'max'
+};
+Object.freeze(GET_CALC);
+
 class Drivers {
   /** @type {DriversRepo} */
   #driversRepo;
+  /** @type {Date} */
+  #today;
 
   /**
    * Class to store and retrieve Drivers
@@ -27,6 +39,7 @@ class Drivers {
       allowMutable: false,
       freezeValues: false  // is false because we add only number values, that are immutable by default
     });
+    this.#today = new Date(0);
   }
 
   /** @param {string} debugModuleInfo */
@@ -37,6 +50,7 @@ class Drivers {
   /** @param {Date} today */
   setToday (today) {
     this.#driversRepo.setToday(today);
+    this.#today = today;  // we don't need to validate it because is already validated in #driversRepo.setToday()
   }
 
   /**
@@ -68,9 +82,9 @@ class Drivers {
    * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Driver name
-   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
+   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
-   * @param {'sum'|'average'|'min'|'max'} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
+   * @param {GetCalcType} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
    * @return {number} returns the Driver value;
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
@@ -80,6 +94,13 @@ class Drivers {
    * @throws {Error} Throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
    */
   get ({ scenario, unit, name, date, endDate, calc }) {
+    if (date && date.getTime() > this.#today.getTime()) {
+      throw new Error(`Date ${date.toISOString()} is greater than today ${this.#today.toISOString()}`);
+    }
+    if (endDate && endDate.getTime() > this.#today.getTime()) {
+      throw new Error(`EndDate ${endDate.toISOString()} is greater than today ${this.#today.toISOString()}`);
+    }
+
     // if `endDate` is not defined, returns the value defined before or at `date`
     if (endDate == null) {
       const _ret = this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined: true });
@@ -97,16 +118,14 @@ class Drivers {
         return 0;
       // switch on `calc`
       switch (calc) {
-        case 'sum':
-          return _retArray.reduce((partialSum, a) => partialSum + a, 0);  // see https://stackoverflow.com/a/16751601
-        case 'average':
+        case GET_CALC.AVERAGE:
           return _retArray.reduce((a, b) => a + b, 0) / _retArray.length;
-        case 'min':
+        case GET_CALC.MIN:
           return Math.min(..._retArray);  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min
-        case 'max':
+        case GET_CALC.MAX:
           return Math.max(..._retArray);  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/max
         default:  // apply `sum` as default
-          return _retArray.reduce((a, b) => a + b, 0);
+          return _retArray.reduce((a, b) => a + b, 0);  // see https://stackoverflow.com/a/16751601
       }
     }
   }

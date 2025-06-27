@@ -3,6 +3,7 @@ import * as CFG from '../../../src/config/engine.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
+
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
 t('Settings tests', async () => {
@@ -13,6 +14,8 @@ t('Settings tests', async () => {
     prefix__immutable_without_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES,
     prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES,
   });
+
+  drivers.setToday(new Date(2099, 11, 31));  // set today date to the end of year 2099, to let all tests below pass
 
   const symbol = Symbol('symbol');
 
@@ -47,7 +50,6 @@ t('Settings tests', async () => {
   //@ts-ignore
   assert.throws(() => drivers.get());
 
-
   // query with wrong parameters: undefined
   assert.throws(() => drivers.get({ scenario: 'SCENARIOAAA', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }));  // wrong scenario
   assert.throws(() => drivers.get({ scenario: 'SCENARIO1', unit: 'UnitBBB', name: '$driver XYZ', date: new Date(2022, 11, 24) }));  // wrong unit
@@ -65,20 +67,20 @@ t('Settings tests', async () => {
   assert.deepStrictEqual(drivers.get({ scenario: '  sCeNaRiO1  ', unit: '  Unita ', name: ' $driver xyz ', date: new Date(2022, 11, 25) }), '55');  // query scenario, unit, driver name with wrong case and whitespace, works nonetheless
 
   // #setting1[1] tests
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25) }), "555");  // query with exact date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 26) }), "555");  // query with first date after driver
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 1) }), "555");  // query with last date before next driver
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25) }), '555');  // query with exact date
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 26) }), '555');  // query with first date after driver
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 1) }), '555');  // query with last date before next driver
 
   // #setting1[2] tests
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2) }), "5555");  // query with exact date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3) }), "5555");  // query with first date after driver
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2099, 0, 1) }), "5555");  // query with a date long after driver
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2) }), '5555');  // query with exact date
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3) }), '5555');  // query with first date after driver
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2099, 0, 1) }), '5555');  // query with a date long after driver
 
   // #setting1, range of dates test
   //@ts-ignore
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2022, 11, 24) }), "55");  // endDate is ignored, also if is < date
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2022, 11, 24) }), '55');  // endDate is ignored, also if is < date
   //@ts-ignore
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2023, 1, 25) }), "55");
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2023, 1, 25) }), '55');
   //@ts-ignore
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31) }), undefined);
   //@ts-ignore
@@ -105,14 +107,14 @@ t('Settings tests', async () => {
   // update mutable settings (adding new dates, editing existing one)
   const input3 = [
     { scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 25), value: 5555 },  // #setting0[0], mutable updated
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 27), value: { a:888, b:[555] } },  // #setting0[1], new
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 27), value: { a: 888, b: [555] } },  // #setting0[1], new
   ];
   drivers.set(input3);
   // #setting0 tests
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 25) }), 5555);  // #setting0[0], exact date
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 26) }), 5555);  // #setting0[0], later
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 27) }), { a:888, b:[555] });  // #setting0[1], exact date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 28) }), { a:888, b:[555] });  // #setting0[1], later
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 27) }), { a: 888, b: [555] });  // #setting0[1], exact date
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 28) }), { a: 888, b: [555] });  // #setting0[1], later
 
   assert.deepStrictEqual(drivers.isDefined({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2 99999' }), false);  // non-existing setting
 
@@ -131,6 +133,7 @@ t('Settings tests', async () => {
 
   // add immutable settings with object and class value, that will be frozen
   const object1 = { a: 1, b: [2, 3] };
+
   //@ts-ignore
   class Class1 { #count; constructor() { this.#count = 0; this.a = 1; this.b = [2, 3];} count() { this.#count++; return this.#count } };
   const instance1 = new Class1();
@@ -146,10 +149,16 @@ t('Settings tests', async () => {
     'Driver {scenario: scenario1, unit: unita, name: $$setting xyz-object1} is immutable and the date 1970-01-01 is already present'
   ]);
 
+  drivers.setToday(new Date(0));
   // #setting6[0] tests with wrong date (date not set by today, and no value set on Date(0))
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1' }), undefined);
 
   drivers.setToday(new Date(2022, 11, 27));
+
+  // try to query a setting on a date later than today
+  assert.throws(
+    () => { drivers.get({ name: 'whatever', date: new Date(2023, 1, 25) }); },
+    /Error: Date.*is greater than today/);
 
   // #setting6[0] tests
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1' }), { a: 1, b: [2, 3] });  // query with date set by today

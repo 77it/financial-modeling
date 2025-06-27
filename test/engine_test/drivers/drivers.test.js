@@ -14,6 +14,16 @@ t('Drivers tests', async () => {
     prefix__immutable_with_dates: CFG.IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES,
   });
 
+  drivers.setToday(new Date(2099, 11, 31));  // set today date to the end of year 2099
+
+  // try to query a driver on dates later than today
+  assert.throws(
+    () => { drivers.get({ name: 'whatever', date: new Date(2100, 1, 25) }); },
+    /Error: Date.*is greater than today/);
+  assert.throws(
+    () => { drivers.get({ name: 'whatever', date: new Date(2000, 1, 25), endDate: new Date(2100, 1, 25) }); },
+    /Error: EndDate.*is greater than today/);
+
   const input = [
     { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 999 },  // #driver0, mutable, ignored (not added)
 

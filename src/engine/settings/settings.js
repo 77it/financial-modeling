@@ -6,6 +6,8 @@ import * as schema from '../../lib/schema.js';
 class Settings {
   /** @type {DriversRepo} */
   #driversRepo;
+  /** @type {Date} */
+  #today;
 
   /**
    * Class to store and retrieve Settings
@@ -26,6 +28,7 @@ class Settings {
       allowMutable: true,
       freezeValues: true  // is true because we can add value of any type, that can be also mutable, then we freeze them
     });
+    this.#today = new Date(0);
   }
 
   /** @param {string} debugModuleInfo */
@@ -36,6 +39,7 @@ class Settings {
   /** @param {Date} today */
   setToday (today) {
     this.#driversRepo.setToday(today);
+    this.#today = today;  // we don't need to validate it because is already validated in #driversRepo.setToday()
   }
 
   /**
@@ -63,7 +67,7 @@ class Settings {
    * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
    * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Setting name
-   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
+   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {boolean} [p.throwIfNotDefined] - Optional flag to throw. See @throws for description of this option.
    * @return {*} returns the Setting value;
    * if `endDate` is not defined, returns the value defined before or at `date`;
@@ -74,7 +78,11 @@ class Settings {
    * @throws {Error} If `throwIfNotDefined` is true, throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
    */
   get ({ scenario, unit, name, date, throwIfNotDefined = true }) {
-      return this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined });
+    if (date && date.getTime() > this.#today.getTime()) {
+      throw new Error(`Date ${date.toISOString()} is greater than today ${this.#today.toISOString()}`);
+    }
+
+    return this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined });
   }
 
   /**

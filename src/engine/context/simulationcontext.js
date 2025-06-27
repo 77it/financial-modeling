@@ -1,15 +1,14 @@
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
-export { SimulationContext };
+export { SimulationContext, DRIVERS_GET_CALC };
 
 // Classes imported for type checking only
-import { Drivers } from '../drivers/drivers.js';
+import { Drivers, GET_CALC as DRIVERS_GET_CALC } from '../drivers/drivers.js';
 import { Settings } from '../settings/settings.js';
 import { TaskLocks } from '../tasklocks/tasklocks.js';
 import { Ledger } from '../ledger/ledger.js';
 import { NewSimObjectDto } from '../ledger/commands/newsimobjectdto.js';
 import { NewDebugSimObjectDto } from '../ledger/commands/newdebugsimobjectdto.js';
-import { SimObjectDebugTypes_enum } from '../simobject/enums/simobject_debugtypes_enum.js';
 
 class SimulationContext {
   /** @type {Drivers} */
@@ -41,6 +40,16 @@ class SimulationContext {
   }
 
   /**
+   * Set today everywhere (Ledger, Drivers, Settings, etc)
+   * @param {Date} today
+   */
+  setToday (today) {
+    this.#ledger.setToday(today);
+    this.#drivers.setToday(today);
+    this.#settings.setToday(today);
+  }
+
+  /**
    * Set Settings from an array of scenarios, units, names, dates and value.
    * Settings can be immutable and mutable.
    * If a date is already present, the second one will be ignored.
@@ -61,7 +70,7 @@ class SimulationContext {
    * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
    * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Setting name
-   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
+   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {boolean} [p.throwIfNotDefined] - Optional flag to throw. See @throws for description of this option.
    * @return {undefined|*} Setting; if not found, returns undefined
    * if `endDate` is not defined, returns the value defined before or at `date`;
@@ -102,15 +111,17 @@ class SimulationContext {
     this.#drivers.set(p);
   }
 
+  /** @typedef {'sum' | 'average' | 'min' | 'max'} GetCalcType */
+
   /**
    * Get a Driver
    * @param {Object} p
    * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Driver name
-   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method
+   * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
-   * @param {'sum'|'average'|'min'|'max'} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
+   * @param {GetCalcType} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
    * @return {undefined|number} Driver; if not found, returns undefined
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
