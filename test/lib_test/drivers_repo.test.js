@@ -35,7 +35,7 @@ t('Drivers tests', async () => {
     // mutable
     { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 77 },  // #driver3[0]
     { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2024, 0, 2), value: 7_777 },  // #driver3[3]
-    { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25), value: 777 },  // #driver3[1]
+    { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25), value: 777 },  // #driver3[1], will be replaced below
 
     { name: 'driver XYZ2', date: new Date(2023, 1, 25), value: 77_777 },  // #driver4  missing scenario and unit
 
@@ -53,10 +53,14 @@ t('Drivers tests', async () => {
   );
   assert.deepStrictEqual(input, input_clone);  // input is not modified
 
+  // #driver3[1] tests mutable driver before replacement
+  assert.deepStrictEqual(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25) }), 777);  // query with exact date
+
   const input2 = [
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$driver ABC', value: 6655 },  //  #driver2; being already set, will be ignored
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 99 },  // immutable, ignored
     { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 25), value: 7_775 },  // #driver3[2]
+    { scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25), value: 7_778 },  // replace value of mutable driver #driver3[1]
   ];
   const input2_clone = structuredClone(input2);
   const errors2 = drivers.set(input2);
@@ -134,9 +138,9 @@ t('Drivers tests', async () => {
   assert.deepStrictEqual(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 24) }), 77);  // query with last date before next driver
   drivers.setToday(new Date(0));  // reset today
 
-  // #driver3[1] tests
-  assert.deepStrictEqual(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25) }), 777);  // query with exact date
-  assert.deepStrictEqual(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 24) }), 777);  // query with last date before next driver
+  // #driver3[1] tests after replacement
+  assert.deepStrictEqual(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 1, 25) }), 7_778);  // query with exact date
+  assert.deepStrictEqual(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 24) }), 7_778);  // query with last date before next driver
 
   // #driver3[2] tests
   assert.deepStrictEqual(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: 'driver XYZ', date: new Date(2023, 11, 25) }), 7_775);  // query with exact date

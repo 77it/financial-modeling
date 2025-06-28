@@ -6,23 +6,25 @@ import { deepFreeze } from './obj_utils.js';
  * Class representing a global immutable value with a default that can be set only once.
  * If the default value is ever returned, the value becomes locked and cannot be changed.
  * The passed value is deep-frozen before storing it.
+ * @template T The type of value this instance will store
  */
 class GlobalImmutableValue {
   /** @type {boolean} */
   #isLocked; // flag to lock setting once the default is returned
   /** @type {boolean} */
   #hasValue; // flag that is true only if the value is ever set
-  /** @type {any} */
+  /** @type {T|undefined} */
   #value; // private field to store the value
 
   /**
    * Create a GlobalImmutableValue instance.
    * If a default value is not provided, the value must be set before calling get().
-   * @param {any} [defaultValue] - Optional, the default fallback value.
+   * @param {T} [defaultValue] - Optional, the default fallback value.
    */
   constructor(defaultValue) {
     this.#isLocked = false;
     this.#hasValue = false;
+    this.#value = undefined; // Initialize value as undefined
 
     if (arguments.length !== 0) {
       this.#value = deepFreeze(defaultValue);
@@ -32,6 +34,7 @@ class GlobalImmutableValue {
 
   /**
    * Reset the value and unlock it.
+   * @returns {void}
    */
   reset() {
     this.#isLocked = false;
@@ -42,8 +45,9 @@ class GlobalImmutableValue {
   /**
    * Set a new value (one time), but only if it hasn't been locked yet (will be locked after the first read or set).<p>
    * If the value is locked, the set is ignored.
-   * @param {any} newValue - The new value to set.
+   * @param {T} newValue - The new value to set.
    * @throws {Error} If the value is locked, throw an error.
+   * @returns {void}
    */
   setOneTimeBeforeRead(newValue) {
     if (!this.#isLocked) {
@@ -62,7 +66,7 @@ class GlobalImmutableValue {
   /**
    * Get the current value, then value becomes locked and can't be reset anymore.
    * If the value is not set during init nor after with set() before calling get(), an error is thrown.
-   * @returns {any} The current value.
+   * @returns {T} The current value.
    * @throws {Error} If the value is not set during init nor after with set() before calling get().
    */
   get() {
@@ -71,6 +75,7 @@ class GlobalImmutableValue {
     }
 
     this.#isLocked = true; // Lock the value
+    //@ts-ignore we don't check for undefined here because can be a valid value if user wants to set it to undefined
     return this.#value;
   }
 

@@ -1,6 +1,7 @@
 ﻿export { Drivers, GET_CALC };
 
 import { DriversRepo } from '../../lib/drivers_repo.js';
+import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../config/globals.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import * as schema from '../../lib/schema.js';
 
@@ -37,7 +38,7 @@ class Drivers {
       prefix__immutable_without_dates,
       prefix__immutable_with_dates,
       allowMutable: false,
-      freezeValues: false  // is false because we add only number values, that are immutable by default
+      freezeValues: false  // is false because we add only number and formula values, that are immutable by default
     });
     this.#today = new Date(0);
   }
@@ -101,9 +102,25 @@ class Drivers {
       throw new Error(`EndDate ${endDate.toISOString()} is greater than today ${this.#today.toISOString()}`);
     }
 
-    // if `endDate` is not defined, returns the value defined before or at `date`
+    // if `endDate` is not defined:
+    // - if the driver name starts with a string contained in `DRIVER_PREFIXES__ZERO_IF_NOT_SET`, returns the value defined exactly at `date` if it exists
+    // - otherwise, returns the value defined before or at `date`
+
     if (endDate == null) {
-      const _ret = this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined: true });
+      let _searchExactDate = false;
+
+      const prefixes = DRIVER_PREFIXES__ZERO_IF_NOT_SET.get();  // we don't check if `prefixes` is defined calling `.isSet()`, because it is always defined during globals initialization
+      // check if the name starts with one of the prefixes
+      for (let i = 0; i < prefixes.length; i++) {
+        const prefix = prefixes[i];
+        // Use substring instead of startsWith for speed reasons
+        if (name.substring(0, prefix.length) === prefix) {
+          _searchExactDate = true;
+          break;
+        }
+      }
+
+      const _ret = this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined: true, searchExactDate: _searchExactDate });
       if (_ret == null)
         return 0;
       else

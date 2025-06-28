@@ -1,5 +1,6 @@
 import { Drivers } from '../../../src/engine/drivers/drivers.js';
 import * as CFG from '../../../src/config/engine.js';
+import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../../src/config/globals.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -134,4 +135,38 @@ t('Drivers tests', async () => {
   // #driver5[0] tests, search
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: CFG.SIMULATION_NAME, name: '$driver XYZ4 missing Scenario and Unit', date: new Date(2023, 1, 25) }), 999);  // query with exact date
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ4 missing Scenario and Unit', date: new Date(2023, 1, 25) }), 999);  // query with exact date, with Unit search
+
+  //#region test daily drivers, with DRIVER_PREFIXES__ZERO_IF_NOT_SET content
+  // read first prefix
+  const _daily_driver_prefix_1 = DRIVER_PREFIXES__ZERO_IF_NOT_SET.get()[0];
+  // read first prefix
+  const input_daily_drivers = [
+    // daily driver #1
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 25), value: 55 },
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 2), value: 5555 },
+
+    // daily driver #2
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 25), value: 77 },
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 2), value: 888 },
+  ];
+  const _retErr_daily = drivers.set(input_daily_drivers);
+
+  assert.deepStrictEqual(_retErr_daily, []);
+
+  // get daily driver in the exact date
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 25) }), 55);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 2) }), 5555);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 25) }), 77);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 2) }), 888);
+
+  // get daily driver in date != from definition dates: returns zero
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 24) }), 0);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 26) }), 0);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 1) }), 0);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 3) }), 0);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 24) }), 0);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 26) }), 0);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 1) }), 0);
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 3) }), 0);
+  //#endregion test daily drivers, with DRIVER_PREFIXES__ZERO_IF_NOT_SET content
 });

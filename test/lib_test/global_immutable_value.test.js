@@ -28,16 +28,16 @@ t('global variable test', () => {
   assert.throws(() => { myGlobalVariable3.get(); });
 
   // init with a value -> set a new value -> locked -> try to get, success
-  const myGlobalVariable3b = new GlobalImmutableValue(999);
+  const myGlobalVariable3b = new GlobalImmutableValue([999]);
   assert.deepStrictEqual(myGlobalVariable3b.isLocked(), false);
-  myGlobalVariable3b.setOneTimeBeforeRead(["new value"]);  // the set is accepted
+  myGlobalVariable3b.setOneTimeBeforeRead([888]);  // the set is accepted
   assert.deepStrictEqual(myGlobalVariable3b.isLocked(), true);
-  assert.deepStrictEqual(myGlobalVariable3b.get(), ["new value"]);
+  assert.deepStrictEqual(myGlobalVariable3b.get(), [888]);
 
   // adding or editing an element of value is not allowed, because value is deep-frozen before storage
   assert( Array.isArray(myGlobalVariable3b.get()) );
   assert.throws(() => { myGlobalVariable3b.get().push(999); });
-  assert.throws(() => { myGlobalVariable3b.get()[0] = "new new value"; });
+  assert.throws(() => { myGlobalVariable3b.get()[0] = 777; });
 
   // init without value -> try to set without value -> throw
   const myGlobalVariable4 = new GlobalImmutableValue();

@@ -277,14 +277,16 @@ class DriversRepo {
    * @param {boolean} [p.search=false] - Optional flag to search for recursive search of the driver:
    * read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
    * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base)
-   * @param {boolean} [p.throwIfNotDefined=false] Optional flag to throw. See @throws for description of this option.
+   * @param {boolean} [p.throwIfNotDefined=false] Optional flag to throw. See below `throws` for description of this option.
+   * @param {boolean} [p.searchExactDate=false] Optional flag to search for an exact date when get a single date (without `endDate`).
    * @return {undefined|*|*[]} Driver; if not found, returns undefined;
-   * if `endDate` is not defined, returns the value defined before or at `date`;
+   * if `endDate` is not defined and `searchExactDate` is false, returns the value defined before or at `date`;
+   * if `endDate` is not defined and `searchExactDate` is true, returns the value defined exactly at `date`;
    * if `endDate` is defined, returns an array of values defined between `date` and `endDate`.
    * Returned data is not cloned, but with `freezeValues` option = true in the constructor the values are deep-frozen before saving them.
    * @throws {Error} If `throwIfNotDefined` is true, throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
    */
-  get ({ scenario, unit, name, date, endDate, search = false, throwIfNotDefined = false }) {
+  get ({ scenario, unit, name, date, endDate, search = false, throwIfNotDefined = false, searchExactDate = false }) {
     let _key = this.#driversRepoBuildKey({ scenario, unit, name });
 
     if (!this.#driversRepo.has(_key)) {
@@ -340,9 +342,12 @@ class DriversRepo {
     const _lastDateMs = _driver[_driver.length - 1].dateMilliseconds;
     const _lastDatePos = _driver.length - 1;
 
-    // if `endDate` is not defined, returns the value defined before or at `date`
+    // if `endDate` is not defined:
+    // - if `searchExactDate` is true, returns the value defined exactly at `date` if it exists, otherwise returns undefined
+    // - if `searchExactDate` is false, returns the value defined before or at `date`
     if (endDate == null) {
       let _ret = undefined;
+
       let _positionOfDateInDriverArray = undefined;
 
       // 1) if `_dateMs` is before the first date in which the driver is defined, leave the return position to undefined
@@ -358,9 +363,18 @@ class DriversRepo {
         _positionOfDateInDriverArray = this.#driverDatesBeforeOrExact.get(_key).get(_dateMs);
       }
 
-      // if the date is found, set the return value
+      // if the date is found:
+      // if `searchExactDate` is true, check if the found date is exactly the same as `_dateMs`, if so return the value;
+      // if `searchExactDate` is false, return the value of the date found
       if (_positionOfDateInDriverArray !== undefined) {
-        _ret = _driver[_positionOfDateInDriverArray].value;
+        if (searchExactDate) {
+          const _foundDateMs = _driver[_positionOfDateInDriverArray].dateMilliseconds;
+          if (_foundDateMs === _dateMs) {
+            _ret = _driver[_positionOfDateInDriverArray].value;
+          }
+        } else {
+          _ret = _driver[_positionOfDateInDriverArray].value;
+        }
       }
 
       // return value
