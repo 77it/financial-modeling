@@ -137,9 +137,9 @@ class Ledger {
   /** @param {Date} today */
   setToday (today) {
     validate({ value: today, validation: schema.DATE_TYPE });
-    // throw if today is not later than the last set today
-    if (today.getTime() <= this.#today.getTime())
-      throw new Error(`Today date must be later than the last today date: ${this.#today.toISOString()}`);
+    // throw if today is before than the last set today
+    if (today.getTime() < this.#today.getTime())
+      throw new Error(`Today's date (${today.toISOString()}) must not be earlier than the last set today (${this.#today.toISOString()})`);
     this.#today = today;
   }
 

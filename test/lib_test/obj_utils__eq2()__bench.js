@@ -1,37 +1,62 @@
-/*
-benchmark                      time (avg)        iter/s             (min … max)       p75       p99      p995
-------------------------------------------------------------------------------- -----------------------------
-eq2() string & string          32.31 ms/iter          31.0   (29.75 ms … 41.02 ms) 32.32 ms 41.02 ms 41.02 ms
-eq2() string & not string       5.41 ms/iter         184.8     (4.56 ms … 8.23 ms) 5.93 ms 7.75 ms 8.23 ms
-eq2() object & object         196.78 ms/iter           5.1 (158.24 ms … 265.05 ms) 209.98 ms 265.05 ms 265.05 ms
- */
+// run it with `node --import ./__node__register-hooks.js`
+// run it with `deno run --allow-read --allow-write --allow-net --allow-import`
 
-// run it with `deno bench`
+// docs https://benchmarkjs.com/
+
+/*
+P16s
+
+NODEJS run
+
+=== string & string x 14,538,364 ops/sec ±2.29% (75 runs sampled)
+eq2() string & string x 13,933,386 ops/sec ±2.26% (79 runs sampled)
+eq2() string & not string x 46,628,714 ops/sec ±3.45% (74 runs sampled)
+eq2() object & object x 3,195,326 ops/sec ±2.68% (76 runs sampled)
+
+DENO run
+
+=== string & string x 12,875,491 ops/sec ±4.44% (69 runs sampled)
+eq2() string & string x 11,348,766 ops/sec ±2.96% (84 runs sampled)
+eq2() string & not string x 31,317,407 ops/sec ±2.91% (80 runs sampled)
+eq2() object & object x 2,208,469 ops/sec ±1.16% (88 runs sampled)
+ */
 
 import { eq2 } from '../../src/lib/obj_utils.js';
 
-const loopCount = 1_000_000;
+import * as Benchmark from "benchmark";
+const suite = new Benchmark.default.Suite('');
 
-Deno.bench("eq2() string & string", () => {
-  // loop `loopCount` times
-  for (let i = 0; i < loopCount; i++) {
+const objectA = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1000' } };
+const objectB = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1000' } };
+
+// add tests
+suite
+  .add('=== string & string', function() {
+    eq2('hello world', 'hello world');
+  })
+
+  .add('eq2() string & string', function() {
     eq2('hello world', '  HELLO WORLD  ');
-  }
-});
+  })
 
-Deno.bench("eq2() string & not string", () => {
-  // loop `loopCount` times
-  for (let i = 0; i < loopCount; i++) {
+  .add('eq2() string & not string', function() {
     eq2('hello world', 999);
-  }
-});
+  })
 
-Deno.bench("eq2() object & object", () => {
-  const objectA = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1000' } };
-  const objectB = { foo: { bar: 'baz', baz: '999' }, foo2: { baz: '1000' } };
-
-  // loop `loopCount` times
-  for (let i = 0; i < loopCount; i++) {
+  .add('eq2() object & object', function() {
     eq2(objectA, objectB);
-  }
-});
+  })
+
+  // add listeners
+  .on('cycle', function(event) {
+    console.log(String(event.target));
+  })
+  .on('complete', function() {
+    console.log('Fastest is ' + this.filter('fastest').map('name'));
+  })
+  .on('error', function (event) {
+    console.error(`Test "${event.target.name}" failed with error:`);
+    console.error(event.target.error); // logs the actual Error object
+  })
+  // run async
+  .run({ 'async': true });

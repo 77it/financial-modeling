@@ -135,14 +135,15 @@ class DriversRepo {
   /**
    * Set Drivers from an array of scenarios, units, names, dates and value.<p>
    * Drivers can be immutable without dates, immutable with dates and mutable.<p>
-   * If a date is already present, the second one will be ignored.<p>
+   * If a date is already present and the driver is immutable, trying to overwrite it is not allowed (throws if `throwOnImmutableDriverChange` is true).<p>
    * If a date is present in an immutable driver without dates, the date will be ignored.<p>
    *
-   * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
+   * @param {{scenario?: string, unit?: string, name: string, date?: Date, throwOnImmutableDriverChange?: boolean, value: *}[]} p
    * scenario: Scenario name, optional; null, undefined or '' means `currentScenario` from constructor<p>
    * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor<p>
    * name: Driver name<p>
    * date: optional; if missing will be set to new Date(0)<p>
+   * throwOnImmutableDriverChange: optional; if true, if a date is already present and the driver is immutable, trying to overwrite it throws;
    * value: Driver value<p>
    * @returns {string[]} array of errors
    */
@@ -160,7 +161,7 @@ class DriversRepo {
     for (const _item of p) {
       const _key = this.#driversRepoBuildKey({ scenario: _item.scenario, unit: _item.unit, name: _item.name });
       if (this.#driversRepo.has(_key))
-        _keysAlreadyDefinedBeforeSet.add(_key);
+        _keysAlreadyDefinedBeforeSet.add(_key);  // this data structure is needed because we add drivers looping the input array; see above for detailed explanation
     }
 
     // loop all entries, adding the drivers in the set and updating the others, if not immutable
@@ -168,8 +169,7 @@ class DriversRepo {
       // shallow clone _inputItem, to build a new object and be able to add properties to it without changing the original object (doesn't clone the properties of the object, only creates a new object with the same properties)
       const _inputItemClone = { ..._inputItem };
 
-      // sanitize the input object, only fields `date`;
-      // doesn't sanitize `value` because during get can be parsed or not as json5, then at this moment is not possible to sanitize it
+      // sanitize the input object; doesn't sanitize `value` because can be anything the user wants
       sanitize({
         value: _inputItemClone,
         sanitization: {
@@ -222,7 +222,7 @@ class DriversRepo {
         this.#driversRepo.set(_key, [{ dateMilliseconds: _inputDateMillisecond, value: _inputItemClone.value }]);
         this.#obsoleteIds.add(_key);
       }
-      // if the driver is present, update it
+      // if the driver is present, update it or not if it's immutable
       else {
         const _driver = this.#driversRepo.get(_key);
         if (_driver) {
@@ -230,7 +230,7 @@ class DriversRepo {
           // loop _driver array:
           // 1) if the date is already present
           //    1.0) set _toAppendFlag to false
-          //    1.1) if `_isImmutable` don't add it (ignore it appending an error)
+          //    1.1) if `_isImmutable` don't add it (ignore it appending an error or throwing one)
           //    1.2) if `_isMutable` replace the value
           // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
           // 3) if _toAppendFlag is still true, append date and value at the end of the array
@@ -241,6 +241,7 @@ class DriversRepo {
                 this.#obsoleteIds.add(_key);
               } else {
                 // 1.1) don't add it (ignore it appending an error)
+                // TODO XXX If a date is already present and the driver is immutable with dates, trying to overwrite it is not allowed (throws if TODO XXX is true)
                 arrayOfErrors.push(`Driver ${_key} is immutable and the date ${localDateToStringYYYYMMDD(new Date(_inputDateMillisecond))} is already present`);
               }
               _toAppendFlag = false;

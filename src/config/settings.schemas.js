@@ -14,6 +14,9 @@ deepFreeze(SettingsSanitizationOptions);
 
 // `SettingsSchemas` can contain strings (schema constants) or objects made of schema constants;
 // the sanitization, done in `src/modules/settings.js`, will run a value or an object sanitization based on the type of the schema
+//
+// we don't sanitize strings to lowercase or uppercase, because the can compare them with `eq2` that are more or less speedy as ===
+// the there is no real advantage to force them to lowercase or uppercase; see `eq2` benchmark in 'test/lib_test/obj_utils__eq2()__bench.js'.
 const SettingsSchemas = {
   // immutable: without dates
   [Simulation.$$SCENARIOS]: schema.ARRAY_OF_STRINGS_TYPE,
