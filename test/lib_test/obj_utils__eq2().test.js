@@ -55,6 +55,13 @@ t('eq2() test - number', async () => {
   assert(!eq2(numberA, 'abc'));
 });
 
+t('eq2() test - number and string: always different', async () => {
+  const stringA = '999';
+  const numberB = 999;
+
+  assert(!eq2(stringA, numberB));
+});
+
 t('eq2() test - boolean', async () => {
   const booleanA = true;
   const booleanB = true;

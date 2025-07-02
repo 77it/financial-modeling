@@ -68,12 +68,16 @@ function ensureArrayValuesAreUnique (array) {
 /**
  * Equality of two values, with deep comparison of objects and arrays.
  * If a and b are strings, they are compared after trim & case insensitive.
+ *
+ * For other kind of comparison, as string vs number, or date vs number, don't do anything, if you need to do a comparison be explicit and sanitize before.
  * @param {any} a
  * @param {any} b
  * @returns {boolean}
  */
 function eq2 (a, b) {
-  // if a and b are strings, compare them after trim & case insensitive
+  // If a and b are strings, compare them after trim & case insensitive.
+  //
+  // For other kind of comparison, as string vs number, or date vs number, don't do anything, if you need to do a comparison be explicit and sanitize before.
   if (typeof a === 'string' && typeof b === 'string') {
     return a.trim().toLowerCase() === b.trim().toLowerCase();
   } else {  // else call deepEqual()

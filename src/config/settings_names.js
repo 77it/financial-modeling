@@ -24,6 +24,7 @@ const Simulation = {
   $$END_OF_THE_FISCAL_YEAR__MONTH: '$$END_OF_THE_FISCAL_YEAR__MONTH',
   $$DEFAULT_SPLIT: '$$DEFAULT_SPLIT',
   $$DRIVER_PREFIXES__ZERO_IF_NOT_SET: '$$DRIVER_PREFIXES__ZERO_IF_NOT_SET',
+  $$INVENTORY_VALUATION_METHOD: '$$INVENTORY_VALUATION_METHOD',
   // We need $$SIMULATION_COLUMN_PREFIX to be sure that dates wrote in Excel as column headers are treated as strings and not as numbers
   // (using a prefix prevents also conversion - in tables - conversion of Dates as numbers to string written in the current locale, as happens in italian locale;
   // when this happens the dates in tables header are string written in italian format DD-MM-YYYY and not numbers anymore, then JavaScript can't recognize them as dates;

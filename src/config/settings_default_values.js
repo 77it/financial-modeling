@@ -27,6 +27,7 @@ const SettingsDefaultValues = {
   // Set only for immutable drivers that may change at the end of the day (IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES);
   // for immutable drivers (IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES), it doesn't make sense; mutable drivers do not exist.
   [Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET]: ['$Daily'],
+  [Simulation.$$INVENTORY_VALUATION_METHOD]: 'AVERAGE',
   [Simulation.$$SIMULATION_COLUMN_PREFIX]: ['F'],
   [Simulation.$$HISTORICAL_COLUMN_PREFIX]: ['', 'H'],
   [Simulation.$$PYTHON_ADVANCED_FORECAST_FLAG]: false,
