@@ -17,9 +17,9 @@ class NewSimObjectDto {
    * @param {boolean} p.alive
    * @param {string} [p.command__DebugDescription]
    * @param {string} [p.commandGroup__DebugDescription]
-   * @param {number} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
-   * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
-   * @param {number[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
+   * @param {number} p.financialSchedule__amountWithoutScheduledDate
+   * @param {Date[]} p.financialSchedule__scheduledDates
+   * @param {number[]} p.financialSchedule__scheduledAmounts
    * @param {string} [p.is_Link__SimObjId]
    * @param {string} [p.vsSimObjectName]
    * @param {*} [p.extras]
@@ -39,9 +39,9 @@ class NewSimObjectDto {
     this.alive = p.alive;
     this.command__DebugDescription = p.command__DebugDescription;
     this.commandGroup__DebugDescription = p.commandGroup__DebugDescription;
-    this.bs_Principal__PrincipalToPay_IndefiniteExpiryDate = p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate;
-    this.bs_Principal__PrincipalToPay_AmortizationSchedule__Date = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date;
-    this.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal;
+    this.financialSchedule__amountWithoutScheduledDate = p.financialSchedule__amountWithoutScheduledDate;
+    this.financialSchedule__scheduledDates = p.financialSchedule__scheduledDates;
+    this.financialSchedule__scheduledAmounts = p.financialSchedule__scheduledAmounts;
     this.is_Link__SimObjId = p.is_Link__SimObjId;
     this.vsSimObjectName = p.vsSimObjectName;
     this.extras = p.extras;

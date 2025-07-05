@@ -11,9 +11,9 @@ const roundingModeIsRound = true;
 
 t('splitAndSortPrincipal() tests #1, split with Indefinite + Schedule & some zero entries & reorder', async () => {
   const value = 1000;
-  const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 10;
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [690, 0, 100, 100, 0, 100, 0];
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [
+  const financialSchedule__amountWithoutScheduledDate = 10;
+  const financialSchedule__scheduledAmounts = [690, 0, 100, 100, 0, 100, 0];
+  const financialSchedule__scheduledDates = [
     new Date('2021-01-06'), new Date('2021-01-01'), new Date('2021-01-02'), new Date('2021-01-03'), new Date('2021-01-04'),
     new Date('2021-01-05'), new Date('2021-01-07')
   ];
@@ -28,9 +28,9 @@ t('splitAndSortPrincipal() tests #1, split with Indefinite + Schedule & some zer
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } =
     splitAndSortPrincipal({
       value,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
+      financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledAmounts,
+      financialSchedule__scheduledDates,
     }, {
       decimalPlaces,
       roundingModeIsRound
@@ -44,9 +44,9 @@ t('splitAndSortPrincipal() tests #1, split with Indefinite + Schedule & some zer
 
 t('splitAndSortPrincipal() tests #1bis, NEGATIVE & DUPLICATE DATES & split with Indefinite + Schedule & some zero entries & reorder', async () => {
   const value = 1000;
-  const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 10;
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [690, -200, 0, 400, 0, 100, 0];
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [
+  const financialSchedule__amountWithoutScheduledDate = 10;
+  const financialSchedule__scheduledAmounts = [690, -200, 0, 400, 0, 100, 0];
+  const financialSchedule__scheduledDates = [
     new Date('2021-01-06'), new Date('2021-01-01'), new Date('2021-01-01'), new Date('2021-01-01'), new Date('2021-01-04'),
     new Date('2021-01-05'), new Date('2021-01-07')
   ];
@@ -61,9 +61,9 @@ t('splitAndSortPrincipal() tests #1bis, NEGATIVE & DUPLICATE DATES & split with 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } =
     splitAndSortPrincipal({
         value,
-        bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-        bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
-        bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
+        financialSchedule__amountWithoutScheduledDate,
+        financialSchedule__scheduledAmounts,
+        financialSchedule__scheduledDates,
       }, {
         decimalPlaces,
         roundingModeIsRound
@@ -77,9 +77,9 @@ t('splitAndSortPrincipal() tests #1bis, NEGATIVE & DUPLICATE DATES & split with 
 
 t('splitAndSortPrincipal() tests #2, split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
   const value = 1000;
-  const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 6;
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [100, 100, 100];
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [
+  const financialSchedule__amountWithoutScheduledDate = 6;
+  const financialSchedule__scheduledAmounts = [100, 100, 100];
+  const financialSchedule__scheduledDates = [
     new Date('2021-01-03'), new Date('2021-01-01'), new Date('2021-01-02')
   ];
 
@@ -91,9 +91,9 @@ t('splitAndSortPrincipal() tests #2, split with Indefinite + Incomplete Schedule
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+      financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledAmounts,
+      financialSchedule__scheduledDates
     }, {
       decimalPlaces,
       roundingModeIsRound
@@ -107,9 +107,9 @@ t('splitAndSortPrincipal() tests #2, split with Indefinite + Incomplete Schedule
 
 t('splitAndSortPrincipal() tests #2bis, NEGATIVE & split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
   const value = 1000;
-  const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 6;
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [100, -100, 300];
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [
+  const financialSchedule__amountWithoutScheduledDate = 6;
+  const financialSchedule__scheduledAmounts = [100, -100, 300];
+  const financialSchedule__scheduledDates = [
     new Date('2021-01-03'), new Date('2021-01-01'), new Date('2021-01-02')
   ];
 
@@ -121,9 +121,9 @@ t('splitAndSortPrincipal() tests #2bis, NEGATIVE & split with Indefinite + Incom
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+      financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledAmounts,
+      financialSchedule__scheduledDates
     }, {
       decimalPlaces,
       roundingModeIsRound
@@ -137,9 +137,9 @@ t('splitAndSortPrincipal() tests #2bis, NEGATIVE & split with Indefinite + Incom
 
 t('splitAndSortPrincipal() tests #2ter, ALL NEGATIVE VALUE & split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
   const value = -1000;
-  const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = -6;
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [-100, -100, -100];
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [
+  const financialSchedule__amountWithoutScheduledDate = -6;
+  const financialSchedule__scheduledAmounts = [-100, -100, -100];
+  const financialSchedule__scheduledDates = [
     new Date('2021-01-03'), new Date('2021-01-01'), new Date('2021-01-02')
   ];
 
@@ -151,9 +151,9 @@ t('splitAndSortPrincipal() tests #2ter, ALL NEGATIVE VALUE & split with Indefini
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+      financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledAmounts,
+      financialSchedule__scheduledDates
     }, {
       decimalPlaces,
       roundingModeIsRound
@@ -167,9 +167,9 @@ t('splitAndSortPrincipal() tests #2ter, ALL NEGATIVE VALUE & split with Indefini
 
 t('splitAndSortPrincipal() tests #3, split with Indefinite + Schedule testing conversion to number', async () => {
   const value = 999;
-  const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 10;
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [0, 1, 1, 1, 0, 2];
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [
+  const financialSchedule__amountWithoutScheduledDate = 10;
+  const financialSchedule__scheduledAmounts = [0, 1, 1, 1, 0, 2];
+  const financialSchedule__scheduledDates = [
     new Date('2021-01-01'), new Date('2021-01-02'), new Date('2021-01-03'),
     new Date('2021-01-05'), new Date('2021-01-06'), new Date('2021-01-07')
   ];
@@ -180,9 +180,9 @@ t('splitAndSortPrincipal() tests #3, split with Indefinite + Schedule testing co
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+      financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledAmounts,
+      financialSchedule__scheduledDates
     }, {
       decimalPlaces,
       roundingModeIsRound
@@ -196,14 +196,14 @@ t('splitAndSortPrincipal() tests #3, split with Indefinite + Schedule testing co
   // assert
   assert.deepStrictEqual(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
   assert.deepStrictEqual(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
-  assert.deepStrictEqual(principalAmortizationDates, bs_Principal__PrincipalToPay_AmortizationSchedule__Date);
+  assert.deepStrictEqual(principalAmortizationDates, financialSchedule__scheduledDates);
 });
 
 t('splitAndSortPrincipal() tests #4, split with Indefinite + Schedule testing conversion to string', async () => {
   const value = 1000;
-  const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 0;
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [333, 0, 333, 333];
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [
+  const financialSchedule__amountWithoutScheduledDate = 0;
+  const financialSchedule__scheduledAmounts = [333, 0, 333, 333];
+  const financialSchedule__scheduledDates = [
     new Date('2021-01-01'), new Date('2021-01-02'), new Date('2021-01-03'), new Date('2021-01-04')
   ];
 
@@ -213,9 +213,9 @@ t('splitAndSortPrincipal() tests #4, split with Indefinite + Schedule testing co
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+      financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledAmounts,
+      financialSchedule__scheduledDates
     }, {
       decimalPlaces,
       roundingModeIsRound
@@ -229,16 +229,16 @@ t('splitAndSortPrincipal() tests #4, split with Indefinite + Schedule testing co
   // assert
   assert.deepStrictEqual(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
   assert.deepStrictEqual(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
-  assert.deepStrictEqual(principalAmortizationDates, bs_Principal__PrincipalToPay_AmortizationSchedule__Date);
+  assert.deepStrictEqual(principalAmortizationDates, financialSchedule__scheduledDates);
 });
 
 t('splitAndSortPrincipal() tests #5, split with Indefinite without Schedule', async () => {
   const value = 1000;
-  const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 1000;
+  const financialSchedule__amountWithoutScheduledDate = 1000;
   /** @type {number[]} */
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [];
+  const financialSchedule__scheduledAmounts = [];
   /** @type {Date[]} */
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [];
+  const financialSchedule__scheduledDates = [];
 
   // expected values
   const expectedPrincipalIndefiniteExpiryDate = 1000;
@@ -247,9 +247,9 @@ t('splitAndSortPrincipal() tests #5, split with Indefinite without Schedule', as
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+      financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledAmounts,
+      financialSchedule__scheduledDates
     }, {
       decimalPlaces,
       roundingModeIsRound
@@ -263,16 +263,16 @@ t('splitAndSortPrincipal() tests #5, split with Indefinite without Schedule', as
   // assert
   assert.deepStrictEqual(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
   assert.deepStrictEqual(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
-  assert.deepStrictEqual(principalAmortizationDates, bs_Principal__PrincipalToPay_AmortizationSchedule__Date);
+  assert.deepStrictEqual(principalAmortizationDates, financialSchedule__scheduledDates);
 });
 
 t('splitAndSortPrincipal() tests #6, split without Indefinite and no Schedule -> all to Indefinite', async () => {
   const value = 1000;
-  const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 0;
+  const financialSchedule__amountWithoutScheduledDate = 0;
   /** @type {number[]} */
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [];
+  const financialSchedule__scheduledAmounts = [];
   /** @type {Date[]} */
-  const bs_Principal__PrincipalToPay_AmortizationSchedule__Date = [];
+  const financialSchedule__scheduledDates = [];
 
   // expected values
   const expectedPrincipalIndefiniteExpiryDate = 1000;
@@ -281,9 +281,9 @@ t('splitAndSortPrincipal() tests #6, split without Indefinite and no Schedule ->
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+      financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledAmounts,
+      financialSchedule__scheduledDates
     }, {
       decimalPlaces,
       roundingModeIsRound
@@ -297,5 +297,5 @@ t('splitAndSortPrincipal() tests #6, split without Indefinite and no Schedule ->
   // assert
   assert.deepStrictEqual(principalIndefiniteExpiryDateNumber, expectedPrincipalIndefiniteExpiryDate);
   assert.deepStrictEqual(principalAmortizationScheduleNumber, expectedPrincipalAmortizationSchedule);
-  assert.deepStrictEqual(principalAmortizationDates, bs_Principal__PrincipalToPay_AmortizationSchedule__Date);
+  assert.deepStrictEqual(principalAmortizationDates, financialSchedule__scheduledDates);
 });

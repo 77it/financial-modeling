@@ -45,9 +45,20 @@ const simObjectJsonDumpDto_Schema = {
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
+
+  //#region properties coming from `financialSchedule__*`
+  // see file 'src\engine\simobject\utils\simobject_to_json_dump_dto.js' for the logic of the properties building
+
+  // properties for SimObjects contained in the set `SimObjectTypes_WithPrincipal_set`
   bs_Principal__PrincipalToPay_IndefiniteExpiryDate: schema.STRING_TYPE,  // converted from BigInt
   bs_Principal__PrincipalToPay_AmortizationSchedule__Date: schema.ARRAY_OF_STRINGS_TYPE,
   bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: schema.ARRAY_OF_STRINGS_TYPE,  // converted from array of BigInt
+
+  // properties for the other SimObjects that had `financialSchedule__*` properties not being in the set `SimObjectTypes_WithPrincipal_set`
+  financialSchedule__amountWithoutScheduledDate: schema.STRING_TYPE,  // converted from BigInt
+  financialSchedule__scheduledDates: schema.ARRAY_OF_STRINGS_TYPE,
+  financialSchedule__scheduledAmounts: schema.ARRAY_OF_STRINGS_TYPE,  // converted from array of BigInt
+  //#endregion region properties coming from `financialSchedule__*`
 
   is_Link__SimObjId: schema.STRING_TYPE,
   //#endregion properties common only to some kind of SimObjects

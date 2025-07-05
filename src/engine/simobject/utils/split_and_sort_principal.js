@@ -19,26 +19,26 @@ import { sortValuesAndDatesByDate } from '../../../lib/obj_utils.js';
  *
  * @param {Object} p
  * @param {number} p.value - principal value to split
- * @param {number} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
- * @param {number[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
- * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date Array used to sort the amortization schedule
+ * @param {number} p.financialSchedule__amountWithoutScheduledDate
+ * @param {number[]} p.financialSchedule__scheduledAmounts
+ * @param {Date[]} p.financialSchedule__scheduledDates Array used to sort the amortization schedule
  * @param {Object} opt
  * @param {number} opt.decimalPlaces
  * @param {boolean} opt.roundingModeIsRound
  * @returns {{principalIndefiniteExpiryDate: bigint, principalAmortizationSchedule: bigint[], principalAmortizationDates: Date[]}}
  */
 function splitAndSortPrincipal (
-  /* p */ {value, bs_Principal__PrincipalToPay_IndefiniteExpiryDate, bs_Principal__PrincipalToPay_AmortizationSchedule__Principal, bs_Principal__PrincipalToPay_AmortizationSchedule__Date },
+  /* p */ {value, financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates },
   /* opt */{decimalPlaces, roundingModeIsRound}
 ) {
   const _value = toBigInt(value, decimalPlaces, roundingModeIsRound);
-  let principalIndefiniteExpiryDate = toBigInt(bs_Principal__PrincipalToPay_IndefiniteExpiryDate, decimalPlaces, roundingModeIsRound);
-  const unsorted_principalAmortizationSchedule = bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.map((number) => toBigInt(number, decimalPlaces, roundingModeIsRound));
+  let principalIndefiniteExpiryDate = toBigInt(financialSchedule__amountWithoutScheduledDate, decimalPlaces, roundingModeIsRound);
+  const unsorted_principalAmortizationSchedule = financialSchedule__scheduledAmounts.map((number) => toBigInt(number, decimalPlaces, roundingModeIsRound));
 
   // sort values and dates, by date
   const {sortedValues: principalAmortizationSchedule, sortedDates: principalAmortizationDates} = sortValuesAndDatesByDate({
     values: unsorted_principalAmortizationSchedule,
-    dates: bs_Principal__PrincipalToPay_AmortizationSchedule__Date
+    dates: financialSchedule__scheduledDates
   });
 
   if (_value === principalIndefiniteExpiryDate + principalAmortizationSchedule.reduce((a, b) => a + b, 0n)) {

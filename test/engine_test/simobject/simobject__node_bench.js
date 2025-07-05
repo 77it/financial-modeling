@@ -63,9 +63,9 @@ const p = {
   command__DebugDescription: '',
   commandGroup__Id: '1',
   commandGroup__DebugDescription: '',
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: toBigInt(18.9, DECIMALPLACES, ROUNDINGMODEISROUND),
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 111n, 877n],
+  financialSchedule__amountWithoutScheduledDate: toBigInt(18.9, DECIMALPLACES, ROUNDINGMODEISROUND),
+  financialSchedule__scheduledDates: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
+  financialSchedule__scheduledAmounts: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '123',
   vsSimObjectName: '991',
   versionId: 1

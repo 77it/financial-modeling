@@ -36,9 +36,9 @@ class SimObject {
   #command__DebugDescription;
   #commandGroup__Id;
   #commandGroup__DebugDescription;
-  #bs_Principal__PrincipalToPay_IndefiniteExpiryDate;
-  #bs_Principal__PrincipalToPay_AmortizationSchedule__Date;
-  #bs_Principal__PrincipalToPay_AmortizationSchedule__Principal;
+  #financialSchedule__amountWithoutScheduledDate;
+  #financialSchedule__scheduledDates;
+  #financialSchedule__scheduledAmounts;
   #is_Link__SimObjId;
   #vsSimObjectName;  // NOT EXPORTED TO JSON DUMP
   #versionId;  // NOT EXPORTED TO JSON DUMP
@@ -87,11 +87,11 @@ class SimObject {
 
   get commandGroup__DebugDescription () { return this.#commandGroup__DebugDescription; }
 
-  get bs_Principal__PrincipalToPay_IndefiniteExpiryDate () { return this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate; }
+  get financialSchedule__amountWithoutScheduledDate () { return this.#financialSchedule__amountWithoutScheduledDate; }
 
-  get bs_Principal__PrincipalToPay_AmortizationSchedule__Date () { return [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date]; }
+  get financialSchedule__scheduledDates () { return [...this.#financialSchedule__scheduledDates]; }
 
-  get bs_Principal__PrincipalToPay_AmortizationSchedule__Principal () { return [...this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]; }
+  get financialSchedule__scheduledAmounts () { return [...this.#financialSchedule__scheduledAmounts]; }
 
   get is_Link__SimObjId () { return this.#is_Link__SimObjId; }
 
@@ -128,9 +128,9 @@ class SimObject {
    * @param {string} p.command__DebugDescription
    * @param {string} p.commandGroup__Id
    * @param {string} p.commandGroup__DebugDescription
-   * @param {bigint} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate
-   * @param {Date[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
-   * @param {bigint[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal
+   * @param {bigint} p.financialSchedule__amountWithoutScheduledDate
+   * @param {Date[]} p.financialSchedule__scheduledDates
+   * @param {bigint[]} p.financialSchedule__scheduledAmounts
    * @param {string} p.is_Link__SimObjId
    * @param {string} p.vsSimObjectName *NOT EXPORTED TO JSON DUMP* This is the name of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
    * @param {number} p.versionId *NOT EXPORTED TO JSON DUMP*
@@ -145,13 +145,13 @@ class SimObject {
 
     // value must be equal to indefinite + principal
     if (p.value !==
-      p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate +
-      p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.reduce((a, b) => a + b, 0n))
-      throw new Error(`value must be equal to indefinite + principal, got ${p.value} !== ${p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate} + ${p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.reduce((a, b) => a + b, 0n)}`);
+      p.financialSchedule__amountWithoutScheduledDate +
+      p.financialSchedule__scheduledAmounts.reduce((a, b) => a + b, 0n))
+      throw new Error(`value must be equal to indefinite + principal, got ${p.value} !== ${p.financialSchedule__amountWithoutScheduledDate} + ${p.financialSchedule__scheduledAmounts.reduce((a, b) => a + b, 0n)}`);
 
     // length of principal arrays must be equal
-    if (p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.length !== p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.length)
-      throw new Error(`length of principal arrays must be equal, got date = ${p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.length}, principal = ${p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal.length}`);
+    if (p.financialSchedule__scheduledDates.length !== p.financialSchedule__scheduledAmounts.length)
+      throw new Error(`length of principal arrays must be equal, got date = ${p.financialSchedule__scheduledDates.length}, principal = ${p.financialSchedule__scheduledAmounts.length}`);
 
     // length of metadata arrays must be equal
     if (p.metadata__Name.length !== p.metadata__Value.length || p.metadata__Name.length !== p.metadata__PercentageWeight.length)
@@ -183,9 +183,9 @@ class SimObject {
     this.#command__DebugDescription = p.command__DebugDescription;
     this.#commandGroup__Id = p.commandGroup__Id;
     this.#commandGroup__DebugDescription = p.commandGroup__DebugDescription;
-    this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate = p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate;
-    this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date.map((date) => this.#stripTimeToLocalDate(date));
-    this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [...p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal];
+    this.#financialSchedule__amountWithoutScheduledDate = p.financialSchedule__amountWithoutScheduledDate;
+    this.#financialSchedule__scheduledDates = p.financialSchedule__scheduledDates.map((date) => this.#stripTimeToLocalDate(date));
+    this.#financialSchedule__scheduledAmounts = [...p.financialSchedule__scheduledAmounts];
     this.#is_Link__SimObjId = p.is_Link__SimObjId;
     this.#vsSimObjectName = p.vsSimObjectName.toUpperCase().trim();
     this.#versionId = p.versionId;
@@ -221,9 +221,9 @@ class SimObject {
       command__DebugDescription: this.#command__DebugDescription,
       commandGroup__Id: this.#commandGroup__Id,
       commandGroup__DebugDescription: this.#commandGroup__DebugDescription,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
+      financialSchedule__amountWithoutScheduledDate: this.#financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledDates: this.#financialSchedule__scheduledDates,
+      financialSchedule__scheduledAmounts: this.#financialSchedule__scheduledAmounts,
       is_Link__SimObjId: this.#is_Link__SimObjId,
       vsSimObjectName: this.#vsSimObjectName,
       versionId: this.#versionId,
@@ -256,9 +256,9 @@ class SimObject {
    * @param {string} [p.command__DebugDescription]
    * @param {string} [p.commandGroup__Id]
    * @param {string} [p.commandGroup__DebugDescription]
-   * @param {bigint} [p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate]
-   * @param {Date[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date]
-   * @param {bigint[]} [p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal]
+   * @param {bigint} [p.financialSchedule__amountWithoutScheduledDate]
+   * @param {Date[]} [p.financialSchedule__scheduledDates]
+   * @param {bigint[]} [p.financialSchedule__scheduledAmounts]
    //param {string} [p.is_Link__SimObjId]
    //param {string} [p.vsSimObjectName]
    * @param {*} [p.extras]
@@ -288,9 +288,9 @@ class SimObject {
       command__DebugDescription: p?.command__DebugDescription ?? this.#command__DebugDescription,
       commandGroup__Id: p?.commandGroup__Id ?? this.#commandGroup__Id,
       commandGroup__DebugDescription: p?.commandGroup__DebugDescription ?? this.#commandGroup__DebugDescription,
-      bs_Principal__PrincipalToPay_IndefiniteExpiryDate: p?.bs_Principal__PrincipalToPay_IndefiniteExpiryDate ?? this.#bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Date: p?.bs_Principal__PrincipalToPay_AmortizationSchedule__Date ?? this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Date,
-      bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: p?.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal ?? this.#bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
+      financialSchedule__amountWithoutScheduledDate: p?.financialSchedule__amountWithoutScheduledDate ?? this.#financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledDates: p?.financialSchedule__scheduledDates ?? this.#financialSchedule__scheduledDates,
+      financialSchedule__scheduledAmounts: p?.financialSchedule__scheduledAmounts ?? this.#financialSchedule__scheduledAmounts,
       is_Link__SimObjId: this.#is_Link__SimObjId,
       vsSimObjectName: this.#vsSimObjectName,
       versionId: this.#versionId + 1,

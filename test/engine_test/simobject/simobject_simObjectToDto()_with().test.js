@@ -33,9 +33,9 @@ const _so = new SimObject({
   command__DebugDescription: '',
   commandGroup__Id: '1',
   commandGroup__DebugDescription: '',
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: toBigInt(18.9, decimalPlaces, roundingModeIsRound),
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1, 1, 1, 1, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 111n, 877n],
+  financialSchedule__amountWithoutScheduledDate: toBigInt(18.9, decimalPlaces, roundingModeIsRound),
+  financialSchedule__scheduledDates: [new Date(2020, 0, 1, 1, 1, 1, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
+  financialSchedule__scheduledAmounts: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '123',
   vsSimObjectName: '991aaa',
   versionId: 1
@@ -63,9 +63,9 @@ const _so2_withExtras = new SimObject({
   command__DebugDescription: '',
   commandGroup__Id: '1',
   commandGroup__DebugDescription: '',
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: toBigInt(18.9, decimalPlaces, roundingModeIsRound),
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1, 1, 1, 1, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 111n, 877n],
+  financialSchedule__amountWithoutScheduledDate: toBigInt(18.9, decimalPlaces, roundingModeIsRound),
+  financialSchedule__scheduledDates: [new Date(2020, 0, 1, 1, 1, 1, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
+  financialSchedule__scheduledAmounts: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '123',
   vsSimObjectName: '991aaa',
   versionId: 1,
@@ -97,9 +97,9 @@ t('SimObject.simObjectToDto() & .with() without value tests', async () => {
     command__DebugDescription: '',
     commandGroup__Id: '1',
     commandGroup__DebugDescription: '',
-    bs_Principal__PrincipalToPay_IndefiniteExpiryDate: 18.9,
-    bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-    bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [0.0001, 0.0011, 0.0111, 0.0877],
+    financialSchedule__amountWithoutScheduledDate: 18.9,
+    financialSchedule__scheduledDates: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
+    financialSchedule__scheduledAmounts: [0.0001, 0.0011, 0.0111, 0.0877],
     is_Link__SimObjId: '123',
     vsSimObjectName: '991AAA',
     versionId: 2,
@@ -127,9 +127,9 @@ t('SimObject.simObjectToDto() & .with() without value tests', async () => {
     command__DebugDescription: '',
     commandGroup__Id: '1',
     commandGroup__DebugDescription: '',
-    bs_Principal__PrincipalToPay_IndefiniteExpiryDate: 18.9,
-    bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-    bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [0.0001, 0.0011, 0.0111, 0.0877],
+    financialSchedule__amountWithoutScheduledDate: 18.9,
+    financialSchedule__scheduledDates: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
+    financialSchedule__scheduledAmounts: [0.0001, 0.0011, 0.0111, 0.0877],
     is_Link__SimObjId: '123',
     vsSimObjectName: '991AAA',
     versionId: 2,
@@ -190,9 +190,9 @@ t('SimObject.simObjectToDto() & .with() tests', async () => {
     command__DebugDescription: 'xxx aaa',  // updated
     commandGroup__Id: '3',  // updated
     commandGroup__DebugDescription: 'xxx bbb',  // updated
-    bs_Principal__PrincipalToPay_IndefiniteExpiryDate: toBigInt(17.9, decimalPlaces, roundingModeIsRound),  // updated
-    bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],  // updated
-    bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [1n, 11n, 112n, 876n],  // updated
+    financialSchedule__amountWithoutScheduledDate: toBigInt(17.9, decimalPlaces, roundingModeIsRound),  // updated
+    financialSchedule__scheduledDates: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],  // updated
+    financialSchedule__scheduledAmounts: [1n, 11n, 112n, 876n],  // updated
     is_Link__SimObjId: '8989',  // ignored
     vsSimObjectName: '776655',  // ignored
     versionId: 1,  // autoincrement
@@ -220,9 +220,9 @@ t('SimObject.simObjectToDto() & .with() tests', async () => {
     command__DebugDescription: 'xxx aaa',
     commandGroup__Id: '3',
     commandGroup__DebugDescription: 'xxx bbb',
-    bs_Principal__PrincipalToPay_IndefiniteExpiryDate: 17.9,
-    bs_Principal__PrincipalToPay_AmortizationSchedule__Date: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-    bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: [0.0001, 0.0011, 0.0112, 0.0876],
+    financialSchedule__amountWithoutScheduledDate: 17.9,
+    financialSchedule__scheduledDates: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
+    financialSchedule__scheduledAmounts: [0.0001, 0.0011, 0.0112, 0.0876],
     is_Link__SimObjId: '123',
     vsSimObjectName: '991AAA',
     versionId: 2,

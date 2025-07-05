@@ -36,9 +36,9 @@ const newSimObjectDto_Schema = {
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
-  bs_Principal__PrincipalToPay_IndefiniteExpiryDate: schema.NUMBER_TYPE + schema.OPTIONAL,
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Date: schema.ARRAY_OF_DATES_TYPE + schema.OPTIONAL,
-  bs_Principal__PrincipalToPay_AmortizationSchedule__Principal: schema.ARRAY_OF_NUMBERS_TYPE + schema.OPTIONAL,
+  financialSchedule__amountWithoutScheduledDate: schema.NUMBER_TYPE + schema.OPTIONAL,
+  financialSchedule__scheduledDates: schema.ARRAY_OF_DATES_TYPE + schema.OPTIONAL,
+  financialSchedule__scheduledAmounts: schema.ARRAY_OF_NUMBERS_TYPE + schema.OPTIONAL,
 
   is_Link__SimObjId: schema.STRING_TYPE + schema.OPTIONAL,
   //#endregion properties common only to some kind of SimObjects

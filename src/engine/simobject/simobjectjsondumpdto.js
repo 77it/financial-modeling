@@ -26,6 +26,9 @@ class SimObjectJsonDumpDto {
    * @param {string} p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate - Converted from BigInt
    * @param {string[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date
    * @param {string[]} p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal - Converted from array of BigInt
+   * @param {string} p.financialSchedule__amountWithoutScheduledDate - Converted from BigInt
+   * @param {string[]} p.financialSchedule__scheduledDates
+   * @param {string[]} p.financialSchedule__scheduledAmounts - Converted from array of BigInt
    * @param {string} p.is_Link__SimObjId
    */
   constructor (p) {
@@ -52,6 +55,9 @@ class SimObjectJsonDumpDto {
     this.bs_Principal__PrincipalToPay_IndefiniteExpiryDate = p.bs_Principal__PrincipalToPay_IndefiniteExpiryDate;
     this.bs_Principal__PrincipalToPay_AmortizationSchedule__Date = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Date;
     this.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = p.bs_Principal__PrincipalToPay_AmortizationSchedule__Principal;
+    this.financialSchedule__amountWithoutScheduledDate = p.financialSchedule__amountWithoutScheduledDate;
+    this.financialSchedule__scheduledDates = p.financialSchedule__scheduledDates;
+    this.financialSchedule__scheduledAmounts = p.financialSchedule__scheduledAmounts;
     this.is_Link__SimObjId = p.is_Link__SimObjId;
   }
 }

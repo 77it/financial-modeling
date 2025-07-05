@@ -1,6 +1,6 @@
-﻿export { SimObjectTypes_WithPrincipal_enum };
+﻿export { SimObjectTypes_WithPrincipal_enum, SimObjectTypes_WithPrincipal_set };
 
-import { deepFreeze, ensureArrayValuesAreUnique } from '../../../lib/obj_utils.js';
+import { deepFreeze } from '../../../lib/obj_utils.js';
 
 const SimObjectTypes_WithPrincipal_enum = {
 //#region SimObjectEnum_WITHPRINCIPAL__codeid_EXTERNAL
@@ -48,4 +48,10 @@ BS_LIABILITY__VATDEBTS : "BS_LIABILITY__VATDEBTS",  // (ITA) Debiti_tributari__I
 //#endregion SimObjectEnum_WITHPRINCIPAL__codeid_EXTERNAL
 }
 deepFreeze(SimObjectTypes_WithPrincipal_enum);
-ensureArrayValuesAreUnique(Object.values(SimObjectTypes_WithPrincipal_enum));
+
+// generate a set (to be exported) and ensure that all values are unique
+const SimObjectTypes_WithPrincipal_array =  Object.values(SimObjectTypes_WithPrincipal_enum)
+const SimObjectTypes_WithPrincipal_set = new Set(SimObjectTypes_WithPrincipal_array);
+if (SimObjectTypes_WithPrincipal_set.size !== SimObjectTypes_WithPrincipal_array.length) {
+  throw new Error('array values are not unique');
+}
