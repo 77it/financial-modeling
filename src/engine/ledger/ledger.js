@@ -9,7 +9,7 @@ import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 import { SimObject } from '../simobject/simobject.js';
 import { simObjectToDto } from '../simobject/utils/simobject_to_dto.js';
 import { simObjectToJsonDumpDto } from '../simobject/utils/simobject_to_json_dump_dto.js';
-import { SplitAndSortPrincipal } from '../simobject/utils/split_and_sort_principal.js';
+import { splitAndSortPrincipal } from '../simobject/utils/split_and_sort_principal.js';
 import { toBigInt } from '../simobject/utils/to_bigint.js';
 import { doubleEntrySideFromSimObjectType } from '../simobject/enums/doubleentryside_from_simobject_type.js';
 import { SimObjectTypes_enum } from '../simobject/enums/simobject_types_enum.js';
@@ -306,10 +306,10 @@ class Ledger {
     const _value = toBigInt(newSimObjectDto.value, this.#decimalPlaces, this.#roundingModeIsRound);
     const _writingValue = _value;  // writingValue is equal to value
 
-    // `SplitAndSortPrincipal` is used to split a principal value in indefinite and amortization schedule values
+    // `splitAndSortPrincipal` is used to split a principal value in indefinite and amortization schedule values
     // distributing it proportionally across the amortization schedule if needed.
     const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } =
-      SplitAndSortPrincipal(newSimObjectDto, {
+      splitAndSortPrincipal(newSimObjectDto, {
         decimalPlaces: this.#decimalPlaces,
         roundingModeIsRound: this.#roundingModeIsRound
       });

@@ -1,4 +1,4 @@
-﻿export { SplitAndSortPrincipal };
+﻿export { splitAndSortPrincipal };
 
 import { toBigInt } from './to_bigint.js';
 import { sortValuesAndDatesByDate } from '../../../lib/obj_utils.js';
@@ -6,6 +6,8 @@ import { sortValuesAndDatesByDate } from '../../../lib/obj_utils.js';
 /**
  * This function is used to split a principal value in indefinite and amortization schedule values
  * distributing it proportionally across the amortization schedule if needed.
+ *
+ * Values can be positive or negative, and the function will handle them accordingly.
  *
  * Steps:
  * 1. Convert input values to BigInt.
@@ -25,7 +27,7 @@ import { sortValuesAndDatesByDate } from '../../../lib/obj_utils.js';
  * @param {boolean} opt.roundingModeIsRound
  * @returns {{principalIndefiniteExpiryDate: bigint, principalAmortizationSchedule: bigint[], principalAmortizationDates: Date[]}}
  */
-function SplitAndSortPrincipal (
+function splitAndSortPrincipal (
   /* p */ {value, bs_Principal__PrincipalToPay_IndefiniteExpiryDate, bs_Principal__PrincipalToPay_AmortizationSchedule__Principal, bs_Principal__PrincipalToPay_AmortizationSchedule__Date },
   /* opt */{decimalPlaces, roundingModeIsRound}
 ) {

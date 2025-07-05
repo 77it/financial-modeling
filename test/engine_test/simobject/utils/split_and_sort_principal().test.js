@@ -1,4 +1,4 @@
-import { SplitAndSortPrincipal } from '../../../../src/engine/simobject/utils/split_and_sort_principal.js';
+import { splitAndSortPrincipal } from '../../../../src/engine/simobject/utils/split_and_sort_principal.js';
 import { bigIntToNumberWithDecimals } from '../../../../src/engine/simobject/utils/bigint_to_number_with_decimals.js';
 import { bigIntToStringWithDecimals } from '../../../../src/engine/simobject/utils/bigint_to_string_with_decimals.js';
 
@@ -9,7 +9,7 @@ import assert from 'node:assert';
 const decimalPlaces = 4;
 const roundingModeIsRound = true;
 
-t('SplitAndSortPrincipal() tests #1, split with Indefinite + Schedule & some zero entries & reorder', async () => {
+t('splitAndSortPrincipal() tests #1, split with Indefinite + Schedule & some zero entries & reorder', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 10;
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [690, 0, 100, 100, 0, 100, 0];
@@ -26,7 +26,7 @@ t('SplitAndSortPrincipal() tests #1, split with Indefinite + Schedule & some zer
   ];
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } =
-    SplitAndSortPrincipal({
+    splitAndSortPrincipal({
       value,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
@@ -42,7 +42,7 @@ t('SplitAndSortPrincipal() tests #1, split with Indefinite + Schedule & some zer
   assert.deepStrictEqual(principalAmortizationDates, expectedPrincipalAmortizationDates);
 });
 
-t('SplitAndSortPrincipal() tests #1bis, NEGATIVE & DUPLICATE DATES & split with Indefinite + Schedule & some zero entries & reorder', async () => {
+t('splitAndSortPrincipal() tests #1bis, NEGATIVE & DUPLICATE DATES & split with Indefinite + Schedule & some zero entries & reorder', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 10;
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [690, -200, 0, 400, 0, 100, 0];
@@ -59,7 +59,7 @@ t('SplitAndSortPrincipal() tests #1bis, NEGATIVE & DUPLICATE DATES & split with 
   ];
 
   const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } =
-    SplitAndSortPrincipal({
+    splitAndSortPrincipal({
         value,
         bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
         bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
@@ -75,7 +75,7 @@ t('SplitAndSortPrincipal() tests #1bis, NEGATIVE & DUPLICATE DATES & split with 
   assert.deepStrictEqual(principalAmortizationDates, expectedPrincipalAmortizationDates);
 });
 
-t('SplitAndSortPrincipal() tests #2, split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
+t('splitAndSortPrincipal() tests #2, split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 6;
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [100, 100, 100];
@@ -89,7 +89,7 @@ t('SplitAndSortPrincipal() tests #2, split with Indefinite + Incomplete Schedule
     new Date('2021-01-01'), new Date('2021-01-02'), new Date('2021-01-03')
   ];
 
-  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = SplitAndSortPrincipal({
+  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
@@ -105,7 +105,7 @@ t('SplitAndSortPrincipal() tests #2, split with Indefinite + Incomplete Schedule
   assert.deepStrictEqual(principalAmortizationDates, expectedPrincipalAmortizationDates);
 });
 
-t('SplitAndSortPrincipal() tests #2bis, NEGATIVE & split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
+t('splitAndSortPrincipal() tests #2bis, NEGATIVE & split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 6;
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [100, -100, 300];
@@ -119,7 +119,7 @@ t('SplitAndSortPrincipal() tests #2bis, NEGATIVE & split with Indefinite + Incom
     new Date('2021-01-01'), new Date('2021-01-02'), new Date('2021-01-03')
   ];
 
-  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = SplitAndSortPrincipal({
+  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
@@ -135,7 +135,7 @@ t('SplitAndSortPrincipal() tests #2bis, NEGATIVE & split with Indefinite + Incom
   assert.deepStrictEqual(principalAmortizationDates, expectedPrincipalAmortizationDates);
 });
 
-t('SplitAndSortPrincipal() tests #2ter, ALL NEGATIVE VALUE & split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
+t('splitAndSortPrincipal() tests #2ter, ALL NEGATIVE VALUE & split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
   const value = -1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = -6;
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [-100, -100, -100];
@@ -149,7 +149,7 @@ t('SplitAndSortPrincipal() tests #2ter, ALL NEGATIVE VALUE & split with Indefini
     new Date('2021-01-01'), new Date('2021-01-02'), new Date('2021-01-03')
   ];
 
-  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = SplitAndSortPrincipal({
+  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
@@ -165,7 +165,7 @@ t('SplitAndSortPrincipal() tests #2ter, ALL NEGATIVE VALUE & split with Indefini
   assert.deepStrictEqual(principalAmortizationDates, expectedPrincipalAmortizationDates);
 });
 
-t('SplitAndSortPrincipal() tests #3, split with Indefinite + Schedule testing conversion to number', async () => {
+t('splitAndSortPrincipal() tests #3, split with Indefinite + Schedule testing conversion to number', async () => {
   const value = 999;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 10;
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [0, 1, 1, 1, 0, 2];
@@ -178,7 +178,7 @@ t('SplitAndSortPrincipal() tests #3, split with Indefinite + Schedule testing co
   const expectedPrincipalIndefiniteExpiryDate = 10;
   const expectedPrincipalAmortizationSchedule = [0, 197.8, 197.8, 197.8, 0, 395.6];
 
-  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = SplitAndSortPrincipal({
+  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
@@ -199,7 +199,7 @@ t('SplitAndSortPrincipal() tests #3, split with Indefinite + Schedule testing co
   assert.deepStrictEqual(principalAmortizationDates, bs_Principal__PrincipalToPay_AmortizationSchedule__Date);
 });
 
-t('SplitAndSortPrincipal() tests #4, split with Indefinite + Schedule testing conversion to string', async () => {
+t('splitAndSortPrincipal() tests #4, split with Indefinite + Schedule testing conversion to string', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 0;
   const bs_Principal__PrincipalToPay_AmortizationSchedule__Principal = [333, 0, 333, 333];
@@ -211,7 +211,7 @@ t('SplitAndSortPrincipal() tests #4, split with Indefinite + Schedule testing co
   const expectedPrincipalIndefiniteExpiryDate = '0.0000';
   const expectedPrincipalAmortizationSchedule = ['333.3333', '0.0000', '333.3333', '333.3334'];
 
-  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = SplitAndSortPrincipal({
+  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
@@ -232,7 +232,7 @@ t('SplitAndSortPrincipal() tests #4, split with Indefinite + Schedule testing co
   assert.deepStrictEqual(principalAmortizationDates, bs_Principal__PrincipalToPay_AmortizationSchedule__Date);
 });
 
-t('SplitAndSortPrincipal() tests #5, split with Indefinite without Schedule', async () => {
+t('splitAndSortPrincipal() tests #5, split with Indefinite without Schedule', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 1000;
   /** @type {number[]} */
@@ -245,7 +245,7 @@ t('SplitAndSortPrincipal() tests #5, split with Indefinite without Schedule', as
   /** @type {number[]} */
   const expectedPrincipalAmortizationSchedule = [];
 
-  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = SplitAndSortPrincipal({
+  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
@@ -266,7 +266,7 @@ t('SplitAndSortPrincipal() tests #5, split with Indefinite without Schedule', as
   assert.deepStrictEqual(principalAmortizationDates, bs_Principal__PrincipalToPay_AmortizationSchedule__Date);
 });
 
-t('SplitAndSortPrincipal() tests #6, split without Indefinite and no Schedule -> all to Indefinite', async () => {
+t('splitAndSortPrincipal() tests #6, split without Indefinite and no Schedule -> all to Indefinite', async () => {
   const value = 1000;
   const bs_Principal__PrincipalToPay_IndefiniteExpiryDate = 0;
   /** @type {number[]} */
@@ -279,7 +279,7 @@ t('SplitAndSortPrincipal() tests #6, split without Indefinite and no Schedule ->
   /** @type {number[]} */
   const expectedPrincipalAmortizationSchedule = [];
 
-  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = SplitAndSortPrincipal({
+  const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } = splitAndSortPrincipal({
       value,
       bs_Principal__PrincipalToPay_IndefiniteExpiryDate,
       bs_Principal__PrincipalToPay_AmortizationSchedule__Principal,
