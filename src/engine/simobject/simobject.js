@@ -143,11 +143,10 @@ class SimObject {
     if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
       validate({ value: p, validation: simObject_Schema, strict: true });
 
-    // value must be equal to indefinite + principal
-    if (p.value !==
-      p.financialSchedule__amountWithoutScheduledDate +
-      p.financialSchedule__scheduledAmounts.reduce((a, b) => a + b, 0n))
-      throw new Error(`value must be equal to indefinite + principal, got ${p.value} !== ${p.financialSchedule__amountWithoutScheduledDate} + ${p.financialSchedule__scheduledAmounts.reduce((a, b) => a + b, 0n)}`);
+    // indefinite + principal must be zero or equal to value
+    const _principalSum = p.financialSchedule__amountWithoutScheduledDate + p.financialSchedule__scheduledAmounts.reduce((a, b) => a + b, 0n);
+    if (_principalSum !== 0n && p.value !== _principalSum)
+      throw new Error(`indefinite + principal must be zero or must be equal to value, got ${p.value} !== ${p.financialSchedule__amountWithoutScheduledDate} + ${p.financialSchedule__scheduledAmounts.reduce((a, b) => a + b, 0n)}`);
 
     // length of principal arrays must be equal
     if (p.financialSchedule__scheduledDates.length !== p.financialSchedule__scheduledAmounts.length)

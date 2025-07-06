@@ -9,10 +9,11 @@ import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 import { SimObject } from '../simobject/simobject.js';
 import { simObjectToDto } from '../simobject/utils/simobject_to_dto.js';
 import { simObjectToJsonDumpDto } from '../simobject/utils/simobject_to_json_dump_dto.js';
-import { splitAndSortPrincipal } from '../simobject/utils/split_and_sort_principal.js';
+import { splitAndSortFinancialSchedule } from '../simobject/utils/split_and_sort_financialschedule.js';
 import { toBigInt } from '../simobject/utils/to_bigint.js';
 import { doubleEntrySideFromSimObjectType } from '../simobject/enums/doubleentryside_from_simobject_type.js';
 import { SimObjectTypes_enum } from '../simobject/enums/simobject_types_enum.js';
+import { SimObjectTypes_WithPrincipal_set } from '../simobject/enums/simobject_types_withprincipal_enum.js';
 import { SimObjectDebugTypes_enum } from '../simobject/enums/simobject_debugtypes_enum.js';
 import { SimObjectErrorDebugTypes_enum } from '../simobject/enums/simobject_errordebugtypes_enum.js';
 import { DoubleEntrySide_enum } from '../simobject/enums/doubleentryside_enum.js';
@@ -306,13 +307,27 @@ class Ledger {
     const _value = toBigInt(newSimObjectDto.value, this.#decimalPlaces, this.#roundingModeIsRound);
     const _writingValue = _value;  // writingValue is equal to value
 
-    // `splitAndSortPrincipal` is used to split a principal value in indefinite and amortization schedule values
+    // If the SimObject should have principal or has some financial schedule values
+    // use `splitAndSortFinancialSchedule` to split a principal value in indefinite and amortization schedule values
     // distributing it proportionally across the amortization schedule if needed.
-    const { principalIndefiniteExpiryDate, principalAmortizationSchedule, principalAmortizationDates } =
-      splitAndSortPrincipal(newSimObjectDto, {
-        decimalPlaces: this.#decimalPlaces,
-        roundingModeIsRound: this.#roundingModeIsRound
-      });
+    // If the `financialSchedule__amountWithoutScheduledDate` is not equal to `_value` and `financialSchedule__scheduledAmounts` is empty an error is raised.
+    const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = (() => {
+      if (newSimObjectDto.financialSchedule__amountWithoutScheduledDate !== 0 ||
+          newSimObjectDto.financialSchedule__scheduledAmounts.length !== 0 ||
+          SimObjectTypes_WithPrincipal_set.has(newSimObjectDto.type)) {
+        return splitAndSortFinancialSchedule(newSimObjectDto, {
+          decimalPlaces: this.#decimalPlaces,
+          roundingModeIsRound: this.#roundingModeIsRound
+        })
+      } else {
+        // if the SimObject shouldn't have principal or has no financial schedule values
+        return {
+          financialSchedule__amountWithoutScheduledDate: toBigInt(0, this.#decimalPlaces, this.#roundingModeIsRound),
+          financialSchedule__scheduledAmounts: [],
+          financialSchedule__scheduledDates: []
+        };
+      }
+    })();
 
     const _doubleEntrySide = doubleEntrySideFromSimObjectType(newSimObjectDto.type);
 
@@ -343,9 +358,9 @@ class Ledger {
       command__DebugDescription: newSimObjectDto.command__DebugDescription ?? debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newSimObjectDto.commandGroup__DebugDescription ?? '',
-      financialSchedule__amountWithoutScheduledDate: principalIndefiniteExpiryDate,
-      financialSchedule__scheduledDates: principalAmortizationDates,
-      financialSchedule__scheduledAmounts: principalAmortizationSchedule,
+      financialSchedule__amountWithoutScheduledDate: financialSchedule__amountWithoutScheduledDate,
+      financialSchedule__scheduledDates: financialSchedule__scheduledDates,
+      financialSchedule__scheduledAmounts: financialSchedule__scheduledAmounts,
       is_Link__SimObjId: newSimObjectDto.is_Link__SimObjId ?? '',
       vsSimObjectName: newSimObjectDto.vsSimObjectName ?? '',
       versionId: 0,
