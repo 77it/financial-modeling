@@ -12,3 +12,8 @@ github home: https://github.com/epoberezkin/fast-json-stable-stringify
 backup repository   https://github.com/77it/fast-json-stable-stringify
 
 npm: https://www.npmjs.com/package/fast-json-stable-stringify
+
+&&&
+
+if an alternative to this library is needed, we can check some listed here
+https://github.com/atomicdata-dev/atomic-server/issues/115#issuecomment-3008640881
