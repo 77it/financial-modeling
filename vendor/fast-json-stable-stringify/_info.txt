@@ -1,0 +1,14 @@
+from https://github.com/77it/fast-json-stable-stringify/blob/49e230da2c84247b29ad4de02c9395793caefd15/index.js
++ added @ts-nocheck
++ added types inspired to https://github.com/77it/fast-json-stable-stringify/blob/master/index.d.ts
+  improved, was missing 'opts' and 'undefined' from return
++ replaced
+    'use strict';
+    module.exports = function (data, opts) {
+  with
+    export function stringify (data, opts) {
+
+github home: https://github.com/epoberezkin/fast-json-stable-stringify
+backup repository   https://github.com/77it/fast-json-stable-stringify
+
+npm: https://www.npmjs.com/package/fast-json-stable-stringify

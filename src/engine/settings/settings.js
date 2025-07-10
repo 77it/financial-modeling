@@ -1,7 +1,6 @@
 ﻿export { Settings };
 
 import { DriversRepo } from '../../lib/drivers_repo.js';
-import * as schema from '../../lib/schema.js';
 
 class Settings {
   /** @type {DriversRepo} */
@@ -55,9 +54,16 @@ class Settings {
    * name: Setting name<p>
    * date: optional; if missing will be set to new Date(0)<p>
    * value: Setting value<p>
-   * @returns {string[]} array of errors
+   * @returns {string[]} array of errors<p>
+   * @throws {Error} If a date is already present and the driver is immutable, trying to overwrite it throws<p>
    */
   set (p) {
+    // loop input array: add to every item property `throwOnImmutableDriverChange` = true
+    p.forEach(item => {
+      //@ts-ignore add to every item property `throwOnImmutableDriverChange` = true
+      item.throwOnImmutableDriverChange = true;
+    });
+
     return this.#driversRepo.set(p);
   }
 

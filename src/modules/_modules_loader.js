@@ -3,6 +3,7 @@ export { ModulesLoader };
 import { schema, validate, sanitize } from './deps.js';
 import { modulesLoader_Resolve } from '../engine/modules/modules_loader__resolve.js';
 import { engine, normalizeModuleData } from '../engine/engine.js';
+import { stringify } from '../../vendor/fast-json-stable-stringify/fast-json-stable-stringify.js';
 
 const DEFAULT_CLASSNAME = 'Module';
 
@@ -145,6 +146,8 @@ class ModulesLoader {
       sanitization: { moduleEngineURI: schema.STRING_TYPE, moduleName: schema.STRINGLOWERCASETRIMMED_TYPE },
       validate: true
     });
-    return JSON.stringify({moduleEngineURI: _p.moduleEngineURI, moduleName: _p.moduleName});
+    const _key = stringify({moduleEngineURI: _p.moduleEngineURI, moduleName: _p.moduleName});
+    if (_key == null) throw new Error('internal error, key cannot be null or undefined');
+    return _key;
   }
 }

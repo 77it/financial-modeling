@@ -66,12 +66,15 @@ class Drivers {
    * name: Driver name<p>
    * date: optional; if missing will be set to new Date(0)<p>
    * value: Driver value, will be sanitized to number<p>
-   * @returns {string[]} array of errors
+   * @returns {string[]} array of errors<p>
+   * @throws {Error} If a date is already present and the driver is immutable, trying to overwrite it throws<p>
    */
   set (p) {
-    // sanitize input to number
+    // loop input array: sanitize input to number & add to every item property `throwOnImmutableDriverChange` = true
     p.forEach(item => {
       item.value = sanitize({ value: item.value, sanitization: schema.NUMBER_TYPE});
+      //@ts-ignore add to every item property `throwOnImmutableDriverChange` = true
+      item.throwOnImmutableDriverChange = true;
     });
 
     return this.#driversRepo.set(p);

@@ -2,9 +2,10 @@ export { eqObj, _extractKeys };
 import { eq2 } from '../../src/lib/obj_utils.js';
 
 /**
- * Equality of two objects by content, with deep comparison of objects and arrays.
- * Equality by content can be used also between plain objects and classes instances;
- * to do this comparison we have this method, otherwise we would have used simply the eq2 method.
+ * Equality of two objects by content, with deep comparison of objects and arrays.<p>
+ * <p>
+ * Equality by content can be used also between plain objects and classes instances;<p>
+ * to do this comparison we have this method, otherwise we would have used simply the eq2 method.<p>
  * @param {any} a
  * @param {any} b
  * @returns {boolean}

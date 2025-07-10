@@ -135,17 +135,19 @@ class DriversRepo {
   /**
    * Set Drivers from an array of scenarios, units, names, dates and value.<p>
    * Drivers can be immutable without dates, immutable with dates and mutable.<p>
-   * If a date is already present and the driver is immutable, trying to overwrite it is not allowed (throws if `throwOnImmutableDriverChange` is true).<p>
-   * If a date is present in an immutable driver without dates, the date will be ignored.<p>
+   * If a date is already present and the driver is immutable (with or without dates), trying to overwrite:
+   * - throw an error if `throwOnImmutableDriverChange` is true.<p>
+   * - will be ignored otherwise.<p>
    *
    * @param {{scenario?: string, unit?: string, name: string, date?: Date, throwOnImmutableDriverChange?: boolean, value: *}[]} p
    * scenario: Scenario name, optional; null, undefined or '' means `currentScenario` from constructor<p>
    * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor<p>
    * name: Driver name<p>
    * date: optional; if missing will be set to new Date(0)<p>
-   * throwOnImmutableDriverChange: optional; if true, if a date is already present and the driver is immutable, trying to overwrite it throws;
+   * throwOnImmutableDriverChange: optional, default false; if true, if a date is already present and the driver is immutable, trying to overwrite it throws;
    * value: Driver value<p>
    * @returns {string[]} array of errors
+   * @throws {Error} If `throwOnImmutableDriverChange` is true and a date is already present and the driver is immutable, trying to overwrite it throws;
    */
   set (p) {
     /** @type {string[]} */
@@ -195,16 +197,21 @@ class DriversRepo {
         continue;
       }
 
-      // if the driver is immutable and the key is already present in the repo, skip loop cycle
+      // if the driver is immutable and the key is already present in the repo:
+      // - throw an error if `throwOnImmutableDriverChange` is true.
+      // - will be ignored otherwise.
       if (_isImmutable && _keysAlreadyDefinedBeforeSet.has(_key)) {
-        arrayOfErrors.push(`Driver ${_key} is immutable and it is already present`);
-        continue;
+        if (_inputItem.throwOnImmutableDriverChange) {
+          throw new Error(`Driver ${_key} is immutable and it is already present`);
+        } else {
+          arrayOfErrors.push(`Driver ${_key} is immutable and it is already present`);
+          continue;
+        }
       }
 
-      // date milliseconds:<p>
-      // * if date is present & if the date is != Date(0), strip the time part from the date, then get the milliseconds;<p>
-      // ** if the milliseconds are different from 0 and the driver is immutable without dates, reset them to 0;<p>
-      // * else, set it to 0.<p>
+      // set date milliseconds:
+      // * if `_isImmutableWithoutDates` is true, set milliseconds to 0
+      // * else strip the time part from the date, then get the milliseconds
       // (check for `_inputItemClone?.date` because typescript can't understand that `sanitize` sanitize invalid dates)
       const _inputDateMillisecond = (() => {
         if (_inputItemClone?.date) {
@@ -230,7 +237,7 @@ class DriversRepo {
           // loop _driver array:
           // 1) if the date is already present
           //    1.0) set _toAppendFlag to false
-          //    1.1) if `_isImmutable` don't add it (ignore it appending an error or throwing one)
+          //    1.1) if `_isImmutable` don't add it (throw an error if `throwOnImmutableDriverChange` is true, or ignore it appending an error)
           //    1.2) if `_isMutable` replace the value
           // 2) if the date is not present insert date and value at the right position between other dates and set _toAppendFlag to false
           // 3) if _toAppendFlag is still true, append date and value at the end of the array
@@ -240,9 +247,12 @@ class DriversRepo {
                 _driver[i].value = _inputItemClone.value;  // 1.2) replace the value
                 this.#obsoleteIds.add(_key);
               } else {
-                // 1.1) don't add it (ignore it appending an error)
-                // TODO XXX If a date is already present and the driver is immutable with dates, trying to overwrite it is not allowed (throws if TODO XXX is true)
-                arrayOfErrors.push(`Driver ${_key} is immutable and the date ${localDateToStringYYYYMMDD(new Date(_inputDateMillisecond))} is already present`);
+                // 1.1) don't add it (throw an error if `throwOnImmutableDriverChange` is true, or ignore it appending an error)
+                if (_inputItem.throwOnImmutableDriverChange) {
+                  throw new Error(`Driver ${_key} is immutable and the date ${localDateToStringYYYYMMDD(new Date(_inputDateMillisecond))} is already present`);
+                } else {
+                  arrayOfErrors.push(`Driver ${_key} is immutable and the date ${localDateToStringYYYYMMDD(new Date(_inputDateMillisecond))} is already present`);
+                }
               }
               _toAppendFlag = false;
               break;

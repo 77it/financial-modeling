@@ -1,5 +1,6 @@
 import { Settings } from '../../../src/engine/settings/settings.js';
 import * as CFG from '../../../src/config/engine.js';
+import { eqObj } from '../../deps.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -40,7 +41,7 @@ t('Settings tests', async () => {
   const input2 = [
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 9999 }  // #driver1 ignored, is immutable
   ];
-  drivers.set(input2);
+  assert.throws(() => { drivers.set(input2); });
 
   // query with all parameters empty: undefined
   //@ts-ignore
@@ -139,19 +140,17 @@ t('Settings tests', async () => {
   const instance1 = new Class1();
   const input4 = [
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', date: new Date(2022, 11, 25), value: object1 },  // #setting6[0], immutable drivers without dates, the first value is set
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', date: new Date(2022, 1, 1), value: 123456 },  // #setting6, immutable drivers without dates, the second value is ignored also if date is before
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', value: 654321 },  // #setting6, immutable drivers without dates, the third value is ignored also if the date is not set then is Date(0)
     { scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1', date: new Date(2022, 11, 27), value: instance1 },  // #setting7[0]
   ];
-  const _retErr = drivers.set(input4);
-  assert.deepStrictEqual(_retErr, [
-    'Driver {scenario: scenario1, unit: unita, name: $$setting xyz-object1} is immutable and the date 1970-01-01 is already present',
-    'Driver {scenario: scenario1, unit: unita, name: $$setting xyz-object1} is immutable and the date 1970-01-01 is already present'
-  ]);
+  drivers.set(input4);
 
   drivers.setToday(new Date(0));
-  // #setting6[0] tests with wrong date (date not set by today, and no value set on Date(0))
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1' }), undefined);
+  // #setting6[0] tests with wrong date (immutable without date, set to Date(0))
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1' }), object1);
+
+  // #setting6[0] update to immutable driver, throw
+  assert.throws(() => { drivers.set([{ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', date: new Date(2022, 1, 1), value: 123456 }]); });
+  assert.throws(() => { drivers.set([{ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', value: 654321 }]); });
 
   drivers.setToday(new Date(2022, 11, 27));
 
@@ -169,7 +168,8 @@ t('Settings tests', async () => {
   assert.throws(() => { _object1.b.push(4); });  // try to change inner object
 
   // #setting7[0] tests
-  assert.deepStrictEqual(JSON.stringify(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1' })), JSON.stringify({ a: 1, b: [2, 3] }));  // query with date set by today
+  assert(eqObj(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1' }), { a: 1, b: [2, 3] }));  // query with date set by today
+  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1', date: new Date(0) }), undefined); // #setting7[0] tests with wrong date (no value set on Date(0))
   // test that returned objects are made immutable
   const _instance1 = drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1' });
   assert.deepStrictEqual(_instance1.count(), 1);  // the functions work also after freeze

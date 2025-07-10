@@ -5,6 +5,7 @@ import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
 import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
+import { stringify } from '../../../vendor/fast-json-stable-stringify/fast-json-stable-stringify.js';
 
 /*
 if needed see implementation of js lock  https://www.talkinghightech.com/en/initializing-js-lock/, but being immutable probably isn't needed...
@@ -135,8 +136,8 @@ class TaskLocks {
         validation: { unit: schema.STRING_TYPE, name: schema.STRING_TYPE }
       });
 
-    //@ts-ignore `unit` and `name` are always strings at this point during debug (are sanitized); should be string during release, otherwise will go in error
-    return JSON.stringify({ unit: _p.unit.trim().toLowerCase(), name: _p.name.trim().toLowerCase() });
+    //@ts-ignore `unit` and `name` are always strings at this point during debug (are validated); should be string during release, otherwise will go in error
+    return stringify({ unit: _p.unit.trim().toLowerCase(), name: _p.name.trim().toLowerCase() });
   }
 
   //#endregion private methods

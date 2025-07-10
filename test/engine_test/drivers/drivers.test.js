@@ -40,16 +40,26 @@ t('Drivers tests', async () => {
     { scenario: CFG.SCENARIO_BASE, unit: CFG.SIMULATION_NAME, name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25), value: 888 },  // #driver4[0]
 
     { name: '$driver XYZ4 missing Scenario and Unit', date: new Date(2023, 1, 25), value: 999 },  // #driver5[0]
+
+    { name: '$$immutable driver without dates', date: new Date(2023, 1, 25), value: 99911999 },  // #driver6[0] immutable driver without dates
   ];
   const _retErr = drivers.set(input);
   assert.deepStrictEqual(_retErr, [
     'Driver {scenario: scenario1, unit: unita, name: driver xyz} is mutable and this is not allowed'
   ]);
 
+  // #driver1 update to immutable driver, throw
   const input2 = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 9999 }  // #driver1 ignored, is immutable
+    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 9999 }
   ];
-  drivers.set(input2);
+  assert.throws(() => { drivers.set(input2); });
+
+  // query #driver6
+  assert.deepStrictEqual(drivers.get({ name: '$$immutable driver without dates', date: new Date(0) }), 99911999);
+
+  // #driver6 update to immutable driver without dates, throw
+  assert.throws(() => { drivers.set([{ name: '$$immutable driver without dates', date: new Date(2023, 1, 25), value: 99911999 }]); });
+  assert.throws(() => { drivers.set([{ name: '$$immutable driver without dates', date: new Date(2023, 1, 26), value: 99911999 }]); });
 
   // query with all parameters empty: throws, because the driver is not found
   //@ts-ignore
