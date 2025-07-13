@@ -102,18 +102,39 @@ t('Drivers tests', async () => {
   assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 26) }), 55);  // query with first date after driver
   assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 24) }), 55);  // query with last date before next driver
   assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), 55);  // query scenario with wrong case
-  // get an array of drivers with `endDate` parameter (range of dates test)
-  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2022, 11, 26) }), [55]);
-  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31) }), [55, 555, 5555]);
-  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2099, 11, 31), endDate: new Date(0) }), [55, 555, 5555]);  // endDate before date, the query works the same because the dates are inverted
+
+  //#region date range tests
+  // start date matched if >=, end date matched if <= (range of dates test)
+
   // test empty range
   assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2022, 11, 15) }), []);  // query range before first driver
   assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 0, 1) }), []);  // query range after last driver
 
-  // start date matched if >=, end date matched if <= (range of dates test)
+  // dates before defined dates and first date (first date is new Date(2022, 11, 25))
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24), endDate: new Date(2022, 11, 25) }), [55]);
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2022, 11, 25) }), [55]);
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2022, 11, 26) }), [55]);
+
+  // dates in the middle of defined dates (middle date is new Date(2023, 1, 25))
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 24), endDate: new Date(2023, 1, 25) }), [555]);
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25), endDate: new Date(2023, 1, 25) }), [555]);
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25), endDate: new Date(2023, 1, 26) }), [555]);
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 24), endDate: new Date(2023, 1, 26) }), [555]);
   assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 26), endDate: new Date(2024, 0, 1) }), [555]);
+
+  // end date (end date is new Date(2024, 0, 2))
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 1), endDate: new Date(2024, 0, 2) }), [5555]);
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2), endDate: new Date(2024, 0, 2) }), [5555]);
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2), endDate: new Date(2024, 0, 3) }), [5555]);
+
+  // from 0 to 2099, and viceversa
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31) }), [55, 555, 5555]);
+  assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2099, 11, 31), endDate: new Date(0) }), [55, 555, 5555]);  // endDate before date, the query works the same because the dates are inverted
+
+  // from start to end, and +1 -1 days
   assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2024, 0, 2) }), [55, 555, 5555]);
   assert.deepStrictEqual(drivers.get({ scenario: _currentScenario, unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24), endDate: new Date(2024, 0, 3) }), [55, 555, 5555]);
+  //#endregion date range tests
 
   // #driver1[1] tests
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25) }), 555);  // query with exact date
