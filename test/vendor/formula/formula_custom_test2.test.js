@@ -59,8 +59,8 @@ if (typeof expect === "undefined") {
             toEqual(expected) {
                 assert.deepStrictEqual(
                   received,
-                  expected,
-                  `Expected ${JSON.stringify(received)} to equal ${JSON.stringify(expected)}`
+                  expected
+                  //`Expected ${JSON.stringify(received)} to equal ${JSON.stringify(expected)}`
                 );
             },
             toThrow(expectedError) {
@@ -115,8 +115,8 @@ if (typeof expect === "undefined") {
                 toEqual(expected) {
                     assert.notDeepStrictEqual(
                       received,
-                      expected,
-                      `Expected ${JSON.stringify(received)} not to equal ${JSON.stringify(expected)}`
+                      expected
+                      //`Expected ${JSON.stringify(received)} not to equal ${JSON.stringify(expected)}`
                     );
                 },
                 toThrow(expectedError) {

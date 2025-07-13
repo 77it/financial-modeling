@@ -3,6 +3,7 @@
 import { moduleDataArray_LoadFromJsonlFile } from '../../../src/node/module_data_array__load_from_jsonl_file.js';
 import { ModuleData } from '../../../src/engine/modules/module_data.js';
 import { UNPRINTABLE_CHAR, JSON_UNPRINTABLE_CHAR_REGEXP } from '../../../src/config/engine.js';
+import { eqObj } from '../../lib/obj_utils.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -35,9 +36,9 @@ t('moduleData test: read multiline file', async () => {
 t('moduleData test: malformed string, sanitized during object build', async () => {
   const json0 = new ModuleData(JSON.parse('{"tables":[]}'));
   console.log(json0);
-  assert.deepStrictEqual(JSON.stringify(json0), JSON.stringify({ moduleName: '', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '', tables: [] }));
+  assert(eqObj(json0, { moduleName: '', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '', tables: [] }));
 
   const json1 = new ModuleData(JSON.parse('{"tables":[{"table":[{}]}]}'));
   console.log(json1);
-  assert.deepStrictEqual(JSON.stringify(json1), JSON.stringify({ moduleName: '', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '', tables: [{table:[{}], tableName:''}] }));
+  assert(eqObj(json1, { moduleName: '', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '', tables: [{table:[{}], tableName:''}] }));
 });

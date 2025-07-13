@@ -367,7 +367,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     const _error = (error instanceof Error) ? error.stack?.toString() ?? error.toString() : 'Unknown error occurred';
     _ledger.unlock();
     _ledger?.ONLY_FOR_ENGINE_USAGE_appendDebugErrorSimObject(new NewDebugSimObjectDto({ description: _error }));
-    _ledger?.forceCommitWithoutValidation();
+    _ledger?.ONLY_FOR_ENGINE_USAGE_forceCommitWithoutValidation();
 
     return new Result({ success: false, error: `${_ledger.getDebugModuleInfo()}\n${_error}\n` });
   }

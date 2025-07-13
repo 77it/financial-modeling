@@ -194,48 +194,39 @@ t('test ModulesLoader with fake modulesLoader_Resolve that returns the first 2 U
 
 t('test modulesLoader_Resolve, GitHub URI transformation to CDN (raw and normal URL)', async () => {
   assert.deepStrictEqual(
-    JSON.stringify(
-      modulesLoader_Resolve('https://github.com/77it/financial-modeling/blob/v0.1.11/src/modules/z_test_module.js')),
-    JSON.stringify(
-      [
-        'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js',
-        'https://rawcdn.githack.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
-        'https://cdn.statically.io/gh/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
-      ]
-    ));
+    modulesLoader_Resolve('https://github.com/77it/financial-modeling/blob/v0.1.11/src/modules/z_test_module.js'),
+    [
+      'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js',
+      'https://rawcdn.githack.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
+      'https://cdn.statically.io/gh/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
+    ]);
 
   assert.deepStrictEqual(
-    JSON.stringify(
-      modulesLoader_Resolve('https://raw.githubusercontent.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js')),
-    JSON.stringify(
-      [
-        'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js',
-        'https://rawcdn.githack.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
-        'https://cdn.statically.io/gh/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
-      ]
-    ));
+    modulesLoader_Resolve('https://raw.githubusercontent.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js'),
+    [
+      'https://cdn.jsdelivr.net/gh/77it/financial-modeling@v0.1.11/src/modules/z_test_module.js',
+      'https://rawcdn.githack.com/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
+      'https://cdn.statically.io/gh/77it/financial-modeling/v0.1.11/src/modules/z_test_module.js',
+    ]
+  );
 
   assert.deepStrictEqual(
-    JSON.stringify(
-      modulesLoader_Resolve('https://github.com/77it/financial-modeling/blob/master/src/engine/engine.js')),
-    JSON.stringify(
-      [
-        'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/engine/engine.js',
-        'https://rawcdn.githack.com/77it/financial-modeling/master/src/engine/engine.js',
-        'https://cdn.statically.io/gh/77it/financial-modeling/master/src/engine/engine.js',
-      ]
-    ));
+    modulesLoader_Resolve('https://github.com/77it/financial-modeling/blob/master/src/engine/engine.js'),
+    [
+      'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/engine/engine.js',
+      'https://rawcdn.githack.com/77it/financial-modeling/master/src/engine/engine.js',
+      'https://cdn.statically.io/gh/77it/financial-modeling/master/src/engine/engine.js',
+    ]
+  );
 
   assert.deepStrictEqual(
-    JSON.stringify(
-      modulesLoader_Resolve('https://raw.githubusercontent.com/77it/financial-modeling/master/src/engine/engine.js')),
-    JSON.stringify(
-      [
-        'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/engine/engine.js',
-        'https://rawcdn.githack.com/77it/financial-modeling/master/src/engine/engine.js',
-        'https://cdn.statically.io/gh/77it/financial-modeling/master/src/engine/engine.js',
-      ]
-    ));
+    modulesLoader_Resolve('https://raw.githubusercontent.com/77it/financial-modeling/master/src/engine/engine.js'),
+    [
+      'https://cdn.jsdelivr.net/gh/77it/financial-modeling@master/src/engine/engine.js',
+      'https://rawcdn.githack.com/77it/financial-modeling/master/src/engine/engine.js',
+      'https://cdn.statically.io/gh/77it/financial-modeling/master/src/engine/engine.js',
+    ]
+  );
 });
 //#endregion addClassFromURI
 

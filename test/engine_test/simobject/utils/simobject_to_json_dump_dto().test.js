@@ -3,6 +3,7 @@ import { simObjectToJsonDumpDto } from '../../../../src/engine/simobject/utils/s
 import { toBigInt } from '../../../../src/engine/simobject/utils/to_bigint.js';
 import { SimObjectTypes_enum } from '../../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../../src/engine/simobject/enums/doubleentryside_enum.js';
+import { eqObj } from '../../../deps.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -135,7 +136,7 @@ t('SimObject with principal: SimObject.toJsonDumpDto() tests', async () => {
   // save the DTO of the original object, that should be frozen
   const _so_Dto = simObjectToJsonDumpDto(_so_with_principal);
 
-  assert.deepStrictEqual(JSON.stringify(_so_Dto), JSON.stringify(_so_with_principal__JsonDump_Expected));
+  assert(eqObj(_so_Dto, _so_with_principal__JsonDump_Expected));
 
   // try to change the value of the DTO, but the changes should be ignored, because the DTO is frozen
   try {_so_Dto.type = 'abcd';}
@@ -150,5 +151,5 @@ t('SimObject with principal: SimObject.toJsonDumpDto() tests', async () => {
 t('SimObject without principal: SimObject.toJsonDumpDto() tests', async () => {
   // save the DTO of the original object, that should be frozen
   const _so_Dto = simObjectToJsonDumpDto(_so_without_principal);
-  assert.deepStrictEqual(JSON.stringify(_so_Dto), JSON.stringify(_so_without_principal__JsonDump_Expected));
+  assert(eqObj(_so_Dto, _so_without_principal__JsonDump_Expected));
 });

@@ -55,7 +55,7 @@ Store, as a property of the SimObject, an object with custom properties, as the 
 
 class Ledger {
   /** @type {appendTrnDump} */
-  #appendTrnDump;
+  #appendTrnDumpCallback;
   /** Map to store SimObjects: SimObject id as string key, SimObject as value.
    * @type {Map<string, SimObject>} */
   #simObjectsRepo;
@@ -104,7 +104,7 @@ class Ledger {
     if (!Number.isInteger(_p.decimalPlaces))
       throw new Error(`decimalPlaces must be an integer, got ${_p.decimalPlaces}`);
 
-    this.#appendTrnDump = appendTrnDump;
+    this.#appendTrnDumpCallback = appendTrnDump;
     this.#simObjectsRepo = new Map();
     this.#simObjectTypes_enum_map = new Map(Object.entries(SimObjectTypes_enum));
     this.#SimObjectDebugTypes_enum_map = new Map(Object.entries(SimObjectDebugTypes_enum));
@@ -251,7 +251,7 @@ class Ledger {
 
     // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
 
-    this.forceCommitWithoutValidation();
+    this.#commit();
   }
 
   /**
@@ -259,17 +259,8 @@ class Ledger {
    * Commit the current transaction without any validation.
    * Commit means pushing the transaction to the ledger dump, then reset the current transaction.
    */
-  forceCommitWithoutValidation () {
-    if (this.#currentTransaction.length === 0) return;
-
-    // convert this.#currentTransaction to SimObjectJsonDumpDto, then stringify
-    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObjectToJsonDumpDto(simObject));
-    this.#appendTrnDump(JSON.stringify(simObjectJsonDumpDtoArray));
-
-    // TODO switch on #SimObjectDebugTypes_enum_map to call the right callbacks to append the debug info
-
-    // reset the current transaction
-    this.#currentTransaction = [];
+  ONLY_FOR_ENGINE_USAGE_forceCommitWithoutValidation () {
+    this.#commit();
   }
 
   //#endregion COMMIT methods
@@ -406,6 +397,23 @@ class Ledger {
   //#endregion SIMOBJECT methods
 
   //#region private methods
+  /**
+   * Commit the current transaction without any validation.
+   * Commit means pushing the transaction to the ledger dump, then reset the current transaction.
+   */
+  #commit () {
+    if (this.#currentTransaction.length === 0) return;
+
+    // convert every element of this.#currentTransaction to SimObjectJsonDumpDto, then stringify the array
+    const simObjectJsonDumpDtoArray = this.#currentTransaction.map(simObject => simObjectToJsonDumpDto(simObject));
+    this.#appendTrnDumpCallback(JSON.stringify(simObjectJsonDumpDtoArray));
+
+    // TODO switch on #SimObjectDebugTypes_enum_map to call the right callbacks to append the debug info
+
+    // reset the current transaction
+    this.#currentTransaction = [];
+  }
+
   /** Add or update a SimObject in the repository and add it to the current transaction
    * @param {SimObject} simObject
    */

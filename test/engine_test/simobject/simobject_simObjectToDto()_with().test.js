@@ -3,6 +3,7 @@ import { simObjectToDto } from '../../../src/engine/simobject/utils/simobject_to
 import { toBigInt } from '../../../src/engine/simobject/utils/to_bigint.js';
 import { SimObjectTypes_enum } from '../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../src/engine/simobject/enums/doubleentryside_enum.js';
+import { eqObj } from '../../lib/obj_utils.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -161,9 +162,9 @@ t('SimObject.simObjectToDto() & .with() without value tests', async () => {
   assert(_error === "Cannot add property newField, object is not extensible"
     || _error === "Attempting to define property on object that is not extensible.");  // second message is for Bun platform
 
-  assert.deepStrictEqual(JSON.stringify(_so_With_Dto), JSON.stringify(_soDump_Expected));
+  assert(eqObj(_so_With_Dto, _soDump_Expected));
 
-  assert.deepStrictEqual(JSON.stringify(simObjectToDto(_so_With2_withExtras)), JSON.stringify(_soDump_Expected2_withExtras));
+  assert(eqObj(simObjectToDto(_so_With2_withExtras), _soDump_Expected2_withExtras));
 });
 
 t('SimObject.simObjectToDto() & .with() tests', async () => {
@@ -229,5 +230,5 @@ t('SimObject.simObjectToDto() & .with() tests', async () => {
     extras: {a: 9991, b: 'aaax'}
   };
 
-  assert.deepStrictEqual(JSON.stringify(simObjectToDto(_so_With)), JSON.stringify(_soDump_Expected));
+  assert(eqObj(simObjectToDto(_so_With), _soDump_Expected));
 });
