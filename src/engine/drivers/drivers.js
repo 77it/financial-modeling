@@ -7,6 +7,7 @@ import * as schema from '../../lib/schema.js';
 
 
 /** @typedef {'sum' | 'average' | 'min' | 'max'} GetCalcType */
+
 const GET_CALC = {
   SUM: 'sum',
   AVERAGE: 'average',
