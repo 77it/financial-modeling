@@ -6,8 +6,10 @@ import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import * as schema from '../../lib/schema.js';
 
 
-/** @typedef {'sum' | 'average' | 'min' | 'max'} GetCalcType */
-
+/**
+ * @enum {string}
+ * @readonly
+ */
 const GET_CALC = {
   SUM: 'sum',
   AVERAGE: 'average',
@@ -89,7 +91,7 @@ class Drivers {
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
-   * @param {GetCalcType} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
+   * @param {GET_CALC} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
    * @return {number} returns the Driver value;
    * if `endDate` is not defined, returns the value defined before or at `date`;
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
