@@ -36,7 +36,7 @@ import { PYTHON_FORECAST__CLASS_PATH, PYTHON_FORECAST__CLASS_NAME, PYTHON_FORECA
 
 import { PYTHON_FORECAST_GLOBAL_INSTANCE } from './config/python.js';
 
-import { MODULE_NAME as SETTINGS_MODULE_NAME, tablesInfo as SETTINGS_TABLES_INFO, moduleSanitization as SETTINGS_SANITIZATION } from './config/modules/settings.js';
+import { MODULE_NAME as SETTINGS_MODULE_NAME, tablesNames as SETTINGS_TABLES_NAMES, moduleSanitization as SETTINGS_SANITIZATION } from './config/modules/settings.js';
 import * as SETTINGS_NAMES from './config/settings_names.js';
 import * as CFG from './config/engine.js';
 //#endregion local imports
@@ -302,7 +302,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
   settingSanitization
 }) {
   try {
-    const table = SETTINGS_TABLES_INFO.SET;
+    const table = SETTINGS_TABLES_NAMES.SET;
 
     const _setting = (() => {
       for (const moduleData of moduleDataArray) {

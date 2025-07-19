@@ -14,7 +14,8 @@ import * as SETTINGS_NAMES from '../config/settings_names.js';
 import { ModuleData, SimulationContext } from './deps.js';
 import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 
-const tablesInfo = {};  // when implemented, should be imported from '../config/modules/_sample_module.js'
+const tablesNames = {};  // when implemented, should be imported from '../config/modules/_sample_module.js'
+const moduleSanitization = {};  // when implemented, should be imported from '../config/modules/_sample_module.js'
 
 export class Module {
   //#region private fields
@@ -59,7 +60,7 @@ export class Module {
    */
   init ({ moduleData, simulationContext }) {
     // save moduleData, after sanitizing it
-    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization: Object.values(tablesInfo) });
+    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization: Object.values(moduleSanitization) });
     // save simulationContext
     this.#simulationContext = simulationContext;
   }

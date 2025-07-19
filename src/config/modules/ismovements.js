@@ -1,10 +1,10 @@
 // TODO to implement
 
-export { tablesInfo, moduleSanitization };
+export { tablesNames, moduleSanitization };
 
 import { schema, deepFreeze } from '../../modules/deps.js';
 
-const tablesInfo = {
+const tablesNames = {
   SETTINGS: {
     tableName: 'settings',
     columns: {
@@ -24,20 +24,20 @@ const tablesInfo = {
 /** @type {{tableName: string, parse?: *, sanitization?: *, sanitizationOptions?: *}[]} */
 const moduleSanitization = [
   {
-    tableName: tablesInfo.SETTINGS.tableName,
+    tableName: tablesNames.SETTINGS.tableName,
     sanitization: {
-      [tablesInfo.SETTINGS.columns.NAME]: schema.STRING_TYPE,
-      [tablesInfo.SETTINGS.columns.VALUE]: schema.ANY_TYPE
+      [tablesNames.SETTINGS.columns.NAME]: schema.STRING_TYPE,
+      [tablesNames.SETTINGS.columns.VALUE]: schema.ANY_TYPE
     }
   },
   {
-    tableName: tablesInfo.SET.tableName,
+    tableName: tablesNames.SET.tableName,
     sanitization: {
-      [tablesInfo.SET.columns.CATEGORIA]: schema.STRING_TYPE,
-      [tablesInfo.SET.columns.CATEGORY]: schema.STRING_TYPE
+      [tablesNames.SET.columns.CATEGORIA]: schema.STRING_TYPE,
+      [tablesNames.SET.columns.CATEGORY]: schema.STRING_TYPE
     }
   }
 ];
 
-deepFreeze(tablesInfo);
+deepFreeze(tablesNames);
 deepFreeze(moduleSanitization);

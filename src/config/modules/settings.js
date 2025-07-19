@@ -1,11 +1,11 @@
-export { MODULE_NAME, tablesInfo, moduleSanitization };
+export { MODULE_NAME, tablesNames, moduleSanitization };
 
 import * as CONST from './_const.js';
 import { schema, deepFreeze } from '../../modules/deps.js';
 
 const MODULE_NAME = 'settings';
 
-const tablesInfo = {
+const tablesNames = {
   SET: {
     tableName: 'set',
     columns: {
@@ -37,33 +37,33 @@ const tablesInfo = {
 /** @type {{tableName: string, parse?: *, sanitization?: *, sanitizationOptions?: *}[]} */
 const moduleSanitization = [
   {
-    tableName: tablesInfo.SET.tableName,
+    tableName: tablesNames.SET.tableName,
     parse: {
-      [tablesInfo.SET.columns.SCENARIO]: CONST.YAML_PARSE,
-      [tablesInfo.SET.columns.VALUE]: CONST.YAML_PARSE
+      [tablesNames.SET.columns.SCENARIO]: CONST.YAML_PARSE,
+      [tablesNames.SET.columns.VALUE]: CONST.YAML_PARSE
     },
     sanitization: {
-      [tablesInfo.SET.columns.SCENARIO]: schema.STRING_TYPE,
-      [tablesInfo.SET.columns.UNIT]: schema.STRING_TYPE,
-      [tablesInfo.SET.columns.NAME]: schema.STRING_TYPE,
-      [tablesInfo.SET.columns.DATE]: schema.DATE_TYPE,
-      [tablesInfo.SET.columns.VALUE]: schema.ANY_TYPE
+      [tablesNames.SET.columns.SCENARIO]: schema.STRING_TYPE,
+      [tablesNames.SET.columns.UNIT]: schema.STRING_TYPE,
+      [tablesNames.SET.columns.NAME]: schema.STRING_TYPE,
+      [tablesNames.SET.columns.DATE]: schema.DATE_TYPE,
+      [tablesNames.SET.columns.VALUE]: schema.ANY_TYPE
     },
     sanitizationOptions: {
       defaultDate: new Date(0)
     }
   },
   {
-    tableName: tablesInfo.ACTIVESET.tableName,
+    tableName: tablesNames.ACTIVESET.tableName,
     parse: {
-      [tablesInfo.SET.columns.VALUE]: CONST.YAML_PARSE
+      [tablesNames.SET.columns.VALUE]: CONST.YAML_PARSE
     },
     sanitization: {
-      [tablesInfo.ACTIVESET.columns.SCENARIO]: schema.STRING_TYPE,
-      [tablesInfo.ACTIVESET.columns.UNIT]: schema.STRING_TYPE,
-      [tablesInfo.ACTIVESET.columns.NAME]: schema.STRING_TYPE,
-      [tablesInfo.ACTIVESET.columns.DATE]: schema.DATE_TYPE,
-      [tablesInfo.ACTIVESET.columns.VALUE]: schema.ANY_TYPE
+      [tablesNames.ACTIVESET.columns.SCENARIO]: schema.STRING_TYPE,
+      [tablesNames.ACTIVESET.columns.UNIT]: schema.STRING_TYPE,
+      [tablesNames.ACTIVESET.columns.NAME]: schema.STRING_TYPE,
+      [tablesNames.ACTIVESET.columns.DATE]: schema.DATE_TYPE,
+      [tablesNames.ACTIVESET.columns.VALUE]: schema.ANY_TYPE
     },
     sanitizationOptions: {
       defaultDate: new Date(0)
@@ -71,5 +71,5 @@ const moduleSanitization = [
   }
 ];
 
-deepFreeze(tablesInfo);
+deepFreeze(tablesNames);
 deepFreeze(moduleSanitization);

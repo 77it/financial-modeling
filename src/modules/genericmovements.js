@@ -1,7 +1,7 @@
 // TODO to implement
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import { tablesInfo, moduleSanitization } from '../config/modules/genericmovements.js';
+import { tablesNames, tablesEnums, moduleSanitization } from '../config/modules/genericmovements.js';
 import { Agenda } from './_utils/agenda.js';
 import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 import { moduleDataLookup } from './_utils/search/module_data_lookup.js';
@@ -32,20 +32,20 @@ export class Module {
   /** @type {undefined|string} */
   #accounting_type__default;
   #accounting_type__default__moduleDataLookup = {
-    lookup_value: tablesInfo.SETTINGS.names.TYPE,
+    lookup_value: tablesEnums.SETTINGS.columns.NAME.ACCOUNTING_TYPE,
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
-    tableName: tablesInfo.SETTINGS.tableName,
-    lookup_column: tablesInfo.SETTINGS.columns.NAME,
-    return_column: tablesInfo.SETTINGS.columns.VALUE
+    tableName: tablesNames.SETTINGS.tableName,
+    lookup_column: tablesNames.SETTINGS.columns.NAME,
+    return_column: tablesNames.SETTINGS.columns.VALUE
   };
   /** @type {undefined|string} */
   #accounting_opposite_type__default;
   #accounting_opposite_type__default__moduleDataLookup = {
-    lookup_value: tablesInfo.SETTINGS.names.VS_TYPE,
+    lookup_value: tablesEnums.SETTINGS.columns.NAME.ACCOUNTING_VS_TYPE,
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
-    tableName: tablesInfo.SETTINGS.tableName,
-    lookup_column: tablesInfo.SETTINGS.columns.NAME,
-    return_column: tablesInfo.SETTINGS.columns.VALUE
+    tableName: tablesNames.SETTINGS.tableName,
+    lookup_column: tablesNames.SETTINGS.columns.NAME,
+    return_column: tablesNames.SETTINGS.columns.VALUE
   };
   //#endregion data from modules
 
@@ -95,7 +95,7 @@ export class Module {
     // init Agenda with #active_unit & reading from settings $$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE
     this.#agenda = new Agenda({ simulationStartDate: this.#ctx.getSetting({ unit: this.#active_unit, name: SETTINGS_NAMES.Unit.$$SIMULATION_START_DATE__LAST_HISTORICAL_DAY_IS_THE_DAY_BEFORE }) });
 
-    // read values from module's settings table
+    // read values from this module's settings table
     this.#accounting_type__default = moduleDataLookup(this.#moduleData, this.#accounting_type__default__moduleDataLookup);
     this.#accounting_opposite_type__default = moduleDataLookup(this.#moduleData, this.#accounting_opposite_type__default__moduleDataLookup);
     if (isNullOrWhiteSpace(this.#accounting_opposite_type__default))
@@ -104,12 +104,12 @@ export class Module {
 
     // loop all tables
     for (const currTab of this.#moduleData.tables) {
-      const tSet = tablesInfo.SET.columns;
+      const tSet = tablesNames.SET.columns;
 
       const simulationDatePrefix = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$SIMULATION_COLUMN_PREFIX });
       const historicalDatePrefix = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX });
 
-      if (eq2(currTab.tableName, tablesInfo.SET.tableName)) {
+      if (eq2(currTab.tableName, tablesNames.SET.tableName)) {
         for (const row of currTab.table) {
           if (!row[tSet.INACTIVE]) {
             const simulation_input = row[tSet.SIMULATION_INPUT];
