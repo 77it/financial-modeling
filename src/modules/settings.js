@@ -1,7 +1,7 @@
 // here is not defined the YAML parsing, because parse option is set in the object 'moduleSanitization'
 // in the settings module config file `src/config/modules/settings.js`
 // imported and used below
-import { tablesNames, moduleSanitization } from '../config/modules/settings.js';
+import { tablesInfo } from '../config/modules/settings.js';
 import { TaskLocks_Names } from '../config/tasklocks_names.js';
 import { SettingsSchemas, SettingsSanitizationOptions } from '../config/settings.schemas.js';
 import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
@@ -42,7 +42,7 @@ export class Module {
    */
   init ({ moduleData, simulationContext }) {
     // save moduleData, after sanitizing it
-    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization });
+    this.#moduleData = sanitizeModuleData({ moduleData, tablesInfo });
     // save simulationContext
     this.#simulationContext = simulationContext;
   }

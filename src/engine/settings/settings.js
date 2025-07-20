@@ -48,14 +48,14 @@ class Settings {
    * If a date is present in an immutable setting without dates, the date will be ignored.<p>
    * Values of immutable settings are frozen.<p>
    *
-   * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
-   * scenario: optional; null, undefined or '' means `currentScenario` from constructor<p>
-   * unit: Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor<p>
+   * @param {{scenario?: string[], unit?: string[], name: string, date?: Date, value: *}[]} p
+   * scenario: optional; array of strings (to set more than one scenario); '' means `currentScenario` from constructor<p>
+   * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from constructor<p>
    * name: Setting name<p>
    * date: optional; if missing will be set to new Date(0)<p>
    * value: Setting value<p>
-   * @returns {string[]} array of errors<p>
-   * @throws {Error} If a date is already present and the driver is immutable, trying to overwrite it throws<p>
+   * @returns {string[]} array of errors
+   * @throws {Error} If a date is already present and the driver is immutable, trying to overwrite it throws
    */
   set (p) {
     // loop input array: add to every item property `throwOnImmutableDriverChange` = true
@@ -64,7 +64,25 @@ class Settings {
       item.throwOnImmutableDriverChange = true;
     });
 
-    return this.#driversRepo.set(p);
+    // loop `scenario` array; inside the scenario loop, loop `unit` array; add entries with the scenario and unit entries to the new array `p2`
+    /** @type {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} */
+    const p2 = [];
+    for (const item of p) {
+      const scenarios = item.scenario ?? [undefined];
+      const units = item.unit ?? [undefined];
+
+      for (const scenario of scenarios) {
+        for (const unit of units) {
+          p2.push({
+            ...item,
+            scenario,
+            unit,
+          });
+        }
+      }
+    }
+
+    return this.#driversRepo.set(p2);
   }
 
   /**
@@ -75,13 +93,13 @@ class Settings {
    * @param {string} p.name - Setting name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {boolean} [p.throwIfNotDefined] - Optional flag to throw. See @throws for description of this option.
-   * @return {*} returns the Setting value;
-   * if `endDate` is not defined, returns the value defined before or at `date`;
-   * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
-   * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
-   * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).
-   * Returned data is not cloned because Settings are stored with `freezeValues` option = true then the values are deep frozen.
-   * @throws {Error} If `throwIfNotDefined` is true, throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
+   * @return {*} returns the Setting value;<p>
+   * if `endDate` is not defined, returns the value defined before or at `date`;<p>
+   * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.<p>
+   * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,<p>
+   * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).<p>
+   * Returned data is not cloned because Settings are stored with `freezeValues` option = true then the values are deep-frozen.<p>
+   * @throws {Error} If `throwIfNotDefined` is true, throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.<p>
    */
   get ({ scenario, unit, name, date, throwIfNotDefined = true }) {
     if (date && date.getTime() > this.#today.getTime()) {

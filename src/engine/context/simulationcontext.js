@@ -49,15 +49,15 @@ class SimulationContext {
   }
 
   /**
-   * Set Settings from an array of scenarios, units, names, dates and value.
-   * Settings can be immutable and mutable.
+   * Set Settings from an array of scenarios, units, names, dates and value.<p>
+   * Settings can be immutable and mutable.<p>
    * If a date is already present, the second one will be ignored.
-   * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
-   * scenario: optional; null, undefined or '' means `currentScenario` from constructor
-   * unit: Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
-   * name: Setting name
-   * date: optional; if missing will be set to new Date(0)
-   * value: Setting value
+   * @param {{scenario?: string[], unit?: string[], name: string, date?: Date, value: *}[]} p
+   * scenario: optional; array of strings (to set more than one scenario); '' means `currentScenario` from constructor<p>
+   * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from constructor<p>
+   * name: Setting name<p>
+   * date: optional; if missing will be set to new Date(0)<p>
+   * value: Setting value<p>
    */
   setSetting (p) {
     this.#settings.set(p);
@@ -71,12 +71,12 @@ class SimulationContext {
    * @param {string} p.name - Setting name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {boolean} [p.throwIfNotDefined] - Optional flag to throw. See @throws for description of this option.
-   * @return {undefined|*} Setting; if not found, returns undefined
-   * if `endDate` is not defined, returns the value defined before or at `date`;
-   * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
-   * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,
-   * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).
-   * Returned data is not cloned because Settings are stored with `freezeValues` option = true then the values are deep frozen.
+   * @return {undefined|*} Setting; if not found, returns undefined<p>
+   * if `endDate` is not defined, returns the value defined before or at `date`;<p>
+   * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.<p>
+   * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,<p>
+   * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).<p>
+   * Returned data is not cloned because Settings are stored with `freezeValues` option = true then the values are deep frozen.<p>
    * @throws {Error} If `throwIfNotDefined` is true, throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
    */
   getSetting ({ scenario, unit, name, date, throwIfNotDefined = true }) {
@@ -96,15 +96,15 @@ class SimulationContext {
   }
 
   /**
-   * Set Drivers from an array of scenarios, units, names, dates and value.
-   * Drivers are immutable.
-   * If a date is already present, the second one will be ignored.
-   * @param {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} p
-   * scenario: optional; null, undefined or '' means `currentScenario` from constructor
-   * unit: Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
-   * name: Driver name
-   * date: optional; if missing will be set to new Date(0)
-   * value: Driver value, will be sanitized to number
+   * Set Drivers from an array of scenarios, units, names, dates and value.<p>
+   * Drivers are immutable.<p>
+   * If a date is already present, the second one will be ignored.<p>
+   * @param {{scenario?: string[], unit?: string[], name: string, date?: Date, value: *}[]} p
+   * scenario: optional; array of strings (to set more than one scenario); '' means `currentScenario` from constructor<p>
+   * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from constructor<p>
+   * name: Driver name<p>
+   * date: optional; if missing will be set to new Date(0)<p>
+   * value: Driver value, will be sanitized to number<p>
    */
   setDriver (p) {
     this.#drivers.set(p);
@@ -119,16 +119,16 @@ class SimulationContext {
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
    * @param {DRIVERS_GET_CALC} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
-   * @return {undefined|number} Driver; if not found, returns undefined
-   * if `endDate` is not defined, returns the value defined before or at `date`;
-   * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.
+   * @return {undefined|number} Driver; if not found, returns undefined<p>
+   * if `endDate` is not defined, returns the value defined before or at `date`;<p>
+   * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.<p>
    */
   getDriver ({ scenario, unit, name, date, endDate, calc }) {
     return this.#drivers.get({ scenario, unit, name, date, endDate, calc });
   }
 
   /**
-   * Set a TaskLock; TaskLocks are immutable.
+   * Set a TaskLock; TaskLocks are immutable.<p>
    * If TaskLock is a callback function that must preserve its own `this` context, must be defined as an arrow function. see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
    * @param {Object} p
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor

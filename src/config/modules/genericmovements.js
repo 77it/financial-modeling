@@ -1,68 +1,57 @@
-export { tablesNames, tablesEnums, moduleSanitization };
+export { tablesInfo };
 
-import { schema, deepFreeze } from '../../modules/deps.js';
+import { schema, deepFreeze, tablesInfoValidation } from '../../modules/deps.js';
 
-const tablesNames = {
+// for tablesInfo schema and validation see function `tablesInfoValidation` in `src/modules/_utils/tablesinfo_validation.js`
+const tablesInfo = {
   SETTINGS: {
     tableName: 'settings',
+    description: 'Settings table for storing various configurations',
     columns: {
-      NAME: 'name',
-      VALUE: 'value'
+      NAME: {
+        name: 'name',
+        sanitization: schema.STRING_TYPE,
+        values: {
+          ACCOUNTING_TYPE: 'type',
+          ACCOUNTING_VS_TYPE: 'vs type'
+        }
+      },
+      VALUE: {
+        name: 'value',
+        sanitization: schema.ANY_TYPE,
+      }
     }
   },
   SET: {
     tableName: 'set',
+    description: 'Set table to set accounting writings',
     columns: {
-      INACTIVE: 'inactive',
-      SIMULATION_INPUT: 'simulation input',
-      ACCOUNTING_TYPE: 'type',
-      ACCOUNTING_OPPOSITE_TYPE: 'vs type',
-      SIMOBJECT_NAME: 'name'
-    }
-  }
-};
-
-const tablesEnums = {
-  SETTINGS: {
-    columns: {
-      NAME: {
-        ACCOUNTING_TYPE: 'type',
-        ACCOUNTING_VS_TYPE: 'vs type'
+      INACTIVE: {
+        name: 'inactive',
+        sanitization: schema.BOOLEAN_TYPE,
+        description: 'boolean flag to mark a row for execution or not'
       },
+      SIMULATION_INPUT: {
+        name: 'simulation input',
+        sanitization: schema.ANY_TYPE,
+        description: 'input for the simulation (loan description, etc.)'
+      },
+      ACCOUNTING_TYPE: {
+        name: 'type',
+        sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
+      },
+      ACCOUNTING_OPPOSITE_TYPE: {
+        name: 'vs type',
+        sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
+      },
+      SIMOBJECT_NAME: {
+        name: 'name',
+        description: 'SimObject name',
+        sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
+      }
     }
   }
 };
 
-const tablesExplanations = {
-  SET: {
-    columns: {
-      INACTIVE: 'boolean flag to mark a row for execution or not',
-      SIMULATION_INPUT: 'input for the simulation (loan description, etc.)',
-      SIMOBJECT_NAME: 'SimObject name'
-    }
-  }
-};
-
-/** @type {{tableName: string, parse?: *, sanitization?: *, sanitizationOptions?: *}[]} */
-const moduleSanitization = [
-  {
-    tableName: tablesNames.SETTINGS.tableName,
-    sanitization: {
-      [tablesNames.SETTINGS.columns.NAME]: schema.STRING_TYPE,
-      [tablesNames.SETTINGS.columns.VALUE]: schema.ANY_TYPE
-    }
-  },
-  {
-    tableName: tablesNames.SET.tableName,
-    sanitization: {
-      [tablesNames.SET.columns.INACTIVE]: schema.BOOLEAN_TYPE,
-      [tablesNames.SET.columns.SIMULATION_INPUT]: schema.ANY_TYPE,
-      [tablesNames.SET.columns.ACCOUNTING_TYPE]: schema.STRINGUPPERCASETRIMMED_TYPE,
-      [tablesNames.SET.columns.ACCOUNTING_OPPOSITE_TYPE]: schema.STRINGUPPERCASETRIMMED_TYPE,
-      [tablesNames.SET.columns.SIMOBJECT_NAME]: schema.STRINGUPPERCASETRIMMED_TYPE,
-    },
-  }
-];
-
-deepFreeze(tablesNames);
-deepFreeze(moduleSanitization);
+tablesInfoValidation(tablesInfo);
+deepFreeze(tablesInfo);

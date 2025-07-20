@@ -11,6 +11,7 @@ export { isStringOrBooleanTrue, isStringOrBooleanFalse } from '../lib/boolean_ut
 export { customParseYAML as parseYAML } from '../lib/yaml.js';
 export { parseJSON5 } from '../lib/json5.js';
 export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortValuesAndDatesByDate } from '../lib/obj_utils.js';
+export { tablesInfoValidation } from '../modules/_utils/tablesinfo_validation.js'
 
 export { Ledger } from '../engine/ledger/ledger.js';
 export { SimulationContext } from '../engine/context/simulationcontext.js';
