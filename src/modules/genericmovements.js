@@ -1,7 +1,7 @@
 // TODO to implement
 
 import * as SETTINGS_NAMES from '../config/settings_names.js';
-import { tablesNames, tablesEnums, moduleSanitization } from '../config/modules/genericmovements.js';
+import { tablesInfo } from '../config/modules/genericmovements.js';
 import { Agenda } from './_utils/agenda.js';
 import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 import { moduleDataLookup } from './_utils/search/module_data_lookup.js';
@@ -32,20 +32,20 @@ export class Module {
   /** @type {undefined|string} */
   #accounting_type__default;
   #accounting_type__default__moduleDataLookup = {
-    lookup_value: tablesEnums.SETTINGS.columns.NAME.ACCOUNTING_TYPE,
+    lookup_value: tablesInfo.SETTINGS.columns.NAME.values.ACCOUNTING_TYPE,
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
-    tableName: tablesNames.SETTINGS.tableName,
-    lookup_column: tablesNames.SETTINGS.columns.NAME,
-    return_column: tablesNames.SETTINGS.columns.VALUE
+    tableName: tablesInfo.SETTINGS.tableName,
+    lookup_column: tablesInfo.SETTINGS.columns.NAME.name,
+    return_column: tablesInfo.SETTINGS.columns.VALUE.name
   };
   /** @type {undefined|string} */
   #accounting_opposite_type__default;
   #accounting_opposite_type__default__moduleDataLookup = {
-    lookup_value: tablesEnums.SETTINGS.columns.NAME.ACCOUNTING_VS_TYPE,
+    lookup_value: tablesInfo.SETTINGS.columns.NAME.values.ACCOUNTING_VS_TYPE,
     sanitization: schema.STRINGUPPERCASETRIMMED_TYPE,
-    tableName: tablesNames.SETTINGS.tableName,
-    lookup_column: tablesNames.SETTINGS.columns.NAME,
-    return_column: tablesNames.SETTINGS.columns.VALUE
+    tableName: tablesInfo.SETTINGS.tableName,
+    lookup_column: tablesInfo.SETTINGS.columns.NAME.name,
+    return_column: tablesInfo.SETTINGS.columns.VALUE.name
   };
   //#endregion data from modules
 
@@ -79,7 +79,7 @@ export class Module {
    */
   init ({ moduleData, simulationContext }) {
     // save moduleData, after sanitizing it (call it with 'Object.values' to generate an array of all sanitizations)
-    this.#moduleData = sanitizeModuleData({ moduleData, moduleSanitization });
+    this.#moduleData = sanitizeModuleData({ moduleData: moduleData, tablesInfo: tablesInfo });
     // save simulationContext
     this.#ctx = simulationContext;
   }
@@ -104,18 +104,18 @@ export class Module {
 
     // loop all tables
     for (const currTab of this.#moduleData.tables) {
-      const tSet = tablesNames.SET.columns;
+      const tSet = tablesInfo.SET.columns;
 
       const simulationDatePrefix = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$SIMULATION_COLUMN_PREFIX });
       const historicalDatePrefix = this.#ctx.getSetting({ name: SETTINGS_NAMES.Simulation.$$HISTORICAL_COLUMN_PREFIX });
 
-      if (eq2(currTab.tableName, tablesNames.SET.tableName)) {
+      if (eq2(currTab.tableName, tablesInfo.SET.tableName)) {
         for (const row of currTab.table) {
-          if (!row[tSet.INACTIVE]) {
-            const simulation_input = row[tSet.SIMULATION_INPUT];
-            const accounting_type = row[tSet.ACCOUNTING_TYPE] ?? this.#accounting_type__default;
-            const accounting_opposite_type = row[tSet.ACCOUNTING_OPPOSITE_TYPE] ?? this.#accounting_opposite_type__default;
-            const simObject_name = row[tSet.SIMOBJECT_NAME];  // is optional in the new SimObject schema `newsimobjectdto.schema.js`
+          if (!row[tSet.INACTIVE.name]) {
+            const simulation_input = row[tSet.SIMULATION_INPUT.name];
+            const accounting_type = row[tSet.ACCOUNTING_TYPE.name] ?? this.#accounting_type__default;
+            const accounting_opposite_type = row[tSet.ACCOUNTING_OPPOSITE_TYPE.name] ?? this.#accounting_opposite_type__default;
+            const simObject_name = row[tSet.SIMOBJECT_NAME.name];  // is optional in the new SimObject schema `newsimobjectdto.schema.js`
 
             const warning = [];
             if (isNullOrWhiteSpace(accounting_type))

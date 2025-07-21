@@ -1,4 +1,7 @@
+// test with   deno test --allow-import
+
 import { sanitizeModuleData } from '../../../src/modules/_utils/sanitize_module_data.js';
+import { tablesInfoValidation } from '../../../src/modules/_utils/tablesinfo_validation.js';
 
 import * as CONST from '../../../src/config/modules/_const.js';
 import * as schema from '../../../src/lib/schema.js';
@@ -15,42 +18,46 @@ t('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim matc
   const tablesInfo = {};
   tablesInfo.tA = {};
   tablesInfo.tA.tableName = 'TABA';
-  tablesInfo.tA.columns = { name: '  naMe  ', value: '  vAlue ' };
-  // If obj is array, the sanitization is done on contained objects.
-  // If sanitization is an array containing a single object [{obj}], the sanitization will be done with the object and an array will be returned.
-  // In that case sanitization IS NOT an array, then the sanitization will be done against the object.
-  tablesInfo.tA.sanitization = {
-    [tablesInfo.tA.columns.name]: schema.ANY_TYPE,
-    [tablesInfo.tA.columns.value]: schema.ANY_TYPE
+  tablesInfo.tA.columns = {
+    name: {
+      name: '  naMe  ',
+      sanitization: schema.ANY_TYPE
+    },
+    value: {
+      name: '  vAlue ',
+      sanitization: schema.ANY_TYPE
+    }
   };
   tablesInfo.tB = {};
   tablesInfo.tB.tableName = 'TABB';
-  tablesInfo.tB.columns = { name: '  NAme', value: '  valuE  ' };
-  // If obj is array, the sanitization is done on contained objects.
-  // If sanitization is an array containing a single object [{obj}], the sanitization will be done with the object and an array will be returned.
-  // In that case sanitization IS an array, then the sanitization will be done against the object contained in the array.
-  tablesInfo.tB.sanitization = [{
-    [tablesInfo.tB.columns.name]: schema.STRINGUPPERCASETRIMMED_TYPE,
-    [tablesInfo.tB.columns.value]: schema.STRINGUPPERCASETRIMMED_TYPE
-  }];
+  tablesInfo.tB.columns = {
+    name: {
+      name: '  NAme',
+      sanitization: schema.STRINGUPPERCASETRIMMED_TYPE
+    },
+    value: {
+      name: '  valuE  ',
+      sanitization: schema.STRINGUPPERCASETRIMMED_TYPE
+    }
+  };
   tablesInfo.toParse_tC = {};
   tablesInfo.toParse_tC.tableName = 'TABc';
-  tablesInfo.toParse_tC.columns = { name: '  naME', value: '  VALue  ' };
-  tablesInfo.toParse_tC.parse = {
-    [tablesInfo.toParse_tC.columns.name]: CONST.YAML_PARSE,
-    [tablesInfo.toParse_tC.columns.value]: CONST.JSON5_PARSE
-  };
-  // If obj is array, the sanitization is done on contained objects.
-  // If sanitization is an array containing a single object [{obj}], the sanitization will be done with the object and an array will be returned.
-  // In that case sanitization IS NOT an array, then the sanitization will be done against the object.
-  tablesInfo.toParse_tC.sanitization = {
-    [tablesInfo.toParse_tC.columns.name]: schema.ANY_TYPE,
-    [tablesInfo.toParse_tC.columns.value]: schema.ANY_TYPE
+  tablesInfo.toParse_tC.columns = {
+    name: {
+      name: '  naME',
+      sanitization: schema.ANY_TYPE,
+      parse: CONST.YAML_PARSE
+    },
+    value: {
+      name: '  VALue  ',
+      sanitization: schema.ANY_TYPE,
+      parse: CONST.JSON5_PARSE
+    }
   };
   //#endregion build tables info object
 
-  // extract the list of sanitizations, array of {tableName: string, sanitization: *, sanitizationOptions?: *}
-  const list_of_sanitizations = Object.values(tablesInfo);
+  // test correctness of tablesInfo
+  tablesInfoValidation(tablesInfo);
 
   //#region build ModuleData
   const tableA_data = [
@@ -122,8 +129,41 @@ t('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim matc
   //#endregion ARRANGE
 
   // ACT   sanitize the data (in place, without cloning moduleData)
-  sanitizeModuleData({ moduleData: moduleData, moduleSanitization: list_of_sanitizations });
+  sanitizeModuleData({ moduleData: moduleData, tablesInfo: tablesInfo });
 
   // ASSERT
   assert(eqObj(moduleData, moduleData_exp));
+});
+
+t('sanitizeModuleData test: test throws', async () => {
+  //#region ARRANGE
+  //#region build tables info object
+  const tablesInfo = {};
+  tablesInfo.tA = {};
+  tablesInfo.tA.tableName = 'TABA';
+  tablesInfo.tA.columns = {
+    mamma: {
+      name: '  naMe  ',
+    },
+  };
+  //#endregion build tables info object
+
+  //#region build ModuleData
+  const tableA_data = [
+    { name: 99, value: 'ninenine' },
+    { name: 'two', value: 2 },
+  ];
+
+ const moduleData = new ModuleData({
+    moduleName: 'xxx', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
+    tables: [
+      { tableName: 'tabA', table: tableA_data },
+    ]
+  });
+  //#endregion build ModuleData
+
+  // assert throws: missing sanitization field in tablesInfo.columns.mamma
+  assert.throws(() => {
+    sanitizeModuleData({ moduleData: moduleData, tablesInfo: tablesInfo });
+  }, { message: 'Sanitization is mandatory for column name in table tabA, but is missing in tablesInfo {"tableName":"TABA","columns":{"mamma":{"name":"  naMe  "}}}' });
 });

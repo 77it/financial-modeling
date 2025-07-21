@@ -65,7 +65,7 @@ function sanitizeModuleData ({ moduleData, tablesInfo }) {
     for (const _tableInfo_column of Object.values(_tableInfo.columns)) {
       // loop `_table` rows
       for (const _table_row of _table.table) {
-        for (const _table_row_key of Object.values(_table_row)) {
+        for (const _table_row_key of Object.keys(_table_row)) {
           if (!eq2(_table_row_key, _tableInfo_column.name))
             continue;
 

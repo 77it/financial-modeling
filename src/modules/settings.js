@@ -1,4 +1,4 @@
-// here is not defined the YAML parsing, because parse option is set in the object 'moduleSanitization'
+// here is not defined the YAML parsing, because parse option is set in the object 'tablesInfo'
 // in the settings module config file `src/config/modules/settings.js`
 // imported and used below
 import { tablesInfo } from '../config/modules/settings.js';
@@ -42,7 +42,7 @@ export class Module {
    */
   init ({ moduleData, simulationContext }) {
     // save moduleData, after sanitizing it
-    this.#moduleData = sanitizeModuleData({ moduleData, tablesInfo });
+    this.#moduleData = sanitizeModuleData({ moduleData: moduleData, tablesInfo: tablesInfo });
     // save simulationContext
     this.#simulationContext = simulationContext;
   }
@@ -90,38 +90,38 @@ export class Module {
   // is an arrow function because it is used as a callback
   /** Set Simulation Settings */
   #taskLock_setSimulationSettings = () => {
-    this.#sanitizeValidateAndSetSettingsFromATable(tablesNames.SET);
+    this.#sanitizeValidateAndSetSettingsFromATable(tablesInfo.SET);
   };
 
   /** Set Active Settings */
   #setActiveSettings () {
-    this.#sanitizeValidateAndSetSettingsFromATable(tablesNames.ACTIVESET);
+    this.#sanitizeValidateAndSetSettingsFromATable(tablesInfo.ACTIVESET);
   }
 
   /**
    * Set Settings from a table, sanitizing values:
    * - loop all tables in `this.#moduleData.tables`
-   * - if `tableNames.tableName` matches the table name from the parameter in a case-insensitive way, loop all rows
+   * - if `tablesInfo.tableName` matches the table name from the parameter in a case-insensitive way, loop all rows
    * - for each row:
-   *   - read the value from the row using the column name from `tableNames.columns.VALUE`
+   *   - read the value from the row using the column name from `tablesInfo.columns.VALUE.name`
    *   - sanitize and validate the value using the sanitization settings from `SettingsSchemas` object (the match is done in a case-insensitive way)
    *   - if the sanitization is not found, simply set the value without sanitization
-   * @param {{tableName: string, columns: { SCENARIO: string, UNIT: string, NAME: string, DATE: string, VALUE: string }}} tableNames
+   * @param {{tableName: string, columns: { SCENARIO: {name: string}, UNIT: {name: string}, NAME: {name: string}, DATE: {name: string}, VALUE: {name: string} }}} tablesInfo
    */
-  #sanitizeValidateAndSetSettingsFromATable = (tableNames) => {
+  #sanitizeValidateAndSetSettingsFromATable = (tablesInfo) => {
     if (this.#moduleData?.tables == null) return;
 
     // loop all tables
     for (const _table of this.#moduleData.tables) {
       // if tableName == table.name, loop all rows and create a setting for each entry
-      if (eq2(_table.tableName, tableNames.tableName)) {
+      if (eq2(_table.tableName, tablesInfo.tableName)) {
         for (const row of _table.table) {
           // read value from row (key match trim & case insensitive)
-          const _value = get2(row, tableNames.columns.VALUE);
+          const _value = get2(row, tablesInfo.columns.VALUE.name);
           // takes the sanitization settings from SettingsSchemas object
           // (the setting name is the key of the object, the match is done in a case-insensitive way)
           // if the setting name is not found in SettingsSchemas, the sanitization is set to undefined and the setting value is not sanitized
-          const _sanitization = get2(SettingsSchemas, get2(row, tableNames.columns.NAME));
+          const _sanitization = get2(SettingsSchemas, get2(row, tablesInfo.columns.NAME.name));
 
           let _sanitizedValue = _value; // default value is not sanitized
 
@@ -141,10 +141,10 @@ export class Module {
 
           // create setting reading scenario, unit, name, date from row (key match trim & case insensitive)
           this.#simulationContext.setSetting([{
-            scenario: get2(row, tableNames.columns.SCENARIO),
-            unit: get2(row, tableNames.columns.UNIT),
-            name: get2(row, tableNames.columns.NAME),
-            date: get2(row, tableNames.columns.DATE),
+            scenario: get2(row, tablesInfo.columns.SCENARIO.name),
+            unit: get2(row, tablesInfo.columns.UNIT.name),
+            name: get2(row, tablesInfo.columns.NAME.name),
+            date: get2(row, tablesInfo.columns.DATE.name),
             value: _sanitizedValue
           }]);
         }
