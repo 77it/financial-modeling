@@ -6,7 +6,7 @@ import { schema, deepFreeze, tablesInfoValidation } from '../../modules/deps.js'
 const tablesInfo = {
   SETTINGS: {
     tableName: 'settings',
-    description: 'Settings table for storing various configurations',
+    description: 'Settings table for storing various configurations about this module',
     columns: {
       NAME: {
         name: 'name',
@@ -24,17 +24,17 @@ const tablesInfo = {
   },
   SET: {
     tableName: 'set',
-    description: 'Set table to set accounting writings',
+    description: 'Set table to define accounting writings',
     columns: {
       INACTIVE: {
         name: 'inactive',
+        description: 'boolean flag to mark a row for execution or not',
         sanitization: schema.BOOLEAN_TYPE,
-        description: 'boolean flag to mark a row for execution or not'
       },
       SIMULATION_INPUT: {
         name: 'simulation input',
+        description: 'input for the simulation (loan description, etc.)',
         sanitization: schema.ANY_TYPE,
-        description: 'input for the simulation (loan description, etc.)'
       },
       ACCOUNTING_TYPE: {
         name: 'type',
