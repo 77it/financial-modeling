@@ -26,18 +26,18 @@ t('Drivers tests', async () => {
     /Error: EndDate.*is greater than today/);
 
   const input = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'driver XYZ', date: new Date(2022, 11, 25), value: 999 },  // #driver0, mutable, ignored (not added)
+    {scenario: ['SCENARIO1'], unit: ['UnitA'], name: 'driver XYZ', date: new Date(2022, 11, 25), value: 999 },  // #driver0, mutable, ignored (not added)
 
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), value: '55' },  // #driver1[0], sanitized
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC', value: '66' },  //  #driver2   value without date, set to Date(0), sanitized
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2), value: '5555' },  // #driver1[2], sanitized
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25), value: '555' },  // #driver1[1], sanitized
+    {scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ', date: new Date(2022, 11, 25), value: '55' },  // #driver1[0], sanitized
+    {scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver ABC', value: '66' },  //  #driver2   value without date, set to Date(0), sanitized
+    {scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ', date: new Date(2024, 0, 2), value: '5555' },  // #driver1[2], sanitized
+    {scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ', date: new Date(2023, 1, 25), value: '555' },  // #driver1[1], sanitized
 
-    { unit: 'UnitA', name: '$driver XYZ2', date: new Date(2022, 11, 25), value: 77 },  // #driver3[0]  missing scenario
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2024, 0, 2), value: 7777 },  // #driver3[2]
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2023, 1, 25), value: 777 },  // #driver3[1]
+    { unit: ['UnitA'], name: '$driver XYZ2', date: new Date(2022, 11, 25), value: 77 },  // #driver3[0]  missing scenario
+    {scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ2', date: new Date(2024, 0, 2), value: 7777 },  // #driver3[2]
+    {scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ2', date: new Date(2023, 1, 25), value: 777 },  // #driver3[1]
 
-    { scenario: CFG.SCENARIO_BASE, unit: CFG.SIMULATION_NAME, name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25), value: 888 },  // #driver4[0]
+    {scenario: [CFG.SCENARIO_BASE], unit: [CFG.SIMULATION_NAME], name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25), value: 888 },  // #driver4[0]
 
     { name: '$driver XYZ4 missing Scenario and Unit', date: new Date(2023, 1, 25), value: 999 },  // #driver5[0]
 
@@ -50,7 +50,7 @@ t('Drivers tests', async () => {
 
   // #driver1 update to immutable driver, throw
   const input2 = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 9999 }
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ', date: new Date(2022, 12, 25), value: 9999 }
   ];
   assert.throws(() => { drivers.set(input2); });
 
@@ -152,12 +152,12 @@ t('Drivers tests', async () => {
   // read first prefix
   const input_daily_drivers = [
     // daily driver #1
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 25), value: 55 },
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 2), value: 5555 },
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 25), value: 55 },
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 2), value: 5555 },
 
     // daily driver #2
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 25), value: 77 },
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 2), value: 888 },
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 25), value: 77 },
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 2), value: 888 },
   ];
   const _retErr_daily = drivers.set(input_daily_drivers);
 

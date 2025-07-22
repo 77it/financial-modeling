@@ -68,8 +68,9 @@ class Settings {
     /** @type {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} */
     const p2 = [];
     for (const item of p) {
-      const scenarios = item.scenario ?? [undefined];
-      const units = item.unit ?? [undefined];
+      // set `scenarios` and `units` to `[undefined]` if they are not already arrays or if they are empty arrays
+      const scenarios = (Array.isArray(item.scenario) && item.scenario.length > 0) ? item.scenario : [undefined];
+      const units = (Array.isArray(item.unit) && item.unit.length > 0) ? item.unit : [undefined];
 
       for (const scenario of scenarios) {
         for (const unit of units) {

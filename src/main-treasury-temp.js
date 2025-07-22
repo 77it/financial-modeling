@@ -353,7 +353,7 @@ function _get_SimulationSetting_FromModuleDataArray ({
 
     const _setting = (() => {
       for (const row of settingsTable) {
-        if (
+        if (   xxx; // aggiorna codice: loop ogni elemento array per cercare scenario e unit name con eq2()
           (eq2(get2(row, tableInfo.columns.SCENARIO.name), CFG.SCENARIO_BASE) || isNullOrWhiteSpace(get2(row, tableInfo.columns.SCENARIO.name))) &&
           eq2(get2(row, tableInfo.columns.UNIT.name), CFG.SIMULATION_NAME) &&
           eq2(row[tableInfo.columns.NAME.name], settingName)

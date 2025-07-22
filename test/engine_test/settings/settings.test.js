@@ -21,25 +21,25 @@ t('Settings tests', async () => {
   const symbol = Symbol('symbol');
 
   const input = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 25), value: 55 },  // #setting0, mutable, accepted
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: 'setting XYZ', date: new Date(2022, 11, 25), value: 55 },  // #setting0, mutable, accepted
 
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), value: '55' },  // #setting1[0], sanitized
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC', value: '66' },  //  #setting2   value without date, set to Date(0), sanitized (default date)
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2), value: '5555' },  // #setting1[2], sanitized
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25), value: '555' },  // #setting1[1], sanitized
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ', date: new Date(2022, 11, 25), value: '55' },  // #setting1[0], sanitized
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver ABC', value: '66' },  //  #setting2   value without date, set to Date(0), sanitized (default date)
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ', date: new Date(2024, 0, 2), value: '5555' },  // #setting1[2], sanitized
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ', date: new Date(2023, 1, 25), value: '555' },  // #setting1[1], sanitized
 
-    { unit: 'UnitA', name: '$driver XYZ2', date: new Date(2022, 11, 25), value: 77 },  // #setting3[0]  missing scenario
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2024, 0, 2), value: [1, 2, 'aaa'] },  // #setting3[2]
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2023, 1, 25), value: symbol },  // #setting3[1]
+    { unit: ['UnitA'], name: '$driver XYZ2', date: new Date(2022, 11, 25), value: 77 },  // #setting3[0]  missing scenario
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ2', date: new Date(2024, 0, 2), value: [1, 2, 'aaa'] },  // #setting3[2]
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ2', date: new Date(2023, 1, 25), value: symbol },  // #setting3[1]
 
-    { scenario: CFG.SCENARIO_BASE, unit: CFG.SIMULATION_NAME, name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25), value: 888 },  // #setting4[0]
+    { scenario: [CFG.SCENARIO_BASE], unit: [CFG.SIMULATION_NAME], name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25), value: 888 },  // #setting4[0]
 
     { name: '$driver XYZ4 missing Scenario and Unit', date: new Date(2023, 1, 25), value: 999 },  // #setting5[0]
   ];
   drivers.set(input);
 
   const input2 = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 12, 25), value: 9999 }  // #driver1 ignored, is immutable
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$driver XYZ', date: new Date(2022, 12, 25), value: 9999 }  // #driver1 ignored, is immutable
   ];
   assert.throws(() => { drivers.set(input2); });
 
@@ -107,8 +107,8 @@ t('Settings tests', async () => {
 
   // update mutable settings (adding new dates, editing existing one)
   const input3 = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 25), value: 5555 },  // #setting0[0], mutable updated
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ', date: new Date(2022, 11, 27), value: { a: 888, b: [555] } },  // #setting0[1], new
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: 'setting XYZ', date: new Date(2022, 11, 25), value: 5555 },  // #setting0[0], mutable updated
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: 'setting XYZ', date: new Date(2022, 11, 27), value: { a: 888, b: [555] } },  // #setting0[1], new
   ];
   drivers.set(input3);
   // #setting0 tests
@@ -139,8 +139,8 @@ t('Settings tests', async () => {
   class Class1 { #count; constructor() { this.#count = 0; this.a = 1; this.b = [2, 3];} count() { this.#count++; return this.#count } };
   const instance1 = new Class1();
   const input4 = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', date: new Date(2022, 11, 25), value: object1 },  // #setting6[0], immutable drivers without dates, the first value is set
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: '$setting XYZ-class1', date: new Date(2022, 11, 27), value: instance1 },  // #setting7[0]
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$$setting XYZ-object1', date: new Date(2022, 11, 25), value: object1 },  // #setting6[0], immutable drivers without dates, the first value is set
+    { scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$setting XYZ-class1', date: new Date(2022, 11, 27), value: instance1 },  // #setting7[0]
   ];
   drivers.set(input4);
 
@@ -149,8 +149,8 @@ t('Settings tests', async () => {
   assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1' }), object1);
 
   // #setting6[0] update to immutable driver, throw
-  assert.throws(() => { drivers.set([{ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', date: new Date(2022, 1, 1), value: 123456 }]); });
-  assert.throws(() => { drivers.set([{ scenario: 'SCENARIO1', unit: 'UnitA', name: '$$setting XYZ-object1', value: 654321 }]); });
+  assert.throws(() => { drivers.set([{ scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$$setting XYZ-object1', date: new Date(2022, 1, 1), value: 123456 }]); });
+  assert.throws(() => { drivers.set([{ scenario: ['SCENARIO1'], unit: ['UnitA'], name: '$$setting XYZ-object1', value: 654321 }]); });
 
   drivers.setToday(new Date(2022, 11, 27));
 
@@ -180,7 +180,7 @@ t('Settings tests', async () => {
   // add mutable settings with object value, that won't be frozen
   const object2 = { a: 1, b: [2, 3] };
   const input5 = [
-    { scenario: 'SCENARIO1', unit: 'UnitA', name: 'setting XYZ-object2', date: new Date(2022, 11, 25), value: object2 },  // #setting8[0]
+    { scenario:  ['SCENARIO1'], unit: ['UnitA'], name: 'setting XYZ-object2', date: new Date(2022, 11, 25), value: object2 },  // #setting8[0]
   ];
   drivers.set(input5);
   // #setting8[0] tests

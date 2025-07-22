@@ -14,8 +14,8 @@ import { ModuleData, schema, validate, sanitize, eq2, get2, parseYAML, parseJSON
  * @throws {Error} if moduleData is not an instance of `ModuleData` or if tablesInfo is not an object
  */
 function sanitizeModuleData ({ moduleData, tablesInfo }) {
-  if (moduleData == null || !(moduleData instanceof ModuleData))
-    throw new Error('moduleData must be an instance of ModuleData');
+  if (moduleData == null)
+    throw new Error('moduleData must be an object');
   if (tablesInfo == null)
     throw new Error('tablesInfo must be an object');
 
