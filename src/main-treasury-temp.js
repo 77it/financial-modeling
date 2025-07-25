@@ -7,7 +7,7 @@
  and emerge victorious on the other side.
  May this code serve as a guide and a beacon of hope,
  to all who dare to venture forth into the realm of numbers.
-*/
+ */
 
 // run with
 // `deno run --allow-read --allow-write THIS-FILE.js --input INPUT --output OUTPUT --errors ERRORS`
@@ -42,24 +42,24 @@ import * as CFG from './config/engine.js';
 //#endregion local imports
 
 // call `main` function only if there are command line arguments  (useful to not call `main` function with the following code when importing this file)
-const args = (typeof Deno !== "undefined") ? Deno.args : process.argv.slice(2);
+const args = (typeof Deno !== 'undefined') ? Deno.args : process.argv.slice(2);
 // check if array is an array, and then if the length is > 0
 if (Array.isArray(args) && args.length > 0) {
-  /** @type {"string"} */
+  /** @type {'string'} */
   const str_txt = 'string';  // const that contains the string 'string', to prevent type error in Deno 1.40.5
 
   const options = {
     input: { type: str_txt, short: 'i', default: '' },
     output: { type: str_txt, short: 'o', default: '' },
-    errors: { type: str_txt, short: 'e', default: ''},
+    errors: { type: str_txt, short: 'e', default: '' },
   };
 
   /** @type {{values: {input: string | undefined, output: string | undefined, errors: string | undefined}, positionals: any}} */
   const args_parsed = (() => {
     try {
-      return parseArgs({args, options});
+      return parseArgs({ args, options });
     } catch (e) {
-      return {values: {input: undefined, output: undefined, errors: undefined}, positionals: []};
+      return { values: { input: undefined, output: undefined, errors: undefined }, positionals: [] };
     }
   })();
 
@@ -126,7 +126,7 @@ async function main ({
     const _moduleDataArray = await convertExcelToModuleDataArray({ excelInput: excelUserInput });
 
     /** @type {* | undefined} */
-    const _settingsTable = _get_SimulationSetting_Table({moduleDataArray: _moduleDataArray})
+    const _settingsTable = _get_SimulationSetting_Table({ moduleDataArray: _moduleDataArray });
 
     // get ModulesLoader class from a Setting (from `moduleDataArray`) or, as a fallback, from `'./modules/_modules_loader.js'` file
     const _$$MODULESLOADER_URL = _get_SimulationSetting_FromModuleDataArray({
@@ -292,84 +292,98 @@ async function main ({
 //#region private functions
 /**
  @private
- * Returns a setting from `moduleDataArray`, optionally sanitizing it
+ * Returns the Settings table `moduleDataArray`
  * @param {Object} p
  * @param {ModuleData[]} p.moduleDataArray
- * @return {* | undefined} - undefined if some error occurs, otherwise Setting read from `moduleDataArray`
+ * @return {* | undefined} - undefined if the table is not found, otherwise Setting table
+ * @throws {Error} If sanitization mismatch occurs
  */
 function _get_SimulationSetting_Table ({
   moduleDataArray
 }) {
-  try {
-    const tableInfo = SETTINGS_TABLES_INFO.SET;
+  const tableInfo = SETTINGS_TABLES_INFO.SET;
 
-    const SETTINGS_SANITIZATION = {
-      [tableInfo.columns.SCENARIO.name]: tableInfo.columns.SCENARIO.sanitization,
-      [tableInfo.columns.UNIT.name]: tableInfo.columns.UNIT.sanitization,
-      [tableInfo.columns.NAME.name]: tableInfo.columns.NAME.sanitization,
-      [tableInfo.columns.DATE.name]: tableInfo.columns.DATE.sanitization,
-      [tableInfo.columns.VALUE.name]: tableInfo.columns.VALUE.sanitization
-    };
+  const SETTINGS_SANITIZATION = {
+    [tableInfo.columns.SCENARIO.name]: schema.ARRAY_OF_STRINGS_TYPE,
+    [tableInfo.columns.UNIT.name]: schema.ARRAY_OF_STRINGS_TYPE,
+    [tableInfo.columns.NAME.name]: schema.STRING_TYPE,
+    [tableInfo.columns.DATE.name]: schema.DATE_TYPE,
+    [tableInfo.columns.VALUE.name]: schema.ANY_TYPE
+  };
 
-    return (() => {
-      for (const moduleData of moduleDataArray) {
-        if (eq2(moduleData.moduleName, SETTINGS_MODULE_NAME)) {
-          for (const _tableSrc of moduleData.tables) {
-            if (eq2(_tableSrc.tableName, tableInfo.tableName)) {
-              // clone _tableSrc to avoid to store the sanitization effect
-              // because we can't know if the sanitization applied by the module will be different
-              const _table = structuredClone(_tableSrc.table);
-              sanitize({
-                value: _table,
-                sanitization: SETTINGS_SANITIZATION
-              });
-              return _table;
-            }
+  const SETTINGS_SANITIZATION_FROM_TABLEINFO = {
+    [tableInfo.columns.SCENARIO.name]: tableInfo.columns.SCENARIO.sanitization,
+    [tableInfo.columns.UNIT.name]: tableInfo.columns.UNIT.sanitization,
+    [tableInfo.columns.NAME.name]: tableInfo.columns.NAME.sanitization,
+    [tableInfo.columns.DATE.name]: tableInfo.columns.DATE.sanitization,
+    [tableInfo.columns.VALUE.name]: tableInfo.columns.VALUE.sanitization
+  };
+
+  if (!eq2(SETTINGS_SANITIZATION, SETTINGS_SANITIZATION_FROM_TABLEINFO)) {
+    throw new Error(`Fatal error during reading of Settings table: sanitization mismatch, expected ${JSON.stringify(SETTINGS_SANITIZATION)}, got ${JSON.stringify(SETTINGS_SANITIZATION_FROM_TABLEINFO)}`);
+  }
+
+  return (() => {
+    for (const moduleData of moduleDataArray) {
+      if (eq2(moduleData.moduleName, SETTINGS_MODULE_NAME)) {
+        for (const _tableSrc of moduleData.tables) {
+          if (eq2(_tableSrc.tableName, tableInfo.tableName)) {
+            // clone _tableSrc to avoid to store the sanitization effect
+            // because we can't know if the sanitization applied by the module will be different
+            const _table = structuredClone(_tableSrc.table);
+            sanitize({
+              value: _table,
+              sanitization: SETTINGS_SANITIZATION
+            });
+            return _table;
           }
         }
       }
-    })();
-  } catch (e) {
-    return undefined;
-  }
+    }
+  })();
 }
 
 /**
  @private
- * Returns a setting from `moduleDataArray`, optionally sanitizing it
+ * Returns a setting from `settingsTable`, optionally sanitizing it
  * @param {Object} p
  * @param {*} p.settingsTable
  * @param {string} p.settingName
  * @param {string} [p.settingSanitization]
- * @return {* | undefined} - undefined if some error occurs, otherwise Setting read from `moduleDataArray`
+ * @return {* | undefined} - undefined if the key is not found, otherwise Setting read from `settingsTable`
  */
 function _get_SimulationSetting_FromModuleDataArray ({
   settingsTable,
   settingName,
   settingSanitization
 }) {
-  try {
-    const tableInfo = SETTINGS_TABLES_INFO.SET;
+  const tableInfo = SETTINGS_TABLES_INFO.SET;
 
-    const _setting = (() => {
-      for (const row of settingsTable) {
-        if (   xxx; // aggiorna codice: loop ogni elemento array per cercare scenario e unit name con eq2()
-          (eq2(get2(row, tableInfo.columns.SCENARIO.name), CFG.SCENARIO_BASE) || isNullOrWhiteSpace(get2(row, tableInfo.columns.SCENARIO.name))) &&
-          eq2(get2(row, tableInfo.columns.UNIT.name), CFG.SIMULATION_NAME) &&
-          eq2(row[tableInfo.columns.NAME.name], settingName)
-        )
-          return get2(row, tableInfo.columns.VALUE.name);
+  const _settingValue = (() => {
+    for (const row of settingsTable) {
+      if (eq2(row[tableInfo.columns.NAME.name], settingName)) {
+        /** @type {string[]} */
+        const _scenarios = get2(row, tableInfo.columns.SCENARIO.name);
+        /** @type {string[]} */
+        const _units = get2(row, tableInfo.columns.UNIT.name);
+        // loop scenarios snd then units
+        xxx;
       }
-    })();
 
-    // sanitize the setting if a sanitization is provided
-    if (!isNullOrWhiteSpace(settingSanitization))
-      return sanitize({ value: _setting, sanitization: settingSanitization });
-    else
-      return _setting;
-  } catch (e) {
-    return undefined;
-  }
+      if (xxx; // aggiorna codice: loop ogni elemento array per cercare scenario e unit name con eq2()
+      (eq2(get2(row, tableInfo.columns.SCENARIO.name), CFG.SCENARIO_BASE) || isNullOrWhiteSpace(get2(row, tableInfo.columns.SCENARIO.name))) &&
+      eq2(get2(row, tableInfo.columns.UNIT.name), CFG.SIMULATION_NAME)
+      ;
+    )
+      return get2(row, tableInfo.columns.VALUE.name);
+    }
+  })();
+
+  // sanitize the setting if a sanitization is provided
+  if (!isNullOrWhiteSpace(settingSanitization))
+    return sanitize({ value: _settingValue, sanitization: settingSanitization });
+  else
+    return _settingValue;
 }
 
 /**

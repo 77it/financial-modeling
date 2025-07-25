@@ -13,7 +13,7 @@ const simObject_Schema = {
 
   dateTime: schema.DATE_TYPE,
 
-  name: schema.STRING_TYPE,  // name, must be unique between ALIVE SimObjects in the same Unit
+  name: schema.STRING_TYPE,  // name, must be unique between ALIVE SimObjects in the same Unit  // C# validation is called `Name__is_unique_between_Alive_SimObjects_in_the_same_Unit()`
   description: schema.STRING_TYPE,  // immutable, is used to generate Reports Detail
   mutableDescription: schema.STRING_TYPE,  // unused during Reports generation, can be used for debug purpose (and in the future to be shown to the user during a Drill Down of reports voices)
 
