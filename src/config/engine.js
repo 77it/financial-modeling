@@ -44,6 +44,6 @@ export const IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES = '$$';
 export const IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES = '$';
 
 // Formula and YAML cache size
-export const FML_CACHE_SIZE = 10_000;
+//export const FML_CACHE_SIZE = 10_000;  // disabled, because formulas doesn't have a cache but are contained, one by one, in `FmlObj` objects
 export const YAML_CACHE_SIZE = 10_000;
 //#endregion internal engine config

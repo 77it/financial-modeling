@@ -129,7 +129,7 @@ async function main ({
     const _settingsTable = _get_SimulationSetting_Table({ moduleDataArray: _moduleDataArray });
 
     // get ModulesLoader class from a Setting (from `moduleDataArray`) or, as a fallback, from `'./modules/_modules_loader.js'` file
-    const _$$MODULESLOADER_URL = _get_SimulationSetting_FromModuleDataArray({
+    const _$$MODULESLOADER_URL = _get_SimulationSetting_FromModuleDataTable({
       settingsTable: _settingsTable,
       settingName: SETTINGS_NAMES.Simulation.$$MODULESLOADER_URL,
       settingSanitization: schema.STRING_TYPE
@@ -153,7 +153,7 @@ async function main ({
     // get `engine` and `normalizeModuleData` functions from a Setting (from `moduleDataArray`) or, as a fallback, from ModulesLoader function;
     // the fallback engine is loaded from the same root of ModulesLoader,
     // in that way the engine can be more aligned with the modules loaded from ModulesLoader
-    const _$$ENGINE_URL = _get_SimulationSetting_FromModuleDataArray({
+    const _$$ENGINE_URL = _get_SimulationSetting_FromModuleDataTable({
       settingsTable: _settingsTable,
       settingName: SETTINGS_NAMES.Simulation.$$ENGINE_URL,
       settingSanitization: schema.STRING_TYPE
@@ -172,7 +172,7 @@ async function main ({
     });
 
     // get scenarios from `moduleDataArray`
-    const _$$SCENARIOS_setting = _get_SimulationSetting_FromModuleDataArray({
+    const _$$SCENARIOS_setting = _get_SimulationSetting_FromModuleDataTable({
       settingsTable: _settingsTable,
       settingName: SETTINGS_NAMES.Simulation.$$SCENARIOS
     });
@@ -188,7 +188,7 @@ async function main ({
     // store python forecast function in Globals if the setting flag is true
     //
     // read setting
-    const _$$PYTHON_ADVANCED_FORECAST_FLAG = _get_SimulationSetting_FromModuleDataArray({
+    const _$$PYTHON_ADVANCED_FORECAST_FLAG = _get_SimulationSetting_FromModuleDataTable({
       settingsTable: _settingsTable,
       settingName: SETTINGS_NAMES.Simulation.$$PYTHON_ADVANCED_FORECAST_FLAG,
       settingSanitization: schema.BOOLEAN_TYPE
@@ -304,24 +304,12 @@ function _get_SimulationSetting_Table ({
   const tableInfo = SETTINGS_TABLES_INFO.SET;
 
   const SETTINGS_SANITIZATION = {
-    [tableInfo.columns.SCENARIO.name]: schema.ARRAY_OF_STRINGS_TYPE,
-    [tableInfo.columns.UNIT.name]: schema.ARRAY_OF_STRINGS_TYPE,
-    [tableInfo.columns.NAME.name]: schema.STRING_TYPE,
-    [tableInfo.columns.DATE.name]: schema.DATE_TYPE,
-    [tableInfo.columns.VALUE.name]: schema.ANY_TYPE
-  };
-
-  const SETTINGS_SANITIZATION_FROM_TABLEINFO = {
     [tableInfo.columns.SCENARIO.name]: tableInfo.columns.SCENARIO.sanitization,
     [tableInfo.columns.UNIT.name]: tableInfo.columns.UNIT.sanitization,
     [tableInfo.columns.NAME.name]: tableInfo.columns.NAME.sanitization,
     [tableInfo.columns.DATE.name]: tableInfo.columns.DATE.sanitization,
     [tableInfo.columns.VALUE.name]: tableInfo.columns.VALUE.sanitization
   };
-
-  if (!eq2(SETTINGS_SANITIZATION, SETTINGS_SANITIZATION_FROM_TABLEINFO)) {
-    throw new Error(`Fatal error during reading of Settings table: sanitization mismatch, expected ${JSON.stringify(SETTINGS_SANITIZATION)}, got ${JSON.stringify(SETTINGS_SANITIZATION_FROM_TABLEINFO)}`);
-  }
 
   return (() => {
     for (const moduleData of moduleDataArray) {
@@ -347,35 +335,55 @@ function _get_SimulationSetting_Table ({
  @private
  * Returns a setting from `settingsTable`, optionally sanitizing it
  * @param {Object} p
- * @param {*} p.settingsTable
+ * @param {* | undefined} p.settingsTable
  * @param {string} p.settingName
  * @param {string} [p.settingSanitization]
- * @return {* | undefined} - undefined if the key is not found, otherwise Setting read from `settingsTable`
+ * @return {* | undefined} - undefined if `settingsTable` is undefined or the key is not found; otherwise Setting read from `settingsTable`
  */
-function _get_SimulationSetting_FromModuleDataArray ({
+function _get_SimulationSetting_FromModuleDataTable ({
   settingsTable,
   settingName,
   settingSanitization
 }) {
+  if (!settingsTable || !Array.isArray(settingsTable) || settingsTable.length === 0) {
+    return undefined; // if settingsTable is undefined or empty, return undefined
+  }
+
   const tableInfo = SETTINGS_TABLES_INFO.SET;
 
   const _settingValue = (() => {
     for (const row of settingsTable) {
+      // start searching for setting if the name matches
       if (eq2(row[tableInfo.columns.NAME.name], settingName)) {
         /** @type {string[]} */
         const _scenarios = get2(row, tableInfo.columns.SCENARIO.name);
         /** @type {string[]} */
         const _units = get2(row, tableInfo.columns.UNIT.name);
-        // loop scenarios snd then units
-        xxx;
-      }
 
-      if (xxx; // aggiorna codice: loop ogni elemento array per cercare scenario e unit name con eq2()
-      (eq2(get2(row, tableInfo.columns.SCENARIO.name), CFG.SCENARIO_BASE) || isNullOrWhiteSpace(get2(row, tableInfo.columns.SCENARIO.name))) &&
-      eq2(get2(row, tableInfo.columns.UNIT.name), CFG.SIMULATION_NAME)
-      ;
-    )
-      return get2(row, tableInfo.columns.VALUE.name);
+        // check if scenarios and units are arrays, if not throw an error
+        if (!Array.isArray(_scenarios))
+          throw new Error(`Invalid setting '${settingName}': scenarios must be an array. Probably the setting value is not sanitized correctly.`);
+        if (!Array.isArray(_units))
+          throw new Error(`Invalid setting '${settingName}': units must be an array. Probably the setting value is not sanitized correctly.`);
+
+        // if scenario array is an empty array, set it to base scenario
+        if (_scenarios.length === 0) {
+          _scenarios.push(CFG.SCENARIO_BASE);
+        }
+
+        // loop scenarios and then units
+        for (const scenario of _scenarios) {
+          // loop units only if scenario is === to CFG.SCENARIO_BASE or empty
+          if (eq2(scenario, CFG.SCENARIO_BASE) || isNullOrWhiteSpace(scenario)) {
+            for (const unit of _units) {
+              // if unit match CFG.SIMULATION_NAME, return the value
+              if (eq2(unit, CFG.SIMULATION_NAME)) {
+                return get2(row, tableInfo.columns.VALUE.name);
+              }
+            }
+          }
+        }
+      }
     }
   })();
 
