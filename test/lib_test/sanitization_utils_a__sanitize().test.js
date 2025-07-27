@@ -218,7 +218,7 @@ t('test sanitize() - date type, with default OPTIONS.DATE_UTC = false (local Dat
 });
 
 t('test sanitize() - date type with option number To Date OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE', async () => {
-  const options = { numberToDate: S.NUMBER_TO_DATE_OPTS__JS_SERIAL_DATE };
+  const options = { numberToDate: S.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__JS_SERIAL_DATE };
 
   const t = S.DATE_TYPE;
   assert.deepStrictEqual(new Date(44920), s.sanitize({ value: 44920, sanitization: t, options }));
@@ -228,7 +228,7 @@ t('test sanitize() - date type with option number To Date OPTION__NUMBER_TO_DATE
 });
 
 t('test sanitize() - date type with option number To Date OPTION__NUMBER_TO_DATE__NO_CONVERSION', async () => {
-  const options = { numberToDate: S.NUMBER_TO_DATE_OPTS__NO_CONVERSION, defaultDate: undefined };
+  const options = { numberToDate: S.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__NO_CONVERSION, defaultDate: undefined };
 
   const t = S.DATE_TYPE;
   assert.deepStrictEqual(undefined, s.sanitize({ value: 44920, sanitization: t, options }));

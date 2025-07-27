@@ -44,6 +44,10 @@ function tablesInfoValidation (tablesInfo) {
   if (tablesInfo == null) {
     throw new Error('tableInfo is null or undefined');
   }
+  // throw if tablesInfo is not an object with keys
+  if (typeof tablesInfo !== 'object' || Array.isArray(tablesInfo) || Object.keys(tablesInfo).length === 0) {
+    throw new Error('tableInfo is not a valid object: must be at least an object with a key');
+  }
 
   if (DISABLE_VALIDATION)
     return;
@@ -65,19 +69,22 @@ function tablesInfoValidation (tablesInfo) {
       strict: true
     });
 
-    // loop all columns info
-    for (const column of Object.values(tableInfo.columns)) {
-      // validate current value of columns property
-      validate({
-        value: column,
-        validation: {
-          name: schema.STRING_TYPE,
-          sanitization: schema.ANY_TYPE,
-          description: schema.STRING_TYPE + schema.OPTIONAL,
-          parse: schema.STRING_TYPE + schema.OPTIONAL,
-          values: schema.OBJECT_TYPE + schema.OPTIONAL
-        }
-      });
+    // continue with the following check if tableInfo is an object with `columns` key
+    if (typeof tableInfo === 'object' && typeof tableInfo.columns === 'object') {
+      // loop all columns info
+      for (const column of Object.values(tableInfo.columns)) {
+        // validate current value of columns property
+        validate({
+          value: column,
+          validation: {
+            name: schema.STRING_TYPE,
+            sanitization: schema.ANY_TYPE,
+            description: schema.STRING_TYPE + schema.OPTIONAL,
+            parse: schema.STRING_TYPE + schema.OPTIONAL,
+            values: schema.OBJECT_TYPE + schema.OPTIONAL
+          }
+        });
+      }
     }
   }
 

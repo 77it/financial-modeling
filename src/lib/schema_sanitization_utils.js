@@ -7,7 +7,7 @@ import { validate as validateFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
 
 //#region defaults
-const DEFAULT__NUMBER_TO_DATE = schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE;
+const DEFAULT__NUMBER_TO_DATE = schema.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE;
 // if true, conversion from string or number to dates return UTC dates;
 // if true, conversion from dates assumes that dates are in UTC time.
 const DEFAULT__DATE_UTC = false;
@@ -61,7 +61,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * @param {*} p.value - Value to sanitize
  * @param {*} p.sanitization - Sanitization type (object, string, array of strings, sanitization function, array containing a sanitization function)
  * @param {Object} [p.options]
- * @param {string} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
+ * @param {schema.NUMBER_TO_DATE_OPTS} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
  * @param {boolean} [p.options.dateUTC=false]
  * @param {*} [p.options.defaultString='']
  * @param {*} [p.options.defaultNumber=0]
@@ -80,7 +80,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
 
   if (options == null) options = {};  // init sanitize options, otherwise the following code won't work
   const _NUMBER_TO_DATE = ('numberToDate' in options) ? options.numberToDate : DEFAULT__NUMBER_TO_DATE;
-  validateFunc({ value: _NUMBER_TO_DATE, validation: [schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE, schema.NUMBER_TO_DATE_OPTS__JS_SERIAL_DATE, schema.NUMBER_TO_DATE_OPTS__NO_CONVERSION] });
+  validateFunc({ value: _NUMBER_TO_DATE, validation: Object.values(schema.NUMBER_TO_DATE_OPTS) });
   /** @type {boolean} */
   const _DATE_UTC = options?.dateUTC ?? DEFAULT__DATE_UTC;
   const _DEFAULT_STRING = ('defaultString' in options) ? options.defaultString : DEFAULT_STRING;
@@ -226,12 +226,12 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
               _value = parseJsonToLocalDate(value);
           } else if (typeof value === 'number' || typeof value === 'bigint') {  // if `value` is number or BigInt, convert it as Excel serial date to date in local time or UTC
             const _numValue = Number(value);
-            if (_NUMBER_TO_DATE === schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE) {
+            if (_NUMBER_TO_DATE === schema.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE) {
               if (_DATE_UTC)
                 _value = excelSerialDateToUTCDate(_numValue);
               else
                 _value = excelSerialDateToLocalDate(_numValue);
-            } else if (_NUMBER_TO_DATE === schema.NUMBER_TO_DATE_OPTS__JS_SERIAL_DATE)
+            } else if (_NUMBER_TO_DATE === schema.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__JS_SERIAL_DATE)
               _value = new Date(_value);
             else  // no conversion
               _value = _DEFAULT_DATE;
@@ -403,7 +403,7 @@ function _isEmptyOrWhiteSpace (value) {
  * @param {*} p.sanitization - Sanitization object; e.g.  {key1: 'string', key2: 'number?'}
  * @param {boolean} p.toArray - Flag to generate an array as output
  * @param {Object} [p.options]
- * @param {string} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
+ * @param {schema.NUMBER_TO_DATE_OPTS} [p.options.numberToDate=schema.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE] - one of NUMBER_TO_DATE_OPTS
  * @param {boolean} [p.options.dateUTC=false]
  * @param {*} [p.options.defaultString='']
  * @param {*} [p.options.defaultNumber=0]
