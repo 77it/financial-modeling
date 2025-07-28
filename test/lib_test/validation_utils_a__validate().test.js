@@ -493,3 +493,48 @@ t('test validate() - test throw when a sanitization function doesn\'t return `Va
   }
 });
 
+t('test validate() validate string typew with `requireNonEmptyStrings` true', () => {
+  const string_assets = [
+    '',  // empty
+    '   ',  // whitespace
+  ]
+
+  const string_validations = [
+    S.STRING_TYPE,
+    S.STRINGLOWERCASETRIMMED_TYPE,
+    S.STRINGUPPERCASETRIMMED_TYPE
+  ]
+
+  const arrayString_assets = [
+    [''],  // array with empty
+    ['   ']  // array with whitespace
+  ]
+
+  const arrayString_validations = [
+    S.ARRAY_OF_STRINGS_TYPE,
+    S.ARRAY_OF_STRINGSLOWERCASETRIMMED_TYPE,
+    S.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE,
+  ]
+
+  // loop string_validations and for each validation loop string_assets
+  for (const validation of string_validations){
+    for (const asset of string_assets){
+      assert.throws(() => {
+          v.validate({ value: asset, validation: validation, requireNonEmptyStrings: true });
+        },
+        /must be a non-empty string/
+      );
+    }
+  }
+
+  // loop arrayString_validations and for each validation loop arrayString_assets
+  for (const validation of arrayString_validations){
+    for (const asset of arrayString_assets){
+      assert.throws(() => {
+          v.validate({ value: asset, validation: validation, requireNonEmptyStrings: true });
+        },
+        /must be a non-empty string/
+      );
+    }
+  }
+});

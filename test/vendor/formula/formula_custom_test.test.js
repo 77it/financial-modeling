@@ -13,7 +13,7 @@ import { Parser } from '../../../vendor/formula/formula_custom.js';
 // online demo   https://nodeca.github.io/js-yaml/
 // npm   https://www.npmjs.com/package/js-yaml
 // specs   https://yaml.org/spec/1.2.2/
-import yaml from 'https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.mjs';
+import yaml from '../../../vendor/js-yaml/js-yaml.mjs';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

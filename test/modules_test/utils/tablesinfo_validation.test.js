@@ -45,6 +45,11 @@ tablesInfo_withEmptyTable['TAB_B'] = {};
 const tablesInfo_withErrors = structuredClone(tablesInfo_wellDone);
 //@ts-ignore remove the table name
 tablesInfo_withErrors.TABLE_A.tableName = '';
+tablesInfo_withErrors.TABLE_A.columns.COLUMN_A.name = '';
+//@ts-ignore add new field to TABLE_A
+tablesInfo_withErrors.TABLE_A.NEW_FIELD_1 = 'xxx';
+//@ts-ignore add new field to TABLE_A.columns.COLUMN_A
+tablesInfo_withErrors.TABLE_A.columns.COLUMN_A.NEW_FIELD_2 = 'xxx';
 
 t('tablesInfoValidation test: successful', async () => {
   tablesInfoValidation(tablesInfo_wellDone);
@@ -53,31 +58,37 @@ t('tablesInfoValidation test: successful', async () => {
 t('tablesInfoValidation test: null object', async () => {
   assert.throws(() => {
     tablesInfoValidation(null);
-  }, {
-    message: 'tableInfo is null or undefined'
-  });
+  },
+  /tableInfo is null or undefined/
+  );
 });
 
 t('tablesInfoValidation test: empty object', async () => {
   assert.throws(() => {
     tablesInfoValidation({});
-  }, {
-    message: 'tableInfo is not a valid object: must be at least an object with a key'
-  });
+  },
+  /tableInfo is not a valid object: must be at least an object with a key/
+  );
 });
 
 t('tablesInfoValidation test: empty table', async () => {
   assert.throws(() => {
     tablesInfoValidation(tablesInfo_withEmptyTable);
-  }, {
-    message: 'Validation errors: Validation error: Validation error: ["tableName is missing","columns is missing"] in {}'
-  });
+  },
+  /TAB_B: Validation error: \["tableName is missing","columns is missing"] in {}/
+  );
 });
 
 t('tablesInfoValidation test: table with various errors', async () => {
-  assert.throws(() => {
+  let _error = '';
+
+  try {
     tablesInfoValidation(tablesInfo_withErrors);
-  }, {
-    message: 'Validation errors: Validation error: Validation error: ["tableName is missing","columns is missing"] in {}'
-  });
+  } catch (error) {
+    //@ts-ignore add error message
+    _error = error.message;
+  }
+
+  assert(_error.includes('TABLE_A: Validation error: ["NEW_FIELD_1 is not a valid key, is missing from validation object","tableName = , must be a non-empty string"]'))
+  assert(_error.includes('TABLE_A.COLUMN_A: Validation error: ["NEW_FIELD_2 is not a valid key, is missing from validation object","name = , must be a non-empty string"]'))
 });

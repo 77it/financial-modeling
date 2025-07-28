@@ -6,9 +6,12 @@ import { ValidateSanitizeResult } from './validate_sanitize_result.js';
 
 const ALLOWS_OBJECTS_IN_ARRAY_FLAG = false;  // hardcoded option, by now objects contained in array are considered an error if the validation expects an object
 const SUCCESS = '';
-// Strict flag; if true check that there are no extra keys other than validation keys in the validated object.
+// Used only if `validation` is an object; optional, default false; if true check that there are no extra keys other than validation keys in the validated object.
 // set only during init
 let STRICT = false;
+// Used only if `validation` is a string; optional, default false; if true validation fails with empty and whitespace strings.
+// set only during init
+let REQUIRE_NON_EMPTY_STRINGS = false;
 
 /**
  * Validate input Value and return it to allow chaining.
@@ -41,11 +44,12 @@ let STRICT = false;
  * @param {*} p.validation - Validation type (string, array of strings, validation function, array containing a validation function)
  * @param {string} [p.errorMsg] - Optional error message
  * @param {boolean} [p.strict = false] - Used only if `validation` is an object; optional, default false; if true check that there are no extra keys other than validation keys in the validated object.
+ * @param {boolean} [p.requireNonEmptyStrings = false] - Used only if `validation` is a string; optional, default false; if true validation fails with empty and whitespace strings.
  * @return {*} Validated value, to allow function chaining
  * @throws {Error} Will throw an error if the validation fails
  */
 // see https://github.com/iarna/aproba for inspiration
-function validate ({ value, validation, errorMsg, strict = false }) {
+function validate ({ value, validation, errorMsg, strict = false, requireNonEmptyStrings = false }) {
   if (DISABLE_VALIDATION)
     return value;
 
@@ -58,6 +62,7 @@ function validate ({ value, validation, errorMsg, strict = false }) {
     throw new Error(`'errorMsg' parameter must be null/undefined or string`);
 
   STRICT = strict;
+  REQUIRE_NON_EMPTY_STRINGS = requireNonEmptyStrings;
 
   const validationResult = _validationDispatcher({
     value: value,
@@ -169,11 +174,15 @@ function _validateValue ({ value, validation, errorMsg }) {
       case schema.STRING_TYPE: {
         if (typeof value !== 'string')
           return `${errorMsg} = ${value}, must be string`;
+        if (REQUIRE_NON_EMPTY_STRINGS && value.trim() === '')
+          return `${errorMsg} = ${value}, must be a non-empty string`;
         return SUCCESS;
       }
       case schema.STRINGLOWERCASETRIMMED_TYPE: {
         if (typeof value !== 'string')
           return `${errorMsg} = ${value}, must be a lowercase trimmed string`;
+        else if (REQUIRE_NON_EMPTY_STRINGS && value.trim() === '')
+          return `${errorMsg} = ${value}, must be a non-empty string`;
         else if (value.toLowerCase().trim() !== value)
           return `${errorMsg} = ${value}, must be a lowercase trimmed string`;
         return SUCCESS;
@@ -181,6 +190,8 @@ function _validateValue ({ value, validation, errorMsg }) {
       case schema.STRINGUPPERCASETRIMMED_TYPE: {
         if (typeof value !== 'string')
           return `${errorMsg} = ${value}, must be an uppercase trimmed string`;
+        else if (REQUIRE_NON_EMPTY_STRINGS && value.trim() === '')
+          return `${errorMsg} = ${value}, must be a non-empty string`;
         else if (value.toUpperCase().trim() !== value)
           return `${errorMsg} = ${value}, must be an uppercase trimmed string`;
         return SUCCESS;
