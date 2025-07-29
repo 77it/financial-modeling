@@ -6,7 +6,7 @@ import { Agenda } from './_utils/agenda.js';
 import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 import { moduleDataLookup } from './_utils/search/module_data_lookup.js';
 import { classifyDateString, DATE_CLASSIFICATION } from './_utils/search/classify_date_string.js';
-import { SimObject_Metadata, schema, sanitize, eq2, isNullOrWhiteSpace } from './deps.js';
+import { SimObject_Metadata, schema, sanitize, eq2, isNullOrWhiteSpace, v } from './deps.js';
 // types import
 import { ModuleData as _ModuleData, SimulationContext as _SimulationContext } from './deps.js';
 
@@ -129,7 +129,7 @@ export class Module {
 
             // loop all keys of the current row:
             // * classify the key to check if is a valid date, and if the date is Simulation or Historical
-            // * if the date and the value are valid, add an entry to Agenda
+            // * if the key is a valid date and if the value is not null, add an entry to Agenda
             for (const key of Object.keys(row)) {
               /** @type {{classification: DATE_CLASSIFICATION, date: undefined|Date}} */
               const {classification, date} = classifyDateString({dateString: key, simulationPrefix: simulationDatePrefix, historicalPrefix: historicalDatePrefix});

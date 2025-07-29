@@ -5,16 +5,21 @@ import { ModuleData, isNullOrWhiteSpace, sanitize, schema, eq2, get2 } from '../
 /**
  * Search table `tableName` in ModuleData, then value `lookup_value` in column `lookup_column`,
  * then returns the value of column `return_column` in the same row.
+ *
  * Optionally sanitize the result; if no match is found, return undefined, optionally sanitized.
- * If `string_insensitive_match` is true: `tableName` and `lookup_value` (if string) are matched in a case insensitive & trim way,
- * `lookup_column` and `return_column` are get directly and if not found they are matched with all keys in a case insensitive & trim way.
- * `return_first_match` if true, return the first match, otherwise the last match.
- * @param {ModuleData} moduleData
- * @param {{tableName: string, lookup_value: *, lookup_column: string, return_column: string, return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: *, sanitizationOptions?: Object }} opt
- * return_first_match default = true;
- * string_insensitive_match default = true;
  * sanitization if missing, no sanitization is performed;
  * sanitizationOptions is optional.
+ *
+ * If `string_insensitive_match` is true: `tableName` and `lookup_value` (if string) are matched in a case insensitive & trim way.
+ * string_insensitive_match default = true.
+ *
+ * `lookup_column` and `return_column` are get directly and if not found they are matched with all keys in a case insensitive & trim way.
+ *
+ * `return_first_match` if true, return the first match, otherwise the last match.
+ * return_first_match default = true.
+ *
+ * @param {ModuleData} moduleData
+ * @param {{tableName: string, lookup_value: *, lookup_column: string, return_column: string, return_first_match?: boolean, string_insensitive_match?: boolean, sanitization?: *, sanitizationOptions?: Object }} opt
  * @returns {*}
  */
 function moduleDataLookup (

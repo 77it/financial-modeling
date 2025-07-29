@@ -18,3 +18,5 @@ export { SimulationContext } from '../engine/context/simulationcontext.js';
 export { ModuleData } from '../engine/modules/module_data.js';
 export { SimObjectTypes_enum } from '../engine/simobject/enums/simobject_types_enum.js';
 export { SimObject_Metadata } from '../engine/simobject/parts/simobject_metadata.js';
+
+export { v } from '../engine/fml/fml_utils.js';
