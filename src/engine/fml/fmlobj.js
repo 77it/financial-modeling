@@ -24,7 +24,7 @@ class FmlObj {
   FmlObj == 42    // hint 'default' -> coerces to the type of the right operand
   FmlObj == '42'  // hint 'default' -> coerces to the type of the right operand
    */
-  [Symbol.toPrimitive](hint) {
+  [Symbol.toPrimitive]() {  // `hint` parameter is omitted, as it is not used in this implementation
     return this.get();
   }
 }

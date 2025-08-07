@@ -78,7 +78,7 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  * @param {number} p.numberOfPayments
  * @param {number} p.numberOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
  * @param {number} [p.gracePeriod=0] optional, number of periods with interest-only payments
- * @return {{date: Date, paymentNo: number, interestPayment: number, principalPayment: number, totalMortgageRemaining: number}[]}
+ * @return {{date: Date[], paymentNo: number[], interestPayment: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
  */
 function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincipal, annualInterestRate, numberOfPayments, numberOfPaymentsInAYear, gracePeriod = 0 }) {
   if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
@@ -116,16 +116,20 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
   // Multiply by -1, since it default to a negative value
   const mortgagePayment = -1 * financial.pmt(annualInterestRate / numberOfPaymentsInAYear, numberOfPaymentsWithoutGracePeriod, startingPrincipal, 0, financial.PaymentDueTime.End);
 
-  const mortgageArray = [];
+  const mortgageArray = {
+    /** @type {Date[]} */ date: [],
+    /** @type {number[]} */ paymentNo: [],
+    /** @type {number[]} */ interestPayment: [],
+    /** @type {number[]} */ principalPayment: [],
+    /** @type {number[]} */ totalMortgageRemaining: []
+  };
 
-  // first payment, without payments and full principal
-  mortgageArray.push({
-    date: currDate,
-    paymentNo: 0,
-    interestPayment: 0,
-    principalPayment: 0,
-    totalMortgageRemaining: startingPrincipal
-  });
+  // first payment, without payments and full principal remaining
+  mortgageArray.date.push(currDate);
+  mortgageArray.paymentNo.push(0);
+  mortgageArray.interestPayment.push(0);
+  mortgageArray.principalPayment.push(0);
+  mortgageArray.totalMortgageRemaining.push(startingPrincipal);
 
   // Here we loop through each gracePeriod payment (only interest)
   for (let currPaymentNo = 1; currPaymentNo <= gracePeriod; currPaymentNo++) {
@@ -134,13 +138,11 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
 
     currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
 
-    mortgageArray.push({
-      date: currDate,
-      paymentNo: currPaymentNo,
-      interestPayment: interestPayment,
-      principalPayment: 0,
-      totalMortgageRemaining: startingPrincipal
-    });
+    mortgageArray.date.push(currDate);
+    mortgageArray.paymentNo.push(currPaymentNo);
+    mortgageArray.interestPayment.push(interestPayment);
+    mortgageArray.principalPayment.push(0);
+    mortgageArray.totalMortgageRemaining.push(startingPrincipal);
   }
 
   // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our total
@@ -160,13 +162,11 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
 
     currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
 
-    mortgageArray.push({
-      date: currDate,
-      paymentNo: currPaymentNo + gracePeriod,
-      interestPayment: interestPayment,
-      principalPayment: principalPayment,
-      totalMortgageRemaining: mortgageRemaining
-    });
+    mortgageArray.date.push(currDate);
+    mortgageArray.paymentNo.push(currPaymentNo + gracePeriod);
+    mortgageArray.interestPayment.push(interestPayment);
+    mortgageArray.principalPayment.push(principalPayment);
+    mortgageArray.totalMortgageRemaining.push(mortgageRemaining);
   }
 
   // coherence test
