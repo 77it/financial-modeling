@@ -2,7 +2,7 @@
 
 import { classifyDateString, DATE_CLASSIFICATION } from '../../../src/modules/_utils/search/classify_date_string.js';
 
-import { SettingsDefaultValues as SETTINGS_DEFAULT_VALUES } from '../../../src/config/settings_default_values.js';
+import { SettingsDefaultValues as SETTINGS_DEFAULT_VALUES } from '../../../src/settings_default_values.js';
 import { Simulation as SETTINGS_NAMES } from '../../../src/config/settings_names.js';
 
 import { test } from 'node:test';

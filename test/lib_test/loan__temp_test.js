@@ -56,7 +56,7 @@ t('test #1', async () => {
     startingPrincipal: 10_000,
     annualInterestRate: 0.07,
     numberOfPaymentsInAYear: 12,
-    numberOfPayments: 60
+    nrOfPaymentsIncludingGracePeriod: 60,
   }));
 });
 
@@ -66,7 +66,7 @@ t('test #2, principal as Number.MAX_VALUE, MIN_VALUE, MAX_SAFE_INTEGER, MIN_SAFE
     startingPrincipal: Number.MAX_SAFE_INTEGER,
     annualInterestRate: 0.07,
     numberOfPaymentsInAYear: 1,
-    numberOfPayments: 4,
+    nrOfPaymentsIncludingGracePeriod: 4,
     gracePeriod: 1
   }));
 
@@ -75,7 +75,7 @@ t('test #2, principal as Number.MAX_VALUE, MIN_VALUE, MAX_SAFE_INTEGER, MIN_SAFE
     startingPrincipal: Number.MIN_SAFE_INTEGER,
     annualInterestRate: 0.07,
     numberOfPaymentsInAYear: 1,
-    numberOfPayments: 4,
+    nrOfPaymentsIncludingGracePeriod: 4,
     gracePeriod: 1
   }));
 });
@@ -86,7 +86,7 @@ t('test with interest zero', async () => {
     startingPrincipal: 10_000,
     annualInterestRate: 0,
     numberOfPaymentsInAYear: 12,
-    numberOfPayments: 5
+    nrOfPaymentsIncludingGracePeriod: 5
   }));
 });
 //#endregion test getMortgagePayments

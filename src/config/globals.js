@@ -1,5 +1,5 @@
 import { GlobalImmutableValue } from '../lib/global_immutable_value.js';
-import { SettingsDefaultValues } from './settings_default_values.js';
+import { SettingsDefaultValues } from '../settings_default_values.js';
 import { Simulation } from './settings_names.js';
 
 //#region internal engine config

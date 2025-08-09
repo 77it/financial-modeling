@@ -1,5 +1,6 @@
 from https://cdn.jsdelivr.net/npm/financial@0.2.4/dist/financial.esm.js
 + added `//@ts-nocheck` to the file
++ modified rows 236/237 making parameters `fv` and `when` of function `ipmt` optional
 
 types from https://cdn.jsdelivr.net/npm/financial@0.2.4/dist/index.d.ts
 

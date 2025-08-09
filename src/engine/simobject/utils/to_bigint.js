@@ -1,5 +1,7 @@
 ﻿export { toBigInt };
 
+import { roundHalfAwayFromZero } from '../../../lib/number_utils.js';
+
 /**
  * This function is used to convert a number to a BigInt, preserving a given number of decimal places and rounding/truncating the rest.
  * If `#roundingModeIsRound` is true, the number is rounded as Excel does ("Round half away from zero") to the given number of decimal places.
@@ -10,9 +12,9 @@
  * @returns {bigint}
  */
 function toBigInt (n, decimalPlaces, roundingModeIsRound) {
-  const integer = _moveTheDecimalPointToTheRight(n, decimalPlaces);
+  const integer = _moveDecimalPointToTheRightSafely(n, decimalPlaces);
   if (roundingModeIsRound) {
-    const rounded = _roundHalfAwayFromZero(integer);
+    const rounded = roundHalfAwayFromZero(integer);
     return BigInt(rounded);
   }
   else {
@@ -31,7 +33,7 @@ function toBigInt (n, decimalPlaces, roundingModeIsRound) {
  * @param {number} dp - The number of decimal places
  * @returns {number}
  */
-function _moveTheDecimalPointToTheRight(n, dp) {
+function _moveDecimalPointToTheRightSafely(n, dp) {
   // Convert the number to a string and split it into integer and fractional parts
   const [integerPart, fractionalPart = ''] = n.toString().split('.');
 
@@ -43,18 +45,5 @@ function _moveTheDecimalPointToTheRight(n, dp) {
 
   // Convert the resulting string back to a number and return it
   return parseFloat(resultString);
-}
-
-/** Round n as Excel does ("Round half away from zero").
- * In Excel
- *    1.4 >  1    1.5 >  2    2.4 >  2     2.5 >  3
- *   -1.4 > -1   -1.5 > -2   -2.4 > -2    -2.5 > -3
- @private
- * @param {number} n - The number to round.
- * @returns {number}
- */
-function _roundHalfAwayFromZero(n) {
-  const sign = Math.sign(n);
-  return sign * Math.round(Math.abs(n));
 }
 //#endregion private functions

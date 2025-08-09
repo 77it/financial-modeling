@@ -233,8 +233,8 @@ function nper(rate, pmt, pv, fv, when) {
  * @param per - Interest paid against the loan changes during the life or the loan. The `per` is the payment period to calculate the interest amount
  * @param nper - Number of compounding periods
  * @param pv - Present value
- * @param fv - Future value
- * @param when - When payments are due
+ * @param [fv] - Future value
+ * @param [when] - When payments are due
  *
  * @returns Interest portion of payment
  *

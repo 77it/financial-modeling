@@ -46,7 +46,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
    |_____/  |_____| |_|  |_|  \____/  |______| /_/    \_\    |_|    |_____|  \____/  |_| \_|          |_____/     |_|    /_/    \_\ |_|  \_\    |_|
    */
   // init _ledger here, to be able to use it in the `catch` block
-  const _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE });
+  const _ledger = new Ledger({ appendTrnDump, decimalPlaces: CFG.DECIMAL_PLACES, roundingModeIsRound: CFG.ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO });
 
   try {
     validate({

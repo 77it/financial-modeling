@@ -1,13 +1,13 @@
 export { SettingsDefaultValues };
 
-import { Simulation } from './settings_names.js';
-import { DEFAULT_UNIT_ID } from './engine.js';
-import { Currency_enum } from '../engine/simobject/enums/currency_enum.js';
-import { SimObjectTypes_enum } from '../engine/simobject/enums/simobject_types_enum.js';
-import { deepFreeze } from '../lib/obj_utils.js';
+import { Simulation } from './config/settings_names.js';
+import { DEFAULT_UNIT_ID } from './config/engine.js';
+import { Currency_enum } from './engine/simobject/enums/currency_enum.js';
+import { SimObjectTypes_enum } from './engine/simobject/enums/simobject_types_enum.js';
+import { deepFreeze } from './lib/obj_utils.js';
 
-// to prevent error "TS7053 Element implicitly has an 'any' type because expression of type 'string' can't be used to index type..." we must use one of the following JSDOC signature for the following object
-// we must use one of the following JSDOC signature for the object {}
+// to prevent error "TS7053 Element implicitly has an 'any' type because expression of type 'string' can't be used to index type..."
+// we must use one of the following JSDOC signature for the following object {}
 //    /** @type {Record<string, any>} */
 //    /** @type {{[index: string]:any}} */
 // from https://stackoverflow.com/a/56833507 + https://stackoverflow.com/questions/56833469/typescript-error-ts7053-element-implicitly-has-an-any-type

@@ -12,7 +12,7 @@ import { DEBUG_FLAG, ERROR_FILE, SIMULATION_JSONL_OUTPUT } from '../_test_settin
 
 import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../../src/config/globals.js';
 import { PYTHON_FORECAST_GLOBAL_INSTANCE } from '../../../src/config/python.js';
-import { SettingsDefaultValues } from '../../../src/config/settings_default_values.js';
+import { SettingsDefaultValues } from '../../../src/settings_default_values.js';
 import { Simulation as SimulationSettingNames } from '../../../src/config/settings_names.js';
 
 import { test } from 'node:test';

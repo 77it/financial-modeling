@@ -1,9 +1,8 @@
 export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
 
-import { schema } from '../deps.js';
-import { validate } from '../deps.js';
-import { addMonthsToLocalDate } from '../deps.js';
+import { schema, validate, addMonthsToLocalDate, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../deps.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../deps.js';
+import { ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO } from '../../config/engine.js';
 
 // info about loans
 /*
@@ -69,18 +68,27 @@ function calculateAnnuityOfAConstantPaymentLoan ({
 }
 
 /**
- * Compute the full schedule of a French amortization schedule (a series of constant payments at regular intervals)
+ * Compute the full schedule of a French amortization plan (a series of constant payments at regular intervals)
  *
  * @param {Object} p
- * @param {Date} p.startDate
+ * @param {Date} p.startDate When the starting date is an end of month, next dates are also end of months
  * @param {number} p.startingPrincipal
  * @param {number} p.annualInterestRate
- * @param {number} p.numberOfPayments
+ * @param {number} p.nrOfPaymentsIncludingGracePeriod
  * @param {number} p.numberOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
  * @param {number} [p.gracePeriod=0] optional, number of periods with interest-only payments
+ * @param {number} [p.precision=4] optional, number of decimals to round the interest and principal payments, default is 4
  * @return {{date: Date[], paymentNo: number[], interestPayment: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
  */
-function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincipal, annualInterestRate, numberOfPayments, numberOfPaymentsInAYear, gracePeriod = 0 }) {
+function getMortgagePaymentsOfAConstantPaymentLoan ({
+  startDate,
+  startingPrincipal,
+  annualInterestRate,
+  nrOfPaymentsIncludingGracePeriod,
+  numberOfPaymentsInAYear,
+  gracePeriod = 0,
+  precision = 4
+}) {
   if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
     validate({
       value:
@@ -88,22 +96,24 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
           startDate,
           startingPrincipal,
           annualInterestRate,
-          numberOfPayments,
+          nrOfPaymentsIncludingGracePeriod,
           numberOfPaymentsInAYear,
-          gracePeriod
+          gracePeriod,
+          precision
         },
       validation:
         {
           startDate: schema.DATE_TYPE,
           startingPrincipal: schema.NUMBER_TYPE,
           annualInterestRate: schema.NUMBER_TYPE,
-          numberOfPayments: schema.NUMBER_TYPE,
+          nrOfPaymentsIncludingGracePeriod: schema.NUMBER_TYPE,
           numberOfPaymentsInAYear: schema.NUMBER_TYPE,
-          gracePeriod: schema.NUMBER_TYPE
+          gracePeriod: schema.NUMBER_TYPE,
+          precision: schema.NUMBER_TYPE
         }
     });
 
-  const numberOfPaymentsWithoutGracePeriod = numberOfPayments - gracePeriod;
+  const numberOfPaymentsWithoutGracePeriod = nrOfPaymentsIncludingGracePeriod - gracePeriod;
   if (!(numberOfPaymentsWithoutGracePeriod > 0))
     throw new Error(`Validation error: number of payments without grace period is ${numberOfPaymentsWithoutGracePeriod}, must be > 0`);
 
@@ -112,7 +122,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
 
   let currDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0);  // clone startDate removing time
 
-  // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12
+  // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12, and so on
   // Multiply by -1, since it default to a negative value
   const mortgagePayment = -1 * financial.pmt(annualInterestRate / numberOfPaymentsInAYear, numberOfPaymentsWithoutGracePeriod, startingPrincipal, 0, financial.PaymentDueTime.End);
 
@@ -131,10 +141,12 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
   mortgageArray.principalPayment.push(0);
   mortgageArray.totalMortgageRemaining.push(startingPrincipal);
 
+  const _round = ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO ? roundHalfAwayFromZeroWithPrecision : truncWithPrecision;
+
   // Here we loop through each gracePeriod payment (only interest)
   for (let currPaymentNo = 1; currPaymentNo <= gracePeriod; currPaymentNo++) {
     // The interest payment portion of the period
-    const interestPayment = startingPrincipal * annualInterestRate / numberOfPaymentsInAYear;
+    const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, 1, numberOfPaymentsWithoutGracePeriod, startingPrincipal), precision);
 
     currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
 
@@ -151,9 +163,9 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({ startDate, startingPrincip
   // Here we loop through each payment (starting from 1) and figure out the interest and principal payments
   for (let currPaymentNo = 1; currPaymentNo <= numberOfPaymentsWithoutGracePeriod; currPaymentNo++) {
     // The interest payment portion of that month
-    const interestPayment = -1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, currPaymentNo, numberOfPaymentsWithoutGracePeriod, startingPrincipal);
+    const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, currPaymentNo, numberOfPaymentsWithoutGracePeriod, startingPrincipal), precision);
 
-    let principalPayment = mortgagePayment - interestPayment;
+    let principalPayment = _round(mortgagePayment - interestPayment, precision);  // The principal payment portion of that month
     if (currPaymentNo === numberOfPaymentsWithoutGracePeriod)  // if we reached the last payment, the last payment is the residual principal
       principalPayment = mortgageRemaining;
 
