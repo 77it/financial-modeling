@@ -1,4 +1,7 @@
 // Enhanced HTTP imports plugin for Bun with nested relative import support
+//
+// Published on https://github.com/oven-sh/bun/issues/38#issuecomment-3054841729
+//
 // Based on https://github.com/oven-sh/bun/issues/38#issuecomment-2033654106 
 // and https://github.com/oven-sh/bun/issues/38#issuecomment-2558033081 
 
