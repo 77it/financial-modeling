@@ -37,13 +37,13 @@ function _moveDecimalPointToTheRightSafely(n, dp) {
   // Convert the number to a string and split it into integer and fractional parts
   const [integerPart, fractionalPart = ''] = n.toString().split('.');
 
-  // Pad the fractional part with zeros to ensure it has at least `dp` digits
+  // Ensure the fractional part has at least `dp` digits by padding with zeros
   const paddedFractionalPart = fractionalPart.padEnd(dp, '0');
 
-  // Concatenate the integer part and the padded fractional part, moving the decimal point to the right by `dp` positions
-  const resultString = integerPart + paddedFractionalPart.slice(0, dp) + '.' + paddedFractionalPart.slice(dp);
+  // Construct the result string by moving the decimal point to the right
+  const resultString = `${integerPart}${paddedFractionalPart.slice(0, dp)}.${paddedFractionalPart.slice(dp)}`;
 
-  // Convert the resulting string back to a number and return it
-  return parseFloat(resultString);
+  // Parse the result string back to a number and return it
+  return Number(resultString);
 }
 //#endregion private functions

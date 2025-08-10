@@ -26,7 +26,7 @@ t('test roundHalfAwayFromZero()', () => {
   });
 });
 
-t('test Math.round()', () => {
+t('test Math.round() - sometimes different from roundHalfAwayFromZero', () => {
   const testCases = [
     { input: 10.075, expected: 10 },
     { input: -10.075, expected: -10 },
@@ -52,8 +52,8 @@ t('test Math.round()', () => {
 
 t('test roundHalfAwayFromZeroWithPrecision()', () => {
   const testCases = [
-    { input: [10.075, 4], expected: 10.075 },
-    { input: [-10.075, 4], expected: -10.075 },
+    { input: [10.075, 3], expected: 10.075 },
+    { input: [-10.075, 3], expected: -10.075 },
     { input: [1.005, 2], expected: 1.01 },
     { input: [-1.005, 2], expected: -1.01 },
     { input: [1.4444, 2], expected: 1.44 },
@@ -73,6 +73,32 @@ t('test roundHalfAwayFromZeroWithPrecision()', () => {
   testCases.forEach(({ input, expected }) => {
     const result = roundHalfAwayFromZeroWithPrecision(input[0], input[1]);
     assert(result === expected, `Expected roundHalfAwayFromZeroWithPrecision(${input}) to be ${expected}, but got ${result}`);
+  });
+});
+
+t('test.toFixed() - sometimes different from roundHalfAwayFromZeroWithPrecision', () => {
+  const testCases = [
+    { input: [10.075, 3], expected: '10.075' },
+    { input: [-10.075, 3], expected: '-10.075' },
+    { input: [1.005, 2], expected: '1.00' },  // different behavior from roundHalfAwayFromZeroWithPrecision
+    { input: [-1.005, 2], expected: '-1.00' },  // different behavior from roundHalfAwayFromZeroWithPrecision
+    { input: [1.4444, 2], expected: '1.44' },
+    { input: [-1.4444, 2], expected: '-1.44' },
+    { input: [1.5555, 2], expected: '1.56' },
+    { input: [-1.5555, 2], expected: '-1.56' },
+    { input: [2.4444, 2], expected: '2.44' },
+    { input: [-2.4444, 2], expected: '-2.44' },
+    { input: [2.5555, 2], expected: '2.56' },
+    { input: [-2.5555, 2], expected: '-2.56' },
+    { input: [0.2555, 3], expected: '0.256' },
+    { input: [-0.2555, 3], expected: '-0.256' },
+    { input: [1.2555, 3], expected: '1.256' },
+    { input: [-1.2555, 3], expected: '-1.256' }
+  ];
+
+  testCases.forEach(({ input, expected }) => {
+    const result = input[0].toFixed(input[1]);
+    assert(result === String(expected), `Expected Number(${input[0]}).toFixed(${input[1]}) to be ${expected}, but got ${result}`);
   });
 });
 
