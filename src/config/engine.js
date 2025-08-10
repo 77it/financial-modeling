@@ -36,7 +36,7 @@ export const BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME = 'cash_account_1';
 export const DEFAULT_NUMBER_OF_YEARS_FROM_TODAY = 5;
 // Rounding mode to use when storing numbers in the ledger; if true, use Math.round(), otherwise use Math.floor()
 export const ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO = true;
-// Decimal places to use when storing numbers in the ledger
+// Decimal places to use when storing numbers in the ledger (PRECISION)
 export const DECIMAL_PLACES = 4;
 
 // config used during init of Settings and Drivers classes

@@ -2,7 +2,9 @@ export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmou
 
 import { schema, validate, addMonthsToLocalDate, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../deps.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../deps.js';
+import { Big } from '../deps.js';
 import { ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO } from '../../config/engine.js';
+import { DECIMAL_PLACES } from '../../config/engine.js';
 
 // info about loans
 /*
@@ -77,7 +79,7 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  * @param {number} p.nrOfPaymentsIncludingGracePeriod
  * @param {1 | 2 | 3 | 4 | 6 | 12} p.numberOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
  * @param {number} [p.gracePeriodNrOfPayments=0] optional, number of payments with interest-only payments
- * @param {number} [p.precision=4] optional, number of decimals to round the interest and principal payments, default is 4
+ * @param {number} [p.precision=DECIMAL_PLACES] optional, number of decimals to round the interest and principal payments, default is engine const DECIMAL_PLACES
  * @return {{date: Date[], paymentNo: number[], interestPayment: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
  */
 function getMortgagePaymentsOfAConstantPaymentLoan ({
@@ -87,7 +89,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
   nrOfPaymentsIncludingGracePeriod,
   numberOfPaymentsInAYear,
   gracePeriodNrOfPayments = 0,
-  precision = 4
+  precision = DECIMAL_PLACES
 }) {
   if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
     validate({
@@ -124,6 +126,9 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
 
   if (gracePeriodNrOfPayments >= nrOfPaymentsIncludingGracePeriod)
     throw new Error(`Validation error: grace period payments (${gracePeriodNrOfPayments}) cannot be greater than or equal to total number of payments including grace period (${nrOfPaymentsIncludingGracePeriod})`);
+
+  if (precision < 0 || precision > 20)
+    throw new Error(`Validation error: precision is ${precision}, must be between 0 and 20`);
 
   const numberOfPaymentsWithoutGracePeriod = nrOfPaymentsIncludingGracePeriod - gracePeriodNrOfPayments;
 
@@ -165,7 +170,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
   }
 
   // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our total
-  let mortgageRemaining = startingPrincipal;
+  let mortgageRemaining = new Big(startingPrincipal);
 
   // Here we loop through each payment (starting from 1) and figure out the interest and principal payments
   for (let currPaymentNo = 1; currPaymentNo <= numberOfPaymentsWithoutGracePeriod; currPaymentNo++) {
@@ -174,10 +179,10 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
 
     let principalPayment = _round(mortgagePayment - interestPayment, precision);  // The principal payment portion of that month
     if (currPaymentNo === numberOfPaymentsWithoutGracePeriod)  // if we reached the last payment, the last payment is the residual principal
-      principalPayment = mortgageRemaining;
+      principalPayment = mortgageRemaining.toNumber();
 
     // Calculate the remaining mortgage amount, which you do by subtracting the principal payment
-    mortgageRemaining = mortgageRemaining - principalPayment;
+    mortgageRemaining = mortgageRemaining.minus(principalPayment);
 
     currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
 
@@ -185,11 +190,11 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
     mortgageArray.paymentNo.push(currPaymentNo + gracePeriodNrOfPayments);
     mortgageArray.interestPayment.push(interestPayment);
     mortgageArray.principalPayment.push(principalPayment);
-    mortgageArray.totalMortgageRemaining.push(mortgageRemaining);
+    mortgageArray.totalMortgageRemaining.push(mortgageRemaining.toNumber());
   }
 
   // coherence test
-  if (mortgageRemaining !== 0)
+  if (mortgageRemaining.toNumber() !== 0)
     throw new Error(`Internal error, at the end of the mortgage calculation, residual mortgage must be zero.`);
 
   return mortgageArray;

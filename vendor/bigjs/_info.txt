@@ -1,0 +1,23 @@
+file edits:
+* big.mjs
+    added `//@ts-nocheck` to the top of the file
+* index.d.ts
+    replaced row 352 from `export = Big;` to `export default Big;`
+
+file source
+https://raw.githubusercontent.com/MikeMcl/big.js/cdbc06f1d5ae9be429b97f433ee884cf9ad28072/big.mjs
+https://github.com/MikeMcl/big.js/blob/cdbc06f1d5ae9be429b97f433ee884cf9ad28072/big.mjs
+minified source
+https://cdn.jsdelivr.net/npm/big.js@7.0.1/big.min.mjs
+
+types
+https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts
+
+github repository
+https://github.com/MikeMcl/big.js/
+
+backup github repository
+https://github.com/77it/big.js
+
+npm
+https://www.npmjs.com/package/big.js
