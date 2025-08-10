@@ -9,7 +9,33 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
-//#region test my loan code, with comparison with `financial` library'
+//#region test my loan code, with comparison with `financial` library
+t('calculatePeriodicPaymentAmountOfAConstantPaymentLoan #0 zero interest, annual, 10 installments', async () => {
+  const ppa_myCode = calculatePeriodicPaymentAmountOfAConstantPaymentLoan({
+    annualInterestRate: 0,
+    yearlyNrOfPayments: 1,
+    totalNrOfPayments: 10,
+    startingPrincipal: 10_000
+  });
+  assert.deepStrictEqual(ppa_myCode.toFixed(11), '1000.00000000000');
+
+  const ppa_financial = financial.pmt(0, 10, 10_000, 0, financial.PaymentDueTime.End);
+  assert.deepStrictEqual((ppa_financial * -1).toFixed(11), ppa_myCode.toFixed(11));
+});
+
+t('calculatePeriodicPaymentAmountOfAConstantPaymentLoan #0b zero interest, monthly, 12 installments', async () => {
+  const ppa_myCode = calculatePeriodicPaymentAmountOfAConstantPaymentLoan({
+    annualInterestRate: 0,
+    yearlyNrOfPayments: 1,
+    totalNrOfPayments: 12,
+    startingPrincipal: 12_000
+  });
+  assert.deepStrictEqual(ppa_myCode.toFixed(11), '1000.00000000000');
+
+  const ppa_financial = financial.pmt(0, 12, 12_000, 0, financial.PaymentDueTime.End);
+  assert.deepStrictEqual((ppa_financial * -1).toFixed(11), ppa_myCode.toFixed(11));
+});
+
 t('calculatePeriodicPaymentAmountOfAConstantPaymentLoan #1', async () => {
   const ppa_myCode = calculatePeriodicPaymentAmountOfAConstantPaymentLoan({
     annualInterestRate: 0.07,
@@ -47,7 +73,7 @@ t('calculateAnnuityOfAConstantPaymentLoan', async () => {
   const ppa_financial = financial.pmt(0.07, 10, 10_000, 0, financial.PaymentDueTime.End);
   assert.deepStrictEqual((ppa_financial * -1).toFixed(11), ppa_myCode.toFixed(11));
 });
-//#endregion test my loan code, with comparison with `financial` library'
+//#endregion test my loan code, with comparison with `financial` library
 
 //#region test getMortgagePayments
 t('test #1', async () => {
@@ -67,7 +93,7 @@ t('test #2, principal as Number.MAX_VALUE, MIN_VALUE, MAX_SAFE_INTEGER, MIN_SAFE
     annualInterestRate: 0.07,
     numberOfPaymentsInAYear: 1,
     nrOfPaymentsIncludingGracePeriod: 4,
-    gracePeriod: 1
+    gracePeriodNrOfPayments: 1
   }));
 
   console.log(getMortgagePaymentsOfAConstantPaymentLoan({
@@ -76,7 +102,7 @@ t('test #2, principal as Number.MAX_VALUE, MIN_VALUE, MAX_SAFE_INTEGER, MIN_SAFE
     annualInterestRate: 0.07,
     numberOfPaymentsInAYear: 1,
     nrOfPaymentsIncludingGracePeriod: 4,
-    gracePeriod: 1
+    gracePeriodNrOfPayments: 1
   }));
 });
 

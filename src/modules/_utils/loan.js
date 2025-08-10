@@ -75,8 +75,8 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  * @param {number} p.startingPrincipal
  * @param {number} p.annualInterestRate
  * @param {number} p.nrOfPaymentsIncludingGracePeriod
- * @param {number} p.numberOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
- * @param {number} [p.gracePeriod=0] optional, number of periods with interest-only payments
+ * @param {1 | 2 | 3 | 4 | 6 | 12} p.numberOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
+ * @param {number} [p.gracePeriodNrOfPayments=0] optional, number of payments with interest-only payments
  * @param {number} [p.precision=4] optional, number of decimals to round the interest and principal payments, default is 4
  * @return {{date: Date[], paymentNo: number[], interestPayment: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
  */
@@ -86,7 +86,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
   annualInterestRate,
   nrOfPaymentsIncludingGracePeriod,
   numberOfPaymentsInAYear,
-  gracePeriod = 0,
+  gracePeriodNrOfPayments = 0,
   precision = 4
 }) {
   if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
@@ -98,7 +98,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
           annualInterestRate,
           nrOfPaymentsIncludingGracePeriod,
           numberOfPaymentsInAYear,
-          gracePeriod,
+          gracePeriodNrOfPayments,
           precision
         },
       validation:
@@ -107,18 +107,25 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
           startingPrincipal: schema.NUMBER_TYPE,
           annualInterestRate: schema.NUMBER_TYPE,
           nrOfPaymentsIncludingGracePeriod: schema.NUMBER_TYPE,
-          numberOfPaymentsInAYear: schema.NUMBER_TYPE,
-          gracePeriod: schema.NUMBER_TYPE,
+          numberOfPaymentsInAYear: [1, 2, 3, 4, 6, 12],
+          gracePeriodNrOfPayments: schema.NUMBER_TYPE,
           precision: schema.NUMBER_TYPE
         }
     });
 
-  const numberOfPaymentsWithoutGracePeriod = nrOfPaymentsIncludingGracePeriod - gracePeriod;
-  if (!(numberOfPaymentsWithoutGracePeriod > 0))
-    throw new Error(`Validation error: number of payments without grace period is ${numberOfPaymentsWithoutGracePeriod}, must be > 0`);
+  if (annualInterestRate < 0)
+    throw new Error(`Validation error: annual interest rate is ${annualInterestRate}, must be >= 0`);
 
-  if (!((numberOfPaymentsInAYear > 0) && (numberOfPaymentsInAYear <= 12) && (12 % numberOfPaymentsInAYear === 0)))
-    throw new Error(`Validation error: number of payments in a year is ${numberOfPaymentsInAYear}, must be > 0, < 12 and a number between 1|2|3|4|6|12`);
+  if (nrOfPaymentsIncludingGracePeriod <= 0)
+    throw new Error(`Validation error: total number of payments including grace period is ${nrOfPaymentsIncludingGracePeriod}, must be > 0`);
+
+  if (gracePeriodNrOfPayments < 0)
+    throw new Error(`Validation error: grace period number of payments is ${gracePeriodNrOfPayments}, must be >= 0`);
+
+  if (gracePeriodNrOfPayments >= nrOfPaymentsIncludingGracePeriod)
+    throw new Error(`Validation error: grace period payments (${gracePeriodNrOfPayments}) cannot be greater than or equal to total number of payments including grace period (${nrOfPaymentsIncludingGracePeriod})`);
+
+  const numberOfPaymentsWithoutGracePeriod = nrOfPaymentsIncludingGracePeriod - gracePeriodNrOfPayments;
 
   let currDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0);  // clone startDate removing time
 
@@ -143,8 +150,8 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
 
   const _round = ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO ? roundHalfAwayFromZeroWithPrecision : truncWithPrecision;
 
-  // Here we loop through each gracePeriod payment (only interest)
-  for (let currPaymentNo = 1; currPaymentNo <= gracePeriod; currPaymentNo++) {
+  // Here we loop through each gracePeriodNrOfPayments payment (only interest)
+  for (let currPaymentNo = 1; currPaymentNo <= gracePeriodNrOfPayments; currPaymentNo++) {
     // The interest payment portion of the period
     const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, 1, numberOfPaymentsWithoutGracePeriod, startingPrincipal), precision);
 
@@ -175,7 +182,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
     currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
 
     mortgageArray.date.push(currDate);
-    mortgageArray.paymentNo.push(currPaymentNo + gracePeriod);
+    mortgageArray.paymentNo.push(currPaymentNo + gracePeriodNrOfPayments);
     mortgageArray.interestPayment.push(interestPayment);
     mortgageArray.principalPayment.push(principalPayment);
     mortgageArray.totalMortgageRemaining.push(mortgageRemaining);

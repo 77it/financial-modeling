@@ -45,5 +45,8 @@ function truncWithPrecision(n, precision) {
     throw new Error('Precision must be between 0 and 20');
   }
   const factor = Math.pow(10, precision);
-  return Math.trunc(n * factor) / factor;
+  // EPSILON is needed to prevent truncation of 1.005 with precision 3 in 1.004
+  // because 1.005 * 1000 = 1004.9999999999999 then Math.trunc(1004.9999999999999) = 1004 and not 1005 as expected
+  const epsilon = n >= 0 ? Number.EPSILON : -Number.EPSILON; // Adjust epsilon based on sign of n
+  return Math.trunc((n + epsilon) * factor) / factor;
 }

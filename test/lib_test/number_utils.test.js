@@ -52,8 +52,14 @@ t('test Math.round() - sometimes different from roundHalfAwayFromZero', () => {
 
 t('test roundHalfAwayFromZeroWithPrecision()', () => {
   const testCases = [
+    { input: [10.075, 4], expected: 10.075 },
+    { input: [-10.075, 4], expected: -10.075 },
     { input: [10.075, 3], expected: 10.075 },
     { input: [-10.075, 3], expected: -10.075 },
+    { input: [1.005, 4], expected: 1.005 },
+    { input: [-1.005, 4], expected: -1.005 },
+    { input: [1.005, 3], expected: 1.005 },
+    { input: [-1.005, 3], expected: -1.005 },
     { input: [1.005, 2], expected: 1.01 },
     { input: [-1.005, 2], expected: -1.01 },
     { input: [1.4444, 2], expected: 1.44 },
@@ -114,6 +120,8 @@ t('test truncWithPrecision()', () => {
     { input: [-10.075, 1], expected: -10 },
     { input: [1.005, 2], expected: 1.00 },
     { input: [-1.005, 2], expected: -1.00 },
+    { input: [1.005, 3], expected: 1.005 },
+    { input: [-1.005, 3], expected: -1.005 },
     { input: [1.4444, 2], expected: 1.44 },
     { input: [-1.4444, 2], expected: -1.44 },
     { input: [1.5555, 2], expected: 1.55 },
