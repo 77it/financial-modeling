@@ -134,9 +134,11 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
 
   let currDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0);  // clone startDate removing time
 
+  const _round = ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO ? roundHalfAwayFromZeroWithPrecision : truncWithPrecision;
+
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12, and so on
   // Multiply by -1, since it default to a negative value
-  const mortgagePayment = -1 * financial.pmt(annualInterestRate / numberOfPaymentsInAYear, numberOfPaymentsWithoutGracePeriod, startingPrincipal, 0, financial.PaymentDueTime.End);
+  const mortgagePayment = _round(-1 * financial.pmt(annualInterestRate / numberOfPaymentsInAYear, numberOfPaymentsWithoutGracePeriod, startingPrincipal, 0, financial.PaymentDueTime.End), precision);
 
   const mortgageArray = {
     /** @type {Date[]} */ date: [],
@@ -152,8 +154,6 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
   mortgageArray.interestPayment.push(0);
   mortgageArray.principalPayment.push(0);
   mortgageArray.totalMortgageRemaining.push(startingPrincipal);
-
-  const _round = ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO ? roundHalfAwayFromZeroWithPrecision : truncWithPrecision;
 
   // Here we loop through each gracePeriodNrOfPayments payment (only interest)
   for (let currPaymentNo = 1; currPaymentNo <= gracePeriodNrOfPayments; currPaymentNo++) {
