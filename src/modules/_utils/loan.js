@@ -77,7 +77,7 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  * @param {number} p.startingPrincipal
  * @param {number} p.annualInterestRate
  * @param {number} p.nrOfPaymentsIncludingGracePeriod
- * @param {1 | 2 | 3 | 4 | 6 | 12} p.numberOfPaymentsInAYear  12 for monthly, 6 for bimonthly, ..., 1 for yearly
+ * @param {number} p.numberOfPaymentsInAYear  1 | 2 | 3 | 4 | 6 | 12: 12 for monthly, 6 for bimonthly, ..., 1 for yearly
  * @param {number} [p.gracePeriodNrOfPayments=0] optional, number of payments with interest-only payments
  * @param {number} [p.precision=DECIMAL_PLACES] optional, number of decimals to round the interest and principal payments, default is engine const DECIMAL_PLACES
  * @return {{date: Date[], paymentNo: number[], interestPayment: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
