@@ -73,7 +73,8 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  * Compute the full schedule of a French amortization plan (a series of constant payments at regular intervals)
  *
  * @param {Object} p
- * @param {Date} p.startDate When the starting date is an end of month, next dates are also end of months
+ * @param {Date} p.startDate Start date of the loan, used to calculate the first scheduled payment date
+ * @param {Date} p.firstScheduledPaymentDate When the starting date is an end of month, next dates are also end of months
  * @param {number} p.startingPrincipal
  * @param {number} p.annualInterestRate
  * @param {number} p.nrOfPaymentsIncludingGracePeriod
@@ -84,6 +85,7 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  */
 function getMortgagePaymentsOfAConstantPaymentLoan ({
   startDate,
+  firstScheduledPaymentDate,
   startingPrincipal,
   annualInterestRate,
   nrOfPaymentsIncludingGracePeriod,
@@ -91,11 +93,16 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
   gracePeriodNrOfPayments = 0,
   precision = DECIMAL_PLACES
 }) {
+  XXXXX: valutare se inserire la data di inizio finanziamento/erogazione, con capitale zero, e la prima scadenza da cui calcolare interessi;
+  loanStartDate + firstScheduledPaymentDate;
+
+
   if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
     validate({
       value:
         {
           startDate,
+          firstScheduledPaymentDate,
           startingPrincipal,
           annualInterestRate,
           nrOfPaymentsIncludingGracePeriod,
@@ -106,6 +113,7 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
       validation:
         {
           startDate: schema.DATE_TYPE,
+          firstScheduledPaymentDate: schema.DATE_TYPE,
           startingPrincipal: schema.NUMBER_TYPE,
           annualInterestRate: schema.NUMBER_TYPE,
           nrOfPaymentsIncludingGracePeriod: schema.NUMBER_TYPE,

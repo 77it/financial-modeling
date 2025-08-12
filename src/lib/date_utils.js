@@ -4,7 +4,7 @@ export { differenceInCalendarDaysOfLocalDates, differenceInCalendarDaysOfUTCDate
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
 export { addMonthsToLocalDate, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
 export { compareLocalDatesIgnoringTime };
-export { localDateToUTC, localDateToStringYYYYMMDD, stripTimeToLocalDate, stripTimeToUTCDate };
+export { localDateToUTC, UTCtoLocalDate, localDateToStringYYYYMMDD, stripTimeToLocalDate, stripTimeToUTCDate };
 
 // creating RegExp for later use
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
@@ -520,6 +520,20 @@ function localDateToUTC (date) {
     throw new Error(`Invalid date ${date}`);
 
   return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
+}
+
+/**
+ * Convert UTC to local date
+ *
+ * @param {Date} date
+ * @returns {Date}
+ * @throws {Error} if the date is not valid
+ */
+function UTCtoLocalDate (date) {
+  if (!isValidDate(date))
+    throw new Error(`Invalid date ${date}`);
+
+  return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
 }
 
 /**

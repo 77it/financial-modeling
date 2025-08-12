@@ -1,6 +1,7 @@
 // test with   deno --test --allow-import --allow-read
 
-import { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan } from '../../src/modules/_utils/loan.js';
+import { getMortgagePaymentsOfAConstantPaymentLoan } from '../../src/modules/_utils/loan.js';
+import { UTCtoLocalDate } from '../deps.js';
 
 // @deno-types="https://cdn.sheetjs.com/xlsx-0.20.3/package/types/index.d.ts"
 import * as XLSX from 'xlsx';
@@ -32,20 +33,36 @@ t('test', async () => {
 
 // Example callback
 /** TestX function
- * @param {object} p
- * @param {Date} p.startDate
- * @param {number} p.startingPrincipal
- * @param {number} p.annualInterestRate
- * @param {number} p.numberOfPaymentsInAYear
- * @param {number} p.nrOfPaymentsIncludingGracePeriod
- * @param {number} p.gracePeriodNrOfPayments
- * @param {Date[]} dates - Array of dates from column A
- * @param {number[]} colB - Array of numbers from column B
- * @param {number[]} colC - Array of numbers from column C
  * @param {string} sheetName - Name of the sheet being processed
+ * @param {object} settings
+ * @param {Date} settings.startDate
+ * @param {number} settings.startingPrincipal
+ * @param {number} settings.annualInterestRate
+ * @param {number} settings.numberOfPaymentsInAYear
+ * @param {number} settings.nrOfPaymentsIncludingGracePeriod
+ * @param {number} settings.gracePeriodNrOfPayments
+ * @param {object} excelPlan
+ * @param {Date[]} excelPlan.dates - Array of dates from column B
+ * @param {number[]} excelPlan.interestPayments - Array of numbers from column C
+ * @param {number[]} excelPlan.principalPayments - Array of numbers from column D
  */
-function TestX({ startDate, startingPrincipal, annualInterestRate, numberOfPaymentsInAYear, nrOfPaymentsIncludingGracePeriod, gracePeriodNrOfPayments }, dates, colB, colC, sheetName) {
-  const ppa_myCode = getMortgagePaymentsOfAConstantPaymentLoan({
+function TestX(
+  sheetName,
+  { startDate, startingPrincipal, annualInterestRate, numberOfPaymentsInAYear, nrOfPaymentsIncludingGracePeriod, gracePeriodNrOfPayments },
+  { dates, interestPayments, principalPayments }
+) {
+  // check that excelPlan arrays have the same length
+  assert.strictEqual(dates.length, interestPayments.length, `Dates and interest payments length mismatch in sheet ${sheetName}`);
+  assert.strictEqual(dates.length, principalPayments.length, `Dates and principal payments length mismatch in sheet ${sheetName}`);
+
+  // loop dates array and apply the method UTCtoLocalDate to all dates
+  for (let i = 0; i < dates.length; i++) {
+    // Convert UTC date to local date
+    dates[i] = UTCtoLocalDate(dates[i]);
+  }
+
+  /** @type {{date: Date[], paymentNo: number[], interestPayment: number[], principalPayment: number[], totalMortgageRemaining: number[]}} */
+  const jsPlan = getMortgagePaymentsOfAConstantPaymentLoan({
     startDate,
     startingPrincipal,
     annualInterestRate,
@@ -54,8 +71,13 @@ function TestX({ startDate, startingPrincipal, annualInterestRate, numberOfPayme
     gracePeriodNrOfPayments
   });
 
-  console.log(`Periodic Payment Amount (my code) for ${sheetName}: ${ppa_myCode}`);
-  console.log(`${dates}, ${colB}, ${colC}`);
+  // loop through the dates and compare with the Excel data
+  for (let i = 0; i < dates.length; i++) {
+    // Compare with the JS plan
+    assert.deepStrictEqual(dates[i].getTime(), jsPlan.date[i].getTime(), `Date mismatch at index ${i} in sheet ${sheetName}, expected ${jsPlan.date[i]} but got ${dates[i]}`);
+    assert.strictEqual(interestPayments[i], jsPlan.interestPayment[i], `Interest payment mismatch at index ${i} in sheet ${sheetName}, expected ${jsPlan.interestPayment[i]} but got ${interestPayments[i]}`);
+    assert.strictEqual(principalPayments[i], jsPlan.principalPayment[i], `Principal payment mismatch at index ${i} in sheet ${sheetName}, expected ${jsPlan.principalPayment[i]} but got ${principalPayments[i]}`);
+  }
 }
 
 /** function _processWorkbookRC
@@ -78,12 +100,14 @@ function _processWorkbookRC(wb) {
     const nrOfPaymentsIncludingGracePeriod = getCellValue(ws, "B6");
     const gracePeriodNrOfPayments = getCellValue(ws, "B7");
 
-    // From A5 downwards (row index 4)
-    const { dates, colB, colC } = readColumnsABCRC(ws, 10, date1904, range.e.r);
+    // From row 10
+    const { dates, interestPayments, principalPayments } = readColumnsBDC(ws, 9, date1904, range.e.r);
 
-    TestX({
-      startDate, startingPrincipal, annualInterestRate, numberOfPaymentsInAYear, nrOfPaymentsIncludingGracePeriod, gracePeriodNrOfPayments
-    }, dates, colB, colC, sheetName);
+    TestX(
+      sheetName,
+      {startDate, startingPrincipal, annualInterestRate, numberOfPaymentsInAYear, nrOfPaymentsIncludingGracePeriod, gracePeriodNrOfPayments },
+      { dates, interestPayments, principalPayments }
+    );
   });
 }
 
@@ -112,36 +136,36 @@ function getCellValue(ws, cellAddress) {
 }
 
 /**
- * Reads columns A, B, and C from the given worksheet starting from a specific row.
- * Extracts dates from column A, numbers from column B, and numbers from column C.
+ * Reads columns B, C, and D from the given worksheet starting from a specific row.
+ * Extracts dates from column B, numbers from column C and D.
  *
  * @param {*} ws - The worksheet object from which data is read.
  * @param {number} startRow - The row index to start reading from (0-based).
  * @param {boolean} date1904 - Indicates if the workbook uses the 1904 date system.
  * @param {number} lastRow - The last row index to read (0-based).
- * @returns {{dates: Date[], colB: number[], colC: number[]}} - An object containing arrays of dates, column B values, and column C values.
+ * @returns {{ dates: Date[], interestPayments: number[], principalPayments: number[]}} - An object containing arrays of dates, column B values, and column C values.
  */
-function readColumnsABCRC(ws, startRow, date1904, lastRow) {
+function readColumnsBDC(ws, startRow, date1904, lastRow) {
   const dates = [];
-  const colB  = [];
-  const colC  = [];
+  const interestPayments  = [];
+  const principalPayments  = [];
 
   for (let r = startRow; r <= lastRow; r++) {
-    const cellA = ws[XLSX.utils.encode_cell({ r, c: 1 })];
-    const cellB = ws[XLSX.utils.encode_cell({ r, c: 2 })];
-    const cellC = ws[XLSX.utils.encode_cell({ r, c: 3 })];
+    const date = ws[XLSX.utils.encode_cell({ r, c: 1 })];
+    const principalPayment = ws[XLSX.utils.encode_cell({ r, c: 2 })];
+    const interestPayment = ws[XLSX.utils.encode_cell({ r, c: 3 })];
 
-    const isEmpty = [cellA, cellB, cellC].every((c) =>
+    const isEmpty = [date, interestPayment, principalPayment].every((c) =>
       c == null || c.v == null || (typeof c.v === "string" && c.v.trim() === "")
     );
     if (isEmpty) break;
 
-    dates.push(parseExcelDate(cellA, date1904));
-    colB.push(parseExcelNumber(cellB));
-    colC.push(parseExcelNumber(cellC));
+    dates.push(parseExcelDate(date, date1904));
+    interestPayments.push(parseExcelNumber(interestPayment));
+    principalPayments.push(parseExcelNumber(principalPayment));
   }
 
-  return { dates, colB, colC };
+  return { dates, interestPayments, principalPayments };
 }
 
 /**
