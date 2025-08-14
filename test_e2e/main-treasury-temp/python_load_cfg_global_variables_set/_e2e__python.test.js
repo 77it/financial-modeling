@@ -4,6 +4,7 @@ import { main } from '../deps.js';
 
 import { existsSync } from '../deps.js';
 import { deleteFile } from '../deps.js';
+import { convertExcelToJsonlFile } from '../deps.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -21,11 +22,18 @@ deleteFile(ERROR_FILE);
 // set cwd/current working directory to current folder (the folder of this file)
 chdir(dirname(fileURLToPath(import.meta.url)));
 
-t('python_load_cfg_global_variables_set', async () => {
-  const BASE_TEST_FILENAME = 'data';
+// Excel file with test data
+const BASE_TEST_FILENAME = 'data';
+const excelInput = `./${BASE_TEST_FILENAME}.xlsx`;
 
+// convert Excel to JSONL for backup and versioning purpose
+const jsonlOutput = `./${BASE_TEST_FILENAME}.dump.jsonl`;
+deleteFile(jsonlOutput);
+await convertExcelToJsonlFile({ excelInput, jsonlOutput });
+
+t('python_load_cfg_global_variables_set', async () => {
   await main({
-    excelUserInput: `./${BASE_TEST_FILENAME}.xlsx`,
+    excelUserInput: excelInput,
     outputFolder: '.',
     errorsFilePath: ERROR_FILE,
     moduleResolverDebugFlag: DEBUG_FLAG,

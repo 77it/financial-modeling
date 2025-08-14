@@ -11,3 +11,4 @@ export { sanitize } from '../../src/lib/schema_sanitization_utils.js';
 export { customParseYAML as parseYAML } from '../../src/lib/yaml.js';
 
 export { convertExcelSheetToLedgerTrnJsonlFile } from '../node/convert_excel_sheet_to_ledger_trn_jsonl_file.js';
+export { convertExcelToJsonlFile } from '../../src/node/convert_excel_to_jsonl_file.js';

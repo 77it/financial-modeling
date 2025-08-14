@@ -5,6 +5,7 @@ import { main } from '../deps.js';
 import { readUtf8TextFileRemovingBOM } from '../deps.js';
 import { existsSync } from '../deps.js';
 import { deleteFile } from '../deps.js';
+import { convertExcelToJsonlFile } from '../deps.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -22,12 +23,20 @@ deleteFile(ERROR_FILE);
 // set cwd/current working directory to current folder (the folder of this file)
 chdir(dirname(fileURLToPath(import.meta.url)));
 
+// Excel file with test data
+const BASE_TEST_FILENAME = 'data';
+const excelInput = `./${BASE_TEST_FILENAME}.xlsx`;
+
+// convert Excel to JSONL for backup and versioning purpose
+const jsonlOutput = `./${BASE_TEST_FILENAME}.dump.jsonl`;
+deleteFile(jsonlOutput);
+await convertExcelToJsonlFile({ excelInput, jsonlOutput });
+
 t('TODO main-treasury-temp tests with `user_data`', async () => {
-  const BASE_TEST_FILENAME = 'data';
   const JSONL_OUTPUT = 'a.jsonl';
 
   await main({
-    excelUserInput: `./${BASE_TEST_FILENAME}.xlsx`,
+    excelUserInput: excelInput,
     outputFolder: '.',
     errorsFilePath: ERROR_FILE,
     moduleResolverDebugFlag: DEBUG_FLAG,

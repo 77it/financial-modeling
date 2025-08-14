@@ -285,3 +285,4 @@ ModelManifest.xml
 /tests/_end_to_end_tests/main-treasury-temp/b.jsonl
 /tests/_end_to_end_tests/main-treasury-temp/base.jsonl
 src/py/__pycache__
+.idea/jsLibraryMappings.xml

@@ -4,6 +4,7 @@ import { main } from '../deps.js';
 
 import { readUtf8TextFileRemovingBOM } from '../deps.js';
 import { deleteFile } from '../deps.js';
+import { convertExcelToJsonlFile } from '../deps.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -20,9 +21,18 @@ deleteFile(ERROR_FILE);
 // set cwd/current working directory to current folder (the folder of this file)
 chdir(dirname(fileURLToPath(import.meta.url)));
 
+// Excel file with test data
+const BASE_TEST_FILENAME = 'data';
+const excelInput = `./${BASE_TEST_FILENAME}.xlsx`;
+
+// convert Excel to JSONL for backup and versioning purpose
+const jsonlOutput = `./${BASE_TEST_FILENAME}.dump.jsonl`;
+deleteFile(jsonlOutput);
+await convertExcelToJsonlFile({ excelInput, jsonlOutput });
+
 t('main-treasury-temp tests with `user_data__non_existent_module.xlsx`', async () => {
   await main({
-    excelUserInput: './data.xlsx',
+    excelUserInput: excelInput,
     outputFolder: '.',
     errorsFilePath: ERROR_FILE,
     moduleResolverDebugFlag: DEBUG_FLAG,
