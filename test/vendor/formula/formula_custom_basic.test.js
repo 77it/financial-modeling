@@ -12,22 +12,22 @@ describe('Formula', () => {
     it('evaluates a formula', () => {
 
         const functions = {
-            x: (value) => Number(value) + 10
+            x: (value) => value + 10
         };
 
         const constants = {
             Z: 100
         };
 
-        const formula = new Parser('1 + a.b.c.2.4.x + [b] + x(105)', { functions, constants });
+        const formula = new Parser('1 + a.b.c.2.4.x + [b] + x([y + 4] + Z)', { functions, constants });
         expect(formula.evaluate({ 'a.b.c.2.4.x': 2, b: 3, 'y + 4': 5 })).toEqual(1 + 2 + 3 + 5 + 10 + 100);
-        expect(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' })).toEqual('123115');
+        expect(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' })).toEqual('123510010');
     });
 
     it('evaluates a formula (custom reference handler)', () => {
 
         const functions = {
-            x: (value) => Number(value) + 10
+            x: (value) => value + 10
         };
 
         const constants = {
@@ -39,9 +39,9 @@ describe('Formula', () => {
             return (context) => context[name];
         };
 
-        const formula = new Parser('1 + a.b.c.2.4.x + [b] + x(105)', { functions, constants, reference });
+        const formula = new Parser('1 + a.b.c.2.4.x + [b] + x([y + 4] + Z)', { functions, constants, reference });
         expect(formula.evaluate({ 'a.b.c.2.4.x': 2, b: 3, 'y + 4': 5 })).toEqual(1 + 2 + 3 + 5 + 10 + 100);
-        expect(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' })).toEqual('123115');
+        expect(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' })).toEqual('123510010');
     });
 
     describe('constructor()', () => {
@@ -107,10 +107,7 @@ describe('Formula', () => {
             };
 
             const formula = new Parser('x(10) + y(z(30)) + z(x(40)) + a()', { functions });
-            expect(formula.evaluate()).toEqual("101" + "z(30)2" + "x(40)3" + "9");
-
-            const formula2 = new Parser('x(y,)', { functions });
-            expect(formula2.evaluate()).toEqual('y,1');
+            expect(formula.evaluate()).toEqual(11 + 33 + 2 + 41 + 3 + 9);
         });
 
         it('passes context as this to functions', () => {
@@ -173,9 +170,40 @@ describe('Formula', () => {
 
     describe('_subFormula', () => {
 
+        it('parses multiple nested functions with arguments (numbers)', () => {
+
+            const functions = {
+                x: (a, b, c) => a + b + c,
+                y: (a, b) => a * b,
+                z: (value) => value + 3,
+                a: () => 9
+            };
+
+            const formula = new Parser('x(10, (y((1 + 2), z(30)) + a()), z(x(4, 5, 6)))', { functions });
+            expect(formula.evaluate()).toEqual(10 + (((1 + 2) * (30 + 3)) + 9) + (4 + 5 + 6) + 3);
+        });
+
+        it('parses multiple nested functions with arguments (strings)', () => {
+
+            const functions = {
+                x: (a, b, c) => a + b + c,
+                y: (a, b) => a + b,
+                z: (value) => value + 3,
+                a: () => 9
+            };
+
+            const formula = new Parser('x("10", (y(("1" + "2"), z("30")) + a()), z(x("4", "5", "6")))', { functions });
+            expect(formula.evaluate()).toEqual('101230394563');
+        });
+
         it('errors on unknown function', () => {
 
             expect(() => new Parser('x()')).toThrow('Formula contains unknown function x');
+        });
+
+        it('errors on invalid function arguments', () => {
+
+            expect(() => new Parser('x(y,)', { functions: { x: () => null } })).toThrow('Formula contains function x with invalid arguments y,');
         });
     });
 

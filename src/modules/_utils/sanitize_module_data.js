@@ -23,8 +23,8 @@ function sanitizeModuleData ({ moduleData, tablesInfo }) {
 
   // loop moduleData tables to parse and sanitize them, table by table
   for (const _table of moduleData.tables) {
-    // search for `_table.tableName` in `tablesInfo` (in a case insensitive way); if not found, `_pss` is undefined
-    // if found, `_pss` contains the tablesInfo property that matches `_table.tableName` (case insensitive),
+    // search for `_table.tableName` in `tablesInfo` (in a case insensitive way); if not found, `_tableInfo` is undefined
+    // if found, `_tableInfo` contains the tablesInfo property that matches `_table.tableName` (case insensitive),
     // with parsing and sanitization settings object for the table
     /** @type {* | undefined} */
     const _tableInfo = Object.values(tablesInfo).find(_ => eq2(_.tableName, _table.tableName));
