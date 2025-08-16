@@ -1,16 +1,15 @@
 // test with deno test --allow-import
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par.js';
+import { Parser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v3.js';
 
-import  { customParseYAML } from '../../../src/lib/yaml.js';
 import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
 // Method that tests the calling of custom function "q()" (callable also with "Q()").
 // q() accepts an object, a string or a number as a parameter and returns the length of the JSON of it.
-t('hapi formula calling function with a string parameter parsed as YAML', () => {
+t('hapi formula calling function with parameter treated as YAML', () => {
   /**
    * @param {*} value
    * @return {number}
@@ -35,30 +34,26 @@ t('hapi formula calling function with a string parameter parsed as YAML', () => 
 });
 
 // Method that tests the evaluation of a formula with dates
-t('hapi formula with dates, and operations on them', () => {
+t('hapi formula with array, date, etc', () => {
   /**
-   * @param {Object} p
-   * @param {Date} p.date
+   * @param {*} p
+   * @return {*}
    */
-  function add7Months (p) {
-    console.log("add7Months");
+  function returnAny (p) {
+    console.log("returnAny");
     console.log(p);
     return p;
   }
 
   const functions = {
-    add7Months: add7Months
+    returnAny: returnAny
   };
 
-  console.log(customParseYAML('{date: 2025/12/31}'));
-
-  //const fmlText = 'add7Months({date: 2025/12/31})';
-  //const fmlText = 'add7Months({date: 2025-12-31})';
-  //const fmlText = 'add7Months({date: 2025.12.31})';
-  const fmlText = 'add7Months( {a: [1, 2] } )';
-  const expected = new Date(2024,7,12);
-  const formula1 = new Parser(fmlText, { functions });
-  assert.deepStrictEqual(formula1.evaluate(), expected);
+  assert.deepStrictEqual(new Parser('returnAny( {a: [1, 2] } )', { functions }).evaluate().a, [1, 2]);
+  assert.deepStrictEqual(new Parser('returnAny( [1, 2] )', { functions }).evaluate(), [1, 2]);
+  assert.deepStrictEqual(new Parser('returnAny( {a: 2025/12/31 } )', { functions }).evaluate().a, new Date(2025, 11, 31));
+  assert.deepStrictEqual(new Parser('returnAny( {a: 2025-12-31 } )', { functions }).evaluate().a, new Date(2025, 11, 31));
+  assert.deepStrictEqual(new Parser('returnAny( {a: 2025.12.31 } )', { functions }).evaluate().a, new Date(2025, 11, 31));
 });
 
 // Tests the evaluation of a string formula with a custom variable resolver
@@ -82,10 +77,6 @@ t('hapi formula with custom variable resolver', () => {
         case 'b':
           return 3;
         case '$':
-          return 1;
-        case '{$.ciao}':
-          return 4;
-        case 'ad{$.ciao}':
           return 4;
         default:
           throw new Error('unrecognized value');
@@ -95,10 +86,10 @@ t('hapi formula with custom variable resolver', () => {
     return resolve;
   };
 
-  const string_to_parse_1 = 'a + 1.99 + a.b + (((a+1)*2)+1) + a + {$.ciao} + $ + ((ad{$.ciao}+10)-2*5)';
-  const expected_1 = '19.99';
+  const string_to_parse_1 = 'a + 1.99 + a.b + (((a+1)*2)+1) + a + $ + ((10)-2*5)';
+  const expected_1 = 1 + 1.99 + 2 + (((1 + 1) * 2) + 1) + 1 + 4 + ((10) - 2 * 5);
 
   const formula1 = new Parser(string_to_parse_1, { reference: reference });
 
-  assert.deepStrictEqual(Number(formula1.evaluate()).toFixed(2), expected_1);
+  assert.deepStrictEqual(Number(formula1.evaluate()), expected_1);
 });

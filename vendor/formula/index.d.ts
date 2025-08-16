@@ -1,11 +1,10 @@
 /**
  * Formula parser
  */
-export class Parser<T extends (string | number)> {
-
+export class Parser {
     /**
      * Create a new formula parser.
-     * 
+     *
      * @param formula - the formula string to parse.
      * @param options - optional settings.
      */
@@ -13,14 +12,13 @@ export class Parser<T extends (string | number)> {
 
     /**
      * Evaluate the formula.
-     * 
+     *
      * @param context - optional object with runtime formula context used to resolve variables.
-     * 
-     * @returns the string or number outcome of the resolved formula.
+     *
+     * @returns the resolved formula outcome (any type).
      */
-    evaluate(context?: any): T;
+    evaluate(context?: any): any;
 }
-
 
 export interface Options {
 
