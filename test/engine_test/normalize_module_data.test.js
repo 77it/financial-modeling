@@ -20,7 +20,7 @@ t('normalizeModuleData() test', async () => {
   ];
 
   const moduleData = new ModuleData({
-    moduleName: 'xxx', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
+    moduleName: 'aaa', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
     tables: [
       { tableName: 'tabB', table: tableB_1_data },
       { tableName: 'tabB', table: tableB_2_data }

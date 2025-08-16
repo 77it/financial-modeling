@@ -30,7 +30,7 @@ t('xlookup test: undefined', async () => {
 
 t('xlookup test: test search', async () => {
   const lookup_array = [99, 1, 'two', 3, 'four', 99, ' FiVe ', 6, 'seven', '9'];
-  const return_array = ['ninenine', 'one', 2, 'three', 4, 'NINENINE', 5, 'six', 7, 'xxx'];
+  const return_array = ['ninenine', 'one', 2, 'three', 4, 'NINENINE', 5, 'six', 7, 'aaa'];
   const return_array_wrong_shorter = ['ninenine'];
 
   /** @type {*} */

@@ -25,7 +25,7 @@ Deno.bench('moduleDataLookup - benchmark', () => {
   ];
 
   const moduleData = new ModuleData({
-    moduleName: 'xxx', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
+    moduleName: 'aaa', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
     tables: [
       { tableName: 'tabA', table: [] },
       { tableName: 'tabB', table: tableB_data }

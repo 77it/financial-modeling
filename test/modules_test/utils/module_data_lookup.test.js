@@ -18,7 +18,7 @@ t('moduleDataLookup test: test search', async () => {
     { name: ' FiVe ', value: 5 },
     { name: 6, value: 'six' },
     { name: 'seven', value: 7 },
-    { name: '9', value: 'xxx' },
+    { name: '9', value: 'aaa' },
   ];
 
   const tableB_2_data = [
@@ -34,7 +34,7 @@ t('moduleDataLookup test: test search', async () => {
   ];
 
   const moduleData = new ModuleData({
-    moduleName: 'xxx', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
+    moduleName: 'aaa', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
     tables: [
       { tableName: 'tabA', table: [] },
       { tableName: 'tabB', table: tableB_1_data },

@@ -176,7 +176,7 @@ t('SimObject.simObjectToDto() & .with() tests', async () => {
     dateTime: new Date(2021, 0, 1),  // updated
     name: '!!!bank account???',  // ignored
     description: '!!!Bank account description???',  // ignored
-    mutableDescription: 'xxx',  // updated
+    mutableDescription: 'aaa',  // updated
     metadata__Name: ['a'],  // ignored
     metadata__Value: ['b'],  // ignored
     metadata__PercentageWeight: [9],  // ignored
@@ -188,9 +188,9 @@ t('SimObject.simObjectToDto() & .with() tests', async () => {
     writingValue: toBigInt(16, decimalPlaces, roundingModeIsRound),  // updated
     alive: false,  // updated
     command__Id: '2',  // updated
-    command__DebugDescription: 'xxx aaa',  // updated
+    command__DebugDescription: 'aaa aaa',  // updated
     commandGroup__Id: '3',  // updated
-    commandGroup__DebugDescription: 'xxx bbb',  // updated
+    commandGroup__DebugDescription: 'aaa bbb',  // updated
     financialSchedule__amountWithoutScheduledDate: toBigInt(17.9, decimalPlaces, roundingModeIsRound),  // updated
     financialSchedule__scheduledDates: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],  // updated
     financialSchedule__scheduledAmounts: [1n, 11n, 112n, 876n],  // updated
@@ -206,7 +206,7 @@ t('SimObject.simObjectToDto() & .with() tests', async () => {
     dateTime: new Date(2021, 0, 1),
     name: 'BANK ACCOUNT',
     description: 'BANK ACCOUNT DESCRIPTION',
-    mutableDescription: 'xxx',
+    mutableDescription: 'aaa',
     metadata__Name: [],
     metadata__Value: [],
     metadata__PercentageWeight: [],
@@ -218,9 +218,9 @@ t('SimObject.simObjectToDto() & .with() tests', async () => {
     writingValue: 16,
     alive: false,
     command__Id: '2',
-    command__DebugDescription: 'xxx aaa',
+    command__DebugDescription: 'aaa aaa',
     commandGroup__Id: '3',
-    commandGroup__DebugDescription: 'xxx bbb',
+    commandGroup__DebugDescription: 'aaa bbb',
     financialSchedule__amountWithoutScheduledDate: 17.9,
     financialSchedule__scheduledDates: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
     financialSchedule__scheduledAmounts: [0.0001, 0.0011, 0.0112, 0.0876],

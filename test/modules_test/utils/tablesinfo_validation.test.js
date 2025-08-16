@@ -47,9 +47,9 @@ const tablesInfo_withErrors = structuredClone(tablesInfo_wellDone);
 tablesInfo_withErrors.TABLE_A.tableName = '';
 tablesInfo_withErrors.TABLE_A.columns.COLUMN_A.name = '';
 //@ts-ignore add new field to TABLE_A
-tablesInfo_withErrors.TABLE_A.NEW_FIELD_1 = 'xxx';
+tablesInfo_withErrors.TABLE_A.NEW_FIELD_1 = 'aaa';
 //@ts-ignore add new field to TABLE_A.columns.COLUMN_A
-tablesInfo_withErrors.TABLE_A.columns.COLUMN_A.NEW_FIELD_2 = 'xxx';
+tablesInfo_withErrors.TABLE_A.columns.COLUMN_A.NEW_FIELD_2 = 'aaa';
 
 t('tablesInfoValidation test: successful', async () => {
   tablesInfoValidation(tablesInfo_wellDone);

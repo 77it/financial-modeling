@@ -66,7 +66,7 @@ namespace ProjX.FM.Scripting.Infrastructure.v1
                 //JsScriptingContextAdminWriter.SetToday(ScriptingContext, Today);
 
                 // lauch Start Simulation command in Ledger
-                // XXX
+                // AAA
 
                 // esegue i moduli secondo l'ordine stabilito su Init, settando su JsScriptingContext il nome del modulo corrente
 
@@ -100,7 +100,7 @@ namespace ProjX.FM.Scripting.Infrastructure.v1
                 SimulationEnded = true;
 
                 // lauch EOD command in Ledger
-                // XXX
+                // AAA
 
                 // esegue i moduli secondo l'ordine stabilito su Init, settando su JsScriptingContext il nome del modulo corrente
                 // legge dal dizionario dei moduli registrati il tipo (script = Js, se diverso "ERRORE" visto che non sono implementate altre sorgenti)
@@ -108,7 +108,7 @@ namespace ProjX.FM.Scripting.Infrastructure.v1
                 // esegue il modulo Js con Run(), intercettando con Try/Catch eventuali errori (es modulo Js non esistente)
 
                 // Ends the simulation
-                // XXX
+                // AAA
             }
 
             throw new NotImplementedException();

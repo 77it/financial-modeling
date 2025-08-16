@@ -82,7 +82,7 @@ t('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim matc
   ];
 
   const moduleData = new ModuleData({
-    moduleName: 'xxx', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
+    moduleName: 'aaa', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
     tables: [
       { tableName: 'tabA', table: tableA_data },
       { tableName: 'tabB', table: tableB_1_data },
@@ -116,7 +116,7 @@ t('sanitizeModuleData test (parse + sanitize): test case-insensitive & trim matc
   ];
 
   const moduleData_exp = new ModuleData({
-    moduleName: 'xxx', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
+    moduleName: 'aaa', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
     tables: [
       { tableName: 'tabA', table: tableA_data_exp },
       { tableName: 'tabB', table: tableB_1_data_exp },
@@ -155,7 +155,7 @@ t('sanitizeModuleData test: test throws', async () => {
   ];
 
  const moduleData = new ModuleData({
-    moduleName: 'xxx', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
+    moduleName: 'aaa', moduleAlias: '', moduleEngineURI: '', moduleSourceLocation: '',
     tables: [
       { tableName: 'tabA', table: tableA_data },
     ]
