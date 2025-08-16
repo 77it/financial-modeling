@@ -110,7 +110,8 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
     _ledger.lock();  // lock Ledger before starting the Simulation
 
-    //# call `init()` passing a cloned `moduleData` and `_simulationContext` to each module
+    // call `init()` passing a cloned `moduleData` and `_simulationContext` to each module
+    // TODO after cloning `moduleData`, parse the formula contained in the moduleData, to convert them to a FmlObj formula object
     for (let i = 0; i < _modulesArray.length; i++) {
       setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
       _drivers.setDebugModuleInfo(getDebugModuleInfo(_moduleDataArray[i]));
@@ -120,7 +121,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       _modulesArray[i]?.init?.({ moduleData: structuredClone(_moduleDataArray[i]), simulationContext: _simulationContext });
     }
 
-    //# call `setTaskLocksBeforeTheSimulationStarts()`
+    // call `setTaskLocksBeforeTheSimulationStarts()`
     for (let i = 0; i < _modulesArray.length; i++) {
       if (_modulesArray[i].alive !== false ) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
@@ -141,7 +142,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       taskLockEntry.taskLock();
     });
 
-    //# call `setDriversAndSettingsBeforeTheSimulationStarts()`
+    // call `setDriversAndSettingsBeforeTheSimulationStarts()`
     for (let i = 0; i < _modulesArray.length; i++) {
       if ( _modulesArray[i].alive !== false ) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
@@ -149,7 +150,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
       }
     }
 
-    //# call `prepareDataForDailyModeling()`
+    // call `prepareDataForDailyModeling()`
     for (let i = 0; i < _modulesArray.length; i++) {
       if ( _modulesArray[i].alive !== false ) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
@@ -188,7 +189,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
         taskLockEntry.taskLock();
       });
 
-      //# call `beforeDailyModeling()`
+      // call `beforeDailyModeling()`
       for (let i = 0; i < _modulesArray.length; i++) {
         if ( _modulesArray[i].alive !== false ) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
@@ -198,7 +199,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
 
       _ledger.unlock();  // unlock Ledger before calling `dailyModeling`
 
-      //# call `dailyModeling()`
+      // call `dailyModeling()`
       for (let i = 0; i < _modulesArray.length; i++) {
         if ( _modulesArray[i].alive !== false ) {
           setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));
@@ -218,7 +219,7 @@ function engine ({ modulesData, modules, scenarioName, appendTrnDump, ledgerDebu
     }
     //#endregion call all modules, every day, until the end of the simulation (loop from _startDate to _endDate)
 
-    //# call `oneTimeAfterTheSimulationEnds()`
+    // call `oneTimeAfterTheSimulationEnds()`
     for (let i = 0; i < _modulesArray.length; i++) {
       if ( _modulesArray[i].alive !== false ) {
         setDebugModuleInfoForLedgerAndSettings(getDebugModuleInfo(_moduleDataArray[i]));

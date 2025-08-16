@@ -21,6 +21,8 @@ class FmlObj {
   0 + FmlObj      // hint 'default' -> no coercion, returns the value as is
   FmlObj + ""     // hint 'default' -> coerces to string
   "" + FmlObj     // hint 'default' -> coerces to string
+  FmlObj + ''     // hint 'default' -> coerces to string
+  '' + FmlObj     // hint 'default' -> coerces to string
   FmlObj == 42    // hint 'default' -> coerces to the type of the right operand
   FmlObj == '42'  // hint 'default' -> coerces to the type of the right operand
    */
