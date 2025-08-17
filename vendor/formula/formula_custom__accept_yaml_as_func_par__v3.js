@@ -1,6 +1,13 @@
 //@ts-nocheck
 
-// fresh merge of v2 in v1 to v3
+// from https://github.com/77it/formula/blob/aeb95946d444466d96cd7a9864c78a4530124f74/lib/formula.js
+// updated to support YAML as function parameters
+//
+// fresh merge of v2 in v1 to v3; should be a simpler code than v2
+//
+// pass test   test/vendor/formula/formula__original_and_custom__base_tests.test.js
+// pass test   test/vendor/formula/formula__original_and_custom__constants_context_reference.test.js
+// pass test   test/vendor/formula/formula_custom_test.test.js
 
 import { customParseYAML as parseYAML } from '../../src/lib/yaml.js';
 

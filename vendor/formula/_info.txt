@@ -4,5 +4,6 @@ from https://github.com/77it/formula/blob/aeb95946d444466d96cd7a9864c78a4530124f
 alternative source https://cdn.jsdelivr.net/gh/77it/formula@3.0.2/lib/formula.js
 
 github home: https://github.com/77it/formula
+originally derived from https://github.com/hapijs/formula
 
 types from https://cdn.jsdelivr.net/gh/77it/formula@3.0.2/lib/index.d.ts

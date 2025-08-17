@@ -508,7 +508,7 @@ function compareLocalDatesIgnoringTime (date1, date2) {
 }
 
 /**
- * Convert a date to UTC
+ * Convert a date to UTC ignoring the time zone.
  * BEWARE: converting a UTC date to UTC will "damage it", because the converted date will be different from the source date
  *
  * @param {Date} date

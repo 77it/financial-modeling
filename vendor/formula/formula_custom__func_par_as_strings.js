@@ -7,6 +7,8 @@ from https://github.com/77it/formula/blob/aeb95946d444466d96cd7a9864c78a4530124f
 * added `//@ts-nocheck` to the file
 * modified `_subFormula` to accept any value and passing it to the function as a string.
 
+THIS VERSION LOST THE POSSIBILITY TO HAVE NESTED FUNCTIONS
+
 alternative source https://cdn.jsdelivr.net/gh/77it/formula@3.0.2/lib/formula.js
 
 GitHub home: https://github.com/77it/formula

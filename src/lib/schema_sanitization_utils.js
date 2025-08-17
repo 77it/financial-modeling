@@ -157,8 +157,10 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
           retValue = value;
         else if (value instanceof Date)
           if (_DATE_UTC) {
-            retValue = value.toISOString();  // if `_DATE_UTC` is true, the date is presumed to be UTC then is not needed to convert it to UTC before converting the date to string
+            // if `_DATE_UTC` is true, the date is presumed to be UTC then is not needed to convert it to UTC before converting the date to ISO string
+            retValue = value.toISOString();
           } else {
+            // if `_DATE_UTC` is false, the date is presumed to be in local time then is generated a UTC date with the date components (ignoring the time zone) and then the date is converted to ISO string
             retValue = localDateToUTC(value).toISOString();
           }
         else if ((typeof value === 'number' && isFinite(value)) || typeof value === 'bigint')
@@ -389,7 +391,7 @@ function _isEmptyOrWhiteSpace (value) {
     if (typeof value !== 'string')
       return false;
     return value === '' || value.toString().trim() === '';
-  } catch (e) {
+  } catch (_) {
     return false;
   }
 }

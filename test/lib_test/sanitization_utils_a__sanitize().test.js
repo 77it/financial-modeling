@@ -36,17 +36,22 @@ t('test sanitize() - string type', async () => {
   assert.deepStrictEqual('', s.sanitize({ value: '    ', sanitization: t }));  // whitespaces are trimmed if the string is empty
   assert.deepStrictEqual('abc', s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual('  abc  ', s.sanitize({ value: '  abc  ', sanitization: t }));    // whitespaces are not trimmed if the string is not empty
-  assert.deepStrictEqual('2022-12-25T00:00:00.000Z', s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
   assert.deepStrictEqual('', s.sanitize({ value: new Date(NaN), sanitization: t }));
   assert.deepStrictEqual('true', s.sanitize({ value: true, sanitization: t }));
   assert.deepStrictEqual('false', s.sanitize({ value: false, sanitization: t }));
   assert.deepStrictEqual('', s.sanitize({ value: [], sanitization: t }));
   assert.deepStrictEqual('a', s.sanitize({ value: ['a'], sanitization: t }));
   assert.deepStrictEqual('  a,  b ,c', s.sanitize({ value: ['  a', '  b ', 'c'], sanitization: t }));
+  // if `_DATE_UTC` is false or omitted, the date is presumed to be in local time
+  // then is generated a UTC date with the date components (ignoring the time zone) and then the date is converted to ISO string
+  const opt1 = { dateUTC: false };
+  assert.deepStrictEqual('2022-12-25T00:00:00.000Z', s.sanitize({ value: new Date(2022, 11, 25), sanitization: t, options: opt1 }));
+  assert.deepStrictEqual('2022-12-25T00:00:00.000Z', s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
 
-  // string sanitization with UTC `dateUTC` option = true
-  const opt = { dateUTC: true };
-  assert.deepStrictEqual('2022-12-25T00:00:00.000Z', s.sanitize({ value: new Date(Date.UTC(2022, 11, 25)), sanitization: t, options: opt }));
+  // if `_DATE_UTC` is true, the date is presumed to be in UTC
+  // then the date is directly converted to ISO string
+  const opt2 = { dateUTC: true };
+  assert.deepStrictEqual('2022-12-25T00:00:00.000Z', s.sanitize({ value: new Date(Date.UTC(2022, 11, 25)), sanitization: t, options: opt2 }));
 
   const t2 = t + '?';
   assert.deepStrictEqual(undefined, s.sanitize({ value: undefined, sanitization: t2 }));
@@ -175,7 +180,7 @@ t('test sanitize() - boolean type', async () => {
   assert.deepStrictEqual(false, s.sanitize({ value: false, sanitization: t2 }));
 });
 
-t('test sanitize() - date type, with OPTIONS.DATE_UTC = true (UTC Date), default OPTIONS.NUMBER_TO_DATE = OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)', async () => {
+t('test sanitize() - date type, with OPTIONS.DATE_UTC = true (dates are presumed to be UTC Date), default OPTIONS.NUMBER_TO_DATE = OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)', async () => {
   const options = { dateUTC: true };
 
   const t = S.DATE_TYPE;
@@ -199,22 +204,27 @@ t('test sanitize() - date type, with OPTIONS.DATE_UTC = true (UTC Date), default
   assert.deepStrictEqual(new Date(0), s.sanitize({ value: false, sanitization: t2, options }));
 });
 
-t('test sanitize() - date type, with default OPTIONS.DATE_UTC = false (local Date), default OPTIONS.NUMBER_TO_DATE = OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)', async () => {
-  const t = S.DATE_TYPE;
-  assert.deepStrictEqual(new Date(2022, 11, 25), s.sanitize({ value: 44920, sanitization: t }));
-  assert.deepStrictEqual(new Date(2022, 11, 25), s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
-  assert.deepStrictEqual(new Date(2022, 11, 25, 0, 0, 0), s.sanitize({ value: '2022-12-25T00:00:00.000Z', sanitization: t }));
-  assert.deepStrictEqual(new Date(2022, 11, 25, 0, 0, 0), s.sanitize({ value: '2022-12-25', sanitization: t }));
-  assert.deepStrictEqual(new Date(0), s.sanitize({ value: new Date(NaN), sanitization: t }));
-  assert.deepStrictEqual(new Date(1), s.sanitize({ value: true, sanitization: t }));
-  assert.deepStrictEqual(new Date(0), s.sanitize({ value: false, sanitization: t }));
+t('test sanitize() - date type, with default option AND explicit OPTIONS.DATE_UTC = false (dates are presumed to be local Date), default OPTIONS.NUMBER_TO_DATE = OPTION__NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE)', async () => {
+  const optionsArray = [{ dateUTC: false }, {}];
 
-  const t2 = t + '?';
-  assert.deepStrictEqual(undefined, s.sanitize({ value: undefined, sanitization: t2, }));
-  assert.deepStrictEqual(null, s.sanitize({ value: null, sanitization: t2 }));
-  assert.deepStrictEqual(new Date(2022, 11, 25), s.sanitize({ value: 44920, sanitization: t2 }));
-  assert.deepStrictEqual(new Date(1), s.sanitize({ value: true, sanitization: t2 }));
-  assert.deepStrictEqual(new Date(0), s.sanitize({ value: false, sanitization: t2 }));
+  // loop all options
+  for (const options of optionsArray) {
+    const t = S.DATE_TYPE;
+    assert.deepStrictEqual(new Date(2022, 11, 25), s.sanitize({ value: 44920, sanitization: t , options }));
+    assert.deepStrictEqual(new Date(2022, 11, 25), s.sanitize({ value: new Date(2022, 11, 25), sanitization: t , options }));
+    assert.deepStrictEqual(new Date(2022, 11, 25, 0, 0, 0), s.sanitize({ value: '2022-12-25T00:00:00.000Z', sanitization: t , options }));
+    assert.deepStrictEqual(new Date(2022, 11, 25, 0, 0, 0), s.sanitize({ value: '2022-12-25', sanitization: t , options }));
+    assert.deepStrictEqual(new Date(0), s.sanitize({ value: new Date(NaN), sanitization: t , options }));
+    assert.deepStrictEqual(new Date(1), s.sanitize({ value: true, sanitization: t , options }));
+    assert.deepStrictEqual(new Date(0), s.sanitize({ value: false, sanitization: t , options }));
+
+    const t2 = t + '?';
+    assert.deepStrictEqual(undefined, s.sanitize({ value: undefined, sanitization: t2, options }));
+    assert.deepStrictEqual(null, s.sanitize({ value: null, sanitization: t2 , options }));
+    assert.deepStrictEqual(new Date(2022, 11, 25), s.sanitize({ value: 44920, sanitization: t2 , options }));
+    assert.deepStrictEqual(new Date(1), s.sanitize({ value: true, sanitization: t2 , options }));
+    assert.deepStrictEqual(new Date(0), s.sanitize({ value: false, sanitization: t2 , options }));
+  }
 });
 
 t('test sanitize() - date type with option number To Date OPTION__NUMBER_TO_DATE__JS_SERIAL_DATE', async () => {

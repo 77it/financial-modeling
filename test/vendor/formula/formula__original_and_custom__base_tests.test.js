@@ -16,7 +16,7 @@ runTests(CustomParser);
  * @param {*} Parser
  */
 function runTests(Parser) {
-    describe('Formula', () => {
+    describe('Formula, original and custom, tests', () => {
 
         it('evaluates a formula', () => {
 
