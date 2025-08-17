@@ -5,11 +5,12 @@
 //
 // based on v1, after many edits
 //
-// pass test   test/vendor/formula/formula__original_and_custom__base_tests.test.js
-// pass test   test/vendor/formula/formula__original_and_custom__constants_context_reference.test.js
-// pass test   test/vendor/formula/formula_custom_test.test.js
+// pass test         test/vendor/formula/formula__original_and_custom__base_tests.test.js
+// pass test         test/vendor/formula/formula__original_and_custom__constants_context_reference.test.js
+// pass test         test/vendor/formula/formula_custom_test_v2_v3_v4.test.js
+// DON'T pass test   test/vendor/formula/formula_custom_test_v4.test.js  // arithmetic operators with explicit + sign and multiple arithmetic operators
 
-import { customParseYAML as parseYAML } from '../../src/lib/yaml.js';
+import { customParseYAML as parseYAML } from '../../../src/lib/yaml.js';
 
 // Keep CJS-style export compatibility used by your vendor code
 var exports = {};

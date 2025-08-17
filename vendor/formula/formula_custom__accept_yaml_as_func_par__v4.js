@@ -7,7 +7,8 @@
 //
 // pass test   test/vendor/formula/formula__original_and_custom__base_tests.test.js
 // pass test   test/vendor/formula/formula__original_and_custom__constants_context_reference.test.js
-// pass test   test/vendor/formula/formula_custom_test.test.js
+// pass test   test/vendor/formula/formula_custom_test_v2_v3_v4.test.js
+// pass test   test/vendor/formula/formula_custom_test_v4.test.js  // arithmetic operators with explicit + sign and multiple arithmetic operators
 
 import { customParseYAML as parseYAML } from '../../src/lib/yaml.js';
 
@@ -17,7 +18,7 @@ const internals = {
   operators: ["!", "^", "*", "/", "%", "+", "-", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "??"],
   operatorCharacters: ["!", "^", "*", "/", "%", "+", "-", "<", "=", ">", "&", "|", "?"], // keep original
   operatorsOrder: [["^"], ["*", "/", "%"], ["+", "-"], ["<", "<=", ">", ">="], ["==", "!="], ["&&"], ["||", "??"]],
-  operatorsPrefix: ["!", "n"],
+  operatorsPrefix: ["!", "n", "p"], // Added 'p' for unary plus
   literals: { "\"": "\"", "`": "`", "'": "'", "[": "]" }, // legacy bracketed reference stays
   numberRx: /^(?:[0-9]*(\.[0-9]*)?){1}$/,
   tokenRx: /^[\w\$\#\.\@\:\{\}]+$/,
@@ -30,9 +31,14 @@ const isPlainObject = (v) =>
   v !== null && typeof v === "object" &&
   (v.constructor === Object || Object.getPrototypeOf(v) === Object.prototype);
 
+/*  This is the old regex version; the new version below is an enhanced version of the first, adding support for fractional seconds while maintaining backward compatibility.
 const isDateLikeString = (s) =>
   typeof s === "string" &&
   /^\d{4}([-\/.])\d{1,2}\1\d{1,2}(?:[ T]\d{2}:\d{2}(?::\d{2})?(?:Z|[+\-]\d{2}:\d{2})?)?$/.test(s);
+*/
+const isDateLikeString = (s) =>
+  typeof s === "string" &&
+  /^\d{4}([-\/.])\d{1,2}\1\d{1,2}([ T]\d{2}:\d{2}(:\d{2}(\.\d{1,6})?)?(Z|[+\-]\d{2}:\d{2})?)?$/.test(s);
 
 const isLikelyFormula = (s) =>
   typeof s === "string" &&
@@ -125,12 +131,12 @@ exports.Parser = class {
         } else {
           parts.push({ type: "operator", value: current });
         }
-      } else if (current.match(internals.numberRx)) {
+      } else if (internals.numberRx.test(current)) {
         parts.push({ type: "constant", value: parseFloat(current) });
       } else if (this.settings.constants[current] !== undefined) {
         parts.push({ type: "constant", value: this.settings.constants[current] });
       } else {
-        if (!current.match(internals.tokenRx)) {
+        if (!internals.tokenRx.test(current)) {
           throw new Error(`Formula contains invalid token: ${current}`);
         }
         parts.push({ type: "reference", value: current });
@@ -179,12 +185,14 @@ exports.Parser = class {
     }
     flush();
 
-    // normalize unary minus
-    parts = parts.map((part, i) =>
-      (part.type === "operator" && part.value === "-" && (!i || parts[i - 1].type === "operator"))
-        ? { type: "operator", value: "n" }
-        : part
-    );
+    // normalize unary operators
+    parts = parts.map((part, i) => {
+      if (part.type === "operator" && (!i || parts[i - 1].type === "operator")) {
+        if (part.value === "-") return { type: "operator", value: "n" }; // unary minus
+        if (part.value === "+") return { type: "operator", value: "p" }; // unary plus
+      }
+      return part;
+    });
 
     // order validation (unchanged)
     let operator = false;
@@ -316,9 +324,15 @@ internals.evaluate = (part, context) => {
 };
 
 internals.single = (operator, value) => {
-  if (operator === "!") return value ? false : true;
-  const negative = -value; // 'n'
-  return negative === 0 ? 0 : negative;
+  if (operator === "!") return !value;
+  if (operator === "n") { // unary minus
+    const negative = -value;
+    return negative === 0 ? 0 : negative;
+  }
+  if (operator === "p") { // unary plus
+    return +value;
+  }
+  return value; // Should not happen with current operators
 };
 
 internals.calculate = (operator, left, right) => {
@@ -355,4 +369,4 @@ internals.calculate = (operator, left, right) => {
 const Parser = exports.Parser;
 export { Parser, exports as default };
 
-//# sourceMappingURL=formula@3.0.2!cjs.map
+//# sourceMappingURL=formula@3.0.3!cjs.map

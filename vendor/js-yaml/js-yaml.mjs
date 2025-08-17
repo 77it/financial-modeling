@@ -1,4 +1,4 @@
-//@ts-nocheck
+//@ts-nocheck unchecked file
 
 // edits to this file
 /*
@@ -8,16 +8,16 @@ added option `customOptions` to exported `load` function
 added option `DATE_AS_LOCAL__OPT_KEY` to parse, optionally, string in the format YYYY-MM-DD as local dates instead of UTC; see https://github.com/nodeca/js-yaml/issues/91
 added option `DATE_EXTENDED_MATCH__OPT_KEY` to match as dates, optionally, also strings in the format YYYY.MM.DD and YYYY/MM/DD other than the default YYYY-MM-DD
 
-you can find all new code searching for the string "# region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY"
+you can find all new code searching for the string "#region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY"
  */
 
-//# region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
+//#region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
 let DATE_AS_LOCAL__FLAG = false;
 let DATE_EXTENDED_MATCH__FLAG = false;
 const DATE_AS_LOCAL__OPT_KEY = 'dateAsLocal';
 const DATE_EXTENDED_MATCH__OPT_KEY = 'dateExtendedMatch';
 
-//# end region
+//#endregion
 
 /*! js-yaml 4.1.0 https://github.com/nodeca/js-yaml @license MIT */
 function isNothing(subject) {
@@ -767,13 +767,13 @@ var YAML_DATE_REGEXP = new RegExp(
   '-([0-9][0-9])'                    + // [2] month
   '-([0-9][0-9])$');                   // [3] day
 
-//# region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
+//#region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
 // extends `YAML_DATE_REGEXP` to match dates in the format YYYY/MM/DD and YYYY.MM.DD other than YYYY-MM-DD
 var YAML_DATE_EXTENDED_REGEXP = new RegExp(
   '^([0-9][0-9][0-9][0-9])'          + // [1] year
   '[-/.]([0-9][0-9])'                    + // [2] month
   '[-/.]([0-9][0-9])$');                   // [3] day
-//# end region
+//#endregion
 
 var YAML_TIMESTAMP_REGEXP = new RegExp(
   '^([0-9][0-9][0-9][0-9])'          + // [1] year
@@ -790,13 +790,13 @@ var YAML_TIMESTAMP_REGEXP = new RegExp(
 function resolveYamlTimestamp(data) {
   if (data === null) return false;
 
-//# region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
+//#region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
   if (DATE_EXTENDED_MATCH__FLAG) {
     if (YAML_DATE_EXTENDED_REGEXP.exec(data) !== null) return true;
   } else {
     if (YAML_DATE_REGEXP.exec(data) !== null) return true;
   }
-//#end region
+//#endregion
 
   if (YAML_TIMESTAMP_REGEXP.exec(data) !== null) return true;
   return false;
@@ -806,13 +806,13 @@ function constructYamlTimestamp(data) {
   var match, year, month, day, hour, minute, second, fraction = 0,
       delta = null, tz_hour, tz_minute, date;
 
-//# region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
+//#region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
   if (DATE_EXTENDED_MATCH__FLAG) {
     match = YAML_DATE_EXTENDED_REGEXP.exec(data);
   } else {
     match = YAML_DATE_REGEXP.exec(data);
   }
-//#end region
+//#endregion
   if (match === null) match = YAML_TIMESTAMP_REGEXP.exec(data);
 
   if (match === null) throw new Error('Date resolve error');
@@ -823,7 +823,7 @@ function constructYamlTimestamp(data) {
   month = +(match[2]) - 1; // JS month starts with 0
   day = +(match[3]);
 
-//# region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
+//#region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
   if (!match[4]) { // no hour
     if (DATE_AS_LOCAL__FLAG) {  // option to parse date al local dates
       return new Date(year, month, day);
@@ -831,7 +831,7 @@ function constructYamlTimestamp(data) {
       return new Date(Date.UTC(year, month, day));
     }
   }
-//# end region
+//#endregion
 
   // match: [4] hour [5] minute [6] second [7] fraction
 
@@ -856,7 +856,13 @@ function constructYamlTimestamp(data) {
     if (match[9] === '-') delta = -delta;
   }
 
-  date = new Date(Date.UTC(year, month, day, hour, minute, second, fraction));
+//#region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
+  if (DATE_AS_LOCAL__FLAG) {  // option to parse date al local dates
+    date = new Date(year, month, day, hour, minute, second, fraction);
+  } else {
+    date = new Date(Date.UTC(year, month, day, hour, minute, second, fraction));
+  }
+//#endregion
 
   if (delta) date.setTime(date.getTime() - delta);
 
@@ -2787,11 +2793,11 @@ function readDocument(state) {
 }
 
 
-//# region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
+//#region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
 function loadDocuments(input, options, customOptions ) {
   DATE_AS_LOCAL__FLAG = customOptions?.[DATE_AS_LOCAL__OPT_KEY] === true;
   DATE_EXTENDED_MATCH__FLAG = customOptions?.[DATE_EXTENDED_MATCH__OPT_KEY] === true;
-//#end region
+//#endregion
 
   input = String(input);
   options = options || {};
@@ -2853,10 +2859,10 @@ function loadAll$1(input, iterator, options) {
 }
 
 
-//# region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
+//#region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
 function load$1(input, options, customOptions) {
   var documents = loadDocuments(input, options, customOptions);
-//# end region
+//#endregion
 
   if (documents.length === 0) {
     /*eslint-disable no-undefined*/
@@ -3902,9 +3908,9 @@ var jsYaml = {
 	safeDump: safeDump
 };
 
-//# region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
+//#region CUSTOM-CODE ADDED TO THE VANILLA YAML LIBRARY
 export { DATE_AS_LOCAL__OPT_KEY, DATE_EXTENDED_MATCH__OPT_KEY };
-//# end region
+//#endregion
 
 export default jsYaml;
 export { CORE_SCHEMA, DEFAULT_SCHEMA, FAILSAFE_SCHEMA, JSON_SCHEMA, Schema, Type, YAMLException, dump, load, loadAll, safeDump, safeLoad, safeLoadAll, types };

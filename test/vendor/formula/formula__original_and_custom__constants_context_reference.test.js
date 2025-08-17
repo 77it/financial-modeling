@@ -5,7 +5,7 @@
 // with the addition of region "BDD Jest-like globals"
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
-import { Parser, Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v3.js';
+import { Parser, Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v4.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -40,6 +40,14 @@ t('formula original and custom: multiple nested functions', () => {
     for (const Parser of parsers) {
         const formula = new Parser('x(y(3)) + x(10 + 1 - 7) + y(z(30)) + z(x(40)) + a()', { functions });
         assert.deepStrictEqual(formula.evaluate(), (3 + 2 + 1) + (10 + 1 - 7 + 1) + (30 + 3 + 2) + (40 + 1 + 3) + 9);
+    }
+});
+
+t('arithmetics with strings and numbers', () => {
+    for (const Parser of parsers) {
+        assert.deepStrictEqual(new Parser('1 + "3" + 5').evaluate(), "135");
+        assert.deepStrictEqual(new Parser('"1" + "mamma" + "5"').evaluate(), "1mamma5");
+        assert.deepStrictEqual(new Parser('1 + "mamma" + 5').evaluate(), "1mamma5");
     }
 });
 

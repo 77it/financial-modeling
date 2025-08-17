@@ -18,8 +18,9 @@ t('YAML test, parsing specific to custom library, most interesting tests of not 
   dpeq(parse2('null'), "null");
 
   //#region parsing dates (only to LOCAL date or string)
-  dpeq(parse2('2023-01-05T00:00:00.000Z'), localDateToUTC(new Date(2023, 0, 5)));  // converted to UTC Date
-  dpeq(parse2('2023-01-05'), new Date(2023, 0, 5));  // converted to local Date
+  dpeq(parse2('2023-01-05T01:02:03.004'), new Date(2023, 0, 5, 1, 2, 3, 4));  // parsed as local date
+  dpeq(parse2('2023-01-05T01:02:03.004Z'), new Date(2023, 0, 5, 1, 2, 3, 4));  // parsed as local date also if the string is in UTC (ends in Z)
+  dpeq(parse2('2023-01-05'), new Date(2023, 0, 5));  // parsed as local date
   dpeq(parse2('2023/01/05'), new Date(2023, 0, 5));  // YYYY/MM/DD is valid and converted to local Date
   dpeq(parse2('2023.01.05'), new Date(2023, 0, 5));  // YYYY.MM.DD is valid and converted to local Date
 
