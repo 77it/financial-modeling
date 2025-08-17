@@ -38,8 +38,8 @@ t('formula original and custom: multiple nested functions', () => {
     };
 
     for (const Parser of parsers) {
-        const formula = new Parser('x(y(3)) + x(10) + y(z(30)) + z(x(40)) + a()', { functions });
-        assert.deepStrictEqual(formula.evaluate(), 3 + 2 + 1 + 10 + 1 + 30 + 3 + 2 + 40 + 1 + 3 + 9);
+        const formula = new Parser('x(y(3)) + x(10 + 1 - 7) + y(z(30)) + z(x(40)) + a()', { functions });
+        assert.deepStrictEqual(formula.evaluate(), (3 + 2 + 1) + (10 + 1 - 7 + 1) + (30 + 3 + 2) + (40 + 1 + 3) + 9);
     }
 });
 
