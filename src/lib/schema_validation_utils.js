@@ -156,9 +156,9 @@ function _validateValue ({ value, validation, errorMsg }) {
   } else if (typeof validation === 'string') {
     let optionalValidation = false;
     let validationType = validation.toString().trim().toLowerCase();
-    if (validation.trim().slice(-1) === schema.OPTIONAL) {
+    if (validation.trim().slice(-schema.OPTIONAL.length) === schema.OPTIONAL) {
       optionalValidation = true;
-      validationType = validation.toString().trim().toLowerCase().slice(0, -1);
+      validationType = validation.toString().trim().toLowerCase().slice(0, -schema.OPTIONAL.length);
     }
 
     if (value == null && optionalValidation) {  // if value to validate is null/undefined and validation is optional, return success
@@ -394,7 +394,7 @@ function _validateObj ({ obj, validation, errorMsg, allowsObjectsInArray }) {
       } else {
         const optionalValidation =
           (typeof validation[key] === 'string') &&
-          (validation[key].toString().trim().slice(-1) === schema.OPTIONAL);
+          (validation[key].toString().trim().slice(-schema.OPTIONAL.length) === schema.OPTIONAL);
 
         if (!(key in _obj)) {  // if validation key is missing in the object to validate
           if (!optionalValidation) {  // if validation is not optional

@@ -29,7 +29,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * BigInt is supported: 'bigint', 'bigint_number' (a BigInt that can be converted to a number), 'array[bigint]', 'array[bigint_number]'.
  * To sanitize an object, see section below.
  * To sanitize a value applying a function, pass a function returning with class `ValidateSanitizeResult` the validation result and the sanitized value.
- * For optional values (null/undefined are accepted) append '?' to the type.
+ * For optional values (null/undefined are accepted) append schema.OPTIONAL to the type.
  * If sanitization is an array containing a single function [func], the sanitization will be done with the function and an array will be returned.
  * enum will be ignored during sanitization, optionally validated.
  * Sanitization types ANY_TYPE, FUNCTION_TYPE are ignored and the value is returned as is.
@@ -52,7 +52,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * If obj is null/undefined or other non-objects returns an empty array [].
  * `sanitization` parameter is an object with keys corresponding to the keys of the object to sanitize and values corresponding to the sanitization types;
  * accepted types are many: see `schema.js`; class is 'function', class instance is 'object';
- * for optional parameters (null/undefined are accepted) append '?' to type, e.g. 'any?', 'string?', 'number?', etc.
+ * for optional parameters (null/undefined are accepted) append `schema.OPTIONAL` to type, e.g. 'any + OPTIONAL', 'string + OPTIONAL', 'number + OPTIONAL', etc.
  * If sanitization is an array:
  *   if is an array containing a single object [{obj}], the sanitization will be done with the object and an array will be returned;
  *   in any other case the array will be considered an enum, ignored during sanitization, optionally validated.
@@ -132,9 +132,9 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
 
   let optionalSanitization = false;
   let sanitizationType = sanitization.toString().trim().toLowerCase();
-  if (sanitization.trim().slice(-1) === '?') {  // set optional sanitization flag
+  if (sanitization.trim().slice(-schema.OPTIONAL.length) === schema.OPTIONAL) {  // set optional sanitization flag
     optionalSanitization = true;
-    sanitizationType = sanitization.toString().trim().toLowerCase().slice(0, -1);
+    sanitizationType = sanitization.toString().trim().toLowerCase().slice(0, -schema.OPTIONAL.length);
   }
 
   if (value == null && optionalSanitization) {  // if value to sanitize is null/undefined and sanitization is optional, return value without sanitization
@@ -458,7 +458,7 @@ function _sanitizeToObjectOrArrayOfObjects ({ obj, sanitization, toArray, option
       // if sanitization key is missing in the object to sanitize and the sanitization is optional, skip sanitization
       const optionalSanitization =
         (typeof sanitization[key] === 'string') &&
-        (sanitization[key].toString().trim().slice(-1) === '?');
+        (sanitization[key].toString().trim().slice(-schema.OPTIONAL.length) === schema.OPTIONAL);
       if (!(key in _obj) && optionalSanitization)
         continue;
 
@@ -488,7 +488,7 @@ function _sanitizeToObjectOrArrayOfObjects ({ obj, sanitization, toArray, option
     // loop sanitization keys, not object to sanitize keys
     for (const key of Object.keys(sanitization)) {
       // if the sanitization is optional, skip sanitization
-      if ((typeof sanitization[key] === 'string') && (sanitization[key].toString().trim().slice(-1) === '?'))
+      if ((typeof sanitization[key] === 'string') && (sanitization[key].toString().trim().slice(-schema.OPTIONAL.length) === schema.OPTIONAL))
         continue;
 
       // if there is a key in the object to sanitize that match the sanitization key, skip sanitization
