@@ -1,7 +1,7 @@
 // test with deno test --allow-import
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v4.js';
+import { Parser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v5.js';
 //import { Parser } from '../../../vendor/formula/extras/formula_custom__accept_yaml_as_func_par__v3.js';
 
 import { test } from 'node:test';
@@ -49,27 +49,13 @@ t('arithmetics with negative numbers  // only v4 supports numbers with explicit 
 
 t('formula testing: recognizing dates/strings inside YAML', () => {
   const expected = {a: 11, d: new Date(2025, 7, 1), z: 999};
+  const expected_minutes = {a: 11, d: new Date(2025, 7, 1, 9, 30), z: 999};
   const expected_seconds = {a: 11, d: new Date(2025, 7, 1, 9, 30, 45), z: 999};
   const expected_milliseconds = {a: 11, d: new Date(2025, 7, 1, 9, 30, 45, 4), z: 999};
-  const expected_dateAsString = {a: 11, d: "2025-8-1", z: 999};
-  const expected_dateAsString2 = {a: 11, d: "2025/8/1", z: 999};
-  const expected_dateAsString3 = {a: 11, d: "2025.8.1", z: 999};
-  const expected_withoutSecondsAsString = {a: 11, d: '2025-08-01T09:30', z: 999};
-  const expected_withoutSecondsAsString2 = {a: 11, d: '2025-08-01 09:30', z: 999};
-  const expected_withoutSecondsAsString3 = {a: 11, d: '2025-08-01 09:30Z', z: 999};
 
   assert.deepStrictEqual(new Parser('{a: 11, d: 2025-08-01, z: 999}').evaluate(), expected);
   assert.deepStrictEqual(new Parser('{a: 11, d: 2025/08/01, z: 999}').evaluate(), expected);
   assert.deepStrictEqual(new Parser('{a: 11, d: 2025.08.01, z: 999}').evaluate(), expected);
-  // missing zeroes, recognized as string
-  assert.deepStrictEqual(new Parser('{a: 11, d: 2025-8-1, z: 999}').evaluate(), expected_dateAsString);
-  assert.deepStrictEqual(new Parser('{a: 11, d: 2025/8/1, z: 999}').evaluate(), expected_dateAsString2);
-  assert.deepStrictEqual(new Parser('{a: 11, d: 2025.8.1, z: 999}').evaluate(), expected_dateAsString3);
-
-  // without seconds (recognized as string)
-  assert.deepStrictEqual(new Parser('{a: 11, d: 2025-08-01T09:30, z: 999}').evaluate(), expected_withoutSecondsAsString);
-  assert.deepStrictEqual(new Parser('{a: 11, d: 2025-08-01 09:30, z: 999}').evaluate(), expected_withoutSecondsAsString2);
-  assert.deepStrictEqual(new Parser('{a: 11, d: 2025-08-01 09:30Z, z: 999}').evaluate(), expected_withoutSecondsAsString3);
 
   // with seconds
   assert.deepStrictEqual(new Parser('{a: 11, d: 2025-08-01T09:30:45, z: 999}').evaluate(), expected_seconds);

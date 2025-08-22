@@ -5,7 +5,7 @@
 // with the addition of region "BDD Jest-like globals"
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
-import { Parser, Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v4.js';
+import { Parser, Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v5.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

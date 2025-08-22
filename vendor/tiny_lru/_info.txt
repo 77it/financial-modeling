@@ -1,0 +1,12 @@
+from https://www.npmjs.com/package/tiny-lru
+github home: https://github.com/avoidwork/tiny-lru
+github backup: https://github.com/77it/tiny-lru
+license BSD 3-Clause "New": https://github.com/avoidwork/tiny-lru/blob/0da3c0f46681d47a51947da3052ec3b557ada8a9/LICENSE
+source: https://github.com/avoidwork/tiny-lru/blob/0da3c0f46681d47a51947da3052ec3b557ada8a9/src/lru.js
+types: https://github.com/avoidwork/tiny-lru/blob/0da3c0f46681d47a51947da3052ec3b557ada8a9/types/lru.d.ts
+
+
+# Alternative
+MIT License, ES module, 717 start (2025/08/25)
+from https://www.npmjs.com/package/quick-lru
+github home: https://github.com/sindresorhus/quick-lru
