@@ -1,6 +1,6 @@
-export { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
+export { getPrincipalPaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
 
-import { schema, validate, addMonthsToLocalDate, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../deps.js';
+import { schema, validate, addMonthsToLocalDate, stripTimeToLocalDate, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../deps.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../deps.js';
 import { Big } from '../deps.js';
 import { ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO } from '../../config/engine.js';
@@ -70,20 +70,20 @@ function calculateAnnuityOfAConstantPaymentLoan ({
 }
 
 /**
- * Compute the full schedule of a French amortization plan (a series of constant payments at regular intervals)
+ * Compute the principal schedule (no interest calculation) of a French amortization plan (a series of constant payments at regular intervals)
  *
  * @param {Object} p
- * @param {Date} p.startDate Start date of the loan, used to calculate the first scheduled payment date
- * @param {Date} p.firstScheduledPaymentDate When the starting date is an end of month, next dates are also end of months
+ * @param {Date} p.startDate Start date of the loan, when the principal is disbursed (no payments at this date)
+ * @param {Date} p.firstScheduledPaymentDate Start date of the loan, used to calculate the first scheduled payment date; when the starting date is an end of month, next dates are also end of months
  * @param {number} p.startingPrincipal
  * @param {number} p.annualInterestRate
  * @param {number} p.nrOfPaymentsIncludingGracePeriod
  * @param {number} p.numberOfPaymentsInAYear  1 | 2 | 3 | 4 | 6 | 12: 12 for monthly, 6 for bimonthly, ..., 1 for yearly
  * @param {number} [p.gracePeriodNrOfPayments=0] optional, number of payments with interest-only payments
  * @param {number} [p.precision=DECIMAL_PLACES] optional, number of decimals to round the interest and principal payments, default is engine const DECIMAL_PLACES
- * @return {{date: Date[], paymentNo: number[], interestPayment: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
+ * @return {{date: Date[], paymentNo: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
  */
-function getMortgagePaymentsOfAConstantPaymentLoan ({
+function getPrincipalPaymentsOfAConstantPaymentLoan ({
   startDate,
   firstScheduledPaymentDate,
   startingPrincipal,
@@ -93,8 +93,8 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
   gracePeriodNrOfPayments = 0,
   precision = DECIMAL_PLACES
 }) {
-  XXXXX: valutare se inserire la data di inizio finanziamento/erogazione, con capitale zero, e la prima scadenza da cui calcolare interessi;
-  loanStartDate + firstScheduledPaymentDate;
+  //XXXXX: valutare se inserire la data di inizio finanziamento/erogazione, con capitale zero, e la prima scadenza da cui calcolare interessi;
+  //loanStartDate + firstScheduledPaymentDate;
 
 
   if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
@@ -140,8 +140,6 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
 
   const numberOfPaymentsWithoutGracePeriod = nrOfPaymentsIncludingGracePeriod - gracePeriodNrOfPayments;
 
-  let currDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0);  // clone startDate removing time
-
   const _round = ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO ? roundHalfAwayFromZeroWithPrecision : truncWithPrecision;
 
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12, and so on
@@ -151,33 +149,38 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
   const mortgageArray = {
     /** @type {Date[]} */ date: [],
     /** @type {number[]} */ paymentNo: [],
-    /** @type {number[]} */ interestPayment: [],
+    // /** @type {number[]} */ interestPayment: [],  // disabled, because the computation of the interest payment is done outside with another function
     /** @type {number[]} */ principalPayment: [],
     /** @type {number[]} */ totalMortgageRemaining: []
   };
 
-  // first payment, without payments and full principal remaining
-  mortgageArray.date.push(currDate);
+  // first payment (payment zero), without payments and full principal remaining
+  mortgageArray.date.push(stripTimeToLocalDate(startDate));
   mortgageArray.paymentNo.push(0);
-  mortgageArray.interestPayment.push(0);
   mortgageArray.principalPayment.push(0);
   mortgageArray.totalMortgageRemaining.push(startingPrincipal);
+
+  let currDate = stripTimeToLocalDate(firstScheduledPaymentDate);
 
   // Here we loop through each gracePeriodNrOfPayments payment (only interest)
   for (let currPaymentNo = 1; currPaymentNo <= gracePeriodNrOfPayments; currPaymentNo++) {
     // The interest payment portion of the period
-    const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, 1, numberOfPaymentsWithoutGracePeriod, startingPrincipal), precision);
-
-    currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
+    // disabled, because the computation of the interest payment is done outside with another function
+    //const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, 1, numberOfPaymentsWithoutGracePeriod, startingPrincipal), precision);
 
     mortgageArray.date.push(currDate);
     mortgageArray.paymentNo.push(currPaymentNo);
-    mortgageArray.interestPayment.push(interestPayment);
+    //mortgageArray.interestPayment.push(interestPayment);  // disabled, because the computation of the interest payment is done outside with another function
     mortgageArray.principalPayment.push(0);
     mortgageArray.totalMortgageRemaining.push(startingPrincipal);
+
+    // increment the current date by the number of months in a year divided by the number of payments in a year;
+    // is done at the end of the loop, so the first payment date is the same as the first scheduled payment date
+    // and if we don't have a grace period, the first payment date is the same as the first scheduled payment date
+    currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
   }
 
-  // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our total
+  // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our mortgage remaining will decrease
   let mortgageRemaining = new Big(startingPrincipal);
 
   // Here we loop through each payment (starting from 1) and figure out the interest and principal payments
@@ -192,13 +195,16 @@ function getMortgagePaymentsOfAConstantPaymentLoan ({
     // Calculate the remaining mortgage amount, which you do by subtracting the principal payment
     mortgageRemaining = mortgageRemaining.minus(principalPayment);
 
-    currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
-
     mortgageArray.date.push(currDate);
     mortgageArray.paymentNo.push(currPaymentNo + gracePeriodNrOfPayments);
-    mortgageArray.interestPayment.push(interestPayment);
+    // mortgageArray.interestPayment.push(interestPayment);  // disabled, because the computation of the interest payment is done outside with another function
     mortgageArray.principalPayment.push(principalPayment);
     mortgageArray.totalMortgageRemaining.push(mortgageRemaining.toNumber());
+
+    // increment the current date by the number of months in a year divided by the number of payments in a year;
+    // is done at the end of the loop, so the first payment date is the same as the first scheduled payment date
+    // or the first payment date after the grace period, if any.
+    currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
   }
 
   // coherence test

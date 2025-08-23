@@ -1,6 +1,6 @@
 // test with   deno --test --allow-import --allow-read
 
-import { getMortgagePaymentsOfAConstantPaymentLoan } from '../../src/modules/_utils/loan.js';
+import { getPrincipalPaymentsOfAConstantPaymentLoan } from '../../src/modules/_utils/loan.js';
 import { UTCtoLocalDate } from '../deps.js';
 
 // @deno-types="https://cdn.sheetjs.com/xlsx-0.20.3/package/types/index.d.ts"
@@ -36,6 +36,7 @@ t('test', async () => {
  * @param {string} sheetName - Name of the sheet being processed
  * @param {object} settings
  * @param {Date} settings.startDate
+ * @param {Date} settings.firstScheduledPaymentDate
  * @param {number} settings.startingPrincipal
  * @param {number} settings.annualInterestRate
  * @param {number} settings.numberOfPaymentsInAYear
@@ -48,7 +49,7 @@ t('test', async () => {
  */
 function TestX(
   sheetName,
-  { startDate, startingPrincipal, annualInterestRate, numberOfPaymentsInAYear, nrOfPaymentsIncludingGracePeriod, gracePeriodNrOfPayments },
+  { startDate, firstScheduledPaymentDate, startingPrincipal, annualInterestRate, numberOfPaymentsInAYear, nrOfPaymentsIncludingGracePeriod, gracePeriodNrOfPayments },
   { dates, interestPayments, principalPayments }
 ) {
   // check that excelPlan arrays have the same length
@@ -61,9 +62,10 @@ function TestX(
     dates[i] = UTCtoLocalDate(dates[i]);
   }
 
-  /** @type {{date: Date[], paymentNo: number[], interestPayment: number[], principalPayment: number[], totalMortgageRemaining: number[]}} */
-  const jsPlan = getMortgagePaymentsOfAConstantPaymentLoan({
+  /** @type {{date: Date[], paymentNo: number[], principalPayment: number[], totalMortgageRemaining: number[]}} */
+  const jsPlan = getPrincipalPaymentsOfAConstantPaymentLoan({
     startDate,
+    firstScheduledPaymentDate,
     startingPrincipal,
     annualInterestRate,
     numberOfPaymentsInAYear,
@@ -75,7 +77,8 @@ function TestX(
   for (let i = 0; i < dates.length; i++) {
     // Compare with the JS plan
     assert.deepStrictEqual(dates[i].getTime(), jsPlan.date[i].getTime(), `Date mismatch at index ${i} in sheet ${sheetName}, expected ${jsPlan.date[i]} but got ${dates[i]}`);
-    assert.strictEqual(interestPayments[i], jsPlan.interestPayment[i], `Interest payment mismatch at index ${i} in sheet ${sheetName}, expected ${jsPlan.interestPayment[i]} but got ${interestPayments[i]}`);
+    // TODO test interest payments calling another function
+    //assert.strictEqual(interestPayments[i], jsPlan.interestPayment[i], `Interest payment mismatch at index ${i} in sheet ${sheetName}, expected ${jsPlan.interestPayment[i]} but got ${interestPayments[i]}`);
     assert.strictEqual(principalPayments[i], jsPlan.principalPayment[i], `Principal payment mismatch at index ${i} in sheet ${sheetName}, expected ${jsPlan.principalPayment[i]} but got ${principalPayments[i]}`);
   }
 }
@@ -95,6 +98,8 @@ function _processWorkbookRC(wb) {
     // A1, B1, C1  (row 0, col 0..2)
     const startDate = getCellValue(ws, "B1");
     const startingPrincipal = getCellValue(ws, "B2");
+    // TODO read value
+    const firstScheduledPaymentDate = new Date(0);
     const annualInterestRate = getCellValue(ws, "B3");
     const numberOfPaymentsInAYear = getCellValue(ws, "B5");
     const nrOfPaymentsIncludingGracePeriod = getCellValue(ws, "B6");
@@ -105,7 +110,7 @@ function _processWorkbookRC(wb) {
 
     TestX(
       sheetName,
-      {startDate, startingPrincipal, annualInterestRate, numberOfPaymentsInAYear, nrOfPaymentsIncludingGracePeriod, gracePeriodNrOfPayments },
+      {startDate, firstScheduledPaymentDate, startingPrincipal, annualInterestRate, numberOfPaymentsInAYear, nrOfPaymentsIncludingGracePeriod, gracePeriodNrOfPayments },
       { dates, interestPayments, principalPayments }
     );
   });

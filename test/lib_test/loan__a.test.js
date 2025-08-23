@@ -1,6 +1,6 @@
 // test with   deno --test --allow-import
 
-import { getMortgagePaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan } from '../../src/modules/_utils/loan.js';
+import { getPrincipalPaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan } from '../../src/modules/_utils/loan.js';
 
 // @deno-types="../../vendor/financial/index.d.ts"
 import * as financial from '../../vendor/financial/financial.esm.js';
@@ -77,8 +77,9 @@ t('calculateAnnuityOfAConstantPaymentLoan', async () => {
 
 //#region test getMortgagePayments
 t('test #1', async () => {
-  console.log(getMortgagePaymentsOfAConstantPaymentLoan({
+  console.log(getPrincipalPaymentsOfAConstantPaymentLoan({
     startDate: new Date(2022, 11, 25, 0, 0, 0),
+    firstScheduledPaymentDate: new Date(2023, 0, 25, 0, 0, 0),
     startingPrincipal: 10_000,
     annualInterestRate: 0.07,
     numberOfPaymentsInAYear: 12,
@@ -87,8 +88,9 @@ t('test #1', async () => {
 });
 
 t('test #2, principal as Number.MAX_VALUE, MIN_VALUE, MAX_SAFE_INTEGER, MIN_SAFE_INTEGER', async () => {
-  console.log(getMortgagePaymentsOfAConstantPaymentLoan({
+  console.log(getPrincipalPaymentsOfAConstantPaymentLoan({
     startDate: new Date(2022, 11, 25, 0, 0, 0),
+    firstScheduledPaymentDate: new Date(2023, 0, 25, 0, 0, 0),
     startingPrincipal: Number.MAX_SAFE_INTEGER,
     annualInterestRate: 0.07,
     numberOfPaymentsInAYear: 1,
@@ -96,8 +98,9 @@ t('test #2, principal as Number.MAX_VALUE, MIN_VALUE, MAX_SAFE_INTEGER, MIN_SAFE
     gracePeriodNrOfPayments: 1
   }));
 
-  console.log(getMortgagePaymentsOfAConstantPaymentLoan({
+  console.log(getPrincipalPaymentsOfAConstantPaymentLoan({
     startDate: new Date(2022, 11, 25, 0, 0, 0),
+    firstScheduledPaymentDate: new Date(2023, 0, 25, 0, 0, 0),
     startingPrincipal: Number.MIN_SAFE_INTEGER,
     annualInterestRate: 0.07,
     numberOfPaymentsInAYear: 1,
@@ -107,8 +110,9 @@ t('test #2, principal as Number.MAX_VALUE, MIN_VALUE, MAX_SAFE_INTEGER, MIN_SAFE
 });
 
 t('test with interest zero', async () => {
-  console.log(getMortgagePaymentsOfAConstantPaymentLoan({
+  console.log(getPrincipalPaymentsOfAConstantPaymentLoan({
     startDate: new Date(2022, 11, 25, 0, 0, 0),
+    firstScheduledPaymentDate: new Date(2023, 0, 25, 0, 0, 0),
     startingPrincipal: 10_000,
     annualInterestRate: 0,
     numberOfPaymentsInAYear: 12,

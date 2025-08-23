@@ -1,6 +1,6 @@
 ECHO Bun as per 2025-03-03 doesn't support import from https
 ECHO see https://github.com/oven-sh/bun/issues/38
-ECHO I added a --preload to support import from https, but doesn't work with nested relative imports (e.g. importing from https a module that imports another module with a relative path to it)
+ECHO Then I added a --preload to support import from https, and with my v2 plugin it supports also nested relative imports (e.g. importing from https a module that imports another module with a relative path to it)
 
 
 set TZ=Europe/Rome
