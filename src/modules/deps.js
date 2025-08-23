@@ -11,6 +11,8 @@ export { roundHalfAwayFromZero, roundHalfAwayFromZeroWithPrecision, truncWithPre
 export { isStringOrBooleanTrue, isStringOrBooleanFalse } from '../lib/boolean_utils.js';
 export { customParseYAML as parseYAML } from '../lib/yaml.js';
 export { parseJSON5 } from '../lib/json5.js';
+// @deno-types="../../vendor/decimaljs_light/decimal.d.ts"
+export { default as Decimal } from "../../vendor/decimaljs_light/decimal.js";
 // @deno-types="../../vendor/bigjs/index.d.ts"
 export { default as Big } from "../../vendor/bigjs/big.mjs";
 export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortValuesAndDatesByDate } from '../lib/obj_utils.js';
