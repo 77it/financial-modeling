@@ -42,6 +42,7 @@ function calculatePeriodicPaymentAmountOfAConstantPaymentLoan ({
   totalNrOfPayments,
   startingPrincipal
 }) {
+  // alternative formula, commented out
   // return startingPrincipal * (annualInterestRate / yearlyNrOfPayments) / (1 - Math.pow(1 / (1 + (annualInterestRate / yearlyNrOfPayments)), totalNrOfPayments));
   return -1 * financial.pmt(annualInterestRate / yearlyNrOfPayments, totalNrOfPayments, startingPrincipal, 0, financial.PaymentDueTime.End);
 }
@@ -60,6 +61,7 @@ function calculateAnnuityOfAConstantPaymentLoan ({
   nrOfYears,
   startingPrincipal
 }) {
+  // alternative formula, commented out
   //return startingPrincipal * (annualInterestRate + (annualInterestRate / (Math.pow((1 + annualInterestRate), nrOfYears) - 1)));
   return calculatePeriodicPaymentAmountOfAConstantPaymentLoan({
     annualInterestRate: annualInterestRate,
