@@ -8,39 +8,47 @@ P16s
 
 NODEJS run
 
-big.js  | raw  | construct+ops (int pow) x 106 ops/sec ±16.19% (55 runs sampled)
-big.js  | raw  | prebuilt ops (int pow) x 51.92 ops/sec ±3.69% (54 runs sampled)
-big.js  | wrap | construct+ops (int pow) x 48.18 ops/sec ±3.58% (53 runs sampled)
-big.js  | wrap | prebuilt ops (int pow) x 49.88 ops/sec ±4.20% (52 runs sampled)
-dec.lt | raw  | construct+ops (int pow) x 169 ops/sec ±5.98% (63 runs sampled)
-dec.lt | raw  | prebuilt ops (int pow) x 240 ops/sec ±3.47% (52 runs sampled)
-dec.lt | wrap | construct+ops (int pow) x 141 ops/sec ±4.36% (69 runs sampled)
-dec.lt | wrap | prebuilt ops (int pow) x 182 ops/sec ±4.98% (61 runs sampled)
-dec.lt | raw  | prebuilt ops (frac pow 0.5) x 4.16 ops/sec ±6.82% (15 runs sampled)
-dec.lt | wrap | prebuilt ops (frac pow 0.5) x 4.01 ops/sec ±7.65% (15 runs sampled)
+For 100.000 runs, manual test big.js RAW construct+ops (int pow) took 3.0780789000000004 seconds
+For 100.000 runs, manual test big.js RAW construct+ops (int pow) took 2.7430819000000004 seconds
+For 100.000 runs, manual test big.js RAW construct+ops (int pow) took 0.7405895999999993 seconds
+For 100.000 runs, manual test big.js RAW construct+ops (int pow) took 0.7332134999999999 seconds
+big.js  | raw  | construct+ops (int pow) x 83.68 ops/sec ±2.34% (72 runs sampled)
+big.js  | raw  | prebuilt ops (int pow) x 86.45 ops/sec ±6.09% (64 runs sampled)
+big.js  | wrap | construct+ops (int pow) x 80.23 ops/sec ±2.06% (70 runs sampled)
+big.js  | wrap | prebuilt ops (int pow) x 85.68 ops/sec ±1.91% (73 runs sampled)
+dec.lt | raw  | construct+ops (int pow) x 270 ops/sec ±1.99% (77 runs sampled)
+dec.lt | raw  | prebuilt ops (int pow) x 400 ops/sec ±2.02% (81 runs sampled)
+dec.lt | wrap | construct+ops (int pow) x 233 ops/sec ±3.47% (76 runs sampled)
+dec.lt | wrap | prebuilt ops (int pow) x 334 ops/sec ±1.85% (82 runs sampled)
+dec.lt | raw  | prebuilt ops (frac pow 0.5) x 7.76 ops/sec ±3.04% (24 runs sampled)
+dec.lt | wrap | prebuilt ops (frac pow 0.5) x 7.42 ops/sec ±4.74% (23 runs sampled)
 
 Fastest: dec.lt | raw  | prebuilt ops (int pow)
 
 DENO run
 
-big.js  | raw  | construct+ops (int pow) x 108 ops/sec ±17.06% (57 runs sampled)
-big.js  | raw  | prebuilt ops (int pow) x 51.07 ops/sec ±3.77% (54 runs sampled)
-big.js  | wrap | construct+ops (int pow) x 45.42 ops/sec ±3.76% (58 runs sampled)
-big.js  | wrap | prebuilt ops (int pow) x 49.24 ops/sec ±3.78% (34 runs sampled)
-dec.lt | raw  | construct+ops (int pow) x 180 ops/sec ±4.38% (64 runs sampled)
-dec.lt | raw  | prebuilt ops (int pow) x 255 ops/sec ±3.80% (76 runs sampled)
-dec.lt | wrap | construct+ops (int pow) x 148 ops/sec ±4.14% (68 runs sampled)
-dec.lt | wrap | prebuilt ops (int pow) x 195 ops/sec ±4.42% (64 runs sampled)
-dec.lt | raw  | prebuilt ops (frac pow 0.5) x 4.33 ops/sec ±6.81% (16 runs sampled)
-dec.lt | wrap | prebuilt ops (frac pow 0.5) x 4.24 ops/sec ±5.44% (15 runs sampled)
+For 100.000 runs, manual test big.js RAW construct+ops (int pow) took 3.5422642 seconds
+For 100.000 runs, manual test big.js RAW prebuilt+ops (int pow) took 4.9070804 seconds
+For 100.000 runs, manual test decimal.js RAW construct+ops (int pow) took 1.0529634000000005 seconds
+For 100.000 runs, manual test decimal.js RAW prebuilt+ops (int pow) took 1.0820450999999993 seconds
+big.js  | raw  | construct+ops (int pow) x 46.62 ops/sec ±4.90% (60 runs sampled)
+big.js  | raw  | prebuilt ops (int pow) x 46.46 ops/sec ±6.25% (61 runs sampled)
+big.js  | wrap | construct+ops (int pow) x 45.46 ops/sec ±4.85% (58 runs sampled)
+big.js  | wrap | prebuilt ops (int pow) x 42.26 ops/sec ±9.54% (55 runs sampled)
+dec.lt | raw  | construct+ops (int pow) x 151 ops/sec ±6.94% (66 runs sampled)
+dec.lt | raw  | prebuilt ops (int pow) x 228 ops/sec ±5.75% (75 runs sampled)
+dec.lt | wrap | construct+ops (int pow) x 117 ops/sec ±9.40% (60 runs sampled)
+dec.lt | wrap | prebuilt ops (int pow) x 144 ops/sec ±16.85% (62 runs sampled)
+dec.lt | raw  | prebuilt ops (frac pow 0.5) x 4.51 ops/sec ±5.62% (16 runs sampled)
+dec.lt | wrap | prebuilt ops (frac pow 0.5) x 5.10 ops/sec ±3.46% (17 runs sampled)
 
 Fastest: dec.lt | raw  | prebuilt ops (int pow)
 */
 
 // @deno-types="../../../vendor/bigjs/index.d.ts"
 import { default as Big } from '../../../vendor/bigjs/big.mjs';
-// @deno-types="../../../vendor/decimaljs_light/decimal.d.ts"
-import { default as Decimal } from '../../../vendor/decimaljs_light/decimal.mjs';
+// @deno-types="../../../vendor/decimal/decimal.d.ts"
+import { default as Decimal } from '../../../vendor/decimal/decimal.mjs';
 
 import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');
@@ -239,15 +247,15 @@ console.log(`For ${N2.toLocaleString('it-IT')} runs, manual test big.js RAW cons
 
 timeBeforeLastTest = performance.now();
 runBigJsRawPrebuiltOps(N2, bigA2, bigB2);
-console.log(`For ${N2.toLocaleString('it-IT')} runs, manual test big.js RAW construct+ops (int pow) took ${(performance.now() - timeBeforeLastTest) / 1000} seconds`);
+console.log(`For ${N2.toLocaleString('it-IT')} runs, manual test big.js RAW prebuilt+ops (int pow) took ${(performance.now() - timeBeforeLastTest) / 1000} seconds`);
 
 timeBeforeLastTest = performance.now();
 runDecLightRawConstructOps(N2, data2);
-console.log(`For ${N2.toLocaleString('it-IT')} runs, manual test big.js RAW construct+ops (int pow) took ${(performance.now() - timeBeforeLastTest) / 1000} seconds`);
+console.log(`For ${N2.toLocaleString('it-IT')} runs, manual test decimal.js RAW construct+ops (int pow) took ${(performance.now() - timeBeforeLastTest) / 1000} seconds`);
 
 timeBeforeLastTest = performance.now();
 runDecLightRawPrebuiltOps(N2, decA2, decB2);
-console.log(`For ${N2.toLocaleString('it-IT')} runs, manual test big.js RAW construct+ops (int pow) took ${(performance.now() - timeBeforeLastTest) / 1000} seconds`);
+console.log(`For ${N2.toLocaleString('it-IT')} runs, manual test decimal.js RAW prebuilt+ops (int pow) took ${(performance.now() - timeBeforeLastTest) / 1000} seconds`);
 //#endregion manual tests, printing time after each execution
 
 // ---------- Benchmark cases ----------
@@ -486,7 +494,7 @@ function runBigJsRawPrebuiltOps(N, bigA, bigB) {
 }
 
 /**
- * Run a series of big.js ops with raw constructs.
+ * Run a series of decimal.js light ops with raw constructs.
  * @param {number} N
  * @param {string[]} data
  * @return {number}
@@ -503,7 +511,7 @@ function runDecLightRawConstructOps(N, data) {
 }
 
 /**
- * Run a series of big.js ops with raw constructs.
+ * Run a series of decimal.js light ops with raw constructs.
  * @param {number} N
  * @param {Decimal[]} decA
  * @param {Decimal[]} decB

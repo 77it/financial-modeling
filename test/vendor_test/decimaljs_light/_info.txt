@@ -1,0 +1,12 @@
+downloaded from 
+https://github.com/MikeMcl/decimal.js-light/tree/7bc73067d59ce04347b56e7998ff0bd2b91e22c2/test
+
+edits to run the tests in my setup:
+* created file `decimal.js`
+* created file `helpers.js`
+* renamed all files in `modules` replacing `.js` with `.test.js`
+* in every files in `modules`:
+  replaced `if (typeof T === 'undefined') require('../setup');`
+  with `import { T } from '../helpers.js'; import { Decimal } from '../decimal.js';`
+* corrected some little bugs in `modules` here and there
+* reduced loops of test `powsqrt.test.js` from 1_000_000 to 1_000
