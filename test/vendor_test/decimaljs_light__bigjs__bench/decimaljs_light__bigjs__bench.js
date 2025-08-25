@@ -45,10 +45,9 @@ dec.lt | wrap | prebuilt ops (frac pow 0.5) x 5.10 ops/sec ±3.46% (17 runs samp
 Fastest: dec.lt | raw  | prebuilt ops (int pow)
 */
 
-// @deno-types="../../../vendor/bigjs/index.d.ts"
-import { default as Big } from '../../../vendor/bigjs/big.mjs';
-// @deno-types="../../../vendor/decimal/decimal.d.ts"
-import { default as Decimal } from '../../../vendor/decimal/decimal.mjs';
+// @deno-types="../../../vendor/bigjs_UNUSED/index.d.ts"
+import { default as Big } from '../../../vendor/bigjs_UNUSED/big.mjs';
+import { Decimal } from '../../../vendor/decimal/decimal.js';
 
 import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');

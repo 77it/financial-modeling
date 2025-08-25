@@ -2,7 +2,7 @@ export { getPrincipalPaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmo
 
 import { schema, validate, addMonthsToLocalDate, stripTimeToLocalDate, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../deps.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../deps.js';
-import { Big } from '../deps.js';
+import { Decimal } from '../deps.js';
 import { ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO } from '../../config/engine.js';
 import { DECIMAL_PLACES } from '../../config/engine.js';
 
@@ -183,7 +183,7 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
   }
 
   // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our mortgage remaining will decrease
-  let mortgageRemaining = new Big(startingPrincipal);
+  let mortgageRemaining = new Decimal(startingPrincipal);
 
   // Here we loop through each payment (starting from 1) and figure out the interest and principal payments
   for (let currPaymentNo = 1; currPaymentNo <= numberOfPaymentsWithoutGracePeriod; currPaymentNo++) {

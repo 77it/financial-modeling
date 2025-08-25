@@ -5,6 +5,7 @@ import { ValidateSanitizeResult } from './validate_sanitize_result.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, localDateToUTC } from './date_utils.js';
 import { validate as validateFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
+import { Decimal } from '../../vendor/decimal/decimal.js';
 
 //#region defaults
 const DEFAULT__NUMBER_TO_DATE = schema.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE;
@@ -322,6 +323,28 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
     }
     case schema.ARRAY_OF_BIGINT_NUMBER_TYPE: {
       retValue = _sanitizeToArray({ value: value, sanitization: schema.BIGINT_NUMBER_TYPE });
+      break;
+    }
+    case schema.DECIMAL_TYPE: {
+      try {
+        if (value == null || value === '') {
+          retValue = new Decimal(0);
+        } else if (value instanceof Decimal) {
+          retValue = value;
+        } else if (value instanceof Date) {
+          retValue = isNaN(value.getTime()) ? new Decimal(0) : new Decimal(value.getTime());
+        } else if (typeof value === 'boolean') {
+          retValue = new Decimal(value ? 1 : 0);
+        } else {
+          retValue = new Decimal(value);
+        }
+      } catch (_) {
+        retValue = new Decimal(0);
+      }
+      break;
+    }
+    case schema.ARRAY_OF_DECIMAL_TYPE: {
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.DECIMAL_TYPE });
       break;
     }
     default:

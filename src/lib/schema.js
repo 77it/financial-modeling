@@ -21,6 +21,8 @@ export const BIGINT_TYPE = 'bigint';
 export const BIGINT_NUMBER_TYPE = 'bigint_number';  // a BigInt that can be converted to a number
 export const ARRAY_OF_BIGINT_TYPE = 'array[bigint]';
 export const ARRAY_OF_BIGINT_NUMBER_TYPE = 'array[bigint_number]';
+export const DECIMAL_TYPE = 'decimal';
+export const ARRAY_OF_DECIMAL_TYPE = 'array[decimal]';
 export const OPTIONAL = '?';
 //#endregion types
 

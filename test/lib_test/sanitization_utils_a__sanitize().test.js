@@ -3,6 +3,7 @@ import * as s from '../../src/lib/schema_sanitization_utils.js';
 
 import { validateSanitizeFunction_TestAsset } from './validateSanitizeFunction_TestAsset.js';
 import { isValidDate } from '../../src/lib/date_utils.js';
+import { Decimal } from '../../vendor/decimal/decimal.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -623,6 +624,103 @@ t('test sanitize() - array of bigint number type + validation', async () => {
   s.sanitize({ value: null, sanitization: t, validate: true });
   s.sanitize({ value: 999, sanitization: t, validate: true });
   s.sanitize({ value: 'aaa', sanitization: t, validate: true });
+});
+
+t('test sanitize() - decimal type', async () => {
+  const tDec = S.DECIMAL_TYPE;
+
+  // undefined/null/empty -> Decimal(0)
+  {
+    const v1 = s.sanitize({ value: undefined, sanitization: tDec });
+    const v2 = s.sanitize({ value: null, sanitization: tDec });
+    const v3 = s.sanitize({ value: '', sanitization: tDec });
+    assert(v1 instanceof Decimal && v1.eq(0));
+    assert(v2 instanceof Decimal && v2.eq(0));
+    assert(v3 instanceof Decimal && v3.eq(0));
+  }
+
+  // strings and numbers -> Decimal(value)
+  {
+    const v1 = s.sanitize({ value: 0, sanitization: tDec });
+    const v2 = s.sanitize({ value: 999, sanitization: tDec });
+    const v3 = s.sanitize({ value: '123.45', sanitization: tDec });
+    const v4 = s.sanitize({ value: 'abc', sanitization: tDec });
+    assert(v1 instanceof Decimal && v1.eq(0));
+    assert(v2 instanceof Decimal && v2.eq(999));
+    assert(v3 instanceof Decimal && v3.eq('123.45'));
+    assert(v3 instanceof Decimal && v3.eq(123.45));
+    assert(v4 instanceof Decimal && v4.eq(0));
+  }
+
+  // booleans -> 1 / 0
+  {
+    const v1 = s.sanitize({ value: true, sanitization: tDec });
+    const v2 = s.sanitize({ value: false, sanitization: tDec });
+    assert(v1 instanceof Decimal && v1.eq(1));
+    assert(v2 instanceof Decimal && v2.eq(0));
+  }
+
+  // invalid string -> Decimal(0)
+  {
+    const v = s.sanitize({ value: 'abc', sanitization: tDec });
+    assert( v instanceof Decimal && v.eq(0));
+  }
+
+  // Decimal instance is returned as Decimal unchanged in value
+  {
+    const d = new Decimal('42.0001');
+    const v = s.sanitize({ value: d, sanitization: tDec });
+    assert( v instanceof Decimal && v.eq('42.0001'));
+  }
+
+  // Date
+  {
+    const d1 = s.sanitize({ value: new Date(2022, 11, 25), sanitization: tDec });
+    const d2 = s.sanitize({ value: new Date(NaN), sanitization: tDec });
+    assert( d1 instanceof Decimal && d1.eq(1671922800000));
+    assert( d2 instanceof Decimal && d2.eq(0));
+  }
+
+  // optional
+  {
+    const tDecOpt = tDec + S.OPTIONAL;
+    assert.strictEqual(s.sanitize({ value: undefined, sanitization: tDecOpt }), undefined);
+    assert.strictEqual(s.sanitize({ value: null, sanitization: tDecOpt }), null);
+    const v = s.sanitize({ value: '7.5', sanitization: tDecOpt });
+    assert( v instanceof Decimal && v.eq('7.5'));
+  }
+});
+
+t('test sanitize() - array of decimals type', async () => {
+  const tArr = S.ARRAY_OF_DECIMAL_TYPE;
+
+  // array coercion and per-item sanitization
+  {
+    const out = s.sanitize({ value: [1, '2.5', 'a'], sanitization: tArr });
+    assert(Array.isArray(out));
+    assert.deepStrictEqual(out.map(/** @type {any} */ d => (d instanceof Decimal ? d.toString() : String(d))), ['1', '2.5', '0']);
+  }
+
+  // scalar -> single-element array
+  {
+    const out = s.sanitize({ value: 999, sanitization: tArr });
+    // @ts-ignore ignore missing type
+    assert.deepStrictEqual(out.map(d => d.toString()), ['999']);
+  }
+
+  // null/undefined -> []
+  assert.deepStrictEqual(s.sanitize({ value: undefined, sanitization: tArr }), []);
+  assert.deepStrictEqual(s.sanitize({ value: null, sanitization: tArr }), []);
+
+  // optional
+  {
+    const tArrOpt = tArr + S.OPTIONAL;
+    assert.strictEqual(s.sanitize({ value: undefined, sanitization: tArrOpt }), undefined);
+    assert.strictEqual(s.sanitize({ value: null, sanitization: tArrOpt }), null);
+    const out = s.sanitize({ value: '10', sanitization: tArrOpt });
+    // @ts-ignore ignore missing type
+    assert.deepStrictEqual(out.map(d => d.toString()), ['10']);
+  }
 });
 
 t('test sanitize() - test throw when a sanitization function doesn\'t return `ValidateSanitizeResult` type', async () => {

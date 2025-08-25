@@ -2,7 +2,7 @@
     CPU | 12th Gen Intel(R) Core(TM) i5-1240P
 Runtime | Deno 2.4.5 (x86_64-pc-windows-msvc)
 
-file:///C:/e3/@gitwk/PUBLIC/financial-modeling/test/vendor_test/decimaljs_light__bigjs/decimaljs_light__bigjs__deno_bench.js
+file:///C:/e3/@gitwk/PUBLIC/financial-modeling/test/vendor_test/decimaljs_light__bigjs__bench/decimaljs_light__bigjs__deno_bench.js
 
 | benchmark                                            | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
 | ---------------------------------------------------- | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
@@ -12,8 +12,8 @@ file:///C:/e3/@gitwk/PUBLIC/financial-modeling/test/vendor_test/decimaljs_light_
 
 // run it with `deno bench --allow-import`
 
-// @deno-types="../../../vendor/bigjs/index.d.ts"
-import { default as Big } from '../../../vendor/bigjs/big.mjs';
+// @deno-types="../../../vendor/bigjs_UNUSED/index.d.ts"
+import { default as Big } from '../../../vendor/bigjs_UNUSED/big.mjs';
 // @deno-types="../../../vendor/decimal/decimal.d.ts"
 import { default as Decimal } from '../../../vendor/decimal/decimal.mjs';
 
