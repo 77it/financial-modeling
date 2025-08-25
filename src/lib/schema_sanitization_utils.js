@@ -332,9 +332,13 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
         } else if (value instanceof Decimal) {
           retValue = value;
         } else if (value instanceof Date) {
-          retValue = isNaN(value.getTime()) ? new Decimal(0) : new Decimal(value.getTime());
+          retValue = isNaN(value.getTime())
+            ? new Decimal(0)
+            : new Decimal(value.getTime());
         } else if (typeof value === 'boolean') {
           retValue = new Decimal(value ? 1 : 0);
+        } else if (Array.isArray(value)) {
+          retValue = new Decimal(String(value));
         } else {
           retValue = new Decimal(value);
         }

@@ -681,6 +681,18 @@ t('test sanitize() - decimal type', async () => {
     assert( d2 instanceof Decimal && d2.eq(0));
   }
 
+  // Array
+  {
+    const a1 = s.sanitize({ value: [], sanitization: tDec });
+    const a2 = s.sanitize({ value: [2], sanitization: tDec });
+    const a3 = s.sanitize({ value: [9], sanitization: tDec });
+    const a4 = s.sanitize({ value: [1, 2], sanitization: tDec });
+    assert( a1 instanceof Decimal && a1.eq(0));
+    assert( a2 instanceof Decimal && a2.eq(2));
+    assert( a3 instanceof Decimal && a3.eq(9));
+    assert( a4 instanceof Decimal && a4.eq(0));
+  }
+
   // optional
   {
     const tDecOpt = tDec + S.OPTIONAL;
