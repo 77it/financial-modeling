@@ -631,75 +631,96 @@ t('test sanitize() - decimal type', async () => {
 
   // undefined/null/empty -> Decimal(0)
   {
-    const v1 = s.sanitize({ value: undefined, sanitization: tDec });
-    const v2 = s.sanitize({ value: null, sanitization: tDec });
-    const v3 = s.sanitize({ value: '', sanitization: tDec });
-    assert(v1 instanceof Decimal && v1.eq(0));
-    assert(v2 instanceof Decimal && v2.eq(0));
-    assert(v3 instanceof Decimal && v3.eq(0));
-  }
-
-  // strings and numbers -> Decimal(value)
-  {
-    const v1 = s.sanitize({ value: 0, sanitization: tDec });
-    const v2 = s.sanitize({ value: 999, sanitization: tDec });
-    const v3 = s.sanitize({ value: '123.45', sanitization: tDec });
-    const v4 = s.sanitize({ value: 'abc', sanitization: tDec });
-    assert(v1 instanceof Decimal && v1.eq(0));
-    assert(v2 instanceof Decimal && v2.eq(999));
-    assert(v3 instanceof Decimal && v3.eq('123.45'));
-    assert(v3 instanceof Decimal && v3.eq(123.45));
-    assert(v4 instanceof Decimal && v4.eq(0));
-  }
-
-  // booleans -> 1 / 0
-  {
-    const v1 = s.sanitize({ value: true, sanitization: tDec });
-    const v2 = s.sanitize({ value: false, sanitization: tDec });
-    assert(v1 instanceof Decimal && v1.eq(1));
-    assert(v2 instanceof Decimal && v2.eq(0));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: undefined, sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: null, sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: '', sanitization: tDec })));
   }
 
   // invalid string -> Decimal(0)
   {
-    const v = s.sanitize({ value: 'abc', sanitization: tDec });
-    assert( v instanceof Decimal && v.eq(0));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: 'abc', sanitization: tDec })));
+  }
+
+  // strings and numbers -> Decimal(value)
+  {
+    assert(isDecimalEqualTo(0, s.sanitize({ value: '', sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: '  ', sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: 0, sanitization: tDec })));
+    assert(isDecimalEqualTo(999, s.sanitize({ value: 999, sanitization: tDec })));
+    assert(isDecimalEqualTo('123.45', s.sanitize({ value: '123.45', sanitization: tDec })));
+    assert(isDecimalEqualTo('123.45', s.sanitize({ value: '    123.45', sanitization: tDec })));
+    assert(isDecimalEqualTo('123.45', s.sanitize({ value: '123.45    ', sanitization: tDec })));
+    assert(isDecimalEqualTo('123.45', s.sanitize({ value: '    123.45    ', sanitization: tDec })));
+    assert(isDecimalEqualTo('123.45', s.sanitize({ value: 123.45, sanitization: tDec })));
+
+    // not a number (infinity, NaN, overflow) -> Decimal(0)
+    assert(isDecimalEqualTo(0, s.sanitize({ value: 1 / 0, sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: -1 / 0, sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: Number.MAX_VALUE * 2, sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: -Number.MAX_VALUE * 2, sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: 0 / 0, sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: NaN, sanitization: tDec })));
+  }
+
+  // bigInt
+  {
+    assert(isDecimalEqualTo(1, s.sanitize({ value: 1n, sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: 0n, sanitization: tDec })));
+    assert(isDecimalEqualTo('1e+1000000', s.sanitize({ value: 10n ** 1000000n, sanitization: tDec })));
+    assert(isDecimalEqualTo('-1e+1000000', s.sanitize({ value: -(10n ** 1000000n), sanitization: tDec })));
+  }
+
+  // booleans -> 1 / 0
+  {
+    assert(isDecimalEqualTo(1, s.sanitize({ value: true, sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: false, sanitization: tDec })));
   }
 
   // Decimal instance is returned as Decimal unchanged in value
   {
-    const d = new Decimal('42.0001');
-    const v = s.sanitize({ value: d, sanitization: tDec });
-    assert( v instanceof Decimal && v.eq('42.0001'));
+    assert(isDecimalEqualTo('42.0001', s.sanitize({ value: new Decimal('42.0001'), sanitization: tDec })));
   }
 
   // Date
   {
-    const d1 = s.sanitize({ value: new Date(2022, 11, 25), sanitization: tDec });
-    const d2 = s.sanitize({ value: new Date(NaN), sanitization: tDec });
-    assert( d1 instanceof Decimal && d1.eq(1671922800000));
-    assert( d2 instanceof Decimal && d2.eq(0));
+    assert(isDecimalEqualTo(1671922800000, s.sanitize({ value: new Date(2022, 11, 25), sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: new Date(NaN), sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: new Date(0), sanitization: tDec })));
   }
 
   // Array
   {
-    const a1 = s.sanitize({ value: [], sanitization: tDec });
-    const a2 = s.sanitize({ value: [2], sanitization: tDec });
-    const a3 = s.sanitize({ value: [9], sanitization: tDec });
-    const a4 = s.sanitize({ value: [1, 2], sanitization: tDec });
-    assert( a1 instanceof Decimal && a1.eq(0));
-    assert( a2 instanceof Decimal && a2.eq(2));
-    assert( a3 instanceof Decimal && a3.eq(9));
-    assert( a4 instanceof Decimal && a4.eq(0));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: [], sanitization: tDec })));
+    assert(isDecimalEqualTo(2, s.sanitize({ value: [2], sanitization: tDec })));
+    assert(isDecimalEqualTo(2, s.sanitize({ value: ['2'], sanitization: tDec })));
+    assert(isDecimalEqualTo(0, s.sanitize({ value: [1, 2], sanitization: tDec })));
   }
 
   // optional
   {
     const tDecOpt = tDec + S.OPTIONAL;
+
     assert.strictEqual(s.sanitize({ value: undefined, sanitization: tDecOpt }), undefined);
     assert.strictEqual(s.sanitize({ value: null, sanitization: tDecOpt }), null);
-    const v = s.sanitize({ value: '7.5', sanitization: tDecOpt });
-    assert( v instanceof Decimal && v.eq('7.5'));
+    assert(isDecimalEqualTo('7.5', s.sanitize({ value: '7.5', sanitization: tDecOpt })));
+  }
+
+  /**
+   * function that returns true if the value is of decimal type and equal to the passed value; otherwise print error on console and return false
+   * @param {*} expected
+   * @param {*} value
+   * @return {boolean}
+   */
+  function isDecimalEqualTo (expected, value) {
+    if (!(value instanceof Decimal)) {
+      console.error('NOT Decimal instance:', value);
+      return false;
+    }
+    if (!value.eq(expected)) {
+      console.error(`Decimal value ${value.toString()} is not equal to expected ${expected}`);
+      return false;
+    }
+    return true;
   }
 });
 
@@ -708,9 +729,9 @@ t('test sanitize() - array of decimals type', async () => {
 
   // array coercion and per-item sanitization
   {
-    const out = s.sanitize({ value: [1, '2.5', 'a'], sanitization: tArr });
+    const out = s.sanitize({ value: [1, '2.5', 'a', 999n], sanitization: tArr });
     assert(Array.isArray(out));
-    assert.deepStrictEqual(out.map(/** @type {any} */ d => (d instanceof Decimal ? d.toString() : String(d))), ['1', '2.5', '0']);
+    assert.deepStrictEqual(out.map(/** @type {any} */ d => (d instanceof Decimal ? d.toString() : String(d))), ['1', '2.5', '0', '999']);
   }
 
   // scalar -> single-element array

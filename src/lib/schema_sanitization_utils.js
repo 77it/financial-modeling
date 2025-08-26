@@ -205,6 +205,34 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
       }
       break;
     }
+    case schema.DECIMAL_TYPE: {
+      try {
+        if (value == null) {
+          retValue = new Decimal(0);
+        } else if (typeof value === 'string') {
+          const _trimmed = value.trim();
+          retValue = _trimmed === '' ? new Decimal(0) : new Decimal(_trimmed);
+        } else if (typeof value === 'number') {
+          retValue = isFinite(value) ? new Decimal(value) : new Decimal(0);
+        } else if (value instanceof Decimal) {
+          retValue = value;
+        } else if (value instanceof Date) {
+          const _time = value.getTime();
+          retValue = Number.isFinite(_time) ? new Decimal(_time) : new Decimal(0);
+        } else if (typeof value === 'bigint') {
+          retValue = new Decimal(value.toString());
+        } else if (typeof value === 'boolean') {
+          retValue = new Decimal(value ? 1 : 0);
+        } else if (Array.isArray(value)) {
+          retValue = new Decimal(String(value));
+        } else {
+          retValue = new Decimal(value);
+        }
+      } catch (_) {
+        retValue = new Decimal(0);
+      }
+      break;
+    }
     case schema.BOOLEAN_TYPE: {
       if (typeof value === 'string') {
         const _value = value.trim().toLowerCase();
@@ -275,6 +303,10 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
       retValue = _sanitizeToArray({ value: value, sanitization: schema.NUMBER_TYPE });
       break;
     }
+    case schema.ARRAY_OF_DECIMAL_TYPE: {
+      retValue = _sanitizeToArray({ value: value, sanitization: schema.DECIMAL_TYPE });
+      break;
+    }
     case schema.ARRAY_OF_BOOLEANS_TYPE: {
       retValue = _sanitizeToArray({ value: value, sanitization: schema.BOOLEAN_TYPE });
       break;
@@ -323,32 +355,6 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
     }
     case schema.ARRAY_OF_BIGINT_NUMBER_TYPE: {
       retValue = _sanitizeToArray({ value: value, sanitization: schema.BIGINT_NUMBER_TYPE });
-      break;
-    }
-    case schema.DECIMAL_TYPE: {
-      try {
-        if (value == null || value === '') {
-          retValue = new Decimal(0);
-        } else if (value instanceof Decimal) {
-          retValue = value;
-        } else if (value instanceof Date) {
-          retValue = isNaN(value.getTime())
-            ? new Decimal(0)
-            : new Decimal(value.getTime());
-        } else if (typeof value === 'boolean') {
-          retValue = new Decimal(value ? 1 : 0);
-        } else if (Array.isArray(value)) {
-          retValue = new Decimal(String(value));
-        } else {
-          retValue = new Decimal(value);
-        }
-      } catch (_) {
-        retValue = new Decimal(0);
-      }
-      break;
-    }
-    case schema.ARRAY_OF_DECIMAL_TYPE: {
-      retValue = _sanitizeToArray({ value: value, sanitization: schema.DECIMAL_TYPE });
       break;
     }
     default:
