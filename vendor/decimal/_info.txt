@@ -9,6 +9,9 @@ https://github.com/MikeMcl/decimal.js-light/blob/7bc73067d59ce04347b56e7998ff0bd
 license
 https://github.com/MikeMcl/decimal.js-light/blob/7bc73067d59ce04347b56e7998ff0bd2b91e22c2/LICENCE.md
 
+tests in
+test/vendor_test/decimaljs_light
+
 github repository
 https://github.com/MikeMcl/decimal.js-light
 

@@ -10,7 +10,7 @@ T('pow against sqrt', function () {
     maxE: 9e15
   });
 
-  for (var e, n, p, r, s, i = 0; i < 1_000; ++i) {
+  for (var e, n, p, r, s, i = 0; i < 5_000; ++i) {
 
     // Get a random value in the range [0,1), as a string in exponential format.
     e = Math.random().toExponential();
