@@ -5,7 +5,7 @@ import { ValidateSanitizeResult } from './validate_sanitize_result.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, localDateToUTC } from './date_utils.js';
 import { validate as validateFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
-import { Decimal } from '../../vendor/decimal/decimal.js';
+import { anyToDecimal } from './number_utils.js';
 
 //#region defaults
 const DEFAULT__NUMBER_TO_DATE = schema.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE;
@@ -206,31 +206,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
       break;
     }
     case schema.DECIMAL_TYPE: {
-      try {
-        if (value == null) {
-          retValue = new Decimal(0);
-        } else if (typeof value === 'string') {
-          const _trimmed = value.trim();
-          retValue = _trimmed === '' ? new Decimal(0) : new Decimal(_trimmed);
-        } else if (typeof value === 'number') {
-          retValue = isFinite(value) ? new Decimal(value) : new Decimal(0);
-        } else if (value instanceof Decimal) {
-          retValue = value;
-        } else if (value instanceof Date) {
-          const _time = value.getTime();
-          retValue = Number.isFinite(_time) ? new Decimal(_time) : new Decimal(0);
-        } else if (typeof value === 'bigint') {
-          retValue = new Decimal(value.toString());
-        } else if (typeof value === 'boolean') {
-          retValue = new Decimal(value ? 1 : 0);
-        } else if (Array.isArray(value)) {
-          retValue = new Decimal(String(value));
-        } else {
-          retValue = new Decimal(value);
-        }
-      } catch (_) {
-        retValue = new Decimal(0);
-      }
+      retValue = anyToDecimal(value);
       break;
     }
     case schema.BOOLEAN_TYPE: {

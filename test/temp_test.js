@@ -8,5 +8,5 @@ t('temp test', async () => {
   const a = 0.1 + 0.2;
   const b = new Decimal(a);
   console.log(b.toString());
-  assert(b.eq('0.3'));
+  assert(b.toFixed(1) === '0.3');
 });

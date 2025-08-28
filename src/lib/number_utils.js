@@ -1,4 +1,6 @@
-export { roundHalfAwayFromZero, roundHalfAwayFromZeroWithPrecision, truncWithPrecision };
+export { roundHalfAwayFromZero, roundHalfAwayFromZeroWithPrecision, truncWithPrecision, anyToDecimal };
+
+import { Decimal } from '../../vendor/decimal/decimal.js';
 
 /** Round n as Excel does ("Round half away from zero").
  * In Excel
@@ -49,4 +51,37 @@ function truncWithPrecision(n, precision) {
   // because 1.005 * 1000 = 1004.9999999999999 then Math.trunc(1004.9999999999999) = 1004 and not 1005 as expected
   const epsilon = n >= 0 ? Number.EPSILON : -Number.EPSILON; // Adjust epsilon based on sign of n
   return Math.trunc((n + epsilon) * factor) / factor;
+}
+
+/** Convert any value to a Decimal object.
+ * Returns Decimal(0) if conversion is not possible.
+ * @param {*} value
+ * @return {Decimal} - Decimal object
+ */
+function anyToDecimal(value) {
+  try {
+    if (value == null) {
+      return new Decimal(0);
+    } else if (typeof value === 'string') {
+      const _trimmed = value.trim();
+      return _trimmed === '' ? new Decimal(0) : new Decimal(_trimmed);
+    } else if (typeof value === 'number') {
+      return isFinite(value) ? new Decimal(value) : new Decimal(0);
+    } else if (value instanceof Decimal) {
+      return value;
+    } else if (value instanceof Date) {
+      const _time = value.getTime();
+      return Number.isFinite(_time) ? new Decimal(_time) : new Decimal(0);
+    } else if (typeof value === 'bigint') {
+      return new Decimal(value.toString());
+    } else if (typeof value === 'boolean') {
+      return new Decimal(value ? 1 : 0);
+    } else if (Array.isArray(value)) {
+      return new Decimal(String(value));
+    } else {
+      return new Decimal(value);
+    }
+  } catch (_) {
+    return new Decimal(0);
+  }
 }
