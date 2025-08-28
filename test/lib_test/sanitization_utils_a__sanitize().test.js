@@ -133,8 +133,10 @@ t('test sanitize() - number type + validation', async () => {
   assert.deepStrictEqual(1, s.sanitize({ value: true, sanitization: t }));
   assert.deepStrictEqual(0, s.sanitize({ value: false, sanitization: t }));
   assert.deepStrictEqual(0, s.sanitize({ value: [], sanitization: t }));
+  // nested array of one element -> take the first element
   assert.deepStrictEqual(2, s.sanitize({ value: [2], sanitization: t }));
   assert.deepStrictEqual(9, s.sanitize({ value: [9], sanitization: t }));
+  // nested array of more than one element -> force to default value 0
   assert.deepStrictEqual(0, s.sanitize({ value: [1, 2], sanitization: t }));
 
   const t2 = t + '?';
@@ -729,16 +731,48 @@ t('test sanitize() - array of decimals type', async () => {
 
   // array coercion and per-item sanitization
   {
-    const out = s.sanitize({ value: [1, '2.5', 'a', 999n], sanitization: tArr });
+    const out = s.sanitize({ value: [
+        1,
+        '2.5',
+        'a',
+        999n,
+        '',
+        new Date(2022, 11, 25),
+        new Date(NaN),
+        [],
+        {},
+        { a: 999 },
+        Symbol(),
+        [2, undefined, 2, 'a'],
+        [2]
+      ]
+      , sanitization: tArr });
     assert(Array.isArray(out));
-    assert.deepStrictEqual(out.map(/** @type {any} */ d => (d instanceof Decimal ? d.toString() : String(d))), ['1', '2.5', '0', '999']);
+    assert.deepStrictEqual(out.map(/** @type {any} */ d => (d instanceof Decimal ? d.toString() : 'ERROR, NOT A DECIMAL')), [
+      '1',
+      '2.5',
+      '0',
+      '999',
+      '0',
+      '1671922800000',
+      '0',  // invalid date
+      '0',  // []
+      '0',  // {}
+      '0',  // { a: 999 }
+      '0',  // Symbol()
+      '0',  // nested array of more than one element -> force to default value 0
+      '2'  // nested array of one element -> take the first element
+    ]);
   }
 
   // scalar -> single-element array
   {
     const out = s.sanitize({ value: 999, sanitization: tArr });
     // @ts-ignore ignore missing type
-    assert.deepStrictEqual(out.map(d => d.toString()), ['999']);
+    assert.deepStrictEqual(out.map(/** @type {any} */ d => (d instanceof Decimal ? d.toString() : 'ERROR, NOT A DECIMAL')), ['999']);
+    const out2 = s.sanitize({ value: 'abc', sanitization: tArr });
+    // @ts-ignore ignore missing type
+    assert.deepStrictEqual(out2.map(/** @type {any} */ d => (d instanceof Decimal ? d.toString() : 'ERROR, NOT A DECIMAL')), ['0']);
   }
 
   // null/undefined -> []
@@ -752,7 +786,10 @@ t('test sanitize() - array of decimals type', async () => {
     assert.strictEqual(s.sanitize({ value: null, sanitization: tArrOpt }), null);
     const out = s.sanitize({ value: '10', sanitization: tArrOpt });
     // @ts-ignore ignore missing type
-    assert.deepStrictEqual(out.map(d => d.toString()), ['10']);
+    assert.deepStrictEqual(out.map(/** @type {any} */ d => (d instanceof Decimal ? d.toString() : 'ERROR, NOT A DECIMAL')), ['10']);
+    const out2 = s.sanitize({ value: {}, sanitization: tArrOpt });
+    // @ts-ignore ignore missing type
+    assert.deepStrictEqual(out2.map(/** @type {any} */ d => (d instanceof Decimal ? d.toString() : 'ERROR, NOT A DECIMAL')), ['0']);
   }
 });
 

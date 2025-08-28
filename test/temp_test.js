@@ -5,8 +5,8 @@ import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
 t('temp test', async () => {
-  const a = new Decimal("0");
-  const b = new Decimal("  0   ");
-  assert(a.eq(0));
-  assert(b.eq(0));
+  const a = 0.1 + 0.2;
+  const b = new Decimal(a);
+  console.log(b.toString());
+  assert(b.eq('0.3'));
 });
