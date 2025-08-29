@@ -1,6 +1,7 @@
 ﻿export { Settings };
 
 import { DriversRepo } from '../../lib/drivers_repo.js';
+import { getFmlOrValue } from '../fml/fml_utils.js';
 
 class Settings {
   /** @type {DriversRepo} */
@@ -107,7 +108,7 @@ class Settings {
       throw new Error(`Date ${date.toISOString()} is greater than today ${this.#today.toISOString()}`);
     }
 
-    return this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined });
+    return getFmlOrValue(this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined }));
   }
 
   /**

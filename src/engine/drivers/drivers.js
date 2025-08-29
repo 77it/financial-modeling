@@ -5,7 +5,7 @@ import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../config/globals.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import * as schema from '../../lib/schema.js';
 import { Decimal } from '../../../vendor/decimal/decimal.js';
-import { anyToDecimal } from '../../lib/number_utils.js';
+import { getFmlOrValueToDecimal } from '../fml/fml_utils.js';
 
 /**
  * @enum {string}
@@ -153,7 +153,7 @@ class Drivers {
       }
 
       const _ret = this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined: true, searchExactDate: _searchExactDate });
-      return anyToDecimal(_ret);
+      return getFmlOrValueToDecimal(_ret);
     }
     // if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`
     else {
@@ -163,7 +163,7 @@ class Drivers {
       if (_retArray == null || _retArray.length === 0)
         return new Decimal(0);
       // Normalize _retArray to Decimal
-      const _decimalRetArray = _retArray.map(v => anyToDecimal(v));
+      const _decimalRetArray = _retArray.map(v => getFmlOrValueToDecimal(v));
       // switch on `calc`
       switch (calc) {
         case GET_CALC.AVERAGE: {

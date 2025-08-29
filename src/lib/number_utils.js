@@ -65,10 +65,10 @@ function anyToDecimal(value) {
     } else if (typeof value === 'string') {
       const _trimmed = value.trim();
       return _trimmed === '' ? new Decimal(0) : new Decimal(_trimmed);
-    } else if (typeof value === 'number') {
-      return isFinite(value) ? new Decimal(value) : new Decimal(0);
     } else if (value instanceof Decimal) {
       return value;
+    } else if (typeof value === 'number') {
+      return isFinite(value) ? new Decimal(value) : new Decimal(0);
     } else if (value instanceof Date) {
       const _time = value.getTime();
       return Number.isFinite(_time) ? new Decimal(_time) : new Decimal(0);

@@ -1,7 +1,8 @@
-﻿export { v, d };
+﻿export { getFmlOrValue, getFmlOrValueToDecimal };
 
 import { FmlObj } from './fmlobj.js';
 import { anyToDecimal } from '../../lib/number_utils.js';
+// used only for type definition
 import { Decimal } from '../../../vendor/decimal/decimal.js';
 
 /**
@@ -12,7 +13,7 @@ import { Decimal } from '../../../vendor/decimal/decimal.js';
  * @param {FmlObj | *} value - The input value which may be an FmlObj.
  * @returns {*} - The value of the FmlObj or the input itself if not an FmlObj.
  */
-function v(value) {
+function getFmlOrValue(value) {
   return value instanceof FmlObj ? value.get() : value;
 }
 
@@ -23,6 +24,6 @@ function v(value) {
  * @param { * } value
  * @return {Decimal}
  */
-function d(value) {
-  return anyToDecimal(v(value));
+function getFmlOrValueToDecimal(value) {
+  return anyToDecimal(getFmlOrValue(value));
 }
