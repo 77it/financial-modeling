@@ -5,7 +5,7 @@ import { ValidateSanitizeResult } from './validate_sanitize_result.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, localDateToUTC } from './date_utils.js';
 import { validate as validateFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
-import { anyToDecimal } from './number_utils.js';
+import { anyToDecimalOrDefault } from './number_utils.js';
 import { Decimal } from '../../vendor/decimal/decimal.js';
 
 //#region defaults
@@ -17,6 +17,7 @@ const DEFAULT_STRING = '';
 const DEFAULT_NUMBER = 0;
 const DEFAULT_DATE = new Date(0);
 const DEFAULT_BIGINT = BigInt(0);
+const DEFAULT_DECIMAL = new Decimal(0);
 
 //#endregion defaults
 
@@ -69,6 +70,7 @@ const DEFAULT_BIGINT = BigInt(0);
  * @param {*} [p.options.defaultNumber=0]
  * @param {*} [p.options.defaultDate=new Date(0)]
  * @param {*} [p.options.defaultBigInt=BigInt(0)]
+ * @param {*} [p.options.defaultDecimal=new Decimal(0)]
  * @param {boolean} [p.validate=false] - Optional validation flag; if true validate the value after sanitization, throwing an error if the validation fails
  * @param {boolean} [p.keyInsensitiveMatch=false] - Used only if `sanitization` is an object; optional, default false; if true match keys between sanitization and obj to sanitize in a case insensitive way (case and trim)
  * @return {*} Sanitized value
@@ -85,10 +87,13 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
   validateFunc({ value: _NUMBER_TO_DATE, validation: Object.values(schema.NUMBER_TO_DATE_OPTS) });
   /** @type {boolean} */
   const _DATE_UTC = options?.dateUTC ?? DEFAULT__DATE_UTC;
+
+  // default values: checks are done in this way to preserve the explicitly passed `undefined` values
   const _DEFAULT_STRING = ('defaultString' in options) ? options.defaultString : DEFAULT_STRING;
   const _DEFAULT_NUMBER = ('defaultNumber' in options) ? options.defaultNumber : DEFAULT_NUMBER;
   const _DEFAULT_DATE = ('defaultDate' in options) ? options.defaultDate : DEFAULT_DATE;
   const _DEFAULT_BIGINT = ('defaultBigInt' in options) ? options.defaultBigInt : DEFAULT_BIGINT;
+  const _DEFAULT_DECIMAL = ('defaultDecimal' in options) ? options.defaultDecimal : DEFAULT_DECIMAL;
 
   // if `sanitization` is an array
   // * and `sanitization[0]` is an object, sanitize as object returning an array as output;
@@ -207,7 +212,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
       break;
     }
     case schema.DECIMAL_TYPE: {
-      retValue = anyToDecimal(value);
+      retValue = anyToDecimalOrDefault(value, _DEFAULT_DECIMAL);
       break;
     }
     case schema.BOOLEAN_TYPE: {

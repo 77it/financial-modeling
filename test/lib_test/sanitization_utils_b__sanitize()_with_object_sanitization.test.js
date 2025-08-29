@@ -2,6 +2,7 @@ import * as S from '../../src/lib/schema.js';
 import * as s from '../../src/lib/schema_sanitization_utils.js';
 import { eq2 } from '../../src/lib/obj_utils.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToUTCDate, excelSerialDateToLocalDate } from '../../src/lib/date_utils.js';
+import { Decimal } from '../../vendor/decimal/decimal.js';
 
 import { validateSanitizeFunction_TestAsset } from './validateSanitizeFunction_TestAsset.js';
 
@@ -164,6 +165,8 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
     arrObj2: { a: 0 },
     obj: { a: 999 },
     any: 999,
+    decimal: 10,
+    arrDecimal: [10, '9', 0],
     bigInt: 10,
     bigInt_number: 10,
     arrBigInt: [10, '9', 0],
@@ -219,6 +222,8 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
     fun: _fun,
     any: 999,
     symbol: _sym,
+    decimal: new Decimal(10),
+    arrDecimal: [new Decimal(10), new Decimal(9), new Decimal(0)],
     bigInt: BigInt(10),
     bigInt_number: BigInt(10),
     arrBigInt: [BigInt(10), BigInt(9), BigInt(0)],
@@ -265,6 +270,8 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
     obj: S.OBJECT_TYPE,
     fun: S.FUNCTION_TYPE,
     symbol: S.SYMBOL_TYPE,
+    decimal: S.DECIMAL_TYPE,
+    arrDecimal: S.ARRAY_OF_DECIMAL_TYPE,
     bigInt: S.BIGINT_TYPE,
     bigInt_number: S.BIGINT_NUMBER_TYPE,
     arrBigInt: S.ARRAY_OF_BIGINT_TYPE,
@@ -276,13 +283,13 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
     extraValueMissingRequiredNum: S.NUMBER_TYPE,
     extraValueMissingRequiredBool: S.BOOLEAN_TYPE,
     extraValueMissingRequiredDate: S.DATE_TYPE,
-    extraValueMissingNotRequired: S.STRING_TYPE + '?'
+    extraValueMissingNotRequired: S.STRING_TYPE + S.OPTIONAL,
   };
 
   // If you do not wish to patch BigInt.prototype, you can use the replacer parameter of  to serialize BigInt values
   // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
   //@ts-ignore
-  const replacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
+  //const replacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
 
   assert.deepStrictEqual((s.sanitize({
     value: objToSanitize,
@@ -524,20 +531,40 @@ t('test sanitize() with object sanitization - custom default sanitization values
     defaultNumber: 999,
     defaultDate: new Date('2025-12-31'),
     defaultBigInt: BigInt(999),
+    defaultDecimal: new Decimal(999),
   };
 
-  const expObj = {
+  const options_undefined = {
+    defaultString: undefined,
+    defaultNumber: undefined,
+    defaultDate: undefined,
+    defaultBigInt: undefined,
+    defaultDecimal: undefined,
+  };
+
+  const expObj_defaults = {
     str: 'mamma',
     num: 999,
     date: new Date('2025-12-31'),
+    decimal: new Decimal(999),
     bigInt: BigInt(999),
     bigInt_number: BigInt(999)
+  };
+
+  const expObj_undefinedDefaults = {
+    str: undefined,
+    num: undefined,
+    date: undefined,
+    decimal: undefined,
+    bigInt: undefined,
+    bigInt_number: undefined
   };
 
   const expObj_0 = {
     str: '0',
     num: 0,
     date: new Date('2025-12-31'),  // `excelSerialDateToLocalDate(0)` returns Date(NaN), that is invalid, and is sanitized to the default sanitization value
+    decimal: new Decimal(0),
     bigInt: BigInt(0),
     bigInt_number: BigInt(0)
   };
@@ -546,6 +573,7 @@ t('test sanitize() with object sanitization - custom default sanitization values
     str: '',
     num: 0,
     date: new Date('2025-12-31'),
+    decimal: new Decimal(0),
     bigInt: BigInt(0),
     bigInt_number: BigInt(0)
   };
@@ -554,6 +582,7 @@ t('test sanitize() with object sanitization - custom default sanitization values
     str: '0',
     num: 0,
     date: new Date('2025-12-31'),
+    decimal: new Decimal(0),
     bigInt: BigInt(0),
     bigInt_number: BigInt(0)
   };
@@ -562,62 +591,71 @@ t('test sanitize() with object sanitization - custom default sanitization values
     str: S.STRING_TYPE,
     num: S.NUMBER_TYPE,
     date: S.DATE_TYPE,
+    decimal: S.DECIMAL_TYPE,
     bigInt: S.BIGINT_TYPE,
     bigInt_number: S.BIGINT_NUMBER_TYPE,
   };
 
   // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
   //@ts-ignore
-  const replacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
+  //const replacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
 
-  let wrongValue = null;
-  let objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj));
+  // test with `options_undefined` and `expObj_undefinedDefaults`
+  /** @type {any} */
+  let wrongValue = NaN;
+  //@ts-ignore
+  let objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options: options_undefined })), (expObj_undefinedDefaults));
+
+  wrongValue = null;
+  //@ts-ignore
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_defaults));
 
   wrongValue = undefined;
   //@ts-ignore
-  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj));
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_defaults));
 
   wrongValue = { ciao: 999 };
   //@ts-ignore
-  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj));
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_defaults));
 
   wrongValue = NaN;
   //@ts-ignore
-  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
-  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj));
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_defaults));
 
   wrongValue = 0;
   //@ts-ignore
-  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_0));
 
   // when sanitizing number, -0 is sanitized to 0
   wrongValue = -0;
   //@ts-ignore
-  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_0));
 
   wrongValue = 0n;
   //@ts-ignore
-  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_0));
 
   wrongValue = '0';
   //@ts-ignore
-  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_0Str));
 
   wrongValue = '';
   //@ts-ignore
-  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_EmptyStr));
 
   wrongValue = '   ';
   //@ts-ignore
-  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_EmptyStr));
 });
 

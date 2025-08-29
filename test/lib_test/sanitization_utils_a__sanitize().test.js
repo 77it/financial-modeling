@@ -757,6 +757,13 @@ t('test sanitize() - decimal type', async () => {
     assert(isDecimalEqualTo('7.5', s.sanitize({ value: '7.5', sanitization: tDecOpt })));
   }
 
+  // with validation & (sometimes) optional
+  {
+    assert(isDecimalEqualTo(999, s.sanitize({ value: '999', sanitization: S.DECIMAL_TYPE, validate: true })));
+    assert(isDecimalEqualTo(999, s.sanitize({ value: '999', sanitization: S.DECIMAL_TYPE + S.OPTIONAL, validate: true })));
+    assert.strictEqual(s.sanitize({ value: undefined, sanitization: S.DECIMAL_TYPE + S.OPTIONAL, validate: true }), undefined);
+  }
+
   /**
    * function that returns true if the value is of decimal type and equal to the passed value; otherwise print error on console and return false
    * @param {*} expected

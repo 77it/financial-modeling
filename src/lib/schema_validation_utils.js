@@ -202,6 +202,11 @@ function _validateValue ({ value, validation, errorMsg }) {
           return `${errorMsg} = ${value}, must be an uppercase trimmed string`;
         return SUCCESS;
       }
+      case schema.DECIMAL_TYPE: {
+        if (!(value instanceof Decimal))
+          return `${errorMsg} = ${value}, must be an instance of Decimal`;
+        return SUCCESS;
+      }
       case schema.NUMBER_TYPE: {
         if (typeof value !== 'number' || !isFinite(value))
           return `${errorMsg} = ${value}, must be a valid number`;
@@ -236,6 +241,12 @@ function _validateValue ({ value, validation, errorMsg }) {
       }
       case schema.ARRAY_OF_STRINGSUPPERCASETRIMMED_TYPE: {
         const validationResult = _validateArray({ array: value, validation: schema.STRINGUPPERCASETRIMMED_TYPE });
+        if (validationResult)
+          return `${errorMsg} array error, ${validationResult}`;
+        return SUCCESS;
+      }
+      case schema.ARRAY_OF_DECIMAL_TYPE: {
+        const validationResult = _validateArray({ array: value, validation: schema.DECIMAL_TYPE });
         if (validationResult)
           return `${errorMsg} array error, ${validationResult}`;
         return SUCCESS;
