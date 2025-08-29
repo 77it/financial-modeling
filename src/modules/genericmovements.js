@@ -6,7 +6,7 @@ import { Agenda } from './_utils/agenda.js';
 import { sanitizeModuleData } from './_utils/sanitize_module_data.js';
 import { moduleDataLookup } from './_utils/search/module_data_lookup.js';
 import { classifyDateString, DATE_CLASSIFICATION } from './_utils/search/classify_date_string.js';
-import { SimObject_Metadata, schema, sanitize, eq2, isNullOrWhiteSpace, v } from './deps.js';
+import { SimObject_Metadata, schema, sanitize, eq2, isNullOrWhiteSpace, getFmlOrValue } from './deps.js';
 // types import
 import { ModuleData as _ModuleData, SimulationContext as _SimulationContext } from './deps.js';
 
@@ -138,7 +138,7 @@ export class Module {
 
               const isSimulation = classification === DATE_CLASSIFICATION.SIMULATION;
 
-              const value = sanitize({ value: row[key], sanitization: schema.NUMBER_TYPE, options: { defaultNumber: undefined } });
+              const value = row[key];
               if (value == null)
                 continue;
 
@@ -163,6 +163,8 @@ export class Module {
    */
   dailyModeling ({ today }) {
     // TODO loop agenda and create SimObjects
+
+    // sanitize `value` with `schema.DECIMAL_TYPE` if you have to do calculations (beware that `value` is stored without editing in agenda, and can be a Formula)
 
     // add activeMetadata to current SimObject with 'mergeNewKeys'
 
