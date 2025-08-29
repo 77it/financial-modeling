@@ -33,6 +33,8 @@ t('test sanitize() - string type', async () => {
   assert.deepStrictEqual('', s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual('0', s.sanitize({ value: 0, sanitization: t }));
   assert.deepStrictEqual('999', s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual('999', s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual('999', s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual('', s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual('', s.sanitize({ value: '    ', sanitization: t }));  // whitespaces are trimmed if the string is empty
   assert.deepStrictEqual('abc', s.sanitize({ value: 'abc', sanitization: t }));
@@ -69,6 +71,8 @@ t('test sanitize() - string lowercase trimmed type', async () => {
   assert.deepStrictEqual('', s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual('0', s.sanitize({ value: 0, sanitization: t }));
   assert.deepStrictEqual('999', s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual('999', s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual('999', s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual('', s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual('', s.sanitize({ value: '    ', sanitization: t }));  // whitespaces are trimmed if the string is empty
   assert.deepStrictEqual('abc', s.sanitize({ value: 'abc', sanitization: t }));
@@ -98,6 +102,8 @@ t('test sanitize() - string uppercase trimmed type', async () => {
   assert.deepStrictEqual('', s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual('0', s.sanitize({ value: 0, sanitization: t }));
   assert.deepStrictEqual('999', s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual('999', s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual('999', s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual('', s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual('', s.sanitize({ value: '    ', sanitization: t }));  // whitespaces are trimmed if the string is empty
   assert.deepStrictEqual('ABC', s.sanitize({ value: 'abc', sanitization: t }));
@@ -126,6 +132,10 @@ t('test sanitize() - number type + validation', async () => {
   assert.deepStrictEqual(0, s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual(0, s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(999, s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual(999, s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(-999, s.sanitize({ value: -999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(999, s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
+  assert.deepStrictEqual(-999, s.sanitize({ value: new Decimal(-999), sanitization: t }));  // Decimal
   assert.deepStrictEqual(0, s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual(0, s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual(1671922800000, s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
@@ -163,8 +173,12 @@ t('test sanitize() - boolean type', async () => {
   assert.deepStrictEqual(false, s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(false, s.sanitize({ value: -0, sanitization: t }));
   assert.deepStrictEqual(false, s.sanitize({ value: 0, sanitization: t }));
+  assert.deepStrictEqual(false, s.sanitize({ value: 0n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(false, s.sanitize({ value: new Decimal(0), sanitization: t }));  // Decimal
 
   assert.deepStrictEqual(true, s.sanitize({ value: true, sanitization: t }));
+  assert.deepStrictEqual(true, s.sanitize({ value: 1n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(true, s.sanitize({ value: new Decimal(1), sanitization: t }));  // Decimal
   assert.deepStrictEqual(true, s.sanitize({ value: 1, sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: -1, sanitization: t }));
   assert.deepStrictEqual(true, s.sanitize({ value: 999, sanitization: t }));
@@ -190,6 +204,8 @@ t('test sanitize() - date type, with OPTIONS.DATE_UTC = true (dates are presumed
   assert.deepStrictEqual(new Date(0), s.sanitize({ value: undefined, sanitization: t, options }));
   assert.deepStrictEqual(new Date(0), s.sanitize({ value: null, sanitization: t, options }));
   assert.deepStrictEqual(new Date(Date.UTC(2022, 11, 25)), s.sanitize({ value: 44920, sanitization: t, options }));
+  assert.deepStrictEqual(new Date(Date.UTC(2022, 11, 25)), s.sanitize({ value: 44920n, sanitization: t, options }));  // BigInt
+  assert.deepStrictEqual(new Date(Date.UTC(2022, 11, 25)), s.sanitize({ value: new Decimal(44920), sanitization: t, options }));  // Decimal
   assert.deepStrictEqual(new Date(0), s.sanitize({ value: '', sanitization: t, options }));
   assert.deepStrictEqual(new Date(0), s.sanitize({ value: 'abc', sanitization: t, options }));
   assert.deepStrictEqual(new Date(2022, 11, 25), s.sanitize({ value: new Date(2022, 11, 25), sanitization: t, options }));
@@ -225,6 +241,8 @@ t('test sanitize() - date type, with default option AND explicit OPTIONS.DATE_UT
     assert.deepStrictEqual(undefined, s.sanitize({ value: undefined, sanitization: t2, options }));
     assert.deepStrictEqual(null, s.sanitize({ value: null, sanitization: t2 , options }));
     assert.deepStrictEqual(new Date(2022, 11, 25), s.sanitize({ value: 44920, sanitization: t2 , options }));
+    assert.deepStrictEqual(new Date(2022, 11, 25), s.sanitize({ value: 44920n, sanitization: t2 , options }));  // BigInt
+    assert.deepStrictEqual(new Date(2022, 11, 25), s.sanitize({ value: new Decimal(44920), sanitization: t2 , options }));  // Decimal
     assert.deepStrictEqual(new Date(1), s.sanitize({ value: true, sanitization: t2 , options }));
     assert.deepStrictEqual(new Date(0), s.sanitize({ value: false, sanitization: t2 , options }));
   }
@@ -255,6 +273,8 @@ t('test sanitize() - array (enum) type + validation', async () => {
   assert.deepStrictEqual(999, s.sanitize({ value: 999, sanitization: [11, 22, 999, 55] }));
   assert.deepStrictEqual('aaa', s.sanitize({ value: 'aaa', sanitization: [11, 'aa', 'aaa', 55] }));
   assert.deepStrictEqual(undefined, s.sanitize({ value: undefined, sanitization: [11, undefined, 'aa', 'aaa', 55], validate: true }));
+  assert.deepStrictEqual(55n, s.sanitize({ value: 55n, sanitization: [11, undefined, 'aa', 'aaa', 55n], validate: true }));  // BigInt
+  assert.deepStrictEqual(new Decimal(55), s.sanitize({ value: new Decimal(55), sanitization: [11, undefined, 'aa', 'aaa', new Decimal(55)], validate: true }));  // Decimal
   assert.throws(() => s.sanitize({ value: 'aaaX', sanitization: [11, 'aa', 'aaa', 55], validate: true }));
 });
 
@@ -264,6 +284,8 @@ t('test sanitize() - array type', async () => {
   assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([999], s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual([999n], s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual([new Decimal(999)], s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual([''], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual(['abc'], s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual([new Date(2022, 11, 25)], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
@@ -282,6 +304,8 @@ t('test sanitize() - array of strings type', async () => {
   assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(['999'], s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual(['999'], s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(['999'], s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual([''], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual(['abc'], s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual(['2022-12-25T00:00:00.000Z'], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
@@ -309,6 +333,8 @@ t('test sanitize() - array of strings lowercase trimmed type', async () => {
   assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(['999'], s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual(['999'], s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(['999'], s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual([''], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual(['abc'], s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual(['2022-12-25t00:00:00.000z'], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
@@ -323,6 +349,7 @@ t('test sanitize() - array of strings lowercase trimmed type', async () => {
   assert.deepStrictEqual(undefined, s.sanitize({ value: undefined, sanitization: t2 }));
   assert.deepStrictEqual(null, s.sanitize({ value: null, sanitization: t2 }));
   assert.deepStrictEqual(['999'], s.sanitize({ value: 999, sanitization: t2 }));
+  assert.deepStrictEqual(['999'], s.sanitize({ value: 999n, sanitization: t2 }));
   assert.deepStrictEqual([''], s.sanitize({ value: '', sanitization: t2 }));
   assert.deepStrictEqual([''], s.sanitize({ value: [[]], sanitization: t2 }));
   assert.deepStrictEqual([''], s.sanitize({ value: {}, sanitization: t2 }));
@@ -336,6 +363,8 @@ t('test sanitize() - array of strings uppercase trimmed type', async () => {
   assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(['999'], s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual(['999'], s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(['999'], s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual([''], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual(['ABC'], s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual(['2022-12-25T00:00:00.000Z'], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
@@ -363,6 +392,8 @@ t('test sanitize() - array of numbers type', async () => {
   assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([999], s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual([999], s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual([999], s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual([0], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual([0], s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual([1671922800000], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
@@ -389,6 +420,8 @@ t('test sanitize() - array of booleans type', async () => {
   assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([true], s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual([true], s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual([true], s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual([false], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual([true], s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual([true], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
@@ -428,6 +461,8 @@ t('test sanitize() - array of dates type', async () => {
   assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t, options }));
   assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t, options }));
   assert.deepStrictEqual([new Date(Date.UTC(2022, 11, 25))], s.sanitize({ value: 44920, sanitization: t, options }));
+  assert.deepStrictEqual([new Date(Date.UTC(2022, 11, 25))], s.sanitize({ value: 44920n, sanitization: t, options }));  // BigInt
+  assert.deepStrictEqual([new Date(Date.UTC(2022, 11, 25))], s.sanitize({ value: new Decimal(44920), sanitization: t, options }));  // Decimal
   assert.deepStrictEqual([new Date(0)], s.sanitize({ value: '', sanitization: t, options }));
   assert.deepStrictEqual([new Date(0)], s.sanitize({ value: 'abc', sanitization: t, options }));
   assert.deepStrictEqual([new Date(2022, 11, 25)], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t, options }));
@@ -460,6 +495,8 @@ t('test sanitize() - object type', async () => {
   assert.deepStrictEqual({}, s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual({}, s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual({}, s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual({}, s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(new Decimal(999), s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual({}, s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual([], s.sanitize({ value: [], sanitization: t }));
   assert.deepStrictEqual([null], s.sanitize({ value: [null], sanitization: t }));
@@ -480,6 +517,8 @@ t('test sanitize() - array of objects type', async () => {
   assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual( [], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([{}], s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual([{}], s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual([new Decimal(999)], s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual([{}], s.sanitize({ value: 'abc', sanitization: t }));
 
   const t2 = t + '?';
@@ -507,6 +546,8 @@ t('test sanitize() - function/class type', async () => {
   assert.deepStrictEqual(undefined, s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual(null, s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(999, s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual(999n, s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(new Decimal(999), s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual('abc', s.sanitize({ value: 'abc', sanitization: t }));
 
   const t2 = t + '?';
@@ -523,6 +564,8 @@ t('test sanitize() - symbol type', async () => {
   assert.deepStrictEqual(undefined, s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual(null, s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(999, s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual(999n, s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(new Decimal(999), s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual('abc', s.sanitize({ value: 'abc', sanitization: t }));
 
   const t2 = t + '?';
@@ -537,6 +580,8 @@ t('test sanitize() - bigint type + validation', async () => {
   assert.deepStrictEqual(BigInt(0), s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual(BigInt(0), s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(BigInt(999), s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual(BigInt(999), s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(BigInt(999), s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual(BigInt(999), s.sanitize({ value: '999', sanitization: t }));
   assert.deepStrictEqual(BigInt(0), s.sanitize({ value: '0', sanitization: t }));
   assert.deepStrictEqual(BigInt(0), s.sanitize({ value: '', sanitization: t }));
@@ -560,6 +605,8 @@ t('test sanitize() - bigint number type + validation', async () => {
   assert.deepStrictEqual(BigInt(0), s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual(BigInt(0), s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual(BigInt(999), s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual(BigInt(999), s.sanitize({ value: 999n, sanitization: t }));  // BigInt
+  assert.deepStrictEqual(BigInt(999), s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual(BigInt(999), s.sanitize({ value: '999', sanitization: t }));
   assert.deepStrictEqual(BigInt(0), s.sanitize({ value: '0', sanitization: t }));
   assert.deepStrictEqual(BigInt(0), s.sanitize({ value: '', sanitization: t }));
@@ -584,6 +631,8 @@ t('test sanitize() - array of bigint type + validation', async () => {
   assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([BigInt(999)], s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual([BigInt(999n)], s.sanitize({ value: 999, sanitization: t }));  // BigInt
+  assert.deepStrictEqual([BigInt(999n)], s.sanitize({ value: new Decimal(999), sanitization: t }));  // Decimal
   assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual([BigInt(new Date(2022, 11, 25).getTime())], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));
@@ -609,6 +658,7 @@ t('test sanitize() - array of bigint number type + validation', async () => {
   assert.deepStrictEqual([], s.sanitize({ value: undefined, sanitization: t }));
   assert.deepStrictEqual([], s.sanitize({ value: null, sanitization: t }));
   assert.deepStrictEqual([BigInt(999)], s.sanitize({ value: 999, sanitization: t }));
+  assert.deepStrictEqual([BigInt(999)], s.sanitize({ value: 999n, sanitization: t }));
   assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: '', sanitization: t }));
   assert.deepStrictEqual([BigInt(0)], s.sanitize({ value: 'abc', sanitization: t }));
   assert.deepStrictEqual([BigInt(new Date(2022, 11, 25).getTime())], s.sanitize({ value: new Date(2022, 11, 25), sanitization: t }));

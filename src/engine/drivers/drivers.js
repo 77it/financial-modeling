@@ -4,7 +4,8 @@ import { DriversRepo } from '../../lib/drivers_repo.js';
 import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../config/globals.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import * as schema from '../../lib/schema.js';
-
+import { Decimal } from '../../../vendor/decimal/decimal.js';
+import { anyToDecimal } from '../../lib/number_utils.js';
 
 /**
  * @enum {string}
@@ -68,20 +69,24 @@ class Drivers {
    * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from constructor<p>
    * name: Driver name<p>
    * date: optional; if missing will be set to new Date(0)<p>
-   * value: Driver value, will be sanitized to number<p>
+   * value: Driver value; will not be sanitized to Decimal (nor number); the conversion to Decimal will be done during get, to not save too much Decimal objects in memory<p>
    * @returns {string[]} array of errors
    * @throws {Error} If a date is already present and the driver is immutable, trying to overwrite it throws
    */
   set (p) {
+    /*
     // loop input array: sanitize input to number & add to every item property `throwOnImmutableDriverChange` = true
     p.forEach(item => {
       item.value = sanitize({ value: item.value, sanitization: schema.NUMBER_TYPE});
-      //@ts-ignore add to every item property `throwOnImmutableDriverChange` = true
-      item.throwOnImmutableDriverChange = true;
     });
+    */
 
-    // loop `scenario` array; inside the scenario loop, loop `unit` array; add entries with the scenario and unit entries to the new array `p2`
-    /** @type {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} */
+    // build a new array `p2` from `p`, expanding `scenario` and `unit` arrays:
+    // if `scenario` is not an array or is an empty array, set it to `[undefined]`
+    // if `unit` is not an array or is an empty array, set it to `[undefined]`
+    // then for each entry in `p, loop `scenario` and `unit` arrays and add to `p2` an entry for each combination of `scenario` and `unit`
+    // also add property `throwOnImmutableDriverChange` = true to each entry
+    /** @type {{scenario?: string, unit?: string, name: string, date?: Date, value: *, throwOnImmutableDriverChange: boolean}[]} */
     const p2 = [];
     for (const item of p) {
       // set `scenarios` and `units` to `[undefined]` if they are not already arrays or if they are empty arrays
@@ -94,11 +99,13 @@ class Drivers {
             ...item,
             scenario,
             unit,
+            throwOnImmutableDriverChange: true
           });
         }
       }
     }
 
+    // set all drivers in `p2`
     return this.#driversRepo.set(p2);
   }
 
@@ -111,7 +118,7 @@ class Drivers {
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
    * @param {GET_CALC} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
-   * @return {number} returns the Driver value;<p>
+   * @return {Decimal} returns the Driver value sanitized to Decimal;<p>
    * if `endDate` is not defined, returns the value defined before or at `date`;<p>
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.<p>
    * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,<p>
@@ -146,28 +153,29 @@ class Drivers {
       }
 
       const _ret = this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined: true, searchExactDate: _searchExactDate });
-      if (_ret == null)
-        return 0;
-      else
-        return _ret;
+      return anyToDecimal(_ret);
     }
     // if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`
     else {
-      /** @type {number[]} */
+      /** @type {*[]} */
       const _retArray = this.#driversRepo.get({ scenario, unit, name, date, endDate, search: true, throwIfNotDefined: true });
       // no values found, return 0
       if (_retArray == null || _retArray.length === 0)
-        return 0;
+        return new Decimal(0);
+      // Normalize _retArray to Decimal
+      const _decimalRetArray = _retArray.map(v => anyToDecimal(v));
       // switch on `calc`
       switch (calc) {
-        case GET_CALC.AVERAGE:
-          return _retArray.reduce((a, b) => a + b, 0) / _retArray.length;
+        case GET_CALC.AVERAGE: {
+          const __sum = _decimalRetArray.reduce((a, b) => a.plus(b), new Decimal(0));
+          return __sum.div(_decimalRetArray.length);
+        }
         case GET_CALC.MIN:
-          return Math.min(..._retArray);  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min
+          return _decimalRetArray.reduce((a, b) => (a.lt(b) ? a : b));
         case GET_CALC.MAX:
-          return Math.max(..._retArray);  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/max
+          return _decimalRetArray.reduce((a, b) => (a.gt(b) ? a : b));
         default:  // apply `sum` as default
-          return _retArray.reduce((a, b) => a + b, 0);  // see https://stackoverflow.com/a/16751601
+          return _decimalRetArray.reduce((a, b) => a.plus(b), new Decimal(0));
       }
     }
   }

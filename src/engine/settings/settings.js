@@ -58,14 +58,12 @@ class Settings {
    * @throws {Error} If a date is already present and the driver is immutable, trying to overwrite it throws
    */
   set (p) {
-    // loop input array: add to every item property `throwOnImmutableDriverChange` = true
-    p.forEach(item => {
-      //@ts-ignore add to every item property `throwOnImmutableDriverChange` = true
-      item.throwOnImmutableDriverChange = true;
-    });
-
-    // loop `scenario` array; inside the scenario loop, loop `unit` array; add entries with the scenario and unit entries to the new array `p2`
-    /** @type {{scenario?: string, unit?: string, name: string, date?: Date, value: *}[]} */
+    // build a new array `p2` from `p`, expanding `scenario` and `unit` arrays:
+    // if `scenario` is not an array or is an empty array, set it to `[undefined]`
+    // if `unit` is not an array or is an empty array, set it to `[undefined]`
+    // then for each entry in `p, loop `scenario` and `unit` arrays and add to `p2` an entry for each combination of `scenario` and `unit`
+    // also add property `throwOnImmutableDriverChange` = true to each entry
+    /** @type {{scenario?: string, unit?: string, name: string, date?: Date, value: *, throwOnImmutableDriverChange: boolean}[]} */
     const p2 = [];
     for (const item of p) {
       // set `scenarios` and `units` to `[undefined]` if they are not already arrays or if they are empty arrays
@@ -78,11 +76,13 @@ class Settings {
             ...item,
             scenario,
             unit,
+            throwOnImmutableDriverChange: true
           });
         }
       }
     }
 
+    // set all drivers in `p2`
     return this.#driversRepo.set(p2);
   }
 

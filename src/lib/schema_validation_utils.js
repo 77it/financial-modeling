@@ -3,6 +3,7 @@ export { validate };
 import { DISABLE_VALIDATION } from '../config/engine.js';
 import * as schema from './schema.js';
 import { ValidateSanitizeResult } from './validate_sanitize_result.js';
+import { Decimal } from '../../vendor/decimal/decimal.js';
 
 const ALLOWS_OBJECTS_IN_ARRAY_FLAG = false;  // hardcoded option, by now objects contained in array are considered an error if the validation expects an object
 const SUCCESS = '';
@@ -137,9 +138,14 @@ function _validateValue ({ value, validation, errorMsg }) {
       return SUCCESS;
     }
 
-    // if validation is not a function validate as enum array
-    if (validation.includes(value))
-      return SUCCESS;
+    // if validation is an array but is not a function, validate as enum
+    if (value instanceof Decimal) {
+      if (validation.some(d => d instanceof Decimal && d.eq(value)))
+        return SUCCESS;
+    } else {
+      if (validation.includes(value))
+        return SUCCESS;
+    }
 
     return `${errorMsg} = ${value}, must be one of ${validation}`;
   } else if (typeof validation === 'function') {

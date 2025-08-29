@@ -6,6 +6,7 @@ import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, e
 import { validate as validateFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
 import { anyToDecimal } from './number_utils.js';
+import { Decimal } from '../../vendor/decimal/decimal.js';
 
 //#region defaults
 const DEFAULT__NUMBER_TO_DATE = schema.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE;
@@ -156,6 +157,8 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
           retValue = '';
         else if (typeof value === 'string')
           retValue = value;
+        else if ((typeof value === 'number' && isFinite(value)) || typeof value === 'bigint' || value instanceof Decimal)
+          retValue = String(value);
         else if (value instanceof Date)
           if (_DATE_UTC) {
             // if `_DATE_UTC` is true, the date is presumed to be UTC then is not needed to convert it to UTC before converting the date to ISO string
@@ -164,8 +167,6 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
             // if `_DATE_UTC` is false, the date is presumed to be in local time then is generated a UTC date with the date components (ignoring the time zone) and then the date is converted to ISO string
             retValue = localDateToUTC(value).toISOString();
           }
-        else if ((typeof value === 'number' && isFinite(value)) || typeof value === 'bigint')
-          retValue = String(value);
         else if (value === true)
           retValue = 'true';
         else if (value === false)
@@ -216,6 +217,9 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
           retValue = false;
           break;
         }
+      } else if (value instanceof Decimal) {
+        retValue = !value.isZero();
+        break;
       }
       retValue = Boolean(value);
       break;
@@ -231,7 +235,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
               _value = parseJsonToUTCDate(value);
             else
               _value = parseJsonToLocalDate(value);
-          } else if (typeof value === 'number' || typeof value === 'bigint') {  // if `value` is number or BigInt, convert it as Excel serial date to date in local time or UTC
+          } else if (typeof value === 'number' || typeof value === 'bigint' || value instanceof Decimal) {  // if `value` is number, BigInt or Decimal, convert it as Excel serial date to date in local time or UTC
             const _numValue = Number(value);
             if (_NUMBER_TO_DATE === schema.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE) {
               if (_DATE_UTC)

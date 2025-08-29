@@ -8,6 +8,7 @@ import { Ledger } from '../ledger/ledger.js';
 import { NewSimObjectDto } from '../ledger/commands/newsimobjectdto.js';
 import { NewDebugSimObjectDto } from '../ledger/commands/newdebugsimobjectdto.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
+import { Decimal } from '../../../vendor/decimal/decimal.js';
 
 class SimulationContext {
   /** @type {Drivers} */
@@ -71,12 +72,12 @@ class SimulationContext {
    * @param {string} p.name - Setting name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {boolean} [p.throwIfNotDefined] - Optional flag to throw. See @throws for description of this option.
-   * @return {undefined|*} Setting; if not found, returns undefined<p>
+   * @return {*} Setting; if not found, throws<p>
    * if `endDate` is not defined, returns the value defined before or at `date`;<p>
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.<p>
    * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,<p>
    * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).<p>
-   * Returned data is not cloned because Settings are stored with `freezeValues` option = true then the values are deep frozen.<p>
+   * Returned data is not cloned because Settings are stored with `freezeValues` option = true then the values are deep-frozen.<p>
    * @throws {Error} If `throwIfNotDefined` is true, throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
    */
   getSetting ({ scenario, unit, name, date, throwIfNotDefined = true }) {
@@ -119,9 +120,10 @@ class SimulationContext {
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
    * @param {DRIVERS_GET_CALC} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
-   * @return {undefined|number} Driver; if not found, returns undefined<p>
+   * @return {Decimal} Driver; if not found, throws<p>
    * if `endDate` is not defined, returns the value defined before or at `date`;<p>
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.<p>
+   * @throws {Error} Throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.<p>
    */
   getDriver ({ scenario, unit, name, date, endDate, calc }) {
     return this.#drivers.get({ scenario, unit, name, date, endDate, calc });
