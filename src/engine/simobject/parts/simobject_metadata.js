@@ -18,10 +18,19 @@ class SimObject_Metadata {
 
   /**
    * SimObject_Metadata class
+   *
+   * Save the metadata arrays after validating them.
+   * The length of the 3 arrays must be equal.
+   * Validation schema is read from ACTIVE_METADATA setting.
+   *
+   * Weights are in percentage; if a single weight is > 1 it is considered as percentage (e.g. 20 = 20%) then is / 100.
+   * If a weight is <= 0 or > 100 an error is thrown.
+   *
    * @param {Object} p
    * @param {string[]} p.name
    * @param {string[]} p.value
    * @param {number[]} p.weight
+   * @throws {Error} if validation fails
    */
   constructor (p) {
     // read validation from ACTIVE_METADATA setting schema
@@ -32,9 +41,25 @@ class SimObject_Metadata {
     if (p.name.length !== p.value.length || p.name.length !== p.weight.length)
       throw new Error(`length of metadata arrays must be equal, got name = ${p.name.length}, value = ${p.value.length}, weight= ${p.weight.length}`);
 
-    // save arrays
-    this.metadata__Name = p.name;
-    this.metadata__Value = p.value;
-    this.metadata__PercentageWeight = p.weight;
+    // If a weight is <= 0 or > 100 throw an error
+    for (let i = 0; i < p.weight.length; i++) {
+      if (p.weight[i] <= 0 || p.weight[i] > 100) {
+        throw new Error(`metadata weight must be > 0 and <= 100, got ${p.weight[i]} at index ${i}`);
+      }
+    }
+
+    // save arrays after cloning them
+    this.metadata__Name = [...p.name];
+    this.metadata__Value = [...p.value];
+    this.metadata__PercentageWeight = [...p.weight];
+
+    // normalize weights to be in range 0-1.
+    // We don't need to manipulate the number string because integer are well represented as floating point numbers
+    // then dividing by 10 ** decimalPlaces won't cause loss of precision.
+    for (let i = 0; i < this.metadata__PercentageWeight.length; i++) {
+      if (this.metadata__PercentageWeight[i] > 1) {
+        this.metadata__PercentageWeight[i] = this.metadata__PercentageWeight[i] / 100;
+      }
+    }
   }
 }

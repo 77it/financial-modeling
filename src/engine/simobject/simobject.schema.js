@@ -19,7 +19,9 @@ const simObject_Schema = {
 
   metadata__Name: schema.ARRAY_OF_STRINGS_TYPE,
   metadata__Value: schema.ARRAY_OF_STRINGS_TYPE,
-  metadata__PercentageWeight: schema.ARRAY_OF_NUMBERS_TYPE,  // numbers used to split the value filtering metadata name+value; the sum of the applicable weight is used to split the value of the SimObject; if the sum of the weights is > 1 no split will be done (the value can't be greater than the entire value); if the sum of the weights is < 0 the value will be zero.
+  // value of a single metadata must be >=0 and <=1
+  // see `metadata__PercentageWeight` notes below [1]
+  metadata__PercentageWeight: schema.ARRAY_OF_NUMBERS_TYPE,
 
   unitId: schema.STRING_TYPE,
 
@@ -54,7 +56,7 @@ const simObject_Schema = {
   //#endregion properties common only to some kind of SimObjects
 
   //#region properties NOT EXPORTED TO JSON DUMP
-  // See notes below >vsSimObjectName_note_20231111. This is the name of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
+  // See notes below [2] >vsSimObjectName_note_20231111. This is the name of the SimObject that is the opposite of this one, e.g. a credit is the opposite of a debit
   vsSimObjectName: schema.STRING_TYPE,
   //[REPLACED] //vsSimObjectId: schema.STRING_TYPE,  // REPLACED WITH `vsSimObjectName` because we will can't set in both linked SimObjects the Id of the other, because the other will not exist yet; instead the name can be set in both linked SimObjects
   versionId: schema.NUMBER_TYPE,
@@ -64,8 +66,30 @@ const simObject_Schema = {
 };
 
 // NOTES
+
+// [1] `metadata__PercentageWeight` notes
 /*
-# vsSimObjectName   #vsSimObjectName_note_20231111
+Weight is a number used to split the DTO value.
+
+During validation is enforced that the value of a single metadata is >=0 and <=1.
+
+Reading `ReportsSettings` are summed all the weights of all the metadata name + metadata defined in `ReportsSettings` matching the one defined in the DTO.
+
+Then, the total weight is used to split the value of the SimObject as described below.
+
+If whitelist:
+* if total_matching_weight >= 1, no filter applicable, return null
+* if total_matching_weight <= 0, filter the whole DTO without returning any unfiltered half
+* if total_matching_weight > 0 & < 1, eg 0.7, attribute 70% of the value and filter the 30 % of the value
+
+If blacklist:
+* if total_matching_weight >= 1, filter the whole DTO without returning any unfiltered half
+* if total_matching_weight <= 0, no filter applicable, return null
+* if total_matching_weight > 0 & < 1, eg 0.7, attribute 30% of the value and filter the 70 % of the value
+*/
+
+// [2] `vsSimObjectName` notes   #vsSimObjectName_note_20231111
+/*
 This property must be set with intercompanyInfo__VsUnitId, to define the linked Unit of which is referenced a SimObject by name.
 
 Can be used to align automatically the payment schedule of the linked SimObjects but only if the residual value of the
@@ -75,3 +99,4 @@ If this property is set in one SimObject A only and is missing from the linked S
 the two SimObjects A & B will still be considered linked and will be treated as if they have an opposite/matching vsSimObjectName & intercompanyInfo__VsUnitId.
 Furthermore, B can't define a vsSimObjectName vs C, because this will be a fatal error.
 */
+

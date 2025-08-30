@@ -40,12 +40,9 @@ const Simulation = {
   // mutable: active Unit, active VsUnit, etc.; to work correctly should be set without scenario and dates.
   ACTIVE_UNIT: 'ACTIVE_UNIT',
   ACTIVE_VSUNIT: 'ACTIVE_VSUNIT',
-  ACTIVE_METADATA: 'ACTIVE_METADATA',
+  ACTIVE_METADATA: 'ACTIVE_METADATA',  // if ACTIVE_METADATA.weight > 1 will be divided by 100
   DEFAULT_INTEREST_ON_DEPOSITS: 'DEFAULT_INTEREST_ON_DEPOSITS',  // if > 1 will be divided by 100
   DEFAULT_PASSIVE_INTEREST_ON_OVERDRAFTS: 'DEFAULT_PASSIVE_INTEREST_ON_OVERDRAFTS',  // if > 1 will be divided by 100
-
-  // test settings
-  __TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST: '__TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST',
 
   // removed settings
   /*
@@ -54,6 +51,9 @@ const Simulation = {
   ACTIVE_METADATA_VALUE: 'ACTIVE_METADATA_VALUE',  // string
   ACTIVE_METADATA_PERCENTAGEWEIGHT: 'ACTIVE_METADATA_PERCENTAGEWEIGHT',  // number
   */
+
+  // test settings
+  __TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST: '__TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST',
 };
 deepFreeze(Simulation);
 ensureArrayValuesAreUnique(Object.values(Simulation));

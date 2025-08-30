@@ -1,4 +1,5 @@
 ﻿from https://unpkg.com/json5@2.2.3/
 + added `//@ts-nocheck` to the file
 
-home https://github.com/json5/json5
+github repository   https://github.com/json5/json5
+backup repository   https://github.com/77it/json5

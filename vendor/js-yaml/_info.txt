@@ -4,6 +4,7 @@ from   https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.mjs
 npm   https://www.npmjs.com/package/js-yaml
 
 github   https://github.com/nodeca/js-yaml
+backup repository   https://github.com/77it/js-yaml
 
 online demo   https://nodeca.github.io/js-yaml/
 

@@ -14,7 +14,6 @@ test/vendor_test/decimaljs_light
 
 github repository
 https://github.com/MikeMcl/decimal.js-light
-
 backup github repository
 https://github.com/77it/decimal.js-light
 

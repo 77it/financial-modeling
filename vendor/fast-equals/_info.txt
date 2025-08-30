@@ -4,3 +4,5 @@ from   https://cdn.jsdelivr.net/npm/fast-equals@5.0.1/dist/esm/index.mjs
 npm   https://www.npmjs.com/package/fast-equals
 
 github   https://github.com/planttheidea/fast-equals
+backup repository   https://github.com/77it/fast-equals
+
