@@ -9,6 +9,7 @@ import assert from 'node:assert';
 t('JSON5 tests', () => {
   // parse will go in error (invalid string), then returns undefined
   assert.deepStrictEqual(parseJSON5('[ciao, mamma]'), undefined);
+  assert.deepStrictEqual(parseJSON5('[1 ,, 2]'), undefined);  // invalid string, double comma not allowed
 
   //#region parsing null and undefined
   // parsing undefined returns undefined
@@ -50,9 +51,10 @@ t('JSON5 tests', () => {
 
   //#region parsing object serialized in string
   const txt = '{\'Main\':999.159, Name:\'Y88 x\'}';
-  let parsed = parseJSON5(txt);
-  assert.deepStrictEqual(parsed.Main, 999.159);
-  assert.deepStrictEqual(parsed.Name, 'Y88 x');
+  assert.deepStrictEqual(parseJSON5(txt), { Main: 999.159, Name: 'Y88 x' });
+
+  const txt_2 = '{aaa: 999, bbb:}';
+  assert.deepStrictEqual(parseJSON5(txt_2), undefined);  // invalid string, missing value after bbb:
   //#endregion parsing object serialized in string
 
   //#region parsing array of something

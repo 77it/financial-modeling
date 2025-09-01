@@ -1,0 +1,13 @@
+if we will need the eemeli/yaml YAML library we can:
+    extract the code from the NPM package with the command:
+        npx pacote extract yaml@2.8.1 vendor/yaml
+    copy here the folder /browser from the extracted yaml package
+
+npm
+https://www.npmjs.com/package/yaml
+
+github
+https://github.com/eemeli/yaml
+backup repository
+https://github.com/77it/yaml_eemeli
+
