@@ -1,7 +1,9 @@
 //@ts-nocheck
 
 // EXPERIMENTAL CODE TO PARSE "YAML-ISH" FLOW SYNTAX TO STRICT JSON
-// SUPERSEDED BY FUNCTION `relaxedJSONToStrictJSON`
+// SUPERSEDED BY FUNCTION
+// * `relaxedJSONToStrictJSON` (not working)
+// * `parseParamsRJX` (working)
 
 export { parseYamlish, normalizeYamlishToJSON, DEFAULT_OPTIONS }
 

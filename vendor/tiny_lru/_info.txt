@@ -8,6 +8,9 @@ license BSD 3-Clause "New": https://github.com/avoidwork/tiny-lru/blob/0da3c0f46
 source: https://github.com/avoidwork/tiny-lru/blob/0da3c0f46681d47a51947da3052ec3b557ada8a9/src/lru.js
 types: https://github.com/avoidwork/tiny-lru/blob/0da3c0f46681d47a51947da3052ec3b557ada8a9/types/lru.d.ts
 
+edits to the source `lru.js`:
+* added `//@ts-nocheck` to the top of the file
+
 
 # Alternative
 MIT License, ES module, 717 start (2025/08/25)

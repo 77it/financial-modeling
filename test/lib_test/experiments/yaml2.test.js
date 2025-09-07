@@ -1,8 +1,7 @@
-// 🔧 Adjust the import path/filename if yours differs:
 import {
   normalizeYamlishToJSON as j,
   DEFAULT_OPTIONS
-} from '../../src/lib/yaml2.js';
+} from '../../../src/lib/experiments/yaml2__SUPERSEDED.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

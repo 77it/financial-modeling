@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 /**
  * A high-performance Least Recently Used (LRU) cache implementation with optional TTL support.
  * Items are automatically evicted when the cache reaches its maximum size,

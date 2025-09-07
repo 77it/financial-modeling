@@ -97,6 +97,42 @@ function relaxedJSONToStrictJSON(input) {
    */
   const isBS = (c) => c === 0x5c; // \
 
+  // Date-like values (object values only): YYYY-MM[-DD][ {T}]HH:MM[:SS[[.:]mmm]][Z]
+  // Also accepts just date (YYYY[-/.]MM[-/.]DD) to be future-proof, but your tests mainly hit datetime.
+  // Notes:
+  // - Allows separators -, /, . in the date part.
+  // - Allows ' ' or 'T' as date-time separator.
+  // - Allows seconds optional.
+  // - Allows milliseconds with '.' or ':' before the 3 digits (to support "…:03:004" in your tests).
+  // - Optional trailing 'Z'.
+  const DATE_VALUE_RE =
+    /^(?:\d{4}[-/.]\d{1,2}(?:[-/.]\d{1,2})?(?:[ T]\d{2}:\d{2}(?::\d{2}(?:[.:]\d{3})?)?(?:Z)?)?)/;
+
+  /** Try to read a date-like scalar at current index (object value context only).
+   *  Returns the matched string or null without advancing `i`. */
+  function matchDateLikeAtCurrent() {
+    const s = input.slice(i);
+    const m = DATE_VALUE_RE.exec(s);
+    if (!m || !m[0]) return null;
+    // Guard: if the very next char (after the match) is clearly part of an identifier,
+    // we avoid overeating. (Conservative: allow typical terminators only.)
+    const next = s.charCodeAt(m[0].length) | 0;
+    if (m[0].length < s.length) {
+      if (!(next === 0x20 || next === 0x09 || next === 0x0A || next === 0x0D || // WS
+        next === 0x2c /* , */ || next === 0x7d /* } */ || next === 0x5d /* ] */)) {
+        return null;
+      }
+    }
+    return m[0];
+  }
+
+  /** Read a top-level scalar token to EOF (no struct splitting; used only at top level). */
+  function readTopLevelScalarToken() {
+    const start = i;
+    i = input.length;
+    return input.slice(start);
+  }
+
   // JSON literals to keep bare in value position
   const RESERVED = new Set(['true', 'false', 'null']);
 
@@ -449,9 +485,15 @@ function relaxedJSONToStrictJSON(input) {
         ctx.state = 'expectValue';
         continue;
       } else if (ctx.state === 'expectValue') {
-        // Bare value with concatenation
-        const token = readConcatenatedValueToken(true);
-        emitValueFromBare(token);
+        // Special-case: if an object value starts with a date-like token, consume it whole (colons included).
+        const m = matchDateLikeAtCurrent();
+        if (m) {
+          i += m.length;
+          emitValueFromBare(m);
+        } else {
+          const token = readConcatenatedValueToken(true);
+          emitValueFromBare(token);
+        }
         ctx.state = 'afterValue';
         continue;
       } else {
@@ -472,8 +514,9 @@ function relaxedJSONToStrictJSON(input) {
     } else {
       // top-level scalar
       if (ctx.state === 'expectValue') {
-        const token = readConcatenatedValueToken(false);
-        emitValueFromBare(token);
+        // Outside objects, treat the whole remaining input as a single scalar (':' does not split).
+        const token = readTopLevelScalarToken();
+        emitValueFromBare(token.trim());
         ctx.state = 'afterValue';
         continue;
       } else {

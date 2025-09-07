@@ -47,7 +47,7 @@ function eqObj (a, b) {
 /**
  * Function used by 'eqObj' to compare classes and objects.
  *
- * Extract keys from a class to a plain object, also additional properties for the object that are inherited from the base object class contained in the object's prototype.
+ * Extract keys from a class or another object to a plain object, also additional properties for the object that are inherited from the base object class contained in the object's prototype.
  * Can be used also on a plain object, but is not useful because it returns a similar object, shallow cloned.
  * Key values are NOT cloned.
  * If errors occur, returns an empty object.
@@ -69,7 +69,7 @@ function _extractKeys (obj) {
     // loop also on additional properties for the object that are inherited from the base object class contained in the object's prototype.
     const _keys = {};
     for (const key in obj) {
-      //@ts-ignore
+      //@ts-ignore - ignore that obj[key] can be a function
       _keys[key] = obj[key];
     }
 

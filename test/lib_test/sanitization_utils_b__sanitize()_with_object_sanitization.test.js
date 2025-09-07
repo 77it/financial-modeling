@@ -137,6 +137,7 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
   const _sym = Symbol();
 
   const objToSanitize = {
+    123: 888,  // number as object key
     str: 999,
     strLowercaseTrimmed: '  b B      ',
     strUppercaseTrimmed: '  b B      ',
@@ -192,6 +193,7 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
   clone_objToSanitize.symbol = _sym;
 
   const expObj = {
+    123: '888',
     str: '999',
     strLowercaseTrimmed: 'b b',
     strUppercaseTrimmed: 'B B',
@@ -241,6 +243,7 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
   };
 
   const sanitization = {
+    123: S.STRING_TYPE,
     str: S.STRING_TYPE,
     strLowercaseTrimmed: S.STRINGLOWERCASETRIMMED_TYPE,
     strUppercaseTrimmed: S.STRINGUPPERCASETRIMMED_TYPE,

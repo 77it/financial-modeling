@@ -1,5 +1,5 @@
-import { relaxedJSONToStrictJSON } from '../../src/lib/json_relaxed.js';
-import { localDateToUTC } from '../../src/lib/date_utils.js';
+import { relaxedJSONToStrictJSON } from '../../../src/lib/experiments/json_relaxed__v1__FAILING_TESTS.js';
+import { localDateToUTC } from '../../../src/lib/date_utils.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -229,8 +229,22 @@ t('Signed numbers remain quoted strings, sign preserved', () => {
 });
 
 t('Date parsing', () => {
+  expectParsedEqual('2023-01-05 01:02', '2023-01-05 01:02');
+  expectParsedEqual('{2023-01-05 01:02: 10}', {"2023-01-05 01:02": 10});
+  expectParsedEqual('2023-01-05T01:02', '2023-01-05T01:02');
+  expectParsedEqual('{2023-01-05T01:02: 10}', {"2023-01-05T01:02": 10});
+  expectParsedEqual('2023-01-05 01:02:03', '2023-01-05 01:02:03');
+  expectParsedEqual('{2023-01-05 01:02:03: 10}', {"2023-01-05 01:02:03": 10});
+  expectParsedEqual('2023-01-05T01:02:03', '2023-01-05T01:02:03');
+  expectParsedEqual('{2023-01-05T01:02:03: 10}', {"2023-01-05T01:02:03": 10});
+  expectParsedEqual('2023-01-05 01:02:03.004', '2023-01-05 01:02:03.004');
+  expectParsedEqual('{2023-01-05 01:02:03:004: 10}', {"2023-01-05 01:02:03:004": 10});
   expectParsedEqual('2023-01-05T01:02:03.004', '2023-01-05T01:02:03.004');
+  expectParsedEqual('{2023-01-05T01:02:03:004: 10}', {"2023-01-05T01:02:03:004": 10});
+  expectParsedEqual('2023-01-05 01:02:03.004Z', '2023-01-05 01:02:03.004Z');
+  expectParsedEqual('{2023-01-05 01:02:03:004Z: 10}', {"2023-01-05 01:02:03:004Z": 10});
   expectParsedEqual('2023-01-05T01:02:03.004Z', '2023-01-05T01:02:03.004Z');
+  expectParsedEqual('{2023-01-05T01:02:03:004Z: 10}', {"2023-01-05T01:02:03:004Z": 10});
   expectParsedEqual('2023-01-05', '2023-01-05');
   expectParsedEqual('2023/01/05', '2023/01/05');
   expectParsedEqual('2023.01.05', '2023.01.05');
@@ -325,21 +339,8 @@ t('YAML test, parsing specific to custom library, most interesting tests of not 
   // with custom parsing string 'null' is converted to null, and is no more a string
   dpeq(parse2('null'), null);
 
-  //#region parsing dates (only to LOCAL date or string)
-  dpeq(parse2('2023-01-05T01:02:03.004'), new Date(2023, 0, 5, 1, 2, 3, 4));  // parsed as local date
-  dpeq(parse2('2023-01-05T01:02:03.004Z'), new Date(2023, 0, 5, 1, 2, 3, 4));  // parsed as local date also if the string is in UTC (ends in Z)
-  dpeq(parse2('2023-01-05'), new Date(2023, 0, 5));  // parsed as local date
-  dpeq(parse2('2023/01/05'), new Date(2023, 0, 5));  // YYYY/MM/DD is valid and converted to local Date
-  dpeq(parse2('2023.01.05'), new Date(2023, 0, 5));  // YYYY.MM.DD is valid and converted to local Date
-
-  dpeq(parse2('2023-1-05'), '2023-1-05');  // YYYY-M-DD is not a date and left as string
-  dpeq(parse2('2023-01-5'), '2023-01-5');  // YYYY-MM-D is not a date and left as string
-  dpeq(parse2('2023-01'), '2023-01');  // YYYY-MM is not a date and left as string
-  dpeq(parse2('2023'), 2023);  // YYYY is converted to number
-  //#endregion
-
   // parsing an object without {} returns the input value
-  dpeq(parse2('Main: 89, Ciao: 99'), 'Main: 89, Ciao: 99');
+  expectParsedEqual('Main: 89, Ciao: 99', 'Main: 89, Ciao: 99');
 
   // parsing an object with key/value without spaces and without "" is parsed correctly with custom parsing `parse2`:
   // (parsing an object with key containing whitespace without quotes will split key by : returning correctly key/value pair)

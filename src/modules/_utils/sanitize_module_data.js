@@ -1,7 +1,7 @@
 export { sanitizeModuleData };
 
 import * as CONST from '../../config/modules/_const.js';
-import { ModuleData, schema, validate, sanitize, eq2, get2, parseYAML, parseJSON5 } from '../deps.js';
+import { ModuleData, schema, validate, sanitize, eq2, get2, parseYAML, cachedParseJSON5relaxed } from '../deps.js';
 
 /**
  * Parse then Sanitize values of moduleData tables in place (without cloning moduleData).
@@ -76,7 +76,7 @@ function sanitizeModuleData ({ moduleData, tablesInfo }) {
                 _table_row[_table_row_key] = parseYAML(_table_row[_table_row_key]);
                 break;
               case CONST.JSON5_PARSE:
-                _table_row[_table_row_key] = parseJSON5(_table_row[_table_row_key]);
+                _table_row[_table_row_key] = cachedParseJSON5relaxed(_table_row[_table_row_key]);
                 break;
               default:
                 throw new Error(`Unknown parse type: ${_tableInfo_column.parse}`);
