@@ -1,6 +1,7 @@
 import { Drivers, GET_CALC } from '../../../src/engine/drivers/drivers.js';
 import * as CFG from '../../../src/config/engine.js';
 import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../../src/config/globals.js';
+import { Decimal } from '../../../vendor/decimal/decimal.mjs';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -55,7 +56,7 @@ t('Drivers tests', async () => {
   assert.throws(() => { drivers.set(input2); });
 
   // query #driver6
-  assert.deepStrictEqual(drivers.get({ name: '$$immutable driver without dates', date: new Date(0) }), 99911999);
+  assert_dSEqual_toDecimal(drivers.get({ name: '$$immutable driver without dates', date: new Date(0) }), 99911999);
 
   // #driver6 update to immutable driver without dates, throw
   assert.throws(() => { drivers.set([{ name: '$$immutable driver without dates', date: new Date(2023, 1, 25), value: 99911999 }]); });
@@ -80,71 +81,71 @@ t('Drivers tests', async () => {
 
   // #driver1[0] tests
   assert.deepStrictEqual(drivers.isDefined({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ'}), true);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }), 0);  // sanitized to 0, query before set date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), 55);  // query with exact date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 26) }), 55);  // query with first date after driver
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 24) }), 55);  // query with last date before next driver
-  assert.deepStrictEqual(drivers.get({ scenario: 'sCeNaRiO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), 55);  // query scenario with wrong case
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }), 0);  // sanitized to 0, query before set date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), 55);  // query with exact date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 26) }), 55);  // query with first date after driver
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 24) }), 55);  // query with last date before next driver
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'sCeNaRiO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25) }), 55);  // query scenario with wrong case
 
   // #driver1[1] tests
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25) }), 555);  // query with exact date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 26) }), 555);  // query with first date after driver
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 1) }), 555);  // query with last date before next driver
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25) }), 555);  // query with exact date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 26) }), 555);  // query with first date after driver
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 1) }), 555);  // query with last date before next driver
 
   // #driver1[2] tests
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2) }), 5555);  // query with exact date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3) }), 5555);  // query with first date after driver
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2099, 0, 1) }), 5555);  // query with a date long after driver
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 2) }), 5555);  // query with exact date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3) }), 5555);  // query with first date after driver
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2099, 0, 1) }), 5555);  // query with a date long after driver
 
   // #driver1, range of dates test
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25), endDate: new Date(2022, 11, 25) }), 55+555);  // endDate before date, the query works the same because the dates are inverted
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2023, 1, 25) }), 55+555);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31) }), 55+555+5555);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31), calc: GET_CALC.SUM }), 55+555+5555);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31), calc: GET_CALC.AVERAGE }), (55+555+5555)/3);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31), calc: GET_CALC.MIN }), 55);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31), calc: GET_CALC.MAX }), 5555);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2023, 1, 25), endDate: new Date(2022, 11, 25) }), 55+555);  // endDate before date, the query works the same because the dates are inverted
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 25), endDate: new Date(2023, 1, 25) }), 55+555);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31) }), 55+555+5555);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31), calc: GET_CALC.SUM }), 55+555+5555);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31), calc: GET_CALC.AVERAGE }), (55+555+5555)/3);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31), calc: GET_CALC.MIN }), 55);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2099, 11, 31), calc: GET_CALC.MAX }), 5555);
 
   // #driver1, query of empty date range (will return an empty array [] then the returned value will be zero)
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2022, 11, 24) }), 0);  // query before driver date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24) }), 0);  // query after driver date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: GET_CALC.SUM }), 0);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: GET_CALC.AVERAGE }), 0);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: GET_CALC.MIN }), 0);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: GET_CALC.MAX }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(0), endDate: new Date(2022, 11, 24) }), 0);  // query before driver date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24) }), 0);  // query after driver date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: GET_CALC.SUM }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: GET_CALC.AVERAGE }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: GET_CALC.MIN }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ', date: new Date(2024, 0, 3), endDate: new Date(2099, 11, 24), calc: GET_CALC.MAX }), 0);
 
   // #driver2 tests
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC' }), 66);  // query without date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC', date: new Date(0) }), 66);  // query with date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC', date: new Date(2099, 0, 1) }), 66);  // query with date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC' }), 66);  // query without date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC', date: new Date(0) }), 66);  // query with date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver ABC', date: new Date(2099, 0, 1) }), 66);  // query with date
 
   // #driver3[0] tests
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2022, 11, 24) }), 0);  // sanitized to 0, query before set date
-  assert.deepStrictEqual(drivers.get({ unit: 'UnitA', name: '$driver XYZ2', date: new Date(2022, 11, 25) }), 77);  // query with exact date, missing scenario
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2023, 1, 24) }), 77);  // query with last date before next driver
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2022, 11, 24) }), 0);  // sanitized to 0, query before set date
+  assert_dSEqual_toDecimal(drivers.get({ unit: 'UnitA', name: '$driver XYZ2', date: new Date(2022, 11, 25) }), 77);  // query with exact date, missing scenario
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2023, 1, 24) }), 77);  // query with last date before next driver
 
   // #driver3[1] tests
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2023, 1, 25) }), 777);  // query with exact date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2024, 0, 1) }), 777);  // query with last date before next driver
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2023, 1, 25) }), 777);  // query with exact date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2024, 0, 1) }), 777);  // query with last date before next driver
 
   // #driver3[2] tests
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2024, 0, 2) }), 7777);  // query with exact date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2099, 0, 1) }), 7777);  // query with a date long after driver
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2024, 0, 2) }), 7777);  // query with exact date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2', date: new Date(2099, 0, 1) }), 7777);  // query with a date long after driver
 
   assert.deepStrictEqual(drivers.isDefined({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ2 99999' }), false);  // non-existing driver
 
   // #driver4[0] tests, search
-  assert.deepStrictEqual(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: CFG.SIMULATION_NAME, name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date
-  assert.deepStrictEqual(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Unit search
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: CFG.SIMULATION_NAME, name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Scenario search
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Scenario and Unit search
-  assert.deepStrictEqual(drivers.get({ unit: 'UnitA', name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Scenario automatically set to Default
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Unit automatically set to Default
-  assert.deepStrictEqual(drivers.get({ name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Scenario and Unit automatically set to Default
+  assert_dSEqual_toDecimal(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: CFG.SIMULATION_NAME, name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: CFG.SCENARIO_BASE, unit: 'UnitA', name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Unit search
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: CFG.SIMULATION_NAME, name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Scenario search
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Scenario and Unit search
+  assert_dSEqual_toDecimal(drivers.get({ unit: 'UnitA', name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Scenario automatically set to Default
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Unit automatically set to Default
+  assert_dSEqual_toDecimal(drivers.get({ name: '$driver XYZ3 default Scenario and Unit', date: new Date(2023, 1, 25) }), 888);  // query with exact date, with Scenario and Unit automatically set to Default
 
   // #driver5[0] tests, search
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: CFG.SIMULATION_NAME, name: '$driver XYZ4 missing Scenario and Unit', date: new Date(2023, 1, 25) }), 999);  // query with exact date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ4 missing Scenario and Unit', date: new Date(2023, 1, 25) }), 999);  // query with exact date, with Unit search
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: CFG.SIMULATION_NAME, name: '$driver XYZ4 missing Scenario and Unit', date: new Date(2023, 1, 25) }), 999);  // query with exact date
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver XYZ4 missing Scenario and Unit', date: new Date(2023, 1, 25) }), 999);  // query with exact date, with Unit search
 
   //#region test daily drivers, with DRIVER_PREFIXES__ZERO_IF_NOT_SET content
   // read first prefix
@@ -164,19 +165,41 @@ t('Drivers tests', async () => {
   assert.deepStrictEqual(_retErr_daily, []);
 
   // get daily driver in the exact date
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 25) }), 55);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 2) }), 5555);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 25) }), 77);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 2) }), 888);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 25) }), 55);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 2) }), 5555);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 25) }), 77);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 2) }), 888);
 
   // get daily driver in date != from definition dates: returns zero
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 24) }), 0);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 26) }), 0);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 1) }), 0);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 3) }), 0);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 24) }), 0);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 26) }), 0);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 1) }), 0);
-  assert.deepStrictEqual(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 3) }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 24) }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2022, 11, 26) }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 1) }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #1', date: new Date(2024, 0, 3) }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 24) }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2023, 11, 26) }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 1) }), 0);
+  assert_dSEqual_toDecimal(drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: _daily_driver_prefix_1 + '$driver XYZ #2', date: new Date(2025, 0, 3) }), 0);
   //#endregion test daily drivers, with DRIVER_PREFIXES__ZERO_IF_NOT_SET content
 });
+
+/**
+ * Convert a value to Decimal, or return null if not possible
+ * @param {*} val
+ * @return {*|null}
+ */
+function toDec (val) {
+  try {
+    return new Decimal(val);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Assert that actual value is equal to expected. The expected value is converted to Decimal before comparison.
+ * @param {*} actual
+ * @param {*} expected
+ */
+function assert_dSEqual_toDecimal (actual, expected) {
+  assert.deepStrictEqual(actual, toDec(expected));
+}

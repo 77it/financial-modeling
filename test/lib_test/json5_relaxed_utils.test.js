@@ -346,7 +346,7 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
   assert(errors.length === 0, 'Errors found (see console)');
 
   /**
-   * Convert a string to Decimal, or return null if not possible
+   * Convert a value to Decimal, or return null if not possible
    * @param {*} val
    * @return {*|null}
    */
