@@ -1,8 +1,8 @@
 // run with `deno test --allow-import`
 
 import { quoteKeysNumbersAndDatesForRelaxedJSON } from '../../src/lib/json_relaxed_utils.js';
+import { parseJSONrelaxed } from '../../src/lib/json.js';
 import { eqObj } from '../lib/obj_utils.js';
-import { parseJSON5strict } from '../../src/lib/json5.js';
 import { Decimal } from '../../vendor/decimal/decimal.mjs';
 import { sanitize } from '../../src/lib/schema_sanitization_utils.js';
 import { parseJsonToLocalDate } from '../../src/lib/date_utils.js';
@@ -246,35 +246,35 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['00', '"00"', S.DECIMAL_TYPE, toDec("00")], // Leading zeros
 
     // 24) Binary-like strings (should NOT be parsed as numbers)
-    ['0b1010', '0b1010', S.ANY_TYPE, null], // invalid JSON5
-    ['0B1111', '0B1111', S.ANY_TYPE, null], // invalid JSON5
+    ['0b1010', '"0b1010"', S.ANY_TYPE, '0b1010'],
+    ['0B1111', '"0B1111"', S.ANY_TYPE, '0B1111'],
 
     // 25) Octal-like strings (should NOT be parsed as numbers)
-    ['0o777', '0o777', S.ANY_TYPE, null], // invalid JSON5
-    ['0O755', '0O755', S.ANY_TYPE, null], // invalid JSON5
+    ['0o777', '"0o777"', S.ANY_TYPE, '0o777'],
+    ['0O755', '"0O755"', S.ANY_TYPE, '0O755'],
 
     // 26) Numbers in different contexts
-    ['{count: 42, items: [1, 2, 3]}', '{count: "42", items: ["1", "2", "3"]}', S.ANY_TYPE, { count: "42", items: ["1", "2", "3"] }],
+    ['{count: 42, items: [1, 2, 3]}', '{"count": "42", "items": ["1", "2", "3"]}', S.ANY_TYPE, { count: "42", items: ["1", "2", "3"] }],
     ['{"temperature": -273.15}', '{"temperature": "-273.15"}', S.ANY_TYPE, { temperature: "-273.15" }],
-    ['{a: 123, b: 0xFF}', '{a: "123", b: 0xFF}', S.ANY_TYPE, { a: '123', b: 0xFF }],
+    ['{a: 123, b: 0xFF}', '{"a": "123", "b": "0xFF"}', S.ANY_TYPE, { a: '123', b: "0xFF" }],
     ['[1, 2.5, -3e2]', '["1", "2.5", "-3e2"]', S.ANY_TYPE, ['1', '2.5', '-3e2']],
-    ['{count: 1_000, hex: 0xABCD}', '{count: "1000", hex: 0xABCD}', S.ANY_TYPE, { count: '1000', hex: 0xABCD }],
+    ['{count: 1_000, hex: 0xABCD}', '{"count": "1000", "hex": "0xABCD"}', S.ANY_TYPE, { count: '1000', hex: "0xABCD" }],
 
     // 27) Complex nested structures
     [
       '{users: [{id: 1, age: 25}, {id: 2, age: 30}]}',
-      '{users: [{id: "1", age: "25"}, {id: "2", age: "30"}]}',
+      '{"users": [{"id": "1", "age": "25"}, {"id": "2", "age": "30"}]}',
       S.ANY_TYPE,
       { users: [{ id: "1", age: "25" }, { id: "2", age: "30" }] }
     ],
 
     // 28) Invalid number formats (should pass through unchanged)
-    ['123.', '"123."', S.DECIMAL_TYPE, toDec("123.")], // Trailing dot is valid
-    ['123..456', '123..456', S.ANY_TYPE, null], // Double dot is invalid
-    ['123.456.789', '123.456.789', S.ANY_TYPE, null], // Multiple dots is invalid
-    ['123ee456', '123ee456', S.ANY_TYPE, null],
-    ['123e', '123e', S.ANY_TYPE, null],
-    ['123e+', '123e+', S.ANY_TYPE, null],
+    ['123.', '"123."', S.DECIMAL_TYPE, toDec("123.")],
+    ['123..456', '"123..456"', S.ANY_TYPE, '123..456'],
+    ['123.456.789', '"123.456.789"', S.ANY_TYPE, '123.456.789'],
+    ['123ee456', '"123ee456"', S.ANY_TYPE, '123ee456'],
+    ['123e', '"123e"', S.ANY_TYPE, '123e'],
+    ['123e+', '"123e+"', S.ANY_TYPE, '123e+'],
 
     // 29) Unicode and special characters (should NOT interfere)
     ['"café"', '"café"', S.ANY_TYPE, 'café'],
@@ -283,23 +283,23 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
 
     // 30) Empty and whitespace cases
     ['', '', S.ANY_TYPE, null],
-    ['  123  ', '  "123"  ', S.ANY_TYPE, "123"],
-    ['  123  ', '  "123"  ', S.DECIMAL_TYPE, toDec("123")],
-    ['\t\n123\r\n', '\t\n"123"\r\n', S.ANY_TYPE, "123"],
-    ['\t\n123\r\n', '\t\n"123"\r\n', S.DECIMAL_TYPE, toDec("123")],
+    ['  123  ', '"123"', S.ANY_TYPE, "123"],
+    ['  123  ', '"123"', S.DECIMAL_TYPE, toDec("123")],
+    ['\t\n123\r\n', '"123"', S.ANY_TYPE, "123"],
+    ['\t\n123\r\n', '"123"', S.DECIMAL_TYPE, toDec("123")],
 
     // 31) Boolean and null values (should NOT be transformed)
     ['true', 'true', S.ANY_TYPE, true],
     ['false', 'false', S.ANY_TYPE, false],
     ['null', 'null', S.ANY_TYPE, null],
-    ['{enabled: true, count: 0}', '{enabled: true, count: "0"}', S.ANY_TYPE, { enabled: true, count: "0" }],
+    ['{enabled: true, count: 0}', '{"enabled": true, "count": "0"}', S.ANY_TYPE, { enabled: true, count: "0" }],
 
     // 32) Identifiers and property names (should NOT be transformed)
-    ['hello', 'hello', S.ANY_TYPE, null], // Identifier, not a number
-    ['{hello: 123}', '{hello: "123"}', S.ANY_TYPE, { hello: "123" }],
-    ['{hello: 1234}', '{hello: "1234"}', { hello: S.DECIMAL_TYPE }, { hello: toDec("1234") }],
-    ['$var', '$var', S.ANY_TYPE, null], // Valid identifier starting with $
-    ['_private', '_private', S.ANY_TYPE, null], // Valid identifier starting with _
+    ['hello', '"hello"', S.ANY_TYPE, 'hello'], // Identifier, not a number
+    ['{hello: 123}', '{"hello": "123"}', S.ANY_TYPE, { hello: "123" }],
+    ['{hello: 1234}', '{"hello": "1234"}', { hello: S.DECIMAL_TYPE }, { hello: toDec("1234") }],
+    ['$var', '"$var"', S.ANY_TYPE, '$var'], // Valid identifier starting with $
+    ['_private', '"_private"', S.ANY_TYPE, '_private'], // Valid identifier starting with _
 
     // 33) Scientific notation edge cases
     ['1E10', '"1E10"', S.ANY_TYPE, "1E10"],
@@ -312,16 +312,16 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['2.5E-3', '"2.5E-3"', S.DECIMAL_TYPE, toDec("2.5E-3")],
 
     // 34) Hex number edge cases
-    ['0x0', '0x0', S.ANY_TYPE, 0x0],
-    ['0XFF', '0XFF', S.ANY_TYPE, 0XFF],
-    ['0xabc', '0xabc', S.ANY_TYPE, 0xabc],
-    ['0XDEF', '0XDEF', S.ANY_TYPE, 0XDEF],
+    ['0x0', '"0x0"', S.ANY_TYPE, '0x0'],
+    ['0XFF', '"0XFF"', S.ANY_TYPE, '0XFF'],
+    ['0xabc', '"0xabc"', S.ANY_TYPE, '0xabc'],
+    ['0XDEF', '"0XDEF"', S.ANY_TYPE, '0XDEF'],
 
     // 35) Numbers with trailing characters that make them invalid
-    ['123px', '123px', S.ANY_TYPE, null], // CSS-like unit
-    ['45deg', '45deg', S.ANY_TYPE, null], // CSS-like unit
-    ['100%', '100%', S.ANY_TYPE, null], // Percentage
-    ['$100', '$100', S.ANY_TYPE, null], // Currency
+    ['123px', '"123px"', S.ANY_TYPE, '123px'], // CSS-like unit
+    ['45deg', '"45deg"', S.ANY_TYPE, '45deg'], // CSS-like unit
+    ['100%', '"100%"', S.ANY_TYPE, '100%'], // Percentage
+    ['$100', '"$100"', S.ANY_TYPE, '$100'], // Currency
   ];
 
   const errors = [];
@@ -336,7 +336,15 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     if (!eqObj(parsedAnsSanitized, expectedParsedAndSanitized)) {
       errors.push(`For Input:\n${input}\nParsed and Sanitized Value:\n${JSON.stringify(parsedAnsSanitized)}\nExpected Parsed and Sanitized Value:\n${JSON.stringify(expectedParsedAndSanitized)}`);
     }
+    // if parsed === null check that if the parsing had been done with `parseJSONrelaxed` the result would be the input itself
+    if (parsed === null && input !== 'null') {
+      const parsedRelaxed = parseJSONrelaxed(input);
+      if (parsedRelaxed !== input) {
+        errors.push(`For Input:\n${input}\nParsing failed after quoting, and relaxed parsing gave different result from input:\n${parsedRelaxed}\nExpected (same as input)`);
+      }
+    }
   }
+
   if (errors.length) {
     console.error(errors.join('\n\n'));
   }
