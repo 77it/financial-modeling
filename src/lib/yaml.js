@@ -83,11 +83,8 @@ function customParseYAML (value) {
 
 /**
  * Parse a parseYAML string in a standard way.
- * Non-standard YAML feature:
- * - after parsing, if the parsed object contains some null key, check if the key name contains a colon;
- *   if it's so, split the key name in key and value and parse the value as YAML.
  * @param {*} value
- * @returns {undefined | *} undefined if parsing input string goes in error, otherwise the parsed value; if input is not a string, returns the input value
+ * @returns {undefined | *} undefined if parsing input string goes in error, otherwise the parsed value; if input is not a string, returns the input value (unless is null -> return undefined)
  */
 function parseYAML (value) {
   try {

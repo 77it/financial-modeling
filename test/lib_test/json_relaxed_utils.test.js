@@ -1,6 +1,6 @@
 // run with `deno test --allow-import`
 
-import { quoteNumbersAndDatesForRelaxedJSON5 } from '../../src/lib/json5_relaxed_utils.js';
+import { quoteKeysNumbersAndDatesForRelaxedJSON } from '../../src/lib/json_relaxed_utils.js';
 import { eqObj } from '../lib/obj_utils.js';
 import { parseJSON5strict } from '../../src/lib/json5.js';
 import { Decimal } from '../../vendor/decimal/decimal.mjs';
@@ -13,20 +13,20 @@ import assert from 'node:assert';
 
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
-t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
+t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
   /** @type {[string, string, any, any][]} */
   const cases = [
-    // format is: [input, expected output from quoteNumbersAndDatesForRelaxedJSON5, sanitization, expected parsed and sanitized value]
+    // format is: [input, expected output from quoteKeysNumbersAndDatesForRelaxedJSON, sanitization, expected parsed and sanitized value]
 
     // 0) Special number values (kept as-is, not quoted)
-    ['Infinity', 'Infinity', S.ANY_TYPE, Infinity],
-    ['-Infinity', '-Infinity', S.ANY_TYPE, -Infinity],
-    ['NaN', 'NaN', S.ANY_TYPE, NaN],
+    ['Infinity', '"Infinity"', S.ANY_TYPE, 'Infinity'],
+    ['-Infinity', '"-Infinity"', S.ANY_TYPE, '-Infinity'],
+    ['NaN', '"NaN"', S.ANY_TYPE, "NaN"],
 
     // 1) Basic decimals in value positions
     ['123', '"123"', S.DECIMAL_TYPE, toDec('123')],
     ['-42', '"-42"', S.DECIMAL_TYPE, toDec('-42')],
-    ['+7', '"7"', S.DECIMAL_TYPE, toDec('7')], // JSON5 allows leading + for numbers; we quote the whole token
+    ['+7', '"7"', S.DECIMAL_TYPE, toDec('7')],
 
     // 2) Floats and leading-dot numbers
     ['0.5', '"0.5"', S.DECIMAL_TYPE, toDec('0.5')],
@@ -39,8 +39,8 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
     ['4.2e-7', '"4.2e-7"', S.DECIMAL_TYPE, toDec('4.2e-7')],
     ['1e1_0', '"1e10"', S.ANY_TYPE, '1e10'],
     ['1e1_0', '"1e10"', S.DECIMAL_TYPE, toDec('1e10')],
-    ['{ n:1e1_0 }', '{ n:"1e10" }', S.ANY_TYPE, { n: '1e10' }],
-    ['{ n:1e1_0 }', '{ n:"1e10" }', { n: S.DECIMAL_TYPE }, { n: toDec('1e10') }],
+    ['{ n:1e1_0 }', '{ "n":"1e10" }', S.ANY_TYPE, { n: '1e10' }],
+    ['{ n:1e1_0 }', '{ "n":"1e10" }', { n: S.DECIMAL_TYPE }, { n: toDec('1e10') }],
 
     // 4) Numeric separators: underscores are removed
     ['1_000', '"1000"', S.DECIMAL_TYPE, toDec('1000')],
@@ -48,58 +48,58 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
     ['-9_876_543.21_0', '"-9876543.210"', S.DECIMAL_TYPE, toDec('-9876543.210')],
 
     // 5) Hex numbers (kept as unquoted hex, underscore not removed)
-    ['0xFF', '0xFF', S.ANY_TYPE, 0xFF],
-    ['0X1a', '0X1a', S.ANY_TYPE, 0X1a],
-    ['0X1', '0X1', S.ANY_TYPE, 0X1],
-    ['-0x2a', '-0x2a', S.ANY_TYPE, -0x2a],
-    ['0xAB_CD', '0xAB_CD', S.ANY_TYPE, null],  // invalid JSON5
+    ['0xFF', '"0xFF"', S.ANY_TYPE, "0xFF"],
+    ['0X1a', '"0X1a"', S.ANY_TYPE, "0X1a"],
+    ['0X1', '"0X1"', S.ANY_TYPE, "0X1"],
+    ['-0x2a', '"-0x2a"', S.ANY_TYPE, "-0x2a"],
+    ['0xAB_CD', '"0xAB_CD"', S.ANY_TYPE, "0xAB_CD"],
 
     // 6) Identifier tails stop numeric capture; should pass through unchanged (all invalid JSON5)
-    ['123abc', '123abc', S.ANY_TYPE, null],
-    ['45$var', '45$var', S.ANY_TYPE, null],
-    ['45$', '45$', S.ANY_TYPE, null],
-    ['99999$666666', '99999$666666', S.ANY_TYPE, null],
-    ['0xFFg', '0xFFg', S.ANY_TYPE, null],
+    ['123abc', '"123abc"', S.ANY_TYPE, "123abc"],
+    ['45$var', '"45$var"', S.ANY_TYPE, "45$var"],
+    ['45$', '"45$"', S.ANY_TYPE, "45$"],
+    ['99999$666666', '"99999$666666"', S.ANY_TYPE, "99999$666666"],
+    ['0xFFg', '"0xFFg"', S.ANY_TYPE, "0xFFg"],
 
     // 7) Keys vs values inside objects (both should be quoted if numeric)
-    ['{123:45}', '{123:"45"}', S.ANY_TYPE, null],  // invalid JSON5 key
+    ['{123:45}', '{"123":"45"}', S.ANY_TYPE, { "123": "45"}],
     ['{"a123":45}', '{"a123":"45"}', { a123: S.DECIMAL_TYPE }, { a123: toDec('45') }],
-    ['{a123:45}', '{a123:"45"}', { a123: S.DECIMAL_TYPE }, { a123: toDec('45') }],
-    ['{a:123}', '{a:"123"}', { a: S.DECIMAL_TYPE }, { a: toDec('123') }],
-    ['{0x1:2e3}', '{0x1:"2e3"}', S.ANY_TYPE, null],  // invalid JSON5 key
-    ['{a:-0x1f}', '{a:-0x1f}', S.ANY_TYPE, { a: -0x1f }],
+    ['{a123:45}', '{"a123":"45"}', { a123: S.DECIMAL_TYPE }, { a123: toDec('45') }],
+    ['{a:123}', '{"a":"123"}', { a: S.DECIMAL_TYPE }, { a: toDec('123') }],
+    ['{0x1:2e3}', '{"0x1":"2e3"}', S.ANY_TYPE, { "0x1": "2e3" }],
+    ['{a:-0x1f}', '{"a":"-0x1f"}', S.ANY_TYPE, { a: "-0x1f" }],
 
     // 8) Arrays
     ['[1,2,3]', '["1","2","3"]', S.ARRAY_OF_DECIMAL_TYPE, [toDec('1'), toDec('2'), toDec('3')]],
     ['[.5,-.25,1_000]', '[".5","-.25","1000"]', S.ANY_TYPE, ['.5', '-.25', '1000']],
     ['[.5,-.25,2_000]', '[".5","-.25","2000"]', S.ARRAY_OF_DECIMAL_TYPE, [toDec('.5'), toDec('-.25'), toDec('2000')]],
-    ['[.5$,123abc,45$var,999,45$,99999$666666,0xFFg]', '[.5$,123abc,45$var,"999",45$,99999$666666,0xFFg]', S.ANY_TYPE, null],
+    ['[.5$,123abc,45$var,999,45$,99999$666666,0xFFg]', '[".5$","123abc","45$var","999","45$","99999$666666","0xFFg"]', S.ANY_TYPE, [".5$","123abc","45$var","999","45$","99999$666666","0xFFg"]],
 
     // 9) Strings remain verbatim, including escapes and embedded digits
     ['"123"', '"123"', S.ANY_TYPE, '123'],
-    ['\'456\'', '\'456\'', S.ANY_TYPE, '456'],
+    ['\'456\'', '"456"', S.ANY_TYPE, '456'],
     ['"a\\\\b\\nc"', '"a\\\\b\\nc"', S.ANY_TYPE, 'a\\b\nc'],
-    ['\'num: 1_000 in string\'', '\'num: 1_000 in string\'', S.ANY_TYPE, 'num: 1_000 in string'],
+    ['\'num: 1_000 in string\'', '"num: 1_000 in string"', S.ANY_TYPE, 'num: 1_000 in string'],
 
     // 10) Comments remain verbatim; numbers around them are still transformed
-    ['// 123\n123', '// 123\n"123"', S.ANY_TYPE, '123'],
-    ['/* 1_2_3 */ 1_2_3', '/* 1_2_3 */ "123"', S.ANY_TYPE, '123'],
-    ['{a:1/*x*/2}', '{a:"1"/*x*/"2"}', S.ANY_TYPE, null], // Note: JSON5 doesn't allow multiple values like this
-    ['{"a123":45 /* 1_2_3 */} /* 1_2_9 */', '{"a123":"45" /* 1_2_3 */} /* 1_2_9 */', { a123: S.DECIMAL_TYPE }, { a123: toDec('45') }],
-    ['[.5,-.25,2_000] /* 1_2_3 */', '[".5","-.25","2000"] /* 1_2_3 */', S.ARRAY_OF_DECIMAL_TYPE, [toDec('.5'), toDec('-.25'), toDec('2000')]],
+    ['// 123\n123', '"123"', S.ANY_TYPE, '123'],
+    ['/* 1_2_3 */ 1_2_3', '"123"', S.ANY_TYPE, '123'],
+    ['{a:1/*x*/2}', '{"a":"1""2"}', S.ANY_TYPE, null], // Note: JSON doesn't allow multiple values like this
+    ['{"a123":45 /* 1_2_3 */} /* 1_2_9 */', '{"a123":"45" }', { a123: S.DECIMAL_TYPE }, { a123: toDec('45') }],
+    ['[.5,-.25,2_000] /* 1_2_3 */', '[".5","-.25","2000"]', S.ARRAY_OF_DECIMAL_TYPE, [toDec('.5'), toDec('-.25'), toDec('2000')]],
 
     // 11) Mixed JSON5 snippet
     [
       '{a:1_000, b:.5, c:2E+3, d:"007", e:0xFFAA, f:-3.14e-2, // end\n g:\'x9\' }',
-      '{a:"1000", b:".5", c:"2E+3", d:"007", e:0xFFAA, f:"-3.14e-2", // end\n g:\'x9\' }',
+      '{"a":"1000", "b":".5", "c":"2E+3", "d":"007", "e":"0xFFAA", "f":"-3.14e-2", \n "g":"x9" }',
       S.ANY_TYPE,
-      { a: '1000', b: '.5', c: '2E+3', d: '007', e: 0xFFAA, f: '-3.14e-2', g: 'x9' }
+      { a: '1000', b: '.5', c: '2E+3', d: '007', e: "0xFFAA", f: '-3.14e-2', g: 'x9' }
     ],
     [
-      '{a:1_000, b:.5, c:2E+3, d:"007", e:0xFFAA, f:-3.14e-2, // end\n g:\'x9\' }',
-      '{a:"1000", b:".5", c:"2E+3", d:"007", e:0xFFAA, f:"-3.14e-2", // end\n g:\'x9\' }',
+      '{a:2_000, b:.5, c:2E+3, d:"007", e:0xFFAA, f:-3.14e-2, // end\n g:\'x9\' }',
+      '{"a":"2000", "b":".5", "c":"2E+3", "d":"007", "e":"0xFFAA", "f":"-3.14e-2", \n "g":"x9" }',
       { a: S.DECIMAL_TYPE, b: S.DECIMAL_TYPE, c: S.DECIMAL_TYPE, d: S.DECIMAL_TYPE, e: S.DECIMAL_TYPE, f: S.DECIMAL_TYPE, g: S.DECIMAL_TYPE },
-      { a: toDec('1000'), b: toDec('.5'), c: toDec('2E+3'), d: toDec('007'), e: toDec(0xFFAA), f: toDec('-3.14e-2'), g: new Decimal(0) }
+      { a: toDec('2000'), b: toDec('.5'), c: toDec('2E+3'), d: toDec('007'), e: new Decimal(0), f: toDec('-3.14e-2'), g: new Decimal(0) }
     ],
 
     // 12) signed floats and exponents
@@ -113,8 +113,8 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
     ['-.5', '"-.5"', S.DECIMAL_TYPE, toDec('-.5')],
 
     // 13) Lone dot or dot without following digits should pass unchanged
-    ['.', '.', S.ANY_TYPE, null], // Invalid number
-    ['-.', '-.', S.ANY_TYPE, null], // Invalid number
+    ['.', '"."', S.ANY_TYPE, '.'], // Invalid number
+    ['-.', '"-."', S.ANY_TYPE, '-.'], // Invalid number
 
     // 14) Ensure we don't quote inside quotes next to numbers
     ['"x"123"y"', '"x""123""y"', S.ANY_TYPE, null], // Invalid JSON5 syntax
@@ -124,9 +124,9 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
     // 15) Complex object with spaces/newlines/tabs
     [
       '{ \n  a : 1_2_3 ,\t b:\n-4.5e-6 , c : "12_3" , d: 0x1ABC \n}',
-      '{ \n  a : "123" ,\t b:\n"-4.5e-6" , c : "12_3" , d: 0x1ABC \n}',
+      '{ \n  "a" : "123" ,\t "b":\n"-4.5e-6" , "c" : "12_3" , "d": "0x1ABC" \n}',
       S.ANY_TYPE,
-      { a: '123', b: '-4.5e-6', c: '12_3', d: 0x1ABC }
+      { a: '123', b: '-4.5e-6', c: '12_3', d: "0x1ABC" }
     ],
 
     // 16) Dates-like strings (should be transformed when unquoted)
@@ -141,64 +141,61 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
     ['2023.12.25', '"2023.12.25"', S.ANY_TYPE, '2023.12.25'],  // unquoted .> quoted
     ['2023.12.25', '"2023.12.25"', S.DATE_TYPE, parseJsonToLocalDate('2023.12.25')],  // unquoted .> quoted
     // ── Date preceding boundary (two negatives, one positive) ─────────────
-    // NEGATIVE: date-like sequence in the middle of an identifier → unchanged
-    ['foo2024-01-01', 'foo2024-01-01', S.ANY_TYPE, null],
-    // NEGATIVE: followed by identifier char → unchanged
-    ['2024-01-01X', '2024-01-01X', S.ANY_TYPE, null],
     // POSITIVE: boundary before and after → quoted
-    ['{ a:2024-01-01 }', '{ a:"2024-01-01" }', S.ANY_TYPE, { a: '2024-01-01' }],
-    ['{ a:2024-01-01 }', '{ a:"2024-01-01" }', { a: S.DATE_TYPE }, { a: parseJsonToLocalDate('2024-01-01') }],
+    ['{ a:2024-01-01 }', '{ "a":"2024-01-01" }', S.ANY_TYPE, { a: '2024-01-01' }],
+    ['{ a:2024-01-01 }', '{ "a":"2024-01-01" }', { a: S.DATE_TYPE }, { a: parseJsonToLocalDate('2024-01-01') }],
     // Dates that should NOT be quoted (inside identifiers - no proper preceding boundary)
-    ['foo2024-01-01', 'foo2024-01-01', S.ANY_TYPE, null],  // date preceded by identifier chars
-    ['prefix2024-01-01suffix', 'prefix2024-01-01suffix', S.ANY_TYPE, null],  // date in middle of identifier
-    ['myVar2024-01-01', 'myVar2024-01-01', S.ANY_TYPE, null],  // variable name with date
-    ['_2024-01-01', '_2024-01-01', S.ANY_TYPE, null],  // underscore prefix (identifier char)
-    ['$2024-01-01', '$2024-01-01', S.ANY_TYPE, null],  // dollar prefix (identifier char)
-    ['abc2024-01-01T10:30:00Z', 'abc2024-01-01T10:30:00Z', S.ANY_TYPE, null],  // datetime in identifier
+    ['2024-01-01X', '"2024-01-01X"', S.ANY_TYPE, '2024-01-01X'],  // date followed by identifier chars
+    ['foo2024-01-01', '"foo2024-01-01"', S.ANY_TYPE, 'foo2024-01-01'],  // date preceded by identifier chars
+    ['prefix2024-01-01suffix', '"prefix2024-01-01suffix"', S.ANY_TYPE, 'prefix2024-01-01suffix'],  // date in middle of identifier
+    ['myVar2024-01-01', '"myVar2024-01-01"', S.ANY_TYPE, 'myVar2024-01-01'],  // variable name with date
+    ['_2024-01-01', '"_2024-01-01"', S.ANY_TYPE, '_2024-01-01'],  // underscore prefix (identifier char)
+    ['$2024-01-01', '"$2024-01-01"', S.ANY_TYPE, '$2024-01-01'],  // dollar prefix (identifier char)
+    ['abc2024-01-01T10:30:00Z', '"abc2024-01-01T10":"30":"00Z"', S.ANY_TYPE, null],  // datetime in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
     ['"abc2024-01-01T10:30:00Z"', '"abc2024-01-01T10:30:00Z"', S.ANY_TYPE, 'abc2024-01-01T10:30:00Z'],  // datetime in identifier
-    ['abc2024-01-01T10:30', 'abc2024-01-01T10:30', S.ANY_TYPE, null],  // datetime in identifier
-    ['{"abc2024-01-01T10":30:00Z}', '{"abc2024-01-01T10":"30":00Z}', S.ANY_TYPE, null],  // datetime in identifier; strangely quoted "30" but is good for us because is nonetheless an invalid JSON
+    ['abc2024-01-01T10:30', '"abc2024-01-01T10":"30"', S.ANY_TYPE, null],  // datetime in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
+    ['{"abc2024-01-01T10":30:00Z}', '{"abc2024-01-01T10":"30":"00Z"}', S.ANY_TYPE, null],  // datetime in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
     ['{"abc2024-01-01T10":30}', '{"abc2024-01-01T10":"30"}', S.ANY_TYPE, {"abc2024-01-01T10":"30"}],  // datetime in identifier
-    ['test2023/12/25', 'test2023/12/25', S.ANY_TYPE, null],  // slash-separated date in identifier
+    ['test2023/12/25', '"test2023"/"12"/"25"', S.ANY_TYPE, null],  // slash-separated date in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
     ['"test2023/12/25"', '"test2023/12/25"', S.ANY_TYPE, 'test2023/12/25'],  // slash-separated date in identifier
-    ['var2024.01.01', 'var2024.01.01', S.ANY_TYPE, null],  // dot-separated date in identifier
+    ['var2024.01.01', '"var2024.01.01"', S.ANY_TYPE, "var2024.01.01"],  // dot-separated date in identifier
     // Dates that SHOULD be quoted (proper preceding boundaries)
     ['2024-01-01', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date at start of string
-    [' 2024-01-01', ' "2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date after space
-    ['\t2024-01-01', '\t"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date after tab
-    ['\n2024-01-01', '\n"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date after newline
-    ['\r2024-01-01', '\r"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date after carriage return
+    [' 2024-01-01', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date after space
+    ['\t2024-01-01', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date after tab
+    ['\n2024-01-01', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date after newline
+    ['\r2024-01-01', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date after carriage return
     [':2024-01-01', ':"2024-01-01"', S.ANY_TYPE, null],  // date after colon
     [',2024-01-01', ',"2024-01-01"', S.ANY_TYPE, null],  // date after comma
-    ['{2024-01-01', '{2024-01-01', S.ANY_TYPE, null],  // date after opening brace
+    ['{2024-01-01', '{"2024-01-01"', S.ANY_TYPE, null],  // date after opening brace
     ['}2024-01-01', '}"2024-01-01"', S.ANY_TYPE, null],  // date after closing brace
     ['[2024-01-01', '["2024-01-01"', S.ANY_TYPE, null],  // date after opening bracket
     [']2024-01-01', ']"2024-01-01"', S.ANY_TYPE, null],  // date after closing bracket
     // Date-time formats with proper boundaries
-    [' 2024-01-01T10:30:00Z', ' "2024-01-01T10:30:00Z"', S.ANY_TYPE, '2024-01-01T10:30:00Z'],  // ISO datetime after space
+    [' 2024-01-01T10:30:00Z', '"2024-01-01T10:30:00Z"', S.ANY_TYPE, '2024-01-01T10:30:00Z'],  // ISO datetime after space
     [':2024-01-01T10:30:00.123Z', ':"2024-01-01T10:30:00.123Z"', S.ANY_TYPE, null],  // with milliseconds
     [',2024-01-01T10:30:00+05:30', ',"2024-01-01T10:30:00+05:30"', S.ANY_TYPE, null],  // with timezone offset
     // Different date formats with proper boundaries
-    [' 2023/12/25', ' "2023/12/25"', S.ANY_TYPE, '2023/12/25'],  // slash-separated after space
+    [' 2023/12/25', '"2023/12/25"', S.ANY_TYPE, '2023/12/25'],  // slash-separated after space
     [':2023.12.25', ':"2023.12.25"', S.ANY_TYPE, null],  // dot-separated after colon
     [',2023-12-25T23:59:59', ',"2023-12-25T23:59:59"', S.ANY_TYPE, null],  // end of day
     // Mixed scenarios in JSON-like structures
-    ['key: 2024-01-01', 'key: "2024-01-01"', S.ANY_TYPE, null],  // object value
+    ['key: 2024-01-01', '"key": "2024-01-01"', S.ANY_TYPE, null],  // object value
     ['[2023-12-31, 2024-01-01]', '["2023-12-31", "2024-01-01"]', S.ANY_TYPE, ["2023-12-31", "2024-01-01"]],  // array elements
-    ['{start: 2024-01-01, end: 2024-12-31}', '{start: "2024-01-01", end: "2024-12-31"}', S.ANY_TYPE, {start: "2024-01-01", end: "2024-12-31"}],  // object properties
+    ['{start: 2024-01-01, end: 2024-12-31}', '{"start": "2024-01-01", "end": "2024-12-31"}', S.ANY_TYPE, {start: "2024-01-01", end: "2024-12-31"}],  // object properties
     // Edge cases with multiple dates
-    ['valid: 2024-01-01, invalid_prefix2024-01-02', 'valid: "2024-01-01", invalid_prefix2024-01-02', S.ANY_TYPE, null],  // mixed boundaries
-    [' 2024-01-01 and prefix2024-01-02', ' "2024-01-01" and prefix2024-01-02', S.ANY_TYPE, null],  // space vs identifier prefix
+    ['valid: 2024-01-01, invalid_prefix2024-01-02', '"valid": "2024-01-01", "invalid_prefix2024-01-02"', S.ANY_TYPE, null],  // mixed boundaries
+    [' 2024-01-01 and prefix2024-01-02', '"2024-01-01" "and" "prefix2024-01-02"', S.ANY_TYPE, null],  // space vs identifier prefix
     // Dates already in strings (should remain unchanged)
     ['"2024-01-01"', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // already quoted date
     ['"prefix2024-01-01"', '"prefix2024-01-01"', S.ANY_TYPE, 'prefix2024-01-01'],  // identifier with date in quotes
     // Invalid date patterns (should not be processed regardless of boundary)
-    [' 2024-13-45', ' "2024-13-45"', S.ANY_TYPE, '2024-13-45'],  // invalid date values
-    ['abc2024-13-45', 'abc2024-13-45', S.ANY_TYPE, null],  // invalid date in identifier
+    [' 2024-13-45', '"2024-13-45"', S.ANY_TYPE, '2024-13-45'],  // invalid date values
+    ['abc2024-13-45', '"abc2024-13-45"', S.ANY_TYPE, 'abc2024-13-45'],  // invalid date in identifier
     // Boundary edge cases
-    ['()2024-01-01', '()2024-01-01', S.ANY_TYPE, null],  // parentheses (not in JSON syntax table)
-    ['<>2024-01-01', '<>2024-01-01', S.ANY_TYPE, null],  // angle brackets (not in JSON syntax table)
-    ['+=2024-01-01', '+=2024-01-01', S.ANY_TYPE, null],  // operators (not in JSON syntax table)
+    ['()2024-01-01', '"()2024-01-01"', S.ANY_TYPE, '()2024-01-01'],  // parentheses (not in JSON syntax table)
+    ['<>2024-01-01', '"<>2024-01-01"', S.ANY_TYPE, '<>2024-01-01'],  // angle brackets (not in JSON syntax table)
+    ['+=2024-01-01', '"+=2024-01-01"', S.ANY_TYPE, '+=2024-01-01'],  // operators (not in JSON syntax table)
 
     // 17) ISO date strings (should be transformed when unquoted)
     ['"2023-12-25T10:30:00Z"', '"2023-12-25T10:30:00Z"', S.ANY_TYPE, '2023-12-25T10:30:00Z'],
@@ -210,21 +207,21 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
 
     // 18) Version numbers (should NOT be transformed)
     ['"1.2.3"', '"1.2.3"', S.ANY_TYPE, '1.2.3'],
-    ['1.2.3', '1.2.3', S.ANY_TYPE, null],
+    ['1.2.3', '"1.2.3"', S.ANY_TYPE, '1.2.3'],
     ['"v2.1.0"', '"v2.1.0"', S.ANY_TYPE, 'v2.1.0'],
-    ['v2.1.0', 'v2.1.0', S.ANY_TYPE, null],
+    ['v2.1.0', '"v2.1.0"', S.ANY_TYPE, 'v2.1.0'],
 
     // 19) IP addresses (should NOT be transformed)
     ['"192.168.1.1"', '"192.168.1.1"', S.ANY_TYPE, '192.168.1.1'],
-    ['192.168.1.1', '192.168.1.1', S.ANY_TYPE, null],
+    ['192.168.1.1', '"192.168.1.1"', S.ANY_TYPE, '192.168.1.1'],
     ['"127.0.0.1"', '"127.0.0.1"', S.ANY_TYPE, '127.0.0.1'],
-    ['127.0.0.1', '127.0.0.1', S.ANY_TYPE, null],
+    ['127.0.0.1', '"127.0.0.1"', S.ANY_TYPE, '127.0.0.1'],
 
     // 20) Phone numbers (should NOT be transformed)
     ['"+1-555-123-4567"', '"+1-555-123-4567"', S.ANY_TYPE, '+1-555-123-4567'],
-    ['+1-555-123-4567', '+1-555-123-4567', S.ANY_TYPE, null],
+    ['+1-555-123-4567', '"+1-555-123-4567"', S.ANY_TYPE, '+1-555-123-4567'],
     ['"(555) 123-4567"', '"(555) 123-4567"', S.ANY_TYPE, '(555) 123-4567'],
-    ['(555) 123-4567', '(555) 123-4567', S.ANY_TYPE, null],
+    ['(555) 123-4567', '"(555)" "123-4567"', S.ANY_TYPE, null],  // (strangely quoted string, acceptable for us because was always an invalid JSON)
 
     // 21) Edge cases with dots
     ['0.', '"0."', S.ANY_TYPE, "0."],
@@ -329,11 +326,11 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
 
   const errors = [];
 
-  for (const [input, expectedQuotedJSON5, sanitization, expectedParsedAndSanitized] of cases) {
-    const quotedJSON5 = quoteNumbersAndDatesForRelaxedJSON5(input);
-    const parsed = (() => {try { return parseJSON5strict(quotedJSON5); } catch { return null; }})();
-    if (quotedJSON5 !== expectedQuotedJSON5) {
-      errors.push(`For Input:\n${input}\nGot:\n${quotedJSON5}\nExpected:\n${expectedQuotedJSON5}\n`);
+  for (const [input, expectedQuotedJSON, sanitization, expectedParsedAndSanitized] of cases) {
+    const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input);
+    const parsed = (() => {try { return JSON.parse(quotedJSON); } catch { return null; }})();
+    if (quotedJSON !== expectedQuotedJSON) {
+      errors.push(`For Input:\n${input}\nGot:\n${quotedJSON}\nExpected:\n${expectedQuotedJSON}\n`);
     }
     const parsedAnsSanitized = sanitize({ value: parsed, sanitization });
     if (!eqObj(parsedAnsSanitized, expectedParsedAndSanitized)) {
