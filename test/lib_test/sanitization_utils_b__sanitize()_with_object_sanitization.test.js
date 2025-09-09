@@ -545,6 +545,15 @@ t('test sanitize() with object sanitization - custom default sanitization values
     defaultDecimal: undefined,
   };
 
+  const expObj_defaultDefaults = {
+    str: '',
+    num: 0,
+    date: new Date(0),
+    decimal: new Decimal(0),
+    bigInt: BigInt(0),
+    bigInt_number: BigInt(0)
+  };
+
   const expObj_defaults = {
     str: 'mamma',
     num: 999,
@@ -590,6 +599,15 @@ t('test sanitize() with object sanitization - custom default sanitization values
     bigInt_number: BigInt(0)
   };
 
+  const expObj_EmptyArray = {
+    str: '',
+    num: 0,
+    date: new Date('2025-12-31'),
+    decimal: new Decimal(999),
+    bigInt: BigInt(0),
+    bigInt_number: BigInt(0)
+  };
+
   const sanitization = {
     str: S.STRING_TYPE,
     num: S.NUMBER_TYPE,
@@ -603,13 +621,20 @@ t('test sanitize() with object sanitization - custom default sanitization values
   //@ts-ignore
   //const replacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
 
-  // test with `options_undefined` and `expObj_undefinedDefaults`
+  // test with no `options` parameter and `expObj_defaultDefaults`
   /** @type {any} */
   let wrongValue = NaN;
   //@ts-ignore
   let objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization })), (expObj_defaultDefaults));
+
+  // test with `options_undefined` and `expObj_undefinedDefaults`
+  wrongValue = NaN;
+  //@ts-ignore
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options: options_undefined })), (expObj_undefinedDefaults));
 
+  //#region test with `options` and `expObj_defaults`
   wrongValue = null;
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
@@ -629,6 +654,19 @@ t('test sanitize() with object sanitization - custom default sanitization values
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_defaults));
+
+  //@ts-ignore
+  wrongValue = Symbol();
+  //@ts-ignore
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_defaults));
+
+  //@ts-ignore
+  wrongValue = (a, b) => a + b;
+  //@ts-ignore
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_defaults));
+  //#endregion test with `options` and `expObj_defaults`
 
   wrongValue = 0;
   //@ts-ignore
@@ -660,6 +698,12 @@ t('test sanitize() with object sanitization - custom default sanitization values
   //@ts-ignore
   objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
   assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_EmptyStr));
+
+  // when sanitizing empty array, string is '', numbers and BigInt are 0, other are set to the default sanitization value
+  wrongValue = [];
+  //@ts-ignore
+  objToSanitize = { str: wrongValue, num: wrongValue, date: wrongValue, decimal: wrongValue, bigInt: wrongValue, bigInt_number: wrongValue };
+  assert.deepStrictEqual((s.sanitize({ value: objToSanitize, sanitization: sanitization, options })), (expObj_EmptyArray));
 });
 
 t('test sanitize() with object sanitization - enum array as sanitization is ignored', async () => {
