@@ -3,7 +3,7 @@ import * as s from '../../src/lib/schema_sanitization_utils.js';
 
 import { validateSanitizeFunction_TestAsset } from './validateSanitizeFunction_TestAsset.js';
 import { isValidDate } from '../../src/lib/date_utils.js';
-import { Decimal } from '../../vendor/decimal/decimal.js';
+import { Decimal } from '../../vendor/decimaljs/decimal.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

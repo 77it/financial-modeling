@@ -4,7 +4,7 @@ import { DriversRepo } from '../../lib/drivers_repo.js';
 import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../config/globals.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import * as schema from '../../lib/schema.js';
-import { Decimal } from '../../../vendor/decimal/decimal.js';
+import { Decimal } from '../../../vendor/decimaljs/decimal.js';
 import { getFmlOrValueToDecimal } from '../fml/fml_utils.js';
 
 /**

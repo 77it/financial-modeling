@@ -21,6 +21,13 @@ echo.
 deno run --allow-read --allow-write --allow-net --allow-import "%FILE%"
 echo.
 
+echo BUN run
+echo.
+
+set TZ=Europe/Rome
+bun run --preload ./src/bun/__bun__https_import_plugin_v2.js "%FILE%"
+echo.
+
 echo Press Enter to run again or close this window to exit:
 pause >nul
 goto loop

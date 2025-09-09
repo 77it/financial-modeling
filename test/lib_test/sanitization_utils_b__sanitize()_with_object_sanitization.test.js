@@ -2,7 +2,7 @@ import * as S from '../../src/lib/schema.js';
 import * as s from '../../src/lib/schema_sanitization_utils.js';
 import { eq2 } from '../../src/lib/obj_utils.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToUTCDate, excelSerialDateToLocalDate } from '../../src/lib/date_utils.js';
-import { Decimal } from '../../vendor/decimal/decimal.js';
+import { Decimal } from '../../vendor/decimaljs/decimal.js';
 
 import { validateSanitizeFunction_TestAsset } from './validateSanitizeFunction_TestAsset.js';
 

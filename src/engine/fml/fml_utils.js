@@ -3,7 +3,7 @@
 import { FmlObj } from './fmlobj.js';
 import { anyToDecimal } from '../../lib/number_utils.js';
 // used only for type definition
-import { Decimal } from '../../../vendor/decimal/decimal.js';
+import { Decimal } from '../../../vendor/decimaljs/decimal.js';
 
 /**
  * Returns the value of the parameter passed.

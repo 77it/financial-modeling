@@ -47,7 +47,7 @@ Fastest: dec.lt | raw  | prebuilt ops (int pow)
 
 // @deno-types="../../../vendor/bigjs_UNUSED/index.d.ts"
 import { default as Big } from '../../../vendor/bigjs_UNUSED/big.mjs';
-import { Decimal } from '../../../vendor/decimal/decimal.js';
+import { Decimal } from '../../../vendor/decimaljs/decimal.js';
 
 import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');

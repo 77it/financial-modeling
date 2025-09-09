@@ -1,3 +1,3 @@
-// @deno-types="../../../vendor/decimal/decimal.d.ts"
-import { default as Decimal } from '../../../vendor/decimal/decimal.mjs';
+// @deno-types="../../../vendor/decimaljs/decimal.d.ts"
+import { default as Decimal } from '../../../vendor/decimaljs/decimal.mjs';
 export { Decimal };

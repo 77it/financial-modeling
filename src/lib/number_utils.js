@@ -1,6 +1,6 @@
 export { roundHalfAwayFromZero, roundHalfAwayFromZeroWithPrecision, truncWithPrecision, anyToDecimal, anyToDecimalOrDefault };
 
-import { Decimal } from '../../vendor/decimal/decimal.js';
+import { Decimal } from '../../vendor/decimaljs/decimal.js';
 
 const DEFAULT_DECIMAL = new Decimal(0);
 

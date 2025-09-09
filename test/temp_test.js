@@ -1,5 +1,5 @@
 import { eqObj } from './lib/obj_utils.js';
-import { Decimal } from '../vendor/decimal/decimal.js';
+import { Decimal } from '../vendor/decimaljs/decimal.js';
 import { parseJSON5strict } from '../src/lib/json5.js';
 
 import { test } from 'node:test';

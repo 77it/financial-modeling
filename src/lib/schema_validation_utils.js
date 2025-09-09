@@ -3,7 +3,7 @@ export { validate };
 import { DISABLE_VALIDATION } from '../config/engine.js';
 import * as schema from './schema.js';
 import { ValidateSanitizeResult } from './validate_sanitize_result.js';
-import { Decimal } from '../../vendor/decimal/decimal.js';
+import { Decimal } from '../../vendor/decimaljs/decimal.js';
 
 const ALLOWS_OBJECTS_IN_ARRAY_FLAG = false;  // hardcoded option, by now objects contained in array are considered an error if the validation expects an object
 const SUCCESS = '';

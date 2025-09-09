@@ -1,7 +1,7 @@
 import { Drivers, GET_CALC } from '../../../src/engine/drivers/drivers.js';
 import * as CFG from '../../../src/config/engine.js';
 import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../../src/config/globals.js';
-import { Decimal } from '../../../vendor/decimal/decimal.mjs';
+import { Decimal } from '../../../vendor/decimaljs/decimal.mjs';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

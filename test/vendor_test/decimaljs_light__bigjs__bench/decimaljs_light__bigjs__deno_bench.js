@@ -14,8 +14,8 @@ file:///C:/e3/@gitwk/PUBLIC/financial-modeling/test/vendor_test/decimaljs_light_
 
 // @deno-types="../../../vendor/bigjs_UNUSED/index.d.ts"
 import { default as Big } from '../../../vendor/bigjs_UNUSED/big.mjs';
-// @deno-types="../../../vendor/decimal/decimal.d.ts"
-import { default as Decimal } from '../../../vendor/decimal/decimal.mjs';
+// @deno-types="../../../vendor/decimaljs/decimal.d.ts"
+import { default as Decimal } from '../../../vendor/decimaljs/decimal.mjs';
 
 const N = 100_000; // number of iterations
 

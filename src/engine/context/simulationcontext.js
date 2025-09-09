@@ -8,7 +8,7 @@ import { Ledger } from '../ledger/ledger.js';
 import { NewSimObjectDto } from '../ledger/commands/newsimobjectdto.js';
 import { NewDebugSimObjectDto } from '../ledger/commands/newdebugsimobjectdto.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
-import { Decimal } from '../../../vendor/decimal/decimal.js';
+import { Decimal } from '../../../vendor/decimaljs/decimal.js';
 
 class SimulationContext {
   /** @type {Drivers} */
