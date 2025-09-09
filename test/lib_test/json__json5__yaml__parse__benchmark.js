@@ -3,39 +3,37 @@
 // Benchmark JSON.parse vs JSON5 vs YAML parse on equivalent payloads.
 
 /*
+Benchmark run on HP Ryzen 3 5300U connect to the power adapter.
+
 records (n): 2000
 iterations : 200
-Parser                                    ms  ops/sec     bytes
------------------------------------  -------  -------  --------
-JSON.parse                            1326.4      151  168.8 KB
-parseJSON5strict                     10938.8       18  203.9 KB
-parseYAML                             4316.8       46  202.0 KB
-parseJSONrelaxed (relaxed payload)    2257.8       89  186.4 KB
-parseJSON5relaxed (relaxed payload)  11911.2       17  186.4 KB
-parseYAML (relaxed payload)           4021.8       50  205.9 KB
+Parser                                   ms  ops/sec     bytes
+-----------------------------------  ------  -------  --------
+JSON.parse                            990.7      202  168.8 KB
+parseJSONrelaxed                     1755.0      114  168.8 KB
+parseJSONrelaxed (relaxed payload)   1997.0      100  186.4 KB
+parseJSON5strict                     6970.5       29  168.8 KB
+parseJSON5relaxed                    7719.9       26  168.8 KB
+parseJSON5relaxed (relaxed payload)  8443.8       24  186.4 KB
+parseYAML                            2655.8       75  168.8 KB
+parseYAML (relaxed payload)          3389.9       59  205.9 KB
 
-records (n): 20
-iterations : 200
 Parser                                  ms  ops/sec   bytes
 -----------------------------------  -----  -------  ------
-JSON.parse                            19.8   10,083  1.7 KB
-parseJSON5strict                     173.6    1,152  2.1 KB
-parseYAML                             82.8    2,415  2.1 KB
-parseJSONrelaxed (relaxed payload)    47.9    4,173  1.9 KB
-parseJSON5relaxed (relaxed payload)  156.5    1,278  1.9 KB
-parseYAML (relaxed payload)           42.9    4,666  2.1 KB
+JSON.parse                            18.7   10,684  1.7 KB
+parseJSONrelaxed                      26.8    7,465  1.7 KB
+parseJSONrelaxed (relaxed payload)    25.8    7,762  1.9 KB
+parseJSON5strict                     146.7    1,363  1.7 KB
+parseJSON5relaxed                     97.6    2,049  1.7 KB
+parseJSON5relaxed (relaxed payload)  108.5    1,844  1.9 KB
+parseYAML                             35.8    5,584  1.7 KB
+parseYAML (relaxed payload)           60.5    3,303  2.1 KB
 
  */
 import { parseJSON5strict, parseJSON5relaxed } from '../../src/lib/json5.js';
 import { parseJSONrelaxed } from '../../src/lib/json.js';
 import { parseYAML } from '../../src/lib/yaml.js';
 import { createHash } from 'node:crypto';
-
-// json__json5__yaml__parse__benchmark.js
-// ESM-friendly, works on Node (>=18) and Deno (Node-compat mode).
-// Usage:
-//   node json__json5__yaml__parse__benchmark.js --n 2000 --i 200 --validate
-//   deno run --allow-all json__json5__yaml__parse__benchmark.js --n 2000 --i 200 --validate
 
 /** @typedef {{ name: string, parseFn: () => any, text: string }} Block */
 /** @typedef {{ name: string, ms: number, opsSec: number, bytes: number, digest?: string }} BenchResult */
@@ -284,33 +282,31 @@ async function main() {
   console.log(`relaxed YAML  bytes (relaxed only): ${fmtBytes(byteLen(relaxedYamlText))}`);
   console.log('');
 
-  // Build baseline digest for strict/equivalent payloads from JSON.parse(jsonText)
-  const baselineUnit = canonicalJSON(JSON.parse(jsonText)) + '\n';
-  const baselineDigest = await sha256Hex(baselineUnit.repeat(ITER));
-
   /** @type {Block[]} */
   const blocks = [
-    { name: 'JSON.parse',        parseFn: () => JSON.parse(jsonText),        text: jsonText },
-    { name: 'parseJSON5strict',  parseFn: () => parseJSON5strict(json5Text), text: json5Text },
-    { name: 'parseYAML',         parseFn: () => parseYAML(yamlText),         text: yamlText },
-    // --- relaxed only ---
-    { name: 'parseJSONrelaxed (relaxed payload)', parseFn: () => parseJSONrelaxed(relaxedJson5Text), text: relaxedJson5Text },
-    { name: 'parseJSON5relaxed (relaxed payload)', parseFn: () => parseJSON5relaxed(relaxedJson5Text), text: relaxedJson5Text },
-    { name: 'parseYAML (relaxed payload)',         parseFn: () => parseYAML(relaxedYamlText),         text: relaxedYamlText }
+    { name: 'JSON.parse',                           parseFn: () => JSON.parse(jsonText),                text: jsonText },
+    { name: 'parseJSONrelaxed',                     parseFn: () => parseJSONrelaxed(jsonText),          text: jsonText },
+    { name: 'parseJSONrelaxed (relaxed payload)',   parseFn: () => parseJSONrelaxed(relaxedJson5Text),  text: relaxedJson5Text },
+    { name: 'parseJSON5strict',                     parseFn: () => parseJSON5strict(jsonText),          text: jsonText },
+    { name: 'parseJSON5relaxed',                    parseFn: () => parseJSON5relaxed(jsonText),         text: jsonText },
+    { name: 'parseJSON5relaxed (relaxed payload)',  parseFn: () => parseJSON5relaxed(relaxedJson5Text), text: relaxedJson5Text },
+    { name: 'parseYAML',                            parseFn: () => parseYAML(jsonText),                 text: jsonText },
+    { name: 'parseYAML (relaxed payload)',          parseFn: () => parseYAML(relaxedYamlText),          text: relaxedYamlText },
   ];
 
   /** @type {BenchResult[]} */
   const results = [];
   for (const b of blocks) {
     await sleep(25);
-    const isRelaxed = /relaxed payload/.test(b.name);
-    let expectedDigest = baselineDigest;
-    if (VALIDATE && isRelaxed) {
-      // compute the relaxed block's own digest shape
-      const once = b.parseFn();
-      const unit = canonicalJSON(once) + '\n';
+
+    // Compute individual baseline digest for each parser/payload combination
+    let expectedDigest;
+    if (VALIDATE) {
+      const sampleResult = b.parseFn();
+      const unit = canonicalJSON(sampleResult) + '\n';
       expectedDigest = await sha256Hex(unit.repeat(ITER));
     }
+
     const r = await runBlock(b.name, b.parseFn, b.text, ITER, VALIDATE, expectedDigest);
     results.push(r);
   }
