@@ -69,6 +69,21 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['{0x1:2e3}', '{"0x1":"2e3"}', S.ANY_TYPE, { "0x1": "2e3" }],
     ['{a:-0x1f}', '{"a":"-0x1f"}', S.ANY_TYPE, { a: "-0x1f" }],
 
+    // 7a) object same as 7) with single quote
+    ["{'a123':45}", '{"a123":"45"}', { a123: S.DECIMAL_TYPE }, { a123: toDec('45') }],
+
+    // 7b) Keys with spaces, underscores, quotes inside objects; values with spaces and multiple words
+    ['{a:mamma}', '{"a":"mamma"}', S.ANY_TYPE, { a: "mamma" }],
+    ['{a_b_c:mamma babbo}', '{"a_b_c":"mamma" "babbo"}', S.ANY_TYPE, null],  // JSON doesn't allow multiple values like this
+    ['{a_b_c:"mamma babbo"}', '{"a_b_c":"mamma babbo"}', S.ANY_TYPE, {"a_b_c":"mamma babbo"}],
+    ['{ "pino lino" :mamma babbo}', '{ "pino lino" :"mamma" "babbo"}', S.ANY_TYPE, null],  // JSON doesn't allow multiple values like this
+    ['{ "pino lino" :"mamma babbo"}', '{ "pino lino" :"mamma babbo"}', S.ANY_TYPE, {"pino lino":"mamma babbo"}],
+
+    // 7c) object same as 7b) test with single quote
+    ["{a_b_c:'mamma babbo'}", '{"a_b_c":"mamma babbo"}', S.ANY_TYPE, {"a_b_c":"mamma babbo"}],
+    ["{ 'pino lino' :mamma babbo}", '{ "pino lino" :"mamma" "babbo"}', S.ANY_TYPE, null],  // JSON doesn't allow multiple values like this
+    ["{ 'pino lino' :'mamma babbo'}", '{ "pino lino" :"mamma babbo"}', S.ANY_TYPE, {"pino lino":"mamma babbo"}],
+
     // 8) Arrays
     ['[1,2,3]', '["1","2","3"]', S.ARRAY_OF_DECIMAL_TYPE, [toDec('1'), toDec('2'), toDec('3')]],
     ['[.5,-.25,1_000]', '[".5","-.25","1000"]', S.ANY_TYPE, ['.5', '-.25', '1000']],
@@ -91,13 +106,13 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     // 11) Mixed JSON5 snippet
     [
       '{a:1_000, b:.5, c:2E+3, d:"007", e:0xFFAA, f:-3.14e-2, // end\n g:\'x9\' }',
-      '{"a":"1000", "b":".5", "c":"2E+3", "d":"007", "e":"0xFFAA", "f":"-3.14e-2", \n "g":"x9" }',
+      '{"a":"1000","b":".5","c":"2E+3","d":"007","e":"0xFFAA","f":"-3.14e-2","g":"x9" }',
       S.ANY_TYPE,
       { a: '1000', b: '.5', c: '2E+3', d: '007', e: "0xFFAA", f: '-3.14e-2', g: 'x9' }
     ],
     [
       '{a:2_000, b:.5, c:2E+3, d:"007", e:0xFFAA, f:-3.14e-2, // end\n g:\'x9\' }',
-      '{"a":"2000", "b":".5", "c":"2E+3", "d":"007", "e":"0xFFAA", "f":"-3.14e-2", \n "g":"x9" }',
+      '{"a":"2000","b":".5","c":"2E+3","d":"007","e":"0xFFAA","f":"-3.14e-2","g":"x9" }',
       { a: S.DECIMAL_TYPE, b: S.DECIMAL_TYPE, c: S.DECIMAL_TYPE, d: S.DECIMAL_TYPE, e: S.DECIMAL_TYPE, f: S.DECIMAL_TYPE, g: S.DECIMAL_TYPE },
       { a: toDec('2000'), b: toDec('.5'), c: toDec('2E+3'), d: toDec('007'), e: new Decimal(0), f: toDec('-3.14e-2'), g: new Decimal(0) }
     ],
@@ -121,12 +136,18 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     // The previous expectation needs to reflect transformation; split into a precise form:
     ['"x" 123 "y"', '"x" "123" "y"', S.ANY_TYPE, null], // Invalid JSON5 syntax (multiple values)
 
-    // 15) Complex object with spaces/newlines/tabs
+    // 15) Complex object with spaces/newlines/tabs, also with single quote
     [
       '{ \n  a : 1_2_3 ,\t b:\n-4.5e-6 , c : "12_3" , d: 0x1ABC \n}',
-      '{ \n  "a" : "123" ,\t "b":\n"-4.5e-6" , "c" : "12_3" , "d": "0x1ABC" \n}',
+      '{ \n  "a" : "123" ,"b":\n"-4.5e-6" ,"c" : "12_3" ,"d": "0x1ABC" \n}',
       S.ANY_TYPE,
       { a: '123', b: '-4.5e-6', c: '12_3', d: "0x1ABC" }
+    ],
+    [
+      "{ \n  'a' : '1_2_3' ,\t 'b':\n'-4.5e-6' , c : '12_3' , 'd': '0x1ABC' \n}",
+      '{ \n  "a" : "1_2_3" ,"b":\n"-4.5e-6" ,"c" : "12_3" ,"d": "0x1ABC" \n}',
+      S.ANY_TYPE,
+      { a: '1_2_3', b: '-4.5e-6', c: '12_3', d: "0x1ABC" }
     ],
 
     // 16) Dates-like strings (should be transformed when unquoted)
@@ -181,10 +202,10 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     [',2023-12-25T23:59:59', ',"2023-12-25T23:59:59"', S.ANY_TYPE, null],  // end of day
     // Mixed scenarios in JSON-like structures
     ['key: 2024-01-01', '"key": "2024-01-01"', S.ANY_TYPE, null],  // object value
-    ['[2023-12-31, 2024-01-01]', '["2023-12-31", "2024-01-01"]', S.ANY_TYPE, ["2023-12-31", "2024-01-01"]],  // array elements
-    ['{start: 2024-01-01, end: 2024-12-31}', '{"start": "2024-01-01", "end": "2024-12-31"}', S.ANY_TYPE, {start: "2024-01-01", end: "2024-12-31"}],  // object properties
+    ['[2023-12-31, 2024-01-01]', '["2023-12-31","2024-01-01"]', S.ANY_TYPE, ["2023-12-31", "2024-01-01"]],  // array elements
+    ['{start: 2024-01-01, end: 2024-12-31}', '{"start": "2024-01-01","end": "2024-12-31"}', S.ANY_TYPE, {start: "2024-01-01", end: "2024-12-31"}],  // object properties
     // Edge cases with multiple dates
-    ['valid: 2024-01-01, invalid_prefix2024-01-02', '"valid": "2024-01-01", "invalid_prefix2024-01-02"', S.ANY_TYPE, null],  // mixed boundaries
+    ['valid: 2024-01-01, invalid_prefix2024-01-02', '"valid": "2024-01-01","invalid_prefix2024-01-02"', S.ANY_TYPE, null],  // mixed boundaries
     [' 2024-01-01 and prefix2024-01-02', '"2024-01-01" "and" "prefix2024-01-02"', S.ANY_TYPE, null],  // space vs identifier prefix
     // Dates already in strings (should remain unchanged)
     ['"2024-01-01"', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // already quoted date
@@ -205,19 +226,19 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['2023-12-25T10:30:00.123Z', '"2023-12-25T10:30:00.123Z"', S.ANY_TYPE, '2023-12-25T10:30:00.123Z'],
     ['2023-12-25T10:30:00.123Z', '"2023-12-25T10:30:00.123Z"', S.DATE_TYPE, parseJsonToLocalDate('2023-12-25T10:30:00.123Z')],
 
-    // 18) Version numbers (should NOT be transformed)
+    // 18) Version numbers
     ['"1.2.3"', '"1.2.3"', S.ANY_TYPE, '1.2.3'],
     ['1.2.3', '"1.2.3"', S.ANY_TYPE, '1.2.3'],
     ['"v2.1.0"', '"v2.1.0"', S.ANY_TYPE, 'v2.1.0'],
     ['v2.1.0', '"v2.1.0"', S.ANY_TYPE, 'v2.1.0'],
 
-    // 19) IP addresses (should NOT be transformed)
+    // 19) IP addresses
     ['"192.168.1.1"', '"192.168.1.1"', S.ANY_TYPE, '192.168.1.1'],
     ['192.168.1.1', '"192.168.1.1"', S.ANY_TYPE, '192.168.1.1'],
     ['"127.0.0.1"', '"127.0.0.1"', S.ANY_TYPE, '127.0.0.1'],
     ['127.0.0.1', '"127.0.0.1"', S.ANY_TYPE, '127.0.0.1'],
 
-    // 20) Phone numbers (should NOT be transformed)
+    // 20) Phone numbers
     ['"+1-555-123-4567"', '"+1-555-123-4567"', S.ANY_TYPE, '+1-555-123-4567'],
     ['+1-555-123-4567', '"+1-555-123-4567"', S.ANY_TYPE, '+1-555-123-4567'],
     ['"(555) 123-4567"', '"(555) 123-4567"', S.ANY_TYPE, '(555) 123-4567'],
@@ -254,16 +275,22 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['0O755', '"0O755"', S.ANY_TYPE, '0O755'],
 
     // 26) Numbers in different contexts
-    ['{count: 42, items: [1, 2, 3]}', '{"count": "42", "items": ["1", "2", "3"]}', S.ANY_TYPE, { count: "42", items: ["1", "2", "3"] }],
+    ['{count: 42, items: [1, 2, 3]}', '{"count": "42","items": ["1","2","3"]}', S.ANY_TYPE, { count: "42", items: ["1", "2", "3"] }],
     ['{"temperature": -273.15}', '{"temperature": "-273.15"}', S.ANY_TYPE, { temperature: "-273.15" }],
-    ['{a: 123, b: 0xFF}', '{"a": "123", "b": "0xFF"}', S.ANY_TYPE, { a: '123', b: "0xFF" }],
-    ['[1, 2.5, -3e2]', '["1", "2.5", "-3e2"]', S.ANY_TYPE, ['1', '2.5', '-3e2']],
-    ['{count: 1_000, hex: 0xABCD}', '{"count": "1000", "hex": "0xABCD"}', S.ANY_TYPE, { count: '1000', hex: "0xABCD" }],
+    ['{a: 123, b: 0xFF}', '{"a": "123","b": "0xFF"}', S.ANY_TYPE, { a: '123', b: "0xFF" }],
+    ['[1, 2.5, -3e2]', '["1","2.5","-3e2"]', S.ANY_TYPE, ['1', '2.5', '-3e2']],
+    ['{count: 1_000, hex: 0xABCD}', '{"count": "1000","hex": "0xABCD"}', S.ANY_TYPE, { count: '1000', hex: "0xABCD" }],
 
-    // 27) Complex nested structures
+    // 27) Complex nested structures, also with single quotes (objects)
     [
       '{users: [{id: 1, age: 25}, {id: 2, age: 30}]}',
-      '{"users": [{"id": "1", "age": "25"}, {"id": "2", "age": "30"}]}',
+      '{"users": [{"id": "1","age": "25"},{"id": "2","age": "30"}]}',
+      S.ANY_TYPE,
+      { users: [{ id: "1", age: "25" }, { id: "2", age: "30" }] }
+    ],
+    [
+      "{'users': [{'id': '1', 'age': '25'}, {'id': '2', 'age': '30'}]}",
+      '{"users": [{"id": "1","age": "25"},{"id": "2","age": "30"}]}',
       S.ANY_TYPE,
       { users: [{ id: "1", age: "25" }, { id: "2", age: "30" }] }
     ],
@@ -292,11 +319,12 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['true', 'true', S.ANY_TYPE, true],
     ['false', 'false', S.ANY_TYPE, false],
     ['null', 'null', S.ANY_TYPE, null],
-    ['{enabled: true, count: 0}', '{"enabled": true, "count": "0"}', S.ANY_TYPE, { enabled: true, count: "0" }],
+    ['{enabled: true, count: 0}', '{"enabled": true,"count": "0"}', S.ANY_TYPE, { enabled: true, count: "0" }],
 
-    // 32) Identifiers and property names (should NOT be transformed)
+    // 32) Identifiers and property names (objects and not)
     ['hello', '"hello"', S.ANY_TYPE, 'hello'], // Identifier, not a number
     ['{hello: 123}', '{"hello": "123"}', S.ANY_TYPE, { hello: "123" }],
+    ["{'hello': '123'}", '{"hello": "123"}', S.ANY_TYPE, { hello: "123" }],
     ['{hello: 1234}', '{"hello": "1234"}', { hello: S.DECIMAL_TYPE }, { hello: toDec("1234") }],
     ['$var', '"$var"', S.ANY_TYPE, '$var'], // Valid identifier starting with $
     ['_private', '"_private"', S.ANY_TYPE, '_private'], // Valid identifier starting with _

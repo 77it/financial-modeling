@@ -1,22 +1,53 @@
 export { quoteKeysNumbersAndDatesForRelaxedJSON };
 
-// --- Hoisted tables (small, fast) ---
-const IS_JSON_SYNTAX = (() => {
-  const a = new Array(128).fill(false);
-  a[123] = a[125] = a[91] = a[93] = a[58] = a[44] = true; // { } [ ] : ,
-  return a;
-})();
-const IS_WS = (() => {
-  const a = new Array(128).fill(false);
-  a[32] = a[9] = a[10] = a[13] = true; // space, tab, LF, CR
-  return a;
-})();
-const IS_DIGIT = (() => {
-  const a = new Array(128).fill(false);
-  for (let c = 48; c <= 57; c++) a[c] = true; // 0-9
-  return a;
-})();
-const DATE_RE = /^\d{4}(?:[-/.]\d{1,2}){2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:[Zz]|[+-]\d{2}:?\d{2})?)?$/;
+// --- Pre-computed lookup tables for maximum speed ---
+const CHAR_TYPE = new Uint8Array(128);
+const WS = 1, DIGIT = 2, JSON_SYNTAX = 4, QUOTE = 8, SLASH = 16, ALPHA = 32, UNDERSCORE = 64;
+
+// Initialize character type lookup table
+for (let i = 0; i < 128; i++) {
+  let flags = 0;
+
+  // Whitespace: space, tab, LF, CR
+  if (i === 32 || i === 9 || i === 10 || i === 13) flags |= WS;
+
+  // Digits: 0-9
+  if (i >= 48 && i <= 57) flags |= DIGIT;
+
+  // JSON syntax: { } [ ] : ,
+  if (i === 123 || i === 125 || i === 91 || i === 93 || i === 58 || i === 44) flags |= JSON_SYNTAX;
+
+  // Quotes: " '
+  if (i === 34 || i === 39) flags |= QUOTE;
+
+  // Slash: /
+  if (i === 47) flags |= SLASH;
+
+  // Letters and $ for identifiers
+  if ((i >= 65 && i <= 90) || (i >= 97 && i <= 122) || i === 36) flags |= ALPHA;
+
+  // Underscore
+  if (i === 95) flags |= UNDERSCORE;
+
+  CHAR_TYPE[i] = flags;
+}
+
+// Optimized date regex - compiled once
+const DATE_REGEX = /^\d{4}(?:[-/.]\d{1,2}){2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:[Zz]|[+-]\d{2}:?\d{2})?)?$/;
+
+// Pre-computed escape table for JSON string escaping
+const ESCAPE_TABLE = new Array(128);
+for (let i = 0; i < 128; i++) {
+  if (i === 34) ESCAPE_TABLE[i] = '\\"';      // "
+  else if (i === 92) ESCAPE_TABLE[i] = '\\\\'; // \
+  else if (i === 8) ESCAPE_TABLE[i] = '\\b';   // backspace
+  else if (i === 12) ESCAPE_TABLE[i] = '\\f';  // form feed
+  else if (i === 10) ESCAPE_TABLE[i] = '\\n';  // newline
+  else if (i === 13) ESCAPE_TABLE[i] = '\\r';  // carriage return
+  else if (i === 9) ESCAPE_TABLE[i] = '\\t';   // tab
+  else if (i < 32) ESCAPE_TABLE[i] = '\\u' + i.toString(16).padStart(4, '0');
+  else ESCAPE_TABLE[i] = null;
+}
 
 /**
  * Transform a relaxed / JSON5-like input string into strict JSON syntax.
@@ -78,297 +109,451 @@ const DATE_RE = /^\d{4}(?:[-/.]\d{1,2}){2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?
  * // => {"a":"1","b":"ciao","d":"2024-01-01T10:30:00Z"}
  *
  * const obj = JSON.parse(json);
- * 
  *
  * @param {string} input - The relaxed/JSON5-like string
  * @returns {string} A strict JSON string, safe for JSON.parse()
  */
 function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
+  const length = input.length;
+  if (length === 0) return '';
 
-  const n = input.length;
-  if (n === 0) return '';
-
-  // Bail quickly if nothing numeric (often means nothing to transform)
-  // Still needed for keys/comments handling; keep it cheap.
-  const hasDigit = /\d/.test(input);
-
-  let i = 0;
-  let out = '';
-
-  // Context tracking
-  let contextStack = 0; // bit-stack; LSB=object flag
-  let inObjectKey = false;
-
-  // ---- Helpers ----
-
-  // Double-quoted string: copy as-is respecting escapes
-  function readDQ() {
-    out += '"'; i++;
-    while (i < n) {
-      const c = input[i++];
-      out += c;
-      if (c === '\\') { if (i < n) { out += input[i++]; } continue; }
-      if (c === '"') break;
-    }
-  }
-
-  // Single-quoted string: convert to valid JSON double-quoted with escaping
-  function readSQ() {
-    i++; // skip opening '
-    let buf = '"';
-    while (i < n) {
-      const c = input[i++];
-      if (c === '\\') {
-        if (i < n) {
-          const next = input[i++];
-          // Keep escape semantics, but ensure final result is valid JSON
-          if (next === '"') { buf += '\\"'; }
-          else if (next === "'") { buf += "\\'"; } // will be normalized below
-          else { buf += '\\' + next; }
-        }
-        continue;
-      }
-      if (c === "'") break;
-      if (c === '"') buf += '\\"';
-      else buf += c;
-    }
-    // Normalize any \' (from inside single-quoted source) to just '
-    buf = buf.replace(/\\'/g, "'");
-    out += buf + '"';
-  }
-
-  // Skip //... or /* ... */ (removed for strict JSON)
-  function skipLineComment() {
-    i += 2;
-    while (i < n && input[i] !== '\n') i++;
-  }
-  function skipBlockComment() {
-    i += 2;
-    while (i < n - 1) {
-      if (input[i] === '*' && input[i + 1] === '/') { i += 2; return; }
-      i++;
-    }
-  }
-
-  // Lookahead over ws/comments without emitting
-  function skipWsComments() {
-    for (;;) {
-      // ws
-      while (i < n && input.charCodeAt(i) < 128 && IS_WS[input.charCodeAt(i)]) i++;
-      // comments
-      if (i + 1 < n && input[i] === '/' && (input[i + 1] === '/' || input[i + 1] === '*')) {
-        if (input[i + 1] === '/') skipLineComment(); else skipBlockComment();
-        continue;
-      }
+  // Quick scan for digits - if none, skip numeric optimizations
+  let hasDigits = false;
+  for (let i = 0; i < length; i++) {
+    const code = input.charCodeAt(i);
+    if (code < 128 && (CHAR_TYPE[code] & DIGIT)) {
+      hasDigits = true;
       break;
     }
   }
 
-  // Trailing comma remover: if comma followed by ws/comments and then ] or }, drop it
-  function maybeSkipTrailingComma() {
-    const save = i; // at ','
-    i++; // skip comma
-    const j = i;
-    skipWsComments();
-    const next = input[i];
-    if (next === '}' || next === ']') {
-      // drop comma; keep i where it is (just before }/])
-      return true;
-    }
-    // not trailing: restore i to right after comma; emit comma
-    i = j;
-    out += ',';
-    return false;
-  }
+  let position = 0;
+  let result = '';
 
-  // Date reader (only when not in key token)
-  function tryReadDate() {
-    if (inObjectKey) return false;
-    const start = i;
-    if (i + 6 >= n) return false;
+  // Context tracking with bit operations for speed
+  let contextStack = 0; // bit-stack; LSB=object flag
+  let inObjectKey = false;
 
-    // YYYY?
-    for (let k = 0; k < 4; k++) {
-      const code = input.charCodeAt(i + k);
-      if (code >= 128 || !IS_DIGIT[code]) return false;
-    }
-    const sep = input[i + 4];
-    if (sep !== '-' && sep !== '.' && sep !== '/') return false;
+  // Fast character type check
+  /** @param {number} code */
+  const isWhitespace = (code) => code < 128 && (CHAR_TYPE[code] & WS);
+  /** @param {number} code */
+  const isDigit = (code) => code < 128 && (CHAR_TYPE[code] & DIGIT);
+  /** @param {number} code */
+  const isJsonSyntax = (code) => code < 128 && (CHAR_TYPE[code] & JSON_SYNTAX);
+  /** @param {number} code */
+  const isQuote = (code) => code < 128 && (CHAR_TYPE[code] & QUOTE);
+  /** @param {number} code */
+  const isAlpha = (code) => code < 128 && (CHAR_TYPE[code] & ALPHA);
 
-    i += 5;
-    while (i < n) {
-      const c = input[i];
-      const code = input.charCodeAt(i);
-      if ((code < 128 && IS_DIGIT[code]) || c === '-' || c === '.' || c === '/' ||
-        c === 'T' || c === ':' || c === 'Z' || c === 'z' || c === '+') {
-        i++;
-      } else break;
-    }
-    const s = input.slice(start, i);
-    if (s.length >= 8 && s.length <= 35 && DATE_RE.test(s)) {
-      // ensure not glued to identifier char
-      const code = input.charCodeAt(i) || 0;
-      const isIdent = (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || code === 36 || code === 95;
-      if (!isIdent) {
-        out += `"${s}"`;
-        return true;
+  // Optimized string readers
+  function readDoubleQuoted() {
+    result += '"';
+    position++;
+
+    while (position < length) {
+      const char = input[position++];
+      result += char;
+
+      if (char === '\\') {
+        if (position < length) {
+          result += input[position++];
+        }
+      } else if (char === '"') {
+        break;
       }
     }
-    i = start;
+  }
+
+  function readSingleQuoted() {
+    position++; // skip opening '
+    result += '"';
+
+    while (position < length) {
+      const char = input[position++];
+
+      if (char === '\\') {
+        if (position < length) {
+          const next = input[position++];
+          if (next === '"') {
+            result += '\\"';
+          } else if (next === "'") {
+            result += "'";
+          } else {
+            result += '\\' + next;
+          }
+        }
+      } else if (char === "'") {
+        break;
+      } else if (char === '"') {
+        result += '\\"';
+      } else {
+        result += char;
+      }
+    }
+
+    result += '"';
+  }
+
+  // Optimized comment skippers
+  function skipLineComment() {
+    position += 2;
+    while (position < length && input[position] !== '\n') {
+      position++;
+    }
+  }
+
+  function skipBlockComment() {
+    position += 2;
+    while (position < length - 1) {
+      if (input[position] === '*' && input[position + 1] === '/') {
+        position += 2;
+        return;
+      }
+      position++;
+    }
+  }
+
+  // Fast whitespace and comment skipper
+  function skipWhitespaceAndComments() {
+    while (position < length) {
+      const code = input.charCodeAt(position);
+
+      // Skip whitespace
+      if (isWhitespace(code)) {
+        position++;
+        continue;
+      }
+
+      // Skip comments
+      if (input[position] === '/' && position + 1 < length) {
+        const next = input[position + 1];
+        if (next === '/') {
+          skipLineComment();
+          continue;
+        }
+        if (next === '*') {
+          skipBlockComment();
+          continue;
+        }
+      }
+
+      break;
+    }
+  }
+
+  // Optimized trailing comma handler
+  function handleTrailingComma() {
+    const savedPos = position;
+    position++; // skip comma
+
+    skipWhitespaceAndComments();
+
+    if (position < length && (input[position] === '}' || input[position] === ']')) {
+      return true; // trailing comma - skip it
+    }
+
+    // Not trailing - emit comma and continue
+    result += ',';
     return false;
   }
 
-  // Check simple decimal form with underscores and optional exponent/sign
-  /** @param {string} token */
-  function isPureDecimalNumber(token) {
-    let j = 0, len = token.length;
-    if (!len) return false;
-    let c = token[0], code = token.charCodeAt(0);
+  // Fast date detection (only when hasDigits is true)
+  function tryReadDate() {
+    if (inObjectKey || !hasDigits) return false;
 
-    if (c === '+' || c === '-') {
-      if (len === 1) return false;
-      j = 1; c = token[1]; code = token.charCodeAt(1);
+    const start = position;
+
+    // Quick check: need at least YYYY-MM-DD (10 chars)
+    if (position + 9 >= length) return false;
+
+    // Fast check for YYYY pattern
+    const code1 = input.charCodeAt(position);
+    const code2 = input.charCodeAt(position + 1);
+    const code3 = input.charCodeAt(position + 2);
+    const code4 = input.charCodeAt(position + 3);
+
+    if (!(isDigit(code1) && isDigit(code2) && isDigit(code3) && isDigit(code4))) {
+      return false;
     }
-    if (!(code < 128 && IS_DIGIT[code]) && c !== '.') return false;
 
-    let sawDigit = false, sawDot = false, sawE = false;
-    while (j < len) {
-      c = token[j]; code = token.charCodeAt(j);
-      if (code < 128 && IS_DIGIT[code]) { sawDigit = true; j++; }
-      else if (c === '_') { j++; }
-      else if (c === '.' && !sawDot && !sawE) { sawDot = true; j++; }
-      else if ((c === 'e' || c === 'E') && !sawE && sawDigit) {
-        sawE = true; j++;
-        if (j < len && (token[j] === '+' || token[j] === '-')) j++;
-        let expDigits = false;
-        while (j < len) {
-          const cc = token.charCodeAt(j);
-          if (cc < 128 && IS_DIGIT[cc]) { expDigits = true; j++; }
-          else if (token[j] === '_') { j++; }
-          else break;
+    const sep = input[position + 4];
+    if (sep !== '-' && sep !== '.' && sep !== '/') {
+      return false;
+    }
+
+    // Scan to end of potential date
+    position += 5;
+    while (position < length) {
+      const char = input[position];
+      const code = input.charCodeAt(position);
+
+      if (isDigit(code) || char === '-' || char === '.' || char === '/' ||
+        char === 'T' || char === ':' || char === 'Z' || char === 'z' || char === '+') {
+        position++;
+      } else {
+        break;
+      }
+    }
+
+    const dateStr = input.slice(start, position);
+
+    // Quick length and regex check
+    if (dateStr.length >= 8 && dateStr.length <= 35 && DATE_REGEX.test(dateStr)) {
+      // Ensure not followed by identifier character
+      if (position < length) {
+        const nextCode = input.charCodeAt(position);
+        if (isAlpha(nextCode) || nextCode === 95) { // 95 = underscore
+          position = start;
+          return false;
         }
+      }
+
+      result += '"' + dateStr + '"';
+      return true;
+    }
+
+    position = start;
+    return false;
+  }
+
+  // Optimized decimal number check
+  /** @param {string} token */
+  function isPureDecimal(token) {
+    let idx = 0;
+    const len = token.length;
+    if (!len) return false;
+
+    let char = token[0];
+
+    // Handle optional sign
+    if (char === '+' || char === '-') {
+      if (len === 1) return false;
+      idx = 1;
+      char = token[1];
+    }
+
+    const firstCode = token.charCodeAt(idx);
+    if (!(isDigit(firstCode) || char === '.')) return false;
+
+    let foundDigit = false;
+    let foundDot = false;
+    let foundE = false;
+
+    while (idx < len) {
+      char = token[idx];
+      const code = token.charCodeAt(idx);
+
+      if (isDigit(code)) {
+        foundDigit = true;
+        idx++;
+      } else if (char === '_') {
+        idx++;
+      } else if (char === '.' && !foundDot && !foundE) {
+        foundDot = true;
+        idx++;
+      } else if ((char === 'e' || char === 'E') && !foundE && foundDigit) {
+        foundE = true;
+        idx++;
+
+        // Handle optional exponent sign
+        if (idx < len && (token[idx] === '+' || token[idx] === '-')) {
+          idx++;
+        }
+
+        let expDigits = false;
+        while (idx < len) {
+          const expCode = token.charCodeAt(idx);
+          if (isDigit(expCode)) {
+            expDigits = true;
+            idx++;
+          } else if (token[idx] === '_') {
+            idx++;
+          } else {
+            break;
+          }
+        }
+
         if (!expDigits) return false;
-      } else return false;
+      } else {
+        return false;
+      }
     }
-    return sawDigit;
+
+    return foundDigit;
   }
 
-  // Read a bare token (identifier or number-ish) until JSON syntax/WS/comment
+  // Fast bare token reader
   function readBareToken() {
-    const start = i;
-    while (i < n) {
-      const c = input[i];
-      const code = input.charCodeAt(i);
-      if (code < 128 && (IS_WS[code] || IS_JSON_SYNTAX[code])) break;
-      if (c === '"' || c === "'" || c === '/') break;
-      i++;
+    const start = position;
+
+    while (position < length) {
+      const code = input.charCodeAt(position);
+
+      if (isWhitespace(code) || isJsonSyntax(code) || isQuote(code) || input[position] === '/') {
+        break;
+      }
+
+      position++;
     }
-    if (i === start) return null;
-    return input.slice(start, i);
+
+    return position === start ? null : input.slice(start, position);
   }
 
-  // JSON string escaper for keys/values (input has no quotes)
-  /** @param {string} s */
-  function jsonEscape(s) {
-    let needs = false;
-    for (let k = 0; k < s.length; k++) {
-      const ch = s.charCodeAt(k);
-      if (ch === 0x22 || ch === 0x5c || ch < 0x20) { needs = true; break; }
+  // Optimized JSON string escaping
+  /** @param {string} str */
+  function escapeJsonString(str) {
+    let needsEscaping = false;
+
+    // Fast scan for characters that need escaping
+    for (let i = 0; i < str.length; i++) {
+      const code = str.charCodeAt(i);
+      if (code < 128 && ESCAPE_TABLE[code] !== null) {
+        needsEscaping = true;
+        break;
+      }
     }
-    if (!needs) return `"${s}"`;
-    let out = '"';
-    for (let k = 0; k < s.length; k++) {
-      const ch = s.charCodeAt(k);
-      if (ch === 0x22) out += '\\"';
-      else if (ch === 0x5c) out += '\\\\';
-      else if (ch === 0x08) out += '\\b';
-      else if (ch === 0x0c) out += '\\f';
-      else if (ch === 0x0a) out += '\\n';
-      else if (ch === 0x0d) out += '\\r';
-      else if (ch === 0x09) out += '\\t';
-      else if (ch < 0x20) out += '\\u' + ch.toString(16).padStart(4, '0');
-      else out += String.fromCharCode(ch);
+
+    if (!needsEscaping) {
+      return '"' + str + '"';
     }
-    out += '"';
-    return out;
+
+    let escaped = '"';
+    for (let i = 0; i < str.length; i++) {
+      const code = str.charCodeAt(i);
+      if (code < 128 && ESCAPE_TABLE[code] !== null) {
+        escaped += ESCAPE_TABLE[code];
+      } else {
+        escaped += str[i];
+      }
+    }
+    escaped += '"';
+
+    return escaped;
   }
 
-  // Main loop
-  while (i < n) {
-    const c = input[i];
-    const code = input.charCodeAt(i);
+  // Main parsing loop
+  while (position < length) {
+    const char = input[position];
+    const code = input.charCodeAt(position);
 
-    // Whitespace
-    if (code < 128 && IS_WS[code]) { out += c; i++; continue; }
-
-    // Comments → skip (removed)
-    if (c === '/' && i + 1 < n) {
-      const next = input[i + 1];
-      if (next === '/') { skipLineComment(); continue; }
-      if (next === '*') { skipBlockComment(); continue; }
+    // Whitespace - pass through
+    if (isWhitespace(code)) {
+      result += char;
+      position++;
+      continue;
     }
 
-    // Structure & context
-    if (c === '{') { contextStack = (contextStack << 1) | 1; inObjectKey = true; out += c; i++; continue; }
-    if (c === '[') { contextStack = (contextStack << 1);    inObjectKey = false; out += c; i++; continue; }
-    if (c === ':') { inObjectKey = false; out += c; i++; continue; }
-    if (c === ',') {
-      // maybe trailing comma
-      if (maybeSkipTrailingComma()) continue;
+    // Comments - skip entirely
+    if (char === '/' && position + 1 < length) {
+      const next = input[position + 1];
+      if (next === '/') {
+        skipLineComment();
+        continue;
+      }
+      if (next === '*') {
+        skipBlockComment();
+        continue;
+      }
+    }
+
+    // JSON structure characters
+    if (char === '{') {
+      contextStack = (contextStack << 1) | 1;
+      inObjectKey = true;
+      result += char;
+      position++;
+      continue;
+    }
+
+    if (char === '[') {
+      contextStack = contextStack << 1;
+      inObjectKey = false;
+      result += char;
+      position++;
+      continue;
+    }
+
+    if (char === ':') {
+      inObjectKey = false;
+      result += char;
+      position++;
+      continue;
+    }
+
+    if (char === ',') {
+      if (handleTrailingComma()) continue;
       inObjectKey = (contextStack & 1) === 1;
       continue;
     }
-    if (c === '}' || c === ']') { contextStack >>= 1; inObjectKey = (contextStack & 1) === 1; out += c; i++; continue; }
 
-    // Strings
-    if (c === '"') { readDQ(); continue; }
-    if (c === "'") { readSQ(); continue; }
+    if (char === '}' || char === ']') {
+      contextStack >>= 1;
+      inObjectKey = (contextStack & 1) === 1;
+      result += char;
+      position++;
+      continue;
+    }
 
-    // Dates (only if starts with digit)
-    if (hasDigit && code < 128 && IS_DIGIT[code]) {
+    // String literals
+    if (char === '"') {
+      readDoubleQuoted();
+      continue;
+    }
+
+    if (char === "'") {
+      readSingleQuoted();
+      continue;
+    }
+
+    // Date detection (fast path when digits present)
+    if (hasDigits && isDigit(code)) {
       if (tryReadDate()) continue;
     }
 
-    // Bare tokens: keys or values
+    // Bare tokens (identifiers, numbers, keywords)
     const token = readBareToken();
-    if (token != null) {
+    if (token !== null) {
       if (inObjectKey) {
-        // Quote ANY unquoted key (strict JSON)
-        out += jsonEscape(token);
+        // All unquoted keys must be quoted in strict JSON
+        result += escapeJsonString(token);
         continue;
       }
 
-      // Values: quote pure decimal numbers (preserve as strings)
-      if (hasDigit && isPureDecimalNumber(token)) {
-        if (token.indexOf('_') === -1 && token.charCodeAt(0) !== 43 /* '+' */) {
-          out += `"${token}"`;
+      // Handle values
+      if (hasDigits && isPureDecimal(token)) {
+        // Convert numbers to quoted strings
+        if (token.indexOf('_') === -1 && token[0] !== '+') {
+          result += '"' + token + '"';
         } else {
-          // clean underscores and leading '+'
+          // Clean underscores and leading plus
           let cleaned = '';
-          for (let k = 0; k < token.length; k++) {
-            const ch = token[k];
-            if (ch === '_' || (k === 0 && ch === '+')) continue;
-            cleaned += ch;
+          for (let i = 0; i < token.length; i++) {
+            const ch = token[i];
+            if (ch !== '_' && !(i === 0 && ch === '+')) {
+              cleaned += ch;
+            }
           }
-          out += `"${cleaned}"`;
+          result += '"' + cleaned + '"';
         }
         continue;
       }
 
-      // Booleans/null should remain raw JSON tokens if present
+      // Preserve JSON literals
       if (token === 'true' || token === 'false' || token === 'null') {
-        out += token;
+        result += token;
         continue;
       }
 
-      // Otherwise treat as unquoted bareword value -> JSON string
-      out += jsonEscape(token);
+      // Quote other bare words
+      result += escapeJsonString(token);
       continue;
     }
 
-    // Fallback (should be rare)
-    out += c; i++;
+    // Fallback - should be rare
+    result += char;
+    position++;
   }
 
-  return out.trim();
+  return result.trim();
 }
