@@ -1,11 +1,7 @@
 //@ts-nocheck
 
-// based on `formula.test.js` + edits to adapt it to the new version of `formula_custom.js`
-// from https://github.com/77it/formula/blob/aeb95946d444466d96cd7a9864c78a4530124f74/test/index.js
-// with the addition of region "BDD Jest-like globals"
-
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
-import { Parser, Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v5.js';
+import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v5.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
