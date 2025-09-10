@@ -1,4 +1,6 @@
-// BEWARE: YAML object definition works only if key is separated form value by at least one space (key: value); doesn't work without space (key:value), as JSON5 does.
+// BEWARE: YAML object definition works only if key is separated form value by at least one space (key: value);
+// doesn't work without space (key:value), as JSON5 does.
+// however, the custom `customParseYAML` works also with objects with key/value not separated by space
 // see https://yaml.org/spec/1.2.2/#21-collections
 
 import { localDateToUTC } from '../deps.js';

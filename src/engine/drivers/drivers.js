@@ -124,7 +124,7 @@ class Drivers {
    * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,<p>
    * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).<p>
    * Returned data is not cloned because Drivers are numbers then immutable by default.<p>
-   * @throws {Error} Throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.<p>
+   * @throws {Error} Throws if the Driver to get is not defined or if is queried a date > Today. If `search` is true, throws only if the search fails.<p>
    */
   get ({ scenario, unit, name, date, endDate, calc }) {
     if (date && date.getTime() > this.#today.getTime()) {

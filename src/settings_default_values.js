@@ -24,6 +24,8 @@ const SettingsDefaultValues = {
   [Simulation.$$END_OF_THE_FISCAL_YEAR__MONTH]: 12,
   // default split of things, 12 equal months (e.g. of Income Statement items)
   [Simulation.$$DEFAULT_SPLIT]: [1,1,1,1,1,1,1,1,1,1,1,1],
+  // Prefix that identify DAILY DRIVERS, drivers that have a value only for the days in which the values are explicitly set;
+  // For other days (days without an explicit value set), the value returned during query is zero.
   // Set only for immutable drivers that may change at the end of the day (IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES);
   // for immutable drivers (IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES), it doesn't make sense; mutable drivers do not exist.
   [Simulation.$$DRIVER_PREFIXES__ZERO_IF_NOT_SET]: ['$Daily'],
