@@ -1,14 +1,16 @@
-export { ROUNDING_MODES };
+import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ROUNDING_MODE as CFG_ROUNDING, ROUNDING_MODES } from '../config/engine.js';
+
+export { _TEST_ONLY__SET };
+
+let BIGINT_DECIMAL_SCALE = CFG_SCALE;
+let ROUNDING_MODE = CFG_ROUNDING;
 
 /**
- * inspired by https://mikemcl.github.io/decimal.js-light/#modes
- *
- * @enum {string}
- * @readonly
+ * This is a function used for testing purposes, to set the bigint decimal scale and rounding mode.
+ * @param {number} test_bigintSecimalScale
+ * @param {string} test_roundingMode
  */
-const ROUNDING_MODES = {
-  TRUNC: "TRUNC",
-  ROUND_HALF_EVEN: "ROUND_HALF_EVEN",   // Rounds towards nearest neighbour. If equidistant, rounds towards even neighbour
-  ROUND_HALF_UP: "ROUND_HALF_UP"        // Rounds towards nearest neighbour. If equidistant, rounds away from zero
-};
-Object.freeze(ROUNDING_MODES);
+function _TEST_ONLY__SET(test_bigintSecimalScale, test_roundingMode) {
+  BIGINT_DECIMAL_SCALE = test_bigintSecimalScale;
+  ROUNDING_MODE = test_roundingMode;
+}

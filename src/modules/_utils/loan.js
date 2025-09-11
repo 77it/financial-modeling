@@ -142,7 +142,7 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
 
   const numberOfPaymentsWithoutGracePeriod = nrOfPaymentsIncludingGracePeriod - gracePeriodNrOfPayments;
 
-  XXX const _round = ROUNDING_MODE ? roundHalfAwayFromZeroWithPrecision : truncWithPrecision;
+  /*XXX*/ const _round = ROUNDING_MODE ? roundHalfAwayFromZeroWithPrecision : truncWithPrecision;
 
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12, and so on
   // Multiply by -1, since it default to a negative value

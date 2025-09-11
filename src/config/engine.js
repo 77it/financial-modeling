@@ -1,5 +1,16 @@
 import { deepFreeze } from '../lib/obj_utils.js';
-import { ROUNDING_MODES } from '../lib/decimal.js';
+
+/**
+ * inspired by https://mikemcl.github.io/decimal.js-light/#modes
+ * @enum {string}
+ * @readonly
+ */
+export const ROUNDING_MODES = {
+  TRUNC: "TRUNC",
+  ROUND_HALF_EVEN: "ROUND_HALF_EVEN",   // Rounds towards nearest neighbour. If equidistant, rounds towards even neighbour
+  ROUND_HALF_UP: "ROUND_HALF_UP"        // Rounds towards nearest neighbour. If equidistant, rounds away from zero
+};
+Object.freeze(ROUNDING_MODES);
 
 //#region debug and release config
 // If true, the debug validations and checks are disabled; this should be true in release mode, to speed up execution
@@ -35,8 +46,10 @@ export const BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME = 'cash_account_1';
 //#region internal engine config
 // Number of the years from today to set Simulation End Date, if no other value to set this date is provided
 export const DEFAULT_NUMBER_OF_YEARS_FROM_TODAY = 5;
-// Rounding mode to use when storing numbers in the ledger
+// Rounding mode to use when storing numbers in the ledger and in other places that requires rounding
 export const ROUNDING_MODE = ROUNDING_MODES.ROUND_HALF_EVEN;
+// Scale to use when doing decimal calculations with BigInt (SCALE)
+export const BIGINT_DECIMAL_SCALE = 10;
 // Decimal places to use when storing numbers in the ledger (PRECISION)
 export const DECIMAL_PLACES = 4;
 

@@ -3,9 +3,9 @@
 import * as schema from '../../lib/schema.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
+import { ROUNDING_MODES } from '../../config/engine.js';
 import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
-import { ROUNDING_MODES } from '../../lib/decimal.js';
 
 import { SimObject } from '../simobject/simobject.js';
 import { simObjectToDto } from '../simobject/utils/simobject_to_dto.js';
@@ -118,7 +118,7 @@ class Ledger {
     this.#debugFlag = false;
     this.#currentDebugModuleInfo = '';
     this.#decimalPlaces = _p.decimalPlaces;
-    XXX this.#roundingModeIsRound = _p.roundingModeIsRound;
+    /*XXX*/ this.#roundingModeIsRound = _p.roundingModeIsRound;
     this.#isLocked = true;  // lock the ledger
   }
 
