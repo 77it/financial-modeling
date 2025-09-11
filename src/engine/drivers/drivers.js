@@ -116,7 +116,11 @@ class Drivers {
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
-   * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
+   *                          if drivers containing Fml is queried, it is returned only the formula, not the calculations of the formulas for the day;
+   *                          the formulas are always recalculated after query by the caller.
+   * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`;
+   *                             if a range of drivers containing Fml is queried, only the formulas defined for the various days are returned,
+   *                             not the individual calculations of the formulas for each day; the formulas are always recalculated after query by the caller.
    * @param {GET_CALC} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
    * @return {Decimal} returns the Driver value sanitized to Decimal;<p>
    * if `endDate` is not defined, returns the value defined before or at `date`;<p>

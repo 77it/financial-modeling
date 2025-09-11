@@ -1,4 +1,5 @@
 import { deepFreeze } from '../lib/obj_utils.js';
+import { ROUNDING_MODES } from '../lib/decimal.js';
 
 //#region debug and release config
 // If true, the debug validations and checks are disabled; this should be true in release mode, to speed up execution
@@ -34,8 +35,8 @@ export const BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME = 'cash_account_1';
 //#region internal engine config
 // Number of the years from today to set Simulation End Date, if no other value to set this date is provided
 export const DEFAULT_NUMBER_OF_YEARS_FROM_TODAY = 5;
-// Rounding mode to use when storing numbers in the ledger; if true, use Math.round(), otherwise use Math.floor()
-export const ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO = true;
+// Rounding mode to use when storing numbers in the ledger
+export const ROUNDING_MODE = ROUNDING_MODES.ROUND_HALF_EVEN;
 // Decimal places to use when storing numbers in the ledger (PRECISION)
 export const DECIMAL_PLACES = 4;
 

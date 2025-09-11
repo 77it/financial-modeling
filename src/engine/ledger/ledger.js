@@ -5,6 +5,7 @@ import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
 import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
+import { ROUNDING_MODES } from '../../lib/decimal.js';
 
 import { SimObject } from '../simobject/simobject.js';
 import { simObjectToDto } from '../simobject/utils/simobject_to_dto.js';
@@ -92,7 +93,7 @@ class Ledger {
    * @param {Object} p
    * @param {appendTrnDump} p.appendTrnDump Callback to dump the transactions
    * @param {number} p.decimalPlaces Decimal places to use when storing numbers in the ledger
-   * @param {boolean} p.roundingModeIsRound Rounding mode to use when storing numbers in the ledger; if true, use Math.round(), otherwise use Math.floor()
+   * @param {ROUNDING_MODES} p.roundingModeIsRound Rounding mode to use when storing numbers in the ledger
    */
   constructor ({ appendTrnDump, decimalPlaces, roundingModeIsRound }) {
     const _p = sanitize({
@@ -117,7 +118,7 @@ class Ledger {
     this.#debugFlag = false;
     this.#currentDebugModuleInfo = '';
     this.#decimalPlaces = _p.decimalPlaces;
-    this.#roundingModeIsRound = _p.roundingModeIsRound;
+    XXX this.#roundingModeIsRound = _p.roundingModeIsRound;
     this.#isLocked = true;  // lock the ledger
   }
 

@@ -3,7 +3,7 @@ export { getPrincipalPaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmo
 import { schema, validate, addMonthsToLocalDate, stripTimeToLocalDate, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../deps.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../deps.js';
 import { Decimal } from '../deps.js';
-import { ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO } from '../../config/engine.js';
+import { ROUNDING_MODE } from '../../config/engine.js';
 import { DECIMAL_PLACES } from '../../config/engine.js';
 
 // info about loans
@@ -142,7 +142,7 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
 
   const numberOfPaymentsWithoutGracePeriod = nrOfPaymentsIncludingGracePeriod - gracePeriodNrOfPayments;
 
-  const _round = ROUNDING_MODE_IS_HALF_AWAY_FROM_ZERO ? roundHalfAwayFromZeroWithPrecision : truncWithPrecision;
+  XXX const _round = ROUNDING_MODE ? roundHalfAwayFromZeroWithPrecision : truncWithPrecision;
 
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12, and so on
   // Multiply by -1, since it default to a negative value
