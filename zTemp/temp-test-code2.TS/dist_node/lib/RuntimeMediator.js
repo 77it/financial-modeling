@@ -38,7 +38,7 @@ class RuntimeMediator {
         fs.unlinkSync(path); // see https://nodejs.org/api/fs.html#fs_fs_unlinksync_path
     }
     // print a message to console, overwring the last message, padding the string with spaces for `charsNumber` times
-    // inspired to https://stackoverflow.com/a/38724334/5288052 + https://stackoverflow.com/questions/34570452/node-js-stdout-clearline-and-cursorto-functions
+    // inspired by https://stackoverflow.com/a/38724334/5288052 + https://stackoverflow.com/questions/34570452/node-js-stdout-clearline-and-cursorto-functions
     overwriteConsoleMessage(msg, charsNumber) {
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);

@@ -67,7 +67,7 @@ function parseJsonToUTCDate (argument) {
 
 // Inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license);
 // added: parse of date on 3 fields YYYY-MM-DD, trim(), updated regex expression to match start/end of the row;
-// name inspired to https://www.google.com/search?q=%22parseJsonDate%22
+// name inspired by https://www.google.com/search?q=%22parseJsonDate%22
 /**
  * Private function to parse a JSON date string (local or UTC)
  *
@@ -194,7 +194,7 @@ function differenceInCalendarDaysOfLocalDates (dateLeft, dateRight) {
   // (e.g. it's different in the day of the daylight saving time clock shift)
   return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY);
 
-  // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts (MIT license)
+  // inspired by https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts (MIT license)
   /**
    * @description
    * Return the start of a day for the given date.
@@ -248,7 +248,7 @@ function differenceInCalendarDaysOfUTCDates (dateLeft, dateRight) {
   // (e.g. it's different in the day of the daylight saving time clock shift)
   return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY);
 
-  // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts (MIT license)
+  // inspired by https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/startOfDay/index.ts (MIT license)
   /**
    * @description
    * Return the start of a day for the given date.
@@ -277,7 +277,7 @@ function excelSerialDateToUTCDate (excelSerialDate) {
     if (excelSerialDate <= 60) {
       return new Date(NaN);
     }
-    return new Date(Date.UTC(0, 0, excelSerialDate - 1));  // inspired to https://stackoverflow.com/a/67130235/5288052
+    return new Date(Date.UTC(0, 0, excelSerialDate - 1));  // inspired by https://stackoverflow.com/a/67130235/5288052
   } catch (_) {
     return new Date(NaN);
   }
@@ -298,7 +298,7 @@ function excelSerialDateToLocalDate (excelSerialDate) {
     if (excelSerialDate <= 60) {
       return new Date(NaN);
     }
-    return new Date(0, 0, excelSerialDate - 1);  // inspired to https://stackoverflow.com/a/67130235/5288052
+    return new Date(0, 0, excelSerialDate - 1);  // inspired by https://stackoverflow.com/a/67130235/5288052
   } catch (_) {
     return new Date(NaN);
   }
@@ -381,7 +381,7 @@ function addDaysToUTCDate(date, amount) {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + amount));
 }
 
-// inspired to https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts (MIT license)
+// inspired by https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts (MIT license)
 // + addition to handle the end of month case
 /**
  * Add the specified number of months to the given local date.
@@ -456,7 +456,7 @@ function addMonthsToLocalDate (date, amount) {
   }
 }
 
-// inspired to https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts (MIT license)
+// inspired by https://github.com/date-fns/date-fns/blob/fadbd4eb7920bf932c25f734f3949027b2fe4887/src/addMonths/index.ts (MIT license)
 /**
  * Get the end of the month of the given local time date.
  * The time part of the date will be stripped after adding the day.
@@ -486,7 +486,7 @@ function getEndOfMonthOfLocalDate (date) {
   return endOfDesiredMonth;
 }
 
-// inspired to https://stackoverflow.com/a/19054782 + https://stackoverflow.com/questions/492994/compare-two-dates-with-javascript
+// inspired by https://stackoverflow.com/a/19054782 + https://stackoverflow.com/questions/492994/compare-two-dates-with-javascript
 /**
  * Check if two dates are equal (ignoring time)
  *

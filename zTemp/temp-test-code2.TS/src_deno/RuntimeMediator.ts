@@ -1,4 +1,4 @@
 export {}
 /*
-TODO write, inspired to "src_node\RuntimeMediator.ts"
+TODO write, inspired by "src_node\RuntimeMediator.ts"
 */

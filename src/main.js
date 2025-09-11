@@ -32,7 +32,7 @@ first version of libraries etc can start at 0.1.0 as specified in https://semver
 
 the version number is stored in the folder, as
 https://github.com/simulation99/simulation-js/simulation/lib/v0/simulation_types.js
-inspired to this real example
+inspired by this real example
 https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/d3/v6/index.d.ts
  */
 

@@ -184,7 +184,7 @@ t('Invalid date for parses a fully formed ISO date with Z + random extra charact
 });
 //#endregion parseJsonToUTCDate as UTC #1
 
-// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJsonDate/test.ts (MIT license)
+// inspired by https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJsonDate/test.ts (MIT license)
 //#region parseJsonToUTCDate #2
 t('parses a formatted date with an hour of offset back to UTC - issue 2149', () => {
   const date = '2021-01-09T13:18:10.873+01:00';
@@ -391,7 +391,7 @@ differenceInCalendarDays_test1(differenceInCalendarDays_lib);
 differenceInCalendarDays_test1(differenceInCalendarDays_luxon);
 //#endregion differenceInCalendarDaysOfLocalDates #1
 
-// inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts (MIT license)
+// inspired by https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts (MIT license)
 // without not applicable tests
 //#region differenceInCalendarDaysOfLocalDates #2
 /**
@@ -503,7 +503,7 @@ differenceInCalendarDays_test2__throws(differenceInCalendarDays_lib);
 //differenceInCalendarDays_test2__throws(differenceInCalendarDays_luxon);
 //#endregion differenceInCalendarDaysOfLocalDates #2
 
-// DST TESTS inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts (MIT license)
+// DST TESTS inspired by https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/differenceInCalendarDays/test.ts (MIT license)
 //#region differenceInCalendarDaysOfLocalDates #3 - DST
 /**
  * @param {function} differenceInCalendarDaysOfLocalDates
@@ -686,7 +686,7 @@ t('getEndOfMonthOfLocalDate', () => {
   assert.deepStrictEqual(getEndOfMonthOfLocalDate(date5_bisestile), new Date(2020, 1 /*Feb*/, 29));
 });
 
-//region // inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/test/dst/tzOffsetTransitions.ts (MIT license)
+//region // inspired by https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/test/dst/tzOffsetTransitions.ts (MIT license)
 
 /**
  * Fetch the start and end of DST for the local time

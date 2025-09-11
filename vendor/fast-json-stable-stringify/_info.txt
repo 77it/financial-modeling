@@ -1,6 +1,6 @@
 from https://github.com/77it/fast-json-stable-stringify/blob/49e230da2c84247b29ad4de02c9395793caefd15/index.js
 + added @ts-nocheck
-+ added types inspired to https://github.com/77it/fast-json-stable-stringify/blob/master/index.d.ts
++ added types inspired by https://github.com/77it/fast-json-stable-stringify/blob/master/index.d.ts
   improved, was missing 'opts' and 'undefined' from return
 + replaced
     'use strict';
