@@ -6,9 +6,8 @@ import { deepFreeze } from '../lib/obj_utils.js';
  * @readonly
  */
 export const ROUNDING_MODES = {
-  TRUNC: "TRUNC",
-  ROUND_HALF_EVEN: "ROUND_HALF_EVEN",   // Rounds towards nearest neighbour. If equidistant, rounds towards even neighbour
-  ROUND_HALF_UP: "ROUND_HALF_UP"        // Rounds towards nearest neighbour. If equidistant, rounds away from zero
+  HALF_EVEN: "HALF_EVEN",   // Rounds towards nearest neighbour. If equidistant, rounds towards even neighbour
+  HALF_UP: "HALF_UP"        // Rounds towards nearest neighbour. If equidistant, rounds away from zero
 };
 Object.freeze(ROUNDING_MODES);
 
@@ -47,11 +46,11 @@ export const BS_CASH__BANKACCOUNT_FINANCIALACCOUNT__NAME = 'cash_account_1';
 // Number of the years from today to set Simulation End Date, if no other value to set this date is provided
 export const DEFAULT_NUMBER_OF_YEARS_FROM_TODAY = 5;
 // Rounding mode to use when storing numbers in the ledger and in other places that requires rounding
-export const ROUNDING_MODE = ROUNDING_MODES.ROUND_HALF_EVEN;
+export const ROUNDING_MODE = ROUNDING_MODES.HALF_EVEN;
 // Scale to use when doing decimal calculations with BigInt (SCALE)
 export const BIGINT_DECIMAL_SCALE = 10;
 // Decimal places to use when storing numbers in the ledger (PRECISION)
-export const DECIMAL_PLACES = 4;
+export const ACCOUNTING_DECIMAL_PLACES = 4;
 
 // config used during init of Settings and Drivers classes
 export const IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES = '$$';

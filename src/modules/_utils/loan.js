@@ -4,7 +4,7 @@ import { schema, validate, addMonthsToLocalDate, stripTimeToLocalDate, roundHalf
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../deps.js';
 import { Decimal } from '../deps.js';
 import { ROUNDING_MODE } from '../../config/engine.js';
-import { DECIMAL_PLACES } from '../../config/engine.js';
+import { ACCOUNTING_DECIMAL_PLACES } from '../../config/engine.js';
 
 // info about loans
 /*
@@ -82,7 +82,7 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  * @param {number} p.nrOfPaymentsIncludingGracePeriod
  * @param {number} p.numberOfPaymentsInAYear  1 | 2 | 3 | 4 | 6 | 12: 12 for monthly, 6 for bimonthly, ..., 1 for yearly
  * @param {number} [p.gracePeriodNrOfPayments=0] optional, number of payments with interest-only payments
- * @param {number} [p.precision=DECIMAL_PLACES] optional, number of decimals to round the interest and principal payments, default is engine const DECIMAL_PLACES
+ * @param {number} [p.precision=ACCOUNTING_DECIMAL_PLACES] optional, number of decimals to round the interest and principal payments, default is engine const ACCOUNTING_DECIMAL_PLACES
  * @return {{date: Date[], paymentNo: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
  */
 function getPrincipalPaymentsOfAConstantPaymentLoan ({
@@ -93,7 +93,7 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
   nrOfPaymentsIncludingGracePeriod,
   numberOfPaymentsInAYear,
   gracePeriodNrOfPayments = 0,
-  precision = DECIMAL_PLACES
+  precision = ACCOUNTING_DECIMAL_PLACES
 }) {
   //XXXXX: valutare se inserire la data di inizio finanziamento/erogazione, con capitale zero, e la prima scadenza da cui calcolare interessi;
   //loanStartDate + firstScheduledPaymentDate;
