@@ -1,3 +1,4 @@
+// file bigint_decimal_scaled.finance_3.test.js
 /*
 **Purpose:**
 Regression test the **entire BigInt fixed-point library** (both arithmetic and finance helpers).

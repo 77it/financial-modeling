@@ -47,7 +47,19 @@ function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) 
 
 //#region Exported functions
 
-const SCIENTIFIC_NOTATION_REGEX = /[eE]/;
+/**
+ * Check if a string has scientific notation (e.g., "1e10").
+ * @param {string} s
+ * @returns {boolean}
+ */
+function hasENotation(s) {
+  // single pass; avoids scanning twice with .includes('e') || .includes('E')
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c === 69 /*E*/ || c === 101 /*e*/) return true;
+  }
+  return false;
+}
 
 /**
  * @public
@@ -68,10 +80,7 @@ const SCIENTIFIC_NOTATION_REGEX = /[eE]/;
 function stringToBigIntScaled(s) {
   const str = String(s).trim();
   if (!str) throw new Error("Empty number");
-  // Quick dispatch: plain decimal? take the fast path.
-  if (!SCIENTIFIC_NOTATION_REGEX.test(str)) return parsePlainDecimal(str);
-  // Otherwise, handle scientific notation.
-  return parseSciDecimal(str);
+  return hasENotation(str) ? parseSciDecimal(str) : parsePlainDecimal_fast(str);
 }
 
 // ------------------------ formatting ------------------------
@@ -229,75 +238,150 @@ function roundInt(q, r, d) {
 
 // ------------------------ parsing ------------------------
 
-const NUMBERS_REGEX = /[1-9]/;
-
 /**
  * Fast path: parse a plain decimal string (no e/E) into BigInt at MATH_SCALE.
- * Accepts optional sign and a single '.' decimal point.
- * Rounds HALF_EVEN if more than MATH_SCALE fractional digits are present.
+ * - No regex
+ * - No padEnd
+ * - No leading-zeros regex
+ * - Only one final allocation for BigInt()
+ *
+ * Rounding:
+ *  - HALF_UP: >= 5 → round away from zero
+ *  - HALF_EVEN: exact 5 followed only by zeros → round to even
  *
  * @param {string} str
- * @returns {bigint} BigInt at scale = MATH_SCALE
+ * @returns {bigint}
  */
-function parsePlainDecimal(str) {
+function parsePlainDecimal_fast(str) {
   let i = 0, sign = 1n;
-  const c0 = str.charCodeAt(0);
-  if (c0 === 43 /*+*/) i++;
-  else if (c0 === 45 /*-*/) { sign = -1n; i++; }
 
-  // Integer part
+  // --- Parse optional sign ---
+  if (i < str.length) {
+    const c0 = str.charCodeAt(i);
+    if (c0 === 43 /* + */) { i++; }
+    else if (c0 === 45 /* - */) { sign = -1n; i++; }
+  }
+
+  // --- Parse integer digits ---
   const startInt = i;
   while (i < str.length) {
     const c = str.charCodeAt(i);
     if (c >= 48 && c <= 57) { i++; continue; }
     break;
   }
-  let INT = str.slice(startInt, i);
-  if (INT.length === 0) INT = "0";
+  let intStart = startInt;
+  let intEnd = i; // slice boundaries [intStart, intEnd)
 
-  // Optional fractional part
-  let FR = "";
-  if (i < str.length && str[i] === ".") {
+  // --- Parse optional fractional part ---
+  let frStart = -1, frEnd = -1;
+  if (i < str.length && str.charCodeAt(i) === 46 /* . */) {
     i++;
-    const startFr = i;
+    frStart = i;
     while (i < str.length) {
       const c = str.charCodeAt(i);
       if (c >= 48 && c <= 57) { i++; continue; }
       break;
     }
-    FR = str.slice(startFr, i);
-    if (FR.length === 0 && INT === "0") throw new Error(`Invalid number: ${str}`);
-  }
-
-  // No trailing garbage allowed
-  if (i !== str.length) throw new Error(`Invalid number: ${str}`);
-
-  // Fit fractional digits to MATH_SCALE (pad or round)
-  let bump = 0n; // 0=none, 1=round up, 2=tie (decide by parity)
-  if (FR.length > MATH_SCALE) {
-    const keep = FR.slice(0, MATH_SCALE);
-    const firstDiscard = FR.charCodeAt(MATH_SCALE) - 48; // 0..9
-    const rest = FR.slice(MATH_SCALE + 1);
-    FR = keep;
-    if (firstDiscard > 5 || (firstDiscard === 5 && NUMBERS_REGEX.test(rest))) bump = 1n;
-    else if (firstDiscard === 5 && !NUMBERS_REGEX.test(rest)) bump = 2n;
-  }
-  FR = FR.padEnd(MATH_SCALE, "0");
-
-  // Merge and strip leading zeros (leave at least one digit)
-  let merged = (INT + FR).replace(/^0+(?=\d)/, "");
-  if (merged === "") merged = "0";
-  let sig = BigInt(merged);
-
-  if (bump !== 0n) {
-    if (bump === 1n) {
-      sig += 1n; // away from zero (sign applied after)
-    } else {
-      // tie: HALF_EVEN → parity of last kept digit
-      if ((sig % 2n) !== 0n) sig += 1n;
+    frEnd = i;
+    if (frStart === frEnd && intEnd === intStart) {
+      // Special case: string was just "." or "+." or "-."
+      throw new Error(`Invalid number: ${str}`);
     }
   }
 
+  // --- No trailing garbage allowed ---
+  if (i !== str.length) throw new Error(`Invalid number: ${str}`);
+
+  // --- Compute fractional length ---
+  const frLen = (frStart >= 0) ? (frEnd - frStart) : 0;
+
+  // --- Rounding decision ---
+  // bump = 0 (none), 1 (round away from zero), 2 (tie → HALF_EVEN parity check)
+  let bump = 0;
+  let keepFrLen = frLen <= MATH_SCALE ? frLen : MATH_SCALE;
+  if (frLen > MATH_SCALE) {
+    // first discarded digit
+    const firstDiscardCode = str.charCodeAt(frStart + MATH_SCALE) - 48;
+
+    // any remaining discarded digits non-zero?
+    let restHasNonZero = false;
+    for (let k = frStart + MATH_SCALE + 1; k < frEnd; k++) {
+      if (str.charCodeAt(k) !== 48 /* 0 */) { restHasNonZero = true; break; }
+    }
+
+    if (firstDiscardCode > 5 || (firstDiscardCode === 5 && restHasNonZero)) {
+      bump = 1; // round away from zero
+    } else if (firstDiscardCode === 5 && !restHasNonZero) {
+      bump = 2; // exact 5 tie → HALF_EVEN
+    }
+    keepFrLen = MATH_SCALE; // discard extra fractional digits
+  }
+
+  // --- Strip leading zeros from integer part ---
+  let nzInt = intStart;
+  while (nzInt < intEnd && str.charCodeAt(nzInt) === 48 /* 0 */) nzInt++;
+
+  // --- Count digits ---
+  const intDigitsLen = nzInt < intEnd ? (intEnd - nzInt) : 0;
+  const frDigitsLen = keepFrLen > 0 ? keepFrLen : 0;
+  const padZeros = MATH_SCALE - frDigitsLen;
+  const keptFrEnd = (frStart >= 0) ? (frStart + keepFrLen) : -1;
+
+  // --- Detect whether all digits so far are zero ---
+  let keptFrHasNonZero = false;
+  if (frDigitsLen > 0) {
+    for (let k = frStart; k < keptFrEnd; k++) {
+      if (str.charCodeAt(k) !== 48 /* 0 */) { keptFrHasNonZero = true; break; }
+    }
+  }
+  const allZeroSoFar = (intDigitsLen === 0 && !keptFrHasNonZero);
+
+  // --- Early return: exactly zero at scale 0 ---
+  if (allZeroSoFar && MATH_SCALE === 0) {
+    return 0n;
+  }
+
+  // --- Early return: common case with no rounding ---
+  if (bump === 0 && frLen <= MATH_SCALE) {
+    // Build digit string directly
+    let intDigits = intDigitsLen > 0 ? str.slice(nzInt, intEnd) : "";
+    let frDigits = frDigitsLen > 0 ? str.slice(frStart, keptFrEnd) : "";
+    let digitsStr = (intDigits || frDigits ? (intDigits + frDigits) : "0");
+    if (padZeros > 0) digitsStr += "0".repeat(padZeros);
+    const sig = BigInt(digitsStr);
+    const out = sign * sig;
+    return out === 0n ? 0n : out;
+  }
+
+  // --- Build digit string for BigInt ---
+  let digitsStr;
+  if (!allZeroSoFar) {
+    // Case A: some non-zero int digits
+    // Case B: int is zero, but fractional kept has non-zero
+    let parts = [];
+    if (intDigitsLen > 0) parts.push(str.slice(nzInt, intEnd));
+    if (frDigitsLen > 0) parts.push(str.slice(frStart, keptFrEnd));
+    if (padZeros > 0) parts.push("0".repeat(padZeros));
+    digitsStr = parts.join("");
+  } else {
+    // Case C: everything zero → construct "0" + scale zeros
+    digitsStr = "0" + (MATH_SCALE > 0 ? "0".repeat(MATH_SCALE) : "");
+  }
+
+  // --- Convert once to BigInt ---
+  let sig = BigInt(digitsStr);
+
+  // --- Apply rounding bump if needed ---
+  if (bump !== 0) {
+    if (bump === 1) {
+      sig += 1n; // away from zero
+    } else {
+      // tie → HALF_EVEN: check parity of the resulting integer
+      if ((sig & 1n) === 1n) sig += 1n;
+    }
+  }
+
+  // --- Apply sign and normalize -0n to 0n ---
   const out = sign * sig;
   return out === 0n ? 0n : out;
 }

@@ -220,7 +220,7 @@ function runCrossCheck ({ iterations = 2000, seed = 0xBADC0DE, ulpTolerance = 20
   if (failures > 0) {
     assert.fail(`${failures} / ${iterations} cases exceeded tolerance`);
   } else {
-    console.log(`✅ All ${iterations} cases within ${ulpTolerance} ULPs`);
+    console.log(`All ${iterations} cases within ${ulpTolerance} ULPs`);
   }
 }
 
