@@ -1,7 +1,10 @@
-import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, /* used only for types */ ROUNDING_MODES} from '../config/engine.js';
+export { _TEST_ONLY__set };
 
-export { _TEST_ONLY__set, getSettings };
+import { stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from './bigint_decimal_scaled.arithmetic.js';
 
+import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, /* used only for types */ ROUNDING_MODES } from '../config/engine.js';
+
+//#region settings  // same code as in `bigint_decimal_scaled.arithmetic.js`
 /** @type {number} */
 let MATH_SCALE = CFG_SCALE;
 /** @type {number} */
@@ -20,6 +23,7 @@ let SCALE_FACTOR = pow10n(MATH_SCALE);
 let GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
 
 /**
+ * @internal
  * This is a function used for testing purposes, to set the bigint decimal scale, accounting decimal places and rounding mode.
  * @param {Object} opt
  * @param {number} opt.decimalScale
@@ -49,7 +53,32 @@ function getSettings() {
   return { MATH_SCALE: MATH_SCALE, ACCOUNTING_DECIMAL_PLACES: ACCOUNTING_DECIMAL_PLACES, ROUNDING_MODE: ROUNDING_MODE};
 }
 
+//#endregion settings
+
+/*
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+
+██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ███████╗
+██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗██╔════╝
+███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝███████╗
+██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗╚════██║
+██║  ██║███████╗███████╗██║     ███████╗██║  ██║███████║
+╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝
+
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+****************************************************************************************************
+*/
+
 /**
+ * same code as in `bigint_decimal_scaled.arithmetic.js`
+ *
  * @param {number} n
  * @returns {bigint} 10^n (n >= 0)
  */
@@ -61,25 +90,8 @@ function pow10n(n) {
   return p;
 }
 
-// ------------------------ rounding core ------------------------
 /**
- * Integer rounding helper on a truncated quotient/remainder pair.
- *
- * Supported modes:
- * - HALF_EVEN (banker's): ties go to the nearest even last digit.
- * - HALF_UP:              ties (>= .5) round away from zero.
- *
- * Adjusts the truncated quotient `q` based on remainder `r` and positive divisor `d`.
- *
- * Contract:
- * - `q` is the quotient truncated toward zero.
- * - `r` is the remainder, with its sign already aligned to the sign of the result (`q`).
- * - `d` is the positive divisor magnitude (rounding threshold base).
- * - `r = 0n` is handled upstream.
- *
- * In effect:
- * - HALF_EVEN: ties round to the nearest even result digit.
- * - HALF_UP:   ties round away from zero.
+ * same code as in `bigint_decimal_scaled.arithmetic.js`
  *
  * @param {bigint} q - truncated integer quotient
  * @param {bigint} r - remainder (sign matches the result’s sign)
@@ -102,286 +114,6 @@ function roundInt(q, r, d) {
   // exact half → nearest even (check parity of q)
   return (q & 1n) === 0n ? q : (q + sign);
 }
-
-// ------------------------ parsing ------------------------
-
-/**
- * Fast path: parse a plain decimal string (no e/E) into BigInt at MATH_SCALE.
- * Accepts optional sign and a single '.' decimal point.
- * Rounds HALF_EVEN if more than MATH_SCALE fractional digits are present.
- *
- * @param {string} str
- * @returns {bigint} BigInt at scale = MATH_SCALE
- */
-function parsePlainDecimal(str) {
-  let i = 0, sign = 1n;
-  const c0 = str.charCodeAt(0);
-  if (c0 === 43 /*+*/) i++;
-  else if (c0 === 45 /*-*/) { sign = -1n; i++; }
-
-  // Integer part
-  const startInt = i;
-  while (i < str.length) {
-    const c = str.charCodeAt(i);
-    if (c >= 48 && c <= 57) { i++; continue; }
-    break;
-  }
-  let INT = str.slice(startInt, i);
-  if (INT.length === 0) INT = "0";
-
-  // Optional fractional part
-  let FR = "";
-  if (i < str.length && str[i] === ".") {
-    i++;
-    const startFr = i;
-    while (i < str.length) {
-      const c = str.charCodeAt(i);
-      if (c >= 48 && c <= 57) { i++; continue; }
-      break;
-    }
-    FR = str.slice(startFr, i);
-    if (FR.length === 0 && INT === "0") throw new Error(`Invalid number: ${str}`);
-  }
-
-  // No trailing garbage allowed
-  if (i !== str.length) throw new Error(`Invalid number: ${str}`);
-
-  // Fit fractional digits to MATH_SCALE (pad or round)
-  let bump = 0n; // 0=none, 1=round up, 2=tie (decide by parity)
-  if (FR.length > MATH_SCALE) {
-    const keep = FR.slice(0, MATH_SCALE);
-    const firstDiscard = FR.charCodeAt(MATH_SCALE) - 48; // 0..9
-    const rest = FR.slice(MATH_SCALE + 1);
-    FR = keep;
-    if (firstDiscard > 5 || (firstDiscard === 5 && /[1-9]/.test(rest))) bump = 1n;
-    else if (firstDiscard === 5 && !/[1-9]/.test(rest)) bump = 2n;
-  }
-  FR = FR.padEnd(MATH_SCALE, "0");
-
-  // Merge and strip leading zeros (leave at least one digit)
-  let merged = (INT + FR).replace(/^0+(?=\d)/, "");
-  if (merged === "") merged = "0";
-  let sig = BigInt(merged);
-
-  if (bump !== 0n) {
-    if (bump === 1n) {
-      sig += 1n; // away from zero (sign applied after)
-    } else {
-      // tie: HALF_EVEN → parity of last kept digit
-      if ((sig % 2n) !== 0n) sig += 1n;
-    }
-  }
-
-  const out = sign * sig;
-  return out === 0n ? 0n : out;
-}
-
-/**
- * Full path: parse decimal with optional scientific notation (e/E).
- * Keeps all digits; only rounds if exponent requires dropping digits
- * to land exactly at MATH_SCALE.
- *
- * @param {string} str
- * @returns {bigint} BigInt at scale = MATH_SCALE
- */
-function parseSciDecimal(str) {
-  let i = 0, sign = 1n;
-  const c0 = str.charCodeAt(0);
-  if (c0 === 43 /*+*/) i++;
-  else if (c0 === 45 /*-*/) { sign = -1n; i++; }
-
-  // Mantissa: integer and optional fraction
-  const startInt = i;
-  while (i < str.length && str.charCodeAt(i) >= 48 && str.charCodeAt(i) <= 57) i++;
-  let INT = str.slice(startInt, i);
-  if (INT === "") INT = "0";
-
-  let FR = "";
-  if (i < str.length && str[i] === ".") {
-    i++;
-    const startFr = i;
-    while (i < str.length && str.charCodeAt(i) >= 48 && str.charCodeAt(i) <= 57) i++;
-    FR = str.slice(startFr, i);
-    if (FR === "" && INT === "0") throw new Error(`Invalid number: ${str}`);
-  }
-
-  // Optional exponent
-  let exp = 0;
-  if (i < str.length && (str[i] === "e" || str[i] === "E")) {
-    i++;
-    const sgn = (i < str.length && (str[i] === "+" || str[i] === "-")) ? str[i++] : "+";
-    const startE = i;
-    while (i < str.length && str.charCodeAt(i) >= 48 && str.charCodeAt(i) <= 57) i++;
-    if (startE === i) throw new Error(`Invalid exponent: ${str}`);
-    const eAbs = parseInt(str.slice(startE, i), 10);
-    exp = (sgn === "-") ? -eAbs : +eAbs;
-  }
-  if (i !== str.length) throw new Error(`Invalid trailing characters: ${str}`);
-
-  // Combine mantissa digits and compute scale shift.
-  // Value = (INT.FR) * 10^exp = (digits / 10^{FRlen}) * 10^exp
-  // Want sig * 10^{-MATH_SCALE} == value  ⇒  sig = digits * 10^{MATH_SCALE - FRlen + exp}
-  const FRlen = FR.length;
-  const digitsStr = (INT + FR).replace(/^0+(?=\d)/, "") || "0";
-  let sig = BigInt(digitsStr);
-  const k = MATH_SCALE - FRlen + exp;
-
-  if (k >= 0) {
-    // multiply by 10^k
-    sig *= pow10n(k);
-    const out = sign * sig;
-    return out === 0n ? 0n : out;
-  } else {
-    // divide by 10^{-k} with rounding
-    const drop = -k;
-    const div = pow10n(drop);
-    const num = sign * sig;
-    const q = num / div;
-    const r = num % div;
-    const out = (r === 0n ? q : roundInt(q, r, div));
-    return out === 0n ? 0n : out;
-  }
-}
-
-/**
- * Parse a decimal string into a BigInt at MATH_SCALE, with a
- * **fast path** for plain decimals and a **slow path** for e-notation.
- *
- * Parse decimal with or without scientific notation (fast plain path, slow sci path).
- *
- * @example
- * stringToBigIntScaled("123.45")        // → 1234500000000000000000n
- * stringToBigIntScaled("-1.2e-3")       // → -0000000000000012000000n
- * stringToBigIntScaled("9.999...e15")   // preserves all input digits, rounds as needed
- *
- * @param {string} s
- * @returns {bigint} BigInt scaled by 10^MATH_SCALE
- * @throws {Error} on invalid format
- */
-export function stringToBigIntScaled(s) {
-  const str = String(s).trim();
-  if (!str) throw new Error("Empty number");
-  // Quick dispatch: plain decimal? take the fast path.
-  if (!/[eE]/.test(str)) return parsePlainDecimal(str);
-  // Otherwise, handle scientific notation.
-  return parseSciDecimal(str);
-}
-
-// ------------------------ formatting ------------------------
-
-/**
- * Convert a scaled BigInt to a decimal string.
- * @param {bigint} sig BigInt at MATH_SCALE
- * @param {{ trim?: boolean }} [opts] trim: remove trailing zeros and dot
- * @returns {string}
- */
-export function bigIntScaledToString(sig, opts) {
-  const trim = !!(opts && opts.trim);
-  let s = sig.toString();
-  const neg = s[0] === "-";
-  if (neg) s = s.slice(1);
-
-  if (MATH_SCALE === 0) return (neg ? "-" : "") + s;
-
-  if (s.length <= MATH_SCALE) {
-    s = "0".repeat(MATH_SCALE - s.length + 1) + s;
-  }
-  const i = s.length - MATH_SCALE;
-  let out = (neg ? "-" : "") + s.slice(0, i) + "." + s.slice(i);
-
-  if (trim) {
-    out = out.replace(/(\.\d*?[1-9])0+$/u, "$1").replace(/\.0+$/u, "");
-  }
-  return out;
-}
-
-// ------------------------ arithmetic ------------------------
-
-/**
- * Add two scale-MATH_SCALE BigInts.
- * @param {bigint} a
- * @param {bigint} b
- * @returns {bigint}
- */
-export function fxAdd(a, b) { return a + b; }
-
-/**
- * Subtract b from a, both scale-MATH_SCALE.
- * @param {bigint} a
- * @param {bigint} b
- * @returns {bigint}
- */
-export function fxSub(a, b) { return a - b; }
-
-/**
- * Multiply two scale-MATH_SCALE BigInts → scale-MATH_SCALE, with rounding.
- * @param {bigint} a
- * @param {bigint} b
- * @returns {bigint}
- */
-export function fxMul(a, b) {
-  const raw = a * b;               // scale 2*MATH_SCALE
-  const q = raw / SCALE_FACTOR;    // truncate back to MATH_SCALE
-  const r = raw % SCALE_FACTOR;
-  if (r === 0n) return q === 0n ? 0n : q;
-  const out = roundInt(q, r, SCALE_FACTOR);
-  return out === 0n ? 0n : out;    // normalize -0n
-}
-
-/**
- * Divide a by b (both at scale MATH_SCALE) → scale-MATH_SCALE, with rounding.
- * @param {bigint} a
- * @param {bigint} b
- * @returns {bigint}
- */
-export function fxDiv(a, b) {
-  if (b === 0n) throw new RangeError("Division by zero");
-  const num = a * SCALE_FACTOR;    // promote to preserve scale
-  const q = num / b;
-  const r = num % b;               // sign(r) == sign(num) == sign(a)
-  if (r === 0n) return q === 0n ? 0n : q;
-  // Round in the direction of the RESULT (a/b), not the dividend (a).
-  // Align remainder’s sign to match sign(q) / sign(a/b).
-  const absB = (b < 0n ? -b : b);
-  const rAdj = (b < 0n ? -r : r);
-  const out = roundInt(q, rAdj, absB);
-  return out === 0n ? 0n : out;
-}
-
-/**
- * Snap a scale-20 BigInt to the accounting grid (4 dp) but KEEP scale 20.
- * @param {bigint} sig
- * @returns {bigint}
- */
-export function reduceToAccounting(sig) {
-  const q = sig / GRID_FACTOR; // integer at ACCOUNTING_DECIMAL_PLACES dp
-  const r = sig % GRID_FACTOR;
-  if (r === 0n) return sig === 0n ? 0n : sig;
-  const qRounded = roundInt(q, r, GRID_FACTOR);
-  const snapped = qRounded * GRID_FACTOR;
-  return snapped === 0n ? 0n : snapped;
-}
-
-/*
-****************************************************************************************************
-****************************************************************************************************
-****************************************************************************************************
-****************************************************************************************************
-****************************************************************************************************
-
-██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ███████╗
-██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗██╔════╝
-███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝███████╗
-██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗╚════██║
-██║  ██║███████╗███████╗██║     ███████╗██║  ██║███████║
-╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝
-
-****************************************************************************************************
-****************************************************************************************************
-****************************************************************************************************
-****************************************************************************************************
-****************************************************************************************************
-*/
 
 // ============================
 // Financial helpers (BigInt FP)
@@ -464,25 +196,114 @@ export function fxPresentValue(fv, r, n) {
 }
 
 /**
- * PMT for an ordinary annuity (or annuity-due if `due=true`), all at BigInt fixed-point.
- * Formula (ordinary): PMT = r * (PV * (1+r)^n + FV) / ((1+r)^n - 1)
- * If due=true (annuity due), divide by (1+r).
+ * Compute the periodic **payment** for an annuity using fixed-point BigInt arithmetic
+ * at scale `MATH_SCALE`. Supports both **ordinary annuity** (end-of-period payments)
+ * and **annuity-due** (beginning-of-period payments), and lets you choose the **sign
+ * convention** (pure math vs Excel/Sheets).
  *
- * Does the full algebra at a guard scale and rounds once back to MATH_SCALE.
+ * ### Math
+ * Ordinary annuity (payments at period end):
+ * ```
+ * PMT = r * (PV * (1 + r)^n + FV) / ((1 + r)^n - 1)
+ * ```
+ * Annuity-due adjusts the ordinary result by dividing by `(1 + r)`:
+ * ```
+ * PMT_due = PMT_ordinary / (1 + r)
+ * ```
  *
- * @param {bigint} r - rate per period, scale=MATH_SCALE
- * @param {number|bigint} n - number of periods (>=1)
- * @param {bigint} pv - present value, scale=MATH_SCALE
- * @param {bigint} [fv=0n] - future value target
- * @param {boolean} [due=false] - true for annuity-due
- * @returns {bigint} payment per period, scale=MATH_SCALE
+ * ### Sign conventions
+ * - `"sameAsPV"` (default): **pure math**; the returned `PMT` has the **same sign as `PV`**.
+ * - `"excelCompat"`: matches Excel/Google Sheets; `PMT` is **negated** relative to `"sameAsPV"`.
+ *
+ * ### Rounding & precision
+ * - All intermediate operations are performed at a **guard scale** `MATH_SCALE + g` where
+ *   `g = max(6, computeGuardDigits(n))`, to limit rounding error. The result is then
+ *   reduced **once** back to `MATH_SCALE` using the engine’s global rounding mode
+ *   (typically `ROUND_HALF_EVEN`).
+ * - Internally, `SCALE_FACTOR = 10^MATH_SCALE`. Guard-scale helpers
+ *   (`scaleUpWithGuard`, `scaleDownWithGuard`, `fxMulAtScale`, `fxDivAtScale`) ensure
+ *   consistent rounding at the chosen scale.
+ *
+ * ### Edge cases & invariants
+ * - If `r === 0n`, the formula reduces to an arithmetic average:
+ *   ```
+ *   PMT = (PV + FV) / n
+ *   ```
+ *   The `due` flag has **no effect** at zero rate.
+ * - Division by zero is guarded by the `r === 0n` branch. For non-zero `r`, the denominator
+ *   is `(1 + r)^n - 1`. In finance, rates ≤ −100% (e.g., `r <= -SCALE_FACTOR`) are invalid.
+ *   Note that exotic values like `r = -2` with even `n` make `(1 + r)^n = 1` and would
+ *   **zero the denominator**; such inputs are out of scope for this function.
+ * - `n` must be a positive integer (`n >= 1`). A non-integral `n` will cause the internal
+ *   `BigInt(n)` coercion to throw.
+ *
+ * @param {bigint} r
+ *   Periodic interest rate **scaled by** `MATH_SCALE`. For example, with `MATH_SCALE = 20`,
+ *   a 5% rate is `stringToBigIntScaled("0.05")`. May be negative (but > −1 in practical use).
+ *
+ * @param {number|bigint} n
+ *   Number of periods (must be an integer `>= 1`). Accepts a JS `number` (coerced via
+ *   `BigInt(n)`) or a `bigint`. Large `n` increases guard digits via `computeGuardDigits(n)`.
+ *
+ * @param {bigint} pv
+ *   Present value **scaled by** `MATH_SCALE`. Sign indicates direction (cash in/out).
+ *
+ * @param {bigint} [fv=0n]
+ *   Target future value **scaled by** `MATH_SCALE`. Defaults to zero (fully amortizing).
+ *
+ * @param {boolean} [due=false]
+ *   If `true`, computes an **annuity-due** (payments at the **start** of each period).
+ *   When `r === 0n`, `due` has no effect.
+ *
+ * @param {"sameAsPV"|"excelCompat"} [sign="sameAsPV"]
+ *   Sign convention for the returned payment:
+ *   - `"sameAsPV"`: keep **same sign** as `pv` (library/pure-math convention).
+ *   - `"excelCompat"`: **negate** to match Excel/Sheets convention.
+ *
+ * @returns {bigint}
+ *   The periodic payment **scaled by** `MATH_SCALE`. Apply your formatter
+ *   (e.g., `bigIntScaledToString`) to render a human-readable decimal string.
+ *
+ * @throws {RangeError}
+ *   If `n <= 0`.
+ *
+ * @throws {TypeError}
+ *   If `n` is not coercible to `BigInt` (e.g., a non-integral `number` like `12.3`,
+ *   `NaN`, or an incompatible type).
+ *
+ * @example
+ * // Library/pure-math sign (same as PV)
+ * const r  = stringToBigIntScaled("0.05");   // 5% per period
+ * const n  = 24;                             // 24 periods
+ * const pv = stringToBigIntScaled("10000");  // 10,000 principal
+ * const p  = fxPmt(r, n, pv);                // due=false, sign="sameAsPV" (default)
+ * console.log(bigIntScaledToString(p));      // payment with SAME sign as PV
+ *
+ * @example
+ * // Excel/Sheets compatible sign (opposite to PV)
+ * const pX = fxPmt(r, n, pv, 0n, false, "excelCompat");
+ * console.log(bigIntScaledToString(pX));     // payment NEGATED vs pure-math result
+ *
+ * @example
+ * // Annuity-due (payments at period start)
+ * const pDue = fxPmt(r, n, pv, 0n, true);    // due=true
+ * console.log(bigIntScaledToString(pDue));
+ *
+ * @example
+ * // Zero rate: simple average; `due` has no effect
+ * const r0  = stringToBigIntScaled("0");
+ * const p0  = fxPmt(r0, 10, stringToBigIntScaled("1000"), 0n, true);
+ * // p0 === (pv + fv) / 10, then sign-adjusted if "excelCompat" is chosen.
  */
-export function fxPmt(r, n, pv, fv = 0n, due = false) {
+export function fxPmt(r, n, pv, fv = 0n, due = false, sign="sameAsPV") {
   const N = BigInt(n);
   if (N <= 0n) throw new RangeError("n must be >= 1");
+
   if (r === 0n) {
-    // PMT = (PV + FV) / n
-    return fxDiv(fxAdd(pv, fv), stringToBigIntScaled(String(n)));
+    // base formula, no sign flip here
+    let p = fxDiv(fxAdd(pv, fv), stringToBigIntScaled(String(n)));
+    if (sign === "excelCompat") p = -p;
+    return p;
   }
 
   // Compute entirely at a guard scale; then snap once to base scale.
@@ -516,7 +337,9 @@ export function fxPmt(r, n, pv, fv = 0n, due = false) {
   let pmtG = fxDivAtScale(numG, denG, SCALE_G);
   if (due) pmtG = fxDivAtScale(pmtG, onePlusR_G, SCALE_G);
 
-  return scaleDownWithGuard(pmtG, g);
+  let p = scaleDownWithGuard(pmtG, g);
+  if (sign === "excelCompat") p = -p;
+  return p;
 }
 
 // ---------- NPV / IRR ----------

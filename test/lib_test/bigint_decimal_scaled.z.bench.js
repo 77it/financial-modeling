@@ -9,18 +9,20 @@ import process from "node:process";
 
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
 import {
+    _TEST_ONLY__set as _TEST_ONLY__set_arithmetic,
     stringToBigIntScaled,
     bigIntScaledToString,
     fxAdd, fxSub, fxMul, fxDiv,
     reduceToAccounting,
-    fxPowInt, fxNPV, fxPmt, fxAmortizationSchedule, _TEST_ONLY__set,
-} from '../../src/lib/bigint_decimal_scaled.js';
+} from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
+import { _TEST_ONLY__set as _TEST_ONLY__set_finance, fxPowInt, fxNPV, fxPmt, fxAmortizationSchedule } from '../../src/lib/bigint_decimal_scaled.finance.js';
 import { ROUNDING_MODES } from '../../src/config/engine.js';
 
 const MATH_SCALE = 20;
 const ACCOUNTING_DECIMAL_PLACES = 4;
 // first set
-_TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+_TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+_TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 
 /** ---------------------------
  *  Config (tweak as you like)
@@ -194,7 +196,8 @@ function crossCheckAll() {
         const [DA, DB] = genPairs(DEC, rng);
 
         Decimal.set({ rounding: Decimal.ROUND_HALF_EVEN });
-        _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
         for (let i = 0; i < A.length; i++) {
             const m = fxMul(A[i], B[i]);
             const d = decToSig20(DA[i].times(DB[i]));
@@ -215,7 +218,8 @@ function crossCheckAll() {
         }
 
         Decimal.set({ rounding: Decimal.ROUND_HALF_UP });
-        _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
+        _TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
+        _TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
         for (let i = 0; i < A.length; i++) {
             const m = fxMul(A[i], B[i]);
             const d = decToSig20(DA[i].times(DB[i]));
@@ -241,7 +245,8 @@ function crossCheckAll() {
 
         // HALF_EVEN
         Decimal.set({ rounding: dEven });
-        _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
         for (let i = 0; i < BIG.length; i++) {
             const got = reduceToAccounting(BIG[i]);
             const ref = decSnapToAccountingSig20(DEC[i], dEven);
@@ -253,7 +258,8 @@ function crossCheckAll() {
 
         // HALF_UP
         Decimal.set({ rounding: dUp });
-        _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
+        _TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
+        _TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
         for (let i = 0; i < BIG.length; i++) {
             const got = reduceToAccounting(BIG[i]);
             const ref = decSnapToAccountingSig20(DEC[i], dUp);
@@ -327,7 +333,8 @@ function crossCheckAll() {
     // --- PMT + amortization last balance ≈ 0 ---
     {
         const rng3 = makeRng(CFG.SEED ^ 0x1234);
-        _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
         for (let k = 0; k < 50; k++) {
             const principal = stringToBigIntScaled((rng3()*100000 + 1000).toFixed(2));
             const r = stringToBigIntScaled((rng3()*0.05).toFixed(6)); // 0..5% per period
@@ -409,7 +416,8 @@ function runBenches() {
 
     console.log("\n== Mul/Div (HALF_EVEN) ==");
     {
-        _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 
         const [A, B] = genPairs(BIG_SIGS, rng);
         const [DA, DB] = genPairs(DEC_OBJS, rng);
@@ -436,7 +444,8 @@ function runBenches() {
 
     console.log("\n== Quantize to accounting grid (4 dp) ==");
     {
-        _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 
         const [A] = genPairs(BIG_SIGS, rng);
         bench("BigInt reduceToAccounting(HALF_EVEN)", () => {
@@ -484,7 +493,8 @@ function runBenches() {
 
     console.log("\n== Amortization schedule ==");
     {
-        _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+        _TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 
         const principal = stringToBigIntScaled("100000");
         const r = stringToBigIntScaled("0.01"); // 1% per period

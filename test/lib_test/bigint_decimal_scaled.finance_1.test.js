@@ -1,10 +1,11 @@
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
 import {
-    _TEST_ONLY__set,
+    _TEST_ONLY__set as _TEST_ONLY__set_arithmetic,
     stringToBigIntScaled,
     bigIntScaledToString,
-    fxAdd, fxSub, fxDiv, fxMul, fxPmt, fxPowInt
-} from '../../src/lib/bigint_decimal_scaled.js';
+    fxAdd, fxSub, fxDiv, fxMul
+} from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
+import { _TEST_ONLY__set as _TEST_ONLY__set_finance, fxPmt, fxPowInt } from '../../src/lib/bigint_decimal_scaled.finance.js';
 import {ROUNDING_MODES} from '../../src/config/engine.js';
 
 import { test } from 'node:test';
@@ -15,7 +16,8 @@ const MATH_SCALE = 20;
 const ACCOUNTING_DECIMAL_PLACES = 4;
 const ONE = stringToBigIntScaled("1"); // 1.0 at current base scale
 // first set
-_TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+_TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
+_TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 
 // --- helpers ---
 
@@ -28,18 +30,6 @@ function assertUlpsClose(a, b, maxUlps = 200n) {
     if (d > maxUlps) {
         throw new Error(`message: |diff|=${d} ulps > ${maxUlps} ulps, actual: a, expected: b, operator: 'ulpsClose'`);
     }
-}
-
-/** Convert Decimal to our scale-20 BigInt via toFixed(MATH_SCALE). */
-//@ts-ignore .
-function decToSig20(d) {
-    const s = d.toFixed(MATH_SCALE);
-    const neg = s[0] === "-";
-    const t = neg ? s.slice(1) : s;
-    const [int, frac = ""] = t.split(".");
-    const merged = (int + frac.padEnd(MATH_SCALE, "0")).replace(/^0+(?=\d)/, "") || "0";
-    const sig = BigInt(merged);
-    return neg ? -sig : sig;
 }
 
 // --- configure Decimal for tests ---

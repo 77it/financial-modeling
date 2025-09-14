@@ -1,13 +1,12 @@
-import { Decimal } from '../../vendor/decimaljs/decimal.js';
 import {
     _TEST_ONLY__set,
-    getSettings,
     stringToBigIntScaled,
     bigIntScaledToString,
     fxAdd, fxSub, fxMul, fxDiv,
     reduceToAccounting,
-} from '../../src/lib/bigint_decimal_scaled.js';
+} from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
 import {ROUNDING_MODES} from '../../src/config/engine.js';
+import { Decimal } from '../../vendor/decimaljs/decimal.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
