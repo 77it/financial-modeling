@@ -1,4 +1,8 @@
+//<file bigint_decimal_scaled.arithmetic.js>
+
+// file bigint_decimal_scaled.arithmetic.js
 export { stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, reduceToAccounting, _TEST_ONLY__set };
+export { roundInt as _INTERNAL_roundInt, fxDivGuarded as _INTERNAL_fxDivGuarded }
 
 import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, /* used only for types */ ROUNDING_MODES } from '../config/engine.js';
 
@@ -145,22 +149,85 @@ function fxMul(a, b) {
 }
 
 /**
- * Divide a by b (both at scale MATH_SCALE) → scale-MATH_SCALE, with rounding.
- * @param {bigint} a
- * @param {bigint} b
- * @returns {bigint}
+ * Divide a by b (both scaled by MATH_SCALE) → result at scale MATH_SCALE.
+ * Uses integer arithmetic with guard digits to ensure correct rounding.
+ *
+ * @param {bigint} a - dividend, scaled by MATH_SCALE
+ * @param {bigint} b - divisor, scaled by MATH_SCALE
+ * @returns {bigint} quotient, scaled by MATH_SCALE
  */
 function fxDiv(a, b) {
   if (b === 0n) throw new RangeError("Division by zero");
-  const num = a * SCALE_FACTOR;    // promote to preserve scale
-  const q = num / b;
-  const r = num % b;               // sign(r) == sign(num) == sign(a)
+  const num = a * SCALE_FACTOR;      // promote to preserve scale
+  const q = num / b;                 // truncated toward zero
+  const r = num % b;                 // sign(r) == sign(num) == sign(a)
   if (r === 0n) return q === 0n ? 0n : q;
+
   // Round in the direction of the RESULT (a/b), not the dividend (a).
   // Align remainder’s sign to match sign(q) / sign(a/b).
   const absB = (b < 0n ? -b : b);
   const rAdj = (b < 0n ? -r : r);
-  const out = roundInt(q, rAdj, absB);
+
+  const out = roundInt(q, rAdj, absB);   // <-- no guard
+  return out === 0n ? 0n : out;
+}
+
+/**
+ * Divide two BigInt fixed-point values at the global `MATH_SCALE`,
+ * carrying an **extra guard digit** (×10) to reduce rounding drift.
+ *
+ * ### How it works
+ * - Multiplies the dividend by `SCALE_FACTOR × 10n` instead of just `SCALE_FACTOR`.
+ * - Performs integer division and rounding in the guarded domain.
+ * - Drops the guard digit once at the end to return to `MATH_SCALE`.
+ *
+ * ### Behavior vs. `fxDiv`
+ * - `fxDiv` (unguarded) matches Decimal.js exactly at `MATH_SCALE`.
+ * - `fxDivGuarded` may differ by ±1 ulp on HALF_EVEN ties, because it
+ *   “peeks” one digit further before rounding.
+ *
+ * ### When to use
+ * - Use in **internal high-precision workflows** (e.g. iterative methods,
+ *   chained guard-scale operations) where carrying one extra digit reduces
+ *   cumulative rounding error.
+ * - **Do not** use when you need strict bit-for-bit agreement with Decimal.js
+ *   or other decimal libraries at the configured scale.
+ *
+ * @param {bigint} a - Dividend at `MATH_SCALE`.
+ * @param {bigint} b - Divisor at `MATH_SCALE` (≠ 0n).
+ * @returns {bigint} Quotient at `MATH_SCALE`, rounded according to `ROUNDING_MODE`.
+ * @throws {RangeError} If `b === 0n`.
+ */
+function fxDivGuarded(a, b) {
+  if (b === 0n) throw new RangeError("Division by zero");
+
+  // Promote to preserve scale. Add a single guard digit (×10) to avoid
+  // rounding on a truncated last digit for extreme quotients.
+  const GUARD = 10n; // one guard digit
+  const num = a * SCALE_FACTOR * GUARD;
+
+  // Single integer division; compute remainder without `%` to avoid a second div.
+  let q = num / b;
+  let r = num - q * b;             // sign(r) == sign(num) == sign(a)
+
+  if (r === 0n) {
+    // Exact division: drop guard and return (also normalizes -0n on the way out)
+    const outExact = q / GUARD;
+    return outExact === 0n ? 0n : outExact;
+  }
+
+  // Round in the direction of the RESULT (a/b), not the dividend (a).
+  // Align remainder’s sign to match sign(q) / sign(a/b).
+  const absB = (b < 0n ? -b : b);
+  const rAdj = (b < 0n ? -r : r);
+
+  // Round q using the configured mode (HALF_UP / HALF_EVEN).
+  q = roundInt(q, rAdj, absB, GUARD);
+
+  // Drop the guard digit to return at scale=MATH_SCALE.
+  const out = q / GUARD;
+
+  // Normalize -0n → 0n
   return out === 0n ? 0n : out;
 }
 
@@ -196,44 +263,48 @@ function pow10n(n) {
 
 // ------------------------ rounding core ------------------------
 /**
- * Integer rounding helper on a truncated quotient/remainder pair.
- *
- * Supported modes:
- * - HALF_EVEN (banker's): ties go to the nearest even last digit.
- * - HALF_UP:              ties (>= .5) round away from zero.
- *
- * Adjusts the truncated quotient `q` based on remainder `r` and positive divisor `d`.
+  * @internal used only here and in bigInt Decimal Scaled Financial library
+  *
+ * Round integer quotient q with remainder r over divisor d, according to
+ * configured ROUNDING_MODE ("HALF_UP" or "HALF_EVEN").
  *
  * Contract:
- * - `q` is the quotient truncated toward zero.
- * - `r` is the remainder, with its sign already aligned to the sign of the result (`q`).
- * - `d` is the positive divisor magnitude (rounding threshold base).
- * - `r = 0n` is handled upstream.
+ *   - q is the truncated integer result so far
+ *   - r's sign encodes rounding direction (must match result's sign by contract)
+ *   - d is the positive divisor
+ *   - guard > 1n if upstream added guard digits (e.g. 10n), otherwise 1n
  *
- * In effect:
- * - HALF_EVEN: ties round to the nearest even result digit.
- * - HALF_UP:   ties round away from zero.
- *
- * @param {bigint} q - truncated integer quotient
- * @param {bigint} r - remainder (sign matches the result’s sign)
- * @param {bigint} d - positive divisor magnitude
- * @returns {bigint} adjusted quotient
+ * @param {bigint} q - truncated quotient
+ * @param {bigint} r - remainder (signed; if guarded, includes that scale)
+ * @param {bigint} d - positive divisor
+ * @param {bigint} [guard=1n] - guard factor used upstream
+ * @returns {bigint} rounded quotient
  */
-function roundInt(q, r, d) {
-  // r's sign encodes rounding direction (must match result's sign by contract)
-  const sign  = r >= 0n ? 1n : -1n;
-  const absR  = r >= 0n ? r : -r;
-  const twice = absR * 2n;
+function roundInt(q, r, d, guard = 1n) {
+  // remainder’s sign encodes rounding direction (matches result’s sign by contract)
+  const sign = r >= 0n ? 1n : -1n;
+  const absR = r >= 0n ? r : -r;
+
+  // Compare in the guarded domain to avoid losing information:
+  // 2*|r| ? d*guard
+  const lhs = absR * 2n;
+  const rhs = d * guard;
+
+  // Step size to change the *target-scale* integer by 1
+  const step = (guard === 1n) ? 1n : guard;
 
   if (ROUNDING_MODE === "HALF_UP") {
-    return twice >= d ? q + sign : q;
+    return lhs >= rhs ? q + sign * step : q;
   }
   // HALF_EVEN
-  if (twice > d) return q + sign;
-  if (twice < d) return q;
+  if (lhs > rhs) return q + sign * step;
+  if (lhs < rhs) return q;
 
-  // exact half → nearest even (check parity of q)
-  return (q & 1n) === 0n ? q : (q + sign);
+  // exact half → nearest even
+  // check parity at the target unit (drop guard if present)
+  const baseQ = (guard === 1n) ? q : (q / guard);
+  const isEven = (baseQ & 1n) === 0n;
+  return isEven ? q : (q + sign * step);
 }
 
 // ------------------------ parsing ------------------------

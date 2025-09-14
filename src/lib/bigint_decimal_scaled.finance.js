@@ -1,6 +1,9 @@
+//<file bigint_decimal_scaled.finance.js>
+
 export { _TEST_ONLY__set };
 
 import { stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from './bigint_decimal_scaled.arithmetic.js';
+import { _INTERNAL_roundInt as roundInt, _INTERNAL_fxDivGuarded as fxDivGuarded } from './bigint_decimal_scaled.arithmetic.js';
 
 import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, /* used only for types */ ROUNDING_MODES } from '../config/engine.js';
 
@@ -88,31 +91,6 @@ function pow10n(n) {
   let p = POW10[MAX_POW10];
   for (let i = MAX_POW10; i < n; i++) p *= 10n;
   return p;
-}
-
-/**
- * same code as in `bigint_decimal_scaled.arithmetic.js`
- *
- * @param {bigint} q - truncated integer quotient
- * @param {bigint} r - remainder (sign matches the result’s sign)
- * @param {bigint} d - positive divisor magnitude
- * @returns {bigint} adjusted quotient
- */
-function roundInt(q, r, d) {
-  // r's sign encodes rounding direction (must match result's sign by contract)
-  const sign  = r >= 0n ? 1n : -1n;
-  const absR  = r >= 0n ? r : -r;
-  const twice = absR * 2n;
-
-  if (ROUNDING_MODE === "HALF_UP") {
-    return twice >= d ? q + sign : q;
-  }
-  // HALF_EVEN
-  if (twice > d) return q + sign;
-  if (twice < d) return q;
-
-  // exact half → nearest even (check parity of q)
-  return (q & 1n) === 0n ? q : (q + sign);
 }
 
 // ============================
@@ -684,14 +662,66 @@ export function fxSubAtScale(a, b, SCALE) {
  */
 function fxDivAtScale(num, den, SCALE) {
   if (den === 0n) throw new RangeError("Division by zero");
-  const wide = num * SCALE;      // promote to preserve scale
+  const wide = num * SCALE;          // promote to preserve scale
   const q = wide / den;
   const r = wide % den;
   if (r === 0n) return q === 0n ? 0n : q;
 
   const absDen = den < 0n ? -den : den;
-  // Align remainder sign to RESULT sign (same rule as fxDiv fix)
+  // Align remainder sign to RESULT sign (same rule as fxDiv)
   const rAdj = den < 0n ? -r : r;
-  const out = roundInt(q, rAdj, absDen);
+
+  const out = roundInt(q, rAdj, absDen); // <-- no guard
+  return out === 0n ? 0n : out;
+}
+
+/**
+ * Divide two BigInt fixed-point values at an **arbitrary SCALE**,
+ * carrying an **extra guard digit** (×10) to reduce rounding drift.
+ *
+ * ### How it works
+ * - Multiplies the numerator by `SCALE × 10n` instead of just `SCALE`.
+ * - Performs integer division and rounding in the guarded domain.
+ * - Drops the guard digit once at the end to return to the caller’s `SCALE`.
+ *
+ * ### Behavior vs. `fxDivAtScale`
+ * - `fxDivAtScale` (unguarded) matches Decimal.js exactly at the given `SCALE`.
+ * - `fxDivAtScaleGuarded` may differ by ±1 ulp on HALF_EVEN ties,
+ *   because it rounds using the extra digit before reducing.
+ *
+ * ### When to use
+ * - Use inside **guard-scale finance helpers** (`fxPowInt`, `fxPmt`, `fxNPV`),
+ *   when you want to minimize cumulative rounding error in intermediate steps.
+ * - **Do not** use for regression tests or when matching Decimal.js is required.
+ *
+ * @param {bigint} num - Numerator at scale = `SCALE`.
+ * @param {bigint} den - Denominator at scale = `SCALE` (≠ 0n).
+ * @param {bigint} SCALE - Scaling factor (e.g. `10n ** 20n` or guard scale).
+ * @returns {bigint} Quotient at the same `SCALE`, rounded according to `ROUNDING_MODE`.
+ * @throws {RangeError} If `den === 0n`.
+ */
+function fxDivAtScaleGuarded(num, den, SCALE) {
+  if (den === 0n) throw new RangeError("Division by zero");
+
+  // Promote to preserve scale and add a single guard digit (×10).
+  // This avoids rounding on a truncated last digit for extreme quotients.
+  const GUARD = 10n;
+  const wide  = num * SCALE * GUARD;
+
+  // One division; remainder via subtraction to avoid a second div/mod if desired.
+  let q = wide / den;
+  let r = wide - q * den; // sign(r) == sign(num)
+  if (r === 0n) {
+    const exact = q / GUARD;
+    return exact === 0n ? 0n : exact;
+  }
+
+  const absDen = den < 0n ? -den : den;
+  // Align remainder sign to the RESULT (same rule used elsewhere).
+  const rAdj = den < 0n ? -r : r;
+
+  // Round at guard precision, then drop guard once.
+  q = roundInt(q, rAdj, absDen, GUARD);
+  const out = q / GUARD;
   return out === 0n ? 0n : out;
 }
