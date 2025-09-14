@@ -87,9 +87,9 @@ function pow10n(n) {
  * @returns {bigint} adjusted quotient
  */
 function roundInt(q, r, d) {
-  // r !== 0 required by callers
-  const sign = r >= 0n ? 1n : -1n; // sign of dividend
-  const absR = r < 0n ? -r : r;
+  // r's sign encodes rounding direction (must match result's sign by contract)
+  const sign  = r >= 0n ? 1n : -1n;
+  const absR  = r >= 0n ? r : -r;
   const twice = absR * 2n;
 
   if (ROUNDING_MODE === "HALF_UP") {
@@ -98,9 +98,9 @@ function roundInt(q, r, d) {
   // HALF_EVEN
   if (twice > d) return q + sign;
   if (twice < d) return q;
-  // exact half → nearest even (parity of last kept digit)
-  const last = (q >= 0n ? q : -q) % 10n;
-  return (last % 2n === 0n) ? q : (q + sign);
+
+  // exact half → nearest even (check parity of q)
+  return (q & 1n) === 0n ? q : (q + sign);
 }
 
 // ------------------------ parsing ------------------------
@@ -390,24 +390,31 @@ export function reduceToAccounting(sig) {
 // ---------- Core utilities ----------
 
 /**
- * Integer power for fixed-point numbers: base^n, n >= 0.
- * Uses exponentiation by squaring; each multiply rounds once.
+ * Fixed-scale integer power with adaptive guard scale.
+ * Exponentiation-by-squaring at guard precision, then round once to base scale.
  *
- * @param {bigint} base - scale = MATH_SCALE
- * @param {number|bigint} n - non-negative integer exponent
- * @returns {bigint} - scale = MATH_SCALE
+ * @param {bigint} base - scaled base at scale = MATH_SCALE
+ * @param {number|bigint} n - exponent (>= 0)
+ * @returns {bigint} result at scale = MATH_SCALE
+ * @throws {RangeError} if n < 0
  */
 export function fxPowInt(base, n) {
   let e = BigInt(n);
   if (e < 0n) throw new RangeError("Exponent must be non-negative");
-  let acc = SCALE_FACTOR;
-  let b = base;
+  if (e === 0n) return SCALE_FACTOR;
+
+  const g = computeGuardDigits(e);
+  const SCALE_G = SCALE_FACTOR * pow10n(g);
+
+  let accG = SCALE_G;                   // 1 at guard scale
+  let bG   = scaleUpWithGuard(base, g); // base at guard scale
+
   while (e > 0n) {
-    if (e & 1n) acc = fxMul(acc, b);
+    if (e & 1n) accG = fxMulAtScale(accG, bG, SCALE_G);
     e >>= 1n;
-    if (e) b = fxMul(b, b);
+    if (e) bG = fxMulAtScale(bG, bG, SCALE_G);
   }
-  return acc;
+  return scaleDownWithGuard(accG, g);
 }
 
 /**
@@ -457,16 +464,15 @@ export function fxPresentValue(fv, r, n) {
 }
 
 /**
- * Payment for annuity (PMT), ordinary annuity by default.
+ * PMT for an ordinary annuity (or annuity-due if `due=true`), all at BigInt fixed-point.
  * Formula (ordinary): PMT = r * (PV * (1+r)^n + FV) / ((1+r)^n - 1)
  * If due=true (annuity due), divide by (1+r).
  *
- * Sign convention: all inputs are just magnitudes in your modeling;
- * choose your sign policy externally (e.g., return positive PMT).
+ * Does the full algebra at a guard scale and rounds once back to MATH_SCALE.
  *
- * @param {bigint} r - rate per period
+ * @param {bigint} r - rate per period, scale=MATH_SCALE
  * @param {number|bigint} n - number of periods (>=1)
- * @param {bigint} pv - present value (e.g., principal)
+ * @param {bigint} pv - present value, scale=MATH_SCALE
  * @param {bigint} [fv=0n] - future value target
  * @param {boolean} [due=false] - true for annuity-due
  * @returns {bigint} payment per period, scale=MATH_SCALE
@@ -478,36 +484,88 @@ export function fxPmt(r, n, pv, fv = 0n, due = false) {
     // PMT = (PV + FV) / n
     return fxDiv(fxAdd(pv, fv), stringToBigIntScaled(String(n)));
   }
-  const onePlusR = fxAdd(SCALE_FACTOR, r);
-  const pow = fxPowInt(onePlusR, N);
-  const numLeft = fxMul(pv, pow);
-  const num = fxMul(r, fxAdd(numLeft, fv));
-  const den = fxSub(pow, SCALE_FACTOR);
-  let pmt = fxDiv(num, den);
-  if (due) pmt = fxDiv(pmt, onePlusR);
-  return pmt;
+
+  // Compute entirely at a guard scale; then snap once to base scale.
+  const g = Math.max(6, computeGuardDigits(N));
+  const SCALE_G = SCALE_FACTOR * pow10n(g);
+
+  // (1+r) at guard scale
+  const onePlusR_G = scaleUpWithGuard(fxAdd(SCALE_FACTOR, r), g);
+
+  // powG = (1+r)^N at guard scale (exp-by-squaring using guard-scale mul)
+  let e = N;
+  let accG = SCALE_G;     // 1.0 at guard scale
+  let bG   = onePlusR_G;  // base at guard scale
+  while (e > 0n) {
+    if (e & 1n) accG = fxMulAtScale(accG, bG, SCALE_G);
+    e >>= 1n;
+    if (e) bG = fxMulAtScale(bG, bG, SCALE_G);
+  }
+  const powG = accG;
+
+  // Lift inputs to guard scale
+  const pvG = scaleUpWithGuard(pv, g);
+  const fvG = scaleUpWithGuard(fv, g);
+  const rG  = scaleUpWithGuard(r,  g);
+
+  // num = r * (pv * pow + fv)   ; den = pow - 1
+  const numLeftG = fxMulAtScale(pvG, powG, SCALE_G);
+  const numG     = fxMulAtScale(rG, numLeftG + fvG, SCALE_G);
+  const denG     = powG - SCALE_G;
+
+  let pmtG = fxDivAtScale(numG, denG, SCALE_G);
+  if (due) pmtG = fxDivAtScale(pmtG, onePlusR_G, SCALE_G);
+
+  return scaleDownWithGuard(pmtG, g);
 }
 
 // ---------- NPV / IRR ----------
 
 /**
- * Net Present Value.
- * cashflows[t] is the cash flow at period t (t=0..T). All BigInt at MATH_SCALE.
- * NPV = sum_{t=0..T} cf[t] / (1+r)^t
+ * Net Present Value at fixed decimal scale with adaptive guard precision.
+ * Computes:
+ *   NPV = Σ_{t=0..T-1} CF[t] / (1 + r)^t
+ * All intermediate ops are done at guard scale to suppress cumulative drift,
+ * then we round once back to base scale.
  *
- * @param {bigint} r - rate per period
- * @param {bigint[]} cashflows - cf[0], cf[1], ... cf[T]
- * @returns {bigint} NPV at MATH_SCALE
+ * Contract:
+ * - `rate` is scaled at base scale (MATH_SCALE), e.g. -0.058817 → scaled bigint.
+ * - `cashflows` are scaled at base scale.
+ * - Returns base-scale bigint.
+ *
+ * @param {bigint} rate - periodic rate at scale = MATH_SCALE
+ * @param {bigint[]} cashflows - cash flows at scale = MATH_SCALE
+ * @returns {bigint} NPV at scale = MATH_SCALE
  */
-export function fxNpv(r, cashflows) {
-  let total = 0n;
-  let df = SCALE_FACTOR; // (1+r)^0
-  const onePlusR = fxAdd(SCALE_FACTOR, r);
-  for (let t = 0; t < cashflows.length; t++) {
-    if (t > 0) df = fxDiv(df, onePlusR); // multiply by 1/(1+r) iteratively (stable)
-    total = fxAdd(total, fxMul(cashflows[t], df));
+export function fxNPV(rate, cashflows) {
+  const T = BigInt(cashflows.length);
+  if (T === 0n) return 0n;
+
+  // Guard digits sized to number of steps (one mul and one div per t)
+  const g = computeGuardDigits(T);
+  const SCALE_G = SCALE_FACTOR * pow10n(g);
+
+  // Lift inputs to guard scale
+  const onePlusR_base = fxAdd(SCALE_FACTOR, rate);            // base scale
+  const onePlusR_G    = scaleUpWithGuard(onePlusR_base, g);   // guard scale
+
+  let dfG  = SCALE_G;   // discount factor for t=0 at guard scale (== 1)
+  let sumG = 0n;
+
+  for (let i = 0; i < cashflows.length; i++) {
+    const cfG = scaleUpWithGuard(cashflows[i], g);
+    // sum += cf[i] * df
+    const termG = fxMulAtScale(cfG, dfG, SCALE_G);
+    sumG = fxAddAtScale(sumG, termG, SCALE_G);
+
+    // df /= (1 + r) for next period (stay at guard scale)
+    if (i + 1 < cashflows.length) {
+      dfG = fxDivAtScale(dfG, onePlusR_G, SCALE_G);
+    }
   }
-  return total;
+
+  // Round back to base scale once
+  return scaleDownWithGuard(sumG, g);
 }
 
 /**
@@ -533,21 +591,21 @@ export function fxIrr(cashflows,
   } = {}
 ) {
   let lo = minRate, hi = maxRate;
-  let fLo = fxNpv(lo, cashflows);
-  let fHi = fxNpv(hi, cashflows);
+  let fLo = fxNPV(lo, cashflows);
+  let fHi = fxNPV(hi, cashflows);
 
   // Ensure a bracket (if not, try to expand hi quickly up to a cap)
   let expand = 0;
   while ((fLo > 0n && fHi > 0n) || (fLo < 0n && fHi < 0n)) {
     if (expand++ > 16) throw new Error("IRR: failed to bracket root");
     hi = fxAdd(hi, fxAdd(SCALE_FACTOR, hi)); // hi = hi + (1+hi) ~ geometric expand
-    fHi = fxNpv(hi, cashflows);
+    fHi = fxNPV(hi, cashflows);
   }
 
   // Bisection
   for (let i = 0; i < maxIter; i++) {
     const mid = fxDiv(fxAdd(lo, hi), stringToBigIntScaled("2"));
-    const fMid = fxNpv(mid, cashflows);
+    const fMid = fxNPV(mid, cashflows);
     const absMid = fMid >= 0n ? fMid : -fMid;
     if (absMid <= tol) return mid;
 
@@ -658,4 +716,159 @@ export function fxAmortizationSchedule(principal, ratePerPeriod, periods, due = 
   }
 
   return { payment: pmt, rows };
+}
+
+/*
+██╗███╗   ██╗████████╗███████╗██████╗ ███╗   ██╗ █████╗ ██╗
+██║████╗  ██║╚══██╔══╝██╔════╝██╔══██╗████╗  ██║██╔══██╗██║
+██║██╔██╗ ██║   ██║   █████╗  ██████╔╝██╔██╗ ██║███████║██║
+██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██║╚██╗██║██╔══██║██║
+██║██║ ╚████║   ██║   ███████╗██║  ██║██║ ╚████║██║  ██║███████╗
+╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
+
+ ██████╗ ██╗   ██╗ █████╗ ██████╗ ██████╗     ███████╗ ██████╗ █████╗ ██╗     ███████╗
+██╔════╝ ██║   ██║██╔══██╗██╔══██╗██╔══██╗    ██╔════╝██╔════╝██╔══██╗██║     ██╔════╝
+██║  ███╗██║   ██║███████║██████╔╝██║  ██║    ███████╗██║     ███████║██║     █████╗
+██║   ██║██║   ██║██╔══██║██╔══██╗██║  ██║    ╚════██║██║     ██╔══██║██║     ██╔══╝
+╚██████╔╝╚██████╔╝██║  ██║██║  ██║██████╔╝    ███████║╚██████╗██║  ██║███████╗███████╗
+ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝     ╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝
+
+██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ███████╗
+██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗██╔════╝
+███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝███████╗
+██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗╚════██║
+██║  ██║███████╗███████╗██║     ███████╗██║  ██║███████║
+╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝
+
+                    ╔═══════════════╗
+                    ║ (NO EXPORTS)  ║
+                    ╚═══════════════╝
+ */
+
+/**
+ * Estimate how many rounded multiplications exp-by-squaring will perform:
+ * upper bound ≈ 2 * bitlength(n). We size guard digits so that the total
+ * rounding error << 0.5 ulp at base scale after we reduce back.
+ *
+ * Safe rule: g = (#decimal digits of ops) + 3, min 5.
+ * This over-approximates ceil(log10(2*ops)) + 2 and has tiny overhead.
+ *
+ * @param {bigint} n - exponent (>= 0)
+ * @returns {number} guard digits to add on top of MATH_SCALE
+ */
+function computeGuardDigits(n) {
+  if (n <= 1n) return 5;
+
+  // bit length of n
+  let bl = 0n, t = n;
+  while (t > 0n) { t >>= 1n; bl++; }
+
+  // rough upper bound on multiply count
+  const ops = 2n * bl;
+
+  // decimal digits of ops
+  let dd = 0n, u = ops;
+  while (u > 0n) { u /= 10n; dd++; }
+
+  const g = Number(dd) + 3; // conservative cushion
+  return g < 5 ? 5 : g;
+}
+
+/**
+ * Promote a scaled integer from base scale (MATH_SCALE)
+ * to guard scale (MATH_SCALE + g).
+ * @param {bigint} sig - value at scale = MATH_SCALE
+ * @param {number} g - guard digits to add (>= 1)
+ * @returns {bigint} value at scale = MATH_SCALE + g
+ */
+function scaleUpWithGuard(sig, g) {
+  return sig * pow10n(g);
+}
+
+/**
+ * Reduce from guard scale (MATH_SCALE + g) back to base (MATH_SCALE),
+ * using global HALF_* rounding; normalizes -0n.
+ * @param {bigint} sigG - value at scale = MATH_SCALE + g
+ * @param {number} g - guard digits previously used
+ * @returns {bigint} value at scale = MATH_SCALE
+ */
+function scaleDownWithGuard(sigG, g) {
+  const d = pow10n(g);
+  const q = sigG / d;
+  const r = sigG % d;
+  if (r === 0n) return q === 0n ? 0n : q;
+  return roundInt(q, r, d) || 0n;
+}
+
+/**
+ * Multiply two values at the SAME scale and round back to that scale.
+ * Uses global HALF_* mode. Normalizes -0n to 0n.
+ * @param {bigint} rawA - operand A at scale = SCALE
+ * @param {bigint} rawB - operand B at scale = SCALE
+ * @param {bigint} SCALE - scaling factor (10^digits), positive
+ * @returns {bigint} product at scale = SCALE
+ */
+function fxMulAtScale(rawA, rawB, SCALE) {
+  const raw = rawA * rawB;            // scale = 2*SCALE
+  const q = raw / SCALE;              // truncate
+  const r = raw % SCALE;
+  if (r === 0n) return q === 0n ? 0n : q;
+  return roundInt(q, r, SCALE) || 0n;
+}
+
+/**
+ * Add two fixed-point BigInts already expressed at the same SCALE.
+ * SCALE is accepted for API symmetry; it is not
+ * used in the arithmetic because addition requires no rescaling.
+ *
+ * @param {bigint} a - Left operand (fixed-point at SCALE)
+ * @param {bigint} b - Right operand (fixed-point at SCALE)
+ * @param {bigint} SCALE - [UNUSED] Scale factor (e.g., 10n ** 20n or guard SCALE_G)
+ * @returns {bigint} Sum at SCALE
+ */
+export function fxAddAtScale(a, b, SCALE) {
+  return a + b;
+}
+
+/**
+ * Subtract two fixed-point BigInts already expressed at the same SCALE.
+ * SCALE is accepted for API symmetry; it is not
+ * used in the arithmetic because addition requires no rescaling.
+ * @param {bigint} a - Left operand (fixed-point at SCALE)
+ * @param {bigint} b - Right operand (fixed-point at SCALE)
+ * @param {bigint} SCALE - [UNUSED] Scale factor (e.g., 10n ** 20n or guard SCALE_G)
+ * @returns {bigint} Difference at SCALE
+ */
+export function fxSubAtScale(a, b, SCALE) {
+  // Optional dev guard:
+  // if (SCALE <= 0n) throw new RangeError("SCALE must be > 0");
+  return a - b;
+}
+
+/**
+ * Divide two values at the SAME scale and round back to that scale
+ * using the global HALF_* rounding mode. Normalizes -0n.
+ *
+ * Contract:
+ * - Numerator and denominator are at scale = SCALE.
+ * - Denominator ≠ 0n.
+ * - Rounding direction follows the RESULT’s sign (handled via rAdj).
+ *
+ * @param {bigint} num - numerator at scale = SCALE
+ * @param {bigint} den - denominator at scale = SCALE
+ * @param {bigint} SCALE - scaling factor (10^digits), positive
+ * @returns {bigint} quotient at scale = SCALE
+ */
+function fxDivAtScale(num, den, SCALE) {
+  if (den === 0n) throw new RangeError("Division by zero");
+  const wide = num * SCALE;      // promote to preserve scale
+  const q = wide / den;
+  const r = wide % den;
+  if (r === 0n) return q === 0n ? 0n : q;
+
+  const absDen = den < 0n ? -den : den;
+  // Align remainder sign to RESULT sign (same rule as fxDiv fix)
+  const rAdj = den < 0n ? -r : r;
+  const out = roundInt(q, rAdj, absDen);
+  return out === 0n ? 0n : out;
 }
