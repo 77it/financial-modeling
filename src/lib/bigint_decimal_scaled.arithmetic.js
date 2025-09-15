@@ -320,12 +320,19 @@ function roundInt(q, r, d, guard = 1n) {
  * - No leading-zeros regex
  * - Only one final allocation for BigInt()
  *
- * Rounding:
- *  - HALF_UP: >= 5 → round away from zero
- *  - HALF_EVEN: exact 5 followed only by zeros → round to even
+ * Rounding on discarded digits:
+ *   - >5 : round away from zero
+ *   - <5 : no bump
+ *   - ==5 and only zeros after (an exact tie):
+ *        * HALF_UP  → bump away from zero
+ *        * HALF_EVEN→ parity of the last kept unit (nearest even)
+ *
+ * NOTE: This function now honors the global ROUNDING_MODE on ties,
+ *       matching the scientific-notation path.
  *
  * @param {string} str
- * @returns {bigint}
+ * @returns {bigint} scaled BigInt at MATH_SCALE
+ * @throws {Error} on malformed numbers
  */
 function parsePlainDecimal_fast(str) {
   let i = 0, sign = 1n;
@@ -345,7 +352,7 @@ function parsePlainDecimal_fast(str) {
     break;
   }
   let intStart = startInt;
-  let intEnd = i; // slice boundaries [intStart, intEnd)
+  let intEnd = i; // [intStart, intEnd)
 
   // --- Parse optional fractional part ---
   let frStart = -1, frEnd = -1;
@@ -359,7 +366,7 @@ function parsePlainDecimal_fast(str) {
     }
     frEnd = i;
     if (frStart === frEnd && intEnd === intStart) {
-      // Special case: string was just "." or "+." or "-."
+      // ".", "+.", "-." are invalid (lonely sign alone is accepted elsewhere)
       throw new Error(`Invalid number: ${str}`);
     }
   }
@@ -367,18 +374,15 @@ function parsePlainDecimal_fast(str) {
   // --- No trailing garbage allowed ---
   if (i !== str.length) throw new Error(`Invalid number: ${str}`);
 
-  // --- Compute fractional length ---
   const frLen = (frStart >= 0) ? (frEnd - frStart) : 0;
 
   // --- Rounding decision ---
-  // bump = 0 (none), 1 (round away from zero), 2 (tie → HALF_EVEN parity check)
+  // bump = 0 (none), 1 (bump away from zero), 2 (tie → parity check per HALF_EVEN)
   let bump = 0;
   let keepFrLen = frLen <= MATH_SCALE ? frLen : MATH_SCALE;
-  if (frLen > MATH_SCALE) {
-    // first discarded digit
-    const firstDiscardCode = str.charCodeAt(frStart + MATH_SCALE) - 48;
 
-    // any remaining discarded digits non-zero?
+  if (frLen > MATH_SCALE) {
+    const firstDiscardCode = str.charCodeAt(frStart + MATH_SCALE) - 48;
     let restHasNonZero = false;
     for (let k = frStart + MATH_SCALE + 1; k < frEnd; k++) {
       if (str.charCodeAt(k) !== 48 /* 0 */) { restHasNonZero = true; break; }
@@ -387,22 +391,23 @@ function parsePlainDecimal_fast(str) {
     if (firstDiscardCode > 5 || (firstDiscardCode === 5 && restHasNonZero)) {
       bump = 1; // round away from zero
     } else if (firstDiscardCode === 5 && !restHasNonZero) {
-      bump = 2; // exact 5 tie → HALF_EVEN
+      // EXACT tie: follow global mode
+      bump = (ROUNDING_MODE === "HALF_UP") ? 1 : 2; // HALF_EVEN → parity check later
     }
-    keepFrLen = MATH_SCALE; // discard extra fractional digits
+    keepFrLen = MATH_SCALE;
   }
 
   // --- Strip leading zeros from integer part ---
   let nzInt = intStart;
   while (nzInt < intEnd && str.charCodeAt(nzInt) === 48 /* 0 */) nzInt++;
 
-  // --- Count digits ---
+  // --- Count digits to keep ---
   const intDigitsLen = nzInt < intEnd ? (intEnd - nzInt) : 0;
-  const frDigitsLen = keepFrLen > 0 ? keepFrLen : 0;
-  const padZeros = MATH_SCALE - frDigitsLen;
-  const keptFrEnd = (frStart >= 0) ? (frStart + keepFrLen) : -1;
+  const frDigitsLen  = keepFrLen > 0 ? keepFrLen : 0;
+  const keptFrEnd    = (frStart >= 0) ? (frStart + keepFrLen) : -1;
+  const padZeros     = MATH_SCALE - frDigitsLen;
 
-  // --- Detect whether all digits so far are zero ---
+  // --- Detect all-zero case among kept digits ---
   let keptFrHasNonZero = false;
   if (frDigitsLen > 0) {
     for (let k = frStart; k < keptFrEnd; k++) {
@@ -411,16 +416,14 @@ function parsePlainDecimal_fast(str) {
   }
   const allZeroSoFar = (intDigitsLen === 0 && !keptFrHasNonZero);
 
-  // --- Early return: exactly zero at scale 0 ---
-  if (allZeroSoFar && MATH_SCALE === 0) {
-    return 0n;
-  }
+  // --- Early return only when there's truly nothing to round/bump ---
+  // At scale=0 a tie (e.g., "0.5") must still go through bump logic.
+  if (allZeroSoFar && MATH_SCALE === 0 && bump === 0) return 0n;
 
-  // --- Early return: common case with no rounding ---
+  // --- Early return: common path with no bump and frLen<=scale ---
   if (bump === 0 && frLen <= MATH_SCALE) {
-    // Build digit string directly
     let intDigits = intDigitsLen > 0 ? str.slice(nzInt, intEnd) : "";
-    let frDigits = frDigitsLen > 0 ? str.slice(frStart, keptFrEnd) : "";
+    let frDigits  = frDigitsLen  > 0 ? str.slice(frStart, keptFrEnd) : "";
     let digitsStr = (intDigits || frDigits ? (intDigits + frDigits) : "0");
     if (padZeros > 0) digitsStr += "0".repeat(padZeros);
     const sig = BigInt(digitsStr);
@@ -428,69 +431,81 @@ function parsePlainDecimal_fast(str) {
     return out === 0n ? 0n : out;
   }
 
-  // --- Build digit string for BigInt ---
+  // --- Build digit string ---
   let digitsStr;
   if (!allZeroSoFar) {
-    // Case A: some non-zero int digits
-    // Case B: int is zero, but fractional kept has non-zero
-    let parts = [];
+    const parts = [];
     if (intDigitsLen > 0) parts.push(str.slice(nzInt, intEnd));
-    if (frDigitsLen > 0) parts.push(str.slice(frStart, keptFrEnd));
-    if (padZeros > 0) parts.push("0".repeat(padZeros));
+    if (frDigitsLen  > 0) parts.push(str.slice(frStart, keptFrEnd));
+    if (padZeros     > 0) parts.push("0".repeat(padZeros));
     digitsStr = parts.join("");
   } else {
-    // Case C: everything zero → construct "0" + scale zeros
     digitsStr = "0" + (MATH_SCALE > 0 ? "0".repeat(MATH_SCALE) : "");
   }
 
-  // --- Convert once to BigInt ---
+  // --- Convert to BigInt once ---
   let sig = BigInt(digitsStr);
 
   // --- Apply rounding bump if needed ---
   if (bump !== 0) {
     if (bump === 1) {
-      sig += 1n; // away from zero
+      // HALF_UP tie or >5 → away from zero (apply before sign)
+      sig += 1n;
     } else {
-      // tie → HALF_EVEN: check parity of the resulting integer
+      // HALF_EVEN tie: parity of last kept unit at target scale
       if ((sig & 1n) === 1n) sig += 1n;
     }
   }
 
-  // --- Apply sign and normalize -0n to 0n ---
   const out = sign * sig;
-  return out === 0n ? 0n : out;
+  return out === 0n ? 0n : out; // normalize -0n
 }
 
 /**
  * Full path: parse decimal with optional scientific notation (e/E).
- * Keeps all digits; only rounds if exponent requires dropping digits
- * to land exactly at MATH_SCALE.
+ * Keeps all mantissa digits; applies rounding only if exponent forces
+ * dropping digits to land exactly at MATH_SCALE.
+ *
+ * Tie handling is unified with the plain path by delegating to `roundInt`,
+ * which honors the global `ROUNDING_MODE`.
  *
  * @param {string} str
  * @returns {bigint} BigInt at scale = MATH_SCALE
+ * @throws {Error} on malformed numbers (bad mantissa/exp/trailing garbage)
  */
 function parseSciDecimal(str) {
   let i = 0, sign = 1n;
+
+  // optional sign
   const c0 = str.charCodeAt(0);
   if (c0 === 43 /*+*/) i++;
   else if (c0 === 45 /*-*/) { sign = -1n; i++; }
 
-  // Mantissa: integer and optional fraction
+  // INT part
   const startInt = i;
   while (i < str.length && str.charCodeAt(i) >= 48 && str.charCodeAt(i) <= 57) i++;
+  const intHadDigits = i > startInt;
   let INT = str.slice(startInt, i);
-  if (INT === "") INT = "0";
 
+  // optional fraction
   let FR = "";
-  if (i < str.length && str[i] === ".") {
+  let frHadDigits = false;
+  if (i < str.length && str.charCodeAt(i) === 46 /* '.' */) {
     i++;
     const startFr = i;
     while (i < str.length && str.charCodeAt(i) >= 48 && str.charCodeAt(i) <= 57) i++;
     FR = str.slice(startFr, i);
-    if (FR === "" && INT === "0") throw new Error(`Invalid number: ${str}`);
+    frHadDigits = (i > startFr);
+    // Disallow strings like "." or "+." or "-." (no int and no frac digits)
+    if (!intHadDigits && !frHadDigits) throw new Error(`Invalid number: ${str}`);
   }
 
-  // Optional exponent
+  // Require at least one mantissa digit somewhere before exponent
+  if (!intHadDigits && !frHadDigits) {
+    throw new Error(`Invalid number: ${str}`);
+  }
+
+  // optional exponent
   let exp = 0;
   if (i < str.length && (str[i] === "e" || str[i] === "E")) {
     i++;
@@ -499,31 +514,28 @@ function parseSciDecimal(str) {
     while (i < str.length && str.charCodeAt(i) >= 48 && str.charCodeAt(i) <= 57) i++;
     if (startE === i) throw new Error(`Invalid exponent: ${str}`);
     const eAbs = parseInt(str.slice(startE, i), 10);
-    exp = (sgn === "-") ? -eAbs : +eAbs;
+    exp = (sgn === "-") ? -eAbs : eAbs;
   }
+
   if (i !== str.length) throw new Error(`Invalid trailing characters: ${str}`);
 
-  // Combine mantissa digits and compute scale shift.
-  // Value = (INT.FR) * 10^exp = (digits / 10^{FRlen}) * 10^exp
-  // Want sig * 10^{-MATH_SCALE} == value  ⇒  sig = digits * 10^{MATH_SCALE - FRlen + exp}
+  // Combine mantissa; compute scale shift k
   const FRlen = FR.length;
   const digitsStr = (INT + FR).replace(/^0+(?=\d)/, "") || "0";
   let sig = BigInt(digitsStr);
   const k = MATH_SCALE - FRlen + exp;
 
   if (k >= 0) {
-    // multiply by 10^k
     sig *= pow10n(k);
     const out = sign * sig;
     return out === 0n ? 0n : out;
   } else {
-    // divide by 10^{-k} with rounding
     const drop = -k;
     const div = pow10n(drop);
     const num = sign * sig;
     const q = num / div;
     const r = num % div;
-    const out = (r === 0n ? q : roundInt(q, r, div));
+    const out = (r === 0n ? q : roundInt(q, r, div)); // honors ROUNDING_MODE
     return out === 0n ? 0n : out;
   }
 }

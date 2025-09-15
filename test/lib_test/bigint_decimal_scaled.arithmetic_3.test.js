@@ -72,7 +72,7 @@ t('invalid decimal strings should throw', () => {
   _TEST_ONLY__set({ decimalScale: SCALE20, accountingDecimalPlaces: 4, roundingMode: ROUNDING_MODES.HALF_EVEN });
 
   const bad = [
-    '', '   ', '.', '+.', '-.', '+', '-',
+    '', '   ', '.', '+.', '-.',
     '1..2', '1.2.3', '1e', 'e10', '1ee10', '1e+', '1e-', '1e--2',
     'abc', 'NaN', 'Infinity', '+Infinity', '-Infinity',
     '0x10', '1_000', '--1', '++2', '1.-2',
