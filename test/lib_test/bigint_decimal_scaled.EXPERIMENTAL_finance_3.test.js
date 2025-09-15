@@ -1,4 +1,4 @@
-// file bigint_decimal_scaled.finance_3.test.js
+// file bigint_decimal_scaled.EXPERIMENTAL_finance_3.test.js
 /*
 **Purpose:** Regression test the BigInt fixed-point libraries (arithmetic + finance)
 across multiple scales defined in RUN_CONFIGS.
@@ -17,7 +17,7 @@ import {
 import {
   _TEST_ONLY__set as _TEST_ONLY__set_fin,
   fxPowInt, fxNPV, fxPmt,
-} from '../../src/lib/bigint_decimal_scaled.finance.js';
+} from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance.js';
 
 import {
   RUN_CONFIGS, decToSig, pow10n,

@@ -5,7 +5,7 @@ import { ROUNDING_MODES } from "../../src/config/engine.js";
 import {
     _TEST_ONLY__set as _TEST_ONLY__set_fin,
     fxPowInt, fxNPV, fxPmt, fxAmortizationSchedule,
-} from "../../src/lib/bigint_decimal_scaled.finance.js";
+} from "../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance.js";
 import {
     _TEST_ONLY__set as _TEST_ONLY__set_arith,
     stringToBigIntScaled, fxAdd, bigIntScaledToString,

@@ -7,7 +7,7 @@ export { roundInt as _INTERNAL_roundInt }
 
 import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, /* used only for types */ ROUNDING_MODES } from '../config/engine.js';
 
-//#region settings  // same code as in `bigint_decimal_scaled.finance.js`
+//#region settings  // same code as in `bigint_decimal_scaled.EXPERIMENTAL_finance.js`
 /** @type {number} */
 let MATH_SCALE = CFG_SCALE;
 /** @type {number} */

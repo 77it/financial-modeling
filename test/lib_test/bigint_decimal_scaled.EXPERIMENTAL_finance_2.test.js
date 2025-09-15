@@ -27,7 +27,7 @@ import {
   stringToBigIntScaled,
   bigIntScaledToString,
 } from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
-import { _TEST_ONLY__set as _TEST_ONLY__set_finance, fxPmt, fxPowInt } from '../../src/lib/bigint_decimal_scaled.finance.js';
+import { _TEST_ONLY__set as _TEST_ONLY__set_finance, fxPmt, fxPowInt } from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance.js';
 import { ROUNDING_MODES } from '../../src/config/engine.js';
 
 import { test } from 'node:test';
