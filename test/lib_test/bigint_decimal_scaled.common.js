@@ -1,3 +1,4 @@
+//<file bigint_decimal_scaled.common.js>
 // Shared helpers for tests/benches (ESM)
 import process from "node:process";
 import { Decimal } from "../../vendor/decimaljs/decimal.js";

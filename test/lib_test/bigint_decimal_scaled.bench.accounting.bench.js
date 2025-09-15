@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-// Benchmarks for ACCOUNTING ops only (parsing, +, -, *, /, quantize).
-// Run: node --expose-gc bench_accounting_fixedpoint.js
+//<file bigint_decimal_scaled.bench.accounting.bench.js>
 
 import process from "node:process";
 import { Decimal } from "../../vendor/decimaljs/decimal.js";

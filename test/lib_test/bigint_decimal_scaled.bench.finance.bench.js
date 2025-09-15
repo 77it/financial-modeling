@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-// Benchmarks for FINANCE ops only (pow, NPV, PMT+amortization).
-// Run: node --expose-gc bench_finance_fixedpoint.js
+//<file bigint_decimal_scaled.bench.finance.bench.js>
 
 import process from "node:process";
 import { Decimal } from "../../vendor/decimaljs/decimal.js";
@@ -19,7 +17,7 @@ import {
 } from "./bigint_decimal_scaled.common.js";
 
 const CFG = { ITERS: 5, SEED: 0xA5F00D, DEC_ROUND: Decimal.ROUND_HALF_EVEN };
-Decimal.set({ precision: 80, rounding: CFG.DEC_ROUND });
+Decimal.set({ precision: 40, rounding: CFG.DEC_ROUND });
 
 function setMode() {
     _TEST_ONLY__set_arith({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });

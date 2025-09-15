@@ -1,5 +1,5 @@
 //@ts-nocheck
-// file bigint_decimal_scaled.arithmetic_2.test.js
+//<file bigint_decimal_scaled.arithmetic_2.test.js>
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -117,7 +117,8 @@ t('fxMul (times) – scale growth, signs, tiny/huge, rounding sanity', () => {
     // exact integer result: 9,999,999,999.9999999999 * 10,000,000,000 = 99,999,999,999,999,999,999
     ['9999999999.9999999999', '10000000000', '99999999999999999999'],
     // small*small
-    ['0.0000023432495704937', '-0.0000023432495704937', '-0.00000000000000549081854961890952569'],
+    // true product ≈ 5.49081854961890952566e-12 → -0.00000000000549081855 at 20dp
+    ['0.0000023432495704937', '-0.0000023432495704937', '-0.00000000000549081855'],
     // carry/trim
     ['03.333', '-4', '-13.332'],
     ['43534.5435', '0.054645', '2378.9451295575'],
@@ -151,12 +152,10 @@ t('fxDiv (divide) – exact, recurring, sign matrix, HALF_UP at 20dp', () => {
     ['-1', '0.0019', '-526.31578947368421052632'],
     ['7', '-3', '-2.33333333333333333333'],
     // scale stress
-    // mathematically correct @ 20dp, HALF_UP
-    // computed with high-precision oracle:
-    // 123456789.123456789123456789 / 0.00000000000123456789123456789
-    // = 100000000000000000099.9999999000000000999999999...
-    // -> 20dp HALF_UP => 100000000000000000099.99999990000000010000
-    ['123456789.123456789123456789', '0.00000000000123456789123456789', '100000000000000000099.99999990000000010000'],
+    // NOTE: inputs are parsed to base scale first. The divisor has 29 frac digits
+    // and is rounded to 20dp during parsing (fixed-point contract), i.e. 1.23456789e-12.
+    // With that, the 20dp result becomes an exact integer at scale:
+    ['123456789.123456789123456789', '0.00000000000123456789123456789', '100000000100000000100'],
   ];
   for (const [a,b,exp] of V) assertFx('div', a, b, exp);
 
@@ -242,25 +241,31 @@ t('Massive vector sweep (hand-picked pairs) – all ops', () => {
     const add = toStr(fxAdd(S(a), S(b)));
     const sub = toStr(fxSub(S(a), S(b)));
     // sanity: add - b == a
-    assert.strictEqual(toStr(fxSub(S(add), S(b))), expandExp(a));
+    assert.strictEqual(toStr(fxSub(S(add), S(b))), toStr(S(expandExp(a))));
     // sanity: a - (a - b) == b
     // normalize 'b' through engine to match your trimmed formatting (e.g. "111...0000" -> "111...")
     assert.strictEqual(toStr(fxSub(S(a), S(sub))), toStr(S(expandExp(b))));
 
     // multiplication identities
     assert.strictEqual(toStr(fxMul(S(a), S('0'))), '0');
-    assert.strictEqual(toStr(fxMul(S(a), S('1'))), expandExp(a));
+    assert.strictEqual(toStr(fxMul(S(a), S('1'))), toStr(S(expandExp(a))));
 
     // division sanity (skip b==0)
     if (expandExp(b) !== '0') {
       const d = toStr(fxDiv(S(a), S(b)));
       // a ≈ d*b (exact when finite; otherwise rounded) — check back-substitute through our engine
       const back = toStr(fxMul(S(d), S(b)));
-      // we don’t assert equality (rounding), but result must not be wildly off: |a - back| <= 1 ulp at SCALE
-      const diff = fxSub(S(expandExp(a)), S(back));
-      const diffAbsStr = toStr(diff).replace(/^-/, '');
-      // <= 1 ulp @ 20dp means <= 0.000...00001
-      assert.ok(diffAbsStr === '0' || /^0\.0{19}\d$/.test(diffAbsStr), `division back-check too large: a=${a}, b=${b}, got ${back}, diff=${diffAbsStr}`);
+      // Allow |a - back| ≤ 0.5*|b| + 0.5 ulps (division + multiplication rounding).
+      const diffSig = fxSub(S(expandExp(a)), S(back));   // scaled BigInt difference (in ulps)
+      const diffAbs = diffSig < 0n ? -diffSig : diffSig;
+      const absB = S(expandExp(b));                      // scaled BigInt for |b|
+      const absBpos = absB < 0n ? -absB : absB;
+      // 2*SCALE_FACTOR == 2*S('1') because S('1') == 10^S
+      const maxUlps = 1n + (absBpos / (2n * S('1')));    // ceil(|b|/2) + 1 (integer-safe, slightly conservative)
+      assert.ok(
+        diffAbs <= maxUlps,
+        `division back-check too large: a=${a}, b=${b}, got ${back}, diff=${toStr(diffSig).replace(/^-/, '')} (ulps=${diffAbs} > ${maxUlps})`
+      );
     }
   }
 });
