@@ -1,8 +1,9 @@
 //<file bigint_decimal_scaled.arithmetic.js>
 
 // file bigint_decimal_scaled.arithmetic.js
-export { stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, reduceToAccounting, _TEST_ONLY__set };
-export { roundInt as _INTERNAL_roundInt, fxDivGuarded as _INTERNAL_fxDivGuarded }
+export { stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, reduceToAccounting };
+export { _TEST_ONLY__set }
+export { roundInt as _INTERNAL_roundInt }
 
 import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, /* used only for types */ ROUNDING_MODES } from '../config/engine.js';
 
@@ -172,6 +173,7 @@ function fxDiv(a, b) {
   return out === 0n ? 0n : out;
 }
 
+// UNUSED FUNCTION
 /**
  * Divide two BigInt fixed-point values at the global `MATH_SCALE`,
  * carrying an **extra guard digit** (×10) to reduce rounding drift.
@@ -198,6 +200,7 @@ function fxDiv(a, b) {
  * @returns {bigint} Quotient at `MATH_SCALE`, rounded according to `ROUNDING_MODE`.
  * @throws {RangeError} If `b === 0n`.
  */
+/*
 function fxDivGuarded(a, b) {
   if (b === 0n) throw new RangeError("Division by zero");
 
@@ -230,6 +233,7 @@ function fxDivGuarded(a, b) {
   // Normalize -0n → 0n
   return out === 0n ? 0n : out;
 }
+*/
 
 /**
  * Snap a scaled BigInt to the accounting grid (4 dp) but KEEP scale.

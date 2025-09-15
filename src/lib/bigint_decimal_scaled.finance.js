@@ -1,9 +1,10 @@
 //<file bigint_decimal_scaled.finance.js>
 
+export { fxPowInt, fxDiscountFactor, fxCompoundFactor, fxFutureValue, fxPresentValue, fxPmt, fxNPV, fxIrr, fxFromPercent, fxToPercentString, fxAmortizationSchedule };
 export { _TEST_ONLY__set };
 
 import { stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from './bigint_decimal_scaled.arithmetic.js';
-import { _INTERNAL_roundInt as roundInt, _INTERNAL_fxDivGuarded as fxDivGuarded } from './bigint_decimal_scaled.arithmetic.js';
+import { _INTERNAL_roundInt as roundInt } from './bigint_decimal_scaled.arithmetic.js';
 
 import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, /* used only for types */ ROUNDING_MODES } from '../config/engine.js';
 
@@ -108,7 +109,7 @@ function pow10n(n) {
  * @returns {bigint} result at scale = MATH_SCALE
  * @throws {RangeError} if n < 0
  */
-export function fxPowInt(base, n) {
+function fxPowInt(base, n) {
   let e = BigInt(n);
   if (e < 0n) throw new RangeError("Exponent must be non-negative");
   if (e === 0n) return SCALE_FACTOR;
@@ -133,7 +134,7 @@ export function fxPowInt(base, n) {
  * @param {number|bigint} n - non-negative integer periods
  * @returns {bigint} DF at MATH_SCALE
  */
-export function fxDiscountFactor(r, n) {
+function fxDiscountFactor(r, n) {
   const onePlusR = fxAdd(SCALE_FACTOR, r);
   const pow = fxPowInt(onePlusR, n);
   return fxDiv(SCALE_FACTOR, pow);
@@ -145,7 +146,7 @@ export function fxDiscountFactor(r, n) {
  * @param {number|bigint} n
  * @returns {bigint}
  */
-export function fxCompoundFactor(r, n) {
+function fxCompoundFactor(r, n) {
   return fxPowInt(fxAdd(SCALE_FACTOR, r), n);
 }
 
@@ -158,7 +159,7 @@ export function fxCompoundFactor(r, n) {
  * @param {number|bigint} n
  * @returns {bigint}
  */
-export function fxFutureValue(pv, r, n) {
+function fxFutureValue(pv, r, n) {
   return fxMul(pv, fxCompoundFactor(r, n));
 }
 
@@ -169,7 +170,7 @@ export function fxFutureValue(pv, r, n) {
  * @param {number|bigint} n
  * @returns {bigint}
  */
-export function fxPresentValue(fv, r, n) {
+function fxPresentValue(fv, r, n) {
   return fxMul(fv, fxDiscountFactor(r, n));
 }
 
@@ -273,7 +274,7 @@ export function fxPresentValue(fv, r, n) {
  * const p0  = fxPmt(r0, 10, stringToBigIntScaled("1000"), 0n, true);
  * // p0 === (pv + fv) / 10, then sign-adjusted if "excelCompat" is chosen.
  */
-export function fxPmt(r, n, pv, fv = 0n, due = false, sign="sameAsPV") {
+function fxPmt(r, n, pv, fv = 0n, due = false, sign="sameAsPV") {
   const N = BigInt(n);
   if (N <= 0n) throw new RangeError("n must be >= 1");
 
@@ -338,7 +339,7 @@ export function fxPmt(r, n, pv, fv = 0n, due = false, sign="sameAsPV") {
  * @param {bigint[]} cashflows - cash flows at scale = MATH_SCALE
  * @returns {bigint} NPV at scale = MATH_SCALE
  */
-export function fxNPV(rate, cashflows) {
+function fxNPV(rate, cashflows) {
   const T = BigInt(cashflows.length);
   if (T === 0n) return 0n;
 
@@ -383,7 +384,7 @@ export function fxNPV(rate, cashflows) {
  * @param {bigint} [opts.tol=pow10n(MATH_SCALE-8)] tolerance on |NPV| (≈1e-12 if scale=20)
  * @returns {bigint} r at MATH_SCALE
  */
-export function fxIrr(cashflows,
+function fxIrr(cashflows,
   {
     minRate = stringToBigIntScaled("-0.9999"),
     maxRate = stringToBigIntScaled("10"),
@@ -429,7 +430,7 @@ export function fxIrr(cashflows,
  * @param {string|number} p
  * @returns {bigint}
  */
-export function fxFromPercent(p) {
+function fxFromPercent(p) {
   const x = stringToBigIntScaled(String(p));
   return fxDiv(x, stringToBigIntScaled("100"));
 }
@@ -440,7 +441,7 @@ export function fxFromPercent(p) {
  * @param {number} [dp=4] decimal places in the percent string
  * @returns {string}
  */
-export function fxToPercentString(r, dp = 4) {
+function fxToPercentString(r, dp = 4) {
   const hundred = stringToBigIntScaled("100");
   const asPct = fxMul(r, hundred);
   // format with exactly dp decimals
@@ -490,7 +491,7 @@ export function fxToPercentString(r, dp = 4) {
  * @param {boolean} [due=false] - if true, payments at beginning
  * @returns {{ payment: bigint, rows: Array<{interest: bigint, principal: bigint, balance: bigint}> }}
  */
-export function fxAmortizationSchedule(principal, ratePerPeriod, periods, due = false) {
+function fxAmortizationSchedule(principal, ratePerPeriod, periods, due = false) {
   const n = Number(periods);
   if (!Number.isInteger(n) || n <= 0) throw new RangeError("periods must be positive integer");
 
@@ -627,7 +628,7 @@ function fxMulAtScale(rawA, rawB, SCALE) {
  * @param {bigint} SCALE - [UNUSED] Scale factor (e.g., 10n ** 20n or guard SCALE_G)
  * @returns {bigint} Sum at SCALE
  */
-export function fxAddAtScale(a, b, SCALE) {
+function fxAddAtScale(a, b, SCALE) {
   return a + b;
 }
 
@@ -640,7 +641,7 @@ export function fxAddAtScale(a, b, SCALE) {
  * @param {bigint} SCALE - [UNUSED] Scale factor (e.g., 10n ** 20n or guard SCALE_G)
  * @returns {bigint} Difference at SCALE
  */
-export function fxSubAtScale(a, b, SCALE) {
+function fxSubAtScale(a, b, SCALE) {
   // Optional dev guard:
   // if (SCALE <= 0n) throw new RangeError("SCALE must be > 0");
   return a - b;
@@ -675,6 +676,7 @@ function fxDivAtScale(num, den, SCALE) {
   return out === 0n ? 0n : out;
 }
 
+// UNUSED FUNCTION
 /**
  * Divide two BigInt fixed-point values at an **arbitrary SCALE**,
  * carrying an **extra guard digit** (×10) to reduce rounding drift.
@@ -700,6 +702,7 @@ function fxDivAtScale(num, den, SCALE) {
  * @returns {bigint} Quotient at the same `SCALE`, rounded according to `ROUNDING_MODE`.
  * @throws {RangeError} If `den === 0n`.
  */
+/*
 function fxDivAtScaleGuarded(num, den, SCALE) {
   if (den === 0n) throw new RangeError("Division by zero");
 
@@ -725,3 +728,4 @@ function fxDivAtScaleGuarded(num, den, SCALE) {
   const out = q / GUARD;
   return out === 0n ? 0n : out;
 }
+*/
