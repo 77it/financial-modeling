@@ -1,5 +1,4 @@
 //<file bigint_decimal_scaled.bench.finance.bench.js>
-
 import process from "node:process";
 import { Decimal } from "../../vendor/decimaljs/decimal.js";
 import { ROUNDING_MODES } from "../../src/config/engine.js";
@@ -12,29 +11,39 @@ import {
     stringToBigIntScaled, fxAdd, bigIntScaledToString,
 } from "../../src/lib/bigint_decimal_scaled.arithmetic.js";
 import {
-    MATH_SCALE, ACCOUNTING_DECIMAL_PLACES, bench, makeRng,
-    decToSig20, pow10n,
+    RUN_CONFIGS, bench, decToSig, pow10n,
 } from "./bigint_decimal_scaled.common.js";
 
 const CFG = { ITERS: 5, SEED: 0xA5F00D, DEC_ROUND: Decimal.ROUND_HALF_EVEN };
-Decimal.set({ precision: 40, rounding: CFG.DEC_ROUND });
 
-function setMode() {
-    _TEST_ONLY__set_arith({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
-    _TEST_ONLY__set_fin({  decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
-}
-setMode();
+for (const cfg of RUN_CONFIGS) {
+    console.log(`\n===== FINANCE BENCH @ scale=${cfg.scale}, acc=${cfg.acc}, decprec=${cfg.decprec} =====`);
+    Decimal.set({ precision: cfg.decprec, rounding: CFG.DEC_ROUND });
 
-(function run() {
-    console.log("\n== Compound interest ((1+r)^n) ==");
+    // Keep arithmetic+finance libraries in sync with the selected scale
+    _TEST_ONLY__set_arith({
+        decimalScale: cfg.scale,
+        accountingDecimalPlaces: cfg.acc,
+        roundingMode: ROUNDING_MODES.HALF_EVEN,
+    });
+    _TEST_ONLY__set_fin({
+        decimalScale: cfg.scale,
+        accountingDecimalPlaces: cfg.acc,
+        roundingMode: ROUNDING_MODES.HALF_EVEN,
+    });
+
+    // == Compound interest: (1+r)^n ==
+    console.log(`\n== Compound interest ((1+r)^n) @ scale=${cfg.scale} ==`);
     {
-        const rates = ["0.01","0.05","0.075","0.1234"].map(stringToBigIntScaled);
-        const Ns = [1,2,5,10,25];
+        const Ns = [0, 1, 2, 5, 10, 25, 50];
 
-        bench("BigInt fxPowInt", () => {
+        // BigInt baseline using fxPowInt on (1+r) scaled
+        bench("BigInt fxPowInt()", () => {
             let acc = 0n;
-            for (const r of rates) {
-                const base = fxAdd(pow10n(MATH_SCALE), r);
+            for (const rs of ["-0.2","0","0.0001","0.01","0.05","0.1234"]) {
+                const rSig = stringToBigIntScaled(rs);
+                const one = pow10n(cfg.scale);
+                const base = fxAdd(one, rSig);
                 for (const n of Ns) acc ^= fxPowInt(base, n);
             }
             if (acc === 42n) process.stdout.write("");
@@ -44,29 +53,25 @@ setMode();
             let acc = 0n;
             for (const rs of ["0.01","0.05","0.075","0.1234"]) {
                 const base = new Decimal(1).plus(new Decimal(rs));
-                for (const n of Ns) acc ^= decToSig20(base.pow(n));
+                for (const n of Ns) acc ^= decToSig(base.pow(n), cfg.scale);
             }
             if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
     }
 
+    // == NPV ==
     console.log("\n== NPV ==");
     {
-        const rng = makeRng(CFG.SEED ^ 0x222);
-        const CASES = 200;
-        const series = Array.from({ length: CASES }, () => {
-            const len = 3 + Math.floor(rng() * 6);
-            const cfs = new Array(len);
-            for (let t = 0; t < len; t++) {
-                const val = (rng() * 2000 - 1000).toFixed(4);
-                const s = (t === 0 && !val.startsWith("-")) ? "-" + val : val;
-                cfs[t] = stringToBigIntScaled(s);
-            }
-            const r = stringToBigIntScaled((rng() * 0.3 - 0.1).toFixed(6));
-            return { r, cfs };
-        });
+        const series = [
+            { r: "-0.058817", cfs: ["-700.9838","111.1301","-106.2009","-567.8489"] },
+            { r: "0.0432",     cfs: ["-150","50","60","65","70"] },
+            { r: "0.10",       cfs: ["-1000","300","420","500","120"] },
+        ].map(({ r, cfs }) => ({
+            r: stringToBigIntScaled(r),
+            cfs: cfs.map(stringToBigIntScaled),
+        }));
 
-        bench("BigInt fxNPV", () => {
+        bench("BigInt fxNPV()", () => {
             let acc = 0n;
             for (const { r, cfs } of series) acc ^= fxNPV(r, cfs);
             if (acc === 42n) process.stdout.write("");
@@ -80,40 +85,39 @@ setMode();
                 for (let t = 0; t < cfs.length; t++) {
                     ref = ref.plus(new Decimal(bigIntScaledToString(cfs[t])).div(new Decimal(1).plus(rd).pow(t)));
                 }
-                acc ^= decToSig20(ref);
+                acc ^= decToSig(ref, cfg.scale);
             }
             if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
     }
 
+    // == PMT + amortization schedule ==
     console.log("\n== Amortization schedule (with PMT) ==");
     {
-        const principal = stringToBigIntScaled("100000");
-        const r = stringToBigIntScaled("0.01");
-        const periods = 120;
+        // keep n as a plain integer count
+        const loan = { r: "0.0125", n: 36, pv: "25000" };
 
-        bench("BigInt fxAmortizationSchedule", () => {
-            const { rows } = fxAmortizationSchedule(principal, r, periods, false);
-            //@ts-ignore .
-            let acc = 0n; acc ^= rows[0].interest ^ rows.at(-1).balance; if (acc === 42n) process.stdout.write("");
-        }, { iters: 2 });
+        const r  = stringToBigIntScaled(loan.r);   // rate at MATH_SCALE
+        const pv = stringToBigIntScaled(loan.pv);  // principal at MATH_SCALE
+        const n  = loan.n;                         // periods as Number (integer)
 
-        bench("Decimal amortization (baseline)", () => {
-            const ONEd = new Decimal(1);
-            const rd = new Decimal("0.01");
-            const pd = new Decimal("100000");
-            const pow = ONEd.plus(rd).pow(periods);
-            const pmt = rd.times(pd).times(pow).div(pow.minus(ONEd));
-            let bal = pd;
-            for (let k = 1; k <= periods; k++) {
-                const interest = bal.times(rd);
-                let principalPart = pmt.minus(interest);
-                if (k === periods) principalPart = bal;
-                bal = bal.minus(principalPart);
-            }
-            process.stdout.write("");
-        }, { iters: 2 });
+        bench("BigInt fxPmt()", () => {
+            for (let i = 0; i < 100; i++) fxPmt(r, n, pv);
+        }, { iters: CFG.ITERS });
+
+        bench("BigInt fxAmortizationSchedule()", () => {
+            for (let i = 0; i < 50; i++) fxAmortizationSchedule(pv, r, n); // ✅ (principal, rate, periods)
+        }, { iters: CFG.ITERS });
+
+        bench("Decimal PMT baseline", () => {
+            // PMT (ordinary): r * (PV * (1+r)^n) / ((1+r)^n - 1)
+            const rd  = new Decimal(bigIntScaledToString(r));
+            const one = new Decimal(1);
+            const base = one.plus(rd);
+            const pow  = base.pow(n); // n is Number
+            const pmt  = rd.times(new Decimal(bigIntScaledToString(pv)).times(pow))
+              .div(pow.minus(one));
+            void pmt; // prevent DCE
+        }, { iters: CFG.ITERS });
     }
-
-    console.log("\nDone.");
-})();
+}
