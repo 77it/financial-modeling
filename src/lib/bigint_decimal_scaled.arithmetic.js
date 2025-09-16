@@ -7,7 +7,7 @@
 // consider doing those steps at a guard scale (see fxDivGuarded note) and round back once at the boundary.
 
 export { stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, reduceToAccounting };
-export { _TEST_ONLY__set }
+export { _TEST_ONLY__set, MATH_SCALE as _TEST_ONLY__MATH_SCALE, ACCOUNTING_DECIMAL_PLACES as _TEST_ONLY__ACCOUNTING_DECIMAL_PLACES, ROUNDING_MODE as _TEST_ONLY__ROUNDING_MODE };
 export { roundInt as _INTERNAL_roundInt }
 
 import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, /* used only for types */ ROUNDING_MODES } from '../config/engine.js';

@@ -3,7 +3,6 @@
 import * as schema from '../../lib/schema.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
-import { ROUNDING_MODES } from '../../config/engine.js';
 import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
@@ -93,7 +92,7 @@ class Ledger {
    * @param {Object} p
    * @param {appendTrnDump} p.appendTrnDump Callback to dump the transactions
    * @param {number} p.decimalPlaces Decimal places to use when storing numbers in the ledger
-   * @param {ROUNDING_MODES} p.roundingModeIsRound Rounding mode to use when storing numbers in the ledger
+   * @param {boolean} p.roundingModeIsRound Rounding mode to use when storing numbers in the ledger
    */
   constructor ({ appendTrnDump, decimalPlaces, roundingModeIsRound }) {
     const _p = sanitize({
