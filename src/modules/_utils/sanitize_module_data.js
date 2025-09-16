@@ -1,7 +1,7 @@
 export { sanitizeModuleData };
 
 import * as CONST from '../../config/modules/_const.js';
-import { ModuleData, schema, validate, sanitize, eq2, get2, parseYAML, cachedParseJSONrelaxed } from '../deps.js';
+import { ModuleData, schema, validate, sanitize, eq2, get2, parseJSONrelaxed, cachedParseJSONrelaxed } from '../deps.js';
 
 /**
  * Parse then Sanitize values of moduleData tables in place (without cloning moduleData).
@@ -73,7 +73,7 @@ function sanitizeModuleData ({ moduleData, tablesInfo }) {
           if (_tableInfo_column.parse != null) {
             switch (_tableInfo_column.parse) {
               case CONST.YAML_PARSE:
-                _table_row[_table_row_key] = parseYAML(_table_row[_table_row_key]);
+                _table_row[_table_row_key] = parseJSONrelaxed(_table_row[_table_row_key]);
                 break;
               case CONST.JSON5_PARSE:
                 _table_row[_table_row_key] = cachedParseJSONrelaxed(_table_row[_table_row_key]);

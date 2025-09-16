@@ -10,7 +10,7 @@
 // 4. Optimized evaluation with cached operations
 // 5. Streamlined YAML processing
 
-import { customParseYAML as parseYAML } from '../../src/lib/yaml.js';
+import { customParseYAML as parseYAML } from '../../src/lib/unused/yaml.js';
 
 var exports = {};
 

@@ -11,9 +11,9 @@ const Simulation = {
   $$ENGINE_URL: '$$ENGINE_URL',
   $$DEBUG_FLAG: '$$DEBUG_FLAG',
   $$SIMULATION_END_DATE: '$$SIMULATION_END_DATE',  // movements after SIMULATION_END_DATE are not processed by the simulation engine
-  // THIS SETTING WAS REMOVED because there are compatibility problems:
+  // THIS SETTING WAS REMOVED, the decimal separator must be only the dot and nothing else, because:
   // * when you merge Excel input from other simulations with different decimal settings
-  // * with YAML/JSON parsing, because all array with numbers separated with a comma with be split to every comma: e.g.  parseYAML('[1,1]') != [1, 1]
+  // * with YAML/JSON parsing all array with numbers separated with a comma: e.g.  [1, 1]
   // REMOVED  //$$NUMBER_STRING_DECIMAL_SEPARATOR: 'REMOVED SETTING',
   $$HISTORICAL_SQUARE_VOICE_BS: '$$HISTORICAL_SQUARE_VOICE_BS',  // if we are in the historical period, each processed line of BS is unbalanced, and we balance it using this accounting entry; balancing writing is done with the description "historical balancing" (square, squaring)
   $$HISTORICAL_SQUARE_VOICE_IS: '$$HISTORICAL_SQUARE_VOICE_IS',  // if we are in the historical period, each processed line of IS is unbalanced, and we balance it using this accounting entry; balancing writing is done with the description "historical balancing" (square, squaring)

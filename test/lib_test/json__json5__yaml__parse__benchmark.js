@@ -30,10 +30,10 @@ parseYAML                             35.8    5,584  1.7 KB
 parseYAML (relaxed payload)           60.5    3,303  2.1 KB
 
  */
-import { parseJSON5strict, parseJSON5relaxed } from '../../src/lib/json5.js';
+import { parseJSON5strict, parseJSON5relaxed } from '../../src/lib/unused/json5.js';
 import { parseJSONrelaxed } from '../../src/lib/json.js';
-import { parseYAML } from '../../src/lib/yaml.js';
-import { createHash } from 'node:crypto';
+import { parseYAML } from '../../src/lib/unused/yaml.js';
+
 
 /** @typedef {{ name: string, parseFn: () => any, text: string }} Block */
 /** @typedef {{ name: string, ms: number, opsSec: number, bytes: number, digest?: string }} BenchResult */

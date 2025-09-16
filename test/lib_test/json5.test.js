@@ -2,7 +2,7 @@
 
 // for a more flexible parsing standard, see YAML tests "tests/lib_tests/yaml__test.js"
 
-import { parseJSON5strict, parseJSON5relaxed } from '../../src/lib/json5.js';
+import { parseJSON5strict, parseJSON5relaxed } from '../../src/lib/unused/json5.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

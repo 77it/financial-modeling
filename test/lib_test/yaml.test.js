@@ -4,7 +4,7 @@
 // see https://yaml.org/spec/1.2.2/#21-collections
 
 import { localDateToUTC } from '../deps.js';
-import { parseYAML as parseStandard, customParseYAML as parseCustom } from '../../src/lib/yaml.js';
+import { parseYAML as parseStandard, customParseYAML as parseCustom } from '../../src/lib/unused/yaml.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

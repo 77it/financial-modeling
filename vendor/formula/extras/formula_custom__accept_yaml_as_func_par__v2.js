@@ -10,7 +10,7 @@
 // pass test         test/vendor/formula/formula_custom_test_v2_v3_v4.test.js
 // DON'T pass test   test/vendor/formula/formula_custom_test_v4.test.js  // arithmetic operators with explicit + sign and multiple arithmetic operators
 
-import { customParseYAML as parseYAML } from '../../../src/lib/yaml.js';
+import { customParseYAML as parseYAML } from '../../../src/lib/unused/yaml.js';
 
 // Keep CJS-style export compatibility used by your vendor code
 var exports = {};

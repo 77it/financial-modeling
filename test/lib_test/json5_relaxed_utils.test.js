@@ -2,7 +2,7 @@
 
 import { quoteNumbersAndDatesForRelaxedJSON5 } from '../../src/lib/json5_relaxed_utils.js';
 import { eqObj } from '../lib/obj_utils.js';
-import { parseJSON5strict } from '../../src/lib/json5.js';
+import { parseJSON5strict } from '../../src/lib/unused/json5.js';
 import { Decimal } from '../../vendor/decimaljs/decimal.mjs';
 import { sanitize } from '../../src/lib/schema_sanitization_utils.js';
 import { parseJsonToLocalDate } from '../../src/lib/date_utils.js';

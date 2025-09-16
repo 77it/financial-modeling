@@ -9,7 +9,7 @@
 // pass test         test/vendor/formula/formula__original_and_custom__constants_context_reference.test.js
 // DON'T pass test   test/vendor/formula/formula_custom_test.test.js
 
-import { customParseYAML as parseYAML } from '../../../src/lib/yaml.js';
+import { customParseYAML as parseYAML } from '../../../src/lib/unused/yaml.js';
 
 var exports = {};
 const internals = {

@@ -2,7 +2,7 @@
 
 import { main } from '../deps.js';
 
-import { eqObj, existsSync, deleteFile, sanitize, parseYAML } from '../deps.js';
+import { eqObj, existsSync, deleteFile, sanitize, parseJSONrelaxed } from '../deps.js';
 import { convertExcelToJsonlFile } from '../deps.js';
 import { dirname } from 'node:path';
 import { chdir } from 'node:process';
@@ -90,7 +90,7 @@ t('SettingsSchemas.Simulation.ACTIVE_METADATA sanitization test', async () => {
 
   for (const { actual, expected } of test_pairs) {
     assert.deepStrictEqual(
-      sanitize({ value: parseYAML(actual), sanitization, validate: true }),
+      sanitize({ value: parseJSONrelaxed(actual), sanitization, validate: true }),
       expected
     );
   }

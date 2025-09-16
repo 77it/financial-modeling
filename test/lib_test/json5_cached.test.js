@@ -1,6 +1,6 @@
 // deno --allow-import
 
-import { cachedParseJSON5relaxed } from '../../src/lib/json5.js';
+import { cachedParseJSON5relaxed } from '../../src/lib/unused/json5.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
