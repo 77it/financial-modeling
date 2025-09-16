@@ -122,9 +122,15 @@ function stringToBigIntScaled(s) {
  * @returns {string}
  */
 function bigIntScaledToString(sig, opts) {
-  if (sig === 0n) return "0";
-
   const trim = !!(opts && opts.trim);
+
+  // Fast path: zero handling must honor fixed-scale vs trim
+  if (sig === 0n) {
+    if (MATH_SCALE === 0) return "0";
+    return trim ? "0" : "0." + "0".repeat(MATH_SCALE);
+  }
+
+  // Non-zero: format at fixed scale
   let s = sig.toString();
   const neg = s[0] === "-";
   if (neg) s = s.slice(1);
@@ -137,6 +143,7 @@ function bigIntScaledToString(sig, opts) {
   const i = s.length - MATH_SCALE;
   let out = (neg ? "-" : "") + s.slice(0, i) + "." + s.slice(i);
 
+  // Optional trimming (no-op unless there are trailing zeros)
   if (trim) {
     out = out.replace(/(\.\d*?[1-9])0+$/u, "$1").replace(/\.0+$/u, "");
   }
