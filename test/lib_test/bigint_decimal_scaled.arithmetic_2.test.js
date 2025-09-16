@@ -272,7 +272,7 @@ t('Massive vector sweep (hand-picked pairs) – all ops', () => {
 });
 
 // ========= Optional randomized cross-checks vs decimal.js-light =========
-t('Oracle cross-checks vs decimal.js-light (if available)', async () => {
+t('Oracle cross-checks vs decimal.js-light', async () => {
   Decimal.set({ precision: 60, rounding: Decimal.ROUND_HALF_UP });
 
   // deterministic pseudo-random (LCG) for reproducibility
