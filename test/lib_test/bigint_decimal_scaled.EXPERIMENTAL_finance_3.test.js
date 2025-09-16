@@ -11,11 +11,10 @@ against Decimal.js with strict equality at the selected scale.
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
 import { ROUNDING_MODES } from '../../src/config/engine.js';
 import {
-  _TEST_ONLY__set as _TEST_ONLY__set_arith,
+  _TEST_ONLY__set as _TEST_ONLY__set_arithmetic,
   stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, reduceToAccounting,
 } from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
 import {
-  _TEST_ONLY__set as _TEST_ONLY__set_fin,
   fxPowInt, fxNPV, fxPmt,
 } from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance.js';
 
@@ -31,12 +30,7 @@ import assert from 'node:assert';
 /** @param {*} cfg */
 function setScale (cfg) {
   Decimal.set({ precision: cfg.decprec, rounding: Decimal.ROUND_HALF_EVEN });
-  _TEST_ONLY__set_arith({
-    decimalScale: cfg.scale,
-    accountingDecimalPlaces: cfg.acc,
-    roundingMode: ROUNDING_MODES.HALF_EVEN,
-  });
-  _TEST_ONLY__set_fin({
+  _TEST_ONLY__set_arithmetic({
     decimalScale: cfg.scale,
     accountingDecimalPlaces: cfg.acc,
     roundingMode: ROUNDING_MODES.HALF_EVEN,

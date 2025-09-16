@@ -5,7 +5,7 @@ import {
     bigIntScaledToString,
     fxAdd, fxSub, fxDiv, fxMul
 } from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
-import { _TEST_ONLY__set as _TEST_ONLY__set_finance, fxPmt, fxPowInt } from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance.js';
+import { fxPmt, fxPowInt } from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance.js';
 import {ROUNDING_MODES} from '../../src/config/engine.js';
 
 import { test } from 'node:test';
@@ -17,7 +17,6 @@ const ACCOUNTING_DECIMAL_PLACES = 4;
 const ONE = stringToBigIntScaled("1"); // 1.0 at current base scale
 // first set
 _TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
-_TEST_ONLY__set_finance({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 
 // --- helpers ---
 

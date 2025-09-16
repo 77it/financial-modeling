@@ -17,63 +17,10 @@
  */
 
 export { fxPowInt, fxDiscountFactor, fxCompoundFactor, fxFutureValue, fxPresentValue, fxPmt, fxNPV, fxIrr, fxFromPercent, fxToPercentString, fxAmortizationSchedule };
-export { _TEST_ONLY__set };
 
 import { stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from './bigint_decimal_scaled.arithmetic.js';
+import { _TEST_ONLY__MATH_SCALE as MATH_SCALE, _TEST_ONLY__SCALE_FACTOR as SCALE_FACTOR, _TEST_ONLY__MAX_POW10 as MAX_POW10, _TEST_ONLY__POW10 as POW10 } from './bigint_decimal_scaled.arithmetic.js';
 import { _INTERNAL_roundInt as roundInt } from './bigint_decimal_scaled.arithmetic.js';
-
-import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, /* used only for types */ ROUNDING_MODES } from '../config/engine.js';
-
-//#region settings  // same code as in `bigint_decimal_scaled.arithmetic.js`
-/** @type {number} */
-let MATH_SCALE = CFG_SCALE;
-/** @type {number} */
-let ACCOUNTING_DECIMAL_PLACES = CFG_DECIMAL_PLACES;
-/** @type {string} */
-let ROUNDING_MODE = CFG_ROUNDING;
-
-// ------------------------ pow10 cache ------------------------
-/** Precompute 10^n up to a safe bound (adjust if you ever need larger exponents). */
-let MAX_POW10 = Math.max(2 * MATH_SCALE, 100);
-let POW10 = [1n];
-for (let i = 1; i <= MAX_POW10; i++) POW10[i] = POW10[i - 1] * 10n;
-// ------------------------ scale factors ------------------------
-let SCALE_FACTOR = pow10n(MATH_SCALE);
-// ------------------------ accounting grid ------------------------
-let GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
-
-/**
- * @internal
- * This is a function used for testing purposes, to set the bigint decimal scale, accounting decimal places and rounding mode.
- * @param {Object} opt
- * @param {number} opt.decimalScale
- * @param {number} opt.accountingDecimalPlaces
- * @param {string} opt.roundingMode
- */
-function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) {
-  MATH_SCALE = decimalScale;
-  ACCOUNTING_DECIMAL_PLACES = accountingDecimalPlaces;
-  ROUNDING_MODE = roundingMode;
-
-  // ------------------------ pow10 cache ------------------------
-  MAX_POW10 = Math.max(2 * MATH_SCALE, 100);
-  POW10 = [1n];
-  for (let i = 1; i <= MAX_POW10; i++) POW10[i] = POW10[i - 1] * 10n;
-  // ------------------------ scale factors ------------------------
-  SCALE_FACTOR = pow10n(MATH_SCALE);
-  // ------------------------ accounting grid ------------------------
-  GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
-}
-
-/**
- * Get settings.
- * @return {{ MATH_SCALE: number, ACCOUNTING_DECIMAL_PLACES: number, ROUNDING_MODE: string }} test_roundingMode
- */
-function getSettings() {
-  return { MATH_SCALE: MATH_SCALE, ACCOUNTING_DECIMAL_PLACES: ACCOUNTING_DECIMAL_PLACES, ROUNDING_MODE: ROUNDING_MODE};
-}
-
-//#endregion settings
 
 /*
 ****************************************************************************************************

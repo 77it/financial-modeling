@@ -10,11 +10,40 @@ import {
     RUN_CONFIGS, bench, makeRng, decToSig, genDecimalStrings
 } from "./bigint_decimal_scaled.common.js";
 
+// store results for post-processing
+const results = new Map();
+
+/**
+ * Wrapper around bench() that records timings so we can compute percentage diffs.
+ * @param {string} label
+ * @param {() => void} fn
+ * @param {{iters?: number}} [opts]
+ * @returns {number} elapsed ms
+ */
+function benchWithDiff(label, fn, opts = {}) {
+    const ms = bench(label, fn, opts);
+    results.set(label, ms);
+    return ms;
+}
+
+/** Print a human-readable percentage diff: BigInt vs Decimal. */
+const pf = new Intl.NumberFormat("it-IT", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+//@ts-ignore .
+function printDiff(bigLabel, decLabel, caption) {
+    const b = results.get(bigLabel);
+    const d = results.get(decLabel);
+    if (typeof b === "number" && typeof d === "number" && d > 0) {
+        const diff = ((b - d) / d) * 100;
+        const rel = diff === 0 ? "equal" : diff > 0 ? "slower" : "faster";
+        console.log(`→ ${caption}: BigInt is ${pf.format(Math.abs(diff))}% ${rel}`);
+    }
+}
+
 const CFG = { N: 20_000, ITERS: 5, SEED: 0xA5F00D, DEC_ROUND: Decimal.ROUND_HALF_EVEN };
 const totalProcessed = CFG.N * CFG.ITERS;
 const nf = new Intl.NumberFormat("it-IT");
-console.log(`Benchmark config: N=${nf.format(CFG.N)} numbers per run × ITERS=${nf.format(CFG.ITERS)} repeats = ${nf.format(totalProcessed)} numbers processed`);
-console.log("Reported time = total wall-clock ms for all processed numbers\n");
+console.log(`\nBenchmark config: N=${nf.format(CFG.N)} numeri per run × ITERS=${nf.format(CFG.ITERS)} ripetizioni = ${nf.format(totalProcessed)} numeri processati`);
+console.log("Reported time = ms di wall-clock totali per tutti i numeri processati\n");
 
 /**
  * Generate a stable pair of operand index arrays using the same RNG,
@@ -73,12 +102,20 @@ for (const cfg of RUN_CONFIGS) {
 
     // ---- Parsing
     console.log("\n== Parsing ==");
-    bench(`BigInt stringToBigIntScaled (scale=${cfg.scale})`, () => {
-        for (let i = 0; i < STRS.length; i++) stringToBigIntScaled(STRS[i]);
-    }, { iters: CFG.ITERS });
-    bench(`new Decimal`, () => {
-        for (let i = 0; i < STRS.length; i++) new Decimal(STRS[i]);
-    }, { iters: CFG.ITERS });
+    {
+        const lblBig = `BigInt stringToBigIntScaled (scale=${cfg.scale})`;
+        const lblDec = `new Decimal`;
+
+        benchWithDiff(lblBig, () => {
+            for (let i = 0; i < STRS.length; i++) stringToBigIntScaled(STRS[i]);
+        }, { iters: CFG.ITERS });
+
+        benchWithDiff(lblDec, () => {
+            for (let i = 0; i < STRS.length; i++) new Decimal(STRS[i]);
+        }, { iters: CFG.ITERS });
+
+        printDiff(lblBig, lblDec, "Parsing (string→value)");
+    }
 
     // ---- Add/Sub
     console.log("\n== Add/Sub ==");
@@ -87,21 +124,29 @@ for (const cfg of RUN_CONFIGS) {
         const A = SA.map(stringToBigIntScaled);
         const B = SB.map(stringToBigIntScaled);
 
-        bench("BigInt fxAdd()", () => {
+        const lblAddBig = "BigInt fxAdd()";
+        const lblSubBig = "BigInt fxSub()";
+        const lblAddDec = "Decimal plus()";
+        const lblSubDec = "Decimal minus()";
+
+        benchWithDiff(lblAddBig, () => {
             let acc = 0n; for (let i = 0; i < A.length; i++) acc ^= fxAdd(A[i], B[i]); if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
 
-        bench("BigInt fxSub()", () => {
+        benchWithDiff(lblSubBig, () => {
             let acc = 0n; for (let i = 0; i < A.length; i++) acc ^= fxSub(A[i], B[i]); if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
 
-        bench("Decimal plus()", () => {
+        benchWithDiff(lblAddDec, () => {
             let acc = 0n; for (let i = 0; i < DA.length; i++) acc ^= decToSig(DA[i].plus(DB[i]), cfg.scale); if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
 
-        bench("Decimal minus()", () => {
+        benchWithDiff(lblSubDec, () => {
             let acc = 0n; for (let i = 0; i < DA.length; i++) acc ^= decToSig(DA[i].minus(DB[i]), cfg.scale); if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
+
+        printDiff(lblAddBig, lblAddDec, "Add (fxAdd vs plus)");
+        printDiff(lblSubBig, lblSubDec, "Sub (fxSub vs minus)");
     }
 
     // ---- Mul/Div
@@ -113,35 +158,46 @@ for (const cfg of RUN_CONFIGS) {
         const B2 = B.map(v => v === 0n ? 1n : v);
         const DM_B2 = DM_B.map(d => d.isZero() ? new Decimal(1) : d); // avoid division by zero
 
-        bench("BigInt fxMul()", () => {
+        const lblMulBig = "BigInt fxMul()";
+        const lblDivBig = "BigInt fxDiv()";
+        const lblMulDec = "Decimal times()";
+        const lblDivDec = "Decimal div()";
+
+        benchWithDiff(lblMulBig, () => {
             let acc = 0n; for (let i = 0; i < A.length; i++) acc ^= fxMul(A[i], B[i]); if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
 
-        bench("BigInt fxDiv()", () => {
+        benchWithDiff(lblDivBig, () => {
             let acc = 0n; for (let i = 0; i < A.length; i++) acc ^= fxDiv(A[i], B2[i]); if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
 
-        bench("Decimal times()", () => {
+        benchWithDiff(lblMulDec, () => {
             let acc = 0n; for (let i = 0; i < DM_A.length; i++) acc ^= decToSig(DM_A[i].times(DM_B[i]), cfg.scale); if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
 
-        bench("Decimal div()", () => {
+        benchWithDiff(lblDivDec, () => {
             let acc = 0n; for (let i = 0; i < DM_A.length; i++) acc ^= decToSig(DM_A[i].div(DM_B2[i]), cfg.scale); if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
+
+        printDiff(lblMulBig, lblMulDec, "Mul (fxMul vs times)");
+        printDiff(lblDivBig, lblDivDec, "Div (fxDiv vs div)");
     }
 
     // ---- Accounting snap (Decimal baseline path shown inline)
     console.log("\n== Accounting snap (toFixed + re-upscale) ==");
     {
         const A2 = STRS.map(stringToBigIntScaled);
-        bench("BigInt reduceToAccounting()", () => {
+        const lblBig = "BigInt reduceToAccounting()";
+        const lblDec = `Decimal toFixed(${cfg.acc}) + re-upscale`;
+
+        benchWithDiff(lblBig, () => {
             let acc = 0n;
             for (let i = 0; i < A2.length; i++) acc ^= reduceToAccounting(A2[i]);
             if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
 
         const A = STRS.map(s => new Decimal(s));
-        bench(`Decimal toFixed(${cfg.acc}) + re-upscale`, () => {
+        benchWithDiff(lblDec, () => {
             let acc = 0n;
             for (let i = 0; i < A.length; i++) {
                 const s = A[i].toFixed(cfg.acc);
@@ -155,5 +211,7 @@ for (const cfg of RUN_CONFIGS) {
             }
             if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
+
+        printDiff(lblBig, lblDec, "Accounting (reduceToAccounting vs toFixed+re-upscale)");
     }
 }

@@ -7,17 +7,17 @@
 // consider doing those steps at a guard scale (see fxDivGuarded note) and round back once at the boundary.
 
 export { stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, reduceToAccounting };
-export { _TEST_ONLY__set, MATH_SCALE as _TEST_ONLY__MATH_SCALE, ACCOUNTING_DECIMAL_PLACES as _TEST_ONLY__ACCOUNTING_DECIMAL_PLACES, ROUNDING_MODE as _TEST_ONLY__ROUNDING_MODE };
+export { _TEST_ONLY__set, MATH_SCALE as _TEST_ONLY__MATH_SCALE, SCALE_FACTOR as _TEST_ONLY__SCALE_FACTOR, MAX_POW10 as _TEST_ONLY__MAX_POW10, POW10 as _TEST_ONLY__POW10 };
 export { roundInt as _INTERNAL_roundInt }
 
-import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, /* used only for types */ ROUNDING_MODES } from '../config/engine.js';
+import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, ROUNDING_MODES } from '../config/engine.js';
 
 //#region settings  // same code as in `bigint_decimal_scaled.EXPERIMENTAL_finance.js`
 /** @type {number} */
 let MATH_SCALE = CFG_SCALE;
 /** @type {number} */
 let ACCOUNTING_DECIMAL_PLACES = CFG_DECIMAL_PLACES;
-/** @type {string} */
+/** @type {ROUNDING_MODES} */
 let ROUNDING_MODE = CFG_ROUNDING;
 
 // ------------------------ pow10 cache ------------------------
@@ -36,7 +36,7 @@ let GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
  * @param {Object} opt
  * @param {number} opt.decimalScale
  * @param {number} opt.accountingDecimalPlaces
- * @param {string} opt.roundingMode
+ * @param {ROUNDING_MODES} opt.roundingMode
  */
 function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) {
   if (!Number.isInteger(decimalScale)) {
@@ -54,8 +54,8 @@ function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) 
   if (accountingDecimalPlaces > decimalScale) {
     throw new RangeError('accountingDecimalPlaces cannot exceed decimalScale');
   }
-  if (roundingMode !== 'HALF_UP' && roundingMode !== 'HALF_EVEN') {
-    throw new RangeError('roundingMode must be "HALF_UP" or "HALF_EVEN"');
+  if (roundingMode !== ROUNDING_MODES.HALF_UP && roundingMode !== ROUNDING_MODES.HALF_EVEN) {
+    throw new RangeError(`roundingMode must be "${ROUNDING_MODES.HALF_UP}" or "${ROUNDING_MODES.HALF_EVEN}"`);
   }
 
   MATH_SCALE = decimalScale;
@@ -322,7 +322,7 @@ function pow10n(n) {
  * @internal used only here and in bigInt Decimal Scaled Financial library
  *
  * Round integer quotient q with remainder r over divisor d, according to
- * configured ROUNDING_MODE ("HALF_UP" or "HALF_EVEN").
+ * configured ROUNDING_MODE (ROUNDING_MODES.HALF_UP or ROUNDING_MODES.HALF_EVEN).
  *
  * Contract (subtle but important):
  *   - q is the **truncated** integer result at the *target* scale.
@@ -351,7 +351,7 @@ function roundInt(q, r, d, guard = 1n) {
   // Step size to change the *target-scale* integer by 1
   const step = (guard === 1n) ? 1n : guard;
 
-  if (ROUNDING_MODE === "HALF_UP") {
+  if (ROUNDING_MODE === ROUNDING_MODES.HALF_UP) {
     return lhs >= rhs ? q + sign * step : q;
   }
   // HALF_EVEN
@@ -446,7 +446,7 @@ function parsePlainDecimal_fast(str) {
       bump = 1; // round away from zero
     } else if (firstDiscardCode === 5 && !restHasNonZero) {
       // EXACT tie: follow global mode
-      bump = (ROUNDING_MODE === "HALF_UP") ? 1 : 2; // HALF_EVEN → parity check later
+      bump = (ROUNDING_MODE === ROUNDING_MODES.HALF_UP) ? 1 : 2; // HALF_EVEN → parity check later
     }
     keepFrLen = MATH_SCALE;
   }

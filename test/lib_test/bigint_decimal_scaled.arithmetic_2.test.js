@@ -15,6 +15,7 @@ import {
   _TEST_ONLY__set
 } from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
+import { ROUNDING_MODES } from '../../src/config/engine.js';
 
 // ========= Shared helpers =========
 const SCALE = 20;
@@ -57,7 +58,7 @@ function assertThrows(fn, msg) {
 
 // ========= Deterministic vectors @ HALF_UP =========
 t('SETUP HALF_UP (global)', () => {
-  _TEST_ONLY__set({ decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: "HALF_UP" });
+  _TEST_ONLY__set({ decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: ROUNDING_MODES.HALF_UP });
 });
 
 t('fxAdd (plus) – basics, carries, signs, zeros', () => {
@@ -165,7 +166,7 @@ t('fxDiv (divide) – exact, recurring, sign matrix, HALF_UP at 20dp', () => {
 
 // ========= Mode flip: HALF_EVEN quick sanity (keeps scale 20) =========
 t('SETUP HALF_EVEN (global)', () => {
-  _TEST_ONLY__set({ decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: "HALF_EVEN" });
+  _TEST_ONLY__set({ decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: ROUNDING_MODES.HALF_EVEN });
 });
 
 t('HALF_EVEN – sanity vs HALF_UP tie behavior (constructed ties)', () => {
@@ -218,7 +219,7 @@ t('Algebraic properties – commutativity, associativity (add), identities', () 
 
 // ========= Mixed massive vector sweep (hand-picked) =========
 t('Massive vector sweep (hand-picked pairs) – all ops', () => {
-  _TEST_ONLY__set({ decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: "HALF_UP" }); // back to HALF_UP
+  _TEST_ONLY__set({ decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: ROUNDING_MODES.HALF_UP }); // back to HALF_UP
 
   const A = [
     '0','-0','1','-1','2','-2','10','-10',
