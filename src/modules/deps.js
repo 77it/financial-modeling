@@ -10,7 +10,7 @@ export { isNullOrWhiteSpace } from '../lib/string_utils.js';
 export { roundHalfAwayFromZero, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../lib/number_utils.js';
 export { isStringOrBooleanTrue, isStringOrBooleanFalse } from '../lib/boolean_utils.js';
 export { customParseYAML as parseYAML } from '../lib/yaml.js';
-export { cachedParseJSON5relaxed } from '../lib/json5.js';
+export { cachedParseJSONrelaxed } from '../lib/json.js';
 export { Decimal } from "../../vendor/decimaljs/decimal.js";
 export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortValuesAndDatesByDate } from '../lib/obj_utils.js';
 export { tablesInfoValidation } from '../modules/_utils/tablesinfo_validation.js'
