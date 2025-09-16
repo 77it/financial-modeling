@@ -1,6 +1,11 @@
 //<file bigint_decimal_scaled.arithmetic.js>
 
 // file bigint_decimal_scaled.arithmetic.js
+// NOTE: This library performs decimal arithmetic at a fixed global scale (MATH_SCALE).
+// Like any fixed-scale system, chaining many rounded operations can accumulate +/- 1 ulp effects.
+// This is expected; if you need to carry extra precision across long iterative sequences,
+// consider doing those steps at a guard scale (see fxDivGuarded note) and round back once at the boundary.
+
 export { stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, reduceToAccounting };
 export { _TEST_ONLY__set }
 export { roundInt as _INTERNAL_roundInt }
@@ -34,6 +39,25 @@ let GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
  * @param {string} opt.roundingMode
  */
 function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) {
+  if (!Number.isInteger(decimalScale)) {
+    throw new TypeError('decimalScale must be an integer');
+  }
+  if (decimalScale < 0) {
+    throw new RangeError('decimalScale must be >= 0');
+  }
+  if (!Number.isInteger(accountingDecimalPlaces)) {
+    throw new TypeError('accountingDecimalPlaces must be an integer');
+  }
+  if (accountingDecimalPlaces < 0) {
+    throw new RangeError('accountingDecimalPlaces must be >= 0');
+  }
+  if (accountingDecimalPlaces > decimalScale) {
+    throw new RangeError('accountingDecimalPlaces cannot exceed decimalScale');
+  }
+  if (roundingMode !== 'HALF_UP' && roundingMode !== 'HALF_EVEN') {
+    throw new RangeError('roundingMode must be "HALF_UP" or "HALF_EVEN"');
+  }
+
   MATH_SCALE = decimalScale;
   ACCOUNTING_DECIMAL_PLACES = accountingDecimalPlaces;
   ROUNDING_MODE = roundingMode;
@@ -59,6 +83,7 @@ function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) 
  */
 function hasENotation(s) {
   // single pass; avoids scanning twice with .includes('e') || .includes('E')
+  // (A tiny hand-rolled scan is typically faster than regex for short/medium inputs.)
   for (let i = 0; i < s.length; i++) {
     const c = s.charCodeAt(i);
     if (c === 69 /*E*/ || c === 101 /*e*/) return true;
@@ -80,11 +105,11 @@ function hasENotation(s) {
  *
  * @param {string} s
  * @returns {bigint} BigInt scaled by 10^MATH_SCALE
- * @throws {Error} on invalid format
+ * @throws {SyntaxError} on invalid/empty input
  */
 function stringToBigIntScaled(s) {
   const str = String(s).trim();
-  if (!str) throw new Error("Empty number");
+  if (!str) throw new SyntaxError("Empty number");
   return hasENotation(str) ? parseSciDecimal(str) : parsePlainDecimal_fast(str);
 }
 
@@ -97,6 +122,8 @@ function stringToBigIntScaled(s) {
  * @returns {string}
  */
 function bigIntScaledToString(sig, opts) {
+  if (sig === 0n) return "0";
+
   const trim = !!(opts && opts.trim);
   let s = sig.toString();
   const neg = s[0] === "-";
@@ -153,9 +180,15 @@ function fxMul(a, b) {
  * Divide a by b (both scaled by MATH_SCALE) → result at scale MATH_SCALE.
  * Uses integer arithmetic with guard digits to ensure correct rounding.
  *
+ * Remainder sign alignment:
+ *   - `%` yields a remainder with the same sign as the dividend (`num`, i.e., `a`).
+ *   - For rounding we need the remainder’s sign to encode the RESULT’s sign (the sign of `a/b`),
+ *     which flips when `b` is negative. Hence `rAdj = (b < 0n ? -r : r)`.
+ *
  * @param {bigint} a - dividend, scaled by MATH_SCALE
  * @param {bigint} b - divisor, scaled by MATH_SCALE
  * @returns {bigint} quotient, scaled by MATH_SCALE
+ * @throws {RangeError} if dividing by zero
  */
 function fxDiv(a, b) {
   if (b === 0n) throw new RangeError("Division by zero");
@@ -190,8 +223,9 @@ function fxDiv(a, b) {
  *
  * ### When to use
  * - Use in **internal high-precision workflows** (e.g. iterative methods,
- *   chained guard-scale operations) where carrying one extra digit reduces
- *   cumulative rounding error.
+ *   Newton iterations, chained guard-scale operations) where carrying one extra
+ *   digit reduces *cumulative* rounding error. Round back to `MATH_SCALE` once
+ *   at the boundary of the algorithm.
  * - **Do not** use when you need strict bit-for-bit agreement with Decimal.js
  *   or other decimal libraries at the configured scale.
  *
@@ -256,27 +290,40 @@ function reduceToAccounting(sig) {
 /**
  * @param {number} n
  * @returns {bigint} 10^n (n >= 0)
+ * @throws {RangeError} if n is excessively large (abuse guard)
  */
 function pow10n(n) {
   if (n <= MAX_POW10) return POW10[n];
-  // very rare path; only loops if exponent > MAX_POW10
-  let p = POW10[MAX_POW10];
-  for (let i = MAX_POW10; i < n; i++) p *= 10n;
-  return p;
+  // --- changed: use exponentiation-by-squaring for the rare slow path; guard size ---
+  if (n > 1_000_000) {
+    throw new RangeError(`Exponent ${n} exceeds maximum safe value 1000000`);
+  }
+  let base = 10n;
+  let result = 1n;
+  let exp = n;
+  while (exp > 0) {
+    if (exp & 1) result *= base;
+    base *= base;
+    exp >>= 1;
+  }
+  return result;
+  // --- end changed ---
 }
 
 // ------------------------ rounding core ------------------------
 /**
-  * @internal used only here and in bigInt Decimal Scaled Financial library
-  *
+ * @internal used only here and in bigInt Decimal Scaled Financial library
+ *
  * Round integer quotient q with remainder r over divisor d, according to
  * configured ROUNDING_MODE ("HALF_UP" or "HALF_EVEN").
  *
- * Contract:
- *   - q is the truncated integer result so far
- *   - r's sign encodes rounding direction (must match result's sign by contract)
- *   - d is the positive divisor
- *   - guard > 1n if upstream added guard digits (e.g. 10n), otherwise 1n
+ * Contract (subtle but important):
+ *   - q is the **truncated** integer result at the *target* scale.
+ *   - r’s **sign encodes rounding direction** and MUST match the intended
+ *     result’s sign (i.e., the sign of the final quotient). Callers are
+ *     responsible for adjusting r’s sign accordingly (see fxDiv for example).
+ *   - d is the positive divisor (abs value if original divisor was negative).
+ *   - guard > 1n if upstream added guard digits (e.g., ×10), otherwise 1n.
  *
  * @param {bigint} q - truncated quotient
  * @param {bigint} r - remainder (signed; if guarded, includes that scale)
@@ -305,7 +352,7 @@ function roundInt(q, r, d, guard = 1n) {
   if (lhs < rhs) return q;
 
   // exact half → nearest even
-  // check parity at the target unit (drop guard if present)
+  // check parity at the *target* unit (drop guard if present)
   const baseQ = (guard === 1n) ? q : (q / guard);
   const isEven = (baseQ & 1n) === 0n;
   return isEven ? q : (q + sign * step);
@@ -332,7 +379,7 @@ function roundInt(q, r, d, guard = 1n) {
  *
  * @param {string} str
  * @returns {bigint} scaled BigInt at MATH_SCALE
- * @throws {Error} on malformed numbers
+ * @throws {SyntaxError} on malformed numbers
  */
 function parsePlainDecimal_fast(str) {
   let i = 0, sign = 1n;
@@ -367,12 +414,12 @@ function parsePlainDecimal_fast(str) {
     frEnd = i;
     if (frStart === frEnd && intEnd === intStart) {
       // ".", "+.", "-." are invalid (lonely sign alone is accepted elsewhere)
-      throw new Error(`Invalid number: ${str}`);
+      throw new SyntaxError(`Invalid number: ${str}`);
     }
   }
 
   // --- No trailing garbage allowed ---
-  if (i !== str.length) throw new Error(`Invalid number: ${str}`);
+  if (i !== str.length) throw new SyntaxError(`Invalid number: ${str}`);
 
   const frLen = (frStart >= 0) ? (frEnd - frStart) : 0;
 
@@ -471,7 +518,7 @@ function parsePlainDecimal_fast(str) {
  *
  * @param {string} str
  * @returns {bigint} BigInt at scale = MATH_SCALE
- * @throws {Error} on malformed numbers (bad mantissa/exp/trailing garbage)
+ * @throws {SyntaxError|RangeError} on malformed numbers / extreme exponents
  */
 function parseSciDecimal(str) {
   let i = 0, sign = 1n;
@@ -497,12 +544,12 @@ function parseSciDecimal(str) {
     FR = str.slice(startFr, i);
     frHadDigits = (i > startFr);
     // Disallow strings like "." or "+." or "-." (no int and no frac digits)
-    if (!intHadDigits && !frHadDigits) throw new Error(`Invalid number: ${str}`);
+    if (!intHadDigits && !frHadDigits) throw new SyntaxError(`Invalid number: ${str}`);
   }
 
   // Require at least one mantissa digit somewhere before exponent
   if (!intHadDigits && !frHadDigits) {
-    throw new Error(`Invalid number: ${str}`);
+    throw new SyntaxError(`Invalid number: ${str}`);
   }
 
   // optional exponent
@@ -512,12 +559,19 @@ function parseSciDecimal(str) {
     const sgn = (i < str.length && (str[i] === "+" || str[i] === "-")) ? str[i++] : "+";
     const startE = i;
     while (i < str.length && str.charCodeAt(i) >= 48 && str.charCodeAt(i) <= 57) i++;
-    if (startE === i) throw new Error(`Invalid exponent: ${str}`);
-    const eAbs = parseInt(str.slice(startE, i), 10);
+    if (startE === i) throw new SyntaxError(`Invalid exponent: ${str}`);
+    // --- added: exponent guards (fast on normal inputs, prevents abuse) ---
+    const expStr = str.slice(startE, i);
+    if (expStr.length > 9) throw new RangeError(`Exponent too large: ${str}`);
+    const eAbs = parseInt(expStr, 10);
+    if (!Number.isFinite(eAbs) || eAbs > 1_000_000) {
+      throw new RangeError(`Exponent exceeds maximum safe value: ${str}`);
+    }
+    // --- end added ---
     exp = (sgn === "-") ? -eAbs : eAbs;
   }
 
-  if (i !== str.length) throw new Error(`Invalid trailing characters: ${str}`);
+  if (i !== str.length) throw new SyntaxError(`Invalid trailing characters: ${str}`);
 
   // Combine mantissa; compute scale shift k
   const FRlen = FR.length;

@@ -10,7 +10,11 @@ import {
     RUN_CONFIGS, bench, makeRng, decToSig, genDecimalStrings
 } from "./bigint_decimal_scaled.common.js";
 
-const CFG = { N: 4000, ITERS: 5, SEED: 0xA5F00D, DEC_ROUND: Decimal.ROUND_HALF_EVEN };
+const CFG = { N: 20_000, ITERS: 5, SEED: 0xA5F00D, DEC_ROUND: Decimal.ROUND_HALF_EVEN };
+const totalProcessed = CFG.N * CFG.ITERS;
+const nf = new Intl.NumberFormat("it-IT");
+console.log(`Benchmark config: N=${nf.format(CFG.N)} numbers per run × ITERS=${nf.format(CFG.ITERS)} repeats = ${nf.format(totalProcessed)} numbers processed`);
+console.log("Reported time = total wall-clock ms for all processed numbers\n");
 
 /**
  * Generate a stable pair of operand index arrays using the same RNG,
