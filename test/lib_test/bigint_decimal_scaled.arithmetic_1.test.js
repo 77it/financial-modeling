@@ -7,6 +7,7 @@ import assert from 'node:assert';
 
 import {
   stringToBigIntScaled,
+  numberToBigIntScaled,
   bigIntScaledToString,
   fxAdd,
   fxSub,
@@ -60,6 +61,45 @@ function assertThrows(fn, msg) {
 t('SETUP HALF_UP (global)', () => {
   _TEST_ONLY__set({ decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: ROUNDING_MODES.HALF_UP });
 });
+
+t('numberToBigIntScaled – finite numbers map via string path identically', () => {
+  /** Numeric samples (for number-based tests) */
+  const samplesNum = [
+    0, -0, 1, -1, 0.1, -0.1, 1e-20, -1e-20, 1e20, -1e20,
+    3.141592653589793, -2.718281828459045,
+    9999999.9999999, -9999999.9999999,
+  ];
+
+  /**
+   * String equivalents of `samplesNum`, index-aligned.
+   * Note: literals used (not String(...)) to preserve "-0".
+   */
+  const samplesStr = [
+    "0", "-0", "1", "-1", "0.1", "-0.1", "1e-20", "-1e-20", "1e20", "-1e20",
+    "3.141592653589793", "-2.718281828459045",
+    "9999999.9999999", "-9999999.9999999",
+  ];
+
+  for (let i = 0; i < samplesNum.length; i++) {
+    const n = samplesNum[i];
+    const s = samplesStr[i];
+    const viaNum = numberToBigIntScaled(n);
+    const viaStr = stringToBigIntScaled(s); // canonical reference
+    assert.strictEqual(viaNum, viaStr, `mismatch on ${n} / "${s}"`);
+  }
+
+  assert.strictEqual(toStr(numberToBigIntScaled(0)), '0');
+  assert.strictEqual(toStr(numberToBigIntScaled(0.5)), '0.5');
+  assert.strictEqual(toStr(numberToBigIntScaled(1e-7)), '0.0000001');
+});
+
+t('numberToBigIntScaled – rejects NaN and infinities', () => {
+  assertThrows(() => numberToBigIntScaled(NaN), 'NaN must throw');
+  assertThrows(() => numberToBigIntScaled(Infinity), '+Infinity must throw');
+  assertThrows(() => numberToBigIntScaled(-Infinity), '-Infinity must throw');
+});
+
+// ===== existing tests (unchanged) =====
 
 t('fxAdd (plus) – basics, carries, signs, zeros', () => {
   const V = [
@@ -217,7 +257,7 @@ t('Algebraic properties – commutativity, associativity (add), identities', () 
   }
 });
 
-// ========= Mixed massive vector sweep (hand-picked) =========
+// ========= Mixed massive vector sweep (hand-picked pairs) =========
 t('Massive vector sweep (hand-picked pairs) – all ops', () => {
   _TEST_ONLY__set({ decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: ROUNDING_MODES.HALF_UP }); // back to HALF_UP
 

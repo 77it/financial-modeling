@@ -6,7 +6,7 @@
 // This is expected; if you need to carry extra precision across long iterative sequences,
 // consider doing those steps at a guard scale (see fxDivGuarded note) and round back once at the boundary.
 
-export { stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, reduceToAccounting };
+export { stringToBigIntScaled, numberToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, roundToAccounting };
 export { _TEST_ONLY__set, MATH_SCALE as _TEST_ONLY__MATH_SCALE, SCALE_FACTOR as _TEST_ONLY__SCALE_FACTOR, MAX_POW10 as _TEST_ONLY__MAX_POW10, POW10 as _TEST_ONLY__POW10 };
 export { roundInt as _INTERNAL_roundInt }
 
@@ -111,6 +111,24 @@ function stringToBigIntScaled(s) {
   const str = String(s).trim();
   if (!str) throw new SyntaxError("Empty number");
   return hasENotation(str) ? parseSciDecimal(str) : parsePlainDecimal_fast(str);
+}
+
+/**
+ * Convert a finite JavaScript Number to a BigInt scaled at MATH_SCALE,
+ * *first* converting the number to a normalized string (e.g., "1e-7", "0.1").
+ * This keeps a single canonical parsing/rounding path (the string parser).
+ *
+ * @param {number} x - finite JS number
+ * @returns {bigint} BigInt scaled by 10^MATH_SCALE
+ * @throws {TypeError} if x is not a finite number (NaN, ±Infinity)
+ */
+function numberToBigIntScaled(x) {
+  if (typeof x !== "number" || !Number.isFinite(x)) {
+    throw new TypeError("numberToBigIntScaled expects a finite number");
+  }
+  // String(x) yields ECMAScript's normalized numeric string (often exp-form),
+  // which your parser already handles (fast plain path or sci-notation path).
+  return stringToBigIntScaled(String(x));
 }
 
 // ------------------------ formatting ------------------------
@@ -281,7 +299,7 @@ function fxDivGuarded(a, b) {
  * @param {bigint} sig
  * @returns {bigint}
  */
-function reduceToAccounting(sig) {
+function roundToAccounting(sig) {
   const q = sig / GRID_FACTOR; // integer at ACCOUNTING_DECIMAL_PLACES dp
   const r = sig % GRID_FACTOR;
   if (r === 0n) return sig === 0n ? 0n : sig;

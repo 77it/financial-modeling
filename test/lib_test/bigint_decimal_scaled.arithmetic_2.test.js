@@ -3,7 +3,7 @@ import {
     stringToBigIntScaled,
     bigIntScaledToString,
     fxAdd, fxSub, fxMul, fxDiv,
-    reduceToAccounting,
+    roundToAccounting,
 } from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
 import {ROUNDING_MODES} from '../../src/config/engine.js';
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
@@ -186,7 +186,7 @@ t('test Div HalfUp', () => {
 
 // ------------------ accounting grid (keep scale 20) ------------------
 
-t('test reduceToAccounting HalfEven', () => {
+t('test roundToAccounting HalfEven', () => {
     Decimal.set({ rounding: Decimal.ROUND_HALF_EVEN });
     _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
     const inputs = [
@@ -197,7 +197,7 @@ t('test reduceToAccounting HalfEven', () => {
     ];
     for (const s of inputs) {
         const sig20 = stringToBigIntScaled(s);
-        const got = reduceToAccounting(sig20);
+        const got = roundToAccounting(sig20);
 
         const d = new Decimal(s);
         const expSig20 = decSnapToAccountingSig20(d, Decimal.ROUND_HALF_EVEN);
@@ -205,13 +205,13 @@ t('test reduceToAccounting HalfEven', () => {
     }
 });
 
-t('test reduceToAccounting HalfUp', () => {
+t('test roundToAccounting HalfUp', () => {
     Decimal.set({ rounding: Decimal.ROUND_HALF_UP });
     _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
     const inputs = ["0.00005", "-0.00005", "1.23455", "-1.23455"];
     for (const s of inputs) {
         const sig20 = stringToBigIntScaled(s);
-        const got = reduceToAccounting(sig20);
+        const got = roundToAccounting(sig20);
 
         const d = new Decimal(s);
         const expSig20 = decSnapToAccountingSig20(d, Decimal.ROUND_HALF_UP);
@@ -240,7 +240,7 @@ t('test Negative Zero normalization', () => {
     _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
     // A tiny negative that rounds to zero on accounting snap
     const tinyNeg = stringToBigIntScaled("-0.00000000000000000009"); // -9e-20
-    const snapped = reduceToAccounting(tinyNeg);
+    const snapped = roundToAccounting(tinyNeg);
     assert.strictEqual(snapped, 0n);
     assert.strictEqual(bigIntScaledToString(snapped), "0.00000000000000000000");
 });

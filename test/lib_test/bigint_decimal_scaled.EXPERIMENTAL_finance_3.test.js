@@ -12,7 +12,7 @@ import { Decimal } from '../../vendor/decimaljs/decimal.js';
 import { ROUNDING_MODES } from '../../src/config/engine.js';
 import {
   _TEST_ONLY__set as _TEST_ONLY__set_arithmetic,
-  stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, reduceToAccounting,
+  stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, roundToAccounting,
 } from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
 import {
   fxPowInt, fxNPV, fxPmt,
@@ -92,10 +92,10 @@ t('Strict regression test of all BigInt arithmetic/finance functions against Dec
     // --- Accounting quantization ---
     {
       const x = stringToBigIntScaled('12345.6789012345');
-      const q = reduceToAccounting(x);
+      const q = roundToAccounting(x);
       const ref = decToSig(new Decimal('12345.6789012345').toDecimalPlaces(cfg.acc), cfg.scale);
-      // `reduceToAccounting` may be implemented at BigInt scale and then upscaled; compare via string rendering to the same decimals
-      assert.strictEqual(bigIntScaledToString(q), bigIntScaledToString(ref), 'reduceToAccounting mismatch');
+      // `roundToAccounting` may be implemented at BigInt scale and then upscaled; compare via string rendering to the same decimals
+      assert.strictEqual(bigIntScaledToString(q), bigIntScaledToString(ref), 'roundToAccounting mismatch');
     }
 
     // --- (1+r)^n vs Decimal ---

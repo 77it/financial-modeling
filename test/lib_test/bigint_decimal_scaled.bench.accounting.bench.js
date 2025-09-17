@@ -3,7 +3,7 @@ import process from "node:process";
 import { Decimal } from "../../vendor/decimaljs/decimal.js";
 import {
     _TEST_ONLY__set as _TEST_ONLY__set_arith,
-    stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv, reduceToAccounting,
+    stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv, roundToAccounting,
 } from "../../src/lib/bigint_decimal_scaled.arithmetic.js";
 import { ROUNDING_MODES } from "../../src/config/engine.js";
 import {
@@ -187,12 +187,12 @@ for (const cfg of RUN_CONFIGS) {
     console.log("\n== Accounting snap (toFixed + re-upscale) ==");
     {
         const A2 = STRS.map(stringToBigIntScaled);
-        const lblBig = "BigInt reduceToAccounting()";
+        const lblBig = "BigInt roundToAccounting()";
         const lblDec = `Decimal toFixed(${cfg.acc}) + re-upscale`;
 
         benchWithDiff(lblBig, () => {
             let acc = 0n;
-            for (let i = 0; i < A2.length; i++) acc ^= reduceToAccounting(A2[i]);
+            for (let i = 0; i < A2.length; i++) acc ^= roundToAccounting(A2[i]);
             if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
 
@@ -212,6 +212,6 @@ for (const cfg of RUN_CONFIGS) {
             if (acc === 42n) process.stdout.write("");
         }, { iters: CFG.ITERS });
 
-        printDiff(lblBig, lblDec, "Accounting (reduceToAccounting vs toFixed+re-upscale)");
+        printDiff(lblBig, lblDec, "Accounting (roundToAccounting vs toFixed+re-upscale)");
     }
 }
