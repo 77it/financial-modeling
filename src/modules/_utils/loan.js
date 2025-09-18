@@ -1,10 +1,8 @@
 export { getPrincipalPaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
 
-import { schema, validate, addMonthsToLocalDate, stripTimeToLocalDate, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../deps.js';
+import { schema, validate, addMonthsToLocalDate, stripTimeToLocalDate } from '../deps.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../deps.js';
-import { Decimal } from '../deps.js';
-import { ROUNDING_MODE } from '../../config/engine.js';
-import { ACCOUNTING_DECIMAL_PLACES } from '../../config/engine.js';
+import { DSB } from '../deps.js';
 
 // info about loans
 /*
@@ -82,7 +80,6 @@ function calculateAnnuityOfAConstantPaymentLoan ({
  * @param {number} p.nrOfPaymentsIncludingGracePeriod
  * @param {number} p.numberOfPaymentsInAYear  1 | 2 | 3 | 4 | 6 | 12: 12 for monthly, 6 for bimonthly, ..., 1 for yearly
  * @param {number} [p.gracePeriodNrOfPayments=0] optional, number of payments with interest-only payments
- * @param {number} [p.precision=ACCOUNTING_DECIMAL_PLACES] optional, number of decimals to round the interest and principal payments, default is engine const ACCOUNTING_DECIMAL_PLACES
  * @return {{date: Date[], paymentNo: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
  */
 function getPrincipalPaymentsOfAConstantPaymentLoan ({
@@ -92,8 +89,7 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
   annualInterestRate,
   nrOfPaymentsIncludingGracePeriod,
   numberOfPaymentsInAYear,
-  gracePeriodNrOfPayments = 0,
-  precision = ACCOUNTING_DECIMAL_PLACES
+  gracePeriodNrOfPayments = 0
 }) {
   //XXXXX: valutare se inserire la data di inizio finanziamento/erogazione, con capitale zero, e la prima scadenza da cui calcolare interessi;
   //loanStartDate + firstScheduledPaymentDate;
@@ -110,7 +106,6 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
           nrOfPaymentsIncludingGracePeriod,
           numberOfPaymentsInAYear,
           gracePeriodNrOfPayments,
-          precision
         },
       validation:
         {
@@ -121,7 +116,6 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
           nrOfPaymentsIncludingGracePeriod: schema.NUMBER_TYPE,
           numberOfPaymentsInAYear: [1, 2, 3, 4, 6, 12],
           gracePeriodNrOfPayments: schema.NUMBER_TYPE,
-          precision: schema.NUMBER_TYPE
         }
     });
 
@@ -137,16 +131,11 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
   if (gracePeriodNrOfPayments >= nrOfPaymentsIncludingGracePeriod)
     throw new Error(`Validation error: grace period payments (${gracePeriodNrOfPayments}) cannot be greater than or equal to total number of payments including grace period (${nrOfPaymentsIncludingGracePeriod})`);
 
-  if (precision < 0 || precision > 20)
-    throw new Error(`Validation error: precision is ${precision}, must be between 0 and 20`);
-
   const numberOfPaymentsWithoutGracePeriod = nrOfPaymentsIncludingGracePeriod - gracePeriodNrOfPayments;
-
-  /*XXX*/ const _round = ROUNDING_MODE ? roundHalfAwayFromZeroWithPrecision : truncWithPrecision;
 
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12, and so on
   // Multiply by -1, since it default to a negative value
-  const mortgagePayment = _round(-1 * financial.pmt(annualInterestRate / numberOfPaymentsInAYear, numberOfPaymentsWithoutGracePeriod, startingPrincipal, 0, financial.PaymentDueTime.End), precision);
+  const mortgagePayment = _round(-1 * financial.pmt(annualInterestRate / numberOfPaymentsInAYear, numberOfPaymentsWithoutGracePeriod, startingPrincipal, 0, financial.PaymentDueTime.End));
 
   const mortgageArray = {
     /** @type {Date[]} */ date: [],
@@ -168,7 +157,7 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
   for (let currPaymentNo = 1; currPaymentNo <= gracePeriodNrOfPayments; currPaymentNo++) {
     // The interest payment portion of the period
     // disabled, because the computation of the interest payment is done outside with another function
-    //const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, 1, numberOfPaymentsWithoutGracePeriod, startingPrincipal), precision);
+    //const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, 1, numberOfPaymentsWithoutGracePeriod, startingPrincipal));
 
     mortgageArray.date.push(currDate);
     mortgageArray.paymentNo.push(currPaymentNo);
@@ -183,25 +172,25 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
   }
 
   // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our mortgage remaining will decrease
-  let mortgageRemaining = new Decimal(startingPrincipal);
+  let mortgageRemaining = DSB.fromNumber(startingPrincipal);
 
   // Here we loop through each payment (starting from 1) and figure out the interest and principal payments
   for (let currPaymentNo = 1; currPaymentNo <= numberOfPaymentsWithoutGracePeriod; currPaymentNo++) {
     // The interest payment portion of that month
-    const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, currPaymentNo, numberOfPaymentsWithoutGracePeriod, startingPrincipal), precision);
+    const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, currPaymentNo, numberOfPaymentsWithoutGracePeriod, startingPrincipal));
 
-    let principalPayment = _round(mortgagePayment - interestPayment, precision);  // The principal payment portion of that month
+    let principalPayment = _round(mortgagePayment - interestPayment);  // The principal payment portion of that month
     if (currPaymentNo === numberOfPaymentsWithoutGracePeriod)  // if we reached the last payment, the last payment is the residual principal
-      principalPayment = mortgageRemaining.toNumber();
+      principalPayment = Number(DSB.toString(mortgageRemaining));
 
     // Calculate the remaining mortgage amount, which you do by subtracting the principal payment
-    mortgageRemaining = mortgageRemaining.minus(principalPayment);
+    mortgageRemaining = DSB.sub(mortgageRemaining, principalPayment);
 
     mortgageArray.date.push(currDate);
     mortgageArray.paymentNo.push(currPaymentNo + gracePeriodNrOfPayments);
     // mortgageArray.interestPayment.push(interestPayment);  // disabled, because the computation of the interest payment is done outside with another function
     mortgageArray.principalPayment.push(principalPayment);
-    mortgageArray.totalMortgageRemaining.push(mortgageRemaining.toNumber());
+    mortgageArray.totalMortgageRemaining.push(Number(DSB.toString(mortgageRemaining)));
 
     // increment the current date by the number of months in a year divided by the number of payments in a year;
     // is done at the end of the loop, so the first payment date is the same as the first scheduled payment date
@@ -210,8 +199,18 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
   }
 
   // coherence test
-  if (mortgageRemaining.toNumber() !== 0)
+  if (Number(DSB.toString(mortgageRemaining)) !== 0)
     throw new Error(`Internal error, at the end of the mortgage calculation, residual mortgage must be zero.`);
 
   return mortgageArray;
+}
+
+/**
+ * Take a number, convert it to DECIMAL_SCALED_BIGINT, round it to accounting and return it as number
+ * @param { number } n
+ * @returns {number}
+ * @private
+ */
+function _round(n) {
+  return Number(DSB.toString(DSB.round(DSB.fromNumber(n))));
 }

@@ -1,12 +1,58 @@
+valuta thin layer fluent interface
+https://chatgpt.com/g/g-p-687241f4c08c8191b9cc1a3d4b21244b/c/68cc2756-317c-832b-9ef8-fa3574570127
+
 //<file bigint_decimal_scaled.arithmetic.js>
 
-// file bigint_decimal_scaled.arithmetic.js
+/*
+██████╗ ███████╗ ██████╗██╗███╗   ███╗ █████╗ ██╗
+██╔══██╗██╔════╝██╔════╝██║████╗ ████║██╔══██╗██║
+██║  ██║█████╗  ██║     ██║██╔████╔██║███████║██║
+██║  ██║██╔══╝  ██║     ██║██║╚██╔╝██║██╔══██║██║
+██████╔╝███████╗╚██████╗██║██║ ╚═╝ ██║██║  ██║███████╗
+╚═════╝ ╚══════╝ ╚═════╝╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝
+
+███████╗ ██████╗ █████╗ ██╗     ███████╗██████╗
+██╔════╝██╔════╝██╔══██╗██║     ██╔════╝██╔══██╗
+███████╗██║     ███████║██║     █████╗  ██║  ██║
+╚════██║██║     ██╔══██║██║     ██╔══╝  ██║  ██║
+███████║╚██████╗██║  ██║███████╗███████╗██████╔╝
+╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═════╝
+
+██████╗ ██╗ ██████╗ ██╗███╗   ██╗████████╗
+██╔══██╗██║██╔════╝ ██║████╗  ██║╚══██╔══╝
+██████╔╝██║██║  ███╗██║██╔██╗ ██║   ██║
+██╔══██╗██║██║   ██║██║██║╚██╗██║   ██║
+██████╔╝██║╚██████╔╝██║██║ ╚████║   ██║
+╚═════╝ ╚═╝ ╚═════╝ ╚═╝╚═╝  ╚═══╝   ╚═╝
+ */
+
 // NOTE: This library performs decimal arithmetic at a fixed global scale (MATH_SCALE).
 // Like any fixed-scale system, chaining many rounded operations can accumulate +/- 1 ulp effects.
 // This is expected; if you need to carry extra precision across long iterative sequences,
 // consider doing those steps at a guard scale (see fxDivGuarded note) and round back once at the boundary.
 
-export { stringToBigIntScaled, numberToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, roundToAccounting };
+// being the sanitization to this format called DECIMAL_SCALED_BIGINT we decided to export a shortcut name DSB
+export const DSB = Object.freeze({
+  fromString: stringToBigIntScaled,
+  fromNumber: numberToBigIntScaled,
+  toString: bigIntScaledToString,
+  round: roundToAccounting,
+
+  // ergonomic (coercing) API
+  add, sub, mul, div,
+
+  // strict BigInt-only core (fast paths for hot loops)
+  fxAdd, fxSub, fxMul, fxDiv,
+});
+export {
+  stringToBigIntScaled,
+  numberToBigIntScaled,
+  bigIntScaledToString,
+  roundToAccounting,
+  fxAdd, fxSub, fxMul, fxDiv,
+  // ergonomic (coercing) API
+  add, sub, mul, div,
+};
 export { _TEST_ONLY__set, MATH_SCALE as _TEST_ONLY__MATH_SCALE, SCALE_FACTOR as _TEST_ONLY__SCALE_FACTOR, MAX_POW10 as _TEST_ONLY__MAX_POW10, POW10 as _TEST_ONLY__POW10 };
 export { roundInt as _INTERNAL_roundInt }
 
@@ -76,23 +122,9 @@ function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) 
 
 //#region Exported functions
 
-/**
- * Check if a string has scientific notation (e.g., "1e10").
- * @param {string} s
- * @returns {boolean}
- */
-function hasENotation(s) {
-  // single pass; avoids scanning twice with .includes('e') || .includes('E')
-  // (A tiny hand-rolled scan is typically faster than regex for short/medium inputs.)
-  for (let i = 0; i < s.length; i++) {
-    const c = s.charCodeAt(i);
-    if (c === 69 /*E*/ || c === 101 /*e*/) return true;
-  }
-  return false;
-}
+//#region ------------------------ toBigIntScaled ------------------------
 
 /**
- * @public
  * Parse a decimal string into a BigInt at MATH_SCALE, with a
  * **fast path** for plain decimals and a **slow path** for e-notation.
  *
@@ -131,7 +163,9 @@ function numberToBigIntScaled(x) {
   return stringToBigIntScaled(String(x));
 }
 
-// ------------------------ formatting ------------------------
+//#endregion ------------------------ toBigIntScaled ------------------------
+
+//#region ------------------------ formatting ------------------------
 
 /**
  * Convert a scaled BigInt to a decimal string.
@@ -168,7 +202,9 @@ function bigIntScaledToString(sig, opts) {
   return out;
 }
 
-// ------------------------ arithmetic ------------------------
+//#endregion ------------------------ formatting ------------------------
+
+//#region ------------------------ arithmetic ------------------------
 
 /**
  * Add two scale-MATH_SCALE BigInts.
@@ -294,6 +330,10 @@ function fxDivGuarded(a, b) {
 }
 */
 
+//#endregion ------------------------ arithmetic ------------------------
+
+//#region ------------------------ rounding ------------------------
+
 /**
  * Snap a scaled BigInt to the accounting grid (4 dp) but KEEP scale.
  * @param {bigint} sig
@@ -308,9 +348,107 @@ function roundToAccounting(sig) {
   return snapped === 0n ? 0n : snapped;
 }
 
+//#endregion ------------------------ rounding ------------------------
+
+//#region ------------------------ arithmetic with automatic conversion ------------------------
+
+/**
+ * @typedef {bigint} BigIntScaled
+ */
+
+/**
+ * Convert an input to a scaled BigInt if needed.
+ * Fast path for bigint; falls back to your converters for number/string.
+ * @param {BigIntScaled|number|string} x
+ * @returns {BigIntScaled}
+ * @throws {TypeError} on unsupported types (null, undefined, boolean, object, symbol, function)
+ */
+function ensureBigIntScaled(x) {
+  // Fast path: already a bigint
+  if (typeof x === "bigint") return x;
+
+  // Coercion paths
+  const t = typeof x;
+  if (t === "number") {
+    // IMPORTANT: your number path should already canonicalize (e.g., handle -0).
+    //@ts-ignore type is number here
+    return numberToBigIntScaled(x);
+  }
+  if (t === "string") {
+    //@ts-ignore type is string here
+    return stringToBigIntScaled(x);
+  }
+
+  // Anything else is a programming error
+  throw new TypeError(`Expected bigint|number|string, got ${t}`);
+}
+
+/**
+ * Add two scale-MATH_SCALE values. Accepts bigint/number/string with fast path for bigint.
+ * @param {BigIntScaled|number|string} a
+ * @param {BigIntScaled|number|string} b
+ * @returns {BigIntScaled}
+ */
+function add(a, b) {
+  if (typeof a === "bigint" && typeof b === "bigint") return fxAdd(a, b);
+  return fxAdd(ensureBigIntScaled(a), ensureBigIntScaled(b));
+}
+
+/**
+ * Subtract b from a. Accepts bigint/number/string with fast path for bigint.
+ * @param {BigIntScaled|number|string} a
+ * @param {BigIntScaled|number|string} b
+ * @returns {BigIntScaled}
+ */
+function sub(a, b) {
+  if (typeof a === "bigint" && typeof b === "bigint") return fxSub(a, b);
+  return fxSub(ensureBigIntScaled(a), ensureBigIntScaled(b));
+}
+
+/**
+ * Multiply two scale-MATH_SCALE values → scale-MATH_SCALE, with rounding.
+ * Accepts bigint/number/string with fast path for bigint.
+ * @param {BigIntScaled|number|string} a
+ * @param {BigIntScaled|number|string} b
+ * @returns {BigIntScaled}
+ */
+function mul(a, b) {
+  if (typeof a === "bigint" && typeof b === "bigint") return fxMul(a, b);
+  return fxMul(ensureBigIntScaled(a), ensureBigIntScaled(b));
+}
+
+/**
+ * Divide a by b (both scaled by MATH_SCALE) → result at scale MATH_SCALE.
+ * Accepts bigint/number/string with fast path for bigint.
+ * @param {BigIntScaled|number|string} a
+ * @param {BigIntScaled|number|string} b
+ * @returns {BigIntScaled}
+ */
+function div(a, b) {
+  if (typeof a === "bigint" && typeof b === "bigint") return fxDiv(a, b);
+  return fxDiv(ensureBigIntScaled(a), ensureBigIntScaled(b));
+}
+
+//#endregion ------------------------ arithmetic with automatic conversion ------------------------
+
 //#endregion Exported functions
 
 //#region private functions
+
+/**
+ * Check if a string has scientific notation (e.g., "1e10").
+ * @param {string} s
+ * @returns {boolean}
+ */
+function hasENotation(s) {
+  // single pass; avoids scanning twice with .includes('e') || .includes('E')
+  // (A tiny hand-rolled scan is typically faster than regex for short/medium inputs.)
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c === 69 /*E*/ || c === 101 /*e*/) return true;
+  }
+  return false;
+}
 
 /**
  * @param {number} n
@@ -423,8 +561,8 @@ function parsePlainDecimal_fast(str) {
     if (c >= 48 && c <= 57) { i++; continue; }
     break;
   }
-  let intStart = startInt;
-  let intEnd = i; // [intStart, intEnd)
+  const intStart = startInt;
+  const intEnd = i; // [intStart, intEnd)
 
   // --- Parse optional fractional part ---
   let frStart = -1, frEnd = -1;
@@ -494,8 +632,8 @@ function parsePlainDecimal_fast(str) {
 
   // --- Early return: common path with no bump and frLen<=scale ---
   if (bump === 0 && frLen <= MATH_SCALE) {
-    let intDigits = intDigitsLen > 0 ? str.slice(nzInt, intEnd) : "";
-    let frDigits  = frDigitsLen  > 0 ? str.slice(frStart, keptFrEnd) : "";
+    const intDigits = intDigitsLen > 0 ? str.slice(nzInt, intEnd) : "";
+    const frDigits  = frDigitsLen  > 0 ? str.slice(frStart, keptFrEnd) : "";
     let digitsStr = (intDigits || frDigits ? (intDigits + frDigits) : "0");
     if (padZeros > 0) digitsStr += "0".repeat(padZeros);
     const sig = BigInt(digitsStr);
@@ -557,7 +695,7 @@ function parseSciDecimal(str) {
   const startInt = i;
   while (i < str.length && str.charCodeAt(i) >= 48 && str.charCodeAt(i) <= 57) i++;
   const intHadDigits = i > startInt;
-  let INT = str.slice(startInt, i);
+  const INT = str.slice(startInt, i);
 
   // optional fraction
   let FR = "";
