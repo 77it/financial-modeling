@@ -1,6 +1,3 @@
-valuta thin layer fluent interface
-https://chatgpt.com/g/g-p-687241f4c08c8191b9cc1a3d4b21244b/c/68cc2756-317c-832b-9ef8-fa3574570127
-
 //<file bigint_decimal_scaled.arithmetic.js>
 
 /*
@@ -31,20 +28,9 @@ https://chatgpt.com/g/g-p-687241f4c08c8191b9cc1a3d4b21244b/c/68cc2756-317c-832b-
 // This is expected; if you need to carry extra precision across long iterative sequences,
 // consider doing those steps at a guard scale (see fxDivGuarded note) and round back once at the boundary.
 
-// being the sanitization to this format called DECIMAL_SCALED_BIGINT we decided to export a shortcut name DSB
-export const DSB = Object.freeze({
-  fromString: stringToBigIntScaled,
-  fromNumber: numberToBigIntScaled,
-  toString: bigIntScaledToString,
-  round: roundToAccounting,
-
-  // ergonomic (coercing) API
-  add, sub, mul, div,
-
-  // strict BigInt-only core (fast paths for hot loops)
-  fxAdd, fxSub, fxMul, fxDiv,
-});
 export {
+  DSB,  // functions shortcuts
+  ensureBigIntScaled,
   stringToBigIntScaled,
   numberToBigIntScaled,
   bigIntScaledToString,
@@ -57,6 +43,21 @@ export { _TEST_ONLY__set, MATH_SCALE as _TEST_ONLY__MATH_SCALE, SCALE_FACTOR as 
 export { roundInt as _INTERNAL_roundInt }
 
 import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, ROUNDING_MODES } from '../config/engine.js';
+
+// Exported functions shortcuts: being the sanitization to this format called DECIMAL_SCALED_BIGINT we decided to export a shortcut name DSB
+const DSB = Object.freeze({
+  from: ensureBigIntScaled,
+  fromString: stringToBigIntScaled,
+  fromNumber: numberToBigIntScaled,
+  toString: bigIntScaledToString,
+  round: roundToAccounting,
+
+  // ergonomic (coercing) API
+  add, sub, mul, div,
+
+  // strict BigInt-only core (fast paths for hot loops)
+  fxAdd, fxSub, fxMul, fxDiv,
+});
 
 //#region settings  // same code as in `bigint_decimal_scaled.EXPERIMENTAL_finance.js`
 /** @type {number} */
@@ -353,41 +354,30 @@ function roundToAccounting(sig) {
 //#region ------------------------ arithmetic with automatic conversion ------------------------
 
 /**
- * @typedef {bigint} BigIntScaled
- */
-
-/**
  * Convert an input to a scaled BigInt if needed.
  * Fast path for bigint; falls back to your converters for number/string.
- * @param {BigIntScaled|number|string} x
- * @returns {BigIntScaled}
+ * @param {bigint|number|string} x
+ * @returns {bigint}
  * @throws {TypeError} on unsupported types (null, undefined, boolean, object, symbol, function)
  */
 function ensureBigIntScaled(x) {
-  // Fast path: already a bigint
-  if (typeof x === "bigint") return x;
-
-  // Coercion paths
-  const t = typeof x;
-  if (t === "number") {
-    // IMPORTANT: your number path should already canonicalize (e.g., handle -0).
-    //@ts-ignore type is number here
-    return numberToBigIntScaled(x);
+  switch (typeof x) {
+    case 'bigint':
+      return x;
+    case 'number':
+      return numberToBigIntScaled(x);
+    case 'string':
+      return stringToBigIntScaled(x);
+    default:
+      throw new TypeError(`Expected bigint|number|string, got ${typeof x}`);
   }
-  if (t === "string") {
-    //@ts-ignore type is string here
-    return stringToBigIntScaled(x);
-  }
-
-  // Anything else is a programming error
-  throw new TypeError(`Expected bigint|number|string, got ${t}`);
 }
 
 /**
  * Add two scale-MATH_SCALE values. Accepts bigint/number/string with fast path for bigint.
- * @param {BigIntScaled|number|string} a
- * @param {BigIntScaled|number|string} b
- * @returns {BigIntScaled}
+ * @param {bigint|number|string} a
+ * @param {bigint|number|string} b
+ * @returns {bigint}
  */
 function add(a, b) {
   if (typeof a === "bigint" && typeof b === "bigint") return fxAdd(a, b);
@@ -396,9 +386,9 @@ function add(a, b) {
 
 /**
  * Subtract b from a. Accepts bigint/number/string with fast path for bigint.
- * @param {BigIntScaled|number|string} a
- * @param {BigIntScaled|number|string} b
- * @returns {BigIntScaled}
+ * @param {bigint|number|string} a
+ * @param {bigint|number|string} b
+ * @returns {bigint}
  */
 function sub(a, b) {
   if (typeof a === "bigint" && typeof b === "bigint") return fxSub(a, b);
@@ -408,9 +398,9 @@ function sub(a, b) {
 /**
  * Multiply two scale-MATH_SCALE values → scale-MATH_SCALE, with rounding.
  * Accepts bigint/number/string with fast path for bigint.
- * @param {BigIntScaled|number|string} a
- * @param {BigIntScaled|number|string} b
- * @returns {BigIntScaled}
+ * @param {bigint|number|string} a
+ * @param {bigint|number|string} b
+ * @returns {bigint}
  */
 function mul(a, b) {
   if (typeof a === "bigint" && typeof b === "bigint") return fxMul(a, b);
@@ -420,9 +410,9 @@ function mul(a, b) {
 /**
  * Divide a by b (both scaled by MATH_SCALE) → result at scale MATH_SCALE.
  * Accepts bigint/number/string with fast path for bigint.
- * @param {BigIntScaled|number|string} a
- * @param {BigIntScaled|number|string} b
- * @returns {BigIntScaled}
+ * @param {bigint|number|string} a
+ * @param {bigint|number|string} b
+ * @returns {bigint}
  */
 function div(a, b) {
   if (typeof a === "bigint" && typeof b === "bigint") return fxDiv(a, b);

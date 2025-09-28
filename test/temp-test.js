@@ -7,8 +7,6 @@ import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
 t('temp test', async () => {
-  const d = JSON.parse('0xFF');
-  assert.deepStrictEqual(d, [".5",-.25,1000]);
-
-  console.log(d);
+  //@ts-ignore
+  console.log(BigInt([]));
 });
