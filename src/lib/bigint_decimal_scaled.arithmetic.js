@@ -169,13 +169,15 @@ function numberToBigIntScaled(x) {
 //#region ------------------------ formatting ------------------------
 
 /**
- * Convert a scaled BigInt to a decimal string.
- * @param {bigint} sig BigInt at MATH_SCALE
- * @param {{ trim?: boolean }} [opts] trim: remove trailing zeros and dot
- * @returns {string}
+ * Convert a scaled BigInt to string.
+ *
+ * @param {bigint} sig - The scaled integer.
+ * @param {{trim?: boolean}} [opts] - Formatting options.
+ *   - trim: whether to trim trailing zeros (default: true).
+ * @returns {string} String representation.
  */
 function bigIntScaledToString(sig, opts) {
-  const trim = !!(opts && opts.trim);
+  const trim = opts?.trim !== false; // default true, only false if explicitly set
 
   // Fast path: zero handling must honor fixed-scale vs trim
   if (sig === 0n) {
