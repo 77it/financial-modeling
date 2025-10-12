@@ -54,8 +54,8 @@ class SimulationContext {
    * Settings can be immutable and mutable.<p>
    * If a date is already present, the second one will be ignored.
    * @param {{scenario?: string[], unit?: string[], name: string, date?: Date, value: *}[]} p
-   * scenario: optional; array of strings (to set more than one scenario); '' means `currentScenario` from constructor<p>
-   * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from constructor<p>
+   * scenario: optional; array of strings (to set more than one scenario); '' means `currentScenario` from Settings constructor<p>
+   * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from Settings constructor<p>
    * name: Setting name<p>
    * date: optional; if missing will be set to new Date(0)<p>
    * value: Setting value<p>
@@ -67,8 +67,8 @@ class SimulationContext {
   /**
    * Get a Setting
    * @param {Object} p
-   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
-   * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from Settings constructor
+   * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from Settings constructor
    * @param {string} p.name - Setting name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {boolean} [p.throwIfNotDefined] - Optional flag to throw. See @throws for description of this option.
@@ -87,8 +87,8 @@ class SimulationContext {
   /**
    * Check if a Setting is defined
    * @param {Object} p
-   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
-   * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from Settings constructor
+   * @param {string} [p.unit] - Setting unit, optional; null, undefined or '' means `defaultUnit` from Settings constructor
    * @param {string} p.name - Setting name
    * @return {boolean}
    */
@@ -101,8 +101,8 @@ class SimulationContext {
    * Drivers are immutable.<p>
    * If a date is already present, the second one will be ignored.<p>
    * @param {{scenario?: string[], unit?: string[], name: string, date?: Date, value: *}[]} p
-   * scenario: optional; array of strings (to set more than one scenario); '' means `currentScenario` from constructor<p>
-   * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from constructor<p>
+   * scenario: optional; array of strings (to set more than one scenario); '' means `currentScenario` from Drivers constructor<p>
+   * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from Drivers constructor<p>
    * name: Driver name<p>
    * date: optional; if missing will be set to new Date(0)<p>
    * value: Driver value, will be sanitized to number<p>
@@ -114,8 +114,8 @@ class SimulationContext {
   /**
    * Get a Driver
    * @param {Object} p
-   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from constructor
-   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from constructor
+   * @param {string} [p.scenario] - Optional scenario; null, undefined or '' means `currentScenario` from Drivers constructor
+   * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from Drivers constructor
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`

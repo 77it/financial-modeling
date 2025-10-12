@@ -1,8 +1,12 @@
-export { getPrincipalPaymentsOfAConstantPaymentLoan, calculatePeriodicPaymentAmountOfAConstantPaymentLoan, calculateAnnuityOfAConstantPaymentLoan };
+export {
+  getPrincipalPaymentsOfAConstantPaymentLoan,
+  calculatePeriodicPaymentAmountOfAConstantPaymentLoanDSB,
+  calculateAnnuityOfAConstantPaymentLoanDSB
+};
 
 import { schema, validate, addMonthsToLocalDate, stripTimeToLocalDate } from '../deps.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../deps.js';
-import { DSB } from '../deps.js';
+import { DSB, DSBValue, fxPmtDSB, PMT_PAYMENT_DUE_TIME } from '../deps.js';
 
 // info about loans
 /*
@@ -19,22 +23,15 @@ info about interest rates calculation methods: "365/365" | "365/360" | "30/360" 
 https://www.adventuresincre.com/lenders-calcs/
 */
 
-// home   https://github.com/lmammino/financial  // backup repository   https://github.com/77it/financial
-// npm   https://www.npmjs.com/package/financial/
-// file index   https://cdn.jsdelivr.net/npm/financial@0.2.4/dist/
-
-// @deno-types="../../../vendor/financial/index.d.ts"
-import * as financial from '../../../vendor/financial/financial.esm.js';
-
 /**
  * @param {Object} p
  * @param {number} p.annualInterestRate
  * @param {number} p.yearlyNrOfPayments
  * @param {number} p.totalNrOfPayments
  * @param {number} p.startingPrincipal
- * @return {number}
+ * @return {bigint}
  */
-function calculatePeriodicPaymentAmountOfAConstantPaymentLoan ({
+function calculatePeriodicPaymentAmountOfAConstantPaymentLoanDSB ({
   annualInterestRate,
   yearlyNrOfPayments,
   totalNrOfPayments,
@@ -42,7 +39,7 @@ function calculatePeriodicPaymentAmountOfAConstantPaymentLoan ({
 }) {
   // alternative formula, commented out
   // return startingPrincipal * (annualInterestRate / yearlyNrOfPayments) / (1 - Math.pow(1 / (1 + (annualInterestRate / yearlyNrOfPayments)), totalNrOfPayments));
-  return -1 * financial.pmt(annualInterestRate / yearlyNrOfPayments, totalNrOfPayments, startingPrincipal, 0, financial.PaymentDueTime.End);
+  return DSB.mul(-1, fxPmtDSB(annualInterestRate / yearlyNrOfPayments, totalNrOfPayments, startingPrincipal, 0, PMT_PAYMENT_DUE_TIME.END));
 }
 
 /**
@@ -52,16 +49,16 @@ function calculatePeriodicPaymentAmountOfAConstantPaymentLoan ({
  * @param {number} p.annualInterestRate
  * @param {number} p.nrOfYears
  * @param {number} p.startingPrincipal
- * @return {number}
+ * @return {bigint}
  */
-function calculateAnnuityOfAConstantPaymentLoan ({
+function calculateAnnuityOfAConstantPaymentLoanDSB ({
   annualInterestRate,
   nrOfYears,
   startingPrincipal
 }) {
   // alternative formula, commented out
   //return startingPrincipal * (annualInterestRate + (annualInterestRate / (Math.pow((1 + annualInterestRate), nrOfYears) - 1)));
-  return calculatePeriodicPaymentAmountOfAConstantPaymentLoan({
+  return calculatePeriodicPaymentAmountOfAConstantPaymentLoanDSB({
     annualInterestRate: annualInterestRate,
     yearlyNrOfPayments: 1,
     totalNrOfPayments: nrOfYears,
@@ -70,7 +67,8 @@ function calculateAnnuityOfAConstantPaymentLoan ({
 }
 
 /**
- * Compute the principal schedule (no interest calculation) of a French amortization plan (a series of constant payments at regular intervals)
+ * Compute the principal schedule (no interest calculation) of a French amortization plan (a series of constant payments at regular intervals).
+ * The first date is the start date of the loan, when the principal is disbursed (no payments at this date).
  *
  * @param {Object} p
  * @param {Date} p.startDate Start date of the loan, when the principal is disbursed (no payments at this date)
@@ -91,10 +89,6 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
   numberOfPaymentsInAYear,
   gracePeriodNrOfPayments = 0
 }) {
-  //XXXXX: valutare se inserire la data di inizio finanziamento/erogazione, con capitale zero, e la prima scadenza da cui calcolare interessi;
-  //loanStartDate + firstScheduledPaymentDate;
-
-
   if (!RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS)
     validate({
       value:
@@ -135,7 +129,12 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
 
   // Calculate the monthly mortgage payment. To get a monthly payment, we divide the interest rate by 12, and so on
   // Multiply by -1, since it default to a negative value
-  const mortgagePayment = _round(-1 * financial.pmt(annualInterestRate / numberOfPaymentsInAYear, numberOfPaymentsWithoutGracePeriod, startingPrincipal, 0, financial.PaymentDueTime.End));
+  const mortgagePaymentDSB = DSBValue.from(calculatePeriodicPaymentAmountOfAConstantPaymentLoanDSB({
+    annualInterestRate: annualInterestRate,
+    yearlyNrOfPayments: numberOfPaymentsInAYear,
+    totalNrOfPayments: numberOfPaymentsWithoutGracePeriod,
+    startingPrincipal: startingPrincipal
+  }));
 
   const mortgageArray = {
     /** @type {Date[]} */ date: [],
@@ -155,62 +154,49 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
 
   // Here we loop through each gracePeriodNrOfPayments payment (only interest)
   for (let currPaymentNo = 1; currPaymentNo <= gracePeriodNrOfPayments; currPaymentNo++) {
-    // The interest payment portion of the period
-    // disabled, because the computation of the interest payment is done outside with another function
-    //const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, 1, numberOfPaymentsWithoutGracePeriod, startingPrincipal));
-
     mortgageArray.date.push(currDate);
     mortgageArray.paymentNo.push(currPaymentNo);
-    //mortgageArray.interestPayment.push(interestPayment);  // disabled, because the computation of the interest payment is done outside with another function
     mortgageArray.principalPayment.push(0);
     mortgageArray.totalMortgageRemaining.push(startingPrincipal);
 
     // increment the current date by the number of months in a year divided by the number of payments in a year;
     // is done at the end of the loop, so the first payment date is the same as the first scheduled payment date
-    // and if we don't have a grace period, the first payment date is the same as the first scheduled payment date
+    // and if we don't have a grace period, the first payment date is the same as the first scheduled payment date.
+    // The division of 12 by 1, 2, 3, 4, 6, 12 (`numberOfPaymentsInAYear` is validated against that values) always gives an integer result.
     currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
   }
 
   // We use "let" here since the value will change, i.e. we make mortgage payments each month, so our mortgage remaining will decrease
-  let mortgageRemaining = DSB.fromNumber(startingPrincipal);
+  let mortgageRemainingDSB = DSBValue.from(startingPrincipal);
 
   // Here we loop through each payment (starting from 1) and figure out the interest and principal payments
   for (let currPaymentNo = 1; currPaymentNo <= numberOfPaymentsWithoutGracePeriod; currPaymentNo++) {
     // The interest payment portion of that month
-    const interestPayment = _round(-1 * financial.ipmt(annualInterestRate / numberOfPaymentsInAYear, currPaymentNo, numberOfPaymentsWithoutGracePeriod, startingPrincipal));
+    const interestPaymentDSB = mortgageRemainingDSB.mul(-1).mul(annualInterestRate).div(numberOfPaymentsInAYear);
 
-    let principalPayment = _round(mortgagePayment - interestPayment);  // The principal payment portion of that month
+    let principalPaymentDSB = mortgagePaymentDSB.sub(interestPaymentDSB).roundToAccounting();  // The principal payment portion of that month
     if (currPaymentNo === numberOfPaymentsWithoutGracePeriod)  // if we reached the last payment, the last payment is the residual principal
-      principalPayment = Number(DSB.toString(mortgageRemaining));
+      principalPaymentDSB = mortgageRemainingDSB;
 
     // Calculate the remaining mortgage amount, which you do by subtracting the principal payment
-    mortgageRemaining = DSB.sub(mortgageRemaining, principalPayment);
+    mortgageRemainingDSB = mortgageRemainingDSB.sub(principalPaymentDSB);
 
     mortgageArray.date.push(currDate);
     mortgageArray.paymentNo.push(currPaymentNo + gracePeriodNrOfPayments);
     // mortgageArray.interestPayment.push(interestPayment);  // disabled, because the computation of the interest payment is done outside with another function
-    mortgageArray.principalPayment.push(principalPayment);
-    mortgageArray.totalMortgageRemaining.push(Number(DSB.toString(mortgageRemaining)));
+    mortgageArray.principalPayment.push(Number(principalPaymentDSB.toString()));
+    mortgageArray.totalMortgageRemaining.push(Number(mortgageRemainingDSB.toString()));
 
     // increment the current date by the number of months in a year divided by the number of payments in a year;
     // is done at the end of the loop, so the first payment date is the same as the first scheduled payment date
     // or the first payment date after the grace period, if any.
+    // The division of 12 by 1, 2, 3, 4, 6, 12 (`numberOfPaymentsInAYear` is validated against that values) always gives an integer result.
     currDate = addMonthsToLocalDate(currDate, 12 / numberOfPaymentsInAYear);
   }
 
   // coherence test
-  if (Number(DSB.toString(mortgageRemaining)) !== 0)
+  if (mortgageRemainingDSB.value() !== 0n)
     throw new Error(`Internal error, at the end of the mortgage calculation, residual mortgage must be zero.`);
 
   return mortgageArray;
-}
-
-/**
- * Take a number, convert it to DECIMAL_SCALED_BIGINT, round it to accounting and return it as number
- * @param { number } n
- * @returns {number}
- * @private
- */
-function _round(n) {
-  return Number(DSB.toString(DSB.round(DSB.fromNumber(n))));
 }

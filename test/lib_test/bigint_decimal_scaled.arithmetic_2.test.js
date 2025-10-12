@@ -73,7 +73,7 @@ t('test stringToBigIntScaled', () => {
     ];
     for (const [inp, exp] of cases) {
         const got = stringToBigIntScaled(inp);
-        assert.strictEqual(bigIntScaledToString(got), exp);
+        assert.strictEqual(bigIntScaledToString(got, {trim: false}), exp);
     }
 });
 
@@ -87,7 +87,7 @@ t('test stringToBigIntScaled number with exponent', () => {
     ];
     for (const [inp, exp] of cases) {
         const got = stringToBigIntScaled(inp);
-        assert.strictEqual(bigIntScaledToString(got), exp);
+        assert.strictEqual(bigIntScaledToString(got, {trim: false}), exp);
     }
 });
 
@@ -242,5 +242,5 @@ t('test Negative Zero normalization', () => {
     const tinyNeg = stringToBigIntScaled("-0.00000000000000000009"); // -9e-20
     const snapped = roundToAccounting(tinyNeg);
     assert.strictEqual(snapped, 0n);
-    assert.strictEqual(bigIntScaledToString(snapped), "0.00000000000000000000");
+    assert.strictEqual(bigIntScaledToString(snapped, {trim: false}), "0.00000000000000000000");
 });

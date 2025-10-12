@@ -1,12 +1,11 @@
-import { eqObj } from './lib/obj_utils.js';
-import { Decimal } from '../vendor/decimaljs/decimal.js';
-import { parseJSON5strict } from '../src/lib/json5.js';
+import { dsb } from "../src/lib/bigint_decimal_scaled.fluent.js";
 
-import { test } from 'node:test';
-import assert from 'node:assert';
-/** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
+const out = dsb("10.50")
+  .add("4.25")
+  .sub("2")
+  .mul(3)
+  .div("0.5")
+  .roundAccounting()
+  .toString({ trim: true });
 
-t('temp test', async () => {
-  //@ts-ignore
-  console.log(BigInt([]));
-});
+console.log(out);

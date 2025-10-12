@@ -12,7 +12,7 @@ t('bigint_decimal_scaled.fluent tests', () => {
     .sub("2")
     .mul(3)
     .div("0.5")
-    .roundAccounting()
+    .roundToAccounting()
     .toString({ trim: true });
 
   assert.strictEqual(out, '76.5');
