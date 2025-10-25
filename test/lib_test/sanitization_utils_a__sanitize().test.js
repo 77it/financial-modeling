@@ -718,8 +718,11 @@ t('test sanitize() - decimal type', async () => {
   {
     assert(isDecimalEqualTo(1, s.sanitize({ value: 1n, sanitization: tDec })));
     assert(isDecimalEqualTo(0, s.sanitize({ value: 0n, sanitization: tDec })));
-    assert(isDecimalEqualTo('1e+1000000', s.sanitize({ value: 10n ** 1000000n, sanitization: tDec })));
-    assert(isDecimalEqualTo('-1e+1000000', s.sanitize({ value: -(10n ** 1000000n), sanitization: tDec })));
+    // originally tested up to 10**1_000_000, but Bun cannot handle that size directly (because is internally using JavaScriptCore instead of Node an Deno that uses V8)
+    // from https://github.com/oven-sh/bun/issues/15072
+    // "Bun uses JavaScriptCore which limits BigInt to 2^20 - 1 bits (~1 million), while Node and Deno use V8 which seems to set the limit at 2^30 - 1 (~1 billion). We can investigate how hard it is to increase JSC's limit."
+    assert(isDecimalEqualTo('1e+300000', s.sanitize({ value: 10n ** 300000n, sanitization: tDec })));
+    assert(isDecimalEqualTo('-1e+300000', s.sanitize({ value: -(10n ** 300000n), sanitization: tDec })));
   }
 
   // booleans -> 1 / 0
