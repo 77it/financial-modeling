@@ -1,6 +1,6 @@
 // run with `deno test --allow-import`
 
-import { quoteKeysNumbersAndDatesForRelaxedJSON } from '../../src/lib/json_relaxed_utils.js';
+import { quoteKeysNumbersAndDatesForRelaxedJSON } from '../../src/lib/json_relaxed_utils_x.js';
 import { parseJSONrelaxed } from '../../src/lib/json.js';
 import { eqObj } from '../lib/obj_utils.js';
 import { Decimal } from '../../vendor/decimaljs/decimal.mjs';

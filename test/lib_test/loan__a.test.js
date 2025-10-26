@@ -1,6 +1,6 @@
 // test with   deno --test --allow-import
 
-import { DSB, _TEST_ONLY__set } from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
+import { DSB, _TEST_ONLY__set } from '../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
 import { ROUNDING_MODES } from '../../src/config/engine.js';
 
 import {

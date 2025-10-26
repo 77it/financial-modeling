@@ -10,7 +10,7 @@ export { isNullOrWhiteSpace } from '../lib/string_utils.js';
 export { roundHalfAwayFromZero, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../lib/number_utils.js';
 export { isStringOrBooleanTrue, isStringOrBooleanFalse } from '../lib/boolean_utils.js';
 export { cachedParseJSONrelaxed, parseJSONrelaxed } from '../lib/json.js';
-export { DSB } from '../lib/bigint_decimal_scaled.arithmetic.js';  // DECIMAL_SCALED_BIGINT
+export { DSB } from '../lib/bigint_decimal_scaled.arithmetic_x.js';  // DECIMAL_SCALED_BIGINT
 export { DSBValue } from '../lib/bigint_decimal_scaled.fluent.js';  // DECIMAL_SCALED_BIGINT fluent class
 export { fxPmtDSB, PMT_PAYMENT_DUE_TIME } from '../lib/bigint_decimal_scaled.finance.js';
 export { Decimal } from '../../vendor/decimaljs/decimal.js';

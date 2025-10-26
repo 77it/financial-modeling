@@ -1,7 +1,7 @@
 // test with deno test --allow-import
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v5.js';
+import { Parser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v5_x.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

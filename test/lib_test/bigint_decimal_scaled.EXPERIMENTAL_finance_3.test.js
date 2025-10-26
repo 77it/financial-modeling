@@ -13,10 +13,10 @@ import { ROUNDING_MODES } from '../../src/config/engine.js';
 import {
   _TEST_ONLY__set as _TEST_ONLY__set_arithmetic,
   stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, roundToAccounting,
-} from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
+} from '../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
 import {
   fxPowInt, fxNPV, fxPmt,
-} from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance.js';
+} from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance_x.js';
 
 import {
   RUN_CONFIGS, decToSig, pow10n,

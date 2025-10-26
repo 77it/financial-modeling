@@ -1,4 +1,4 @@
-//<file bigint_decimal_scaled.EXPERIMENTAL_finance.js>
+//<file bigint_decimal_scaled.EXPERIMENTAL_finance_x.js>
 
 /*
 ██████╗ ███████╗ ██████╗██╗███╗   ███╗ █████╗ ██╗
@@ -39,9 +39,9 @@
 
 export { fxPowInt, fxDiscountFactor, fxCompoundFactor, fxFutureValue, fxPresentValue, fxPmt, fxNPV, fxIrr, fxFromPercent, fxToPercentString, fxAmortizationSchedule };
 
-import { stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from './bigint_decimal_scaled.arithmetic.js';
-import { _TEST_ONLY__MATH_SCALE as MATH_SCALE, _TEST_ONLY__SCALE_FACTOR as SCALE_FACTOR, _TEST_ONLY__MAX_POW10 as MAX_POW10, _TEST_ONLY__POW10 as POW10 } from './bigint_decimal_scaled.arithmetic.js';
-import { _INTERNAL_roundInt as roundInt } from './bigint_decimal_scaled.arithmetic.js';
+import { stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from './bigint_decimal_scaled.arithmetic_x.js';
+import { _TEST_ONLY__MATH_SCALE as MATH_SCALE, _TEST_ONLY__SCALE_FACTOR as SCALE_FACTOR, _TEST_ONLY__MAX_POW10 as MAX_POW10, _TEST_ONLY__POW10 as POW10 } from './bigint_decimal_scaled.arithmetic_x.js';
+import { _INTERNAL_roundInt as roundInt } from './bigint_decimal_scaled.arithmetic_x.js';
 
 /*
 ****************************************************************************************************
@@ -65,7 +65,7 @@ import { _INTERNAL_roundInt as roundInt } from './bigint_decimal_scaled.arithmet
 */
 
 /**
- * same code as in `bigint_decimal_scaled.arithmetic.js`
+ * same code as in `bigint_decimal_scaled.arithmetic_x.js`
  *
  * @param {number} n
  * @returns {bigint} 10^n (n >= 0)

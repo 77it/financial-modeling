@@ -71,15 +71,15 @@ financial-modeling/
 │   │   │   ├── schema_validation_utils.js    Validation logic
 │   │   │   ├── schema_sanitization_utils.js  Sanitization logic
 │   │   │   ├── json.js                JSON parsing
-│   │   │   ├── json_relaxed_utils.js  Relaxed JSON support
+│   │   │   ├── json_relaxed_utils_x.js  Relaxed JSON support
 │   │   │   ├── result.js              Result/Error handling
 │   │   │   ├── drivers_repo.js        Drivers repository
 │   │   │   └── global_immutable_value.js  Immutable value utilities
 │   │   ├── BigInt Decimal Scaled:
-│   │   │   ├── bigint_decimal_scaled.arithmetic.js    Arithmetic operations
+│   │   │   ├── bigint_decimal_scaled.arithmetic_x.js    Arithmetic operations
 │   │   │   ├── bigint_decimal_scaled.finance.js       Finance operations
 │   │   │   ├── bigint_decimal_scaled.fluent.js        Fluent API (DSBValue)
-│   │   │   └── bigint_decimal_scaled.EXPERIMENTAL_finance.js
+│   │   │   └── bigint_decimal_scaled.EXPERIMENTAL_finance_x.js
 │   │   ├── experiments/     Experimental/WIP features
 │   │   │   ├── json_relaxed__v1__FAILING_TESTS.js
 │   │   │   ├── json_relaxed__v1b__experimental.js
@@ -89,7 +89,7 @@ financial-modeling/
 │   │   └── unused/          Deprecated/archived utilities
 │   │       ├── json5.js
 │   │       ├── yaml.js
-│   │       └── json5_relaxed_utils.js
+│   │       └── json5_relaxed_utils_x.js
 │   ├── modules/             Module implementations
 │   ├── node/                Node.js specific utilities
 │   ├── py/                  Python/Pyodide integration

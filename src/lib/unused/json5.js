@@ -35,7 +35,7 @@ export { cachedParseJSON5relaxed, parseJSON5relaxed, parseJSON5strict };
 // see also https://github.com/json5/json5
 // @deno-types='https://unpkg.com/json5@2/lib/index.d.ts'
 import JSON5 from '../../../vendor/json5/index.min.mjs';
-import { quoteNumbersAndDatesForRelaxedJSON5 } from './json5_relaxed_utils.js';
+import { quoteNumbersAndDatesForRelaxedJSON5 } from './json5_relaxed_utils_x.js';
 import { deepFreeze } from '../obj_utils.js';
 import { lru } from '../../../vendor/tiny_lru/lru.js';
 import { JSON_CACHE_SIZE, JSON_CACHE_SIZE__MAX_CACHEABLE_CHARS } from '../../config/engine.js';

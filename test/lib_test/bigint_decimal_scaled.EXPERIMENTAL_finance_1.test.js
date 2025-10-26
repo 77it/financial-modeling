@@ -4,8 +4,8 @@ import {
     stringToBigIntScaled,
     bigIntScaledToString,
     fxAdd, fxSub, fxDiv, fxMul
-} from '../../src/lib/bigint_decimal_scaled.arithmetic.js';
-import { fxPmt, fxPowInt } from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance.js';
+} from '../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
+import { fxPmt, fxPowInt } from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance_x.js';
 import {ROUNDING_MODES} from '../../src/config/engine.js';
 
 import { test } from 'node:test';

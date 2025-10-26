@@ -9,7 +9,7 @@ we didn't use our DSB library because we didn't implement fractional powers yet.
 export { fxPmtDSB, PMT_PAYMENT_DUE_TIME };
 
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
-import { stringToBigIntScaled } from './bigint_decimal_scaled.arithmetic.js';
+import { stringToBigIntScaled } from './bigint_decimal_scaled.arithmetic_x.js';
 
 const PMT_PAYMENT_DUE_TIME = Object.freeze({
   BEGIN: "begin",
