@@ -12,7 +12,7 @@ export { isStringOrBooleanTrue, isStringOrBooleanFalse } from '../lib/boolean_ut
 export { cachedParseJSONrelaxed, parseJSONrelaxed } from '../lib/json.js';
 export { DSB } from '../lib/bigint_decimal_scaled.arithmetic_x.js';  // DECIMAL_SCALED_BIGINT
 export { DSBValue } from '../lib/bigint_decimal_scaled.fluent.js';  // DECIMAL_SCALED_BIGINT fluent class
-export { fxPmtDSB, PMT_PAYMENT_DUE_TIME } from '../lib/bigint_decimal_scaled.finance.js';
+export { fxPmt, FXPMT_PAYMENT_DUE_TIME } from '../lib/bigint_decimal_scaled.finance.js';
 export { Decimal } from '../../vendor/decimaljs/decimal.js';
 export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortValuesAndDatesByDate } from '../lib/obj_utils.js';
 export { tablesInfoValidation } from '../modules/_utils/tablesinfo_validation.js'

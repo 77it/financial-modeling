@@ -6,7 +6,7 @@ export {
 
 import { schema, validate, addMonthsToLocalDate, stripTimeToLocalDate } from '../deps.js';
 import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../deps.js';
-import { DSB, DSBValue, fxPmtDSB, PMT_PAYMENT_DUE_TIME } from '../deps.js';
+import { DSB, DSBValue, fxPmt, FXPMT_PAYMENT_DUE_TIME } from '../deps.js';
 
 // info about loans
 /*
@@ -39,7 +39,7 @@ function calculatePeriodicPaymentAmountOfAConstantPaymentLoanDSB ({
 }) {
   // alternative formula, commented out
   // return startingPrincipal * (annualInterestRate / yearlyNrOfPayments) / (1 - Math.pow(1 / (1 + (annualInterestRate / yearlyNrOfPayments)), totalNrOfPayments));
-  return DSB.mul(-1, fxPmtDSB(annualInterestRate / yearlyNrOfPayments, totalNrOfPayments, startingPrincipal, 0, PMT_PAYMENT_DUE_TIME.END));
+  return DSB.mul(-1, fxPmt(annualInterestRate / yearlyNrOfPayments, totalNrOfPayments, startingPrincipal, 0, FXPMT_PAYMENT_DUE_TIME.END));
 }
 
 /**

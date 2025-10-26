@@ -6,12 +6,12 @@ internally using `decimal.js` for calculations, and converting the result to our
 we didn't use our DSB library because we didn't implement fractional powers yet.
  */
 
-export { fxPmtDSB, PMT_PAYMENT_DUE_TIME };
+export { fxPmt, FXPMT_PAYMENT_DUE_TIME };
 
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
 import { stringToBigIntScaled } from './bigint_decimal_scaled.arithmetic_x.js';
 
-const PMT_PAYMENT_DUE_TIME = Object.freeze({
+const FXPMT_PAYMENT_DUE_TIME = Object.freeze({
   BEGIN: "begin",
   END: "end",
 });
@@ -25,7 +25,7 @@ const PMT_PAYMENT_DUE_TIME = Object.freeze({
  * @param {number} nper - Number of compounding periods (e.g., number of payments)
  * @param {number} pv - Present value (e.g., an amount borrowed)
  * @param {number} [fv=0] - Future value (e.g., 0)
- * @param {'begin'|'end'} [when=PMT_PAYMENT_DUE_TIME.END] - When payments are due
+ * @param {'begin'|'end'} [when=FXPMT_PAYMENT_DUE_TIME.END] - When payments are due
  * @returns {bigint} the (fixed) periodic payment in DSB (Decimal Scaled BigInt) format
  *
  * ## Examples
@@ -70,7 +70,7 @@ const PMT_PAYMENT_DUE_TIME = Object.freeze({
  *
  * [Wheeler, D. A., E. Rathke, and R. Weir (Eds.) (2009, May)](http://www.oasis-open.org/committees/documents.php?wg_abbrev=office-formulaOpenDocument-formula-20090508.odt).
  */
-function fxPmtDSB(rate, nper, pv, fv = 0, when= PMT_PAYMENT_DUE_TIME.END) {
+function fxPmt(rate, nper, pv, fv = 0, when= FXPMT_PAYMENT_DUE_TIME.END) {
   // Convert all inputs to Decimal for consistent precision
   const rateD = new Decimal(rate);
   const nperD = new Decimal(nper);
@@ -80,7 +80,7 @@ function fxPmtDSB(rate, nper, pv, fv = 0, when= PMT_PAYMENT_DUE_TIME.END) {
   const isRateZero = rateD.isZero();
 
   const tempD = rateD.plus(1).pow(nperD);
-  const whenMult = when === PMT_PAYMENT_DUE_TIME.BEGIN ? 1 : 0;
+  const whenMult = when === FXPMT_PAYMENT_DUE_TIME.BEGIN ? 1 : 0;
   const maskedRateD = isRateZero ? new Decimal(1) : rateD;
   const factD = isRateZero ? nperD : (new Decimal(1).plus(maskedRateD.mul(whenMult))).mul(tempD.minus(1)).div(maskedRateD);
   const pmtD = fvD.plus(pvD.mul(tempD)).div(factD).neg();
