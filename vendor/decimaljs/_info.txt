@@ -1,6 +1,7 @@
 file edits:
 * decimal.mjs
     added `//@ts-nocheck` to the top of the file
+* copied file to 'decimal.unlocked_vendor_test_only.mjs' for vendor tests that modify the library config during execution
 
 file source
 https://github.com/MikeMcl/decimal.js-light/blob/7bc73067d59ce04347b56e7998ff0bd2b91e22c2/decimal.mjs

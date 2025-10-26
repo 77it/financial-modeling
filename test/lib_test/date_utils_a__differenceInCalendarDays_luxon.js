@@ -1,5 +1,5 @@
 // types are not needed because they are included in the file as JSDoc comments
-import { DateTime } from 'https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/es6/luxon.js';
+import { DateTime } from "https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/es6/luxon.js";
 
 /**
  * @description

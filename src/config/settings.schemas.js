@@ -50,6 +50,6 @@ const SettingsSchemas = {
   [Simulation.DEFAULT_PASSIVE_INTEREST_ON_OVERDRAFTS]: schema.NUMBER_TYPE,
 
   // test setting
-  [Simulation.__TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST]: { mamma: schema.STRING_TYPE, babbo: schema.NUMBER_TYPE },
+  [Simulation._TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST]: { mamma: schema.STRING_TYPE, babbo: schema.NUMBER_TYPE },
 };
 deepFreeze(SettingsSchemas);

@@ -53,7 +53,7 @@ const Simulation = {
   */
 
   // test settings
-  __TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST: '__TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST',
+  _TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST: '_TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST',
 };
 deepFreeze(Simulation);
 ensureArrayValuesAreUnique(Object.values(Simulation));

@@ -64,7 +64,7 @@ t('engine_settings_sanitization_set', async () => {
   assert.notDeepStrictEqual(currency_sanitized_to_string, 999);
 
   // get settings sanitized to YAML from Simulation Context
-  const setting_to_yaml = _simulationContext.getSetting({ name: '__TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST' });
+  const setting_to_yaml = _simulationContext.getSetting({ name: '_TEST_ONLY__YAML_PARSE_AND_VALIDATION_TEST' });
   console.log(`setting_to_yaml: ${JSON.stringify(setting_to_yaml)}`);
   assert(eqObj(setting_to_yaml, { mamma: 'ines', babbo: 0 }));
 
