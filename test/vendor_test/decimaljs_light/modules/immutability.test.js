@@ -2,7 +2,7 @@
 // Also tests each Decimal.prototype method against its equivalent Decimal method where applicable.
 
 //@ts-nocheck
-import { T } from '../helpers.js'; import { Decimal } from '../decimal.js';
+import { T } from '../helpers.js'; import { Decimal } from '../decimal.unlocked_vendor_test_only.js';
 
 T('immutability', function () {
 

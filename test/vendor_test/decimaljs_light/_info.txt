@@ -7,6 +7,6 @@ edits to run the tests in my setup:
 * renamed all files in `modules` replacing `.js` with `.test.js`
 * in every files in `modules`:
   replaced `if (typeof T === 'undefined') require('../setup');`
-  with `import { T } from '../helpers.js'; import { Decimal } from '../decimal.js';`
+  with `import { T } from '../helpers.js'; import { Decimal } from '../decimal.unlocked_vendor_test_only.js';`
 * corrected some little bugs in `modules` here and there
 * reduced loops of test `powsqrt.test.js` from 1_000_000 to 5_000

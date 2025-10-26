@@ -1,6 +1,6 @@
 //<file bigint_decimal_scaled.bench.accounting.bench.js>
 import process from "node:process";
-import { Decimal } from "../../vendor/decimaljs/decimal.js";
+import { Decimal } from "../../vendor/decimaljs/decimal.unlocked_vendor_test_only.js";
 import {
     _TEST_ONLY__set as _TEST_ONLY__set_arith,
     stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv, roundToAccounting,
@@ -8,7 +8,7 @@ import {
 import { ROUNDING_MODES } from "../../src/config/engine.js";
 import {
     RUN_CONFIGS, bench, makeRng, decToSig, genDecimalStrings
-} from "./bigint_decimal_scaled.common.js";
+} from "./bigint_decimal_scaled.test_utils.js";
 
 // store results for post-processing
 const results = new Map();

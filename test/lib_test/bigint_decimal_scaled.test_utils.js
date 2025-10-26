@@ -1,7 +1,7 @@
-//<file bigint_decimal_scaled.common.js>
+//<file bigint_decimal_scaled.test_utils.js>
 // Shared helpers for tests/benches (ESM)
 import process from "node:process";
-import { Decimal } from "../../vendor/decimaljs/decimal.js";
+import { Decimal } from "../../vendor/decimaljs/decimal.unlocked_vendor_test_only.js";
 
 /**
  * Hard-coded configurations to run benches/tests against.

@@ -11,7 +11,7 @@ import {
   fxAdd, fxSub, fxMul, fxDiv,
 } from '../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
 import { ROUNDING_MODES } from '../../src/config/engine.js';
-import { Decimal } from '../../vendor/decimaljs/decimal.js';
+import { Decimal } from '../../vendor/decimaljs/decimal.unlocked_vendor_test_only.js';
 
 // ----------------- shared helpers (local) -----------------
 const SCALE20 = 20;

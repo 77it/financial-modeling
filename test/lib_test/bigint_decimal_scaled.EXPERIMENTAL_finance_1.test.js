@@ -1,4 +1,4 @@
-import { Decimal } from '../../vendor/decimaljs/decimal.js';
+import { Decimal } from '../../vendor/decimaljs/decimal.unlocked_vendor_test_only.js';
 import {
     _TEST_ONLY__set as _TEST_ONLY__set_arithmetic,
     stringToBigIntScaled,

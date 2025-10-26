@@ -6,7 +6,7 @@ import {
     roundToAccounting,
 } from '../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
 import {ROUNDING_MODES} from '../../src/config/engine.js';
-import { Decimal } from '../../vendor/decimaljs/decimal.js';
+import { Decimal } from '../../vendor/decimaljs/decimal.unlocked_vendor_test_only.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

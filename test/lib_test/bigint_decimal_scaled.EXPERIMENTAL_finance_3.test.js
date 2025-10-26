@@ -8,7 +8,7 @@ the per-scale decprec, and cross-checks a representative set of operations
 against Decimal.js with strict equality at the selected scale.
 */
 
-import { Decimal } from '../../vendor/decimaljs/decimal.js';
+import { Decimal } from '../../vendor/decimaljs/decimal.unlocked_vendor_test_only.js';
 import { ROUNDING_MODES } from '../../src/config/engine.js';
 import {
   _TEST_ONLY__set as _TEST_ONLY__set_arithmetic,
@@ -20,7 +20,7 @@ import {
 
 import {
   RUN_CONFIGS, decToSig, pow10n,
-} from './bigint_decimal_scaled.common.js';
+} from './bigint_decimal_scaled.test_utils.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

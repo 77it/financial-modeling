@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { T } from '../helpers.js'; import { Decimal } from '../decimal.js';
+import { T } from '../helpers.js'; import { Decimal } from '../decimal.unlocked_vendor_test_only.js';
 
 T('comparedTo', function () {
 

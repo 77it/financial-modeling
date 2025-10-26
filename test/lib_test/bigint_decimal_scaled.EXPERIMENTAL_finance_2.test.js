@@ -21,7 +21,7 @@ Stress-test the **`fxPmt`** function (payment calculation) under a wide variety 
 Check that `fxPmt` is numerically stable and consistent with financial math, even under random edge cases, while acknowledging small rounding path differences.
  */
 
-import { Decimal } from '../../vendor/decimaljs/decimal.js';
+import { Decimal } from '../../vendor/decimaljs/decimal.unlocked_vendor_test_only.js';
 import {
   _TEST_ONLY__set as _TEST_ONLY__set_arithmetic,
   stringToBigIntScaled,

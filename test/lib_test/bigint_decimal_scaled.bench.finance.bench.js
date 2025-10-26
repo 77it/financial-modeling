@@ -1,6 +1,6 @@
 //<file bigint_decimal_scaled.bench.finance.bench.js>
 import process from "node:process";
-import { Decimal } from "../../vendor/decimaljs/decimal.js";
+import { Decimal } from "../../vendor/decimaljs/decimal.unlocked_vendor_test_only.js";
 import { ROUNDING_MODES } from "../../src/config/engine.js";
 import {
     _TEST_ONLY__set as _TEST_ONLY__set_fin,
@@ -12,7 +12,7 @@ import {
 } from "../../src/lib/bigint_decimal_scaled.arithmetic_x.js";
 import {
     RUN_CONFIGS, bench, decToSig, pow10n,
-} from "./bigint_decimal_scaled.common.js";
+} from "./bigint_decimal_scaled.test_utils.js";
 
 const CFG = { ITERS: 5, SEED: 0xA5F00D, DEC_ROUND: Decimal.ROUND_HALF_EVEN };
 
