@@ -1,6 +1,6 @@
 import { SimObject } from '../../../src/engine/simobject/simobject.js';
 import { simObjectToDto } from '../../../src/engine/simobject/utils/simobject_to_dto.js';
-import { toBigInt } from '../../../src/engine/simobject/utils/to_bigint.js';
+import { ensureBigIntScaled } from '../../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
 import { SimObjectTypes_enum } from '../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../src/engine/simobject/enums/doubleentryside_enum.js';
 import { eqObj } from '../../lib/obj_utils.js';
@@ -9,11 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
-const decimalPlaces = 4;
-const roundingModeIsRound = true;
-
 const _so = new SimObject({
-  decimalPlaces: decimalPlaces,
   type: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   id: '1',
   dateTime: new Date(2020, 0, 1),
@@ -27,23 +23,27 @@ const _so = new SimObject({
   doubleEntrySide: DoubleEntrySide_enum.BALANCESHEET_CREDIT,
   currency: 'EUR',
   intercompanyInfo__VsUnitId: '',
-  value: toBigInt(19, decimalPlaces, roundingModeIsRound),
-  writingValue: toBigInt(19, decimalPlaces, roundingModeIsRound),
+  value: ensureBigIntScaled(19),
+  writingValue: ensureBigIntScaled(19),
   alive: true,
   command__Id: '1',
   command__DebugDescription: '',
   commandGroup__Id: '1',
   commandGroup__DebugDescription: '',
-  financialSchedule__amountWithoutScheduledDate: toBigInt(18.9, decimalPlaces, roundingModeIsRound),
+  financialSchedule__amountWithoutScheduledDate: ensureBigIntScaled(18.9),
   financialSchedule__scheduledDates: [new Date(2020, 0, 1, 1, 1, 1, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-  financialSchedule__scheduledAmounts: [1n, 11n, 111n, 877n],
+  financialSchedule__scheduledAmounts: [
+    ensureBigIntScaled(0.0001),
+    ensureBigIntScaled(0.0011),
+    ensureBigIntScaled(0.0111),
+    ensureBigIntScaled(0.0877)
+  ],
   is_Link__SimObjId: '123',
   vsSimObjectName: '991aaa',
   versionId: 1
 });
 
 const _so2_withExtras = new SimObject({
-  decimalPlaces: decimalPlaces,
   type: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   id: '1',
   dateTime: new Date(2020, 0, 1),
@@ -57,16 +57,21 @@ const _so2_withExtras = new SimObject({
   doubleEntrySide: DoubleEntrySide_enum.BALANCESHEET_CREDIT,
   currency: 'EUR',
   intercompanyInfo__VsUnitId: '',
-  value: toBigInt(19, decimalPlaces, roundingModeIsRound),
-  writingValue: toBigInt(19, decimalPlaces, roundingModeIsRound),
+  value: ensureBigIntScaled(19),
+  writingValue: ensureBigIntScaled(19),
   alive: true,
   command__Id: '1',
   command__DebugDescription: '',
   commandGroup__Id: '1',
   commandGroup__DebugDescription: '',
-  financialSchedule__amountWithoutScheduledDate: toBigInt(18.9, decimalPlaces, roundingModeIsRound),
+  financialSchedule__amountWithoutScheduledDate: ensureBigIntScaled(18.9),
   financialSchedule__scheduledDates: [new Date(2020, 0, 1, 1, 1, 1, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-  financialSchedule__scheduledAmounts: [1n, 11n, 111n, 877n],
+  financialSchedule__scheduledAmounts: [
+    ensureBigIntScaled(0.0001),
+    ensureBigIntScaled(0.0011),
+    ensureBigIntScaled(0.0111),
+    ensureBigIntScaled(0.0877)
+  ],
   is_Link__SimObjId: '123',
   vsSimObjectName: '991aaa',
   versionId: 1,
@@ -91,16 +96,21 @@ t('SimObject.simObjectToDto() & .with() without value tests', async () => {
     doubleEntrySide: DoubleEntrySide_enum.BALANCESHEET_CREDIT,
     currency: 'EUR',
     intercompanyInfo__VsUnitId: '',
-    value: 19,
-    writingValue: 19,
+    value: ensureBigIntScaled(19),
+    writingValue: ensureBigIntScaled(19),
     alive: true,
     command__Id: '1',
     command__DebugDescription: '',
     commandGroup__Id: '1',
     commandGroup__DebugDescription: '',
-    financialSchedule__amountWithoutScheduledDate: 18.9,
+    financialSchedule__amountWithoutScheduledDate: ensureBigIntScaled(18.9),
     financialSchedule__scheduledDates: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-    financialSchedule__scheduledAmounts: [0.0001, 0.0011, 0.0111, 0.0877],
+    financialSchedule__scheduledAmounts: [
+      ensureBigIntScaled(0.0001),
+      ensureBigIntScaled(0.0011),
+      ensureBigIntScaled(0.0111),
+      ensureBigIntScaled(0.0877)
+    ],
     is_Link__SimObjId: '123',
     vsSimObjectName: '991AAA',
     versionId: 2,
@@ -121,23 +131,26 @@ t('SimObject.simObjectToDto() & .with() without value tests', async () => {
     doubleEntrySide: DoubleEntrySide_enum.BALANCESHEET_CREDIT,
     currency: 'EUR',
     intercompanyInfo__VsUnitId: '',
-    value: 19,
-    writingValue: 19,
+    value: ensureBigIntScaled(19),
+    writingValue: ensureBigIntScaled(19),
     alive: true,
     command__Id: '1',
     command__DebugDescription: '',
     commandGroup__Id: '1',
     commandGroup__DebugDescription: '',
-    financialSchedule__amountWithoutScheduledDate: 18.9,
+    financialSchedule__amountWithoutScheduledDate: ensureBigIntScaled(18.9),
     financialSchedule__scheduledDates: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-    financialSchedule__scheduledAmounts: [0.0001, 0.0011, 0.0111, 0.0877],
+    financialSchedule__scheduledAmounts: [
+      ensureBigIntScaled(0.0001),
+      ensureBigIntScaled(0.0011),
+      ensureBigIntScaled(0.0111),
+      ensureBigIntScaled(0.0877)
+    ],
     is_Link__SimObjId: '123',
     vsSimObjectName: '991AAA',
     versionId: 2,
     extras: {a: 999, b: 'aaa'}
   };
-
-  assert.deepStrictEqual(_so_With.decimalPlaces, 4);
 
   let _error = '';
 
@@ -170,7 +183,6 @@ t('SimObject.simObjectToDto() & .with() without value tests', async () => {
 t('SimObject.simObjectToDto() & .with() tests', async () => {
   const _so_With = _so2_withExtras.with({
     //@ts-ignore
-    decimalPlaces: 44,  // ignored
     type: SimObjectTypes_enum.BS_CREDIT__ACCRUALSCREDITS,  // ignored
     id: '999', // ignored
     dateTime: new Date(2021, 0, 1),  // updated
@@ -184,16 +196,21 @@ t('SimObject.simObjectToDto() & .with() tests', async () => {
     doubleEntrySide: DoubleEntrySide_enum.INCOMESTATEMENT_DEBIT,  // ignored
     currency: '???EUR!!!',  // ignored
     intercompanyInfo__VsUnitId: 'ABCD',  // ignored
-    value: toBigInt(18, decimalPlaces, roundingModeIsRound),  // updated
-    writingValue: toBigInt(16, decimalPlaces, roundingModeIsRound),  // updated
+    value: ensureBigIntScaled(18),  // updated
+    writingValue: ensureBigIntScaled(16),  // updated
     alive: false,  // updated
     command__Id: '2',  // updated
     command__DebugDescription: 'aaa aaa',  // updated
     commandGroup__Id: '3',  // updated
     commandGroup__DebugDescription: 'aaa bbb',  // updated
-    financialSchedule__amountWithoutScheduledDate: toBigInt(17.9, decimalPlaces, roundingModeIsRound),  // updated
+    financialSchedule__amountWithoutScheduledDate: ensureBigIntScaled(17.9),  // updated
     financialSchedule__scheduledDates: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],  // updated
-    financialSchedule__scheduledAmounts: [1n, 11n, 112n, 876n],  // updated
+    financialSchedule__scheduledAmounts:[
+      ensureBigIntScaled(0.0001),
+      ensureBigIntScaled(0.0011),
+      ensureBigIntScaled(0.0112),
+      ensureBigIntScaled(0.0876)
+    ],
     is_Link__SimObjId: '8989',  // ignored
     vsSimObjectName: '776655',  // ignored
     versionId: 1,  // autoincrement
@@ -214,16 +231,21 @@ t('SimObject.simObjectToDto() & .with() tests', async () => {
     doubleEntrySide: DoubleEntrySide_enum.BALANCESHEET_CREDIT,
     currency: 'EUR',
     intercompanyInfo__VsUnitId: '',
-    value: 18,
-    writingValue: 16,
+    value: ensureBigIntScaled(18),
+    writingValue: ensureBigIntScaled(16),
     alive: false,
     command__Id: '2',
     command__DebugDescription: 'aaa aaa',
     commandGroup__Id: '3',
     commandGroup__DebugDescription: 'aaa bbb',
-    financialSchedule__amountWithoutScheduledDate: 17.9,
+    financialSchedule__amountWithoutScheduledDate: ensureBigIntScaled(17.9),
     financialSchedule__scheduledDates: [new Date(2021, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
-    financialSchedule__scheduledAmounts: [0.0001, 0.0011, 0.0112, 0.0876],
+    financialSchedule__scheduledAmounts:[
+      ensureBigIntScaled(0.0001),
+      ensureBigIntScaled(0.0011),
+      ensureBigIntScaled(0.0112),
+      ensureBigIntScaled(0.0876)
+    ],
     is_Link__SimObjId: '123',
     vsSimObjectName: '991AAA',
     versionId: 2,

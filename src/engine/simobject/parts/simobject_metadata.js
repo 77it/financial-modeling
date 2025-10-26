@@ -24,7 +24,7 @@ class SimObject_Metadata {
    * Validation schema is read from ACTIVE_METADATA setting.
    *
    * Weights are in percentage; if a single weight is > 1 it is considered as percentage (e.g. 20 = 20%) then is / 100.
-   * If a weight is <= 0 or > 100 an error is thrown.
+   * If a single weight is < 0 or > 100 an error is thrown.
    *
    * @param {Object} p
    * @param {string[]} p.name
@@ -41,10 +41,10 @@ class SimObject_Metadata {
     if (p.name.length !== p.value.length || p.name.length !== p.weight.length)
       throw new Error(`length of metadata arrays must be equal, got name = ${p.name.length}, value = ${p.value.length}, weight= ${p.weight.length}`);
 
-    // If a weight is <= 0 or > 100 throw an error
+    // If a weight is < 0 or > 100 throw an error
     for (let i = 0; i < p.weight.length; i++) {
-      if (p.weight[i] <= 0 || p.weight[i] > 100) {
-        throw new Error(`metadata weight must be > 0 and <= 100, got ${p.weight[i]} at index ${i}`);
+      if (p.weight[i] < 0 || p.weight[i] > 100) {
+        throw new Error(`metadata weight must be >= 0 and <= 100, got ${p.weight[i]} at index ${i}`);
       }
     }
 
@@ -53,9 +53,9 @@ class SimObject_Metadata {
     this.metadata__Value = [...p.value];
     this.metadata__PercentageWeight = [...p.weight];
 
-    // normalize weights to be in range 0-1.
+    // Normalize weights to be in range 0-1. If a weight is > 1 it is considered as percentage (e.g. 20 = 20%) then is / 100.
     // We don't need to manipulate the number string because integer are well represented as floating point numbers
-    // then dividing by 10 ** decimalPlaces won't cause loss of precision.
+    // then dividing by 100 won't cause loss of precision.
     for (let i = 0; i < this.metadata__PercentageWeight.length; i++) {
       if (this.metadata__PercentageWeight[i] > 1) {
         this.metadata__PercentageWeight[i] = this.metadata__PercentageWeight[i] / 100;

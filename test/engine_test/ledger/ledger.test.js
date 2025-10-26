@@ -15,7 +15,7 @@ function appendTrnDump(dump) {
 }
 
 
-const ledger = new Ledger({ appendTrnDump: appendTrnDump, decimalPlaces: 4, roundingModeIsRound: true });
+const ledger = new Ledger({ appendTrnDump: appendTrnDump });
 
 t('ledger: getNextSequentialId() & getNextSequentialIdString()', async () => {
   /** @type {any} */ let _id = ledger.getNextSequentialId();

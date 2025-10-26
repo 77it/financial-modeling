@@ -16,16 +16,16 @@ class SimObjectDto {
    * @param {string} p.doubleEntrySide
    * @param {string} p.currency
    * @param {string} p.intercompanyInfo__VsUnitId
-   * @param {number} p.value
-   * @param {number} p.writingValue
+   * @param {bigint} p.value
+   * @param {bigint} p.writingValue
    * @param {boolean} p.alive
    * @param {string} p.command__Id
    * @param {string} p.command__DebugDescription
    * @param {string} p.commandGroup__Id
    * @param {string} p.commandGroup__DebugDescription
-   * @param {number} p.financialSchedule__amountWithoutScheduledDate
+   * @param {bigint} p.financialSchedule__amountWithoutScheduledDate
    * @param {Date[]} p.financialSchedule__scheduledDates
-   * @param {number[]} p.financialSchedule__scheduledAmounts
+   * @param {bigint[]} p.financialSchedule__scheduledAmounts
    * @param {string} p.is_Link__SimObjId
    * @param {string} p.vsSimObjectName
    * @param {number} p.versionId

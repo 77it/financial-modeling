@@ -9,8 +9,8 @@ import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 import { SimObject } from '../simobject/simobject.js';
 import { simObjectToDto } from '../simobject/utils/simobject_to_dto.js';
 import { simObjectToJsonDumpDto } from '../simobject/utils/simobject_to_json_dump_dto.js';
-import { splitAndSortFinancialSchedule } from '../simobject/utils/split_and_sort_financialschedule.js';
-import { toBigInt } from '../simobject/utils/to_bigint.js';
+import { splitAndSortFinancialScheduleDSB } from '../simobject/utils/split_and_sort_financialschedule.js';
+import { ensureBigIntScaled } from '../../lib/bigint_decimal_scaled.arithmetic_x.js';
 import { doubleEntrySideFromSimObjectType } from '../simobject/enums/doubleentryside_from_simobject_type.js';
 import { SimObjectTypes_enum } from '../simobject/enums/simobject_types_enum.js';
 import { SimObjectTypes_WithPrincipal_set } from '../simobject/enums/simobject_types_withprincipal_enum.js';
@@ -81,29 +81,14 @@ class Ledger {
   #debugFlag;
   /** @type {string} */
   #currentDebugModuleInfo;
-  /** @type {number} */
-  #decimalPlaces;
-  /** @type {boolean} */
-  #roundingModeIsRound;
   /** @type {boolean} */
   #isLocked;
 
   /**
    * @param {Object} p
    * @param {appendTrnDump} p.appendTrnDump Callback to dump the transactions
-   * @param {number} p.decimalPlaces Decimal places to use when storing numbers in the ledger
-   * @param {boolean} p.roundingModeIsRound Rounding mode to use when storing numbers in the ledger
    */
-  constructor ({ appendTrnDump, decimalPlaces, roundingModeIsRound }) {
-    const _p = sanitize({
-      value: { decimalPlaces, roundingModeIsRound },
-      sanitization: { decimalPlaces: schema.NUMBER_TYPE, roundingModeIsRound: schema.BOOLEAN_TYPE }
-    });
-
-    // check if decimalPlaces is an integer, otherwise raise exception
-    if (!Number.isInteger(_p.decimalPlaces))
-      throw new Error(`decimalPlaces must be an integer, got ${_p.decimalPlaces}`);
-
+  constructor ({ appendTrnDump }) {
     this.#appendTrnDumpCallback = appendTrnDump;
     this.#simObjectsRepo = new Map();
     this.#simObjectTypes_enum_map = new Map(Object.entries(SimObjectTypes_enum));
@@ -116,8 +101,6 @@ class Ledger {
     this.#today = new Date(0);
     this.#debugFlag = false;
     this.#currentDebugModuleInfo = '';
-    this.#decimalPlaces = _p.decimalPlaces;
-    /*XXX*/ this.#roundingModeIsRound = _p.roundingModeIsRound;
     this.#isLocked = true;  // lock the ledger
   }
 
@@ -295,25 +278,22 @@ class Ledger {
 
     const debug_moduleInfo = (this.#debugFlag) ? this.#currentDebugModuleInfo : '';
 
-    const _value = toBigInt(newSimObjectDto.value, this.#decimalPlaces, this.#roundingModeIsRound);
+    const _value = ensureBigIntScaled(newSimObjectDto.value);
     const _writingValue = _value;  // writingValue is equal to value
 
     // If the SimObject should have principal or has some financial schedule values
-    // use `splitAndSortFinancialSchedule` to split a principal value in indefinite and amortization schedule values
+    // use `splitAndSortFinancialScheduleDSB` to split a principal value in indefinite and amortization schedule values
     // distributing it proportionally across the amortization schedule if needed.
     // If the `financialSchedule__amountWithoutScheduledDate` is not equal to `_value` and `financialSchedule__scheduledAmounts` is empty an error is raised.
     const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = (() => {
       if (newSimObjectDto.financialSchedule__amountWithoutScheduledDate !== 0 ||
           newSimObjectDto.financialSchedule__scheduledAmounts.length !== 0 ||
           SimObjectTypes_WithPrincipal_set.has(newSimObjectDto.type)) {
-        return splitAndSortFinancialSchedule(newSimObjectDto, {
-          decimalPlaces: this.#decimalPlaces,
-          roundingModeIsRound: this.#roundingModeIsRound
-        })
+        return splitAndSortFinancialScheduleDSB(newSimObjectDto);
       } else {
         // if the SimObject shouldn't have principal or has no financial schedule values
         return {
-          financialSchedule__amountWithoutScheduledDate: toBigInt(0, this.#decimalPlaces, this.#roundingModeIsRound),
+          financialSchedule__amountWithoutScheduledDate: 0n,
           financialSchedule__scheduledAmounts: [],
           financialSchedule__scheduledDates: []
         };
@@ -328,7 +308,6 @@ class Ledger {
       ? false : newSimObjectDto.alive;
 
     const simObject = new SimObject({
-      decimalPlaces: this.#decimalPlaces,
       type: newSimObjectDto.type,
       id: this.#getNextId().toString(),
       dateTime: this.#today,
@@ -471,7 +450,6 @@ class Ledger {
     const debug_moduleInfo = this.#currentDebugModuleInfo;
 
     const simObject = new SimObject({
-      decimalPlaces: this.#decimalPlaces,
       type: simObjectDebugType,
       id: this.#getNextId().toString(),
       dateTime: this.#today,
@@ -485,14 +463,14 @@ class Ledger {
       doubleEntrySide: DoubleEntrySide_enum.DEBUG,
       currency: Currency_enum.UNDEFINED,
       intercompanyInfo__VsUnitId: '',
-      value: toBigInt(0, this.#decimalPlaces, this.#roundingModeIsRound),
-      writingValue: toBigInt(0, this.#decimalPlaces, this.#roundingModeIsRound),
+      value: 0n,
+      writingValue: 0n,
       alive: false,
       command__Id: this.#getNextCommandId().toString(),
       command__DebugDescription: newDebugSimObjectDto.command__DebugDescription ?? debug_moduleInfo,
       commandGroup__Id: this.#getTransactionId().toString(),
       commandGroup__DebugDescription: newDebugSimObjectDto.commandGroup__DebugDescription ?? '',
-      financialSchedule__amountWithoutScheduledDate: toBigInt(0, this.#decimalPlaces, this.#roundingModeIsRound),
+      financialSchedule__amountWithoutScheduledDate: 0n,
       financialSchedule__scheduledDates: [],
       financialSchedule__scheduledAmounts: [],
       is_Link__SimObjId: '',

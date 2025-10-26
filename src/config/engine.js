@@ -12,7 +12,8 @@ export const ROUNDING_MODES = {
 Object.freeze(ROUNDING_MODES);
 
 //#region debug and release config
-// If true, the debug validations and checks are disabled; this should be true in release mode, to speed up execution
+// If true, the debug validations and checks are disabled; this should be true ONLY IF YOU REALLY NEED IT in release mode, to speed up execution
+// (not recommended, because it can hide validation problems that can't be easily caught otherwise)
 export const RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS = false;
 
 // If true, the validation of the data is disabled in 'schema_validation_utils.js/validate()';

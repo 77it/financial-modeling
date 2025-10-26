@@ -9,7 +9,7 @@ SimObject benchmark: normal use        1.47 s/iter           0.7    (980.76 ms â
 import { SimObject } from '../../../src/engine/simobject/simobject.js';
 import { SimObjectTypes_enum } from '../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../src/engine/simobject/enums/doubleentryside_enum.js';
-import { toBigInt } from '../../../src/engine/simobject/utils/to_bigint.js';
+import { ensureBigIntScaled } from '../../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
 
 const loopCount = 100_000;
 
@@ -20,11 +20,7 @@ Deno.bench("SimObject benchmark: normal use", () => {
   }
 });
 
-const DECIMALPLACES = 4;
-const ROUNDINGMODEISROUND = true;
-
 const p = {
-  decimalPlaces: 4,
   type: SimObjectTypes_enum.BS_CASH__BANKACCOUNT_FINANCIALACCOUNT,
   id: '1',
   dateTime: new Date(2020, 0, 1, 5, 10, 55, 55),
@@ -38,14 +34,14 @@ const p = {
   doubleEntrySide: DoubleEntrySide_enum.BALANCESHEET_CREDIT,
   currency: 'EUR',
   intercompanyInfo__VsUnitId: '',
-  value: toBigInt(19, DECIMALPLACES, ROUNDINGMODEISROUND),
-  writingValue: toBigInt(19, DECIMALPLACES, ROUNDINGMODEISROUND),
+  value: ensureBigIntScaled(19),
+  writingValue: ensureBigIntScaled(19),
   alive: true,
   command__Id: '1',
   command__DebugDescription: '',
   commandGroup__Id: '1',
   commandGroup__DebugDescription: '',
-  financialSchedule__amountWithoutScheduledDate: toBigInt(18.9, DECIMALPLACES, ROUNDINGMODEISROUND),
+  financialSchedule__amountWithoutScheduledDate: ensureBigIntScaled(18.9),
   financialSchedule__scheduledDates: [new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1), new Date(2020, 0, 1)],
   financialSchedule__scheduledAmounts: [1n, 11n, 111n, 877n],
   is_Link__SimObjId: '123',

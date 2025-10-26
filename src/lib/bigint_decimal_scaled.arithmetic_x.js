@@ -53,7 +53,7 @@ export {
   // ergonomic (coercing) API
   add, sub, mul, div,
 };
-export { _TEST_ONLY__set, MATH_SCALE as _TEST_ONLY__MATH_SCALE, SCALE_FACTOR as _TEST_ONLY__SCALE_FACTOR, MAX_POW10 as _TEST_ONLY__MAX_POW10, POW10 as _TEST_ONLY__POW10 };
+export { _TEST_ONLY__reset, _TEST_ONLY__set, MATH_SCALE as _TEST_ONLY__MATH_SCALE, SCALE_FACTOR as _TEST_ONLY__SCALE_FACTOR, MAX_POW10 as _TEST_ONLY__MAX_POW10, POW10 as _TEST_ONLY__POW10 };
 export { roundInt as _INTERNAL_roundInt }
 
 import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, ROUNDING_MODES } from '../config/engine.js';
@@ -131,6 +131,18 @@ function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) 
   SCALE_FACTOR = pow10n(MATH_SCALE);
   // ------------------------ accounting grid ------------------------
   GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
+}
+
+/**
+ * @internal
+ * This is a function used for testing purposes, to reset to default values the bigint decimal scale, accounting decimal places and rounding mode.
+ */
+function _TEST_ONLY__reset() {
+  _TEST_ONLY__set({
+    decimalScale: CFG_SCALE,
+    accountingDecimalPlaces: CFG_DECIMAL_PLACES,
+    roundingMode: CFG_ROUNDING,
+  });
 }
 
 //#endregion settings

@@ -13,13 +13,13 @@ class NewSimObjectDto {
    * @param {string} p.unitId
    * @param {string} p.currency
    * @param {string} [p.intercompanyInfo__VsUnitId]
-   * @param {number} p.value
+   * @param {string|number|bigint} p.value
    * @param {boolean} p.alive
    * @param {string} [p.command__DebugDescription]
    * @param {string} [p.commandGroup__DebugDescription]
-   * @param {number} p.financialSchedule__amountWithoutScheduledDate
+   * @param {string|number|bigint} p.financialSchedule__amountWithoutScheduledDate
    * @param {Date[]} p.financialSchedule__scheduledDates
-   * @param {number[]} p.financialSchedule__scheduledAmounts
+   * @param {string[]|number[]|bigint[]} p.financialSchedule__scheduledAmounts
    * @param {string} [p.is_Link__SimObjId]
    * @param {string} [p.vsSimObjectName]
    * @param {*} [p.extras]

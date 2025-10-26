@@ -5,8 +5,6 @@ import { Currency_enum_validation } from './enums/currency_enum.js';
 import * as schema from '../../lib/schema.js';
 
 const simObject_Schema = {
-  decimalPlaces: schema.NUMBER_TYPE,  // Decimal places to return numbers with
-
   type: schema.STRING_TYPE,
 
   id: schema.STRING_TYPE,
@@ -68,6 +66,7 @@ const simObject_Schema = {
 // NOTES
 
 // [1] `metadata__PercentageWeight` notes
+// inspired by #ReportMetadataFilterId20190113code from C# code '005\_startup\2-filter\MetadataFilterEngine__FilterDtoOneByOne.cs'
 /*
 Weight is a number used to split the DTO value.
 

@@ -1,15 +1,13 @@
-import { splitAndSortFinancialSchedule } from '../../../../src/engine/simobject/utils/split_and_sort_financialschedule.js';
-import { bigIntToNumberWithDecimals } from '../../../../src/engine/simobject/utils/bigint_to_number_with_decimals.js';
-import { bigIntToStringWithDecimals } from '../../../../src/engine/simobject/utils/bigint_to_string_with_decimals.js';
+import { splitAndSortFinancialScheduleDSB } from '../../../../src/engine/simobject/utils/split_and_sort_financialschedule.js';
+import { bigIntScaledToString, ensureBigIntScaled, _TEST_ONLY__reset } from '../../../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
-const decimalPlaces = 4;
-const roundingModeIsRound = true;
+_TEST_ONLY__reset();
 
-t('splitAndSortFinancialSchedule() tests #0, THROWS if split with Indefinite less than value & no schedule', async () => {
+t('splitAndSortFinancialScheduleDSB() tests #0, THROWS if split with Indefinite less than value & no schedule', async () => {
   const value = 1000;
   const _financialSchedule__amountWithoutScheduledDate = 6;
   /** @type {*[]} */
@@ -17,18 +15,15 @@ t('splitAndSortFinancialSchedule() tests #0, THROWS if split with Indefinite les
   /** @type {*[]} */
   const _financialSchedule__scheduledDates = [];
 
-  assert.throws(() => splitAndSortFinancialSchedule({
+  assert.throws(() => splitAndSortFinancialScheduleDSB({
     value,
     financialSchedule__amountWithoutScheduledDate: _financialSchedule__amountWithoutScheduledDate,
     financialSchedule__scheduledAmounts: _financialSchedule__scheduledAmounts,
     financialSchedule__scheduledDates: _financialSchedule__scheduledDates
-  }, {
-    decimalPlaces,
-    roundingModeIsRound
   }));
 });
 
-t('splitAndSortFinancialSchedule() tests #1, split with Indefinite + Schedule & some zero entries & reorder', async () => {
+t('splitAndSortFinancialScheduleDSB() tests #1, split with Indefinite + Schedule & some zero entries & reorder', async () => {
   const value = 1000;
   const _financialSchedule__amountWithoutScheduledDate = 10;
   const _financialSchedule__scheduledAmounts = [690, 0, 100, 100, 0, 100, 0];
@@ -37,31 +32,35 @@ t('splitAndSortFinancialSchedule() tests #1, split with Indefinite + Schedule & 
     new Date('2021-01-05'), new Date('2021-01-07')
   ];
 
-  const expected_financialSchedule__amountWithoutScheduledDate = 10_0000n;
-  const expected_financialSchedule__scheduledAmounts = [0n, 100_0000n, 100_0000n, 0n, 100_0000n, 690_0000n, 0n];
+  const expected_financialSchedule__amountWithoutScheduledDate = ensureBigIntScaled(10);
+  const expected_financialSchedule__scheduledAmounts = [
+    ensureBigIntScaled(0),
+    ensureBigIntScaled(100),
+    ensureBigIntScaled(100),
+    ensureBigIntScaled(0),
+    ensureBigIntScaled(100),
+    ensureBigIntScaled(690),
+    ensureBigIntScaled(0)
+  ];
   const expected_financialSchedule__scheduledDates = [
     new Date('2021-01-01'), new Date('2021-01-02'), new Date('2021-01-03'), new Date('2021-01-04'),
     new Date('2021-01-05'), new Date('2021-01-06'), new Date('2021-01-07')
   ];
 
   const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } =
-    splitAndSortFinancialSchedule({
+    splitAndSortFinancialScheduleDSB({
       value,
       financialSchedule__amountWithoutScheduledDate: _financialSchedule__amountWithoutScheduledDate,
       financialSchedule__scheduledAmounts: _financialSchedule__scheduledAmounts,
       financialSchedule__scheduledDates: _financialSchedule__scheduledDates,
-    }, {
-      decimalPlaces,
-      roundingModeIsRound
-    }
-  );
+    });
 
   assert.deepStrictEqual(financialSchedule__amountWithoutScheduledDate, expected_financialSchedule__amountWithoutScheduledDate);
   assert.deepStrictEqual(financialSchedule__scheduledAmounts, expected_financialSchedule__scheduledAmounts);
   assert.deepStrictEqual(financialSchedule__scheduledDates, expected_financialSchedule__scheduledDates);
 });
 
-t('splitAndSortFinancialSchedule() tests #1bis, NEGATIVE & DUPLICATE DATES & split with Indefinite + Schedule & some zero entries & reorder', async () => {
+t('splitAndSortFinancialScheduleDSB() tests #1bis, NEGATIVE & DUPLICATE DATES & split with Indefinite + Schedule & some zero entries & reorder', async () => {
   const value = 1000;
   const _financialSchedule__amountWithoutScheduledDate = 10;
   const _financialSchedule__scheduledAmounts = [690, -200, 0, 400, 0, 100, 0];
@@ -70,31 +69,35 @@ t('splitAndSortFinancialSchedule() tests #1bis, NEGATIVE & DUPLICATE DATES & spl
     new Date('2021-01-05'), new Date('2021-01-07')
   ];
 
-  const expected_financialSchedule__amountWithoutScheduledDate = 10_0000n;
-  const expected_financialSchedule__scheduledAmounts = [-200_0000n, 0n, 400_0000n, 0n, 100_0000n, 690_0000n, 0n];
+  const expected_financialSchedule__amountWithoutScheduledDate = ensureBigIntScaled(10);
+  const expected_financialSchedule__scheduledAmounts = [
+    ensureBigIntScaled(-200),
+    ensureBigIntScaled(0),
+    ensureBigIntScaled(400),
+    ensureBigIntScaled(0),
+    ensureBigIntScaled(100),
+    ensureBigIntScaled(690),
+    ensureBigIntScaled(0)
+  ];
   const expected_financialSchedule__scheduledDates = [
     new Date('2021-01-01'), new Date('2021-01-01'), new Date('2021-01-01'), new Date('2021-01-04'),
     new Date('2021-01-05'), new Date('2021-01-06'), new Date('2021-01-07')
   ];
 
   const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } =
-    splitAndSortFinancialSchedule({
+    splitAndSortFinancialScheduleDSB({
         value,
         financialSchedule__amountWithoutScheduledDate: _financialSchedule__amountWithoutScheduledDate,
         financialSchedule__scheduledAmounts: _financialSchedule__scheduledAmounts,
         financialSchedule__scheduledDates: _financialSchedule__scheduledDates,
-      }, {
-        decimalPlaces,
-        roundingModeIsRound
-      }
-    );
+      });
 
   assert.deepStrictEqual(financialSchedule__amountWithoutScheduledDate, expected_financialSchedule__amountWithoutScheduledDate);
   assert.deepStrictEqual(financialSchedule__scheduledAmounts, expected_financialSchedule__scheduledAmounts);
   assert.deepStrictEqual(financialSchedule__scheduledDates, expected_financialSchedule__scheduledDates);
 });
 
-t('splitAndSortFinancialSchedule() tests #2, split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
+t('splitAndSortFinancialScheduleDSB() tests #2, split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
   const value = 1000;
   const _financialSchedule__amountWithoutScheduledDate = 6;
   const _financialSchedule__scheduledAmounts = [100, 100, 100];
@@ -102,29 +105,29 @@ t('splitAndSortFinancialSchedule() tests #2, split with Indefinite + Incomplete 
     new Date('2021-01-03'), new Date('2021-01-01'), new Date('2021-01-02')
   ];
 
-  const expected_financialSchedule__amountWithoutScheduledDate = 6_0000n;
-  const expected_financialSchedule__scheduledAmounts = [331_3333n, 331_3333n, 331_3334n];
+  const expected_financialSchedule__amountWithoutScheduledDate = ensureBigIntScaled(6);
+  const expected_financialSchedule__scheduledAmounts = [
+    ensureBigIntScaled(331.3333333333),
+    ensureBigIntScaled(331.3333333333),
+    ensureBigIntScaled(331.3333333334),
+  ];
   const expected_financialSchedule__scheduledDates = [
     new Date('2021-01-01'), new Date('2021-01-02'), new Date('2021-01-03')
   ];
 
-  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialSchedule({
+  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialScheduleDSB({
       value,
       financialSchedule__amountWithoutScheduledDate: _financialSchedule__amountWithoutScheduledDate,
       financialSchedule__scheduledAmounts: _financialSchedule__scheduledAmounts,
       financialSchedule__scheduledDates: _financialSchedule__scheduledDates
-    }, {
-      decimalPlaces,
-      roundingModeIsRound
-    }
-  );
+    });
 
   assert.deepStrictEqual(financialSchedule__amountWithoutScheduledDate, expected_financialSchedule__amountWithoutScheduledDate);
   assert.deepStrictEqual(financialSchedule__scheduledAmounts, expected_financialSchedule__scheduledAmounts);
   assert.deepStrictEqual(financialSchedule__scheduledDates, expected_financialSchedule__scheduledDates);
 });
 
-t('splitAndSortFinancialSchedule() tests #2bis, NEGATIVE & split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
+t('splitAndSortFinancialScheduleDSB() tests #2bis, NEGATIVE & split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
   const value = 1000;
   const _financialSchedule__amountWithoutScheduledDate = 6;
   const _financialSchedule__scheduledAmounts = [100, -100, 300];
@@ -132,29 +135,29 @@ t('splitAndSortFinancialSchedule() tests #2bis, NEGATIVE & split with Indefinite
     new Date('2021-01-03'), new Date('2021-01-01'), new Date('2021-01-02')
   ];
 
-  const expected_financialSchedule__amountWithoutScheduledDate = 6_0000n;
-  const expected_financialSchedule__scheduledAmounts = [-331_3333n, 994_0000n, 331_3333n];
+  const expected_financialSchedule__amountWithoutScheduledDate = ensureBigIntScaled(6);
+  const expected_financialSchedule__scheduledAmounts = [
+    ensureBigIntScaled(-331.3333333333),
+    ensureBigIntScaled(994),
+    ensureBigIntScaled(331.3333333333)
+  ];
   const expected_financialSchedule__scheduledDates = [
     new Date('2021-01-01'), new Date('2021-01-02'), new Date('2021-01-03')
   ];
 
-  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialSchedule({
+  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialScheduleDSB({
       value,
       financialSchedule__amountWithoutScheduledDate: _financialSchedule__amountWithoutScheduledDate,
       financialSchedule__scheduledAmounts: _financialSchedule__scheduledAmounts,
       financialSchedule__scheduledDates: _financialSchedule__scheduledDates
-    }, {
-      decimalPlaces,
-      roundingModeIsRound
-    }
-  );
+    });
 
   assert.deepStrictEqual(financialSchedule__amountWithoutScheduledDate, expected_financialSchedule__amountWithoutScheduledDate);
   assert.deepStrictEqual(financialSchedule__scheduledAmounts, expected_financialSchedule__scheduledAmounts);
   assert.deepStrictEqual(financialSchedule__scheduledDates, expected_financialSchedule__scheduledDates);
 });
 
-t('splitAndSortFinancialSchedule() tests #2ter, ALL NEGATIVE VALUE & split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
+t('splitAndSortFinancialScheduleDSB() tests #2ter, ALL NEGATIVE VALUE & split with Indefinite + Incomplete Schedule (Schedule + Indefinite < Principal) & reorder', async () => {
   const value = -1000;
   const _financialSchedule__amountWithoutScheduledDate = -6;
   const _financialSchedule__scheduledAmounts = [-100, -100, -100];
@@ -162,29 +165,29 @@ t('splitAndSortFinancialSchedule() tests #2ter, ALL NEGATIVE VALUE & split with 
     new Date('2021-01-03'), new Date('2021-01-01'), new Date('2021-01-02')
   ];
 
-  const expected_financialSchedule__amountWithoutScheduledDate = -6_0000n;
-  const expected_financialSchedule__scheduledAmounts = [-331_3333n, -331_3333n, -331_3334n];
+  const expected_financialSchedule__amountWithoutScheduledDate = ensureBigIntScaled(-6);
+  const expected_financialSchedule__scheduledAmounts = [
+    ensureBigIntScaled(-331.3333333333),
+    ensureBigIntScaled(-331.3333333333),
+    ensureBigIntScaled(-331.3333333334),
+  ];
   const expected_financialSchedule__scheduledDates = [
     new Date('2021-01-01'), new Date('2021-01-02'), new Date('2021-01-03')
   ];
 
-  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialSchedule({
+  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialScheduleDSB({
       value,
       financialSchedule__amountWithoutScheduledDate: _financialSchedule__amountWithoutScheduledDate,
       financialSchedule__scheduledAmounts: _financialSchedule__scheduledAmounts,
       financialSchedule__scheduledDates: _financialSchedule__scheduledDates
-    }, {
-      decimalPlaces,
-      roundingModeIsRound
-    }
-  );
+    });
 
   assert.deepStrictEqual(financialSchedule__amountWithoutScheduledDate, expected_financialSchedule__amountWithoutScheduledDate);
   assert.deepStrictEqual(financialSchedule__scheduledAmounts, expected_financialSchedule__scheduledAmounts);
   assert.deepStrictEqual(financialSchedule__scheduledDates, expected_financialSchedule__scheduledDates);
 });
 
-t('splitAndSortFinancialSchedule() tests #3, split with Indefinite + Schedule testing conversion to number', async () => {
+t('splitAndSortFinancialScheduleDSB() tests #3, split with Indefinite + Schedule testing conversion to number', async () => {
   const value = 999;
   const _financialSchedule__amountWithoutScheduledDate = 10;
   const _financialSchedule__scheduledAmounts = [0, 1, 1, 1, 0, 2];
@@ -197,20 +200,16 @@ t('splitAndSortFinancialSchedule() tests #3, split with Indefinite + Schedule te
   const expected_financialSchedule__amountWithoutScheduledDate = 10;
   const expected_financialSchedule__scheduledAmounts = [0, 197.8, 197.8, 197.8, 0, 395.6];
 
-  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialSchedule({
+  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialScheduleDSB({
       value,
       financialSchedule__amountWithoutScheduledDate: _financialSchedule__amountWithoutScheduledDate,
       financialSchedule__scheduledAmounts: _financialSchedule__scheduledAmounts,
       financialSchedule__scheduledDates: _financialSchedule__scheduledDates
-    }, {
-      decimalPlaces,
-      roundingModeIsRound
-    }
-  );
+    });
 
   // convert BigInt to Number
-  const _financialSchedule__amountWithoutScheduledDateNumber = bigIntToNumberWithDecimals(financialSchedule__amountWithoutScheduledDate, decimalPlaces);
-  const _financialSchedule__scheduledAmountsNumber = financialSchedule__scheduledAmounts.map((principal) => bigIntToNumberWithDecimals(principal, decimalPlaces));
+  const _financialSchedule__amountWithoutScheduledDateNumber = Number(bigIntScaledToString(financialSchedule__amountWithoutScheduledDate));
+  const _financialSchedule__scheduledAmountsNumber = financialSchedule__scheduledAmounts.map((principal) => Number(bigIntScaledToString(principal)));
 
   // assert
   assert.deepStrictEqual(_financialSchedule__amountWithoutScheduledDateNumber, expected_financialSchedule__amountWithoutScheduledDate);
@@ -218,7 +217,7 @@ t('splitAndSortFinancialSchedule() tests #3, split with Indefinite + Schedule te
   assert.deepStrictEqual(financialSchedule__scheduledDates, financialSchedule__scheduledDates);
 });
 
-t('splitAndSortFinancialSchedule() tests #4, split with Indefinite + Schedule testing conversion to string', async () => {
+t('splitAndSortFinancialScheduleDSB() tests #4, split with Indefinite + Schedule testing conversion to string', async () => {
   const value = 1000;
   const _financialSchedule__amountWithoutScheduledDate = 0;
   const _financialSchedule__scheduledAmounts = [333, 0, 333, 333];
@@ -227,23 +226,19 @@ t('splitAndSortFinancialSchedule() tests #4, split with Indefinite + Schedule te
   ];
 
   // expected values
-  const expected_financialSchedule__amountWithoutScheduledDate = '0.0000';
-  const expected_financialSchedule__scheduledAmounts = ['333.3333', '0.0000', '333.3333', '333.3334'];
+  const expected_financialSchedule__amountWithoutScheduledDate = '0';
+  const expected_financialSchedule__scheduledAmounts = ['333.3333333333', '0', '333.3333333333', '333.3333333334'];
 
-  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialSchedule({
+  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialScheduleDSB({
       value,
       financialSchedule__amountWithoutScheduledDate: _financialSchedule__amountWithoutScheduledDate,
       financialSchedule__scheduledAmounts: _financialSchedule__scheduledAmounts,
       financialSchedule__scheduledDates: _financialSchedule__scheduledDates
-    }, {
-      decimalPlaces,
-      roundingModeIsRound
-    }
-  );
+    });
 
   // convert BigInt to Number
-  const _financialSchedule__amountWithoutScheduledDateNumber = bigIntToStringWithDecimals(financialSchedule__amountWithoutScheduledDate, decimalPlaces);
-  const _financialSchedule__scheduledAmountsNumber = financialSchedule__scheduledAmounts.map((principal) => bigIntToStringWithDecimals(principal, decimalPlaces));
+  const _financialSchedule__amountWithoutScheduledDateNumber = bigIntScaledToString(financialSchedule__amountWithoutScheduledDate);
+  const _financialSchedule__scheduledAmountsNumber = financialSchedule__scheduledAmounts.map((principal) => bigIntScaledToString(principal));
 
   // assert
   assert.deepStrictEqual(_financialSchedule__amountWithoutScheduledDateNumber, expected_financialSchedule__amountWithoutScheduledDate);
@@ -251,7 +246,7 @@ t('splitAndSortFinancialSchedule() tests #4, split with Indefinite + Schedule te
   assert.deepStrictEqual(financialSchedule__scheduledDates, financialSchedule__scheduledDates);
 });
 
-t('splitAndSortFinancialSchedule() tests #5, split with Indefinite without Schedule', async () => {
+t('splitAndSortFinancialScheduleDSB() tests #5, split with Indefinite without Schedule', async () => {
   const value = 1000;
   const _financialSchedule__amountWithoutScheduledDate = 1000;
   /** @type {number[]} */
@@ -264,20 +259,16 @@ t('splitAndSortFinancialSchedule() tests #5, split with Indefinite without Sched
   /** @type {number[]} */
   const expected_financialSchedule__scheduledAmounts = [];
 
-  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialSchedule({
+  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialScheduleDSB({
       value,
       financialSchedule__amountWithoutScheduledDate: _financialSchedule__amountWithoutScheduledDate,
       financialSchedule__scheduledAmounts: _financialSchedule__scheduledAmounts,
       financialSchedule__scheduledDates: _financialSchedule__scheduledDates
-    }, {
-      decimalPlaces,
-      roundingModeIsRound
-    }
-  );
+    });
 
   // convert BigInt to Number
-  const _financialSchedule__amountWithoutScheduledDateNumber = bigIntToNumberWithDecimals(financialSchedule__amountWithoutScheduledDate, decimalPlaces);
-  const _financialSchedule__scheduledAmountsNumber = financialSchedule__scheduledAmounts.map((principal) => bigIntToNumberWithDecimals(principal, decimalPlaces));
+  const _financialSchedule__amountWithoutScheduledDateNumber = Number(bigIntScaledToString(financialSchedule__amountWithoutScheduledDate));
+  const _financialSchedule__scheduledAmountsNumber = financialSchedule__scheduledAmounts.map((principal) => Number(bigIntScaledToString(principal)));
 
   // assert
   assert.deepStrictEqual(_financialSchedule__amountWithoutScheduledDateNumber, expected_financialSchedule__amountWithoutScheduledDate);
@@ -285,7 +276,7 @@ t('splitAndSortFinancialSchedule() tests #5, split with Indefinite without Sched
   assert.deepStrictEqual(financialSchedule__scheduledDates, financialSchedule__scheduledDates);
 });
 
-t('splitAndSortFinancialSchedule() tests #6, split without Indefinite and no Schedule -> all to Indefinite', async () => {
+t('splitAndSortFinancialScheduleDSB() tests #6, split without Indefinite and no Schedule -> all to Indefinite', async () => {
   const value = 1000;
   const _financialSchedule__amountWithoutScheduledDate = 0;
   /** @type {number[]} */
@@ -298,20 +289,16 @@ t('splitAndSortFinancialSchedule() tests #6, split without Indefinite and no Sch
   /** @type {number[]} */
   const expected_financialSchedule__scheduledAmounts = [];
 
-  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialSchedule({
+  const { financialSchedule__amountWithoutScheduledDate, financialSchedule__scheduledAmounts, financialSchedule__scheduledDates } = splitAndSortFinancialScheduleDSB({
       value,
       financialSchedule__amountWithoutScheduledDate: _financialSchedule__amountWithoutScheduledDate,
       financialSchedule__scheduledAmounts: _financialSchedule__scheduledAmounts,
       financialSchedule__scheduledDates: _financialSchedule__scheduledDates
-    }, {
-      decimalPlaces,
-      roundingModeIsRound
-    }
-  );
+    });
 
   // convert BigInt to Number
-  const _financialSchedule__amountWithoutScheduledDateNumber = bigIntToNumberWithDecimals(financialSchedule__amountWithoutScheduledDate, decimalPlaces);
-  const _financialSchedule__scheduledAmountsNumber = financialSchedule__scheduledAmounts.map((principal) => bigIntToNumberWithDecimals(principal, decimalPlaces));
+  const _financialSchedule__amountWithoutScheduledDateNumber = Number(bigIntScaledToString(financialSchedule__amountWithoutScheduledDate));
+  const _financialSchedule__scheduledAmountsNumber = financialSchedule__scheduledAmounts.map((principal) => Number(bigIntScaledToString(principal)));
 
   // assert
   assert.deepStrictEqual(_financialSchedule__amountWithoutScheduledDateNumber, expected_financialSchedule__amountWithoutScheduledDate);

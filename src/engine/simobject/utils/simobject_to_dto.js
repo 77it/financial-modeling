@@ -2,7 +2,6 @@
 
 import { SimObject } from '../simobject.js';
 import { SimObjectDto } from '../simobjectdto.js';
-import { bigIntToNumberWithDecimals } from './bigint_to_number_with_decimals.js';
 import { deepFreeze } from '../../../lib/obj_utils.js';
 
 /**
@@ -25,16 +24,16 @@ function simObjectToDto (simObject) {
     doubleEntrySide: simObject.doubleEntrySide,
     currency: simObject.currency,
     intercompanyInfo__VsUnitId: simObject.intercompanyInfo__VsUnitId,
-    value: bigIntToNumberWithDecimals(simObject.value, simObject.decimalPlaces),
-    writingValue: bigIntToNumberWithDecimals(simObject.writingValue, simObject.decimalPlaces),
+    value: simObject.value,
+    writingValue: simObject.writingValue,
     alive: simObject.alive,
     command__Id: simObject.command__Id,
     command__DebugDescription: simObject.command__DebugDescription,
     commandGroup__Id: simObject.commandGroup__Id,
     commandGroup__DebugDescription: simObject.commandGroup__DebugDescription,
-    financialSchedule__amountWithoutScheduledDate: bigIntToNumberWithDecimals(simObject.financialSchedule__amountWithoutScheduledDate, simObject.decimalPlaces),
+    financialSchedule__amountWithoutScheduledDate: simObject.financialSchedule__amountWithoutScheduledDate,
     financialSchedule__scheduledDates: [...simObject.financialSchedule__scheduledDates],
-    financialSchedule__scheduledAmounts: simObject.financialSchedule__scheduledAmounts.map((big) => bigIntToNumberWithDecimals(big, simObject.decimalPlaces)),
+    financialSchedule__scheduledAmounts: [...simObject.financialSchedule__scheduledAmounts],
     is_Link__SimObjId: simObject.is_Link__SimObjId,
     vsSimObjectName: simObject.vsSimObjectName,
     versionId: simObject.versionId,

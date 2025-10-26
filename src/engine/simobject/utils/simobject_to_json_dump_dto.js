@@ -3,7 +3,7 @@
 import { SimObject } from '../simobject.js';
 import { SimObjectTypes_WithPrincipal_set } from '../enums/simobject_types_withprincipal_enum.js';
 import { SimObjectJsonDumpDto } from '../simobjectjsondumpdto.js';
-import { bigIntToStringWithDecimals } from './bigint_to_string_with_decimals.js';
+import { bigIntScaledToString } from '../../../lib/bigint_decimal_scaled.arithmetic_x.js';
 import { deepFreeze } from '../../../lib/obj_utils.js';
 
 /**
@@ -16,9 +16,9 @@ function simObjectToJsonDumpDto (simObject) {
   SimObjectTypes_WithPrincipal_set.has(simObject.type);
 
   //#region set `bs_Principal_*` properties if the type is in SimObjectTypes_WithPrincipal_set, otherwise set `financialSchedule_*`
-  const _amountWithoutScheduledDate = bigIntToStringWithDecimals(simObject.financialSchedule__amountWithoutScheduledDate, simObject.decimalPlaces);
+  const _amountWithoutScheduledDate = bigIntScaledToString(simObject.financialSchedule__amountWithoutScheduledDate);
   const _scheduledDates = simObject.financialSchedule__scheduledDates.map((date) => _dateToISOString(date));
-  const _scheduledAmounts = simObject.financialSchedule__scheduledAmounts.map((big) => bigIntToStringWithDecimals(big, simObject.decimalPlaces));
+  const _scheduledAmounts = simObject.financialSchedule__scheduledAmounts.map((big) => bigIntScaledToString(big));
 
   const set_principal = SimObjectTypes_WithPrincipal_set.has(simObject.type);
 
@@ -45,8 +45,8 @@ function simObjectToJsonDumpDto (simObject) {
     doubleEntrySide: simObject.doubleEntrySide,
     currency: simObject.currency,
     intercompanyInfo__VsUnitId: simObject.intercompanyInfo__VsUnitId,
-    value: bigIntToStringWithDecimals(simObject.value, simObject.decimalPlaces),
-    writingValue: bigIntToStringWithDecimals(simObject.writingValue, simObject.decimalPlaces),
+    value: bigIntScaledToString(simObject.value),
+    writingValue: bigIntScaledToString(simObject.writingValue),
     alive: simObject.alive,
     command__Id: simObject.command__Id,
     command__DebugDescription: simObject.command__DebugDescription,

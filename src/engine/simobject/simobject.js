@@ -15,7 +15,6 @@ import { validate } from '../../lib/schema_validation_utils.js';
 */
 
 class SimObject {
-  #decimalPlaces;
   #type;
   #id;
   #dateTime;
@@ -45,8 +44,6 @@ class SimObject {
   #extras;  // NOT EXPORTED TO JSON DUMP
 
   //#region getters, cloning properties made of mutable objects
-  get decimalPlaces () { return this.#decimalPlaces; }
-
   get type () { return this.#type; }
 
   get id () { return this.#id; }
@@ -107,7 +104,6 @@ class SimObject {
 
   /**
    * @param {Object} p
-   * @param {number} p.decimalPlaces Decimal places to return numbers with
    * @param {string} p.type
    * @param {string} p.id
    * @param {Date} p.dateTime
@@ -156,12 +152,7 @@ class SimObject {
     if (p.metadata__Name.length !== p.metadata__Value.length || p.metadata__Name.length !== p.metadata__PercentageWeight.length)
       throw new Error(`length of metadata arrays must be equal, got name = ${p.metadata__Name.length}, value = ${p.metadata__Value.length}, weight= ${p.metadata__PercentageWeight.length}`);
 
-    // check if decimalPlaces is an integer, otherwise raise exception
-    if (!Number.isInteger(p.decimalPlaces))
-      throw new Error(`decimalPlaces must be an integer, got ${p.decimalPlaces}`);
-
     // set properties from input
-    this.#decimalPlaces = p.decimalPlaces;
     this.#type = p.type;
     this.#id = p.id;
     this.#dateTime = this.#stripTimeToLocalDate(p.dateTime);
@@ -199,7 +190,6 @@ class SimObject {
   clone () {
     // don't clone Array and extras, because they are already cloned in the constructor
     return new SimObject({
-      decimalPlaces: this.#decimalPlaces,
       type: this.#type,
       id: this.#id,
       dateTime: this.#dateTime,
@@ -234,7 +224,6 @@ class SimObject {
    Build a new SimObject using the method properties and filling the missing ones with the current SimObject values.
    Some properties are unavailable in this method, because they are immutable and cannot be changed.
    * @param {Object} [p]
-   //param {number} [p.decimalPlaces]
    //param {string} [p.type]
    //param {string} [p.id]
    * @param {Date} [p.dateTime]
@@ -266,7 +255,6 @@ class SimObject {
   with (p) {
     // don't clone Array and extras, because they are already cloned in the constructor
     return new SimObject({
-      decimalPlaces: this.#decimalPlaces,
       type: this.#type,
       id: this.#id,
       dateTime: p?.dateTime ?? this.#dateTime,
