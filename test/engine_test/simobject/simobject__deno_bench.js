@@ -9,7 +9,7 @@ SimObject benchmark: normal use        1.47 s/iter           0.7    (980.76 ms â
 import { SimObject } from '../../../src/engine/simobject/simobject.js';
 import { SimObjectTypes_enum } from '../../../src/engine/simobject/enums/simobject_types_enum.js';
 import { DoubleEntrySide_enum } from '../../../src/engine/simobject/enums/doubleentryside_enum.js';
-import { ensureBigIntScaled } from '../../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
+import { ensureBigIntScaled } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 const loopCount = 100_000;
 

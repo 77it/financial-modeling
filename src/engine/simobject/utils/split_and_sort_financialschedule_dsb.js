@@ -1,6 +1,6 @@
 ﻿export { splitAndSortFinancialScheduleDSB };
 
-import { ensureBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from '../../../lib/bigint_decimal_scaled.arithmetic_x.js';
+import { ensureBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from '../../../lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 import { sortValuesAndDatesByDate } from '../../../lib/obj_utils.js';
 
 /**

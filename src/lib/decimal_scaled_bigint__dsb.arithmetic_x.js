@@ -1,4 +1,4 @@
-//<file bigint_decimal_scaled.arithmetic_x.js>
+//<file decimal_scaled_bigint__dsb.arithmetic_x.js>
 
 /*
 ██████╗ ███████╗ ██████╗██╗███╗   ███╗ █████╗ ██╗
@@ -73,7 +73,7 @@ const DSB = Object.freeze({
   fxAdd, fxSub, fxMul, fxDiv,
 });
 
-//#region settings  // same code as in `bigint_decimal_scaled.EXPERIMENTAL_finance_x.js`
+//#region settings  // same code as in `decimal_scaled_bigint__dsb.EXPERIMENTAL_finance_x.js`
 /** @type {number} */
 let MATH_SCALE = CFG_SCALE;
 /** @type {number} */

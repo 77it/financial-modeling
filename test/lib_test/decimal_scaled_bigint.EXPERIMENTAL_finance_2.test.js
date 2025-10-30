@@ -26,8 +26,8 @@ import {
   _TEST_ONLY__set as _TEST_ONLY__set_arithmetic,
   stringToBigIntScaled,
   bigIntScaledToString,
-} from '../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
-import { fxPmt } from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance_x.js';
+} from '../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
+import { fxPmt } from '../../src/lib/decimal_scaled_bigint__dsb.EXPERIMENTAL_finance_x.js';
 import { ROUNDING_MODES } from '../../src/config/engine.js';
 
 import { test } from 'node:test';

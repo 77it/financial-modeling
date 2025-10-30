@@ -4,7 +4,7 @@ import assert from 'node:assert';
 
 import {
   dsb
-} from '../../src/lib/bigint_decimal_scaled.fluent.js';
+} from '../../src/lib/decimal_scaled_bigint__dsbvalue.fluent.js';
 
 t('bigint_decimal_scaled.fluent tests', () => {
   const out = dsb("10.50")

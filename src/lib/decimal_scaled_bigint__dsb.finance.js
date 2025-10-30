@@ -1,4 +1,4 @@
-//<file bigint_decimal_scaled.finance.js>
+//<file decimal_scaled_bigint__dsb.finance.js>
 
 /*
 for easiness of implementation this module ported the `pmt` function from `financial.js` library,
@@ -9,7 +9,7 @@ we didn't use our DSB library because we didn't implement fractional powers yet.
 export { fxPmt, FXPMT_PAYMENT_DUE_TIME };
 
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
-import { stringToBigIntScaled } from './bigint_decimal_scaled.arithmetic_x.js';
+import { stringToBigIntScaled } from './decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 const FXPMT_PAYMENT_DUE_TIME = Object.freeze({
   BEGIN: "begin",

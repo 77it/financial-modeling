@@ -5,11 +5,11 @@ import { ROUNDING_MODES } from "../../src/config/engine.js";
 import {
     _TEST_ONLY__set as _TEST_ONLY__set_fin,
     fxPowInt, fxNPV, fxPmt, fxAmortizationSchedule,
-} from "../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance_x.js";
+} from "../../src/lib/decimal_scaled_bigint__dsb.EXPERIMENTAL_finance_x.js";
 import {
     _TEST_ONLY__set as _TEST_ONLY__set_arith,
     stringToBigIntScaled, fxAdd, bigIntScaledToString,
-} from "../../src/lib/bigint_decimal_scaled.arithmetic_x.js";
+} from "../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js";
 import {
     RUN_CONFIGS, bench, decToSig, pow10n,
 } from "./bigint_decimal_scaled.test_utils.js";

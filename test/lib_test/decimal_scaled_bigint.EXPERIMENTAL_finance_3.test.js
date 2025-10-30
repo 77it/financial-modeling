@@ -13,14 +13,14 @@ import { ROUNDING_MODES } from '../../src/config/engine.js';
 import {
   _TEST_ONLY__set as _TEST_ONLY__set_arithmetic,
   stringToBigIntScaled, bigIntScaledToString, fxAdd, fxSub, fxMul, fxDiv, roundToAccounting,
-} from '../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
+} from '../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 import {
   fxPowInt, fxNPV, fxPmt,
-} from '../../src/lib/bigint_decimal_scaled.EXPERIMENTAL_finance_x.js';
+} from '../../src/lib/decimal_scaled_bigint__dsb.EXPERIMENTAL_finance_x.js';
 
 import {
   RUN_CONFIGS, decToSig, pow10n,
-} from './bigint_decimal_scaled.test_utils.js';
+} from './decimal_scaled_bigint.test_utils.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

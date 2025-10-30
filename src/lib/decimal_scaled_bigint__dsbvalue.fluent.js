@@ -42,7 +42,7 @@ import {
   bigIntScaledToString,
   roundToAccounting,
   fxAdd, fxSub, fxMul, fxDiv,
-} from "./bigint_decimal_scaled.arithmetic_x.js";
+} from "./decimal_scaled_bigint__dsb.arithmetic_x.js";
 
 /**
  * Coerce various inputs to a scaled BigInt used internally by the library.

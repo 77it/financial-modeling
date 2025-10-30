@@ -76,10 +76,10 @@ financial-modeling/
 │   │   │   ├── drivers_repo.js        Drivers repository
 │   │   │   └── global_immutable_value.js  Immutable value utilities
 │   │   ├── BigInt Decimal Scaled:
-│   │   │   ├── bigint_decimal_scaled.arithmetic_x.js    Arithmetic operations
-│   │   │   ├── bigint_decimal_scaled.finance.js       Finance operations
-│   │   │   ├── bigint_decimal_scaled.fluent.js        Fluent API (DSBValue)
-│   │   │   └── bigint_decimal_scaled.EXPERIMENTAL_finance_x.js
+│   │   │   ├── decimal_scaled_bigint__dsb.arithmetic_x.js    Arithmetic operations
+│   │   │   ├── decimal_scaled_bigint__dsb.finance.js       Finance operations
+│   │   │   ├── decimal_scaled_bigint__dsbvalue.fluent.js        Fluent API (DSBValue)
+│   │   │   └── decimal_scaled_bigint__dsb.EXPERIMENTAL_finance_x.js
 │   │   ├── experiments/     Experimental/WIP features
 │   │   │   ├── json_relaxed__v1__FAILING_TESTS.js
 │   │   │   ├── json_relaxed__v1b__experimental.js

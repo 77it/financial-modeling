@@ -1,5 +1,5 @@
-import { splitAndSortFinancialScheduleDSB } from '../../../../src/engine/simobject/utils/split_and_sort_financialschedule.js';
-import { bigIntScaledToString, ensureBigIntScaled, _TEST_ONLY__reset } from '../../../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
+import { splitAndSortFinancialScheduleDSB } from '../../../../src/engine/simobject/utils/split_and_sort_financialschedule_dsb.js';
+import { bigIntScaledToString, ensureBigIntScaled, _TEST_ONLY__reset } from '../../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

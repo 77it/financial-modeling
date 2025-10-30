@@ -3,7 +3,7 @@
 import { SimObject } from '../simobject.js';
 import { SimObjectTypes_WithPrincipal_set } from '../enums/simobject_types_withprincipal_enum.js';
 import { SimObjectJsonDumpDto } from '../simobjectjsondumpdto.js';
-import { bigIntScaledToString } from '../../../lib/bigint_decimal_scaled.arithmetic_x.js';
+import { bigIntScaledToString } from '../../../lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 import { deepFreeze } from '../../../lib/obj_utils.js';
 
 /**

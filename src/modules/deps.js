@@ -10,9 +10,9 @@ export { isNullOrWhiteSpace } from '../lib/string_utils.js';
 export { roundHalfAwayFromZero, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../lib/number_utils.js';
 export { isStringOrBooleanTrue, isStringOrBooleanFalse } from '../lib/boolean_utils.js';
 export { cachedParseJSONrelaxed, parseJSONrelaxed } from '../lib/json.js';
-export { DSB } from '../lib/bigint_decimal_scaled.arithmetic_x.js';  // DECIMAL_SCALED_BIGINT
-export { DSBValue } from '../lib/bigint_decimal_scaled.fluent.js';  // DECIMAL_SCALED_BIGINT fluent class
-export { fxPmt, FXPMT_PAYMENT_DUE_TIME } from '../lib/bigint_decimal_scaled.finance.js';
+export { DSB } from '../lib/decimal_scaled_bigint__dsb.arithmetic_x.js';  // DECIMAL_SCALED_BIGINT
+export { DSBValue } from '../lib/decimal_scaled_bigint__dsbvalue.fluent.js';  // DECIMAL_SCALED_BIGINT fluent class
+export { fxPmt, FXPMT_PAYMENT_DUE_TIME } from '../lib/decimal_scaled_bigint__dsb.finance.js';
 export { Decimal } from '../../vendor/decimaljs/decimal.js';
 export { deepFreeze, ensureArrayValuesAreUnique, eq2, get2, mergeNewKeys, sortValuesAndDatesByDate } from '../lib/obj_utils.js';
 export { tablesInfoValidation } from '../modules/_utils/tablesinfo_validation.js'

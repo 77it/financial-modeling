@@ -4,8 +4,8 @@
 //
 // 'calculates float when is end' test is updated to greater precision
 
-import { fxPmt, FXPMT_PAYMENT_DUE_TIME } from '../../src/lib/bigint_decimal_scaled.finance.js';
-import { numberToBigIntScaled, _TEST_ONLY__reset } from '../../src/lib/bigint_decimal_scaled.arithmetic_x.js';
+import { fxPmt, FXPMT_PAYMENT_DUE_TIME } from '../../src/lib/decimal_scaled_bigint__dsb.finance.js';
+import { numberToBigIntScaled, _TEST_ONLY__reset } from '../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

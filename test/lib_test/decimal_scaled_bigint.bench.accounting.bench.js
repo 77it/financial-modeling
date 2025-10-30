@@ -4,7 +4,7 @@ import { Decimal } from "../../vendor/decimaljs/decimal.unlocked_vendor_test_onl
 import {
     _TEST_ONLY__set as _TEST_ONLY__set_arith,
     stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv, roundToAccounting,
-} from "../../src/lib/bigint_decimal_scaled.arithmetic_x.js";
+} from "../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js";
 import { ROUNDING_MODES } from "../../src/config/engine.js";
 import {
     RUN_CONFIGS, bench, makeRng, decToSig, genDecimalStrings
