@@ -6,4 +6,7 @@ ECHO Then I added a --preload to support import from https, and with my v2 plugi
 set TZ=Europe/Rome
 bun test --preload ./src/bun/__bun__https_import_plugin_v2.js --timeout 60000 test/
 
-pause
+:ask
+choice /C Y /M "Press Y to exit"
+if errorlevel 1 exit
+goto ask

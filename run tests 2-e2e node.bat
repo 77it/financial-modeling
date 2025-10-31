@@ -4,4 +4,7 @@ REM see https://nodejs.org/api/module.html#enabling in NodeJs v22.9.0 documentat
 set TZ=Europe/Rome
 node --import ./src/node/__node__register-hooks.js --test test_e2e/**/*.test.js
 
-pause
+:ask
+choice /C Y /M "Press Y to exit"
+if errorlevel 1 exit
+goto ask
