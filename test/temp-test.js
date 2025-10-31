@@ -9,3 +9,5 @@ const out = dsb("10.50")
   .toString({ trim: true });
 
 console.log(out);
+
+console.log("xxx");
