@@ -115,6 +115,7 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['{a:1/*x*/2}', '{"a":"1""2"}', S.ANY_TYPE, null], // Note: JSON doesn't allow multiple values like this
     ['{"a123":45 /* 1_2_3 */} /* 1_2_9 */', '{"a123":"45" }', { a123: S.DECIMAL_TYPE }, { a123: toDec('45') }],
     ['[.5,-.25,2_000] /* 1_2_3 */', '[".5","-.25","2000"]', S.ARRAY_OF_DECIMAL_TYPE, [toDec('.5'), toDec('-.25'), toDec('2000')]],
+    ['/* 1_2_3 */[/* 1_2_3 */.5,/* 1_2_3 */-.25,/* 1_2_3 */2_000/* 1_2_3 */]/* 1_2_3 */', '[".5","-.25","2000"]', S.ARRAY_OF_DECIMAL_TYPE, [toDec('.5'), toDec('-.25'), toDec('2000')]],
 
     // 11) Mixed JSON5 snippet
     [

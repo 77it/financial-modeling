@@ -53,7 +53,7 @@ export {
   // ergonomic (coercing) API
   add, sub, mul, div,
 };
-export { _TEST_ONLY__reset, _TEST_ONLY__set, MATH_SCALE as _TEST_ONLY__MATH_SCALE, SCALE_FACTOR as _TEST_ONLY__SCALE_FACTOR, MAX_POW10 as _TEST_ONLY__MAX_POW10, POW10 as _TEST_ONLY__POW10 };
+export { _TEST_ONLY__set, MATH_SCALE, SCALE_FACTOR, MAX_POW10, POW10 };
 export { roundInt as _INTERNAL_roundInt }
 
 import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, ROUNDING_MODES } from '../config/engine.js';
@@ -93,13 +93,17 @@ let GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
 
 /**
  * @internal
+ * Executes a function with temporary values, automatically restoring the original values afterward.
+ * This utility ensures values are reset even if the function throws an error.
  * This is a function used for testing purposes, to set the bigint decimal scale, accounting decimal places and rounding mode.
+ * @param {Function|null} fn - The function to execute with the temporary values; null to just set values without executing a function.
  * @param {Object} opt
  * @param {number} opt.decimalScale
  * @param {number} opt.accountingDecimalPlaces
  * @param {ROUNDING_MODES} opt.roundingMode
+ * @returns {*|null} The return value of the executed function; null if no function was provided.
  */
-function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) {
+function _TEST_ONLY__set(fn, {decimalScale, accountingDecimalPlaces, roundingMode}) {
   if (!Number.isInteger(decimalScale)) {
     throw new TypeError('decimalScale must be an integer');
   }
@@ -131,6 +135,16 @@ function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) 
   SCALE_FACTOR = pow10n(MATH_SCALE);
   // ------------------------ accounting grid ------------------------
   GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
+
+  if (typeof fn !== 'function') {
+    return null;
+  }
+
+  try {
+    return fn();
+  } finally {
+    _TEST_ONLY__reset();
+  }
 }
 
 /**
@@ -138,7 +152,9 @@ function _TEST_ONLY__set({decimalScale, accountingDecimalPlaces, roundingMode}) 
  * This is a function used for testing purposes, to reset to default values the bigint decimal scale, accounting decimal places and rounding mode.
  */
 function _TEST_ONLY__reset() {
-  _TEST_ONLY__set({
+  _TEST_ONLY__set(
+    null,  // no function to run, just reset
+    {
     decimalScale: CFG_SCALE,
     accountingDecimalPlaces: CFG_DECIMAL_PLACES,
     roundingMode: CFG_ROUNDING,

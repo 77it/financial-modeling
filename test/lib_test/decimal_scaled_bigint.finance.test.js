@@ -5,14 +5,12 @@
 // 'calculates float when is end' test is updated to greater precision
 
 import { fxPmt, FXPMT_PAYMENT_DUE_TIME } from '../../src/lib/decimal_scaled_bigint__dsb.finance.js';
-import { numberToBigIntScaled, _TEST_ONLY__reset } from '../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
+import { numberToBigIntScaled, } from '../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
 
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
-
-_TEST_ONLY__reset();
 
 t('pmt()', () => {
   assert.deepStrictEqual(fxPmt(0.075 / 12, 12 * 15, 200000), numberToBigIntScaled(-1854.0247200054619))

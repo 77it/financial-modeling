@@ -1,11 +1,9 @@
 import { splitAndSortFinancialScheduleDSB } from '../../../../src/engine/simobject/utils/split_and_sort_financialschedule_dsb.js';
-import { bigIntScaledToString, ensureBigIntScaled, _TEST_ONLY__reset } from '../../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
+import { bigIntScaledToString, ensureBigIntScaled } from '../../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
-
-_TEST_ONLY__reset();
 
 t('splitAndSortFinancialScheduleDSB() tests #0, THROWS if split with Indefinite less than value & no schedule', async () => {
   const value = 1000;

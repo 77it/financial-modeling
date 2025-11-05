@@ -40,7 +40,7 @@
 export { fxPowInt, fxDiscountFactor, fxCompoundFactor, fxFutureValue, fxPresentValue, fxPmt, fxNPV, fxIrr, fxFromPercent, fxToPercentString, fxAmortizationSchedule };
 
 import { stringToBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from './decimal_scaled_bigint__dsb.arithmetic_x.js';
-import { _TEST_ONLY__MATH_SCALE as MATH_SCALE, _TEST_ONLY__SCALE_FACTOR as SCALE_FACTOR, _TEST_ONLY__MAX_POW10 as MAX_POW10, _TEST_ONLY__POW10 as POW10 } from './decimal_scaled_bigint__dsb.arithmetic_x.js';
+import { MATH_SCALE, SCALE_FACTOR, MAX_POW10, POW10 } from './decimal_scaled_bigint__dsb.arithmetic_x.js';
 import { _INTERNAL_roundInt as roundInt } from './decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 /*
