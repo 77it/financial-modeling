@@ -14,8 +14,6 @@ import assert from 'node:assert';
 
 const MATH_SCALE = 20;
 const ACCOUNTING_DECIMAL_PLACES = 4;
-// first set
-_TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 
 // --- helpers to compare to Decimal.js-light ---
 
@@ -63,55 +61,67 @@ Decimal.set({ precision: 60, rounding: Decimal.ROUND_HALF_EVEN }); // high preci
 // ------------------ parsing tests ------------------
 
 t('test stringToBigIntScaled', () => {
-    const cases = [
-        ["0", "0.00000000000000000000"],
-        ["42", "42.00000000000000000000"],
-        ["-0.0001", "-0.00010000000000000000"],
-        ["123.45", "123.45000000000000000000"],
-        ["-999999999999.9999999999", "-999999999999.99999999990000000000"],
-        ["1.23456789012345678901234", "1.23456789012345678901"], // rounds at 20 dp (HALF_EVEN)
-    ];
-    for (const [inp, exp] of cases) {
-        const got = stringToBigIntScaled(inp);
-        assert.strictEqual(bigIntScaledToString(got, {trim: false}), exp);
-    }
+    _TEST_ONLY__set(
+      () => {
+          const cases = [
+              ["0", "0.00000000000000000000"],
+              ["42", "42.00000000000000000000"],
+              ["-0.0001", "-0.00010000000000000000"],
+              ["123.45", "123.45000000000000000000"],
+              ["-999999999999.9999999999", "-999999999999.99999999990000000000"],
+              ["1.23456789012345678901234", "1.23456789012345678901"], // rounds at 20 dp (HALF_EVEN)
+          ];
+          for (const [inp, exp] of cases) {
+              const got = stringToBigIntScaled(inp);
+              assert.strictEqual(bigIntScaledToString(got, {trim: false}), exp);
+          }
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 });
 
 t('test stringToBigIntScaled number with exponent', () => {
-    const cases = [
-        ["1e0", "1.00000000000000000000"],
-        ["1e2", "100.00000000000000000000"],
-        ["1.23e-4", "0.00012300000000000000"],
-        ["-3e8", "-300000000.00000000000000000000"],
-        ["9.999999999999999999995e-1", "1.00000000000000000000"], // tie up to even
-    ];
-    for (const [inp, exp] of cases) {
-        const got = stringToBigIntScaled(inp);
-        assert.strictEqual(bigIntScaledToString(got, {trim: false}), exp);
-    }
+    _TEST_ONLY__set(
+      () => {
+          const cases = [
+              ["1e0", "1.00000000000000000000"],
+              ["1e2", "100.00000000000000000000"],
+              ["1.23e-4", "0.00012300000000000000"],
+              ["-3e8", "-300000000.00000000000000000000"],
+              ["9.999999999999999999995e-1", "1.00000000000000000000"], // tie up to even
+          ];
+          for (const [inp, exp] of cases) {
+              const got = stringToBigIntScaled(inp);
+              assert.strictEqual(bigIntScaledToString(got, {trim: false}), exp);
+          }
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 });
 
 // ------------------ arithmetic vs Decimal ------------------
 
 t('test Add Sub', () => {
-    const pairs = [
-        ["123.456", "0.0044"],
-        ["-10.5", "10.5"],
-        ["999999.9999", "0.0001"],
-    ];
-    for (const [a, b] of pairs) {
-        const sa = stringToBigIntScaled(a);
-        const sb = stringToBigIntScaled(b);
-        const sum = fxAdd(sa, sb);
-        const dif = fxSub(sa, sb);
+    _TEST_ONLY__set(
+      () => {
+          const pairs = [
+              ["123.456", "0.0044"],
+              ["-10.5", "10.5"],
+              ["999999.9999", "0.0001"],
+          ];
+          for (const [a, b] of pairs) {
+              const sa = stringToBigIntScaled(a);
+              const sb = stringToBigIntScaled(b);
+              const sum = fxAdd(sa, sb);
+              const dif = fxSub(sa, sb);
 
-        const da = new Decimal(a), db = new Decimal(b);
-        const dsum = decToSig20(da.plus(db));
-        const ddif = decToSig20(da.minus(db));
+              const da = new Decimal(a), db = new Decimal(b);
+              const dsum = decToSig20(da.plus(db));
+              const ddif = decToSig20(da.minus(db));
 
-        assert.strictEqual(sum, dsum);
-        assert.strictEqual(dif, ddif);
-    }
+              assert.strictEqual(sum, dsum);
+              assert.strictEqual(dif, ddif);
+          }
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 });
 
 t('test Mul HalfEven', () => {
@@ -121,15 +131,19 @@ t('test Mul HalfEven', () => {
         ["-1.25", "-1.25"],
     ];
     Decimal.set({ rounding: Decimal.ROUND_HALF_EVEN });
-    _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
-    for (const [a, b] of pairs) {
-        const sa = stringToBigIntScaled(a);
-        const sb = stringToBigIntScaled(b);
-        const got = fxMul(sa, sb);
 
-        const dgot = decToSig20(new Decimal(a).times(new Decimal(b)));
-        assert.strictEqual(got, dgot);
-    }
+    _TEST_ONLY__set(
+      () => {
+          for (const [a, b] of pairs) {
+              const sa = stringToBigIntScaled(a);
+              const sb = stringToBigIntScaled(b);
+              const got = fxMul(sa, sb);
+
+              const dgot = decToSig20(new Decimal(a).times(new Decimal(b)));
+              assert.strictEqual(got, dgot);
+          }
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 });
 
 t('test Mul HalfUp', () => {
@@ -138,15 +152,18 @@ t('test Mul HalfUp', () => {
         ["-0.00005", "1"],   // tie goes away from zero
     ];
     Decimal.set({ rounding: Decimal.ROUND_HALF_UP });
-    _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
-    for (const [a, b] of pairs) {
-        const sa = stringToBigIntScaled(a);
-        const sb = stringToBigIntScaled(b);
-        const got = fxMul(sa, sb);
+    _TEST_ONLY__set(
+      () => {
+          for (const [a, b] of pairs) {
+              const sa = stringToBigIntScaled(a);
+              const sb = stringToBigIntScaled(b);
+              const got = fxMul(sa, sb);
 
-        const dgot = decToSig20(new Decimal(a).times(new Decimal(b)));
-        assert.strictEqual(got, dgot);
-    }
+              const dgot = decToSig20(new Decimal(a).times(new Decimal(b)));
+              assert.strictEqual(got, dgot);
+          }
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
 });
 
 t('test Div HalfEven', () => {
@@ -156,15 +173,19 @@ t('test Div HalfEven', () => {
         ["2.5", "0.5"],
     ];
     Decimal.set({ rounding: Decimal.ROUND_HALF_EVEN });
-    _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
-    for (const [a, b] of pairs) {
-        const sa = stringToBigIntScaled(a);
-        const sb = stringToBigIntScaled(b);
-        const got = fxDiv(sa, sb);
 
-        const dgot = decToSig20(new Decimal(a).div(new Decimal(b)));
-        assert.strictEqual(got, dgot);
-    }
+    _TEST_ONLY__set(
+      () => {
+          for (const [a, b] of pairs) {
+              const sa = stringToBigIntScaled(a);
+              const sb = stringToBigIntScaled(b);
+              const got = fxDiv(sa, sb);
+
+              const dgot = decToSig20(new Decimal(a).div(new Decimal(b)));
+              assert.strictEqual(got, dgot);
+          }
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 });
 
 t('test Div HalfUp', () => {
@@ -173,74 +194,94 @@ t('test Div HalfUp', () => {
         ["-1", "2"],
     ];
     Decimal.set({ rounding: Decimal.ROUND_HALF_UP });
-    _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
-    for (const [a, b] of pairs) {
-        const sa = stringToBigIntScaled(a);
-        const sb = stringToBigIntScaled(b);
-        const got = fxDiv(sa, sb);
 
-        const dgot = decToSig20(new Decimal(a).div(new Decimal(b)));
-        assert.strictEqual(got, dgot);
-    }
+    _TEST_ONLY__set(
+      () => {
+          for (const [a, b] of pairs) {
+              const sa = stringToBigIntScaled(a);
+              const sb = stringToBigIntScaled(b);
+              const got = fxDiv(sa, sb);
+
+              const dgot = decToSig20(new Decimal(a).div(new Decimal(b)));
+              assert.strictEqual(got, dgot);
+          }
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
 });
 
 // ------------------ accounting grid (keep scale 20) ------------------
 
 t('test roundToAccounting HalfEven', () => {
     Decimal.set({ rounding: Decimal.ROUND_HALF_EVEN });
-    _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
-    const inputs = [
-        "123.456789",     // rounds on 5th decimal
-        "0.00005",
-        "-0.00005",
-        "-123.45005",
-    ];
-    for (const s of inputs) {
-        const sig20 = stringToBigIntScaled(s);
-        const got = roundToAccounting(sig20);
+    _TEST_ONLY__set(
+      () => {
+          const inputs = [
+              "123.456789",     // rounds on 5th decimal
+              "0.00005",
+              "-0.00005",
+              "-123.45005",
+          ];
+          for (const s of inputs) {
+              const sig20 = stringToBigIntScaled(s);
+              const got = roundToAccounting(sig20);
 
-        const d = new Decimal(s);
-        const expSig20 = decSnapToAccountingSig20(d, Decimal.ROUND_HALF_EVEN);
-        assert.strictEqual(got, expSig20);
-    }
+              const d = new Decimal(s);
+              const expSig20 = decSnapToAccountingSig20(d, Decimal.ROUND_HALF_EVEN);
+              assert.strictEqual(got, expSig20);
+          }
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 });
 
 t('test roundToAccounting HalfUp', () => {
     Decimal.set({ rounding: Decimal.ROUND_HALF_UP });
-    _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
-    const inputs = ["0.00005", "-0.00005", "1.23455", "-1.23455"];
-    for (const s of inputs) {
-        const sig20 = stringToBigIntScaled(s);
-        const got = roundToAccounting(sig20);
 
-        const d = new Decimal(s);
-        const expSig20 = decSnapToAccountingSig20(d, Decimal.ROUND_HALF_UP);
-        assert.strictEqual(got, expSig20);
-    }
+    _TEST_ONLY__set(
+      () => {
+          const inputs = ["0.00005", "-0.00005", "1.23455", "-1.23455"];
+          for (const s of inputs) {
+              const sig20 = stringToBigIntScaled(s);
+              const got = roundToAccounting(sig20);
+
+              const d = new Decimal(s);
+              const expSig20 = decSnapToAccountingSig20(d, Decimal.ROUND_HALF_UP);
+              assert.strictEqual(got, expSig20);
+          }
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
 });
 
 // ------------------ formatting & edge cases ------------------
 
 t('test bigIntScaledToString + trim', () => {
-    /** @type {[string, boolean, string][]} */
-    const cases = [
-        ["0", false, "0.00000000000000000000"],
-        ["0", true,  "0"],
-        ["123.4500", false, "123.45000000000000000000"],
-        ["123.4500", true,  "123.45"],
-        ["-0.00005", false, "-0.00005000000000000000"],
-    ];
-    for (const [inp, trim, exp] of cases) {
-        const sig20 = stringToBigIntScaled(inp);
-        assert.strictEqual(bigIntScaledToString(sig20, { trim }), exp);
-    }
+    Decimal.set({ rounding: Decimal.ROUND_HALF_UP });
+
+    _TEST_ONLY__set(
+      () => {
+          /** @type {[string, boolean, string][]} */
+          const cases = [
+              ["0", false, "0.00000000000000000000"],
+              ["0", true,  "0"],
+              ["123.4500", false, "123.45000000000000000000"],
+              ["123.4500", true,  "123.45"],
+              ["-0.00005", false, "-0.00005000000000000000"],
+          ];
+          for (const [inp, trim, exp] of cases) {
+              const sig20 = stringToBigIntScaled(inp);
+              assert.strictEqual(bigIntScaledToString(sig20, { trim }), exp);
+          }
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_UP });
 });
 
 t('test Negative Zero normalization', () => {
-    _TEST_ONLY__set({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
-    // A tiny negative that rounds to zero on accounting snap
-    const tinyNeg = stringToBigIntScaled("-0.00000000000000000009"); // -9e-20
-    const snapped = roundToAccounting(tinyNeg);
-    assert.strictEqual(snapped, 0n);
-    assert.strictEqual(bigIntScaledToString(snapped, {trim: false}), "0.00000000000000000000");
+    _TEST_ONLY__set(
+      () => {
+          // A tiny negative that rounds to zero on accounting snap
+          const tinyNeg = stringToBigIntScaled("-0.00000000000000000009"); // -9e-20
+          const snapped = roundToAccounting(tinyNeg);
+          assert.strictEqual(snapped, 0n);
+          assert.strictEqual(bigIntScaledToString(snapped, {trim: false}), "0.00000000000000000000");
+      },
+      { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 });

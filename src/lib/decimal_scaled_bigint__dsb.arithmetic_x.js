@@ -96,71 +96,59 @@ let GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
  * Executes a function with temporary values, automatically restoring the original values afterward.
  * This utility ensures values are reset even if the function throws an error.
  * This is a function used for testing purposes, to set the bigint decimal scale, accounting decimal places and rounding mode.
- * @param {Function|null} fn - The function to execute with the temporary values; null to just set values without executing a function.
+ * @param {Function} fn - The function to execute with the temporary values.
  * @param {Object} opt
  * @param {number} opt.decimalScale
  * @param {number} opt.accountingDecimalPlaces
  * @param {ROUNDING_MODES} opt.roundingMode
- * @returns {*|null} The return value of the executed function; null if no function was provided.
+ * @returns {void}
  */
 function _TEST_ONLY__set(fn, {decimalScale, accountingDecimalPlaces, roundingMode}) {
-  if (!Number.isInteger(decimalScale)) {
-    throw new TypeError('decimalScale must be an integer');
-  }
-  if (decimalScale < 0) {
-    throw new RangeError('decimalScale must be >= 0');
-  }
-  if (!Number.isInteger(accountingDecimalPlaces)) {
-    throw new TypeError('accountingDecimalPlaces must be an integer');
-  }
-  if (accountingDecimalPlaces < 0) {
-    throw new RangeError('accountingDecimalPlaces must be >= 0');
-  }
-  if (accountingDecimalPlaces > decimalScale) {
-    throw new RangeError('accountingDecimalPlaces cannot exceed decimalScale');
-  }
-  if (roundingMode !== ROUNDING_MODES.HALF_UP && roundingMode !== ROUNDING_MODES.HALF_EVEN) {
-    throw new RangeError(`roundingMode must be "${ROUNDING_MODES.HALF_UP}" or "${ROUNDING_MODES.HALF_EVEN}"`);
-  }
+  // set to new settings
+  _applySettings();
 
-  MATH_SCALE = decimalScale;
-  ACCOUNTING_DECIMAL_PLACES = accountingDecimalPlaces;
-  ROUNDING_MODE = roundingMode;
+  fn();
 
-  // ------------------------ pow10 cache ------------------------
-  MAX_POW10 = Math.max(2 * MATH_SCALE, 100);
-  POW10 = [1n];
-  for (let i = 1; i <= MAX_POW10; i++) POW10[i] = POW10[i - 1] * 10n;
-  // ------------------------ scale factors ------------------------
-  SCALE_FACTOR = pow10n(MATH_SCALE);
-  // ------------------------ accounting grid ------------------------
-  GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
+  // reset to original settings
+  decimalScale = CFG_SCALE;
+  accountingDecimalPlaces = CFG_DECIMAL_PLACES;
+  roundingMode = CFG_ROUNDING;
+  _applySettings();
 
-  if (typeof fn !== 'function') {
-    return null;
-  }
+  function _applySettings() {
+    if (!Number.isInteger(decimalScale)) {
+      throw new TypeError('decimalScale must be an integer');
+    }
+    if (decimalScale < 0) {
+      throw new RangeError('decimalScale must be >= 0');
+    }
+    if (!Number.isInteger(accountingDecimalPlaces)) {
+      throw new TypeError('accountingDecimalPlaces must be an integer');
+    }
+    if (accountingDecimalPlaces < 0) {
+      throw new RangeError('accountingDecimalPlaces must be >= 0');
+    }
+    if (accountingDecimalPlaces > decimalScale) {
+      throw new RangeError('accountingDecimalPlaces cannot exceed decimalScale');
+    }
+    if (roundingMode !== ROUNDING_MODES.HALF_UP && roundingMode !== ROUNDING_MODES.HALF_EVEN) {
+      throw new RangeError(`roundingMode must be "${ROUNDING_MODES.HALF_UP}" or "${ROUNDING_MODES.HALF_EVEN}"`);
+    }
 
-  try {
-    return fn();
-  } finally {
-    _TEST_ONLY__reset();
+    MATH_SCALE = decimalScale;
+    ACCOUNTING_DECIMAL_PLACES = accountingDecimalPlaces;
+    ROUNDING_MODE = roundingMode;
+
+    // ------------------------ pow10 cache ------------------------
+    MAX_POW10 = Math.max(2 * MATH_SCALE, 100);
+    POW10 = [1n];
+    for (let i = 1; i <= MAX_POW10; i++) POW10[i] = POW10[i - 1] * 10n;
+    // ------------------------ scale factors ------------------------
+    SCALE_FACTOR = pow10n(MATH_SCALE);
+    // ------------------------ accounting grid ------------------------
+    GRID_FACTOR = pow10n(MATH_SCALE - ACCOUNTING_DECIMAL_PLACES);
   }
 }
-
-/**
- * @internal
- * This is a function used for testing purposes, to reset to default values the bigint decimal scale, accounting decimal places and rounding mode.
- */
-function _TEST_ONLY__reset() {
-  _TEST_ONLY__set(
-    null,  // no function to run, just reset
-    {
-    decimalScale: CFG_SCALE,
-    accountingDecimalPlaces: CFG_DECIMAL_PLACES,
-    roundingMode: CFG_ROUNDING,
-  });
-}
-
 //#endregion settings
 
 //#region Exported functions

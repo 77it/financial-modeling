@@ -36,8 +36,6 @@ import assert from 'node:assert';
 
 const MATH_SCALE = 20;
 const ACCOUNTING_DECIMAL_PLACES = 4;
-// first set
-_TEST_ONLY__set_arithmetic({ decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 
 // ------------------------------ Decimal config -------------------------------
 /** Configure decimal.js-light for finance: high precision + HALF_EVEN. */
@@ -224,9 +222,13 @@ function runCrossCheck ({ iterations = 2000, seed = 0xBADC0DE, ulpTolerance = 20
 }
 
 t('Stress-tests fxPmt against Decimal.js with randomized inputs, allowing small ULP tolerance.', () => {
-  runCrossCheck({
-    iterations: 3000,
-    seed: 0xDEADBEEF,
-    ulpTolerance: 200, // tune if your guard-digit policy is tighter/looser
-  });
+  _TEST_ONLY__set_arithmetic(
+    () => {
+      runCrossCheck({
+        iterations: 3000,
+        seed: 0xDEADBEEF,
+        ulpTolerance: 200, // tune if your guard-digit policy is tighter/looser
+      });
+    },
+    { decimalScale: MATH_SCALE, accountingDecimalPlaces: ACCOUNTING_DECIMAL_PLACES, roundingMode: ROUNDING_MODES.HALF_EVEN });
 });
