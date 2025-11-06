@@ -9,7 +9,7 @@ we didn't use our DSB library because we didn't implement fractional powers yet.
 export { fxPmt, FXPMT_PAYMENT_DUE_TIME };
 
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
-import { stringToBigIntScaled } from './decimal_scaled_bigint__dsb.arithmetic_x.js';
+import { bigIntScaledToString, ensureBigIntScaled, stringToBigIntScaled } from './decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 const FXPMT_PAYMENT_DUE_TIME = Object.freeze({
   BEGIN: "begin",
@@ -23,7 +23,7 @@ const FXPMT_PAYMENT_DUE_TIME = Object.freeze({
  *
  * @param {number} rate - Rate of interest (per period)
  * @param {number} nper - Number of compounding periods (e.g., number of payments)
- * @param {number} pv - Present value (e.g., an amount borrowed)
+ * @param {bigint|string|number} pv - Present value (e.g., an amount borrowed), will be converted to Decimal Scaled BigInt before calculation
  * @param {number} [fv=0] - Future value (e.g., 0)
  * @param {'begin'|'end'} [when=FXPMT_PAYMENT_DUE_TIME.END] - When payments are due
  * @returns {bigint} the (fixed) periodic payment in DSB (Decimal Scaled BigInt) format
@@ -71,10 +71,12 @@ const FXPMT_PAYMENT_DUE_TIME = Object.freeze({
  * [Wheeler, D. A., E. Rathke, and R. Weir (Eds.) (2009, May)](http://www.oasis-open.org/committees/documents.php?wg_abbrev=office-formulaOpenDocument-formula-20090508.odt).
  */
 function fxPmt(rate, nper, pv, fv = 0, when= FXPMT_PAYMENT_DUE_TIME.END) {
-  // Convert all inputs to Decimal for consistent precision
+  // convert pv to DSB -> String -> Decimal
+  const pvD = new Decimal(bigIntScaledToString(ensureBigIntScaled(pv)));
+
+  // Convert all other inputs to Decimal for consistent precision
   const rateD = new Decimal(rate);
   const nperD = new Decimal(nper);
-  const pvD = new Decimal(pv);
   const fvD = new Decimal(fv);
 
   const isRateZero = rateD.isZero();

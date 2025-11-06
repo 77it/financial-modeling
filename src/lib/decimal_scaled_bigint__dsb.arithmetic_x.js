@@ -388,7 +388,7 @@ function roundToAccounting(sig) {
 /**
  * Convert an input to a scaled BigInt if needed.
  * Fast path for bigint; falls back to your converters for number/string.
- * @param {bigint|number|string} x
+ * @param {bigint|string|number} x
  * @returns {bigint}
  * @throws {TypeError} on unsupported types (null, undefined, boolean, object, symbol, function)
  */
@@ -401,14 +401,14 @@ function ensureBigIntScaled(x) {
     case 'string':
       return stringToBigIntScaled(x);
     default:
-      throw new TypeError(`Expected bigint|number|string, got ${typeof x}`);
+      throw new TypeError(`Expected bigint|string|number, got ${typeof x}`);
   }
 }
 
 /**
  * Add two scale-MATH_SCALE values. Accepts bigint/number/string with fast path for bigint.
- * @param {bigint|number|string} a
- * @param {bigint|number|string} b
+ * @param {bigint|string|number} a
+ * @param {bigint|string|number} b
  * @returns {bigint}
  */
 function add(a, b) {
@@ -418,8 +418,8 @@ function add(a, b) {
 
 /**
  * Subtract b from a. Accepts bigint/number/string with fast path for bigint.
- * @param {bigint|number|string} a
- * @param {bigint|number|string} b
+ * @param {bigint|string|number} a
+ * @param {bigint|string|number} b
  * @returns {bigint}
  */
 function sub(a, b) {
@@ -430,8 +430,8 @@ function sub(a, b) {
 /**
  * Multiply two scale-MATH_SCALE values → scale-MATH_SCALE, with rounding.
  * Accepts bigint/number/string with fast path for bigint.
- * @param {bigint|number|string} a
- * @param {bigint|number|string} b
+ * @param {bigint|string|number} a
+ * @param {bigint|string|number} b
  * @returns {bigint}
  */
 function mul(a, b) {
@@ -442,8 +442,8 @@ function mul(a, b) {
 /**
  * Divide a by b (both scaled by MATH_SCALE) → result at scale MATH_SCALE.
  * Accepts bigint/number/string with fast path for bigint.
- * @param {bigint|number|string} a
- * @param {bigint|number|string} b
+ * @param {bigint|string|number} a
+ * @param {bigint|string|number} b
  * @returns {bigint}
  */
 function div(a, b) {

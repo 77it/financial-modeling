@@ -23,7 +23,7 @@ const newSimObjectDto_Schema = {
 
   intercompanyInfo__VsUnitId: schema.STRINGUPPERCASETRIMMED_TYPE + schema.OPTIONAL,
 
-  value: schema.ANY_TYPE,  // can be {string|number|bigint} that will be converted to Decimal Scaled BigInt during SimObject creation, then we skip validation here
+  value: schema.ANY_TYPE,  // can be {bigint|string|number} that will be converted to Decimal Scaled BigInt during SimObject creation, then we skip validation here
   writingValue: schema.NUMBER_TYPE,
 
   alive: schema.BOOLEAN_TYPE,
@@ -37,7 +37,7 @@ const newSimObjectDto_Schema = {
   //#endregion command, command group properties
 
   //#region properties common only to some kind of SimObjects
-  financialSchedule__amountWithoutScheduledDate: schema.ANY_TYPE + schema.OPTIONAL,  // can be {string|number|bigint} that will be converted to Decimal Scaled BigInt during SimObject creation, then we skip validation here
+  financialSchedule__amountWithoutScheduledDate: schema.ANY_TYPE + schema.OPTIONAL,  // can be {bigint|string|number} that will be converted to Decimal Scaled BigInt during SimObject creation, then we skip validation here
   financialSchedule__scheduledDates: schema.ARRAY_OF_DATES_TYPE + schema.OPTIONAL,
   financialSchedule__scheduledAmounts: schema.ARRAY_TYPE + schema.OPTIONAL,  // can be {string[]|number[]|bigint[]} that will be converted to Decimal Scaled BigInt during SimObject creation, then we skip validation here
 

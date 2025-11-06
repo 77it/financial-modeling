@@ -18,8 +18,8 @@ import { sortValuesAndDatesByDate } from '../../../lib/obj_utils.js';
  * 5. Sorts principal array and dates array together by the dates in ascending order.
  *
  * @param {Object} p
- * @param {string|number|bigint} p.value - principal value to split
- * @param {string|number|bigint} p.financialSchedule__amountWithoutScheduledDate
+ * @param {bigint|string|number} p.value - principal value to split
+ * @param {bigint|string|number} p.financialSchedule__amountWithoutScheduledDate
  * @param {string[]|number[]|bigint[]} p.financialSchedule__scheduledAmounts
  * @param {Date[]} p.financialSchedule__scheduledDates Array used to sort the amortization schedule
  * @returns {{financialSchedule__amountWithoutScheduledDate: bigint, financialSchedule__scheduledAmounts: bigint[], financialSchedule__scheduledDates: Date[]}}
