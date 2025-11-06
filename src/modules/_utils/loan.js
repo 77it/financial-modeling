@@ -1,4 +1,5 @@
 export {
+  getPrincipalPaymentsOfAConstantPaymentLoanDSB,
   getPrincipalPaymentsOfAConstantPaymentLoan,
   calculatePeriodicPaymentAmountOfAConstantPaymentLoanDSB,
   calculateAnnuityOfAConstantPaymentLoanDSB
@@ -28,7 +29,7 @@ https://www.adventuresincre.com/lenders-calcs/
  * @param {number} p.annualInterestRate
  * @param {number} p.yearlyNrOfPayments
  * @param {number} p.totalNrOfPayments
- * @param {number} p.startingPrincipal
+ * @param {bigint} p.startingPrincipal
  * @return {bigint}
  */
 function calculatePeriodicPaymentAmountOfAConstantPaymentLoanDSB ({
@@ -48,7 +49,7 @@ function calculatePeriodicPaymentAmountOfAConstantPaymentLoanDSB ({
  * @param {Object} p
  * @param {number} p.annualInterestRate
  * @param {number} p.nrOfYears
- * @param {number} p.startingPrincipal
+ * @param {bigint} p.startingPrincipal
  * @return {bigint}
  */
 function calculateAnnuityOfAConstantPaymentLoanDSB ({
@@ -73,14 +74,14 @@ function calculateAnnuityOfAConstantPaymentLoanDSB ({
  * @param {Object} p
  * @param {Date} p.startDate Start date of the loan, when the principal is disbursed (no payments at this date)
  * @param {Date} p.firstScheduledPaymentDate Start date of the loan, used to calculate the first scheduled payment date; when the starting date is an end of month, next dates are also end of months
- * @param {number} p.startingPrincipal
+ * @param {bigint} p.startingPrincipal
  * @param {number} p.annualInterestRate
  * @param {number} p.nrOfPaymentsIncludingGracePeriod
  * @param {number} p.numberOfPaymentsInAYear  1 | 2 | 3 | 4 | 6 | 12: 12 for monthly, 6 for bimonthly, ..., 1 for yearly
  * @param {number} [p.gracePeriodNrOfPayments=0] optional, number of payments with interest-only payments
- * @return {{date: Date[], paymentNo: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
+ * @return {{date: Date[], paymentNo: number[], principalPayment: bigint[], totalMortgageRemaining: bigint[]}}
  */
-function getPrincipalPaymentsOfAConstantPaymentLoan ({
+function getPrincipalPaymentsOfAConstantPaymentLoanDSB ({
   startDate,
   firstScheduledPaymentDate,
   startingPrincipal,
@@ -105,7 +106,7 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
         {
           startDate: schema.DATE_TYPE,
           firstScheduledPaymentDate: schema.DATE_TYPE,
-          startingPrincipal: schema.NUMBER_TYPE,
+          startingPrincipal: schema.BIGINT_TYPE,
           annualInterestRate: schema.NUMBER_TYPE,
           nrOfPaymentsIncludingGracePeriod: schema.NUMBER_TYPE,
           numberOfPaymentsInAYear: [1, 2, 3, 4, 6, 12],
@@ -140,14 +141,14 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
     /** @type {Date[]} */ date: [],
     /** @type {number[]} */ paymentNo: [],
     // /** @type {number[]} */ interestPayment: [],  // disabled, because the computation of the interest payment is done outside with another function
-    /** @type {number[]} */ principalPayment: [],
-    /** @type {number[]} */ totalMortgageRemaining: []
+    /** @type {bigint[]} */ principalPayment: [],
+    /** @type {bigint[]} */ totalMortgageRemaining: []
   };
 
   // first payment (payment zero), without payments and full principal remaining
   mortgageArray.date.push(stripTimeToLocalDate(startDate));
   mortgageArray.paymentNo.push(0);
-  mortgageArray.principalPayment.push(0);
+  mortgageArray.principalPayment.push(0n);
   mortgageArray.totalMortgageRemaining.push(startingPrincipal);
 
   let currDate = stripTimeToLocalDate(firstScheduledPaymentDate);
@@ -156,7 +157,7 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
   for (let currPaymentNo = 1; currPaymentNo <= gracePeriodNrOfPayments; currPaymentNo++) {
     mortgageArray.date.push(currDate);
     mortgageArray.paymentNo.push(currPaymentNo);
-    mortgageArray.principalPayment.push(0);
+    mortgageArray.principalPayment.push(0n);
     mortgageArray.totalMortgageRemaining.push(startingPrincipal);
 
     // increment the current date by the number of months in a year divided by the number of payments in a year;
@@ -184,8 +185,8 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
     mortgageArray.date.push(currDate);
     mortgageArray.paymentNo.push(currPaymentNo + gracePeriodNrOfPayments);
     // mortgageArray.interestPayment.push(interestPayment);  // disabled, because the computation of the interest payment is done outside with another function
-    mortgageArray.principalPayment.push(Number(principalPaymentDSB.toString()));
-    mortgageArray.totalMortgageRemaining.push(Number(mortgageRemainingDSB.toString()));
+    mortgageArray.principalPayment.push(principalPaymentDSB.value());
+    mortgageArray.totalMortgageRemaining.push(mortgageRemainingDSB.value());
 
     // increment the current date by the number of months in a year divided by the number of payments in a year;
     // is done at the end of the loop, so the first payment date is the same as the first scheduled payment date
@@ -199,4 +200,45 @@ function getPrincipalPaymentsOfAConstantPaymentLoan ({
     throw new Error(`Internal error, at the end of the mortgage calculation, residual mortgage must be zero.`);
 
   return mortgageArray;
+}
+
+/**
+ * Compute the principal schedule (no interest calculation) of a French amortization plan (a series of constant payments at regular intervals).
+ * The first date is the start date of the loan, when the principal is disbursed (no payments at this date).
+ *
+ * @param {Object} p
+ * @param {Date} p.startDate Start date of the loan, when the principal is disbursed (no payments at this date)
+ * @param {Date} p.firstScheduledPaymentDate Start date of the loan, used to calculate the first scheduled payment date; when the starting date is an end of month, next dates are also end of months
+ * @param {number} p.startingPrincipal
+ * @param {number} p.annualInterestRate
+ * @param {number} p.nrOfPaymentsIncludingGracePeriod
+ * @param {number} p.numberOfPaymentsInAYear  1 | 2 | 3 | 4 | 6 | 12: 12 for monthly, 6 for bimonthly, ..., 1 for yearly
+ * @param {number} [p.gracePeriodNrOfPayments=0] optional, number of payments with interest-only payments
+ * @return {{date: Date[], paymentNo: number[], principalPayment: number[], totalMortgageRemaining: number[]}}
+ */
+function getPrincipalPaymentsOfAConstantPaymentLoan ({
+  startDate,
+  firstScheduledPaymentDate,
+  startingPrincipal,
+  annualInterestRate,
+  nrOfPaymentsIncludingGracePeriod,
+  numberOfPaymentsInAYear,
+  gracePeriodNrOfPayments = 0
+}) {
+  const mortgageDSB = getPrincipalPaymentsOfAConstantPaymentLoanDSB({
+    startDate,
+    firstScheduledPaymentDate,
+    startingPrincipal: BigInt(startingPrincipal),
+    annualInterestRate,
+    nrOfPaymentsIncludingGracePeriod,
+    numberOfPaymentsInAYear,
+    gracePeriodNrOfPayments
+  });
+
+  return {
+    /** @type {Date[]} */ date: mortgageDSB.date,
+    /** @type {number[]} */ paymentNo: mortgageDSB.paymentNo,
+    /** @type {number[]} */ principalPayment: mortgageDSB.principalPayment.map(v => Number(DSB.toString(v))),
+    /** @type {number[]} */ totalMortgageRemaining: mortgageDSB.totalMortgageRemaining.map(v => Number(DSB.toString(v))),
+  };
 }

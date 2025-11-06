@@ -23,7 +23,7 @@ t('calculatePeriodicPaymentAmountOfAConstantPaymentLoan #0 zero interest, annual
     annualInterestRate: 0,
     yearlyNrOfPayments: 1,
     totalNrOfPayments: 10,
-    startingPrincipal: 10_000
+    startingPrincipal: DSB.from(10_000)
   });
   assert.deepStrictEqual(DSB.toString(ppa_myCode), '1000');
 
@@ -36,7 +36,7 @@ t('calculatePeriodicPaymentAmountOfAConstantPaymentLoan #0b zero interest, month
     annualInterestRate: 0,
     yearlyNrOfPayments: 1,
     totalNrOfPayments: 12,
-    startingPrincipal: 12_000
+    startingPrincipal: DSB.from(12_000)
   });
   assert.deepStrictEqual(DSB.toString(ppa_myCode), '1000');
 
@@ -51,7 +51,7 @@ t('calculatePeriodicPaymentAmountOfAConstantPaymentLoan #1', async () => {
         annualInterestRate: 0.07,
         yearlyNrOfPayments: 1,
         totalNrOfPayments: 10,
-        startingPrincipal: 10_000
+        startingPrincipal: DSB.from(10_000)
       });
       assert.deepStrictEqual(DSB.toString(ppa_myCode), '1423.77502727365');
 
@@ -68,7 +68,7 @@ t('calculatePeriodicPaymentAmountOfAConstantPaymentLoan #2', async () => {
         annualInterestRate: 0.07,
         yearlyNrOfPayments: 12,
         totalNrOfPayments: 120,
-        startingPrincipal: 10_000
+        startingPrincipal: DSB.from(10_000)
       });
       assert.deepStrictEqual(DSB.toString(ppa_myCode), '116.10847921862');
 
@@ -84,7 +84,7 @@ t('calculateAnnuityOfAConstantPaymentLoanDSB', async () => {
       const ppa_myCode = calculateAnnuityOfAConstantPaymentLoanDSB({
         annualInterestRate: 0.07,
         nrOfYears: 10,
-        startingPrincipal: 10_000
+        startingPrincipal: DSB.from(10_000)
       });
       assert.deepStrictEqual(DSB.toString(ppa_myCode), '1423.77502727365');
 
