@@ -24,7 +24,7 @@ const FXPMT_PAYMENT_DUE_TIME = Object.freeze({
  * @param {number} rate - Rate of interest (per period)
  * @param {number} nper - Number of compounding periods (e.g., number of payments)
  * @param {bigint|string|number} pv - Present value (e.g., an amount borrowed), will be converted to Decimal Scaled BigInt before calculation
- * @param {number} [fv=0] - Future value (e.g., 0)
+ * @param {bigint|string|number} [fv=0] - Future value (e.g., 0), will be converted to Decimal Scaled BigInt before calculation
  * @param {'begin'|'end'} [when=FXPMT_PAYMENT_DUE_TIME.END] - When payments are due
  * @returns {bigint} the (fixed) periodic payment in DSB (Decimal Scaled BigInt) format
  *
@@ -71,13 +71,13 @@ const FXPMT_PAYMENT_DUE_TIME = Object.freeze({
  * [Wheeler, D. A., E. Rathke, and R. Weir (Eds.) (2009, May)](http://www.oasis-open.org/committees/documents.php?wg_abbrev=office-formulaOpenDocument-formula-20090508.odt).
  */
 function fxPmt(rate, nper, pv, fv = 0, when= FXPMT_PAYMENT_DUE_TIME.END) {
-  // convert pv to DSB -> String -> Decimal
+  // convert pv and fv to DSB -> String -> Decimal
   const pvD = new Decimal(bigIntScaledToString(ensureBigIntScaled(pv)));
+  const fvD = new Decimal(bigIntScaledToString(ensureBigIntScaled(fv)));
 
   // Convert all other inputs to Decimal for consistent precision
   const rateD = new Decimal(rate);
   const nperD = new Decimal(nper);
-  const fvD = new Decimal(fv);
 
   const isRateZero = rateD.isZero();
 
