@@ -6,8 +6,8 @@ import { deepFreeze } from '../lib/obj_utils.js';
  * @readonly
  */
 export const ROUNDING_MODES = {
-  HALF_EVEN: "HALF_EVEN",   // Rounds towards nearest neighbour. If equidistant, rounds towards even neighbour
-  HALF_UP: "HALF_UP"        // Rounds towards nearest neighbour. If equidistant, rounds away from zero
+  HALF_EVEN: "HALF_EVEN",   // Rounds 0.5 towards nearest neighbour. If equidistant, rounds 0.5 towards even neighbour: e.g., 2.5 to 2, 3.5 to 4, -2.5 to -2, -3.5 to -4
+  HALF_UP: "HALF_UP"        // Rounds 0.5 towards nearest neighbour. If equidistant, rounds 0.5 away from zero: e.g., 2.5 to 3, 3.5 to 4, -2.5 to -3, -3.5 to -4
 };
 Object.freeze(ROUNDING_MODES);
 
