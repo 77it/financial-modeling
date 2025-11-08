@@ -1,4 +1,4 @@
-//<file decimal_scaled_bigint__dsb.arithmetic_x.js>
+//<file decimal_scaled_bigint__dsb.arithmetic_x.js>   decimal scaled bigint arithmetic functions
 
 /*
 ██████╗ ███████╗ ██████╗██╗███╗   ███╗ █████╗ ██╗

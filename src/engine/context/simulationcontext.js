@@ -8,7 +8,6 @@ import { Ledger } from '../ledger/ledger.js';
 import { NewSimObjectDto } from '../ledger/commands/newsimobjectdto.js';
 import { NewDebugSimObjectDto } from '../ledger/commands/newdebugsimobjectdto.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
-import { Decimal } from '../../../vendor/decimaljs/decimal.js';
 
 class SimulationContext {
   /** @type {Drivers} */
@@ -105,7 +104,7 @@ class SimulationContext {
    * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from Drivers constructor<p>
    * name: Driver name<p>
    * date: optional; if missing will be set to new Date(0)<p>
-   * value: Driver value, will be sanitized to number<p>
+   * value: Driver value; will not be sanitized to Decimal (nor number), but will be stored as is<p>
    */
   setDriver (p) {
     this.#drivers.set(p);
@@ -120,7 +119,7 @@ class SimulationContext {
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
    * @param {DRIVERS_GET_CALC} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
-   * @return {Decimal} Driver; if not found, throws<p>
+   * @return {bigint} returns the Driver sanitized to DSB Decimal Scaled BigInt<p>
    * if `endDate` is not defined, returns the value defined before or at `date`;<p>
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.<p>
    * @throws {Error} Throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.<p>

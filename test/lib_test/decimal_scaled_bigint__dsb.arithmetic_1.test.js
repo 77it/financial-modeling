@@ -6,6 +6,7 @@ import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
 import {
+  ensureBigIntScaled,
   stringToBigIntScaled,
   numberToBigIntScaled,
   bigIntScaledToString,
@@ -73,7 +74,8 @@ t('numberToBigIntScaled – finite numbers map via string path identically', () 
        * Note: literals used (not String(...)) to preserve "-0".
        */
       const samplesStr = [
-        "0", "-0", "1", "-1", "0.1", "-0.1", "1e-20", "-1e-20", "1e20", "-1e20",
+        " 0 " // test string with whitespace
+        , " -0 ", "1", "-1", "0.1", "-0.1", "1e-20", "-1e-20", "1e20", "-1e20",
         "3.141592653589793", "-2.718281828459045",
         "9999999.9999999", "-9999999.9999999",
       ];
@@ -83,7 +85,11 @@ t('numberToBigIntScaled – finite numbers map via string path identically', () 
         const s = samplesStr[i];
         const viaNum = numberToBigIntScaled(n);
         const viaStr = stringToBigIntScaled(s); // canonical reference
+        const ensuredNum = ensureBigIntScaled(s);
+        const ensuredStr = ensureBigIntScaled(s);
         assert.strictEqual(viaNum, viaStr, `mismatch on ${n} / "${s}"`);
+        assert.strictEqual(ensuredNum, viaStr, `mismatch on ${n} / "${s}"`);
+        assert.strictEqual(ensuredStr, viaStr, `mismatch on ${n} / "${s}"`);
       }
 
       assert.strictEqual(toStr(numberToBigIntScaled(0)), '0');
