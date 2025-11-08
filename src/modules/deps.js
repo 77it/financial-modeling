@@ -7,7 +7,6 @@ export { sanitize } from '../lib/schema_sanitization_utils.js';
 export { isValidDate, getEndOfMonthOfLocalDate, parseJsonToLocalDate, parseJsonToUTCDate, compareLocalDatesIgnoringTime, differenceInCalendarDaysOfLocalDates } from '../lib/date_utils.js';
 export { addDaysToLocalDate, addDaysToUTCDate, addMonthsToLocalDate, localDateToUTC, localDateToStringYYYYMMDD, stripTimeToLocalDate, stripTimeToUTCDate } from '../lib/date_utils.js';
 export { isNullOrWhiteSpace } from '../lib/string_utils.js';
-export { roundHalfAwayFromZero, roundHalfAwayFromZeroWithPrecision, truncWithPrecision } from '../lib/number_utils.js';
 export { isStringOrBooleanTrue, isStringOrBooleanFalse } from '../lib/boolean_utils.js';
 export { cachedParseJSONrelaxed, parseJSONrelaxed } from '../lib/json.js';
 export { DSB } from '../lib/decimal_scaled_bigint__dsb.arithmetic_x.js';  // DECIMAL_SCALED_BIGINT

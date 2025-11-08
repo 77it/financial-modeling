@@ -63,7 +63,7 @@ financial-modeling/
 │   ├── lib/                 Utility libraries (flat structure, 27+ files)
 │   │   ├── Utility files:
 │   │   │   ├── date_utils.js          Date/time utilities
-│   │   │   ├── number_utils.js        Number conversion and utilities
+│   │   │   ├── decimal_utils.js       Decimal conversion and utilities
 │   │   │   ├── obj_utils.js           Object/array manipulation
 │   │   │   ├── string_utils.js        String utilities
 │   │   │   ├── boolean_utils.js       Boolean utilities

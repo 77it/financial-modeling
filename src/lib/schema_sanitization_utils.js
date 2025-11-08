@@ -5,7 +5,7 @@ import { ValidateSanitizeResult } from './validate_sanitize_result.js';
 import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, localDateToUTC } from './date_utils.js';
 import { validate as validateFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
-import { anyToDecimalOrDefault } from './number_utils.js';
+import { anyToDecimalOrDefault } from './decimal_utils.js';
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
 
 //#region defaults
