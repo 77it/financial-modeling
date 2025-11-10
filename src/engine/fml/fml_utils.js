@@ -1,9 +1,7 @@
-﻿export { getFmlOrValue, getFmlOrValueToDecimal };
+﻿export { getFmlOrValue, getFmlOrValueToDSB };
 
+import { ensureBigIntScaled } from '../../lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 import { FmlObj } from './fmlobj.js';
-import { anyToDecimal } from '../../lib/number_utils.js';
-// used only for type definition
-import { Decimal } from '../../../vendor/decimaljs/decimal.js';
 
 /**
  * Returns the value of the parameter passed.
@@ -22,8 +20,8 @@ function getFmlOrValue(value) {
  * If the input is an instance of FmlObj, it returns the result of its get() method then convert it to Decimal.
  * If the input is not an FmlObj, it simply returns the input value converted to Decimal.
  * @param { * } value
- * @return {Decimal}
+ * @return {bigint}
  */
-function getFmlOrValueToDecimal(value) {
-  return anyToDecimal(getFmlOrValue(value));
+function getFmlOrValueToDSB(value) {
+  return ensureBigIntScaled(getFmlOrValue(value));
 }

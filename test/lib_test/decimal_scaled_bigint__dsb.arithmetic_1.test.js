@@ -59,7 +59,7 @@ function assertThrows(fn, msg) {
 }
 
 //#region ========= Deterministic vectors @ HALF_UP =========
-t('numberToBigIntScaled – finite numbers map via string path identically', () => {
+t('numberToBigIntScaled, stringToBigIntScaled – finite numbers map via string path identically', () => {
   _TEST_ONLY__set(
     () => {
       /** Numeric samples (for number-based tests) */
@@ -99,14 +99,34 @@ t('numberToBigIntScaled – finite numbers map via string path identically', () 
   { decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: ROUNDING_MODES.HALF_UP });
 });
 
-t('numberToBigIntScaled – rejects NaN and infinities', () => {
-  _TEST_ONLY__set(
-    () => {
-      assertThrows(() => numberToBigIntScaled(NaN), 'NaN must throw');
-      assertThrows(() => numberToBigIntScaled(Infinity), '+Infinity must throw');
-      assertThrows(() => numberToBigIntScaled(-Infinity), '-Infinity must throw');
-    },
-    { decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: ROUNDING_MODES.HALF_UP });
+t('ensureBigIntScaled conversion', () => {
+  const input = [
+    "", "   ", null, undefined, new Date(NaN),
+    new Date(1),
+    new Decimal("1234567890.123456789"),
+    true, false,
+  ];
+
+  const expected = [
+    0n, 0n, 0n, 0n, 0n,
+    stringToBigIntScaled("1"),
+    stringToBigIntScaled("1234567890.123456789"),
+    stringToBigIntScaled("1"), 0n,
+  ];
+
+  for (let i = 0; i < input.length; i++) {
+    assert.strictEqual(ensureBigIntScaled(input[i]), expected[i]);
+  }
+});
+
+t('ensureBigIntScaled allows instead, numberToBigIntScaled rejects NaN and infinities', () => {
+  assert.strictEqual(ensureBigIntScaled(NaN), 0n);
+  assert.strictEqual(ensureBigIntScaled(Infinity), 0n);
+  assert.strictEqual(ensureBigIntScaled(-Infinity), 0n);
+
+  assertThrows(() => numberToBigIntScaled(NaN), 'NaN must throw');
+  assertThrows(() => numberToBigIntScaled(Infinity), '+Infinity must throw');
+  assertThrows(() => numberToBigIntScaled(-Infinity), '-Infinity must throw');
 });
 
 // ===== existing tests (unchanged) =====

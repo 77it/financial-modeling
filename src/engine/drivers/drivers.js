@@ -2,10 +2,8 @@
 
 import { DriversRepo } from '../../lib/drivers_repo.js';
 import { DRIVER_PREFIXES__ZERO_IF_NOT_SET } from '../../config/globals.js';
-import { sanitize } from '../../lib/schema_sanitization_utils.js';
-import * as schema from '../../lib/schema.js';
-import { Decimal } from '../../../vendor/decimaljs/decimal.js';
-import { getFmlOrValueToDecimal } from '../fml/fml_utils.js';
+import { numberToBigIntScaled, fxAdd, fxDiv } from '../../lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
+import { getFmlOrValueToDSB } from '../fml/fml_utils.js';
 
 /**
  * @enum {string}
@@ -69,12 +67,12 @@ class Drivers {
    * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from constructor<p>
    * name: Driver name<p>
    * date: optional; if missing will be set to new Date(0)<p>
-   * value: Driver value; will not be sanitized to Decimal (nor number); the conversion to Decimal will be done during get, to not save too much Decimal objects in memory<p>
+   * value: Driver value; will not be sanitized to Decimal (nor number), but will be stored as is
    * @returns {string[]} array of errors
    * @throws {Error} If a date is already present and the driver is immutable, trying to overwrite it throws
    */
   set (p) {
-    /*
+    /** sanitization disabled, any value is stored as driver, and sanitized during get
     // loop input array: sanitize input to number & add to every item property `throwOnImmutableDriverChange` = true
     p.forEach(item => {
       item.value = sanitize({ value: item.value, sanitization: schema.NUMBER_TYPE});
@@ -122,7 +120,7 @@ class Drivers {
    *                             if a range of drivers containing Fml is queried, only the formulas defined for the various days are returned,
    *                             not the individual calculations of the formulas for each day; the formulas are always recalculated after query by the caller.
    * @param {GET_CALC} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
-   * @return {Decimal} returns the Driver value sanitized to Decimal;<p>
+   * @return {bigint} returns the Driver value sanitized to Decimal Scaled BigInt DSB;<p>
    * if `endDate` is not defined, returns the value defined before or at `date`;<p>
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.<p>
    * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,<p>
@@ -157,7 +155,7 @@ class Drivers {
       }
 
       const _ret = this.#driversRepo.get({ scenario, unit, name, date, search: true, throwIfNotDefined: true, searchExactDate: _searchExactDate });
-      return getFmlOrValueToDecimal(_ret);
+      return getFmlOrValueToDSB(_ret);
     }
     // if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`
     else {
@@ -165,21 +163,21 @@ class Drivers {
       const _retArray = this.#driversRepo.get({ scenario, unit, name, date, endDate, search: true, throwIfNotDefined: true });
       // no values found, return 0
       if (_retArray == null || _retArray.length === 0)
-        return new Decimal(0);
+        return 0n;
       // Normalize _retArray to Decimal
-      const _decimalRetArray = _retArray.map(v => getFmlOrValueToDecimal(v));
+      const _decimalRetArray = _retArray.map(v => getFmlOrValueToDSB(v));
       // switch on `calc`
       switch (calc) {
         case GET_CALC.AVERAGE: {
-          const __sum = _decimalRetArray.reduce((a, b) => a.plus(b), new Decimal(0));
-          return __sum.div(_decimalRetArray.length);
+          const __sum = _decimalRetArray.reduce((a, b) => fxAdd(a, b), 0n);
+          return fxDiv(__sum, numberToBigIntScaled(_decimalRetArray.length));
         }
         case GET_CALC.MIN:
-          return _decimalRetArray.reduce((a, b) => (a.lt(b) ? a : b));
+          return _decimalRetArray.reduce((a, b) => (a < b ? a : b));
         case GET_CALC.MAX:
-          return _decimalRetArray.reduce((a, b) => (a.gt(b) ? a : b));
+          return _decimalRetArray.reduce((a, b) => (a > b ? a : b));
         default:  // apply `sum` as default
-          return _decimalRetArray.reduce((a, b) => a.plus(b), new Decimal(0));
+          return _decimalRetArray.reduce((a, b) => fxAdd(a, b), 0n);
       }
     }
   }

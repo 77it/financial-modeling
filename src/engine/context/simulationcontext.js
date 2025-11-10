@@ -50,14 +50,18 @@ class SimulationContext {
 
   /**
    * Set Settings from an array of scenarios, units, names, dates and value.<p>
-   * Settings can be immutable and mutable.<p>
-   * If a date is already present, the second one will be ignored.
+   * Settings can be immutable without dates, immutable with dates and mutable.<p>
+   * If a date is already present, the second Setting will be ignored.<p>
+   * If a date is present in an immutable setting without dates, the date will be ignored.<p>
+   * Values of immutable settings are frozen.<p>
+   *
    * @param {{scenario?: string[], unit?: string[], name: string, date?: Date, value: *}[]} p
    * scenario: optional; array of strings (to set more than one scenario); '' means `currentScenario` from Settings constructor<p>
    * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from Settings constructor<p>
    * name: Setting name<p>
    * date: optional; if missing will be set to new Date(0)<p>
    * value: Setting value<p>
+   * @throws {Error} If a date is already present and the driver is immutable, trying to overwrite it throws
    */
   setSetting (p) {
     this.#settings.set(p);
@@ -71,13 +75,13 @@ class SimulationContext {
    * @param {string} p.name - Setting name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
    * @param {boolean} [p.throwIfNotDefined] - Optional flag to throw. See @throws for description of this option.
-   * @return {*} Setting; if not found, throws<p>
+   * @return {*} returns the Setting value;<p>
    * if `endDate` is not defined, returns the value defined before or at `date`;<p>
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.<p>
    * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,<p>
    * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).<p>
    * Returned data is not cloned because Settings are stored with `freezeValues` option = true then the values are deep-frozen.<p>
-   * @throws {Error} If `throwIfNotDefined` is true, throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.
+   * @throws {Error} Throw if is queried a date > Today. If `throwIfNotDefined` is true, throws if the Setting to get is not defined. If `search` is true, throws only if the search fails.<p>
    */
   getSetting ({ scenario, unit, name, date, throwIfNotDefined = true }) {
     return this.#settings.get({ scenario, unit, name, date, throwIfNotDefined });
@@ -95,21 +99,29 @@ class SimulationContext {
     return this.#settings.isDefined({ scenario, unit, name });
   }
 
+  //<disabled drivers>
+  // METHOD NOT EXPORTED BECAUSE WE WANT TO HIDE THE DRIVERS BY NOW, THINKING THAT WE CAN USE ONLY SETTINGS FOR EVERYTHING
+  // LATER, IF NEEDED, WE CAN EXPOSE IT AGAIN
   /**
    * Set Drivers from an array of scenarios, units, names, dates and value.<p>
-   * Drivers are immutable.<p>
-   * If a date is already present, the second one will be ignored.<p>
+   * Drivers can be immutable without dates, immutable with dates.<p>
+   * If a date is already present, the second Driver will be ignored.<p>
+   * If a date is present in an immutable driver without dates, the date will be ignored.<p>
+   *
    * @param {{scenario?: string[], unit?: string[], name: string, date?: Date, value: *}[]} p
    * scenario: optional; array of strings (to set more than one scenario); '' means `currentScenario` from Drivers constructor<p>
    * unit: Setting unit, optional; array of strings (to set more than one unit); '' means `defaultUnit` from Drivers constructor<p>
    * name: Driver name<p>
    * date: optional; if missing will be set to new Date(0)<p>
-   * value: Driver value; will not be sanitized to Decimal (nor number), but will be stored as is<p>
+   * value: Driver value; will not be sanitized to Decimal (nor number), but will be stored as is
+   * @throws {Error} If a date is already present and the driver is immutable, trying to overwrite it throws
    */
-  setDriver (p) {
+  #setDriver (p) {
     this.#drivers.set(p);
   }
 
+  // METHOD NOT EXPORTED BECAUSE WE WANT TO HIDE THE DRIVERS BY NOW, THINKING THAT WE CAN USE ONLY SETTINGS FOR EVERYTHING
+  // LATER, IF NEEDED, WE CAN EXPOSE IT AGAIN
   /**
    * Get a Driver
    * @param {Object} p
@@ -117,16 +129,24 @@ class SimulationContext {
    * @param {string} [p.unit] - Driver unit, optional; null, undefined or '' means `defaultUnit` from Drivers constructor
    * @param {string} p.name - Driver name
    * @param {Date} [p.date] - Optional date; if missing is set with the value of `setToday` method; can't return a date > than today.
-   * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`
+   *                          if drivers containing Fml is queried, it is returned only the formula, not the calculations of the formulas for the day;
+   *                          the formulas are always recalculated after query by the caller.
+   * @param {Date} [p.endDate] - Optional end date; if missing the search is done only for `date`;
+   *                             if a range of drivers containing Fml is queried, only the formulas defined for the various days are returned,
+   *                             not the individual calculations of the formulas for each day; the formulas are always recalculated after query by the caller.
    * @param {DRIVERS_GET_CALC} [p.calc] - Optional calculation to be applied to the values found; default is 'sum'
-   * @return {bigint} returns the Driver sanitized to DSB Decimal Scaled BigInt<p>
+   * @return {bigint} returns the Driver value sanitized to Decimal Scaled BigInt DSB;<p>
    * if `endDate` is not defined, returns the value defined before or at `date`;<p>
    * if `endDate` is defined, returns a value applying the `calc` function to the values defined between `date` and `endDate`.<p>
-   * @throws {Error} Throws if the Driver to get is not defined. If `search` is true, throws only if the search fails.<p>
+   * Read from Unit, then from Default Unit (if Unit != Default), then from Base Scenario (if Scenario != Base) and same Unit,<p>
+   * finally from Base Scenario and Default Unit (if Unit != Default and if Scenario != Base).<p>
+   * Returned data is not cloned because Drivers are numbers then immutable by default.<p>
+   * @throws {Error} Throws if the Driver to get is not defined or if is queried a date > Today. If `search` is true, throws only if the search fails.<p>
    */
-  getDriver ({ scenario, unit, name, date, endDate, calc }) {
+  #getDriver ({ scenario, unit, name, date, endDate, calc }) {
     return this.#drivers.get({ scenario, unit, name, date, endDate, calc });
   }
+  //</disabled drivers>
 
   /**
    * Set a TaskLock; TaskLocks are immutable.<p>

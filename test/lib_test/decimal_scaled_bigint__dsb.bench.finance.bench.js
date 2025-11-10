@@ -11,7 +11,7 @@ import {
 } from "../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js";
 import {
     RUN_CONFIGS, bench, decToSig, pow10n,
-} from "./decimal_scaled_bigint.test_utils.js";
+} from "./decimal_scaled_bigint__dsb.test_utils.js";
 
 const CFG = { ITERS: 5, SEED: 0xA5F00D, DEC_ROUND: Decimal.ROUND_HALF_EVEN };
 

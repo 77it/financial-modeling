@@ -113,7 +113,7 @@ t('invalid inputs: throw on malformed numbers; accept lonely sign as 0', () => {
   _TEST_ONLY__set(
     () => {
       const bad = [
-        '', '   ', '.', '+.', '-.', '1..2', '1.2.3',
+        '.', '+.', '-.', '1..2', '1.2.3',
         '1e', 'e10', '1ee10', '1e+', '1e-', '1e--2',
         'abc', 'NaN', 'Infinity', '+Infinity', '-Infinity',
         '0x10', '1_000', '--1', '++2', '1.-2',

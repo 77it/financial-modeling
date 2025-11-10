@@ -58,6 +58,8 @@ export { roundInt as _INTERNAL_roundInt }
 
 import { BIGINT_DECIMAL_SCALE as CFG_SCALE, ACCOUNTING_DECIMAL_PLACES as CFG_DECIMAL_PLACES, ROUNDING_MODE as CFG_ROUNDING, ROUNDING_MODES } from '../config/engine.js';
 
+const DEFAULT_DECIMAL = 0n;
+
 // Exported functions shortcuts: being the sanitization to this format called DECIMAL_SCALED_BIGINT we decided to export a shortcut name DSB
 const DSB = Object.freeze({
   from: ensureBigIntScaled,
@@ -167,12 +169,12 @@ function _TEST_ONLY__set(fn, {decimalScale, accountingDecimalPlaces, roundingMod
  * stringToBigIntScaled("9.999...e15")   // preserves all input digits, rounds as needed
  *
  * @param {string} s
- * @returns {bigint} BigInt scaled by 10^MATH_SCALE
- * @throws {SyntaxError} on invalid/empty input
+ * @returns {bigint} BigInt scaled by 10^MATH_SCALE; empty string -> 0n
+ * @throws {SyntaxError} on invalid input
  */
 function stringToBigIntScaled(s) {
-  const str = String(s).trim();
-  if (!str) throw new SyntaxError("Empty number");
+  const str = String(s).trim();  // throws on null/undefined and if .trim() fails
+  if (!str) return DEFAULT_DECIMAL;
   return hasENotation(str) ? parseSciDecimal(str) : parsePlainDecimal_fast(str);
 }
 
@@ -190,7 +192,7 @@ function numberToBigIntScaled(x) {
     throw new TypeError("numberToBigIntScaled expects a finite number");
   }
   // String(x) yields ECMAScript's normalized numeric string (often exp-form),
-  // which your parser already handles (fast plain path or sci-notation path).
+  // which parser already handles (fast plain path or sci-notation path).
   return stringToBigIntScaled(String(x));
 }
 
@@ -387,21 +389,35 @@ function roundToAccounting(sig) {
 
 /**
  * Convert an input to a scaled BigInt if needed.
- * Fast path for bigint; falls back to your converters for number/string.
- * @param {bigint|string|number} x
+ * Fast path for bigint; falls back to converters for number/string.
+ * On invalid input, returns 0n.
+ * @param {*} x
  * @returns {bigint}
- * @throws {TypeError} on unsupported types (null, undefined, boolean, object, symbol, function)
  */
 function ensureBigIntScaled(x) {
-  switch (typeof x) {
-    case 'bigint':
+  const typeOfX = typeof x;
+
+  try {
+    if (x == null) {
+      return DEFAULT_DECIMAL;
+    } else if (typeOfX === 'bigint') {
       return x;
-    case 'number':
-      return numberToBigIntScaled(x);
-    case 'string':
+    } else if (typeOfX === 'string') {
       return stringToBigIntScaled(x);
-    default:
-      throw new TypeError(`Expected bigint|string|number, got ${typeof x}`);
+    } else if (typeOfX === 'number') {
+      return numberToBigIntScaled(x);
+    } else if (x instanceof Date) {
+      const _time = x.getTime();
+      return Number.isFinite(_time) ? numberToBigIntScaled(_time) : DEFAULT_DECIMAL;
+    } else if (typeof x === 'boolean') {
+      return numberToBigIntScaled(x ? 1 : 0);
+    } else if (Array.isArray(x)) {
+      return ensureBigIntScaled(String(x));  // convert array to string then call again this method
+    } else {
+      return stringToBigIntScaled(String(x));
+    }
+  } catch (_) {
+    return DEFAULT_DECIMAL;
   }
 }
 

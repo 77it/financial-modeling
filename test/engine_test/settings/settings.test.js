@@ -43,7 +43,7 @@ t('Settings tests', async () => {
   ];
   assert.throws(() => { drivers.set(input2); });
 
-  // query with all parameters empty: undefined
+  // query with all parameters empty: throws
   //@ts-ignore
   assert.throws(() => drivers.get({}));
 
@@ -51,7 +51,7 @@ t('Settings tests', async () => {
   //@ts-ignore
   assert.throws(() => drivers.get());
 
-  // query with wrong parameters: undefined
+  // query with wrong parameters: throws
   assert.throws(() => drivers.get({ scenario: 'SCENARIOAAA', unit: 'UnitA', name: '$driver XYZ', date: new Date(2022, 11, 24) }));  // wrong scenario
   assert.throws(() => drivers.get({ scenario: 'SCENARIO1', unit: 'UnitBBB', name: '$driver XYZ', date: new Date(2022, 11, 24) }));  // wrong unit
   assert.throws(() => drivers.get({ scenario: 'SCENARIO1', unit: 'UnitA', name: '$driver CCC', date: new Date(2022, 11, 24) }));  // wrong name

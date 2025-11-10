@@ -20,7 +20,7 @@ import {
 
 import {
   RUN_CONFIGS, decToSig, pow10n,
-} from './decimal_scaled_bigint.test_utils.js';
+} from './decimal_scaled_bigint__dsb.test_utils.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
