@@ -1,6 +1,6 @@
-export { regExp_YYYYMMDDTHHMMSSMMMZ, regExp_YYYYMMDD_minusSlashDotSep }
+export { regExp_YYYYMMDDTHHMMSSMMMZ_notGrouping, regExp_YYYYMMDDTHHMMSSMMMZ }
 export { isValidDate };
-export { parseJsonToLocalDate, parseJsonToUTCDate };
+export { parseJsonToLocalDate, parseJsonToUTCDate, parseTextAndNumbersToLocalDate, parseTextAndNumbersToUTCDate  };
 export { differenceInCalendarDaysOfLocalDates, differenceInCalendarDaysOfUTCDates };
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
 export { addMonthsToLocalDate, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
@@ -9,8 +9,9 @@ export { localDateToUTC, UTCtoLocalDate, localDateToStringYYYYMMDD, stripTimeToL
 
 // creating RegExp for later use
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
-const regExp_YYYYMMDDTHHMMSSMMMZ = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/;
-const regExp_YYYYMMDD_minusSlashDotSep = /^(\d{4})([-./])(\d{1,2})\2(\d{1,2})$/;
+const regExp_YYYYMMDDTHHMMSSMMMZ_notGrouping = /^\d{4}(?:[-/.]\d{1,2}){2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:[Zz]|[+-]\d{2}:?\d{2})?)?$/;
+// this is the version of the previous regex but without capturing groups for the separators, quicker
+const regExp_YYYYMMDDTHHMMSSMMMZ = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{0,9}))?)?(?:Z|(.)(\d{2}):?(\d{2})?)?)?$/;
 const regExp_YYYYMMDD_withoutSep = /^(\d{4})(\d{2})(\d{2})$/;
 
 /**
@@ -51,7 +52,7 @@ function isValidDate (value) {
  * @returns {Date} the parsed date in local time zone
  */
 function parseJsonToLocalDate (argument) {
-  return _parseJsonDate(argument, { asUTC: false });
+  return _parseJsonDate(argument, { asUTC: false, withoutSeparator: false });
 }
 
 /**
@@ -63,7 +64,33 @@ function parseJsonToLocalDate (argument) {
  * @returns {Date} the parsed date in UTC time zone
 */
 function parseJsonToUTCDate (argument) {
-  return _parseJsonDate(argument, { asUTC: true });
+  return _parseJsonDate(argument, { asUTC: true, withoutSeparator: false });
+}
+
+/**
+ * Converts a ISO date string (the typical format for transmitting a date in JSON)
+ * to a JavaScript `Date` in UTC time zone.
+ * Converts also YYYYMMDD without separators.
+ * See other notes in `parseJsonToLocalDate`.
+ *
+ * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD or YYYYMMDD
+ * @returns {Date} the parsed date in UTC time zone
+*/
+function parseTextAndNumbersToLocalDate (argument) {
+  return _parseJsonDate(argument, { asUTC: false, withoutSeparator: true });
+}
+
+/**
+ * Converts a ISO date string (the typical format for transmitting a date in JSON)
+ * to a JavaScript `Date` in UTC time zone.
+ * Converts also YYYYMMDD without separators.
+ * See other notes in `parseJsonToLocalDate`.
+ *
+ * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD or YYYYMMDD
+ * @returns {Date} the parsed date in UTC time zone
+ */
+function parseTextAndNumbersToUTCDate (argument) {
+  return _parseJsonDate(argument, { asUTC: true, withoutSeparator: true });
 }
 
 // Inspired to https://github.com/date-fns/date-fns/blob/5b47ccf4795ae4589ccb4465649e843c0d16fc93/src/parseJSON/index.ts (MIT license);
@@ -76,22 +103,37 @@ function parseJsonToUTCDate (argument) {
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
  * @param {Object} [opt]
  * @param {boolean} [opt.asUTC=true] If true, the date will be parsed as UTC, otherwise as local time
+ * @param {boolean} [opt.withoutSeparator=false] If true, also YYYYMMDD without separator will be parsed
  * @returns {Date} the parsed date in UTC or local time zone
  */
 function _parseJsonDate (argument, opt) {
   try {
     const _asUTC = opt?.asUTC ?? true;
+    const _withoutSeparator = opt?.withoutSeparator ?? true;
 
     if (typeof argument !== 'string')
       return new Date(NaN);
 
-    // match YYYY-MM-DDTHH:MM:SS.MMMZ
+    // match YYYY-MM-DDTHH:MM:SS.MMMZ and shorter dates with different separators
     const parts = argument.trim().match(regExp_YYYYMMDDTHHMMSSMMMZ);
-    // match YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD
-    const partsYYYYMMDD = argument.trim().match(regExp_YYYYMMDD_minusSlashDotSep);
-    // match YYYYMMDD without separator
-    const partsYYYYMMDD_withoutSep = argument.trim().match(regExp_YYYYMMDD_withoutSep);
-    if (parts) {
+    if (!parts) {
+      if (_withoutSeparator) {
+        // match YYYYMMDD without separator
+        const partsYYYYMMDD_withoutSep = argument.trim().match(regExp_YYYYMMDD_withoutSep);
+
+        if (partsYYYYMMDD_withoutSep) {
+          // YYYYMMDD date without separator
+          return _newDate(
+            +partsYYYYMMDD_withoutSep[1],
+            +partsYYYYMMDD_withoutSep[2] - 1,
+            +partsYYYYMMDD_withoutSep[3]
+          );
+        }
+      }
+
+      return new Date(NaN);
+    }
+    else if (parts[4] != null && parts[5] !== null && parts[6] !== null && parts[7] !== null && parts[8] !== null && parts[9] !== null) {
       // Group 8 matches the sign
       return _newDate(
         +parts[1],
@@ -102,19 +144,12 @@ function _parseJsonDate (argument, opt) {
         +parts[6],
         +((parts[7] || '0') + '00').substring(0, 3)
       );
-    } else if (partsYYYYMMDD) {
+    } else if (parts[1] != null && parts[2] !== null && parts[3] !== null) {
       // YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD date
       return _newDate(
-        +partsYYYYMMDD[1],
-        +partsYYYYMMDD[3] - 1,
-        +partsYYYYMMDD[4]
-      );
-    } else if (partsYYYYMMDD_withoutSep) {
-      // YYYYMMDD date without separator
-      return _newDate(
-        +partsYYYYMMDD_withoutSep[1],
-        +partsYYYYMMDD_withoutSep[2] - 1,
-        +partsYYYYMMDD_withoutSep[3]
+        +parts[1],
+        +parts[2] - 1,
+        +parts[3]
       );
     }
     return new Date(NaN);

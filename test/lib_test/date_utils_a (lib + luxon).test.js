@@ -8,6 +8,8 @@ import {
   isValidDate,
   parseJsonToLocalDate,
   parseJsonToUTCDate,
+  parseTextAndNumbersToLocalDate,
+  parseTextAndNumbersToUTCDate,
   differenceInCalendarDaysOfLocalDates as differenceInCalendarDays_lib,
   differenceInCalendarDaysOfUTCDates,
   excelSerialDateToUTCDate,
@@ -29,6 +31,20 @@ t('isValidDate', () => {
   assert(!isValidDate(undefined));
   assert(!isValidDate(999));
   assert(!isValidDate('2012-12-25'));
+});
+
+t('parseTextAndNumbersToUTCDate, short date 20210109 without separator', () => {
+  const date = '20210109';
+  const parsedDate = parseTextAndNumbersToUTCDate(date);
+  const expectedDate = '2021-01-09T00:00:00.000Z';
+  assert.equal(parsedDate.toISOString(), expectedDate);
+});
+
+t('parseTextAndNumbersToLocalDate - short date 20210109 without separator', () => {
+  const date = '20210109';
+  const parsedDate = parseTextAndNumbersToLocalDate(date);
+  const expectedDate = new Date(2021, 0, 9);
+  assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
 });
 
 t('parseJsonToLocalDate as Date - short date 2021-01-09', () => {
@@ -68,13 +84,6 @@ t('parseJsonToLocalDate as Date - short date 2021.01.09', () => {
 
 t('parseJsonToLocalDate as Date - short date 2021.1.9 is valid', () => {
   const date = '2021.1.9';
-  const parsedDate = parseJsonToLocalDate(date);
-  const expectedDate = new Date(2021, 0, 9);
-  assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
-});
-
-t('parseJsonToLocalDate as Date - short date 20210109 without separator', () => {
-  const date = '20210109';
   const parsedDate = parseJsonToLocalDate(date);
   const expectedDate = new Date(2021, 0, 9);
   assert.equal(parsedDate.toISOString(), expectedDate.toISOString());
@@ -125,13 +134,6 @@ t('short date 2021/01/09', () => {
 
 t('short date 2021.01.09', () => {
   const date = '2021.01.09';
-  const parsedDate = parseJsonToUTCDate(date);
-  const expectedDate = '2021-01-09T00:00:00.000Z';
-  assert.equal(parsedDate.toISOString(), expectedDate);
-});
-
-t('short date 20210109 without separator', () => {
-  const date = '20210109';
   const parsedDate = parseJsonToUTCDate(date);
   const expectedDate = '2021-01-09T00:00:00.000Z';
   assert.equal(parsedDate.toISOString(), expectedDate);

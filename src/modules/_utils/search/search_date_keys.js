@@ -1,6 +1,6 @@
 export { searchDateKeys };
 
-import { isNullOrWhiteSpace, parseJsonToLocalDate, isValidDate, stripTimeToLocalDate } from '../../deps.js';
+import { isNullOrWhiteSpace, parseTextAndNumbersToLocalDate, isValidDate, stripTimeToLocalDate } from '../../deps.js';
 
 /** Search in an object or Map, keys starting with a specific prefix (case-insensitive) that can be parsed as a Date.
  * If an object key is not parsable as a Date, it is ignored.
@@ -25,7 +25,7 @@ function searchDateKeys ({ obj, prefix }) {
     for (let i = 0; i < prefix.length; i++) {
       if (isNullOrWhiteSpace(prefix[i])) {  // if prefix[i] isNullOrWhiteSpace, search all keys
         for (const key of _keys) {
-          const _parsedDate = parseJsonToLocalDate(key);
+          const _parsedDate = parseTextAndNumbersToLocalDate(key);
           if (isValidDate(_parsedDate))
             _ret.push({ key: key, date: stripTimeToLocalDate(_parsedDate) });
         }
@@ -36,7 +36,7 @@ function searchDateKeys ({ obj, prefix }) {
 
         for (const key of _keys) {
           if (key.toLowerCase().startsWith(_prefix_lowercase)) {
-            const _parsedDate = parseJsonToLocalDate(key.slice(prefix[i].length));
+            const _parsedDate = parseTextAndNumbersToLocalDate(key.slice(prefix[i].length));
             if (isValidDate(_parsedDate))
               _ret.push({ key: key, date: stripTimeToLocalDate(_parsedDate) });
           }

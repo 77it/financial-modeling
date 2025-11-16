@@ -1,6 +1,6 @@
 export { classifyDateString, DATE_CLASSIFICATION };
 
-import { isNullOrWhiteSpace, parseJsonToLocalDate, isValidDate, stripTimeToLocalDate } from '../../deps.js';
+import { isNullOrWhiteSpace, parseTextAndNumbersToLocalDate, isValidDate, stripTimeToLocalDate } from '../../deps.js';
 
 /**
  * @enum {string}
@@ -49,7 +49,7 @@ function convertDateStringToLocalDateWithoutTime ({dateString, prefix}) {
   // loop prefix elements
   for (let i = 0; i < prefix.length; i++) {
     if (isNullOrWhiteSpace(prefix[i])) {  // if prefix[i] isNullOrWhiteSpace, check only if is a date
-      const _parsedDate = parseJsonToLocalDate(dateString);
+      const _parsedDate = parseTextAndNumbersToLocalDate(dateString);
       if (isValidDate(_parsedDate))
         return stripTimeToLocalDate(_parsedDate);
     } else if (typeof prefix[i] !== 'string') {
@@ -57,7 +57,7 @@ function convertDateStringToLocalDateWithoutTime ({dateString, prefix}) {
     } else {
       const _prefix_lowercase = prefix[i].toLowerCase();
       if (dateString.toLowerCase().startsWith(_prefix_lowercase)) {
-        const _parsedDate = parseJsonToLocalDate(dateString.slice(prefix[i].length));
+        const _parsedDate = parseTextAndNumbersToLocalDate(dateString.slice(prefix[i].length));
         if (isValidDate(_parsedDate))
           return stripTimeToLocalDate(_parsedDate);
       }

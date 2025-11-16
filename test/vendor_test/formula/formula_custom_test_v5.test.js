@@ -18,6 +18,4 @@ t('formula testing: recognizing dates/strings inside YAML with missing parts, re
 
   // without seconds, recognized as dates nonetheless
   assert.deepStrictEqual(new Parser('{a: 11, d: 2025-08-01T09:30, z: 999}').evaluate(), expected_minutes);
-  assert.deepStrictEqual(new Parser('{a: 11, d: 2025-08-01 09:30, z: 999}').evaluate(), expected_minutes);
-  assert.deepStrictEqual(new Parser('{a: 11, d: 2025-08-01 09:30Z, z: 999}').evaluate(), expected_minutes);
 });

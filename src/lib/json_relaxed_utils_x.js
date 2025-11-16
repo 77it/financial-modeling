@@ -1,4 +1,5 @@
 export { quoteKeysNumbersAndDatesForRelaxedJSON };
+import { regExp_YYYYMMDDTHHMMSSMMMZ as DATE_RE } from './date_utils.js';
 
 // --- Hoisted tables (small, fast) ---
 const IS_JSON_SYNTAX = (() => {
@@ -16,7 +17,6 @@ const IS_DIGIT = (() => {
   for (let c = 48; c <= 57; c++) a[c] = true; // 0-9
   return a;
 })();
-const DATE_RE = /^\d{4}(?:[-/.]\d{1,2}){2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:[Zz]|[+-]\d{2}:?\d{2})?)?$/;
 
 /**
  * Transform a relaxed / JSON5-like input string into strict JSON syntax.

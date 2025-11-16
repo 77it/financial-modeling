@@ -1,7 +1,7 @@
 //@ts-nocheck
 
 // REFACTOR: Import modular components
-import { createYamlFormula, evaluateStringFormula } from './modules/formula-yaml-handler.js';
+import { createYamlFormula, evaluateStringFormula } from './modules/formula-jsonx-handler.js';
 import { calculate as arithmeticCalculate } from './modules/formula-arithmetic.js';
 
 var exports = {};
@@ -24,7 +24,7 @@ const internals = {
   settings: Symbol("settings")
 };
 // REFACTOR: Keep only core parsing helpers (scanBracket/scanBrace)
-// Other helpers moved to modules/formula-yaml-handler.js
+// Other helpers moved to modules/formula-jsonx-handler.js
 
 function scanBracket(str, start) {
   const len = str.length;
