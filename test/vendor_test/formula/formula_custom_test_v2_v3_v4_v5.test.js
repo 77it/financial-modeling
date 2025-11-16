@@ -1,7 +1,7 @@
 // test with deno test --allow-import
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v5_x.js';
+import { Parser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v6_x.js';
 //import { Parser } from '../../../vendor/formula/extras/formula_custom__accept_yaml_as_func_par__v3_x.js';
 
 import { test } from 'node:test';
@@ -25,12 +25,12 @@ const functions = {
 t('formula calling directly YAML, outside functions', () => {
   const expected = {a: 11, b: "mam ma", "a + 7 c": null, d: new Date(2025, 11, 31)};
 
-  assert.deepStrictEqual(new Parser('{a: 11, b: mam ma, a + 7 c: null, d: 2025-12-31}').evaluate(), expected);
-  assert.deepStrictEqual(new Parser('{a: q(11), b: q("mam ma"), a + 7 c: null, d: 2025-12-31}', { functions }).evaluate(), expected);
+  assert.deepStrictEqual(new Parser('{a: 10 + 1 * 1 + 9*0, b: mam ma, a + 7 c: null, d: 2025-12-31}').evaluate(), expected);
+  assert.deepStrictEqual(new Parser('{a: q(10) + 1 * 1 + 9*0, b: q("mam ma"), a + 7 c: null, d: 2025-12-31}', { functions }).evaluate(), expected);
 });
 
 t('formula with YAML, array, date, etc', () => {
-  assert.deepStrictEqual(new Parser('Q( {a: [1, 2025/12/31, abcd e, q(999)] } )', { functions }).evaluate().a, [1, new Date(2025, 11, 31), "abcd e", 999]);
+  assert.deepStrictEqual(new Parser('Q( {a: [1, 2025/12/31, abcd e, q(10) + 1 * 1 + 9*0] } )', { functions }).evaluate().a, [1, new Date(2025, 11, 31), "abcd e", 11]);
   assert.deepStrictEqual(new Parser('q( [1, 2025/12/31, abcd e, q(999)] )', { functions }).evaluate(), [1, new Date(2025, 11, 31), "abcd e", 999]);
   assert.deepStrictEqual(new Parser('q( {a: 2025/12/31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q("ciao ciao")} } )', { functions }).evaluate(), {a: new Date(2025, 11, 31), b: "mamma mia", c: 999, d: [1, "a b c"], e: {aa: 99, bb: "ciao ciao"}});
   assert.deepStrictEqual(new Parser('q( {a: 2025-12-31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q("ciao ciao")} } )', { functions }).evaluate(), {a: new Date(2025, 11, 31), b: "mamma mia", c: 999, d: [1, "a b c"], e: {aa: 99, bb: "ciao ciao"}});

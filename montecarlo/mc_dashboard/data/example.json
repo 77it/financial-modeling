@@ -1,0 +1,3610 @@
+{
+  "version": "1.0",
+  "meta": {
+    "company": "ACME S.p.A.",
+    "currency": "EUR",
+    "periodicity": "annual"
+  },
+  "records": [
+    {
+      "scenario": "Sim_00001",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 387848.13
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1775783.8
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 215988.91
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 456501.0
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 966851.54
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1040363.84
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 754812.99
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1359159.35
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1851079.62
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1759400.46
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 760281.57
+    },
+    {
+      "scenario": "Sim_00001",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1428972.78
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1370378.96
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1448278.96
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1132144.03
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 895351.91
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 415071.75
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 732278.58
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1279759.14
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1513111.93
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1780333.4
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1748014.58
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1653631.44
+    },
+    {
+      "scenario": "Sim_00002",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 429785.04
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 998341.84
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1169227.8
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1268041.85
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 161610.2
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1432266.8
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 316157.92
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 498823.93
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 810926.83
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1631237.62
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1765955.25
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1969188.5
+    },
+    {
+      "scenario": "Sim_00003",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 501781.75
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1621193.59
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1032967.82
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1216235.96
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 194395.12
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 174984.79
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1274638.86
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1333882.41
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1958339.95
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 660076.16
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1061144.78
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1011637.48
+    },
+    {
+      "scenario": "Sim_00004",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1903194.52
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1045320.17
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1665298.93
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1136109.87
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1879267.49
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1601287.95
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 161495.16
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1385661.25
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 512206.23
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1281182.43
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 662823.94
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1640370.59
+    },
+    {
+      "scenario": "Sim_00005",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 432318.38
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1074543.41
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1868536.98
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1490447.81
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1113007.73
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1717452.29
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 457994.28
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1422964.67
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 248670.18
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1764332.33
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 310851.65
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 371654.77
+    },
+    {
+      "scenario": "Sim_00006",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 373629.77
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1153184.6
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1687442.29
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1844186.87
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1432900.45
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1515090.93
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1110281.75
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1821863.79
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 373733.85
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 943490.84
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1219865.71
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1737710.72
+    },
+    {
+      "scenario": "Sim_00007",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 399073.56
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1102460.7
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 566373.58
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1672060.35
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1209405.07
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 449153.71
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 308021.3
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1336028.35
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1433729.12
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 553088.1
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1838748.1
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 422658.34
+    },
+    {
+      "scenario": "Sim_00008",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1457436.75
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 165652.03
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1959350.34
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1364276.81
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 958709.32
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1863446.19
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 941909.49
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 955176.78
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 324169.11
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1270869.65
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 370620.57
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 478586.1
+    },
+    {
+      "scenario": "Sim_00009",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 313515.9
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1667491.55
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1779202.62
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1856354.1
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 432834.72
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 378058.91
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 807943.84
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 598460.61
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 210627.51
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1513317.17
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1594937.94
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 943964.43
+    },
+    {
+      "scenario": "Sim_00010",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 170370.15
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 846745.21
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 86925.71
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1619818.44
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1127505.75
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 142764.14
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 124243.52
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1064425.2
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1909509.04
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1784126.27
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 491468.98
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1319010.5
+    },
+    {
+      "scenario": "Sim_00011",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1661810.63
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 492838.32
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1526046.77
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1335049.56
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1154788.31
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1535839.59
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 106638.04
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 481164.66
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1736358.6
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 741648.64
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 304190.42
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1799592.22
+    },
+    {
+      "scenario": "Sim_00012",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 374986.37
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1578422.56
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1164780.24
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1367746.68
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 852140.86
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 407905.45
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 139797.0
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1480580.63
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1083784.43
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1357846.22
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1527188.35
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 928581.03
+    },
+    {
+      "scenario": "Sim_00013",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 796139.7
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1664149.81
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1773928.29
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 863561.42
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 97750.94
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 800739.03
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 246334.73
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 583747.99
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1756199.31
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1986463.78
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 144185.13
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 415261.83
+    },
+    {
+      "scenario": "Sim_00014",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 455727.53
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1277117.72
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1211483.36
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 709286.09
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 693414.84
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1275474.79
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1986828.32
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 640144.21
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 94039.96
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1667236.03
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 337667.41
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1903449.34
+    },
+    {
+      "scenario": "Sim_00015",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1066230.52
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1094708.4
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 806902.71
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1480685.18
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 137396.94
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 440345.47
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1649995.39
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1418773.36
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 337280.88
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1803521.27
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 262225.62
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1016387.85
+    },
+    {
+      "scenario": "Sim_00016",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1833016.43
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 784623.38
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 541768.58
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 718864.8
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1875300.85
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1057648.64
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 101610.6
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 875516.2
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 495639.92
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1344503.7
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1148354.53
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 945652.53
+    },
+    {
+      "scenario": "Sim_00017",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 821052.31
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 296630.23
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 852996.07
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1558279.99
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 449586.51
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1198521.1
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1914352.43
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 162297.44
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1137247.1
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1684197.37
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 564688.8
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1282939.2
+    },
+    {
+      "scenario": "Sim_00018",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1086704.69
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1020880.64
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1100921.48
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1409800.49
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 126844.08
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 435427.79
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1830917.83
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 985211.98
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1185733.65
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 236513.53
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 331818.97
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1806160.53
+    },
+    {
+      "scenario": "Sim_00019",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1548654.67
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1441324.2
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1654837.38
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1732472.39
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 755574.31
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 733029.6
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1129751.02
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1612189.74
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 778903.59
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1744849.8
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 431868.4
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1760127.79
+    },
+    {
+      "scenario": "Sim_00020",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1444735.99
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1555007.45
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 276905.14
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 808622.61
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 572524.69
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1368296.17
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 307137.14
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 785018.02
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 827578.39
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1458815.8
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1638632.29
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 108771.13
+    },
+    {
+      "scenario": "Sim_00021",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1963879.75
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1900676.02
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 684243.84
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 201156.56
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 553189.65
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1852357.61
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 161753.73
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1175039.05
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1650000.4
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 491179.41
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1515677.08
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 977238.08
+    },
+    {
+      "scenario": "Sim_00022",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 711479.85
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 926431.41
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1275214.18
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 393327.37
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 764104.59
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 259731.74
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1661626.82
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 429816.07
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1550576.85
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 912848.44
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 195298.45
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1681531.47
+    },
+    {
+      "scenario": "Sim_00023",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1652251.53
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1353954.24
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1082193.03
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1823930.14
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 996437.52
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 686802.02
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1409565.46
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 325898.03
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1523658.75
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1822446.67
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1682301.09
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1295721.67
+    },
+    {
+      "scenario": "Sim_00024",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1993165.65
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1469655.0
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 537454.83
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1726849.71
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 552465.84
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1006394.93
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 553863.9
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1822640.87
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 172438.26
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1854005.0
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1208604.95
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1292632.55
+    },
+    {
+      "scenario": "Sim_00025",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 830931.02
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1531749.26
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1599538.74
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 144776.93
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1231875.54
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1340564.46
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 986487.65
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 96631.45
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1409179.84
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1508784.67
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 824590.39
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 582318.82
+    },
+    {
+      "scenario": "Sim_00026",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1111371.74
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1868596.84
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 236331.85
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 351462.37
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1772042.3
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1491708.99
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 875772.54
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 712408.15
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1879924.1
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1491162.17
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1843881.84
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1419209.19
+    },
+    {
+      "scenario": "Sim_00027",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 356939.58
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1649212.2
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1621374.32
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 965217.03
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1966064.79
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1259160.26
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 976214.89
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1595587.02
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1975548.35
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1732524.0
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 886360.44
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1454825.62
+    },
+    {
+      "scenario": "Sim_00028",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1312606.34
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1570063.72
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 181856.84
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1355341.99
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 609836.67
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1877931.68
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1709642.15
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 89220.38
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 274670.48
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 119814.63
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 833361.98
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 379259.94
+    },
+    {
+      "scenario": "Sim_00029",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1186464.11
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 857294.51
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1576360.8
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 647716.99
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1833669.51
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1344681.24
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 319376.56
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1437722.3
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1030075.53
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1532721.47
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1106498.19
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 860399.85
+    },
+    {
+      "scenario": "Sim_00030",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1687086.62
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 842434.31
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 657820.77
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 523081.3
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1603254.14
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 230307.94
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 479429.23
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1629927.59
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 762111.49
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1274452.02
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1667160.99
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1773071.02
+    },
+    {
+      "scenario": "Sim_00031",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 201762.59
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 145040.0
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 627980.13
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 382360.51
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1984515.49
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1485418.74
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1944122.3
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1943996.61
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 87700.99
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 166720.43
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1467644.15
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1686848.34
+    },
+    {
+      "scenario": "Sim_00032",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1598405.37
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 675007.54
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 823618.02
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1976331.82
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1791982.6
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 206086.85
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1233784.9
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1994080.43
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1866241.65
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 944869.56
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1536149.95
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1864354.61
+    },
+    {
+      "scenario": "Sim_00033",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 607711.52
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 686820.89
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 241254.9
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1659897.23
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1873653.63
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1680263.34
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 709385.14
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1119165.65
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1746737.14
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 522585.44
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1906384.05
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 791485.43
+    },
+    {
+      "scenario": "Sim_00034",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1765489.54
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1191321.87
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1270811.1
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 360731.15
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 374364.1
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1545781.03
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1329621.51
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1103792.37
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 176133.94
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 125136.97
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1462173.7
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 211680.6
+    },
+    {
+      "scenario": "Sim_00035",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1844317.24
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 103117.94
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1580611.05
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1931471.86
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 365819.82
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 511211.0
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1837797.9
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 470631.45
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1265236.62
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 316379.73
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 415854.11
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 554855.29
+    },
+    {
+      "scenario": "Sim_00036",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 869910.6
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 565603.24
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1898604.42
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 709120.95
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1147534.99
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 236645.97
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1285526.74
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1069652.23
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 314224.68
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1458693.82
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1713761.86
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 259605.4
+    },
+    {
+      "scenario": "Sim_00037",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1782998.84
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1017511.81
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 782712.95
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1596964.05
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 800329.62
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1757802.45
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1759739.91
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1936541.9
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1353540.12
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 353284.42
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 346389.3
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 432349.2
+    },
+    {
+      "scenario": "Sim_00038",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1396583.99
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1210175.77
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1937474.96
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1221966.48
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1087763.2
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 457000.1
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1167585.73
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1185019.79
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 542117.33
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1382843.3
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1386791.26
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1380182.19
+    },
+    {
+      "scenario": "Sim_00039",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 995968.03
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1363814.58
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 777447.1
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1088551.15
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 701234.62
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1630148.51
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1251095.19
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1725309.36
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1451722.11
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 359962.05
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1114322.43
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 764837.79
+    },
+    {
+      "scenario": "Sim_00040",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 245982.28
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 970940.07
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1582696.06
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1456906.55
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1146128.84
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 670369.83
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 383354.12
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 635743.61
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 92174.77
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1972924.61
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 516647.49
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1170882.99
+    },
+    {
+      "scenario": "Sim_00041",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 313080.63
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1138216.92
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1812114.51
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1077761.7
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 665641.46
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1078876.72
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 990604.87
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1246961.31
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 936961.28
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1053865.92
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1591858.73
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 668800.57
+    },
+    {
+      "scenario": "Sim_00042",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 232475.65
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1695632.13
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1583535.29
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1310936.25
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 486655.1
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1054195.8
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1296919.28
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1272181.59
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1466224.17
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 333987.44
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1996992.03
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1891585.41
+    },
+    {
+      "scenario": "Sim_00043",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1009133.15
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1583762.19
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 488168.34
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1615150.43
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 529952.14
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1746272.14
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 966673.49
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1514818.97
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1052214.87
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1091820.37
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1373879.4
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 316436.44
+    },
+    {
+      "scenario": "Sim_00044",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1687643.65
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1144449.54
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1920614.11
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 885241.61
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1732821.13
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 323271.04
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 92579.49
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 252130.95
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 943102.68
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 444550.69
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1313055.05
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1426204.71
+    },
+    {
+      "scenario": "Sim_00045",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 307035.63
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1564902.19
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 401492.65
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1682617.79
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 96651.93
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1487620.78
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1205638.79
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1984853.31
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 561987.07
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1318165.79
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 676584.42
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1536476.21
+    },
+    {
+      "scenario": "Sim_00046",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1897514.62
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 989292.66
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1384677.61
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1465382.33
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 268187.07
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 672041.84
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 766580.65
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1383698.15
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1338107.83
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 252580.31
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 783011.57
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1296264.47
+    },
+    {
+      "scenario": "Sim_00047",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 819808.9
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1959722.25
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1219595.05
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 838202.39
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1379121.79
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1387965.43
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 93461.1
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 94357.49
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1292160.14
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 1626679.64
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1487206.51
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1437725.76
+    },
+    {
+      "scenario": "Sim_00048",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 292151.83
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 1123848.61
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 1581508.4
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 111138.62
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1073402.8
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 676197.67
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 999538.83
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 753180.59
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 1295109.27
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 993664.01
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1516302.0
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1403035.58
+    },
+    {
+      "scenario": "Sim_00049",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1879654.07
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2025-12-31",
+      "kpi": "revenue",
+      "value": 799527.91
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2025-12-31",
+      "kpi": "ebitda",
+      "value": 674953.54
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2025-12-31",
+      "kpi": "net_income",
+      "value": 1128314.32
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2026-12-31",
+      "kpi": "revenue",
+      "value": 1152023.3
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2026-12-31",
+      "kpi": "ebitda",
+      "value": 1889424.8
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2026-12-31",
+      "kpi": "net_income",
+      "value": 1634783.57
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2027-12-31",
+      "kpi": "revenue",
+      "value": 1239585.84
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2027-12-31",
+      "kpi": "ebitda",
+      "value": 94211.77
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2027-12-31",
+      "kpi": "net_income",
+      "value": 143110.48
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2028-12-31",
+      "kpi": "revenue",
+      "value": 1470514.26
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2028-12-31",
+      "kpi": "ebitda",
+      "value": 1298520.33
+    },
+    {
+      "scenario": "Sim_00050",
+      "date": "2028-12-31",
+      "kpi": "net_income",
+      "value": 1916772.22
+    }
+  ]
+}

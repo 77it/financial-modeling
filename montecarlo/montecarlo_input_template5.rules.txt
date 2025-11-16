@@ -1,0 +1,31 @@
+# Input Validation Rules
+
+## 1. Array Ordering
+Arrays ordered **BEST** (left) → **WORST** (right) by user judgment. Best/worst are business outcomes, not mathematical min/max.
+
+## 2. Base Case
+Base = highest probability value. If uniform distribution (all probabilities equal), base = arithmetic mean.
+
+## 3. Array Length
+Arrays: any length ≥ 1. Format: `[100]` or `100` (both valid for single element). Single element: best = worst = base.
+
+## 4. Probability Consistency
+Within same `(group, month)`: probabilities must be identical. Can omit on some rows (inherits from first row by sheet order specifying them for that group-month). At least one row per `(group, month)` must specify probabilities.
+
+## 5. Variable-Group Association
+Each variable must consistently belong to the same group (or no group) across all its rows. Variables with no group are independent (sampled separately). ERROR if variable appears in multiple different groups, or appears both grouped and ungrouped.
+
+## 6. Synchronized Sampling
+Within same `(group, month)`: all arrays must have equal length (tuple extraction uses same index across all variables).
+
+## 7. Value-Probability Matching
+Each row: `len(values) == len(prob)` (if prob specified). When prob omitted: inherits from another row in same `(group, month)` with matching array length. Probabilities CANNOT inherit across different months.
+
+## 8. Probability Validation
+Non-negative only. Auto-normalize to sum=1.0 if needed (with warning).
+
+## 9. Value Types
+All values must be numeric (integers or decimals).
+
+## 10. Case Insensitivity
+Group names and variable names are case-insensitive (normalized to lowercase, trimmed).

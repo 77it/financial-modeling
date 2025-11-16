@@ -1,3 +1,4 @@
+export { regExp_YYYYMMDDTHHMMSSMMMZ, regExp_YYYYMMDD_minusSlashDotSep }
 export { isValidDate };
 export { parseJsonToLocalDate, parseJsonToUTCDate };
 export { differenceInCalendarDaysOfLocalDates, differenceInCalendarDaysOfUTCDates };
@@ -9,7 +10,7 @@ export { localDateToUTC, UTCtoLocalDate, localDateToStringYYYYMMDD, stripTimeToL
 // creating RegExp for later use
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
 const regExp_YYYYMMDDTHHMMSSMMMZ = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{0,7}))?(?:Z|(.)(\d{2}):?(\d{2})?)?$/;
-const regExp_YYYYMMDD_minusSlashDotSep = /^(\d{4})[-./](\d{2})[-./](\d{2})$/;
+const regExp_YYYYMMDD_minusSlashDotSep = /^(\d{4})([-./])(\d{1,2})\2(\d{1,2})$/;
 const regExp_YYYYMMDD_withoutSep = /^(\d{4})(\d{2})(\d{2})$/;
 
 /**
@@ -102,11 +103,11 @@ function _parseJsonDate (argument, opt) {
         +((parts[7] || '0') + '00').substring(0, 3)
       );
     } else if (partsYYYYMMDD) {
-      // YYYY-MM-DD date
+      // YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD date
       return _newDate(
         +partsYYYYMMDD[1],
-        +partsYYYYMMDD[2] - 1,
-        +partsYYYYMMDD[3]
+        +partsYYYYMMDD[3] - 1,
+        +partsYYYYMMDD[4]
       );
     } else if (partsYYYYMMDD_withoutSep) {
       // YYYYMMDD date without separator
