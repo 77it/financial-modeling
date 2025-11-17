@@ -5,7 +5,7 @@ import { eqObj } from '../lib/obj_utils.js';
 import { parseJSON5strict } from '../../src/lib/unused/json5.js';
 import { Decimal } from '../../vendor/decimaljs/decimal.mjs';
 import { sanitize } from '../../src/lib/schema_sanitization_utils.js';
-import { parseJsonToLocalDate } from '../../src/lib/date_utils.js';
+import { parseTextToLocalDate } from '../../src/lib/date_utils.js';
 import * as S from '../../src/lib/schema.js';
 
 import { test } from 'node:test';
@@ -145,13 +145,13 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
     ['"12-25-2023"', '"12-25-2023"', S.ANY_TYPE, '12-25-2023'],  // date not matching regex left as-is
     ['"2023-12-25"', '"2023-12-25"', S.ANY_TYPE, '2023-12-25'],
     ['2023-12-25', '"2023-12-25"', S.ANY_TYPE, '2023-12-25'],  // unquoted -> quoted
-    ['2023-12-25', '"2023-12-25"', S.DATE_TYPE, parseJsonToLocalDate('2023-12-25')],  // unquoted -> quoted
+    ['2023-12-25', '"2023-12-25"', S.DATE_TYPE, parseTextToLocalDate('2023-12-25')],  // unquoted -> quoted
     ['"2023/12/25"', '"2023/12/25"', S.ANY_TYPE, '2023/12/25'],
     ['2023/12/25', '"2023/12/25"', S.ANY_TYPE, '2023/12/25'],  // unquoted -> quoted
-    ['2023/12/25', '"2023/12/25"', S.DATE_TYPE, parseJsonToLocalDate('2023/12/25')],  // unquoted -> quoted
+    ['2023/12/25', '"2023/12/25"', S.DATE_TYPE, parseTextToLocalDate('2023/12/25')],  // unquoted -> quoted
     ['"2023.12.25"', '"2023.12.25"', S.ANY_TYPE, '2023.12.25'],
     ['2023.12.25', '"2023.12.25"', S.ANY_TYPE, '2023.12.25'],  // unquoted .> quoted
-    ['2023.12.25', '"2023.12.25"', S.DATE_TYPE, parseJsonToLocalDate('2023.12.25')],  // unquoted .> quoted
+    ['2023.12.25', '"2023.12.25"', S.DATE_TYPE, parseTextToLocalDate('2023.12.25')],  // unquoted .> quoted
     // ── Date preceding boundary (two negatives, one positive) ─────────────
     // NEGATIVE: date-like sequence in the middle of an identifier → unchanged
     ['foo2024-01-01', 'foo2024-01-01', S.ANY_TYPE, null],
@@ -159,7 +159,7 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
     ['2024-01-01X', '2024-01-01X', S.ANY_TYPE, null],
     // POSITIVE: boundary before and after → quoted
     ['{ a:2024-01-01 }', '{ a:"2024-01-01" }', S.ANY_TYPE, { a: '2024-01-01' }],
-    ['{ a:2024-01-01 }', '{ a:"2024-01-01" }', { a: S.DATE_TYPE }, { a: parseJsonToLocalDate('2024-01-01') }],
+    ['{ a:2024-01-01 }', '{ a:"2024-01-01" }', { a: S.DATE_TYPE }, { a: parseTextToLocalDate('2024-01-01') }],
     // Dates that should NOT be quoted (inside identifiers - no proper preceding boundary)
     ['foo2024-01-01', 'foo2024-01-01', S.ANY_TYPE, null],  // date preceded by identifier chars
     ['prefix2024-01-01suffix', 'prefix2024-01-01suffix', S.ANY_TYPE, null],  // date in middle of identifier
@@ -215,10 +215,10 @@ t('JSON5 quoteNumbersAndDatesForRelaxedJSON5', () => {
     // 17) ISO date strings (should be transformed when unquoted)
     ['"2023-12-25T10:30:00Z"', '"2023-12-25T10:30:00Z"', S.ANY_TYPE, '2023-12-25T10:30:00Z'],
     ['2023-12-25T10:30:00Z', '"2023-12-25T10:30:00Z"', S.ANY_TYPE, '2023-12-25T10:30:00Z'],
-    ['2023-12-25T10:30:00Z', '"2023-12-25T10:30:00Z"', S.DATE_TYPE, parseJsonToLocalDate('2023-12-25T10:30:00Z')],
+    ['2023-12-25T10:30:00Z', '"2023-12-25T10:30:00Z"', S.DATE_TYPE, parseTextToLocalDate('2023-12-25T10:30:00Z')],
     ['"2023-12-25T10:30:00.123Z"', '"2023-12-25T10:30:00.123Z"', S.ANY_TYPE, '2023-12-25T10:30:00.123Z'],
     ['2023-12-25T10:30:00.123Z', '"2023-12-25T10:30:00.123Z"', S.ANY_TYPE, '2023-12-25T10:30:00.123Z'],
-    ['2023-12-25T10:30:00.123Z', '"2023-12-25T10:30:00.123Z"', S.DATE_TYPE, parseJsonToLocalDate('2023-12-25T10:30:00.123Z')],
+    ['2023-12-25T10:30:00.123Z', '"2023-12-25T10:30:00.123Z"', S.DATE_TYPE, parseTextToLocalDate('2023-12-25T10:30:00.123Z')],
 
     // 18) Version numbers (should NOT be transformed)
     ['"1.2.3"', '"1.2.3"', S.ANY_TYPE, '1.2.3'],

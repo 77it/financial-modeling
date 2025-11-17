@@ -1,6 +1,6 @@
 export { regExp_YYYYMMDDTHHMMSSMMMZ_notGrouping, regExp_YYYYMMDDTHHMMSSMMMZ }
 export { isValidDate };
-export { parseJsonToLocalDate, parseJsonToUTCDate, parseTextAndNumbersToLocalDate, parseTextAndNumbersToUTCDate  };
+export { parseTextToLocalDate, parseTextToUTCDate, parseTextAndNumbersToLocalDate, parseTextAndNumbersToUTCDate  };
 export { differenceInCalendarDaysOfLocalDates, differenceInCalendarDaysOfUTCDates };
 export { excelSerialDateToUTCDate, excelSerialDateToLocalDate, localDateToExcelSerialDate };
 export { addMonthsToLocalDate, addDaysToLocalDate, addDaysToUTCDate, getEndOfMonthOfLocalDate };
@@ -51,19 +51,19 @@ function isValidDate (value) {
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
  * @returns {Date} the parsed date in local time zone
  */
-function parseJsonToLocalDate (argument) {
+function parseTextToLocalDate (argument) {
   return _parseJsonDate(argument, { asUTC: false, withoutSeparator: false });
 }
 
 /**
  * Converts a ISO date string (the typical format for transmitting a date in JSON)
  * to a JavaScript `Date` in UTC time zone.
- * See other notes in `parseJsonToLocalDate`.
+ * See other notes in `parseTextToLocalDate`.
  *
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
  * @returns {Date} the parsed date in UTC time zone
 */
-function parseJsonToUTCDate (argument) {
+function parseTextToUTCDate (argument) {
   return _parseJsonDate(argument, { asUTC: true, withoutSeparator: false });
 }
 
@@ -71,7 +71,7 @@ function parseJsonToUTCDate (argument) {
  * Converts a ISO date string (the typical format for transmitting a date in JSON)
  * to a JavaScript `Date` in UTC time zone.
  * Converts also YYYYMMDD without separators.
- * See other notes in `parseJsonToLocalDate`.
+ * See other notes in `parseTextToLocalDate`.
  *
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD or YYYYMMDD
  * @returns {Date} the parsed date in UTC time zone
@@ -84,7 +84,7 @@ function parseTextAndNumbersToLocalDate (argument) {
  * Converts a ISO date string (the typical format for transmitting a date in JSON)
  * to a JavaScript `Date` in UTC time zone.
  * Converts also YYYYMMDD without separators.
- * See other notes in `parseJsonToLocalDate`.
+ * See other notes in `parseTextToLocalDate`.
  *
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD or YYYYMMDD
  * @returns {Date} the parsed date in UTC time zone

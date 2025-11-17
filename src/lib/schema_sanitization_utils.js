@@ -2,7 +2,7 @@ export { sanitize };
 
 import * as schema from './schema.js';
 import { ValidateSanitizeResult } from './validate_sanitize_result.js';
-import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, localDateToUTC } from './date_utils.js';
+import { parseTextToLocalDate, parseTextToUTCDate, excelSerialDateToLocalDate, excelSerialDateToUTCDate, localDateToUTC } from './date_utils.js';
 import { validate as validateFunc } from './schema_validation_utils.js';
 import { eq2, get2 } from './obj_utils.js';
 import { anyToDecimalOrDefault } from './decimal_utils.js';
@@ -237,9 +237,9 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
           let _value = value;
           if (typeof value === 'string') {  // if `value` is string, replace it with a date from a parsed string; date in local time or UTC
             if (_DATE_UTC)
-              _value = parseJsonToUTCDate(value);
+              _value = parseTextToUTCDate(value);
             else
-              _value = parseJsonToLocalDate(value);
+              _value = parseTextToLocalDate(value);
           } else if (typeof value === 'number' || typeof value === 'bigint' || value instanceof Decimal) {  // if `value` is number, BigInt or Decimal, convert it as Excel serial date to date in local time or UTC
             const _numValue = Number(value);
             if (_NUMBER_TO_DATE === schema.NUMBER_TO_DATE_OPTS.NUMBER_TO_DATE__EXCEL_1900_SERIAL_DATE) {
@@ -255,7 +255,7 @@ function sanitize ({ value, sanitization, options, validate = false, keyInsensit
             _value = _DEFAULT_DATE;
           }
           retValue = isNaN(new Date(_value).getTime())
-            ? _DEFAULT_DATE : new Date(_value);  // normalize `_value` (and not `value`), because also `parseJsonToLocalDate`|`parseJsonToUTCDate` can return a not valid date
+            ? _DEFAULT_DATE : new Date(_value);  // normalize `_value` (and not `value`), because also `parseTextToLocalDate`|`parseTextToUTCDate` can return a not valid date
         }
       } catch (_) {
         retValue = _DEFAULT_DATE;

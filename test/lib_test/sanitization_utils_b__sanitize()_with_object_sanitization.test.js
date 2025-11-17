@@ -1,7 +1,7 @@
 import * as S from '../../src/lib/schema.js';
 import * as s from '../../src/lib/schema_sanitization_utils.js';
 import { eq2 } from '../../src/lib/obj_utils.js';
-import { parseJsonToLocalDate, parseJsonToUTCDate, excelSerialDateToUTCDate, excelSerialDateToLocalDate } from '../../src/lib/date_utils.js';
+import { parseTextToLocalDate, parseTextToUTCDate, excelSerialDateToUTCDate, excelSerialDateToLocalDate } from '../../src/lib/date_utils.js';
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
 
 import { validateSanitizeFunction_TestAsset } from './validateSanitizeFunction_TestAsset.js';
@@ -106,12 +106,12 @@ t('test sanitize() with object sanitization - complex type, local date', async (
   };
 
   const expObj = {
-    date: parseJsonToLocalDate('1999-12-31T23:59:59'),
-    date2: parseJsonToLocalDate('1999-12-31'),
-    date3: parseJsonToLocalDate('2022-12-25T00:00:00.000Z'),
+    date: parseTextToLocalDate('1999-12-31T23:59:59'),
+    date2: parseTextToLocalDate('1999-12-31'),
+    date3: parseTextToLocalDate('2022-12-25T00:00:00.000Z'),
     date4_fromExcelSerialDate: excelSerialDateToLocalDate(44920),
-    arrDate: [parseJsonToLocalDate('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
-    arrDate2: [parseJsonToLocalDate('1999-12-31T23:59:59')],
+    arrDate: [parseTextToLocalDate('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
+    arrDate2: [parseTextToLocalDate('1999-12-31T23:59:59')],
     extraValueMissingRequiredDate: new Date(0),
   };
 
@@ -199,9 +199,9 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
     strUppercaseTrimmed: 'B B',
     num: 123,
     bool: false,
-    date: parseJsonToUTCDate('1999-12-31T23:59:59'),
-    date2: parseJsonToUTCDate('1999-12-31'),
-    date3: parseJsonToUTCDate('2022-12-25T00:00:00.000Z'),
+    date: parseTextToUTCDate('1999-12-31T23:59:59'),
+    date2: parseTextToUTCDate('1999-12-31'),
+    date3: parseTextToUTCDate('2022-12-25T00:00:00.000Z'),
     date4_fromExcelSerialDate: excelSerialDateToUTCDate(44920),
     enum: 'mamma',
     arr: [999],
@@ -213,8 +213,8 @@ t('test sanitize() with object sanitization - complex type + validate=true test'
     arrStrUppercaseTrimmed2: ['0'],
     arrNum: [99, 0, 55],
     arrNum2: [99],
-    arrDate: [parseJsonToUTCDate('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
-    arrDate2: [parseJsonToUTCDate('1999-12-31T23:59:59')],
+    arrDate: [parseTextToUTCDate('1999-12-31T23:59:59'), new Date('2020-12-31T23:59:59')],
+    arrDate2: [parseTextToUTCDate('1999-12-31T23:59:59')],
     arrBool: [false, true],
     arrBool2: [false],
     arrBoolEmpty: [],
