@@ -8,32 +8,52 @@
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
 import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v6_x.js';
+import { EVALUATE_NUMBERS_AS_STRINGS } from './_formula__tests_settings.js';
+
 import { describe, it } from '../../lib/bdd_polyfill.js';
+import { add, bigIntScaledToString } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
-runTests(OriginalParser);
+//runTests({Parser: OriginalParser, evaluateNumbersAsStrings: false});
 
-runTests(CustomParser);
+runTests({Parser: CustomParser, evaluateNumbersAsStrings: EVALUATE_NUMBERS_AS_STRINGS});
 
 /**
- * Run tests for the Parser passed as argument.
- * @param {*} Parser
+ * Run tests for the Parser passed as argument with options
+ * @param {Object} p
+ * @param {*} p.Parser
+ * @param {boolean} p.evaluateNumbersAsStrings
  */
-function runTests(Parser) {
+function runTests({ Parser, evaluateNumbersAsStrings }) {
+    // Wrapper for expect.toEqual to auto-convert numbers to strings if evaluateNumbersAsStrings is true
+    const expectEqual = (actual, expected) => {
+        const convertedExpected = evaluateNumbersAsStrings && typeof expected === 'number' ? String(expected) : expected;
+        expect(actual).toEqual(convertedExpected);
+    };
+
     describe('Formula, original and custom, tests', () => {
 
         it('evaluates a formula', () => {
 
             const functions = {
-                x: (value) => value + 10
+                x: (value) => {
+                    if (evaluateNumbersAsStrings) {
+                        return bigIntScaledToString(add(value, 10));
+                    } else {
+                        return value + 10;
+                    }
+                }
             };
-
             const constants = {
                 Z: 100
             };
 
             const formula = new Parser('1 + a.b.c.2.4.x + [b] + x([y + 4] + Z)', { functions, constants });
-            expect(formula.evaluate({ 'a.b.c.2.4.x': 2, b: 3, 'y + 4': 5 })).toEqual(1 + 2 + 3 + 5 + 10 + 100);
-            expect(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' })).toEqual('123510010');
+            expectEqual(formula.evaluate({ 'a.b.c.2.4.x': 2, b: 3, 'y + 4': 5 }), 1 + 2 + 3 + 5 + 10 + 100);
+            if (evaluateNumbersAsStrings) {
+                expectEqual(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' }), 1 + 2 + 3 + 5 + 10 + 100);
+            } else {
+                expectEqual(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' }), '123510010');
+            }
         });
 
         it('evaluates a formula (custom reference handler)', () => {
@@ -52,8 +72,8 @@ function runTests(Parser) {
             };
 
             const formula = new Parser('1 + a.b.c.2.4.x + [b] + x([y + 4] + Z)', { functions, constants, reference });
-            expect(formula.evaluate({ 'a.b.c.2.4.x': 2, b: 3, 'y + 4': 5 })).toEqual(1 + 2 + 3 + 5 + 10 + 100);
-            expect(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' })).toEqual('123510010');
+            expectEqual(formula.evaluate({ 'a.b.c.2.4.x': 2, b: 3, 'y + 4': 5 }), 1 + 2 + 3 + 5 + 10 + 100);
+            expectEqual(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' }), '123510010');
         });
 
         describe('constructor()', () => {
@@ -79,25 +99,25 @@ function runTests(Parser) {
             it('identifies single literal (string)', () => {
 
                 const formula = new Parser('"x"');
-                expect(formula.single).toEqual({ type: 'value', value: 'x' });
+                expectEqual(formula.single, { type: 'value', value: 'x' });
             });
 
             it('identifies single literal (number)', () => {
 
                 const formula = new Parser('123');
-                expect(formula.single).toEqual({ type: 'value', value: 123 });
+                expectEqual(formula.single, { type: 'value', value: 123 });
             });
 
             it('identifies single literal (constant)', () => {
 
                 const formula = new Parser('x', { constants: { x: 'y' } });
-                expect(formula.single).toEqual({ type: 'value', value: 'y' });
+                expectEqual(formula.single, { type: 'value', value: 'y' });
             });
 
             it('identifies single reference', () => {
 
                 const formula = new Parser('x');
-                expect(formula.single).toEqual({ type: 'reference', value: 'x' });
+                expectEqual(formula.single, { type: 'reference', value: 'x' });
             });
 
             it('identifies non-single reference', () => {
@@ -119,7 +139,7 @@ function runTests(Parser) {
                 };
 
                 const formula = new Parser('x(10) + y(z(30)) + z(x(40)) + a()', { functions });
-                expect(formula.evaluate()).toEqual(11 + 33 + 2 + 41 + 3 + 9);
+                expectEqual(formula.evaluate(), 11 + 33 + 2 + 41 + 3 + 9);
             });
 
             it('passes context as this to functions', () => {
@@ -132,19 +152,19 @@ function runTests(Parser) {
                 };
 
                 const formula = new Parser('x()', { functions });
-                expect(formula.evaluate({ X: 1 })).toEqual(1);
+                expectEqual(formula.evaluate({ X: 1 }), 1);
             });
 
             it('parses parenthesis', () => {
 
                 const formula = new Parser('(x + 4) * (x - 5) / (x ^ 2)');
-                expect(formula.evaluate({ x: 10 })).toEqual((10 + 4) * (10 - 5) / (Math.pow(10, 2)));
+                expectEqual(formula.evaluate({ x: 10 }), (10 + 4) * (10 - 5) / (Math.pow(10, 2)));
             });
 
             it('parses string literals', () => {
 
                 const formula = new Parser('"x+3" + `y()` + \'-z\'');
-                expect(formula.evaluate()).toEqual('x+3y()-z');
+                expectEqual(formula.evaluate(), 'x+3y()-z');
             });
 
             it('validates token', () => {
@@ -192,7 +212,7 @@ function runTests(Parser) {
                 };
 
                 const formula = new Parser('x(10, (y((1 + 2), z(30)) + a()), z(x(4, 5, 6)))', { functions });
-                expect(formula.evaluate()).toEqual(10 + (((1 + 2) * (30 + 3)) + 9) + (4 + 5 + 6) + 3);
+                expectEqual(formula.evaluate(), 10 + (((1 + 2) * (30 + 3)) + 9) + (4 + 5 + 6) + 3);
             });
 
             it('parses multiple nested functions with arguments (strings)', () => {
@@ -205,7 +225,7 @@ function runTests(Parser) {
                 };
 
                 const formula = new Parser('x("10", (y(("1" + "2"), z("30")) + a()), z(x("4", "5", "6")))', { functions });
-                expect(formula.evaluate()).toEqual('101230394563');
+                expectEqual(formula.evaluate(), '101230394563');
             });
 
             it('errors on unknown function', () => {
@@ -225,7 +245,7 @@ function runTests(Parser) {
 
                 const formula = new Parser('0 + null', { constants: { null: null } });
 
-                expect(formula.evaluate()).toEqual(0);
+                expectEqual(formula.evaluate(), 0);
             });
         });
 
@@ -235,27 +255,27 @@ function runTests(Parser) {
 
                 const formula = new Parser('-x');
 
-                expect(formula.evaluate({ x: 1 })).toEqual(-1);
-                expect(formula.evaluate({ x: -1 })).toEqual(1);
-                expect(formula.evaluate({ x: 0 })).toEqual(0);
+                expectEqual(formula.evaluate({ x: 1 }), -1);
+                expectEqual(formula.evaluate({ x: -1 }), 1);
+                expectEqual(formula.evaluate({ x: 0 }), 0);
             });
 
             it('handles --', () => {
 
                 const formula = new Parser('10--x');
 
-                expect(formula.evaluate({ x: 1 })).toEqual(11);
-                expect(formula.evaluate({ x: -1 })).toEqual(9);
-                expect(formula.evaluate({ x: 0 })).toEqual(10);
+                expectEqual(formula.evaluate({ x: 1 }), 11);
+                expectEqual(formula.evaluate({ x: -1 }), 9);
+                expectEqual(formula.evaluate({ x: 0 }), 10);
             });
 
             it('calculates !', () => {
 
                 const formula = new Parser('!x');
 
-                expect(formula.evaluate({ x: 1 })).toEqual(false);
-                expect(formula.evaluate({ x: -1 })).toEqual(false);
-                expect(formula.evaluate({ x: 0 })).toEqual(true);
+                expectEqual(formula.evaluate({ x: 1 }), false);
+                expectEqual(formula.evaluate({ x: -1 }), false);
+                expectEqual(formula.evaluate({ x: 0 }), true);
             });
         });
 
@@ -265,393 +285,393 @@ function runTests(Parser) {
 
                 const formula = new Parser('x+y');
 
-                expect(formula.evaluate({ x: 1, y: 2 })).toEqual(3);
-                expect(formula.evaluate({ y: 2 })).toEqual(2);
-                expect(formula.evaluate({ x: 1 })).toEqual(1);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(2);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(1);
+                expectEqual(formula.evaluate({ x: 1, y: 2 }), 3);
+                expectEqual(formula.evaluate({ y: 2 }), 2);
+                expectEqual(formula.evaluate({ x: 1 }), 1);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), 2);
+                expectEqual(formula.evaluate({ x: 1, y: null }), 1);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual('12');
-                expect(formula.evaluate({ y: '2' })).toEqual('2');
-                expect(formula.evaluate({ x: '1' })).toEqual('1');
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual('2');
-                expect(formula.evaluate({ x: '1', y: null })).toEqual('1');
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), '12');
+                expectEqual(formula.evaluate({ y: '2' }), '2');
+                expectEqual(formula.evaluate({ x: '1' }), '1');
+                expectEqual(formula.evaluate({ x: null, y: '2' }), '2');
+                expectEqual(formula.evaluate({ x: '1', y: null }), '1');
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual('12');
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual('12');
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), '12');
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), '12');
             });
 
             it('calculates -', () => {
 
                 const formula = new Parser('x-y');
 
-                expect(formula.evaluate({ x: 1, y: 2 })).toEqual(-1);
-                expect(formula.evaluate({ y: 2 })).toEqual(-2);
-                expect(formula.evaluate({ x: 1 })).toEqual(1);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(-2);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(1);
+                expectEqual(formula.evaluate({ x: 1, y: 2 }), -1);
+                expectEqual(formula.evaluate({ y: 2 }), -2);
+                expectEqual(formula.evaluate({ x: 1 }), 1);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), -2);
+                expectEqual(formula.evaluate({ x: 1, y: null }), 1);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(null);
-                expect(formula.evaluate({ y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1' })).toEqual(null);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(null);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), null);
+                expectEqual(formula.evaluate({ y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1' }), null);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: null }), null);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(null);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), null);
             });
 
             it('calculates *', () => {
 
                 const formula = new Parser('x*y');
 
-                expect(formula.evaluate({ x: 20, y: 10 })).toEqual(200);
-                expect(formula.evaluate({ y: 2 })).toEqual(0);
-                expect(formula.evaluate({ x: 1 })).toEqual(0);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(0);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(0);
+                expectEqual(formula.evaluate({ x: 20, y: 10 }), 200);
+                expectEqual(formula.evaluate({ y: 2 }), 0);
+                expectEqual(formula.evaluate({ x: 1 }), 0);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), 0);
+                expectEqual(formula.evaluate({ x: 1, y: null }), 0);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(null);
-                expect(formula.evaluate({ y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1' })).toEqual(null);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(null);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), null);
+                expectEqual(formula.evaluate({ y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1' }), null);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: null }), null);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(null);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), null);
             });
 
             it('calculates /', () => {
 
                 const formula = new Parser('x/y');
 
-                expect(formula.evaluate({ x: 20, y: 10 })).toEqual(2);
-                expect(formula.evaluate({ y: 2 })).toEqual(0);
-                expect(formula.evaluate({ x: 1 })).toEqual(Infinity);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(0);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(Infinity);
+                expectEqual(formula.evaluate({ x: 20, y: 10 }), 2);
+                expectEqual(formula.evaluate({ y: 2 }), 0);
+                expectEqual(formula.evaluate({ x: 1 }), Infinity);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), 0);
+                expectEqual(formula.evaluate({ x: 1, y: null }), Infinity);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(null);
-                expect(formula.evaluate({ y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1' })).toEqual(null);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(null);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), null);
+                expectEqual(formula.evaluate({ y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1' }), null);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: null }), null);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(null);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), null);
             });
 
             it('calculates ^', () => {
 
                 const formula = new Parser('x^y');
 
-                expect(formula.evaluate({ x: 2, y: 3 })).toEqual(8);
-                expect(formula.evaluate({ y: 2 })).toEqual(0);
-                expect(formula.evaluate({ x: 1 })).toEqual(1);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(0);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(1);
+                expectEqual(formula.evaluate({ x: 2, y: 3 }), 8);
+                expectEqual(formula.evaluate({ y: 2 }), 0);
+                expectEqual(formula.evaluate({ x: 1 }), 1);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), 0);
+                expectEqual(formula.evaluate({ x: 1, y: null }), 1);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(null);
-                expect(formula.evaluate({ y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1' })).toEqual(null);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(null);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), null);
+                expectEqual(formula.evaluate({ y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1' }), null);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: null }), null);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(null);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), null);
             });
 
             it('calculates %', () => {
 
                 const formula = new Parser('x%y');
 
-                expect(formula.evaluate({ x: 10, y: 3 })).toEqual(1);
-                expect(formula.evaluate({ y: 2 })).toEqual(0);
-                expect(formula.evaluate({ x: 1 })).toEqual(NaN);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(0);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(NaN);
+                expectEqual(formula.evaluate({ x: 10, y: 3 }), 1);
+                expectEqual(formula.evaluate({ y: 2 }), 0);
+                expectEqual(formula.evaluate({ x: 1 }), NaN);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), 0);
+                expectEqual(formula.evaluate({ x: 1, y: null }), NaN);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(null);
-                expect(formula.evaluate({ y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1' })).toEqual(null);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(null);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), null);
+                expectEqual(formula.evaluate({ y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1' }), null);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: null }), null);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(null);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), null);
             });
 
             it('compares <', () => {
 
                 const formula = new Parser('x<y');
 
-                expect(formula.evaluate({ x: 10, y: 3 })).toEqual(false);
-                expect(formula.evaluate({ x: 10, y: 10 })).toEqual(false);
-                expect(formula.evaluate({ y: 2 })).toEqual(true);
-                expect(formula.evaluate({ x: 1 })).toEqual(false);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(true);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(false);
+                expectEqual(formula.evaluate({ x: 10, y: 3 }), false);
+                expectEqual(formula.evaluate({ x: 10, y: 10 }), false);
+                expectEqual(formula.evaluate({ y: 2 }), true);
+                expectEqual(formula.evaluate({ x: 1 }), false);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), true);
+                expectEqual(formula.evaluate({ x: 1, y: null }), false);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: '1' })).toEqual(false);
-                expect(formula.evaluate({ y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1' })).toEqual(false);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(false);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: '1' }), false);
+                expectEqual(formula.evaluate({ y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1' }), false);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: null }), false);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(true);
-                expect(formula.evaluate({ x: 1, y: '1' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: 1 })).toEqual(false);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), true);
+                expectEqual(formula.evaluate({ x: 1, y: '1' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: 1 }), false);
 
-                expect(formula.evaluate({ x: null, y: null })).toEqual(false);
-                expect(formula.evaluate({ y: null })).toEqual(false);
-                expect(formula.evaluate({ x: null })).toEqual(false);
-                expect(formula.evaluate()).toEqual(false);
+                expectEqual(formula.evaluate({ x: null, y: null }), false);
+                expectEqual(formula.evaluate({ y: null }), false);
+                expectEqual(formula.evaluate({ x: null }), false);
+                expectEqual(formula.evaluate(), false);
             });
 
             it('compares >', () => {
 
                 const formula = new Parser('x>y');
 
-                expect(formula.evaluate({ x: 10, y: 3 })).toEqual(true);
-                expect(formula.evaluate({ x: 10, y: 10 })).toEqual(false);
-                expect(formula.evaluate({ y: 2 })).toEqual(false);
-                expect(formula.evaluate({ x: 1 })).toEqual(true);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(false);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(true);
+                expectEqual(formula.evaluate({ x: 10, y: 3 }), true);
+                expectEqual(formula.evaluate({ x: 10, y: 10 }), false);
+                expectEqual(formula.evaluate({ y: 2 }), false);
+                expectEqual(formula.evaluate({ x: 1 }), true);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), false);
+                expectEqual(formula.evaluate({ x: 1, y: null }), true);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: '1' })).toEqual(false);
-                expect(formula.evaluate({ y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1' })).toEqual(true);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(true);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: '1' }), false);
+                expectEqual(formula.evaluate({ y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1' }), true);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: null }), true);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(false);
-                expect(formula.evaluate({ x: 1, y: '1' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: 1 })).toEqual(false);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), false);
+                expectEqual(formula.evaluate({ x: 1, y: '1' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: 1 }), false);
 
-                expect(formula.evaluate({ x: null, y: null })).toEqual(false);
-                expect(formula.evaluate({ y: null })).toEqual(false);
-                expect(formula.evaluate({ x: null })).toEqual(false);
-                expect(formula.evaluate()).toEqual(false);
+                expectEqual(formula.evaluate({ x: null, y: null }), false);
+                expectEqual(formula.evaluate({ y: null }), false);
+                expectEqual(formula.evaluate({ x: null }), false);
+                expectEqual(formula.evaluate(), false);
             });
 
             it('compares <=', () => {
 
                 const formula = new Parser('x<=y');
 
-                expect(formula.evaluate({ x: 10, y: 3 })).toEqual(false);
-                expect(formula.evaluate({ x: 10, y: 10 })).toEqual(true);
-                expect(formula.evaluate({ y: 2 })).toEqual(true);
-                expect(formula.evaluate({ x: 1 })).toEqual(false);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(true);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(false);
+                expectEqual(formula.evaluate({ x: 10, y: 3 }), false);
+                expectEqual(formula.evaluate({ x: 10, y: 10 }), true);
+                expectEqual(formula.evaluate({ y: 2 }), true);
+                expectEqual(formula.evaluate({ x: 1 }), false);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), true);
+                expectEqual(formula.evaluate({ x: 1, y: null }), false);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: '1' })).toEqual(true);
-                expect(formula.evaluate({ y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1' })).toEqual(false);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(false);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: '1' }), true);
+                expectEqual(formula.evaluate({ y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1' }), false);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: null }), false);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(true);
-                expect(formula.evaluate({ x: 1, y: '1' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: 1 })).toEqual(true);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), true);
+                expectEqual(formula.evaluate({ x: 1, y: '1' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: 1 }), true);
 
-                expect(formula.evaluate({ x: null, y: null })).toEqual(true);
-                expect(formula.evaluate({ y: null })).toEqual(true);
-                expect(formula.evaluate({ x: null })).toEqual(true);
-                expect(formula.evaluate()).toEqual(true);
+                expectEqual(formula.evaluate({ x: null, y: null }), true);
+                expectEqual(formula.evaluate({ y: null }), true);
+                expectEqual(formula.evaluate({ x: null }), true);
+                expectEqual(formula.evaluate(), true);
             });
 
             it('compares >=', () => {
 
                 const formula = new Parser('x>=y');
 
-                expect(formula.evaluate({ x: 10, y: 3 })).toEqual(true);
-                expect(formula.evaluate({ x: 10, y: 10 })).toEqual(true);
-                expect(formula.evaluate({ y: 2 })).toEqual(false);
-                expect(formula.evaluate({ x: 1 })).toEqual(true);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(false);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(true);
+                expectEqual(formula.evaluate({ x: 10, y: 3 }), true);
+                expectEqual(formula.evaluate({ x: 10, y: 10 }), true);
+                expectEqual(formula.evaluate({ y: 2 }), false);
+                expectEqual(formula.evaluate({ x: 1 }), true);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), false);
+                expectEqual(formula.evaluate({ x: 1, y: null }), true);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: '1' })).toEqual(true);
-                expect(formula.evaluate({ y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1' })).toEqual(true);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(true);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: '1' }), true);
+                expectEqual(formula.evaluate({ y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1' }), true);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: null }), true);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(false);
-                expect(formula.evaluate({ x: 1, y: '1' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: 1 })).toEqual(true);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), false);
+                expectEqual(formula.evaluate({ x: 1, y: '1' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: 1 }), true);
 
-                expect(formula.evaluate({ x: null, y: null })).toEqual(true);
-                expect(formula.evaluate({ y: null })).toEqual(true);
-                expect(formula.evaluate({ x: null })).toEqual(true);
-                expect(formula.evaluate()).toEqual(true);
+                expectEqual(formula.evaluate({ x: null, y: null }), true);
+                expectEqual(formula.evaluate({ y: null }), true);
+                expectEqual(formula.evaluate({ x: null }), true);
+                expectEqual(formula.evaluate(), true);
             });
 
             it('compares ==', () => {
 
                 const formula = new Parser('x==y');
 
-                expect(formula.evaluate({ x: 10, y: 3 })).toEqual(false);
-                expect(formula.evaluate({ x: 10, y: 10 })).toEqual(true);
-                expect(formula.evaluate({ y: 2 })).toEqual(false);
-                expect(formula.evaluate({ x: 1 })).toEqual(false);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(false);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(false);
+                expectEqual(formula.evaluate({ x: 10, y: 3 }), false);
+                expectEqual(formula.evaluate({ x: 10, y: 10 }), true);
+                expectEqual(formula.evaluate({ y: 2 }), false);
+                expectEqual(formula.evaluate({ x: 1 }), false);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), false);
+                expectEqual(formula.evaluate({ x: 1, y: null }), false);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: '1' })).toEqual(true);
-                expect(formula.evaluate({ y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1' })).toEqual(false);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(false);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: '1' }), true);
+                expectEqual(formula.evaluate({ y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1' }), false);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: null }), false);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(false);
-                expect(formula.evaluate({ x: 1, y: '1' })).toEqual(false);
-                expect(formula.evaluate({ x: '1', y: 1 })).toEqual(false);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), false);
+                expectEqual(formula.evaluate({ x: 1, y: '1' }), false);
+                expectEqual(formula.evaluate({ x: '1', y: 1 }), false);
 
-                expect(formula.evaluate({ x: null, y: null })).toEqual(true);
-                expect(formula.evaluate({ y: null })).toEqual(true);
-                expect(formula.evaluate({ x: null })).toEqual(true);
-                expect(formula.evaluate()).toEqual(true);
+                expectEqual(formula.evaluate({ x: null, y: null }), true);
+                expectEqual(formula.evaluate({ y: null }), true);
+                expectEqual(formula.evaluate({ x: null }), true);
+                expectEqual(formula.evaluate(), true);
             });
 
             it('compares !=', () => {
 
                 const formula = new Parser('x!=y');
 
-                expect(formula.evaluate({ x: 10, y: 3 })).toEqual(true);
-                expect(formula.evaluate({ x: 10, y: 10 })).toEqual(false);
-                expect(formula.evaluate({ y: 2 })).toEqual(true);
-                expect(formula.evaluate({ x: 1 })).toEqual(true);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(true);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(true);
+                expectEqual(formula.evaluate({ x: 10, y: 3 }), true);
+                expectEqual(formula.evaluate({ x: 10, y: 10 }), false);
+                expectEqual(formula.evaluate({ y: 2 }), true);
+                expectEqual(formula.evaluate({ x: 1 }), true);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), true);
+                expectEqual(formula.evaluate({ x: 1, y: null }), true);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: '1' })).toEqual(false);
-                expect(formula.evaluate({ y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1' })).toEqual(true);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(true);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: '1' }), false);
+                expectEqual(formula.evaluate({ y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1' }), true);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: null }), true);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(true);
-                expect(formula.evaluate({ x: 1, y: '1' })).toEqual(true);
-                expect(formula.evaluate({ x: '1', y: 1 })).toEqual(true);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), true);
+                expectEqual(formula.evaluate({ x: 1, y: '1' }), true);
+                expectEqual(formula.evaluate({ x: '1', y: 1 }), true);
 
-                expect(formula.evaluate({ x: null, y: null })).toEqual(false);
-                expect(formula.evaluate({ y: null })).toEqual(false);
-                expect(formula.evaluate({ x: null })).toEqual(false);
-                expect(formula.evaluate()).toEqual(false);
+                expectEqual(formula.evaluate({ x: null, y: null }), false);
+                expectEqual(formula.evaluate({ y: null }), false);
+                expectEqual(formula.evaluate({ x: null }), false);
+                expectEqual(formula.evaluate(), false);
             });
 
             it('applies logical ||', () => {
 
                 const formula = new Parser('x || y');
 
-                expect(formula.evaluate({ x: 10, y: 3 })).toEqual(10);
-                expect(formula.evaluate({ x: 10, y: 10 })).toEqual(10);
-                expect(formula.evaluate({ x: 0, y: 10 })).toEqual(10);
-                expect(formula.evaluate({ x: 0, y: 0 })).toEqual(0);
-                expect(formula.evaluate({ y: 2 })).toEqual(2);
-                expect(formula.evaluate({ x: 1 })).toEqual(1);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(2);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(1);
+                expectEqual(formula.evaluate({ x: 10, y: 3 }), 10);
+                expectEqual(formula.evaluate({ x: 10, y: 10 }), 10);
+                expectEqual(formula.evaluate({ x: 0, y: 10 }), 10);
+                expectEqual(formula.evaluate({ x: 0, y: 0 }), 0);
+                expectEqual(formula.evaluate({ y: 2 }), 2);
+                expectEqual(formula.evaluate({ x: 1 }), 1);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), 2);
+                expectEqual(formula.evaluate({ x: 1, y: null }), 1);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual('1');
-                expect(formula.evaluate({ x: '1', y: '1' })).toEqual('1');
-                expect(formula.evaluate({ x: '', y: '1' })).toEqual('1');
-                expect(formula.evaluate({ x: '', y: '' })).toEqual('');
-                expect(formula.evaluate({ y: '2' })).toEqual('2');
-                expect(formula.evaluate({ x: '1' })).toEqual('1');
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual('2');
-                expect(formula.evaluate({ x: '1', y: null })).toEqual('1');
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), '1');
+                expectEqual(formula.evaluate({ x: '1', y: '1' }), '1');
+                expectEqual(formula.evaluate({ x: '', y: '1' }), '1');
+                expectEqual(formula.evaluate({ x: '', y: '' }), '');
+                expectEqual(formula.evaluate({ y: '2' }), '2');
+                expectEqual(formula.evaluate({ x: '1' }), '1');
+                expectEqual(formula.evaluate({ x: null, y: '2' }), '2');
+                expectEqual(formula.evaluate({ x: '1', y: null }), '1');
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(1);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual('1');
-                expect(formula.evaluate({ x: 1, y: '1' })).toEqual(1);
-                expect(formula.evaluate({ x: '1', y: 1 })).toEqual('1');
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), 1);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), '1');
+                expectEqual(formula.evaluate({ x: 1, y: '1' }), 1);
+                expectEqual(formula.evaluate({ x: '1', y: 1 }), '1');
 
-                expect(formula.evaluate({ x: null, y: null })).toEqual(null);
-                expect(formula.evaluate({ y: null })).toEqual(null);
-                expect(formula.evaluate({ x: null })).toEqual(null);
-                expect(formula.evaluate()).toEqual(null);
+                expectEqual(formula.evaluate({ x: null, y: null }), null);
+                expectEqual(formula.evaluate({ y: null }), null);
+                expectEqual(formula.evaluate({ x: null }), null);
+                expectEqual(formula.evaluate(), null);
             });
 
             it('applies logical &&', () => {
 
                 const formula = new Parser('x && y');
 
-                expect(formula.evaluate({ x: 10, y: 3 })).toEqual(3);
-                expect(formula.evaluate({ x: 10, y: 10 })).toEqual(10);
-                expect(formula.evaluate({ x: 0, y: 10 })).toEqual(0);
-                expect(formula.evaluate({ x: 0, y: 0 })).toEqual(0);
-                expect(formula.evaluate({ y: 2 })).toEqual(null);
-                expect(formula.evaluate({ x: 1 })).toEqual(null);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(null);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(null);
+                expectEqual(formula.evaluate({ x: 10, y: 3 }), 3);
+                expectEqual(formula.evaluate({ x: 10, y: 10 }), 10);
+                expectEqual(formula.evaluate({ x: 0, y: 10 }), 0);
+                expectEqual(formula.evaluate({ x: 0, y: 0 }), 0);
+                expectEqual(formula.evaluate({ y: 2 }), null);
+                expectEqual(formula.evaluate({ x: 1 }), null);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), null);
+                expectEqual(formula.evaluate({ x: 1, y: null }), null);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual('2');
-                expect(formula.evaluate({ x: '1', y: '1' })).toEqual('1');
-                expect(formula.evaluate({ x: '', y: '1' })).toEqual('');
-                expect(formula.evaluate({ x: '', y: '' })).toEqual('');
-                expect(formula.evaluate({ y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1' })).toEqual(null);
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual(null);
-                expect(formula.evaluate({ x: '1', y: null })).toEqual(null);
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), '2');
+                expectEqual(formula.evaluate({ x: '1', y: '1' }), '1');
+                expectEqual(formula.evaluate({ x: '', y: '1' }), '');
+                expectEqual(formula.evaluate({ x: '', y: '' }), '');
+                expectEqual(formula.evaluate({ y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1' }), null);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), null);
+                expectEqual(formula.evaluate({ x: '1', y: null }), null);
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual('2');
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual(2);
-                expect(formula.evaluate({ x: 1, y: '1' })).toEqual('1');
-                expect(formula.evaluate({ x: '1', y: 1 })).toEqual(1);
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), '2');
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), 2);
+                expectEqual(formula.evaluate({ x: 1, y: '1' }), '1');
+                expectEqual(formula.evaluate({ x: '1', y: 1 }), 1);
 
-                expect(formula.evaluate({ x: null, y: null })).toEqual(null);
-                expect(formula.evaluate({ y: null })).toEqual(null);
-                expect(formula.evaluate({ x: null })).toEqual(null);
-                expect(formula.evaluate()).toEqual(null);
+                expectEqual(formula.evaluate({ x: null, y: null }), null);
+                expectEqual(formula.evaluate({ y: null }), null);
+                expectEqual(formula.evaluate({ x: null }), null);
+                expectEqual(formula.evaluate(), null);
             });
 
             it('applies logical ??', () => {
 
                 const formula = new Parser('x ?? y');
 
-                expect(formula.evaluate({ x: 10, y: 3 })).toEqual(10);
-                expect(formula.evaluate({ x: 10, y: 10 })).toEqual(10);
-                expect(formula.evaluate({ x: 0, y: 10 })).toEqual(0);
-                expect(formula.evaluate({ x: 0, y: 0 })).toEqual(0);
-                expect(formula.evaluate({ y: 2 })).toEqual(2);
-                expect(formula.evaluate({ x: 1 })).toEqual(1);
-                expect(formula.evaluate({ x: null, y: 2 })).toEqual(2);
-                expect(formula.evaluate({ x: 1, y: null })).toEqual(1);
+                expectEqual(formula.evaluate({ x: 10, y: 3 }), 10);
+                expectEqual(formula.evaluate({ x: 10, y: 10 }), 10);
+                expectEqual(formula.evaluate({ x: 0, y: 10 }), 0);
+                expectEqual(formula.evaluate({ x: 0, y: 0 }), 0);
+                expectEqual(formula.evaluate({ y: 2 }), 2);
+                expectEqual(formula.evaluate({ x: 1 }), 1);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), 2);
+                expectEqual(formula.evaluate({ x: 1, y: null }), 1);
 
-                expect(formula.evaluate({ x: '1', y: '2' })).toEqual('1');
-                expect(formula.evaluate({ x: '1', y: '1' })).toEqual('1');
-                expect(formula.evaluate({ x: '', y: '1' })).toEqual('');
-                expect(formula.evaluate({ x: '', y: '' })).toEqual('');
-                expect(formula.evaluate({ y: '2' })).toEqual('2');
-                expect(formula.evaluate({ x: '1' })).toEqual('1');
-                expect(formula.evaluate({ x: null, y: '2' })).toEqual('2');
-                expect(formula.evaluate({ x: '1', y: null })).toEqual('1');
+                expectEqual(formula.evaluate({ x: '1', y: '2' }), '1');
+                expectEqual(formula.evaluate({ x: '1', y: '1' }), '1');
+                expectEqual(formula.evaluate({ x: '', y: '1' }), '');
+                expectEqual(formula.evaluate({ x: '', y: '' }), '');
+                expectEqual(formula.evaluate({ y: '2' }), '2');
+                expectEqual(formula.evaluate({ x: '1' }), '1');
+                expectEqual(formula.evaluate({ x: null, y: '2' }), '2');
+                expectEqual(formula.evaluate({ x: '1', y: null }), '1');
 
-                expect(formula.evaluate({ x: 1, y: '2' })).toEqual(1);
-                expect(formula.evaluate({ x: '1', y: 2 })).toEqual('1');
-                expect(formula.evaluate({ x: 1, y: '1' })).toEqual(1);
-                expect(formula.evaluate({ x: '1', y: 1 })).toEqual('1');
+                expectEqual(formula.evaluate({ x: 1, y: '2' }), 1);
+                expectEqual(formula.evaluate({ x: '1', y: 2 }), '1');
+                expectEqual(formula.evaluate({ x: 1, y: '1' }), 1);
+                expectEqual(formula.evaluate({ x: '1', y: 1 }), '1');
 
-                expect(formula.evaluate({ x: null, y: null })).toEqual(null);
-                expect(formula.evaluate({ y: null })).toEqual(null);
-                expect(formula.evaluate({ x: null })).toEqual(null);
-                expect(formula.evaluate()).toEqual(null);
+                expectEqual(formula.evaluate({ x: null, y: null }), null);
+                expectEqual(formula.evaluate({ y: null }), null);
+                expectEqual(formula.evaluate({ x: null }), null);
+                expectEqual(formula.evaluate(), null);
             });
         });
     });

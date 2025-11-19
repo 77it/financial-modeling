@@ -45,31 +45,6 @@ export function isLikelyFormula(s) {
 }
 
 /**
- * Parse a date string into a Date object
- * @param {string} dateStr
- * @returns {Date|string} Date object or original string if not a valid date format
- */
-export function parseDate(dateStr) {
-  // Handle different date formats: YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD
-  const match = dateStr.match(/^(\d{4})([-\/\.])(\d{1,2})\2(\d{1,2})([ T](\d{2}):(\d{2})(:(\d{2})(\.\d{1,6})?)?(Z|[+\-]\d{2}:\d{2})?)?$/);
-  if (!match) return dateStr; // Return as string if not a valid date format
-
-  const [, year, , month, day, , hour, minute, , second, millisecond] = match;
-
-  // JavaScript Date constructor expects 0-indexed months
-  const jsMonth = parseInt(month, 10) - 1;
-  const jsYear = parseInt(year, 10);
-  const jsDay = parseInt(day, 10);
-  const jsHour = hour ? parseInt(hour, 10) : 0;
-  const jsMinute = minute ? parseInt(minute, 10) : 0;
-  const jsSecond = second ? parseInt(second, 10) : 0;
-  const jsMillisecond = millisecond ? Math.floor(parseFloat('0' + millisecond) * 1000) : 0;
-
-  // Create date in local time to match test expectations
-  return new Date(jsYear, jsMonth, jsDay, jsHour, jsMinute, jsSecond, jsMillisecond);
-}
-
-/**
  * Create a YAML formula evaluator
  *
  * @param {string} text - YAML text to parse
@@ -96,9 +71,9 @@ export function createYamlFormula(text, Parser, settings) {
 
     const valueType = typeof value;
     if (valueType === "string") {
-      // Check if it's a date-like string first
+      // Check if it's a date-like string first, return as is
       if (isDateLikeString(value)) {
-        return parseDate(value);
+        return value;
       }
       // Check if it's a formula and evaluate it
       if (isLikelyFormula(value)) {

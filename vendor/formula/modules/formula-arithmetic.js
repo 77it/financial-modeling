@@ -73,7 +73,7 @@ function nativeCalculate(operator, left, right) {
 
 /**
  * Perform calculation with Decimal precision
- * 
+ *
  * @param {string} operator - The operator
  * @param {*} left - Left operand
  * @param {*} right - Right operand
@@ -84,16 +84,9 @@ function decimalCalculate(operator, left, right) {
   if (operator === "??") {
     return exists(left) ? left : right;
   }
-  if (typeof left === "string" || typeof right === "string") {
-    if (operator === "+") {
-      left = exists(left) ? left : "";
-      right = exists(right) ? right : "";
-      return left + right;
-    }
-  }
-  
-  // For numeric operations, use Decimal adapter
-  if (typeof left === "number" && typeof right === "number") {
+
+  // For numeric operations, use Decimal adapter (handle both numbers and numeric strings)
+  if ((typeof left === "number" || typeof left === "string") && (typeof right === "number" || typeof right === "string")) {
     switch (operator) {
       case "^":
         return DecimalOps.pow(left, right);
@@ -109,7 +102,7 @@ function decimalCalculate(operator, left, right) {
         return DecimalOps.subtract(left, right);
     }
   }
-  
+
   // For comparisons and logical operators, use native
   switch (operator) {
     case "<":
@@ -142,8 +135,11 @@ function decimalCalculate(operator, left, right) {
  * @returns {*} Result
  */
 export function calculate(operator, left, right, useDecimal = false) {
+  let returnedValue;
   if (useDecimal) {
-    return decimalCalculate(operator, left, right);
+    returnedValue = decimalCalculate(operator, left, right);
+  } else {
+    returnedValue = nativeCalculate(operator, left, right);
   }
-  return nativeCalculate(operator, left, right);
+  return returnedValue;
 }

@@ -104,7 +104,7 @@ async function createDescribeAndItForNodeAndDeno() {
 
 const { describe, it, beforeEach } = await createDescribeAndItForNodeAndDeno();
 
-// Create Jestâ€'style global `expect` function
+// Create Jest 'style global `expect` function
 //@ts-ignore expect
 if (typeof expect === "undefined") {
   //@ts-ignore globalThis.expect

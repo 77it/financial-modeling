@@ -423,8 +423,8 @@ exports.Parser = class {
           const left = internals.evaluate(parts[i - 1], context);
           const right = internals.evaluate(parts[i + 1], context);
           parts.splice(i, 2);
-          // REFACTOR: Pass useDecimal option to calculate
-          const result = internals.calculate(operator, left, right, this.settings.useDecimal);
+          // Always use Decimal for calculations
+          const result = internals.calculate(operator, left, right);
           parts[i - 1] = result === 0 ? 0 : result; // Convert -0
         } else {
           i += 2;
@@ -474,59 +474,17 @@ internals.single = function (operator, value) {
   }
   return negative;
 };
-// REFACTOR: Calculate can optionally use arithmetic module for Decimal precision
-internals.calculate = function (operator, left, right, useDecimal) {
-  // If useDecimal is enabled, delegate to arithmetic module
-  if (useDecimal) {
-    return arithmeticCalculate(operator, left, right, true);
-  }
-  
-  // Otherwise use native arithmetic (existing code)
-  if (operator === "??") {
-    return internals.exists(left) ? left : right;
-  }
-  if (typeof left === "string" || typeof right === "string") {
-    if (operator === "+") {
-      left = internals.exists(left) ? left : "";
-      right = internals.exists(right) ? right : "";
-      return left + right;
-    }
-  } else {
-    switch (operator) {
-      case "^":
-        // OPTIMIZATION: Use ** operator instead of Math.pow
-        return left ** right;
-      case "*":
-        return left * right;
-      case "/":
-        return left / right;
-      case "%":
-        return left % right;
-      case "+":
-        return left + right;
-      case "-":
-        return left - right;
-    }
-  }
-  switch (operator) {
-    case "<":
-      return left < right;
-    case "<=":
-      return left <= right;
-    case ">":
-      return left > right;
-    case ">=":
-      return left >= right;
-    case "==":
-      return left === right;
-    case "!=":
-      return left !== right;
-    case "&&":
-      return left && right;
-    case "||":
-      return left || right;
-  }
-  return null;
+// REFACTOR: Always use Decimal arithmetic for precision
+/**
+ * Calculate result of an operation using Decimal arithmetic
+ * @param {string} operator - The operator (+, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, ??)
+ * @param {any} left - Left operand value
+ * @param {any} right - Right operand value
+ * @returns {any} Result of the operation
+ */
+internals.calculate = function (operator, left, right) {
+  // Always use Decimal for calculations via arithmetic module
+  return arithmeticCalculate(operator, left, right, true);
 };
 internals.exists = function (value) {
   return value !== null && value !== undefined;
