@@ -51,7 +51,7 @@ export {
   roundToAccounting,
   fxAdd, fxSub, fxMul, fxDiv,
   // ergonomic (coercing) API
-  add, sub, mul, div,
+  add, sub, mul, div
 };
 export { _TEST_ONLY__set, MATH_SCALE, SCALE_FACTOR, MAX_POW10, POW10 };
 export { roundInt as _INTERNAL_roundInt }

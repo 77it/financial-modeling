@@ -13,6 +13,11 @@
       "Bash(findstr:*)",
       "Bash(dir \"C:\\e3\\@gitwk\\PUBLIC\\financial-modeling\\montecarlo\")",
       "Bash(dir \"C:\\e3\\@gitwk\\PUBLIC\\financial-modeling\\montecarlo\\dashboard_observable\\*.md\")"
+      "Bash(node -e:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run:*)",
+      "Bash(cat:*)",
+      "Bash(node --test:*)"
     ],
     "deny": [],
     "ask": []
