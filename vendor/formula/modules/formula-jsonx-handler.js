@@ -90,18 +90,7 @@ function createJSONXFormula(text, Parser, settings) {
         return result === unmarked ? unmarked : result;
       }
 
-      // Check if it's a date-like string first, return as is
-      if (isDateLikeString(value)) {
-        return value;
-      }
-      // Check if it's a formula and evaluate it
-      if (isLikelyFormula(value)) {
-        return evaluateStringFormula(value, Parser, settings, context);
-      }
-      // Check if it's a valid identifier that could be a variable reference
-      if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value)) {
-        return context && context[value] !== undefined ? context[value] : null;
-      }
+      // All other strings from JSON are literal values - don't evaluate them as formulas
       return value;
     }
 
