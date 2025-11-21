@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monte Carlo Dashboards</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .tab-bar {
+            background: #1e293b;
+            padding: 0;
+            display: flex;
+        }
+        .tab-button {
+            cursor: pointer;
+            padding: 16px 32px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-button:hover {
+            background: rgba(255,255,255,0.05);
+            color: #e2e8f0;
+        }
+        .tab-button.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: white;
+            border-bottom-color: #3b82f6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .card h1 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            color: #1e293b;
+        }
+        .card h2 {
+            margin: 0 0 16px 0;
+            font-size: 20px;
+            color: #334155;
+        }
+        .card p {
+            margin: 0;
+            color: #64748b;
+            line-height: 1.5;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .control-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+        .control-group select,
+        .control-group input[type="number"] {
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-top: 4px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        }
+        .stat-card.blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .stat-card.purple { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); }
+        .stat-card.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .stat-card.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .stat-card.orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .stat-desc {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .bar-chart {
+            margin-top: 20px;
+        }
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .bar-label {
+            width: 120px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 500;
+            color: #475569;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bar-track {
+            flex: 1;
+            height: 32px;
+            background: #f1f5f9;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 12px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            transition: width 0.5s ease;
+        }
+        .bar-value {
+            width: 60px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+        }
+        .alert {
+            padding: 16px;
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert-content {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .alert-icon {
+            color: #ef4444;
+            font-size: 20px;
+        }
+        .alert-text {
+            color: #991b1b;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .line-chart {
+            width: 100%;
+            height: 400px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin: 20px 0;
+            position: relative;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect, useRef } = React;
+
+        // Alert Icon
+        const AlertTriangle = () => (
+            <span className="alert-icon">⚠️</span>
+        );
+
+        // Sobol Sensitivity Analyzer
+        const SobolSensitivityAnalyzer = () => {
+          const [selectedMetric, setSelectedMetric] = useState('Cash');
+          const [selectedYear, setSelectedYear] = useState(1);
+          const [topN, setTopN] = useState(15);
+
+          const simulationData = useMemo(() => {
+            const numRuns = 5000;
+            const numVars = 100;
+            const numYears = 3;
+
+            const varNames = [];
+            for (let i = 1; i <= numVars; i++) {
+              const type = i <= 50 ? 'Price' : 'Quantity';
+              const product = String.fromCharCode(65 + ((i - 1) % 26));
+              varNames.push(`${type}_${product}${Math.floor((i - 1) / 26) + 1}`);
+            }
+
+            const inputs = [];
+            const outputs = { Cash: [], EBITDA: [] };
+
+            for (let run = 0; run < numRuns; run++) {
+              const runInputs = Array(numVars).fill(0).map(() => Math.random() * 2 - 1);
+              inputs.push(runInputs);
+
+              const cashYearly = [];
+              const ebitdaYearly = [];
+
+              for (let year = 0; year < numYears; year++) {
+                let cashValue = 100;
+                let ebitdaValue = 20;
+
+                for (let v = 0; v < numVars; v++) {
+                  const yearShift = (year * 5);
+                  const adjustedImportance = Math.exp(-(Math.abs(v - yearShift * 3)) / 15);
+
+                  if (v < 30) {
+                    cashValue += runInputs[v] * adjustedImportance * 35;
+                    ebitdaValue += runInputs[v] * adjustedImportance * 5;
+                  } else if (v < 60) {
+                    cashValue += runInputs[v] * adjustedImportance * 15;
+                    ebitdaValue += runInputs[v] * adjustedImportance * 12;
+                  } else {
+                    cashValue += runInputs[v] * adjustedImportance * 20;
+                    ebitdaValue += runInputs[v] * adjustedImportance * 8;
+                  }
+                }
+
+                cashValue += (Math.random() - 0.5) * 5;
+                ebitdaValue += (Math.random() - 0.5) * 2;
+
+                cashYearly.push(cashValue);
+                ebitdaYearly.push(ebitdaValue);
+              }
+
+              outputs.Cash.push(cashYearly);
+              outputs.EBITDA.push(ebitdaYearly);
+            }
+
+            const sensitivity = {};
+
+            ['Cash', 'EBITDA'].forEach(metric => {
+              sensitivity[metric] = [];
+
+              for (let year = 0; year < numYears; year++) {
+                const yearSensitivity = [];
+                const yearOutputs = outputs[metric].map(runYears => runYears[year]);
+                const outputMean = yearOutputs.reduce((a, b) => a + b, 0) / numRuns;
+                const outputStd = Math.sqrt(
+                  yearOutputs.reduce((sum, val) => sum + Math.pow(val - outputMean, 2), 0) / numRuns
+                );
+
+                for (let v = 0; v < numVars; v++) {
+                  const varValues = inputs.map(run => run[v]);
+                  const varMean = varValues.reduce((a, b) => a + b, 0) / numRuns;
+                  const varStd = Math.sqrt(
+                    varValues.reduce((sum, val) => sum + Math.pow(val - varMean, 2), 0) / numRuns
+                  );
+
+                  let correlation = 0;
+                  for (let run = 0; run < numRuns; run++) {
+                    correlation += (varValues[run] - varMean) * (yearOutputs[run] - outputMean);
+                  }
+                  correlation = correlation / (numRuns * varStd * outputStd);
+
+                  const sensitivityIndex = Math.pow(correlation, 2);
+
+                  yearSensitivity.push({
+                    variable: varNames[v],
+                    sensitivity: sensitivityIndex * 100,
+                    correlation: correlation
+                  });
+                }
+
+                yearSensitivity.sort((a, b) => b.sensitivity - a.sensitivity);
+                sensitivity[metric].push(yearSensitivity);
+              }
+            });
+
+            return { sensitivity, varNames, inputs, outputs, numRuns, numVars };
+          }, []);
+
+          const currentData = simulationData.sensitivity[selectedMetric][selectedYear - 1].slice(0, topN);
+          const totalSensitivity = currentData.reduce((sum, item) => sum + item.sensitivity, 0);
+          const cumulativePct = (totalSensitivity /
+            simulationData.sensitivity[selectedMetric][selectedYear - 1]
+              .reduce((sum, item) => sum + item.sensitivity, 0) * 100
+          ).toFixed(1);
+
+          return (
+            <div className="container">
+              <div className="card">
+                <h1>Sobol Sensitivity Analysis</h1>
+                <p>Identifying which input variables drive the most variance in your outputs (5,000 simulation runs)</p>
+              </div>
+
+              <div className="card">
+                <div className="controls">
+                  <div className="control-group">
+                    <label>Output Metric</label>
+                    <select value={selectedMetric} onChange={(e) => setSelectedMetric(e.target.value)}>
+                      <option value="Cash">Cash</option>
+                      <option value="EBITDA">EBITDA</option>
+                    </select>
+                  </div>
+
+                  <div className="control-group">
+                    <label>Year</label>
+                    <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
+                      <option value={1}>Year 1</option>
+                      <option value={2}>Year 2</option>
+                      <option value={3}>Year 3</option>
+                    </select>
+                  </div>
+
+                  <div className="control-group">
+                    <label>Top N Variables: {topN}</label>
+                    <input
+                      type="range"
+                      min="5"
+                      max="30"
+                      value={topN}
+                      onChange={(e) => setTopN(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="stats-grid">
+                <div className="stat-card blue">
+                  <div className="stat-label">Top Variable Impact</div>
+                  <div className="stat-value">{currentData[0]?.sensitivity.toFixed(1)}%</div>
+                  <div className="stat-desc">{currentData[0]?.variable}</div>
+                </div>
+
+                <div className="stat-card purple">
+                  <div className="stat-label">Top {topN} Cumulative</div>
+                  <div className="stat-value">{cumulativePct}%</div>
+                  <div className="stat-desc">of total variance explained</div>
+                </div>
+
+                <div className="stat-card green">
+                  <div className="stat-label">Analysis</div>
+                  <div className="stat-value">{selectedMetric}</div>
+                  <div className="stat-desc">Year {selectedYear} sensitivity</div>
+                </div>
+              </div>
+
+              <div className="card">
+                <h2>Tornado Chart - Top {topN} Drivers of {selectedMetric} (Year {selectedYear})</h2>
+                <p style={{marginBottom: '20px'}}>Variables ranked by their contribution to output variance. Higher values = more impact.</p>
+
+                <div className="bar-chart">
+                  {currentData.map((item, idx) => {
+                    const maxSensitivity = currentData[0].sensitivity;
+                    const hue = 220 - idx * 2;
+                    const lightness = 50 + idx;
+
+                    return (
+                      <div key={item.variable} className="bar-row">
+                        <div className="bar-label">{item.variable}</div>
+                        <div className="bar-track">
+                          <div
+                            className="bar-fill"
+                            style={{
+                              width: `${(item.sensitivity / maxSensitivity) * 100}%`,
+                              background: `hsl(${hue}, 70%, ${lightness}%)`
+                            }}
+                          >
+                            {item.sensitivity.toFixed(1)}%
+                          </div>
+                        </div>
+                        <div className="bar-value">
+                          {item.correlation > 0 ? '+' : ''}{(item.correlation * 100).toFixed(0)}%
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        // Cash Flow Risk Chart
+        const CashFlowRiskChart = () => {
+          const [minCashThreshold, setMinCashThreshold] = useState(20);
+          const canvasRef = useRef(null);
+
+          const simulationData = useMemo(() => {
+            const numRuns = 5000;
+            const numMonths = 36;
+            const runs = [];
+
+            for (let i = 0; i < numRuns; i++) {
+              const path = [100];
+              const avgBurn = -2 + Math.random() * 1;
+              const volatility = 5 + Math.random() * 5;
+
+              for (let month = 1; month < numMonths; month++) {
+                const randomShock = (Math.random() - 0.5) * 2;
+                const monthlyChange = avgBurn + volatility * randomShock;
+                const newValue = Math.max(0, path[month - 1] + monthlyChange);
+                path.push(newValue);
+              }
+              runs.push(path);
+            }
+
+            const chartData = [];
+            for (let month = 0; month < numMonths; month++) {
+              const monthValues = runs.map(run => run[month]).sort((a, b) => a - b);
+
+              chartData.push({
+                month: month,
+                p50: monthValues[Math.floor(numRuns * 0.50)],
+                p05: monthValues[Math.floor(numRuns * 0.05)],
+                p10: monthValues[Math.floor(numRuns * 0.10)],
+                p25: monthValues[Math.floor(numRuns * 0.25)],
+                p75: monthValues[Math.floor(numRuns * 0.75)],
+                p95: monthValues[Math.floor(numRuns * 0.95)]
+              });
+            }
+
+            return { chartData, runs };
+          }, [minCashThreshold]);
+
+          const { chartData } = simulationData;
+          const firstRiskMonth = chartData.findIndex(d => d.p10 < minCashThreshold);
+
+          // Draw chart
+          useEffect(() => {
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth * 2;
+            const height = canvas.height = canvas.offsetHeight * 2;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const padding = { top: 40, right: 40, bottom: 60, left: 80 };
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+
+            const maxValue = Math.max(...chartData.map(d => d.p95));
+            const minValue = 0;
+
+            const xScale = (month) => padding.left + (month / (chartData.length - 1)) * chartWidth;
+            const yScale = (value) => padding.top + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+
+            // Draw grid
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+              const y = padding.top + (chartHeight / 5) * i;
+              ctx.beginPath();
+              ctx.moveTo(padding.left, y);
+              ctx.lineTo(width - padding.right, y);
+              ctx.stroke();
+
+              const value = maxValue - (maxValue / 5) * i;
+              ctx.fillStyle = '#64748b';
+              ctx.font = '24px sans-serif';
+              ctx.textAlign = 'right';
+              ctx.fillText(`$${value.toFixed(0)}M`, padding.left - 10, y + 8);
+            }
+
+            // Draw threshold line
+            const thresholdY = yScale(minCashThreshold);
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(padding.left, thresholdY);
+            ctx.lineTo(width - padding.right, thresholdY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw areas
+            const drawArea = (key, color, alpha) => {
+              ctx.fillStyle = color;
+              ctx.globalAlpha = alpha;
+              ctx.beginPath();
+              ctx.moveTo(xScale(0), yScale(chartData[0][key]));
+              chartData.forEach((d, i) => {
+                ctx.lineTo(xScale(i), yScale(d[key]));
+              });
+              ctx.lineTo(xScale(chartData.length - 1), yScale(minValue));
+              ctx.lineTo(xScale(0), yScale(minValue));
+              ctx.closePath();
+              ctx.fill();
+              ctx.globalAlpha = 1;
+            };
+
+            drawArea('p95', '#86efac', 0.2);
+            drawArea('p75', '#93c5fd', 0.3);
+            drawArea('p25', '#fca5a5', 0.3);
+            drawArea('p05', '#ef4444', 0.4);
+
+            // Draw lines
+            const drawLine = (key, color, width, dash = []) => {
+              ctx.strokeStyle = color;
+              ctx.lineWidth = width;
+              ctx.setLineDash(dash);
+              ctx.beginPath();
+              ctx.moveTo(xScale(0), yScale(chartData[0][key]));
+              chartData.forEach((d, i) => {
+                ctx.lineTo(xScale(i), yScale(d[key]));
+              });
+              ctx.stroke();
+              ctx.setLineDash([]);
+            };
+
+            drawLine('p05', '#dc2626', 5);
+            drawLine('p10', '#f97316', 4, [10, 5]);
+            drawLine('p50', '#1e40af', 6);
+            drawLine('p95', '#16a34a', 3, [10, 5]);
+
+            // Draw X axis labels
+            ctx.fillStyle = '#64748b';
+            ctx.font = '24px sans-serif';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 36; i += 6) {
+              ctx.fillText(i, xScale(i), height - padding.bottom + 35);
+            }
+            ctx.fillText('Months', width / 2, height - 10);
+
+            // Y axis label
+            ctx.save();
+            ctx.translate(20, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Cash ($M)', 0, 0);
+            ctx.restore();
+
+          }, [chartData, minCashThreshold]);
+
+          return (
+            <div className="container">
+              <div className="card">
+                <h1>Cash Flow Risk Analysis</h1>
+                <p>Downside risk visualization using Monte Carlo simulation (5,000 runs)</p>
+              </div>
+
+              <div className="card">
+                <div className="controls">
+                  <div className="control-group">
+                    <label>Min Cash Alert ($M)</label>
+                    <input
+                      type="number"
+                      value={minCashThreshold}
+                      onChange={(e) => setMinCashThreshold(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {firstRiskMonth > 0 && (
+                <div className="alert">
+                  <div className="alert-content">
+                    <AlertTriangle />
+                    <div className="alert-text">
+                      Warning: 10% of scenarios fall below ${minCashThreshold}M threshold by month {firstRiskMonth}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="card">
+                <div className="line-chart">
+                  <canvas ref={canvasRef}></canvas>
+                </div>
+              </div>
+
+              <div className="stats-grid">
+                <div className="stat-card red">
+                  <div className="stat-label">WORST CASE (P5)</div>
+                  <div className="stat-value">${chartData[chartData.length - 1].p05.toFixed(1)}M</div>
+                  <div className="stat-desc">Only 5% fall below this</div>
+                </div>
+                <div className="stat-card orange">
+                  <div className="stat-label">DOWNSIDE (P10)</div>
+                  <div className="stat-value">${chartData[chartData.length - 1].p10.toFixed(1)}M</div>
+                  <div className="stat-desc">10% fall below this</div>
+                </div>
+                <div className="stat-card blue">
+                  <div className="stat-label">EXPECTED (P50)</div>
+                  <div className="stat-value">${chartData[chartData.length - 1].p50.toFixed(1)}M</div>
+                  <div className="stat-desc">Median outcome</div>
+                </div>
+                <div className="stat-card green">
+                  <div className="stat-label">UPSIDE (P95)</div>
+                  <div className="stat-value">${chartData[chartData.length - 1].p95.toFixed(1)}M</div>
+                  <div className="stat-desc">Only 5% exceed this</div>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        // Main App
+        const App = () => {
+          const [activeTab, setActiveTab] = useState('sensitivity');
+
+          return (
+            <div>
+              <div className="tab-bar">
+                <button
+                  className={`tab-button ${activeTab === 'sensitivity' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('sensitivity')}
+                >
+                  📊 Sensitivity Analysis
+                </button>
+                <button
+                  className={`tab-button ${activeTab === 'cashflow' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('cashflow')}
+                >
+                  📈 Cash Flow Risk
+                </button>
+              </div>
+
+              {activeTab === 'sensitivity' && <SobolSensitivityAnalyzer />}
+              {activeTab === 'cashflow' && <CashFlowRiskChart />}
+            </div>
+          );
+        };
+
+        // Render
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

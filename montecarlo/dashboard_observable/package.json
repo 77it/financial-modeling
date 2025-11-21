@@ -1,0 +1,19 @@
+{
+  "name": "dashboard_observable",
+  "version": "1.0.0",
+  "description": "Monte Carlo Simulation Dashboard with Observable Framework",
+  "type": "module",
+  "scripts": {
+    "dev": "observable preview",
+    "build": "observable build"
+  },
+  "keywords": ["monte-carlo", "dashboard", "observable"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "d3": "^7.9.0"
+  },
+  "devDependencies": {
+    "@observablehq/framework": "latest"
+  }
+}

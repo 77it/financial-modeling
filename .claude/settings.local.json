@@ -3,7 +3,16 @@
     "allow": [
       "Bash(find:*)",
       "Bash(deno test:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "WebFetch(domain:observablehq.com)",
+      "WebSearch",
+      "Bash(mkdir:*)",
+      "Bash(npm init:*)",
+      "Bash(npm install)",
+      "Bash(npx observable build:*)",
+      "Bash(findstr:*)",
+      "Bash(dir \"C:\\e3\\@gitwk\\PUBLIC\\financial-modeling\\montecarlo\")",
+      "Bash(dir \"C:\\e3\\@gitwk\\PUBLIC\\financial-modeling\\montecarlo\\dashboard_observable\\*.md\")"
     ],
     "deny": [],
     "ask": []

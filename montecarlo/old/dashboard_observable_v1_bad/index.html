@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACME S.p.A. - Monte Carlo Financial Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1e293b;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 24px 32px;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px 0;
+            font-size: 32px;
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            margin: 0;
+            font-size: 16px;
+            color: #64748b;
+        }
+
+        .header .meta {
+            margin-top: 12px;
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .header .meta strong {
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px 48px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-button:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            margin: 0 0 16px 0;
+            font-size: 22px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .card p {
+            margin: 0 0 20px 0;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+
+        .control-group select {
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-card.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .stat-card.warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .stat-card.danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-desc {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .chart-container {
+            margin: 24px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            min-height: 400px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .scenario-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .scenario-table th,
+        .scenario-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .scenario-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .scenario-table th:first-child,
+        .scenario-table td:first-child {
+            text-align: left;
+        }
+
+        .scenario-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .scenario-base { color: #3b82f6; font-weight: 600; }
+        .scenario-best { color: #10b981; font-weight: 600; }
+        .scenario-worst { color: #ef4444; font-weight: 600; }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .error {
+            background: #fee;
+            border: 2px solid #f88;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #c00;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+            .container {
+                padding: 0 20px 32px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏢 ACME S.p.A. - Monte Carlo Financial Analysis</h1>
+        <p class="subtitle">Interactive Financial Risk Dashboard with 50 Monte Carlo Simulations</p>
+        <div class="meta">
+            <span><strong>Currency:</strong> EUR</span>
+            <span><strong>Projection Period:</strong> 2025-2028</span>
+            <span><strong>Simulations:</strong> 50 scenarios</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('overview')">📊 Overview</button>
+            <button class="tab-button" onclick="switchTab('revenue')">💰 Revenue Analysis</button>
+            <button class="tab-button" onclick="switchTab('ebitda')">📈 EBITDA Analysis</button>
+            <button class="tab-button" onclick="switchTab('netincome')">💼 Net Income Analysis</button>
+            <button class="tab-button" onclick="switchTab('scenarios')">🎯 Scenario Comparison</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="card">
+                <h2>Executive Summary</h2>
+                <p>This dashboard visualizes Monte Carlo simulation results for ACME S.p.A.'s financial projections over 4 years (2025-2028). The analysis includes base, best, and worst-case scenarios, plus 50 random simulations to assess risk and uncertainty.</p>
+            </div>
+
+            <div class="stats-grid" id="overview-stats">
+                <div class="loading">Loading statistics...</div>
+            </div>
+
+            <div class="card">
+                <h2>All KPIs - Fan Chart View</h2>
+                <p>Visualizing uncertainty bands across all key performance indicators</p>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Select KPI</label>
+                        <select id="overview-kpi-select" onchange="renderOverviewChart()">
+                            <option value="revenue">Revenue</option>
+                            <option value="ebitda">EBITDA</option>
+                            <option value="net_income">Net Income</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div id="overview-chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Tab -->
+        <div id="tab-revenue" class="tab-content">
+            <div class="stats-grid" id="revenue-stats">
+                <div class="loading">Loading statistics...</div>
+            </div>
+
+            <div class="card">
+                <h2>Revenue Trajectories - Monte Carlo Simulations</h2>
+                <p>50 simulated revenue paths showing range of possible outcomes</p>
+                <div class="chart-container">
+                    <div id="revenue-chart"></div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #3b82f6; height: 4px;"></div>
+                        <span><strong>Base Case</strong></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981; height: 4px;"></div>
+                        <span><strong>Best Case</strong></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ef4444; height: 4px;"></div>
+                        <span><strong>Worst Case</strong></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #94a3b8; height: 2px; opacity: 0.3;"></div>
+                        <span>Monte Carlo Simulations</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EBITDA Tab -->
+        <div id="tab-ebitda" class="tab-content">
+            <div class="stats-grid" id="ebitda-stats">
+                <div class="loading">Loading statistics...</div>
+            </div>
+
+            <div class="card">
+                <h2>EBITDA Trajectories - Monte Carlo Simulations</h2>
+                <p>Operating profit analysis across 50 simulation scenarios</p>
+                <div class="chart-container">
+                    <div id="ebitda-chart"></div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #3b82f6; height: 4px;"></div>
+                        <span><strong>Base Case</strong></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981; height: 4px;"></div>
+                        <span><strong>Best Case</strong></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ef4444; height: 4px;"></div>
+                        <span><strong>Worst Case</strong></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #94a3b8; height: 2px; opacity: 0.3;"></div>
+                        <span>Monte Carlo Simulations</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Net Income Tab -->
+        <div id="tab-netincome" class="tab-content">
+            <div class="stats-grid" id="netincome-stats">
+                <div class="loading">Loading statistics...</div>
+            </div>
+
+            <div class="card">
+                <h2>Net Income Trajectories - Monte Carlo Simulations</h2>
+                <p>Bottom-line profitability across different scenarios</p>
+                <div class="chart-container">
+                    <div id="netincome-chart"></div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #3b82f6; height: 4px;"></div>
+                        <span><strong>Base Case</strong></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981; height: 4px;"></div>
+                        <span><strong>Best Case</strong></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ef4444; height: 4px;"></div>
+                        <span><strong>Worst Case</strong></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #94a3b8; height: 2px; opacity: 0.3;"></div>
+                        <span>Monte Carlo Simulations</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenarios Tab -->
+        <div id="tab-scenarios" class="tab-content">
+            <div class="card">
+                <h2>Scenario Comparison Table</h2>
+                <p>Compare Base, Best, and Worst case projections across all years</p>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Select Year</label>
+                        <select id="scenario-year-select" onchange="renderScenarioTable()">
+                            <option value="2025-12-31">2025</option>
+                            <option value="2026-12-31">2026</option>
+                            <option value="2027-12-31">2027</option>
+                            <option value="2028-12-31">2028</option>
+                            <option value="all" selected>All Years</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="scenario-table-container"></div>
+            </div>
+
+            <div class="card">
+                <h2>Monte Carlo Distribution Analysis</h2>
+                <p>Statistical distribution of simulation outcomes by year</p>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Select KPI</label>
+                        <select id="distribution-kpi-select" onchange="renderDistributionChart()">
+                            <option value="revenue">Revenue</option>
+                            <option value="ebitda">EBITDA</option>
+                            <option value="net_income">Net Income</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Select Year</label>
+                        <select id="distribution-year-select" onchange="renderDistributionChart()">
+                            <option value="2025-12-31">2025</option>
+                            <option value="2026-12-31">2026</option>
+                            <option value="2027-12-31">2027</option>
+                            <option value="2028-12-31" selected>2028</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div id="distribution-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data storage
+        let csvData = [];
+        let activeTab = 'overview';
+
+        // Format currency
+        function formatEUR(value) {
+            if (isNaN(value)) return '€0';
+            return new Intl.NumberFormat('it-IT', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        // Load CSV data
+        async function loadData() {
+            try {
+                const response = await fetch('plot_data.csv');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const text = await response.text();
+
+                // Parse CSV (skip comment lines)
+                const lines = text.split('\n').filter(line => !line.startsWith('#') && line.trim());
+                const headers = lines[0].split(',');
+
+                csvData = lines.slice(1).map(line => {
+                    const values = line.split(',');
+                    return {
+                        scenario: values[0],
+                        date: values[1],
+                        kpi: values[2],
+                        value: parseFloat(values[3])
+                    };
+                }).filter(d => d.scenario && d.date && d.kpi && !isNaN(d.value));
+
+                console.log('Loaded', csvData.length, 'data points');
+                console.log('Sample data:', csvData.slice(0, 5));
+
+                if (csvData.length === 0) {
+                    throw new Error('No valid data loaded from CSV');
+                }
+
+                // Initialize all visualizations
+                renderOverviewStats();
+                renderOverviewChart();
+                renderRevenueStats();
+                renderRevenueChart();
+                renderEbitdaStats();
+                renderEbitdaChart();
+                renderNetIncomeStats();
+                renderNetIncomeChart();
+                renderScenarioTable();
+                renderDistributionChart();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.querySelectorAll('.loading').forEach(el => {
+                    el.innerHTML = `<div class="error">
+                        <strong>Error loading data:</strong> ${error.message}<br><br>
+                        <strong>Tip:</strong> If opening from file://, you may need to run a local web server. Try:<br>
+                        <code>python -m http.server 8000</code> or <code>npx serve</code><br>
+                        Then open <code>http://localhost:8000</code>
+                    </div>`;
+                });
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            activeTab = tabName;
+        }
+
+        // Calculate statistics for a KPI
+        function getKPIStats(kpi, year = null) {
+            let data = csvData.filter(d => d.kpi === kpi);
+            if (year) data = data.filter(d => d.date === year);
+
+            const simData = data.filter(d => d.scenario.startsWith('Sim_'));
+            const values = simData.map(d => d.value).sort((a, b) => a - b);
+
+            const base = data.find(d => d.scenario === 'base')?.value || 0;
+            const best = data.find(d => d.scenario === 'best')?.value || 0;
+            const worst = data.find(d => d.scenario === 'worst')?.value || 0;
+
+            return {
+                base,
+                best,
+                worst,
+                mean: d3.mean(values) || 0,
+                median: d3.median(values) || 0,
+                p10: d3.quantile(values, 0.10) || 0,
+                p90: d3.quantile(values, 0.90) || 0,
+                min: d3.min(values) || 0,
+                max: d3.max(values) || 0
+            };
+        }
+
+        // Render overview stats
+        function renderOverviewStats() {
+            const revenue2028 = getKPIStats('revenue', '2028-12-31');
+            const ebitda2028 = getKPIStats('ebitda', '2028-12-31');
+            const netincome2028 = getKPIStats('net_income', '2028-12-31');
+
+            const html = `
+                <div class="stat-card primary">
+                    <div class="stat-label">Revenue 2028 (Median)</div>
+                    <div class="stat-value">${formatEUR(revenue2028.median)}</div>
+                    <div class="stat-desc">Range: ${formatEUR(revenue2028.p10)} - ${formatEUR(revenue2028.p90)}</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-label">EBITDA 2028 (Median)</div>
+                    <div class="stat-value">${formatEUR(ebitda2028.median)}</div>
+                    <div class="stat-desc">Range: ${formatEUR(ebitda2028.p10)} - ${formatEUR(ebitda2028.p90)}</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-label">Net Income 2028 (Median)</div>
+                    <div class="stat-value">${formatEUR(netincome2028.median)}</div>
+                    <div class="stat-desc">Range: ${formatEUR(netincome2028.p10)} - ${formatEUR(netincome2028.p90)}</div>
+                </div>
+            `;
+            document.getElementById('overview-stats').innerHTML = html;
+        }
+
+        // Render overview chart
+        function renderOverviewChart() {
+            const kpi = document.getElementById('overview-kpi-select').value;
+            const data = csvData.filter(d => d.kpi === kpi);
+
+            // Prepare data for fan chart
+            const dates = [...new Set(data.map(d => d.date))].sort();
+            const percentileData = [];
+
+            dates.forEach(date => {
+                const values = data.filter(d => d.date === date && d.scenario.startsWith('Sim_'))
+                    .map(d => d.value)
+                    .sort((a, b) => a - b);
+
+                const base = data.find(d => d.date === date && d.scenario === 'base')?.value;
+
+                percentileData.push({
+                    date: new Date(date),
+                    p10: d3.quantile(values, 0.10),
+                    p25: d3.quantile(values, 0.25),
+                    p50: d3.quantile(values, 0.50),
+                    p75: d3.quantile(values, 0.75),
+                    p90: d3.quantile(values, 0.90),
+                    base: base
+                });
+            });
+
+            const plot = Plot.plot({
+                width: Math.min(1200, window.innerWidth - 100),
+                height: 400,
+                marginLeft: 80,
+                marginBottom: 50,
+                x: { label: "Year", type: "time" },
+                y: { label: "Value (EUR)", grid: true },
+                marks: [
+                    // P10-P90 band
+                    Plot.areaY(percentileData, {
+                        x: "date",
+                        y1: "p10",
+                        y2: "p90",
+                        fill: "#667eea",
+                        fillOpacity: 0.2
+                    }),
+                    // P25-P75 band
+                    Plot.areaY(percentileData, {
+                        x: "date",
+                        y1: "p25",
+                        y2: "p75",
+                        fill: "#667eea",
+                        fillOpacity: 0.3
+                    }),
+                    // P50 (median) line
+                    Plot.line(percentileData, {
+                        x: "date",
+                        y: "p50",
+                        stroke: "#667eea",
+                        strokeWidth: 3
+                    }),
+                    // Base case line
+                    Plot.line(percentileData, {
+                        x: "date",
+                        y: "base",
+                        stroke: "#3b82f6",
+                        strokeWidth: 2,
+                        strokeDasharray: "5,5"
+                    }),
+                    // P10 line
+                    Plot.line(percentileData, {
+                        x: "date",
+                        y: "p10",
+                        stroke: "#ef4444",
+                        strokeWidth: 2
+                    }),
+                    // P90 line
+                    Plot.line(percentileData, {
+                        x: "date",
+                        y: "p90",
+                        stroke: "#10b981",
+                        strokeWidth: 2
+                    })
+                ]
+            });
+
+            document.getElementById('overview-chart').innerHTML = '';
+            document.getElementById('overview-chart').appendChild(plot);
+        }
+
+        // Render revenue stats
+        function renderRevenueStats() {
+            const stats2025 = getKPIStats('revenue', '2025-12-31');
+            const stats2028 = getKPIStats('revenue', '2028-12-31');
+            const growth = ((stats2028.median - stats2025.median) / stats2025.median * 100).toFixed(1);
+
+            const html = `
+                <div class="stat-card primary">
+                    <div class="stat-label">2025 Base Case</div>
+                    <div class="stat-value">${formatEUR(stats2025.base)}</div>
+                    <div class="stat-desc">Starting revenue</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-label">2028 Median</div>
+                    <div class="stat-value">${formatEUR(stats2028.median)}</div>
+                    <div class="stat-desc">Expected outcome</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-label">Growth Rate</div>
+                    <div class="stat-value">${growth}%</div>
+                    <div class="stat-desc">2025-2028 CAGR</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-label">Risk Range (P10-P90)</div>
+                    <div class="stat-value">${formatEUR(stats2028.p90 - stats2028.p10)}</div>
+                    <div class="stat-desc">Uncertainty spread</div>
+                </div>
+            `;
+            document.getElementById('revenue-stats').innerHTML = html;
+        }
+
+        // Render revenue chart
+        function renderRevenueChart() {
+            const data = csvData.filter(d => d.kpi === 'revenue');
+
+            // Separate scenarios
+            const baseData = data.filter(d => d.scenario === 'base').map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+            const bestData = data.filter(d => d.scenario === 'best').map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+            const worstData = data.filter(d => d.scenario === 'worst').map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+            const simData = data.filter(d => d.scenario.startsWith('Sim_')).map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+
+            const plot = Plot.plot({
+                width: Math.min(1200, window.innerWidth - 100),
+                height: 500,
+                marginLeft: 80,
+                marginBottom: 50,
+                x: { label: "Year", type: "time" },
+                y: { label: "Revenue (EUR)", grid: true },
+                marks: [
+                    // Monte Carlo simulations (light grey lines)
+                    Plot.line(simData, {
+                        x: "date",
+                        y: "value",
+                        z: "scenario",
+                        stroke: "#94a3b8",
+                        strokeWidth: 1,
+                        opacity: 0.2
+                    }),
+                    // Best case (green)
+                    Plot.line(bestData, {
+                        x: "date",
+                        y: "value",
+                        stroke: "#10b981",
+                        strokeWidth: 3
+                    }),
+                    // Worst case (red)
+                    Plot.line(worstData, {
+                        x: "date",
+                        y: "value",
+                        stroke: "#ef4444",
+                        strokeWidth: 3
+                    }),
+                    // Base case (blue)
+                    Plot.line(baseData, {
+                        x: "date",
+                        y: "value",
+                        stroke: "#3b82f6",
+                        strokeWidth: 4
+                    }),
+                    // Add dots
+                    Plot.dot(baseData, {
+                        x: "date",
+                        y: "value",
+                        fill: "#3b82f6",
+                        r: 5
+                    }),
+                    Plot.dot(bestData, {
+                        x: "date",
+                        y: "value",
+                        fill: "#10b981",
+                        r: 4
+                    }),
+                    Plot.dot(worstData, {
+                        x: "date",
+                        y: "value",
+                        fill: "#ef4444",
+                        r: 4
+                    })
+                ]
+            });
+
+            document.getElementById('revenue-chart').innerHTML = '';
+            document.getElementById('revenue-chart').appendChild(plot);
+        }
+
+        // Render EBITDA stats
+        function renderEbitdaStats() {
+            const stats2025 = getKPIStats('ebitda', '2025-12-31');
+            const stats2028 = getKPIStats('ebitda', '2028-12-31');
+            const margin2028 = (stats2028.median / getKPIStats('revenue', '2028-12-31').median * 100).toFixed(1);
+
+            const html = `
+                <div class="stat-card primary">
+                    <div class="stat-label">2025 Base Case</div>
+                    <div class="stat-value">${formatEUR(stats2025.base)}</div>
+                    <div class="stat-desc">Starting EBITDA</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-label">2028 Median</div>
+                    <div class="stat-value">${formatEUR(stats2028.median)}</div>
+                    <div class="stat-desc">Expected outcome</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-label">EBITDA Margin 2028</div>
+                    <div class="stat-value">${margin2028}%</div>
+                    <div class="stat-desc">Operating efficiency</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-label">Risk Range (P10-P90)</div>
+                    <div class="stat-value">${formatEUR(stats2028.p90 - stats2028.p10)}</div>
+                    <div class="stat-desc">Uncertainty spread</div>
+                </div>
+            `;
+            document.getElementById('ebitda-stats').innerHTML = html;
+        }
+
+        // Render EBITDA chart
+        function renderEbitdaChart() {
+            const data = csvData.filter(d => d.kpi === 'ebitda');
+
+            const baseData = data.filter(d => d.scenario === 'base').map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+            const bestData = data.filter(d => d.scenario === 'best').map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+            const worstData = data.filter(d => d.scenario === 'worst').map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+            const simData = data.filter(d => d.scenario.startsWith('Sim_')).map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+
+            const plot = Plot.plot({
+                width: Math.min(1200, window.innerWidth - 100),
+                height: 500,
+                marginLeft: 80,
+                marginBottom: 50,
+                x: { label: "Year", type: "time" },
+                y: { label: "EBITDA (EUR)", grid: true },
+                marks: [
+                    Plot.line(simData, {
+                        x: "date",
+                        y: "value",
+                        z: "scenario",
+                        stroke: "#94a3b8",
+                        strokeWidth: 1,
+                        opacity: 0.2
+                    }),
+                    Plot.line(bestData, {
+                        x: "date",
+                        y: "value",
+                        stroke: "#10b981",
+                        strokeWidth: 3
+                    }),
+                    Plot.line(worstData, {
+                        x: "date",
+                        y: "value",
+                        stroke: "#ef4444",
+                        strokeWidth: 3
+                    }),
+                    Plot.line(baseData, {
+                        x: "date",
+                        y: "value",
+                        stroke: "#3b82f6",
+                        strokeWidth: 4
+                    }),
+                    Plot.dot(baseData, {
+                        x: "date",
+                        y: "value",
+                        fill: "#3b82f6",
+                        r: 5
+                    }),
+                    Plot.dot(bestData, {
+                        x: "date",
+                        y: "value",
+                        fill: "#10b981",
+                        r: 4
+                    }),
+                    Plot.dot(worstData, {
+                        x: "date",
+                        y: "value",
+                        fill: "#ef4444",
+                        r: 4
+                    })
+                ]
+            });
+
+            document.getElementById('ebitda-chart').innerHTML = '';
+            document.getElementById('ebitda-chart').appendChild(plot);
+        }
+
+        // Render Net Income stats
+        function renderNetIncomeStats() {
+            const stats2025 = getKPIStats('net_income', '2025-12-31');
+            const stats2028 = getKPIStats('net_income', '2028-12-31');
+            const margin2028 = (stats2028.median / getKPIStats('revenue', '2028-12-31').median * 100).toFixed(1);
+
+            const html = `
+                <div class="stat-card primary">
+                    <div class="stat-label">2025 Base Case</div>
+                    <div class="stat-value">${formatEUR(stats2025.base)}</div>
+                    <div class="stat-desc">Starting net income</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-label">2028 Median</div>
+                    <div class="stat-value">${formatEUR(stats2028.median)}</div>
+                    <div class="stat-desc">Expected outcome</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-label">Net Margin 2028</div>
+                    <div class="stat-value">${margin2028}%</div>
+                    <div class="stat-desc">Bottom-line profitability</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-label">Risk Range (P10-P90)</div>
+                    <div class="stat-value">${formatEUR(stats2028.p90 - stats2028.p10)}</div>
+                    <div class="stat-desc">Uncertainty spread</div>
+                </div>
+            `;
+            document.getElementById('netincome-stats').innerHTML = html;
+        }
+
+        // Render Net Income chart
+        function renderNetIncomeChart() {
+            const data = csvData.filter(d => d.kpi === 'net_income');
+
+            const baseData = data.filter(d => d.scenario === 'base').map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+            const bestData = data.filter(d => d.scenario === 'best').map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+            const worstData = data.filter(d => d.scenario === 'worst').map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+            const simData = data.filter(d => d.scenario.startsWith('Sim_')).map(d => ({
+                ...d, date: new Date(d.date)
+            }));
+
+            const plot = Plot.plot({
+                width: Math.min(1200, window.innerWidth - 100),
+                height: 500,
+                marginLeft: 80,
+                marginBottom: 50,
+                x: { label: "Year", type: "time" },
+                y: { label: "Net Income (EUR)", grid: true },
+                marks: [
+                    Plot.line(simData, {
+                        x: "date",
+                        y: "value",
+                        z: "scenario",
+                        stroke: "#94a3b8",
+                        strokeWidth: 1,
+                        opacity: 0.2
+                    }),
+                    Plot.line(bestData, {
+                        x: "date",
+                        y: "value",
+                        stroke: "#10b981",
+                        strokeWidth: 3
+                    }),
+                    Plot.line(worstData, {
+                        x: "date",
+                        y: "value",
+                        stroke: "#ef4444",
+                        strokeWidth: 3
+                    }),
+                    Plot.line(baseData, {
+                        x: "date",
+                        y: "value",
+                        stroke: "#3b82f6",
+                        strokeWidth: 4
+                    }),
+                    Plot.dot(baseData, {
+                        x: "date",
+                        y: "value",
+                        fill: "#3b82f6",
+                        r: 5
+                    }),
+                    Plot.dot(bestData, {
+                        x: "date",
+                        y: "value",
+                        fill: "#10b981",
+                        r: 4
+                    }),
+                    Plot.dot(worstData, {
+                        x: "date",
+                        y: "value",
+                        fill: "#ef4444",
+                        r: 4
+                    })
+                ]
+            });
+
+            document.getElementById('netincome-chart').innerHTML = '';
+            document.getElementById('netincome-chart').appendChild(plot);
+        }
+
+        // Render scenario comparison table
+        function renderScenarioTable() {
+            const year = document.getElementById('scenario-year-select').value;
+
+            let data;
+            if (year === 'all') {
+                data = csvData.filter(d => ['base', 'best', 'worst'].includes(d.scenario));
+            } else {
+                data = csvData.filter(d => ['base', 'best', 'worst'].includes(d.scenario) && d.date === year);
+            }
+
+            // Group by date and scenario
+            const years = [...new Set(data.map(d => d.date))].sort();
+
+            let html = '<table class="scenario-table"><thead><tr><th>Year</th><th>Scenario</th><th>Revenue</th><th>EBITDA</th><th>Net Income</th></tr></thead><tbody>';
+
+            years.forEach(date => {
+                const yearData = data.filter(d => d.date === date);
+                const yearLabel = date.substring(0, 4);
+
+                ['base', 'best', 'worst'].forEach(scenario => {
+                    const scenarioData = yearData.filter(d => d.scenario === scenario);
+                    const revenue = scenarioData.find(d => d.kpi === 'revenue')?.value || 0;
+                    const ebitda = scenarioData.find(d => d.kpi === 'ebitda')?.value || 0;
+                    const netIncome = scenarioData.find(d => d.kpi === 'net_income')?.value || 0;
+
+                    html += `<tr>
+                        <td>${yearLabel}</td>
+                        <td class="scenario-${scenario}">${scenario.toUpperCase()}</td>
+                        <td>${formatEUR(revenue)}</td>
+                        <td>${formatEUR(ebitda)}</td>
+                        <td>${formatEUR(netIncome)}</td>
+                    </tr>`;
+                });
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('scenario-table-container').innerHTML = html;
+        }
+
+        // Render distribution chart
+        function renderDistributionChart() {
+            const kpi = document.getElementById('distribution-kpi-select').value;
+            const year = document.getElementById('distribution-year-select').value;
+
+            const data = csvData.filter(d =>
+                d.kpi === kpi &&
+                d.date === year &&
+                d.scenario.startsWith('Sim_')
+            );
+
+            const plot = Plot.plot({
+                width: Math.min(1200, window.innerWidth - 100),
+                height: 400,
+                marginLeft: 80,
+                marginBottom: 50,
+                x: { label: "Value (EUR)", grid: true },
+                y: { label: "Frequency" },
+                marks: [
+                    Plot.rectY(data, Plot.binX(
+                        { y: "count" },
+                        { x: "value", fill: "#667eea", thresholds: 20 }
+                    )),
+                    Plot.ruleX([d3.median(data.map(d => d.value))], {
+                        stroke: "#ef4444",
+                        strokeWidth: 3,
+                        strokeDasharray: "5,5"
+                    })
+                ]
+            });
+
+            document.getElementById('distribution-chart').innerHTML = '';
+            document.getElementById('distribution-chart').appendChild(plot);
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>

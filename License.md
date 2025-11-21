@@ -1,8 +1,19 @@
-Copyright (C) Stefano Spinucci (stefano dot spinucci at gmail dot com)
-This software is licensed under PolyForm Noncommercial License 1.0.0 
+Copyright (C) 2025 Stefano Spinucci <stefano dot spinucci at gmail dot com>
+
+This software is licensed under the PolyForm Noncommercial License 1.0.0
 and may only be used for noncommercial purposes.
 
-A commercial license to use this software can be purchased at https://forecast.land
+Commercial use, including use of the software to provide products or services
+to third parties (such as consulting, SaaS, hosted or managed services),
+is not permitted under the PolyForm Noncommercial License.
+
+If you wish to use this software for commercial purposes, you must obtain
+a separate commercial license by visiting https://forecastland.com
+or contacting:
+
+    forecast.land@outlook.com
+
+
 
 # Polyform Noncommercial License 1.0.0
 

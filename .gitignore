@@ -196,7 +196,6 @@ ClientBin/
 *.dbproj.schemaview
 *.pfx
 *.publishsettings
-node_modules/
 orleans.codegen.cs
 
 # RIA/Silverlight projects
@@ -252,30 +251,35 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 
-.idea/financial-modeling.iml
-.idea/.gitignore
-.idea/modules.xml
-.idea/vcs.xml
-/.vscode/settings.json
-/src/.idea/workspace.xml
-/src/.idea/vcs.xml
-/src/.idea/modules.xml
-/src/.idea/001.iml
-/src/.idea/deno.xml
-/src/.idea/.gitignore
-/src/.idea/src.iml
-/src/.idea/codeStyles/codeStyleConfig.xml
-/src/.idea/.name
-/.idea/deno.xml
+# Observable Framework
+montecarlo/dashboard_observable/src/.observablehq/cache/
+montecarlo/dashboard_observable/dist/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+/src/.idea/
+*.swp
+*.swo
+
+
 /zTemp/temp-test-code2.TS/package.json.bak
 /src/deno.lock
 *.exe
 *.lock
-/.idea/runConfigurations
+
 /.run
 /x.run
 /x.idea
-/.idea/codeStyles/codeStyleConfig.xml
+
 /test_e2e/main-treasury-temp/base.jsonl
 /test_e2e/_end_to_end_tests/main-treasury-temp/errors.txt
 /test_e2e/_end_to_end_tests/main-treasury-temp/b.jsonl
@@ -285,5 +289,6 @@ ModelManifest.xml
 /tests/_end_to_end_tests/main-treasury-temp/b.jsonl
 /tests/_end_to_end_tests/main-treasury-temp/base.jsonl
 src/py/__pycache__
-.idea/jsLibraryMappings.xml
+
 claude2.bat
+
