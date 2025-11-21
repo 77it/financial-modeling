@@ -1,6 +1,7 @@
 export { anyToDecimal, anyToDecimalOrDefault };
 
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
+import { bigIntScaledToString } from './decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 const DEFAULT_DECIMAL = new Decimal(0);
 
@@ -14,6 +15,7 @@ function anyToDecimal(value) {
 }
 
 /** Convert any value to a Decimal object.
+ * BigInt values are converted using bigIntScaledToString.
  * Returns `defaultValue` if conversion is not possible.
  * @param {*} value
  * @param {*} [defaultDecimal] - Default value if conversion fails (can be anything, also undefined)
@@ -37,7 +39,7 @@ function anyToDecimalOrDefault(value, defaultDecimal) {
       const _time = value.getTime();
       return Number.isFinite(_time) ? new Decimal(_time) : _DEFAULT_DECIMAL;
     } else if (typeof value === 'bigint') {
-      return new Decimal(value.toString());
+      return new Decimal(bigIntScaledToString(value));
     } else if (typeof value === 'boolean') {
       return new Decimal(value ? 1 : 0);
     } else if (Array.isArray(value)) {

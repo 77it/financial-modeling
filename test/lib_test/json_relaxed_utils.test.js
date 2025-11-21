@@ -87,6 +87,12 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
 
     // 7b) Keys with spaces, underscores, quotes inside objects; values with spaces and multiple words
     ['{a:mamma}', '{"a":"mamma"}', S.ANY_TYPE, { a: "mamma" }],
+    ['{a:mamma_mamma.mamma#mamma}', '{"a":"mamma_mamma.mamma#mamma"}', S.ANY_TYPE, { a: "mamma_mamma.mamma#mamma" }],
+    ['{a:mamma_mamma}', '{"a":"mamma_mamma"}', S.ANY_TYPE, { a: "mamma_mamma" }],
+    ['{a:mamma.mamma}', '{"a":"mamma.mamma"}', S.ANY_TYPE, { a: "mamma.mamma" }],
+    ['{a:mamma#mamma}', '{"a":"mamma#mamma"}', S.ANY_TYPE, { a: "mamma#mamma" }],
+    ['{a: 11, d: (2025-8-1), z: 999}', '{"a": "11", "d": "(2025-8-1)", "z": "999"}', S.ANY_TYPE, {"a": "11", "d": "(2025-8-1)", "z": "999"}],
+    ['{a: 11, d: "(2025-8-1)", z: 999}', '{"a": "11", "d": "(2025-8-1)", "z": "999"}', S.ANY_TYPE, {"a": "11", "d": "(2025-8-1)", "z": "999"}],
     ['{a_b_c:mamma babbo}', '{"a_b_c":"mamma" "babbo"}', S.ANY_TYPE, null],  // JSON doesn't allow multiple values like this
     ['{a_b_c:"mamma babbo"}', '{"a_b_c":"mamma babbo"}', S.ANY_TYPE, {"a_b_c":"mamma babbo"}],
     ['{ "pino lino" :mamma babbo}', '{ "pino lino" :"mamma" "babbo"}', S.ANY_TYPE, null],  // JSON doesn't allow multiple values like this

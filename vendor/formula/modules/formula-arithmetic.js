@@ -5,7 +5,28 @@
  * Extracted from core formula.js to enable swappable arithmetic backends
  */
 
+export { calculate };
+
 import * as DecimalOps from '../adapters/decimal-adapter.js';
+
+/**
+ * Calculate operation result
+ *
+ * @param {string} operator - The operator
+ * @param {*} left - Left operand
+ * @param {*} right - Right operand
+ * @param {boolean} useDecimal - Whether to use Decimal precision
+ * @returns {*} Result
+ */
+function calculate(operator, left, right, useDecimal = false) {
+  let returnedValue;
+  if (useDecimal) {
+    returnedValue = decimalCalculate(operator, left, right);
+  } else {
+    returnedValue = nativeCalculate(operator, left, right);
+  }
+  return returnedValue;
+}
 
 /**
  * Check if value exists (not null or undefined)
@@ -85,8 +106,8 @@ function decimalCalculate(operator, left, right) {
     return exists(left) ? left : right;
   }
 
-  // For numeric operations, use Decimal adapter (handle both numbers and numeric strings)
-  if ((typeof left === "number" || typeof left === "string") && (typeof right === "number" || typeof right === "string")) {
+  // For numeric operations, use Decimal adapter (handle both numbers, numeric strings, and bigints)
+  if ((typeof left === "number" || typeof left === "string" || typeof left === "bigint") && (typeof right === "number" || typeof right === "string" || typeof right === "bigint")) {
     switch (operator) {
       case "^":
         return DecimalOps.pow(left, right);
@@ -123,23 +144,4 @@ function decimalCalculate(operator, left, right) {
       return left || right;
   }
   return null;
-}
-
-/**
- * Calculate operation result
- * 
- * @param {string} operator - The operator
- * @param {*} left - Left operand
- * @param {*} right - Right operand
- * @param {boolean} useDecimal - Whether to use Decimal precision
- * @returns {*} Result
- */
-export function calculate(operator, left, right, useDecimal = false) {
-  let returnedValue;
-  if (useDecimal) {
-    returnedValue = decimalCalculate(operator, left, right);
-  } else {
-    returnedValue = nativeCalculate(operator, left, right);
-  }
-  return returnedValue;
 }

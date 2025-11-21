@@ -1,7 +1,7 @@
 //@ts-nocheck
 
 // REFACTOR: Import modular components
-import { createYamlFormula, evaluateStringFormula } from './modules/formula-jsonx-handler.js';
+import { createJSONXFormula, evaluateStringFormula } from './modules/formula-jsonx-handler.js';
 import { calculate as arithmeticCalculate } from './modules/formula-arithmetic.js';
 
 var exports = {};
@@ -53,7 +53,7 @@ function scanBracket(str, start) {
         return {
           end: i,
           content: str.slice(startIdx, i),
-          isYamlArray: hasComma || hasNested
+          isJsonxArray: hasComma || hasNested
         };
       }
     } else if (ch === 44) {
@@ -188,7 +188,7 @@ exports.Parser = class {
       }
       current = "";
     };
-    // PATCH: Changed to index loop for YAML scanning
+    // PATCH: Changed to index loop for JSONX scanning
     for (let i = 0; i < string.length; ++i) {
       const c = string[i];
       if (literal) {
@@ -213,20 +213,20 @@ exports.Parser = class {
           current += c;
         }
       } else if (c === "[") {
-        // PATCH: Check if YAML array or legacy reference
-        const { end, content, isYamlArray } = scanBracket(string, i);
+        // PATCH: Check if JSONX array or legacy reference
+        const { end, content, isJsonxArray } = scanBracket(string, i);
         flush();
-        if (isYamlArray) {
-          parts.push({ type: "yaml", value: this._yamlFormula("[" + content + "]") });
+        if (isJsonxArray) {
+          parts.push({ type: "jsonx", value: this._jsonxFormula("[" + content + "]") });
         } else {
           parts.push({ type: "reference", value: content });
         }
         i = end;
       } else if (c === "{") {
-        // PATCH: Handle YAML objects
+        // PATCH: Handle JSONX objects
         const { end, content } = scanBrace(string, i);
         flush();
-        parts.push({ type: "yaml", value: this._yamlFormula("{" + content + "}") });
+        parts.push({ type: "jsonx", value: this._jsonxFormula("{" + content + "}") });
         i = end;
       } else if (c in internals.literals) {
         literal = internals.literals[c];
@@ -293,7 +293,7 @@ exports.Parser = class {
 
     // Identify single part
 
-    if (parts.length === 1 && ["reference", "literal", "constant", "yaml"].includes(parts[0].type)) {
+    if (parts.length === 1 && ["reference", "literal", "constant", "jsonx"].includes(parts[0].type)) {
       this.single = {
         type: parts[0].type === "reference" ? "reference" : "value",
         value: parts[0].value
@@ -336,7 +336,7 @@ exports.Parser = class {
       let current = "";
       let parenthesis = 0;
       let literal = false;
-      // PATCH: Track braces and brackets for YAML
+      // PATCH: Track braces and brackets for JSONX
       let brace = 0;
       let bracket = 0;
       const flush = () => {
@@ -386,9 +386,9 @@ exports.Parser = class {
       return method.call(context, ...innerValues);
     };
   }
-  // REFACTOR: Delegate YAML handling to module
-  _yamlFormula(text) {
-    return createYamlFormula(text, exports.Parser, this.settings);
+  // REFACTOR: Delegate JSONX handling to module
+  _jsonxFormula(text) {
+    return createJSONXFormula(text, exports.Parser, this.settings);
   }
   // REFACTOR: Delegate string formula evaluation to module
   _evaluateStringFormula(str, context) {
@@ -431,7 +431,7 @@ exports.Parser = class {
         }
       }
     });
-    // PATCH: Handle function results (YAML evaluators)
+    // PATCH: Handle function results (JSONX evaluators)
     const result = internals.evaluate(parts[0], context);
     return typeof result === "function" ? result(context) : result;
   }

@@ -8,14 +8,14 @@
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
 import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v6_x.js';
-import { EVALUATE_NUMBERS_AS_STRINGS } from './_formula__tests_settings.js';
+import { EVALUATE_NUMBERS_AS_DECIMALSCALEDBIGINT } from './_formula__tests_settings.js';
 
 import { describe, it } from '../../lib/bdd_polyfill.js';
 import { add, bigIntScaledToString } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 //runTests({Parser: OriginalParser, evaluateNumbersAsStrings: false});
 
-runTests({Parser: CustomParser, evaluateNumbersAsStrings: EVALUATE_NUMBERS_AS_STRINGS});
+runTests({Parser: CustomParser, evaluateNumbersAsStrings: EVALUATE_NUMBERS_AS_DECIMALSCALEDBIGINT});
 
 /**
  * Run tests for the Parser passed as argument with options
@@ -59,7 +59,13 @@ function runTests({ Parser, evaluateNumbersAsStrings }) {
         it('evaluates a formula (custom reference handler)', () => {
 
             const functions = {
-                x: (value) => value + 10
+                x: (value) => {
+                    if (evaluateNumbersAsStrings) {
+                        return bigIntScaledToString(add(value, 10));
+                    } else {
+                        return value + 10;
+                    }
+                }
             };
 
             const constants = {

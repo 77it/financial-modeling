@@ -101,17 +101,33 @@ t('numberToBigIntScaled, stringToBigIntScaled – finite numbers map via string 
 
 t('ensureBigIntScaled conversion', () => {
   const input = [
-    "", "   ", null, undefined, new Date(NaN),
+    null, undefined,  // == null
+    999555n,  // bigint
+    "12345678901235678901234567890123567890.9876543210987654321098765432109876543210",  // string
+    12345.67890,  // number
+    new Date(NaN),
     new Date(1),
-    new Decimal("1234567890.123456789"),
-    true, false,
+    true, false,  // boolean
+    "", "   ",  // empty strings
+    new Decimal("1234567890.123456789"),  // Decimal
+    [1, 2, 3],  // array with more than one element
+    [5],  // array with one element
+    ["12345678901235678901234567890123567890.9876543210987654321098765432109876543210"],  // array with one string element
   ];
 
   const expected = [
-    0n, 0n, 0n, 0n, 0n,
-    stringToBigIntScaled("1"),
-    stringToBigIntScaled("1234567890.123456789"),
-    stringToBigIntScaled("1"), 0n,
+    0n, 0n,  // == null
+    999555n,  // bigint
+    stringToBigIntScaled("12345678901235678901234567890123567890.9876543210987654321098765432109876543210"),  // string
+    numberToBigIntScaled(12345.67890),  // number
+    0n,  // invalid date
+    stringToBigIntScaled("1"),  // new Date(1)
+    stringToBigIntScaled("1"), 0n,  // boolean
+    0n, 0n,  // empty strings
+    stringToBigIntScaled("1234567890.123456789"),  // Decimal
+    0n,  // array with more than one element
+    stringToBigIntScaled("5"),  // array with one element
+    stringToBigIntScaled("12345678901235678901234567890123567890.9876543210987654321098765432109876543210"),  // array with one string element
   ];
 
   for (let i = 0; i < input.length; i++) {
