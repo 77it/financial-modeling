@@ -198,12 +198,12 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['myVar2024-01-01', `"${FM}myVar2024-01-01"`, S.ANY_TYPE, `${FM2}myVar2024-01-01`],  // variable name with date
     ['_2024-01-01', `"${FM}_2024-01-01"`, S.ANY_TYPE, `${FM2}_2024-01-01`],  // underscore prefix (identifier char)
     ['$2024-01-01', `"${FM}$2024-01-01"`, S.ANY_TYPE, `${FM2}$2024-01-01`],  // dollar prefix (identifier char)
-    ['abc2024-01-01T10:30:00Z', `"${FM}abc2024-01-01T10":"30":"${FM}00Z"`, S.ANY_TYPE, null],  // datetime with : in identifier without quotes (strangely quoted string, acceptable for us because was always an invalid JSON)
+    ['abc2024-01-01T10:30:00Z', `"${FM}abc2024-01-01T10:30:00Z"`, S.ANY_TYPE, `${FM2}abc2024-01-01T10:30:00Z`],  // datetime with : in identifier without quotes (treated as single bareword)
     ['"abc2024-01-01T10:30:00Z"', '"abc2024-01-01T10:30:00Z"', S.ANY_TYPE, 'abc2024-01-01T10:30:00Z'],  // datetime in identifier
-    ['abc2024-01-01T10:30', `"${FM}abc2024-01-01T10":"30"`, S.ANY_TYPE, null],  // datetime with : in identifier without quotes (strangely quoted string, acceptable for us because was always an invalid JSON)
-    ['{"abc2024-01-01T10":30:00Z}', `{"abc2024-01-01T10":"30":"${FM}00Z"}`, S.ANY_TYPE, null],  // datetime in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
+    ['abc2024-01-01T10:30', `"${FM}abc2024-01-01T10:30"`, S.ANY_TYPE, `${FM2}abc2024-01-01T10:30`],  // datetime with : in identifier without quotes (treated as single bareword)
+    ['{"abc2024-01-01T10":30:00Z}', `{"abc2024-01-01T10":"${FM}30:00Z"}`, S.ANY_TYPE, {"abc2024-01-01T10":`${FM2}30:00Z`}],  // colon is part of value when inside object
     ['{"abc2024-01-01T10":30}', '{"abc2024-01-01T10":"30"}', S.ANY_TYPE, {"abc2024-01-01T10":"30"}],  // datetime in identifier
-    ['test2023/12/25', `"${FM}test2023"/"12"/"25"`, S.ANY_TYPE, null],  // slash-separated date in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
+    ['test2023/12/25', `"${FM}test2023/12/25"`, S.ANY_TYPE, `${FM2}test2023/12/25`],  // slash-separated date in identifier (treated as single bareword)
     ['"test2023/12/25"', '"test2023/12/25"', S.ANY_TYPE, 'test2023/12/25'],  // slash-separated date in identifier
     ['var2024.01.01', `"${FM}var2024.01.01"`, S.ANY_TYPE, `${FM2}var2024.01.01`],  // dot-separated date in identifier
     // Dates that SHOULD be quoted (proper preceding boundaries)
@@ -227,11 +227,11 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     [':2023.12.25', ':"2023.12.25"', S.ANY_TYPE, null],  // dot-separated after colon
     [',2023-12-25T23:59:59', ',"2023-12-25T23:59:59"', S.ANY_TYPE, null],  // end of day
     // Mixed scenarios in JSON-like structures
-    ['key: 2024-01-01', `"${FM}key": "2024-01-01"`, S.ANY_TYPE, null],  // object key as bareword
+    ['key: 2024-01-01', `"${FM}key: 2024-01-01"`, S.ANY_TYPE, `${FM2}key: 2024-01-01`],  // colon is part of bareword at top level
     ['[2023-12-31, 2024-01-01]', '["2023-12-31", "2024-01-01"]', S.ANY_TYPE, ["2023-12-31", "2024-01-01"]],  // array elements
     ['{start: 2024-01-01, end: 2024-12-31}', '{"start": "2024-01-01", "end": "2024-12-31"}', S.ANY_TYPE, {start: "2024-01-01", end: "2024-12-31"}],  // object properties
     // Edge cases with multiple dates
-    ['valid: 2024-01-01, invalid_prefix2024-01-02', `"${FM}valid": "2024-01-01", "${FM}invalid_prefix2024-01-02"`, S.ANY_TYPE, null],  // mixed boundaries
+    ['valid: 2024-01-01, invalid_prefix2024-01-02', `"${FM}valid: 2024-01-01, invalid_prefix2024-01-02"`, S.ANY_TYPE, `${FM2}valid: 2024-01-01, invalid_prefix2024-01-02`],  // comma/colon are part of bareword at top level
     [' 2024-01-01 and prefix2024-01-02', `"${FM}2024-01-01 and prefix2024-01-02"`, S.ANY_TYPE, `${FM2}2024-01-01 and prefix2024-01-02`],  // entire value as single bareword with marker
     // Dates already in strings (should remain unchanged)
     ['"2024-01-01"', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // already quoted date

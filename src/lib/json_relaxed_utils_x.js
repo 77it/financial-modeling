@@ -107,6 +107,7 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
 
   // Context tracking
   let contextStack = 0; // bit-stack; LSB=object flag
+  let depth = 0; // track nesting depth (0 = top level)
   let inObjectKey = false;
 
   // ---- Helpers ----
@@ -282,15 +283,20 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
   }
 
   // Read a bare value until JSON boundary (for value positions)
-  // Includes all text including spaces until hitting: , } ] : or end
+  // Includes all text including spaces until hitting boundaries based on context
   function readBareValueUntilBoundary() {
     const start = i;
     while (i < n) {
       const c = input[i];
       const code = input.charCodeAt(i);
-      // Stop at JSON syntax boundaries in value context
-      if (c === ',' || c === '}' || c === ']' || c === ':') break;
-      if (c === '"' || c === "'" || c === '/') break;
+      // Always stop at closing braces/brackets (end of structures)
+      if (c === '}' || c === ']') break;
+      // Stop at comma only if inside a structure (array or object)
+      if (c === ',' && depth > 0) break;
+      // Stop at quotes (start of string)
+      if (c === '"' || c === "'") break;
+      // Stop at slash only if it starts a comment
+      if (c === '/' && i + 1 < n && (input[i + 1] === '/' || input[i + 1] === '*')) break;
       i++;
     }
     if (i === start) return null;
@@ -306,7 +312,9 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
       const c = input[i];
       const code = input.charCodeAt(i);
       if (code < 128 && (IS_WS[code] || IS_JSON_SYNTAX[code])) break;
-      if (c === '"' || c === "'" || c === '/') break;
+      if (c === '"' || c === "'") break;
+      // Stop at slash only if it starts a comment
+      if (c === '/' && i + 1 < n && (input[i + 1] === '/' || input[i + 1] === '*')) break;
       i++;
     }
     if (i === start) return null;
@@ -355,8 +363,8 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
     }
 
     // Structure & context
-    if (c === '{') { contextStack = (contextStack << 1) | 1; inObjectKey = true; out += c; i++; continue; }
-    if (c === '[') { contextStack = (contextStack << 1);    inObjectKey = false; out += c; i++; continue; }
+    if (c === '{') { contextStack = (contextStack << 1) | 1; depth++; inObjectKey = true; out += c; i++; continue; }
+    if (c === '[') { contextStack = (contextStack << 1); depth++; inObjectKey = false; out += c; i++; continue; }
     if (c === ':') { inObjectKey = false; out += c; i++; continue; }
     if (c === ',') {
       // maybe trailing comma
@@ -364,7 +372,7 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
       inObjectKey = (contextStack & 1) === 1;
       continue;
     }
-    if (c === '}' || c === ']') { contextStack >>= 1; inObjectKey = (contextStack & 1) === 1; out += c; i++; continue; }
+    if (c === '}' || c === ']') { contextStack >>= 1; depth--; inObjectKey = (contextStack & 1) === 1; out += c; i++; continue; }
 
     // Strings
     if (c === '"') { readDQ(); continue; }
