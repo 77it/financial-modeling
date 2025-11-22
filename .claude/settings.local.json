@@ -21,7 +21,8 @@
       "Bash(cat:*)",
       "Bash(node -e:*)",
       "Bash(node --test:*)",
-      "WebFetch(domain:observablehq.com)"
+      "WebFetch(domain:observablehq.com)",
+      "WebSearch"
     ],
     "deny": [
       "Bash(git add:*)",

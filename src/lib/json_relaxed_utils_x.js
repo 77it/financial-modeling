@@ -7,10 +7,6 @@ const FORMULA_MARKER_HIDDEN = String.fromCharCode(31);  // ASCII 31
 const FORMULA_MARKER_VISIBLE = '#';
 const FORMULA_MARKER = FORMULA_MARKER_HIDDEN + FORMULA_MARKER_VISIBLE;  // Combined marker
 
-// Formula-like pattern: contains operators, function calls, or spaces (multi-word)
-// This includes: operators (!, ^, *, /, %, +, -, =, <, >, &, |, ?), parentheses, function calls, or spaces
-const FORMULA_LIKE_RX = /[!\^\*\/%\+\-<>=&\|\?\(\)]|\w\s*\(|\s/;
-
 // --- Hoisted tables (small, fast) ---
 const IS_JSON_SYNTAX = (() => {
   const a = new Array(128).fill(false);
@@ -94,6 +90,8 @@ const IS_DIGIT = (() => {
  * @returns {string} A strict JSON string, safe for JSON.parse()
  */
 function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
+  // Input validation
+  if (typeof input !== 'string') return '';
 
   const n = input.length;
   if (n === 0) return '';
@@ -177,7 +175,6 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
 
   // Trailing comma remover: if comma followed by ws/comments and then ] or }, drop it
   function maybeSkipTrailingComma() {
-    const save = i; // at ','
     i++; // skip comma
     const j = i;
     skipWsComments();
@@ -288,7 +285,6 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
     const start = i;
     while (i < n) {
       const c = input[i];
-      const code = input.charCodeAt(i);
       // Always stop at closing braces/brackets (end of structures)
       if (c === '}' || c === ']') break;
       // Stop at comma only if inside a structure (array or object)
