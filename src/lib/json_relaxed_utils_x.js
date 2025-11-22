@@ -1,5 +1,15 @@
-export { quoteKeysNumbersAndDatesForRelaxedJSON };
+export { quoteKeysNumbersAndDatesForRelaxedJSON, FORMULA_MARKER };
 import { regExp_YYYYMMDDTHHMMSSMMMZ as DATE_RE } from './date_utils.js';
+
+// Special markers for unquoted formula values in JSONX
+// ASCII 31 (hidden character) + '#' (visible marker)
+const FORMULA_MARKER_HIDDEN = String.fromCharCode(31);  // ASCII 31
+const FORMULA_MARKER_VISIBLE = '#';
+const FORMULA_MARKER = FORMULA_MARKER_HIDDEN + FORMULA_MARKER_VISIBLE;  // Combined marker
+
+// Formula-like pattern: contains operators, function calls, or spaces (multi-word)
+// This includes: operators (!, ^, *, /, %, +, -, =, <, >, &, |, ?), parentheses, function calls, or spaces
+const FORMULA_LIKE_RX = /[!\^\*\/%\+\-<>=&\|\?\(\)]|\w\s*\(|\s/;
 
 // --- Hoisted tables (small, fast) ---
 const IS_JSON_SYNTAX = (() => {
@@ -210,6 +220,23 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
       const code = input.charCodeAt(i) || 0;
       const isIdent = (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || code === 36 || code === 95;
       if (!isIdent) {
+        // Check if there's meaningful content after the date
+        // Skip whitespace and check if we hit a JSON boundary or end
+        let checkPos = i;
+        while (checkPos < n && input[checkPos] === ' ') checkPos++;
+
+        // If the next non-space char is NOT a JSON boundary (,}]:) or end,
+        // then this date is part of a larger bareword - don't treat as pure date
+        if (checkPos < n) {
+          const nextChar = input[checkPos];
+          const isJsonBoundary = nextChar === ',' || nextChar === '}' || nextChar === ']' || nextChar === ':';
+          if (!isJsonBoundary) {
+            // There's more bareword content after the date, treat entire thing as bareword
+            i = start;
+            return false;
+          }
+        }
+
         out += `"${s}"`;
         return true;
       }
@@ -250,7 +277,26 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
         if (!expDigits) return false;
       } else return false;
     }
+    // Token should not end with trailing whitespace when this is called
     return sawDigit;
+  }
+
+  // Read a bare value until JSON boundary (for value positions)
+  // Includes all text including spaces until hitting: , } ] : or end
+  function readBareValueUntilBoundary() {
+    const start = i;
+    while (i < n) {
+      const c = input[i];
+      const code = input.charCodeAt(i);
+      // Stop at JSON syntax boundaries in value context
+      if (c === ',' || c === '}' || c === ']' || c === ':') break;
+      if (c === '"' || c === "'" || c === '/') break;
+      i++;
+    }
+    if (i === start) return null;
+    // Only trim leading whitespace to preserve trailing space before closing braces
+    const value = input.slice(start, i).trimStart();
+    return value.length === 0 ? null : value;
   }
 
   // Read a bare token (identifier or number-ish) until JSON syntax/WS/comment
@@ -324,13 +370,14 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
     if (c === '"') { readDQ(); continue; }
     if (c === "'") { readSQ(); continue; }
 
-    // Dates (only if starts with digit)
+    // Dates (only if starts with digit) - check for pure dates not followed by bareword content
     if (hasDigit && code < 128 && IS_DIGIT[code]) {
       if (tryReadDate()) continue;
     }
 
     // Bare tokens: keys or values
-    const token = readBareToken();
+    // For values, use readBareValueUntilBoundary to capture entire value including spaces
+    const token = inObjectKey ? readBareToken() : readBareValueUntilBoundary();
     if (token != null) {
       if (inObjectKey) {
         // Quote ANY unquoted key (strict JSON)
@@ -339,30 +386,67 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
       }
 
       // Values: quote pure decimal numbers (preserve as strings)
-      if (hasDigit && isPureDecimalNumber(token)) {
-        if (token.indexOf('_') === -1 && token.charCodeAt(0) !== 43 /* '+' */) {
-          out += `"${token}"`;
+      // First strip trailing whitespace for number checking, but preserve it for output
+      const tokenTrimmed = token.trimEnd();
+      const trailingWS = token.slice(tokenTrimmed.length);
+
+      if (hasDigit && isPureDecimalNumber(tokenTrimmed)) {
+        if (tokenTrimmed.indexOf('_') === -1 && tokenTrimmed.charCodeAt(0) !== 43 /* '+' */) {
+          out += `"${tokenTrimmed}"` + trailingWS;
         } else {
           // clean underscores and leading '+'
           let cleaned = '';
-          for (let k = 0; k < token.length; k++) {
-            const ch = token[k];
+          for (let k = 0; k < tokenTrimmed.length; k++) {
+            const ch = tokenTrimmed[k];
             if (ch === '_' || (k === 0 && ch === '+')) continue;
             cleaned += ch;
           }
-          out += `"${cleaned}"`;
+          out += `"${cleaned}"` + trailingWS;
         }
         continue;
       }
 
-      // Booleans/null should remain raw JSON tokens if present
-      if (token === 'true' || token === 'false' || token === 'null') {
-        out += token;
+      // Dates should remain as quoted strings (no marker)
+      if (DATE_RE.test(tokenTrimmed)) {
+        out += jsonEscape(tokenTrimmed) + trailingWS;
         continue;
       }
 
-      // Otherwise treat as unquoted bareword value -> JSON string
-      out += jsonEscape(token);
+      // Booleans/null are raw JSON tokens (not quoted)
+      if (tokenTrimmed === 'true' || tokenTrimmed === 'false' || tokenTrimmed === 'null') {
+        out += tokenTrimmed + trailingWS;  // Keep as-is, not quoted
+        continue;
+      }
+
+      /*
+      // Infinity/NaN are non-standard but we quote them as strings
+      if (tokenTrimmed === 'Infinity' || tokenTrimmed === '-Infinity' || tokenTrimmed === 'NaN') {
+        out += jsonEscape(tokenTrimmed) + trailingWS;  // Quote these as strings since not standard JSON
+        continue;
+      }
+
+      // Hex/binary/octal literals should be quoted without marker (but only if valid)
+      // Valid patterns: [+-]?0x[0-9a-fA-F_]+, [+-]?0b[01_]+, [+-]?0o[0-7_]+
+      const hexMatch = tokenTrimmed.match(/^([+-]?)0[xX]([0-9a-fA-F_]+)$/);
+      const binMatch = tokenTrimmed.match(/^([+-]?)0[bB]([01_]+)$/);
+      const octMatch = tokenTrimmed.match(/^([+-]?)0[oO]([0-7_]+)$/);
+      if (hexMatch || binMatch || octMatch) {
+        out += jsonEscape(tokenTrimmed) + trailingWS;
+        continue;
+      }
+      */
+
+      // Simple rule:
+      // - If it's a pure number → quote without marker
+      // - If it matches a date → quote without marker
+      // - If it's true/false/null → leave unquoted
+      // - Everything else unquoted → quote WITH marker (formula or user error, let formula engine decide)
+
+      // Already checked: numbers and dates return earlier, so if we reach here with inObjectKey=false
+      // and token is not a special keyword/value, it's an unquoted bareword → add marker
+
+      // Add formula marker to indicate this was an unquoted string (not number, not date)
+      out += jsonEscape(FORMULA_MARKER + tokenTrimmed) + trailingWS;
       continue;
     }
 

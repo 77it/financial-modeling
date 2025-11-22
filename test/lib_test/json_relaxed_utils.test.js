@@ -1,6 +1,6 @@
 // run with `deno test --allow-import`
 
-import { quoteKeysNumbersAndDatesForRelaxedJSON } from '../../src/lib/json_relaxed_utils_x.js';
+import { quoteKeysNumbersAndDatesForRelaxedJSON, FORMULA_MARKER } from '../../src/lib/json_relaxed_utils_x.js';
 import { parseJSONrelaxed } from '../../src/lib/json.js';
 import { eqObj } from '../lib/obj_utils.js';
 import { Decimal } from '../../vendor/decimaljs/decimal.mjs';
@@ -13,15 +13,19 @@ import assert from 'node:assert';
 
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
+// Generate the JSON-escaped form of FORMULA_MARKER for use in test expectations
+const FM = JSON.stringify(FORMULA_MARKER).slice(1, -1);
+const FM2 = FORMULA_MARKER;  // raw form for expected parsed values
+
 t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
   /** @type {[string, string, any, any][]} */
   const cases = [
     // format is: [input, expected output from quoteKeysNumbersAndDatesForRelaxedJSON, sanitization, expected parsed and sanitized value]
 
-    // 0) Special number values (kept as-is, not quoted)
-    ['Infinity', '"Infinity"', S.ANY_TYPE, 'Infinity'],
-    ['-Infinity', '"-Infinity"', S.ANY_TYPE, '-Infinity'],
-    ['NaN', '"NaN"', S.ANY_TYPE, "NaN"],
+    // 0) Special number values (should be treated as barewords with markers)
+    ['Infinity', `"${FM}Infinity"`, S.ANY_TYPE, `${FM2}Infinity`],
+    ['-Infinity', `"${FM}-Infinity"`, S.ANY_TYPE, `${FM2}-Infinity`],
+    ['NaN', `"${FM}NaN"`, S.ANY_TYPE, `${FM2}NaN`],
 
     // 1) Basic decimals in value positions
     ['123', '"123"', S.DECIMAL_TYPE, toDec('123')],
@@ -60,19 +64,19 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['12_3.4_5e6_7', '"123.45e67"', S.DECIMAL_TYPE, toDec('123.45e67')],
     ['-9_876_543.21_0', '"-9876543.210"', S.DECIMAL_TYPE, toDec('-9876543.210')],
 
-    // 5) Hex numbers (kept as unquoted hex, underscore not removed)
-    ['0xFF', '"0xFF"', S.ANY_TYPE, "0xFF"],
-    ['0X1a', '"0X1a"', S.ANY_TYPE, "0X1a"],
-    ['0X1', '"0X1"', S.ANY_TYPE, "0X1"],
-    ['-0x2a', '"-0x2a"', S.ANY_TYPE, "-0x2a"],
-    ['0xAB_CD', '"0xAB_CD"', S.ANY_TYPE, "0xAB_CD"],
+    // 5) Hex numbers (should be treated as barewords with markers)
+    ['0xFF', `"${FM}0xFF"`, S.ANY_TYPE, `${FM2}0xFF`],
+    ['0X1a', `"${FM}0X1a"`, S.ANY_TYPE, `${FM2}0X1a`],
+    ['0X1', `"${FM}0X1"`, S.ANY_TYPE, `${FM2}0X1`],
+    ['-0x2a', `"${FM}-0x2a"`, S.ANY_TYPE, `${FM2}-0x2a`],
+    ['0xAB_CD', `"${FM}0xAB_CD"`, S.ANY_TYPE, `${FM2}0xAB_CD`],
 
-    // 6) Identifier tails stop numeric capture; should pass through unchanged (all invalid JSON5)
-    ['123abc', '"123abc"', S.ANY_TYPE, "123abc"],
-    ['45$var', '"45$var"', S.ANY_TYPE, "45$var"],
-    ['45$', '"45$"', S.ANY_TYPE, "45$"],
-    ['99999$666666', '"99999$666666"', S.ANY_TYPE, "99999$666666"],
-    ['0xFFg', '"0xFFg"', S.ANY_TYPE, "0xFFg"],
+    // 6) Identifier tails stop numeric capture; treated as barewords with marker
+    ['123abc', `"${FM}123abc"`, S.ANY_TYPE, `${FM2}123abc`],
+    ['45$var', `"${FM}45$var"`, S.ANY_TYPE, `${FM2}45$var`],
+    ['45$', `"${FM}45$"`, S.ANY_TYPE, `${FM2}45$`],
+    ['99999$666666', `"${FM}99999$666666"`, S.ANY_TYPE, `${FM2}99999$666666`],
+    ['0xFFg', `"${FM}0xFFg"`, S.ANY_TYPE, `${FM2}0xFFg`],
 
     // 7) Keys vs values inside objects (both should be quoted if numeric)
     ['{123:45}', '{"123":"45"}', S.ANY_TYPE, { "123": "45"}],
@@ -80,34 +84,34 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['{a123:45}', '{"a123":"45"}', { a123: S.DECIMAL_TYPE }, { a123: toDec('45') }],
     ['{a:123}', '{"a":"123"}', { a: S.DECIMAL_TYPE }, { a: toDec('123') }],
     ['{0x1:2e3}', '{"0x1":"2e3"}', S.ANY_TYPE, { "0x1": "2e3" }],
-    ['{a:-0x1f}', '{"a":"-0x1f"}', S.ANY_TYPE, { a: "-0x1f" }],
+    ['{a:-0x1f}', `{"a":"${FM}-0x1f"}`, S.ANY_TYPE, { a: `${FM2}-0x1f` }],
 
     // 7a) object same as 7) with single quote
     ["{'a123':45}", '{"a123":"45"}', { a123: S.DECIMAL_TYPE }, { a123: toDec('45') }],
 
     // 7b) Keys with spaces, underscores, quotes inside objects; values with spaces and multiple words
-    ['{a:mamma}', '{"a":"mamma"}', S.ANY_TYPE, { a: "mamma" }],
-    ['{a:mamma_mamma.mamma#mamma}', '{"a":"mamma_mamma.mamma#mamma"}', S.ANY_TYPE, { a: "mamma_mamma.mamma#mamma" }],
-    ['{a:mamma_mamma}', '{"a":"mamma_mamma"}', S.ANY_TYPE, { a: "mamma_mamma" }],
-    ['{a:mamma.mamma}', '{"a":"mamma.mamma"}', S.ANY_TYPE, { a: "mamma.mamma" }],
-    ['{a:mamma#mamma}', '{"a":"mamma#mamma"}', S.ANY_TYPE, { a: "mamma#mamma" }],
-    ['{a: 11, d: (2025-8-1), z: 999}', '{"a": "11", "d": "(2025-8-1)", "z": "999"}', S.ANY_TYPE, {"a": "11", "d": "(2025-8-1)", "z": "999"}],
+    ['{a:mamma}', `{"a":"${FM}mamma"}`, S.ANY_TYPE, { a: `${FM2}mamma` }],
+    ['{a:mamma_mamma.mamma#mamma}', `{"a":"${FM}mamma_mamma.mamma#mamma"}`, S.ANY_TYPE, { a: `${FM2}mamma_mamma.mamma#mamma` }],
+    ['{a:mamma_mamma}', `{"a":"${FM}mamma_mamma"}`, S.ANY_TYPE, { a: `${FM2}mamma_mamma` }],
+    ['{a:mamma.mamma}', `{"a":"${FM}mamma.mamma"}`, S.ANY_TYPE, { a: `${FM2}mamma.mamma` }],
+    ['{a:mamma#mamma}', `{"a":"${FM}mamma#mamma"}`, S.ANY_TYPE, { a: `${FM2}mamma#mamma` }],
+    ['{a: 11, d: (2025-8-1), z: 999}', `{"a": "11", "d": "${FM}(2025-8-1)", "z": "999"}`, S.ANY_TYPE, {"a": "11", "d": `${FM2}(2025-8-1)`, "z": "999"}],
     ['{a: 11, d: "(2025-8-1)", z: 999}', '{"a": "11", "d": "(2025-8-1)", "z": "999"}', S.ANY_TYPE, {"a": "11", "d": "(2025-8-1)", "z": "999"}],
-    ['{a_b_c:mamma babbo}', '{"a_b_c":"mamma" "babbo"}', S.ANY_TYPE, null],  // JSON doesn't allow multiple values like this
+    ['{a_b_c:mamma babbo}', `{"a_b_c":"${FM}mamma babbo"}`, S.ANY_TYPE, {"a_b_c":`${FM2}mamma babbo`}],
     ['{a_b_c:"mamma babbo"}', '{"a_b_c":"mamma babbo"}', S.ANY_TYPE, {"a_b_c":"mamma babbo"}],
-    ['{ "pino lino" :mamma babbo}', '{ "pino lino" :"mamma" "babbo"}', S.ANY_TYPE, null],  // JSON doesn't allow multiple values like this
+    ['{ "pino lino" :mamma babbo}', `{ "pino lino" :"${FM}mamma babbo"}`, S.ANY_TYPE, {"pino lino":`${FM2}mamma babbo`}],
     ['{ "pino lino" :"mamma babbo"}', '{ "pino lino" :"mamma babbo"}', S.ANY_TYPE, {"pino lino":"mamma babbo"}],
 
     // 7c) object same as 7b) test with single quote
     ["{a_b_c:'mamma babbo'}", '{"a_b_c":"mamma babbo"}', S.ANY_TYPE, {"a_b_c":"mamma babbo"}],
-    ["{ 'pino lino' :mamma babbo}", '{ "pino lino" :"mamma" "babbo"}', S.ANY_TYPE, null],  // JSON doesn't allow multiple values like this
+    ["{ 'pino lino' :mamma babbo}", `{ "pino lino" :"${FM}mamma babbo"}`, S.ANY_TYPE, {"pino lino":`${FM2}mamma babbo`}],
     ["{ 'pino lino' :'mamma babbo'}", '{ "pino lino" :"mamma babbo"}', S.ANY_TYPE, {"pino lino":"mamma babbo"}],
 
     // 8) Arrays
     ['[1,2,3]', '["1","2","3"]', S.ARRAY_OF_DECIMAL_TYPE, [toDec('1'), toDec('2'), toDec('3')]],
     ['[.5,-.25,1_000]', '[".5","-.25","1000"]', S.ANY_TYPE, ['.5', '-.25', '1000']],
     ['[.5,-.25,2_000]', '[".5","-.25","2000"]', S.ARRAY_OF_DECIMAL_TYPE, [toDec('.5'), toDec('-.25'), toDec('2000')]],
-    ['[.5$,123abc,45$var,999,45$,99999$666666,0xFFg]', '[".5$","123abc","45$var","999","45$","99999$666666","0xFFg"]', S.ANY_TYPE, [".5$","123abc","45$var","999","45$","99999$666666","0xFFg"]],
+    ['[.5$,123abc,45$var,999,45$,99999$666666,0xFFg]', `["${FM}.5$","${FM}123abc","${FM}45$var","999","${FM}45$","${FM}99999$666666","${FM}0xFFg"]`, S.ANY_TYPE, [`${FM2}.5$`,`${FM2}123abc`,`${FM2}45$var`,"999",`${FM2}45$`,`${FM2}99999$666666`,`${FM2}0xFFg`]],
 
     // 9) Strings remain verbatim, including escapes and embedded digits
     ['"123"', '"123"', S.ANY_TYPE, '123'],
@@ -125,14 +129,14 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
 
     // 11) Mixed JSON5 snippet
     [
-      '{a:1_000, b:.5, c:2E+3, d:"007", e:0xFFAA, f:-3.14e-2, // end\n g:\'x9\' }',
-      '{"a":"1000", "b":".5", "c":"2E+3", "d":"007", "e":"0xFFAA", "f":"-3.14e-2", \n "g":"x9" }',
+      '{a:1_000, b:.5, c:2E+3, d:"007", e:0xFFAA, f:-3.14e-2, // first\n g:\'x9\'/*last*/,\n h:x9 }',
+      `{"a":"1000", "b":".5", "c":"2E+3", "d":"007", "e":"${FM}0xFFAA", "f":"-3.14e-2", \n "g":"x9",\n "h":"${FM}x9" }`,
       S.ANY_TYPE,
-      { a: '1000', b: '.5', c: '2E+3', d: '007', e: "0xFFAA", f: '-3.14e-2', g: 'x9' }
+      { a: '1000', b: '.5', c: '2E+3', d: '007', e: `${FM2}0xFFAA`, f: '-3.14e-2', g: 'x9', h: `${FM2}x9` }
     ],
     [
       '{a:2_000, b:.5, c:2E+3, d:"007", e:0xFFAA, f:-3.14e-2, // end\n g:\'x9\' }',
-      '{"a":"2000", "b":".5", "c":"2E+3", "d":"007", "e":"0xFFAA", "f":"-3.14e-2", \n "g":"x9" }',
+      `{"a":"2000", "b":".5", "c":"2E+3", "d":"007", "e":"${FM}0xFFAA", "f":"-3.14e-2", \n "g":"x9" }`,
       { a: S.DECIMAL_TYPE, b: S.DECIMAL_TYPE, c: S.DECIMAL_TYPE, d: S.DECIMAL_TYPE, e: S.DECIMAL_TYPE, f: S.DECIMAL_TYPE, g: S.DECIMAL_TYPE },
       { a: toDec('2000'), b: toDec('.5'), c: toDec('2E+3'), d: toDec('007'), e: new Decimal(0), f: toDec('-3.14e-2'), g: new Decimal(0) }
     ],
@@ -148,20 +152,22 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['-.5', '"-.5"', S.DECIMAL_TYPE, toDec('-.5')],
 
     // 13) Lone dot or dot without following digits should pass unchanged
-    ['.', '"."', S.ANY_TYPE, '.'], // Invalid number
-    ['-.', '"-."', S.ANY_TYPE, '-.'], // Invalid number
+    ['.', `"${FM}."`, S.ANY_TYPE, `${FM2}.`], // Invalid number - not pure decimal
+    ['-.', `"${FM}-."`, S.ANY_TYPE, `${FM2}-.`], // Invalid number - not pure decimal
 
     // 14) Ensure we don't quote inside quotes next to numbers
     ['"x"123"y"', '"x""123""y"', S.ANY_TYPE, null], // Invalid JSON5 syntax
     // The previous expectation needs to reflect transformation; split into a precise form:
     ['"x" 123 "y"', '"x" "123" "y"', S.ANY_TYPE, null], // Invalid JSON5 syntax (multiple values)
+    // unquoted string is quoted as entire value with marker
+    ['x 123 y', `"${FM}x 123 y"`, S.ANY_TYPE, `${FM2}x 123 y`],
 
     // 15) Complex object with spaces/newlines/tabs, also with single quote
     [
       '{ \n  a : 1_2_3 ,\t b:\n-4.5e-6 , c : "12_3" , d: 0x1ABC \n}',
-      '{ \n  "a" : "123" ,\t "b":\n"-4.5e-6" , "c" : "12_3" , "d": "0x1ABC" \n}',
+      `{ \n  "a" : "123" ,\t "b":\n"-4.5e-6" , "c" : "12_3" , "d": "${FM}0x1ABC" \n}`,
       S.ANY_TYPE,
-      { a: '123', b: '-4.5e-6', c: '12_3', d: "0x1ABC" }
+      { a: '123', b: '-4.5e-6', c: '12_3', d: `${FM2}0x1ABC` }
     ],
     [
       "{ \n  'a' : '1_2_3' ,\t 'b':\n'-4.5e-6' , c : '12_3' , 'd': '0x1ABC' \n}",
@@ -185,21 +191,21 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     // POSITIVE: boundary before and after → quoted
     ['{ a:2024-01-01 }', '{ "a":"2024-01-01" }', S.ANY_TYPE, { a: '2024-01-01' }],
     ['{ a:2024-01-01 }', '{ "a":"2024-01-01" }', { a: S.DATE_TYPE }, { a: parseTextToLocalDate('2024-01-01') }],
-    // Dates that should NOT be quoted (inside identifiers - no proper preceding boundary)
-    ['2024-01-01X', '"2024-01-01X"', S.ANY_TYPE, '2024-01-01X'],  // date followed by identifier chars
-    ['foo2024-01-01', '"foo2024-01-01"', S.ANY_TYPE, 'foo2024-01-01'],  // date preceded by identifier chars
-    ['prefix2024-01-01suffix', '"prefix2024-01-01suffix"', S.ANY_TYPE, 'prefix2024-01-01suffix'],  // date in middle of identifier
-    ['myVar2024-01-01', '"myVar2024-01-01"', S.ANY_TYPE, 'myVar2024-01-01'],  // variable name with date
-    ['_2024-01-01', '"_2024-01-01"', S.ANY_TYPE, '_2024-01-01'],  // underscore prefix (identifier char)
-    ['$2024-01-01', '"$2024-01-01"', S.ANY_TYPE, '$2024-01-01'],  // dollar prefix (identifier char)
-    ['abc2024-01-01T10:30:00Z', '"abc2024-01-01T10":"30":"00Z"', S.ANY_TYPE, null],  // datetime in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
+    // Dates that should NOT be quoted (inside identifiers - no proper preceding boundary) - treated as barewords with marker
+    ['2024-01-01X', `"${FM}2024-01-01X"`, S.ANY_TYPE, `${FM2}2024-01-01X`],  // date followed by identifier chars
+    ['foo2024-01-01', `"${FM}foo2024-01-01"`, S.ANY_TYPE, `${FM2}foo2024-01-01`],  // date preceded by identifier chars
+    ['prefix2024-01-01suffix', `"${FM}prefix2024-01-01suffix"`, S.ANY_TYPE, `${FM2}prefix2024-01-01suffix`],  // date in middle of identifier
+    ['myVar2024-01-01', `"${FM}myVar2024-01-01"`, S.ANY_TYPE, `${FM2}myVar2024-01-01`],  // variable name with date
+    ['_2024-01-01', `"${FM}_2024-01-01"`, S.ANY_TYPE, `${FM2}_2024-01-01`],  // underscore prefix (identifier char)
+    ['$2024-01-01', `"${FM}$2024-01-01"`, S.ANY_TYPE, `${FM2}$2024-01-01`],  // dollar prefix (identifier char)
+    ['abc2024-01-01T10:30:00Z', `"${FM}abc2024-01-01T10":"30":"${FM}00Z"`, S.ANY_TYPE, null],  // datetime with : in identifier without quotes (strangely quoted string, acceptable for us because was always an invalid JSON)
     ['"abc2024-01-01T10:30:00Z"', '"abc2024-01-01T10:30:00Z"', S.ANY_TYPE, 'abc2024-01-01T10:30:00Z'],  // datetime in identifier
-    ['abc2024-01-01T10:30', '"abc2024-01-01T10":"30"', S.ANY_TYPE, null],  // datetime in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
-    ['{"abc2024-01-01T10":30:00Z}', '{"abc2024-01-01T10":"30":"00Z"}', S.ANY_TYPE, null],  // datetime in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
+    ['abc2024-01-01T10:30', `"${FM}abc2024-01-01T10":"30"`, S.ANY_TYPE, null],  // datetime with : in identifier without quotes (strangely quoted string, acceptable for us because was always an invalid JSON)
+    ['{"abc2024-01-01T10":30:00Z}', `{"abc2024-01-01T10":"30":"${FM}00Z"}`, S.ANY_TYPE, null],  // datetime in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
     ['{"abc2024-01-01T10":30}', '{"abc2024-01-01T10":"30"}', S.ANY_TYPE, {"abc2024-01-01T10":"30"}],  // datetime in identifier
-    ['test2023/12/25', '"test2023"/"12"/"25"', S.ANY_TYPE, null],  // slash-separated date in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
+    ['test2023/12/25', `"${FM}test2023"/"12"/"25"`, S.ANY_TYPE, null],  // slash-separated date in identifier (strangely quoted string, acceptable for us because was always an invalid JSON)
     ['"test2023/12/25"', '"test2023/12/25"', S.ANY_TYPE, 'test2023/12/25'],  // slash-separated date in identifier
-    ['var2024.01.01', '"var2024.01.01"', S.ANY_TYPE, "var2024.01.01"],  // dot-separated date in identifier
+    ['var2024.01.01', `"${FM}var2024.01.01"`, S.ANY_TYPE, `${FM2}var2024.01.01`],  // dot-separated date in identifier
     // Dates that SHOULD be quoted (proper preceding boundaries)
     ['2024-01-01', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date at start of string
     [' 2024-01-01', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // date after space
@@ -221,22 +227,22 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     [':2023.12.25', ':"2023.12.25"', S.ANY_TYPE, null],  // dot-separated after colon
     [',2023-12-25T23:59:59', ',"2023-12-25T23:59:59"', S.ANY_TYPE, null],  // end of day
     // Mixed scenarios in JSON-like structures
-    ['key: 2024-01-01', '"key": "2024-01-01"', S.ANY_TYPE, null],  // object value
+    ['key: 2024-01-01', `"${FM}key": "2024-01-01"`, S.ANY_TYPE, null],  // object key as bareword
     ['[2023-12-31, 2024-01-01]', '["2023-12-31", "2024-01-01"]', S.ANY_TYPE, ["2023-12-31", "2024-01-01"]],  // array elements
     ['{start: 2024-01-01, end: 2024-12-31}', '{"start": "2024-01-01", "end": "2024-12-31"}', S.ANY_TYPE, {start: "2024-01-01", end: "2024-12-31"}],  // object properties
     // Edge cases with multiple dates
-    ['valid: 2024-01-01, invalid_prefix2024-01-02', '"valid": "2024-01-01", "invalid_prefix2024-01-02"', S.ANY_TYPE, null],  // mixed boundaries
-    [' 2024-01-01 and prefix2024-01-02', '"2024-01-01" "and" "prefix2024-01-02"', S.ANY_TYPE, null],  // space vs identifier prefix
+    ['valid: 2024-01-01, invalid_prefix2024-01-02', `"${FM}valid": "2024-01-01", "${FM}invalid_prefix2024-01-02"`, S.ANY_TYPE, null],  // mixed boundaries
+    [' 2024-01-01 and prefix2024-01-02', `"${FM}2024-01-01 and prefix2024-01-02"`, S.ANY_TYPE, `${FM2}2024-01-01 and prefix2024-01-02`],  // entire value as single bareword with marker
     // Dates already in strings (should remain unchanged)
     ['"2024-01-01"', '"2024-01-01"', S.ANY_TYPE, '2024-01-01'],  // already quoted date
     ['"prefix2024-01-01"', '"prefix2024-01-01"', S.ANY_TYPE, 'prefix2024-01-01'],  // identifier with date in quotes
     // Invalid date patterns (should not be processed regardless of boundary)
     [' 2024-13-45', '"2024-13-45"', S.ANY_TYPE, '2024-13-45'],  // invalid date values
-    ['abc2024-13-45', '"abc2024-13-45"', S.ANY_TYPE, 'abc2024-13-45'],  // invalid date in identifier
+    ['abc2024-13-45', `"${FM}abc2024-13-45"`, S.ANY_TYPE, `${FM2}abc2024-13-45`],  // invalid date in identifier - bareword
     // Boundary edge cases
-    ['()2024-01-01', '"()2024-01-01"', S.ANY_TYPE, '()2024-01-01'],  // parentheses (not in JSON syntax table)
-    ['<>2024-01-01', '"<>2024-01-01"', S.ANY_TYPE, '<>2024-01-01'],  // angle brackets (not in JSON syntax table)
-    ['+=2024-01-01', '"+=2024-01-01"', S.ANY_TYPE, '+=2024-01-01'],  // operators (not in JSON syntax table)
+    ['()2024-01-01', `"${FM}()2024-01-01"`, S.ANY_TYPE, `${FM2}()2024-01-01`],  // parentheses (not in JSON syntax table) - bareword
+    ['<>2024-01-01', `"${FM}<>2024-01-01"`, S.ANY_TYPE, `${FM2}<>2024-01-01`],  // angle brackets (not in JSON syntax table) - bareword
+    ['+=2024-01-01', `"${FM}+=2024-01-01"`, S.ANY_TYPE, `${FM2}+=2024-01-01`],  // operators (not in JSON syntax table) - bareword
 
     // 17) ISO date strings (should be transformed when unquoted)
     ['"2023-12-25T10:30:00Z"', '"2023-12-25T10:30:00Z"', S.ANY_TYPE, '2023-12-25T10:30:00Z'],
@@ -248,21 +254,21 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
 
     // 18) Version numbers
     ['"1.2.3"', '"1.2.3"', S.ANY_TYPE, '1.2.3'],
-    ['1.2.3', '"1.2.3"', S.ANY_TYPE, '1.2.3'],
+    ['1.2.3', `"${FM}1.2.3"`, S.ANY_TYPE, `${FM2}1.2.3`],  // not a valid decimal number
     ['"v2.1.0"', '"v2.1.0"', S.ANY_TYPE, 'v2.1.0'],
-    ['v2.1.0', '"v2.1.0"', S.ANY_TYPE, 'v2.1.0'],
+    ['v2.1.0', `"${FM}v2.1.0"`, S.ANY_TYPE, `${FM2}v2.1.0`],  // not a number
 
     // 19) IP addresses
     ['"192.168.1.1"', '"192.168.1.1"', S.ANY_TYPE, '192.168.1.1'],
-    ['192.168.1.1', '"192.168.1.1"', S.ANY_TYPE, '192.168.1.1'],
+    ['192.168.1.1', `"${FM}192.168.1.1"`, S.ANY_TYPE, `${FM2}192.168.1.1`],  // not a valid decimal number
     ['"127.0.0.1"', '"127.0.0.1"', S.ANY_TYPE, '127.0.0.1'],
-    ['127.0.0.1', '"127.0.0.1"', S.ANY_TYPE, '127.0.0.1'],
+    ['127.0.0.1', `"${FM}127.0.0.1"`, S.ANY_TYPE, `${FM2}127.0.0.1`],  // not a valid decimal number
 
     // 20) Phone numbers
     ['"+1-555-123-4567"', '"+1-555-123-4567"', S.ANY_TYPE, '+1-555-123-4567'],
-    ['+1-555-123-4567', '"+1-555-123-4567"', S.ANY_TYPE, '+1-555-123-4567'],
+    ['+1-555-123-4567', `"${FM}+1-555-123-4567"`, S.ANY_TYPE, `${FM2}+1-555-123-4567`],  // not a number
     ['"(555) 123-4567"', '"(555) 123-4567"', S.ANY_TYPE, '(555) 123-4567'],
-    ['(555) 123-4567', '"(555)" "123-4567"', S.ANY_TYPE, null],  // (strangely quoted string, acceptable for us because was always an invalid JSON)
+    ['(555) 123-4567', `"${FM}(555) 123-4567"`, S.ANY_TYPE, `${FM2}(555) 123-4567`],  // not a number
 
     // 21) Edge cases with dots
     ['0.', '"0."', S.ANY_TYPE, "0."],
@@ -286,20 +292,20 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['0.0', '"0.0"', S.DECIMAL_TYPE, toDec("0.0")],
     ['00', '"00"', S.DECIMAL_TYPE, toDec("00")], // Leading zeros
 
-    // 24) Binary-like strings (should NOT be parsed as numbers)
-    ['0b1010', '"0b1010"', S.ANY_TYPE, '0b1010'],
-    ['0B1111', '"0B1111"', S.ANY_TYPE, '0B1111'],
+    // 24) Binary-like strings (should be treated as barewords with markers)
+    ['0b1010', `"${FM}0b1010"`, S.ANY_TYPE, `${FM2}0b1010`],
+    ['0B1111', `"${FM}0B1111"`, S.ANY_TYPE, `${FM2}0B1111`],
 
-    // 25) Octal-like strings (should NOT be parsed as numbers)
-    ['0o777', '"0o777"', S.ANY_TYPE, '0o777'],
-    ['0O755', '"0O755"', S.ANY_TYPE, '0O755'],
+    // 25) Octal-like strings (should be treated as barewords with markers)
+    ['0o777', `"${FM}0o777"`, S.ANY_TYPE, `${FM2}0o777`],
+    ['0O755', `"${FM}0O755"`, S.ANY_TYPE, `${FM2}0O755`],
 
     // 26) Numbers in different contexts
     ['{count: 42, items: [1, 2, 3]}', '{"count": "42", "items": ["1", "2", "3"]}', S.ANY_TYPE, { count: "42", items: ["1", "2", "3"] }],
     ['{"temperature": -273.15}', '{"temperature": "-273.15"}', S.ANY_TYPE, { temperature: "-273.15" }],
-    ['{a: 123, b: 0xFF}', '{"a": "123", "b": "0xFF"}', S.ANY_TYPE, { a: '123', b: "0xFF" }],
+    ['{a: 123, b: 0xFF}', `{"a": "123", "b": "${FM}0xFF"}`, S.ANY_TYPE, { a: '123', b: `${FM2}0xFF` }],
     ['[1, 2.5, -3e2]', '["1", "2.5", "-3e2"]', S.ANY_TYPE, ['1', '2.5', '-3e2']],
-    ['{count: 1_000, hex: 0xABCD}', '{"count": "1000", "hex": "0xABCD"}', S.ANY_TYPE, { count: '1000', hex: "0xABCD" }],
+    ['{count: 1_000, hex: 0xABCD}', `{"count": "1000", "hex": "${FM}0xABCD"}`, S.ANY_TYPE, { count: '1000', hex: `${FM2}0xABCD` }],
 
     // 27) Complex nested structures, also with single quotes (objects)
     [
@@ -315,13 +321,13 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
       { users: [{ id: "1", age: "25" }, { id: "2", age: "30" }] }
     ],
 
-    // 28) Invalid number formats (should pass through unchanged)
+    // 28) Invalid number formats (should pass through with marker)
     ['123.', '"123."', S.DECIMAL_TYPE, toDec("123.")],
-    ['123..456', '"123..456"', S.ANY_TYPE, '123..456'],
-    ['123.456.789', '"123.456.789"', S.ANY_TYPE, '123.456.789'],
-    ['123ee456', '"123ee456"', S.ANY_TYPE, '123ee456'],
-    ['123e', '"123e"', S.ANY_TYPE, '123e'],
-    ['123e+', '"123e+"', S.ANY_TYPE, '123e+'],
+    ['123..456', `"${FM}123..456"`, S.ANY_TYPE, `${FM2}123..456`],  // invalid - multiple dots
+    ['123.456.789', `"${FM}123.456.789"`, S.ANY_TYPE, `${FM2}123.456.789`],  // invalid - multiple dots
+    ['123ee456', `"${FM}123ee456"`, S.ANY_TYPE, `${FM2}123ee456`],  // invalid - multiple e
+    ['123e', `"${FM}123e"`, S.ANY_TYPE, `${FM2}123e`],  // invalid - incomplete exponent
+    ['123e+', `"${FM}123e+"`, S.ANY_TYPE, `${FM2}123e+`],  // invalid - incomplete exponent
 
     // 29) Unicode and special characters (should NOT interfere)
     ['"café"', '"café"', S.ANY_TYPE, 'café'],
@@ -342,12 +348,12 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['{enabled: true, count: 0}', '{"enabled": true, "count": "0"}', S.ANY_TYPE, { enabled: true, count: "0" }],
 
     // 32) Identifiers and property names (objects and not)
-    ['hello', '"hello"', S.ANY_TYPE, 'hello'], // Identifier, not a number
+    ['hello', `"${FM}hello"`, S.ANY_TYPE, `${FM2}hello`], // Identifier, not a number
     ['{hello: 123}', '{"hello": "123"}', S.ANY_TYPE, { hello: "123" }],
     ["{'hello': '123'}", '{"hello": "123"}', S.ANY_TYPE, { hello: "123" }],
     ['{hello: 1234}', '{"hello": "1234"}', { hello: S.DECIMAL_TYPE }, { hello: toDec("1234") }],
-    ['$var', '"$var"', S.ANY_TYPE, '$var'], // Valid identifier starting with $
-    ['_private', '"_private"', S.ANY_TYPE, '_private'], // Valid identifier starting with _
+    ['$var', `"${FM}$var"`, S.ANY_TYPE, `${FM2}$var`], // Valid identifier starting with $
+    ['_private', `"${FM}_private"`, S.ANY_TYPE, `${FM2}_private`], // Valid identifier starting with _
 
     // 33) Scientific notation edge cases
     ['1E10', '"1E10"', S.ANY_TYPE, "1E10"],
@@ -359,17 +365,17 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['2.5E-3', '"2.5E-3"', S.ANY_TYPE, "2.5E-3"],
     ['2.5E-3', '"2.5E-3"', S.DECIMAL_TYPE, toDec("2.5E-3")],
 
-    // 34) Hex number edge cases
-    ['0x0', '"0x0"', S.ANY_TYPE, '0x0'],
-    ['0XFF', '"0XFF"', S.ANY_TYPE, '0XFF'],
-    ['0xabc', '"0xabc"', S.ANY_TYPE, '0xabc'],
-    ['0XDEF', '"0XDEF"', S.ANY_TYPE, '0XDEF'],
+    // 34) Hex number edge cases (should be treated as barewords with markers)
+    ['0x0', `"${FM}0x0"`, S.ANY_TYPE, `${FM2}0x0`],
+    ['0XFF', `"${FM}0XFF"`, S.ANY_TYPE, `${FM2}0XFF`],
+    ['0xabc', `"${FM}0xabc"`, S.ANY_TYPE, `${FM2}0xabc`],
+    ['0XDEF', `"${FM}0XDEF"`, S.ANY_TYPE, `${FM2}0XDEF`],
 
     // 35) Numbers with trailing characters that make them invalid
-    ['123px', '"123px"', S.ANY_TYPE, '123px'], // CSS-like unit
-    ['45deg', '"45deg"', S.ANY_TYPE, '45deg'], // CSS-like unit
-    ['100%', '"100%"', S.ANY_TYPE, '100%'], // Percentage
-    ['$100', '"$100"', S.ANY_TYPE, '$100'], // Currency
+    ['123px', `"${FM}123px"`, S.ANY_TYPE, `${FM2}123px`], // CSS-like unit
+    ['45deg', `"${FM}45deg"`, S.ANY_TYPE, `${FM2}45deg`], // CSS-like unit
+    ['100%', `"${FM}100%"`, S.ANY_TYPE, `${FM2}100%`], // Percentage
+    ['$100', `"${FM}$100"`, S.ANY_TYPE, `${FM2}$100`], // Currency
   ];
 
   const errors = [];
@@ -378,6 +384,9 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input);
     const parsed = (() => {try { return JSON.parse(quotedJSON); } catch { return null; }})();
     if (quotedJSON !== expectedQuotedJSON) {
+      //const gotCharCodes = Array.from(quotedJSON).map(c => c.charCodeAt(0)).join(', ');
+      //const expectedCharCodes = Array.from(expectedQuotedJSON).map(c => c.charCodeAt(0)).join(', ');
+      //errors.push(`For Input:\n${input}\nGot:\n${quotedJSON}\nGot char codes: ${gotCharCodes}\nExpected:\n${expectedQuotedJSON}\nExpected char codes: ${expectedCharCodes}\n`);
       errors.push(`For Input:\n${input}\nGot:\n${quotedJSON}\nExpected:\n${expectedQuotedJSON}\n`);
     }
     const parsedAnsSanitized = sanitize({ value: parsed, sanitization });

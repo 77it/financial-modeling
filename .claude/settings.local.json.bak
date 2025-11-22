@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e:*)"
+    ],
+    "deny": [
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git stage *)",
+      "Bash(git rm *)",
+      "Bash(git mv *)",
+      "Bash(git reset *)",
+      "Bash(git rebase *)",
+      "Bash(git merge *)",
+      "Bash(git cherry-pick *)",
+      "Bash(git stash push *)",
+      "Bash(git stash apply *)",
+      "Bash(git tag *)",
+      "Bash(git branch -d *)",
+      "Bash(git branch -D *)",
+      "Bash(git checkout -b *)",
+      "Bash(git switch -c *)"
+    ],
+    "ask": []
+  }
+}

@@ -1,25 +1,47 @@
 {
   "permissions": {
     "allow": [
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git branch)",
+      "Bash(git remote:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git grep:*)",
       "Bash(find:*)",
       "Bash(deno test:*)",
-      "Bash(node -e:*)",
-      "WebFetch(domain:observablehq.com)",
-      "WebSearch",
       "Bash(mkdir:*)",
       "Bash(npm init:*)",
       "Bash(npm install)",
       "Bash(npx observable build:*)",
       "Bash(findstr:*)",
-      "Bash(dir \"C:\\e3\\@gitwk\\PUBLIC\\financial-modeling\\montecarlo\")",
-      "Bash(dir \"C:\\e3\\@gitwk\\PUBLIC\\financial-modeling\\montecarlo\\dashboard_observable\\*.md\")"
-      "Bash(node -e:*)",
       "Bash(npm test:*)",
       "Bash(npm run:*)",
       "Bash(cat:*)",
-      "Bash(node --test:*)"
+      "Bash(node -e:*)",
+      "Bash(node --test:*)",
+      "WebFetch(domain:observablehq.com)"
     ],
-    "deny": [],
+    "deny": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git stage:*)",
+      "Bash(git rm:*)",
+      "Bash(git mv:*)",
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)",
+      "Bash(git merge:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(git stash push:*)",
+      "Bash(git stash apply:*)",
+      "Bash(git tag:*)",
+      "Bash(git branch -d:*)",
+      "Bash(git branch -D:*)",
+      "Bash(git checkout -b:*)",
+      "Bash(git switch -c:*)"
+    ],
     "ask": []
   }
 }
