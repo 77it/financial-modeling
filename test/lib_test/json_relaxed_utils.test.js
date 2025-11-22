@@ -1,6 +1,8 @@
 // run with `deno test --allow-import`
 
-import { quoteKeysNumbersAndDatesForRelaxedJSON, FORMULA_MARKER } from '../../src/lib/json_relaxed_utils_x.js';
+import { quoteKeysNumbersAndDatesForRelaxedJSON } from '../../src/lib/json_relaxed_utils_x.js';
+import { FORMULA_MARKER } from '../../vendor/formula/modules/formula-marker.js';
+
 import { parseJSONrelaxed } from '../../src/lib/json.js';
 import { eqObj } from '../lib/obj_utils.js';
 import { Decimal } from '../../vendor/decimaljs/decimal.mjs';
@@ -162,7 +164,12 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     // unquoted string is quoted as entire value with marker
     ['x 123 y', `"${FM}x 123 y"`, S.ANY_TYPE, `${FM2}x 123 y`],
 
-    // 15) Complex object with spaces/newlines/tabs, also with single quote
+    // 15) complex objects
+    ['{a: 10 + 1 * 1 + 9*0, b: mam ma, c: null, d: 2025-12-31}', `{"a": "${FM}10 + 1 * 1 + 9*0", "b": "${FM}mam ma", "c": null, "d": "2025-12-31"}`, S.ANY_TYPE, {"a": `${FM2}10 + 1 * 1 + 9*0`, "b": `${FM2}mam ma`, "c": null, "d": "2025-12-31"}],
+    //['{a: q(10) + 1 * 1 + 9*0, b: q({a: mam ma}), c: null, d: 2025-12-31}', `{"a": "${FM}q(10) + 1 * 1 + 9*0", "b": "${FM}mam ma", "c": null, "d": "2025-12-31"}`, S.ANY_TYPE, {"a": `${FM2}10 + 1 * 1 + 9*0`, "b": `${FM2}mam ma`, "c": null, "d": "2025-12-31"}],
+    //["{a: q(10) + 1 * 1 + 9*0, b: q('mam ma'), c: null, d: 2025-12-31}", `{"a": "${FM}q(10) + 1 * 1 + 9*0", "b": "${FM}mam ma", "c": null, "d": "2025-12-31"}`, S.ANY_TYPE, {"a": `${FM2}10 + 1 * 1 + 9*0`, "b": `${FM2}mam ma`, "c": null, "d": "2025-12-31"}],
+
+    // 15b) Complex object with spaces/newlines/tabs, also with single quote
     [
       '{ \n  a : 1_2_3 ,\t b:\n-4.5e-6 , c : "12_3" , d: 0x1ABC \n}',
       `{ \n  "a" : "123" ,\t "b":\n"-4.5e-6" , "c" : "12_3" , "d": "${FM}0x1ABC" \n}`,
@@ -226,6 +233,20 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     [' 2023/12/25', '"2023/12/25"', S.ANY_TYPE, '2023/12/25'],  // slash-separated after space
     [':2023.12.25', ':"2023.12.25"', S.ANY_TYPE, null],  // dot-separated after colon
     [',2023-12-25T23:59:59', ',"2023-12-25T23:59:59"', S.ANY_TYPE, null],  // end of day
+    // Mixed separators in dates (INVALID - should be treated as barewords with formula marker)
+    ['2025-12.11', `"${FM}2025-12.11"`, S.ANY_TYPE, `${FM2}2025-12.11`],  // dash then dot - invalid
+    ['2025/12-11', `"${FM}2025/12-11"`, S.ANY_TYPE, `${FM2}2025/12-11`],  // slash then dash - invalid
+    ['2025.12/11', `"${FM}2025.12/11"`, S.ANY_TYPE, `${FM2}2025.12/11`],  // dot then slash - invalid
+    ['2025-12/11', `"${FM}2025-12/11"`, S.ANY_TYPE, `${FM2}2025-12/11`],  // dash then slash - invalid
+    ['2025/12.11', `"${FM}2025/12.11"`, S.ANY_TYPE, `${FM2}2025/12.11`],  // slash then dot - invalid
+    ['2025.12-11', `"${FM}2025.12-11"`, S.ANY_TYPE, `${FM2}2025.12-11`],  // dot then dash - invalid
+    // Consistent separators (VALID - should be recognized as dates)
+    ['2025-12-11', '"2025-12-11"', S.ANY_TYPE, '2025-12-11'],  // all dash - valid
+    ['2025-12-11', '"2025-12-11"', S.DATE_TYPE, parseTextToLocalDate('2025-12-11')],  // all dash - valid date
+    ['2025/12/11', '"2025/12/11"', S.ANY_TYPE, '2025/12/11'],  // all slash - valid
+    ['2025/12/11', '"2025/12/11"', S.DATE_TYPE, parseTextToLocalDate('2025/12/11')],  // all slash - valid date
+    ['2025.12.11', '"2025.12.11"', S.ANY_TYPE, '2025.12.11'],  // all dot - valid
+    ['2025.12.11', '"2025.12.11"', S.DATE_TYPE, parseTextToLocalDate('2025.12.11')],  // all dot - valid date
     // Mixed scenarios in JSON-like structures
     ['key: 2024-01-01', `"${FM}key: 2024-01-01"`, S.ANY_TYPE, `${FM2}key: 2024-01-01`],  // colon is part of bareword at top level
     ['[2023-12-31, 2024-01-01]', '["2023-12-31", "2024-01-01"]', S.ANY_TYPE, ["2023-12-31", "2024-01-01"]],  // array elements
@@ -309,10 +330,10 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
 
     // 27) Complex nested structures, also with single quotes (objects)
     [
-      '{users: [{id: 1, age: 25}, {id: 2, age: 30}]}',
-      '{"users": [{"id": "1", "age": "25"}, {"id": "2", "age": "30"}]}',
+      `{users: [{id: 1, age: 25}, {id: 2, age: {a: 666, b: ma mm a, c: 'ciao ciao'}}]}`,
+      `{"users": [{"id": "1", "age": "25"}, {"id": "2", "age": {"a": "666", "b": "${FM}ma mm a", "c": "ciao ciao"}}]}`,
       S.ANY_TYPE,
-      { users: [{ id: "1", age: "25" }, { id: "2", age: "30" }] }
+      { users: [{ id: "1", age: "25" }, { id: "2", age: {a: "666", b: `${FM2}ma mm a`, c: "ciao ciao"} }] }
     ],
     [
       "{'users': [{'id': '1', 'age': '25'}, {'id': '2', 'age': '30'}]}",
@@ -381,7 +402,7 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
   const errors = [];
 
   for (const [input, expectedQuotedJSON, sanitization, expectedParsedAndSanitized] of cases) {
-    const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input);
+    const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input, FORMULA_MARKER);
     const parsed = (() => {try { return JSON.parse(quotedJSON); } catch { return null; }})();
     if (quotedJSON !== expectedQuotedJSON) {
       //const gotCharCodes = Array.from(quotedJSON).map(c => c.charCodeAt(0)).join(', ');
@@ -395,7 +416,7 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     }
     // if parsed === null check that if the parsing had been done with `parseJSONrelaxed` the result would be the input itself
     if (parsed === null && input !== 'null') {
-      const parsedRelaxed = parseJSONrelaxed(input);
+      const parsedRelaxed = parseJSONrelaxed(input, FORMULA_MARKER);
       if (parsedRelaxed !== input) {
         errors.push(`For Input:\n${input}\nParsing failed after quoting, and relaxed parsing gave different result from input:\n${parsedRelaxed}\nExpected (same as input)`);
       }

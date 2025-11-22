@@ -7,17 +7,12 @@
 
 export { isPlainObject, isDateLikeString, isLikelyFormula, createJSONXFormula, evaluateStringFormula };
 
+import { FORMULA_MARKER } from './formula-marker.js';
 import { parseJSONX } from '../adapters/jsonx-parser-adapter.js';
 import { regExp_YYYYMMDDTHHMMSSMMMZ_notGrouping } from '../../../src/lib/date_utils.js';
 
 // formula regex patterns
 const formulaLikeRx = /[!\^\*\/%\+\-<>=&\|\?\(\)]|\w\s*\(/;
-
-// Special markers for unquoted formula values in JSONX
-// ASCII 31 (hidden character) + '#' (visible marker)
-const FORMULA_MARKER_HIDDEN = String.fromCharCode(31);  // ASCII 31
-const FORMULA_MARKER_VISIBLE = '#';
-const FORMULA_MARKER = FORMULA_MARKER_HIDDEN + FORMULA_MARKER_VISIBLE;  // Combined marker
 
 /**
  * Check if value is a plain object

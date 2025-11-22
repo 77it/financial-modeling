@@ -9,9 +9,9 @@ export { localDateToUTC, UTCtoLocalDate, localDateToStringYYYYMMDD, stripTimeToL
 
 // creating RegExp for later use
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#creating_a_regular_expression
-const regExp_YYYYMMDDTHHMMSSMMMZ_notGrouping = /^\d{4}(?:[-/.]\d{1,2}){2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:[Zz]|[+-]\d{2}:?\d{2})?)?$/;
-// this is the version of the previous regex but without capturing groups for the separators, quicker
-const regExp_YYYYMMDDTHHMMSSMMMZ = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{0,9}))?)?(?:Z|(.)(\d{2}):?(\d{2})?)?)?$/;
+const regExp_YYYYMMDDTHHMMSSMMMZ_notGrouping = /^\d{4}([-/.])\d{1,2}\1\d{1,2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:[Zz]|[+-]\d{2}:?\d{2})?)?$/;
+// this is the version of the previous regex with capturing group for separator and backreference to ensure consistent separators
+const regExp_YYYYMMDDTHHMMSSMMMZ = /^(\d{4})([-/.])(\d{1,2})\2(\d{1,2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{0,9}))?)?(?:Z|(.)(\d{2}):?(\d{2})?)?)?$/;
 const regExp_YYYYMMDD_withoutSep = /^(\d{4})(\d{2})(\d{2})$/;
 
 /**
@@ -43,9 +43,12 @@ function isValidDate (value) {
  * - `2000-03-15 05:20:10`: With a space instead of a 'T' separator for APIs returning a SQL date without reformatting
  *
  * Furthermore, are supported:
- * - `2000-03-15`
- * - `2000/03/15`
- * - `2000.03.15`
+ * - `2000-03-15` (dash separators)
+ * - `2000/03/15` (slash separators)
+ * - `2000.03.15` (dot separators)
+ *
+ * Note: Separators must be consistent. Mixed separators like `2000-03/15` are invalid.
+ *
  * Any other input type or invalid date strings will return an `Invalid Date`.
  *
  * @param {string} argument A date string to convert, fully formed ISO8601 or YYYY-MM-DD
@@ -133,23 +136,23 @@ function _parseJsonDate (argument, opt) {
 
       return new Date(NaN);
     }
-    else if (parts[4] != null && parts[5] !== null && parts[6] !== null && parts[7] !== null && parts[8] !== null && parts[9] !== null) {
-      // Group 8 matches the sign
+    else if (parts[5] != null && parts[6] !== null && parts[7] !== null && parts[8] !== null && parts[9] !== null && parts[10] !== null) {
+      // Group 9 matches the sign
       return _newDate(
         +parts[1],
-        +parts[2] - 1,
-        +parts[3],
-        +parts[4] - (+parts[9] || 0) * (parts[8] === '-' ? -1 : 1),
-        +parts[5] - (+parts[10] || 0) * (parts[8] === '-' ? -1 : 1),
-        +parts[6],
-        +((parts[7] || '0') + '00').substring(0, 3)
+        +parts[3] - 1,
+        +parts[4],
+        +parts[5] - (+parts[10] || 0) * (parts[9] === '-' ? -1 : 1),
+        +parts[6] - (+parts[11] || 0) * (parts[9] === '-' ? -1 : 1),
+        +parts[7],
+        +((parts[8] || '0') + '00').substring(0, 3)
       );
-    } else if (parts[1] != null && parts[2] !== null && parts[3] !== null) {
+    } else if (parts[1] != null && parts[3] !== null && parts[4] !== null) {
       // YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD date
       return _newDate(
         +parts[1],
-        +parts[2] - 1,
-        +parts[3]
+        +parts[3] - 1,
+        +parts[4]
       );
     }
     return new Date(NaN);

@@ -32,7 +32,10 @@ export const JSON_UNPRINTABLE_CHAR_REGEXP = /\\u001f/g;
 //#region config used by engine and Excel UI
 export const SIMULATION_NAME = '$';
 export const SCENARIO_BASE = 'base';
-export const FML_PREFIX = ['`'];  // prefix to mark formulas in the Excel UI and in the engine
+export const FML_PREFIX = [  // prefix to mark formulas in the Excel UI and in the engine
+  '#',  // hash, easiest to type on most keyboard layout
+  //'`',  // backtick, we could have used it, but it is more difficult to type on some keyboard layouts
+];
 deepFreeze(FML_PREFIX);
 export const ARRAY_ARITHMETIC_PREFIX = '<';  // prefix to mark formulas in the Excel UI and in the engine
 //#endregion config used by engine and Excel UI

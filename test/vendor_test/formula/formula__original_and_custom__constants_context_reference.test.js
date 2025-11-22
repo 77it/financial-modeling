@@ -1,7 +1,7 @@
 //@ts-nocheck
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
-import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v6_x.js';
+import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v6_x.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';

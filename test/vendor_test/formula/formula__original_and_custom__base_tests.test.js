@@ -7,7 +7,7 @@
 // with the addition of region "BDD Jest-like globals"
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
-import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_yaml_as_func_par__v6_x.js';
+import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v6_x.js';
 import { EVALUATE_NUMBERS_AS_DECIMALSCALEDBIGINT } from './_formula__tests_settings.js';
 
 import { describe, it } from '../../lib/bdd_polyfill.js';

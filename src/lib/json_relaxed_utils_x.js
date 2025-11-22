@@ -1,11 +1,5 @@
-export { quoteKeysNumbersAndDatesForRelaxedJSON, FORMULA_MARKER };
+export { quoteKeysNumbersAndDatesForRelaxedJSON };
 import { regExp_YYYYMMDDTHHMMSSMMMZ as DATE_RE } from './date_utils.js';
-
-// Special markers for unquoted formula values in JSONX
-// ASCII 31 (hidden character) + '#' (visible marker)
-const FORMULA_MARKER_HIDDEN = String.fromCharCode(31);  // ASCII 31
-const FORMULA_MARKER_VISIBLE = '#';
-const FORMULA_MARKER = FORMULA_MARKER_HIDDEN + FORMULA_MARKER_VISIBLE;  // Combined marker
 
 // --- Hoisted tables (small, fast) ---
 const IS_JSON_SYNTAX = (() => {
@@ -69,6 +63,19 @@ const IS_DIGIT = (() => {
  *    - Any other unquoted token that does not fall into the categories above
  *      is converted to a JSON string (e.g. `{status: ok}` → `{"status":"ok"}`).
  *
+ * 9. **Unquoted strings marker** (optional)
+ *    - When the `unquotedStringsMarker` parameter is provided, it is prepended to
+ *      unquoted string values (bare words that are not numbers, dates, booleans, or null).
+ *    - This marker helps downstream processors (like formula evaluators) distinguish
+ *      between originally-quoted strings (literals) and originally-unquoted strings
+ *      (which might be formulas or identifiers).
+ *    - The marker is added INSIDE the JSON string value, before the actual content.
+ *    - Example with marker `"#FM#"`:
+ *      - Input: `{a: hello, b: "world"}`
+ *      - Output: `{"a": "#FM#hello", "b": "world"}`
+ *    - Keys are never marked (only values).
+ *    - Numbers and dates are not marked (they get their own string conversion).
+ *
  * ### Notes and limitations
  * - This is a *syntactic transformer*, not a full JSON5 parser:
  *   it rewrites the text to strict JSON rather than producing objects directly.
@@ -87,9 +94,16 @@ const IS_DIGIT = (() => {
  *
  *
  * @param {string} input - The relaxed/JSON5-like string
+ * @param {string} [unquotedStringsMarker=''] - Optional marker prepended to unquoted string values.
+ *                                              When provided (e.g., "\u001f#"), this marker is added
+ *                                              INSIDE the JSON string value, allowing downstream code
+ *                                              to distinguish originally-unquoted strings from quoted ones.
+ *                                              Useful for formula evaluation systems where unquoted strings
+ *                                              should be evaluated as formulas, while quoted strings are literals.
+ *                                              Example: with marker "#", {a: hello} → {"a": "#hello"}
  * @returns {string} A strict JSON string, safe for JSON.parse()
  */
-function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
+function quoteKeysNumbersAndDatesForRelaxedJSON(input, unquotedStringsMarker = '') {
   // Input validation
   if (typeof input !== 'string') return '';
 
@@ -450,7 +464,7 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input) {
       // and token is not a special keyword/value, it's an unquoted bareword → add marker
 
       // Add formula marker to indicate this was an unquoted string (not number, not date)
-      out += jsonEscape(FORMULA_MARKER + tokenTrimmed) + trailingWS;
+      out += jsonEscape(unquotedStringsMarker + tokenTrimmed) + trailingWS;
       continue;
     }
 

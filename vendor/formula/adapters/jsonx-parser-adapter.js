@@ -11,11 +11,14 @@ import { cachedParseJSONrelaxed as parse } from '../../../src/lib/json.js';
 // YAML
 //import { customParseYAML as parse } from '../../../src/lib/unused/yaml.js';
 
+import { FORMULA_MARKER } from '../modules/formula-marker.js';
+
+
 /**
  * Parse structured data string
  * @param {string} text - The data string to parse
  * @returns {*} Parsed data structure
  */
 function parseJSONX(text) {
-  return parse(text);
+  return parse(text, FORMULA_MARKER);
 }
