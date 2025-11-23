@@ -4,8 +4,7 @@
  * Formula parser (v6) entry point.
  *
  * Use `new Parser(formulaText, options).evaluate(context)` to evaluate plain formulas
- * or JSONX fragments (unquoted values marked with FORMULA_MARKER). `evaluateFormula`
- * wraps the same flow.
+ * or JSONX fragments (unquoted values marked with FORMULA_MARKER).
  *
  * Options (all optional):
  * - `constants`: map of name -> primitive constant.
@@ -534,24 +533,11 @@ internals.calculate = function (operator, left, right) {
 internals.exists = function (value) {
   return value !== null && value !== undefined;
 };
+/**
+ Types for Parser are provided in the index.d.ts file
+ */
 const Parser = exports.Parser;
 
-/**
- * Convenience helper to evaluate a formula or JSONX fragment with the v6 parser.
-  * @param {string} text - Formula text or JSONX string
-  * @param {Record<string, any>} [context] - Variables/functions context
-  * @param {object} [options] - Parser options ({ constants, functions, strictReferences, returnOriginalOnError })
-  * @returns {any} Parsed result or the original string if parsing fails
-  */
-function evaluateFormula(text, context, options) {
-  try {
-    const parser = new Parser(text, options);
-    return parser.evaluate(context);
-  } catch (err) {
-    return text;
-  }
-}
-
-export { Parser, evaluateFormula, exports as default };
+export { Parser, exports as default };
 
 //# sourceMappingURL=formula@3.0.2!cjs.map

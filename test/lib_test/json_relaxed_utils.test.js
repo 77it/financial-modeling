@@ -165,8 +165,11 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     ['x 123 y', `"${FM}x 123 y"`, S.ANY_TYPE, `${FM2}x 123 y`],
 
     // 15) complex objects
+    ['{a: q(mam ma)}', `{"a": "${FM}q(mam ma)"}`, S.ANY_TYPE, {"a": `${FM2}q(mam ma)`}],
+    ['{a: q({b:mam ma})}', `{"a": "${FM}q({b:mam ma})"}`, S.ANY_TYPE, {"a": `${FM2}q({b:mam ma})`}],
     ['{a: 10 + 1 * 1 + 9*0, b: mam ma, c: null, d: 2025-12-31}', `{"a": "${FM}10 + 1 * 1 + 9*0", "b": "${FM}mam ma", "c": null, "d": "2025-12-31"}`, S.ANY_TYPE, {"a": `${FM2}10 + 1 * 1 + 9*0`, "b": `${FM2}mam ma`, "c": null, "d": "2025-12-31"}],
     ['{a: q(10) + 1 * 1 + 9*0, b: q({x: mam ma, h: q({i: 55, j: ciao gino})}), c: null, d: 2025-12-31, e: {f: 555, g: "pap pa"}}', `{"a": "${FM}q(10) + 1 * 1 + 9*0", "b": "${FM}q({x: mam ma, h: q({i: 55, j: ciao gino})})", "c": null, "d": "2025-12-31", "e": {"f": "555", "g": "pap pa"}}`, S.ANY_TYPE, {"a": `${FM2}q(10) + 1 * 1 + 9*0`, "b": `${FM2}q({x: mam ma, h: q({i: 55, j: ciao gino})})`, "c": null, "d": "2025-12-31", "e": {"f": "555", "g": "pap pa"}}],
+    ['{a: q(10) + 1 * 1 + 9*0, b: q(20 + q(30 + q(50))), c: null, d: 2025-12-31, e: {f: 555, g: "pap pa"}}', `{"a": "${FM}q(10) + 1 * 1 + 9*0", "b": "${FM}q(20 + q(30 + q(50)))", "c": null, "d": "2025-12-31", "e": {"f": "555", "g": "pap pa"}}`, S.ANY_TYPE, {"a": `${FM2}q(10) + 1 * 1 + 9*0`, "b": `${FM2}q(20 + q(30 + q(50)))`, "c": null, "d": "2025-12-31", "e": {"f": "555", "g": "pap pa"}}],
 
     // 15b) Complex object with spaces/newlines/tabs, also with single quote
     [
