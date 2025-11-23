@@ -1,5 +1,21 @@
 //@ts-nocheck
 
+/**
+ * Formula parser (v6) entry point.
+ *
+ * Use `new Parser(formulaText, options).evaluate(context)` to evaluate plain formulas
+ * or JSONX fragments (unquoted values marked with FORMULA_MARKER). `evaluateFormula`
+ * wraps the same flow.
+ *
+ * Options (all optional):
+ * - `constants`: map of name -> primitive constant.
+ * - `functions`: map of name -> (...args) => any.
+ * - `strictReferences`: default true. Unknown variables throw; combined with
+ *   `returnOriginalOnError` this means a bad reference yields the original string.
+ * - `returnOriginalOnError`: default false. When true, any parse/eval error returns
+ *   the original formula text instead of throwing.
+ */
+
 // REFACTOR: Import modular components
 import { createJSONXFormula, evaluateStringFormula } from './modules/formula-jsonx-handler.js';
 import { calculate as arithmeticCalculate } from './modules/formula-arithmetic.js';
@@ -101,13 +117,26 @@ exports.Parser = class {
     this.settings = options[internals.settings] ? options : Object.assign({
       [internals.settings]: true,
       constants: {},
-      functions: {}
+      functions: {},
+      // strictReferences=true: unknown variables throw
+      strictReferences: true,
+      // returnOriginalOnError=false: parsing/eval errors throw unless explicitly enabled
+      returnOriginalOnError: false
     }, options);
     this.single = null;
     this._parts = null;
     // OPTIMIZATION: Reuse array in evaluate()
     this._work = [];
-    this._parse(string);
+    this._raw = string;
+    this._parseError = null;
+    try {
+      this._parse(string);
+    } catch (err) {
+      this._parseError = err;
+      if (this.settings.returnOriginalOnError === false) {
+        throw err;
+      }
+    }
   }
   _parse(string) {
     let parts = [];
@@ -323,7 +352,7 @@ exports.Parser = class {
       if (this.settings.reference) {
         return this.settings.reference(part.value);
       }
-      return internals.reference(part.value);
+      return internals.reference(part.value, this.settings);
     });
   }
   _subFormula(string, name) {
@@ -395,51 +424,67 @@ exports.Parser = class {
     return evaluateStringFormula(str, exports.Parser, this.settings, context);
   }
   evaluate(context) {
-    // OPTIMIZATION: Reuse scratch array instead of slice()
-    const src = this._parts;
-    const parts = this._work;
-    let len = src.length;
-    parts.length = len;
-    for (let i = 0; i < len; i++) parts[i] = src[i];
-
-    // Prefix operators
-
-    for (let i = parts.length - 2; i >= 0; --i) {
-      const part = parts[i];
-      if (part && part.type === "operator") {
-        const current = parts[i + 1];
-        parts.splice(i + 1, 1);
-        const value = internals.evaluate(current, context);
-        parts[i] = internals.single(part.value, value);
-      }
+    if (this._parseError) {
+      if (this.settings.returnOriginalOnError === false) throw this._parseError;
+      return this._raw;
     }
+    try {
+      // OPTIMIZATION: Reuse scratch array instead of slice()
+      const src = this._parts;
+      const parts = this._work;
+      let len = src.length;
+      parts.length = len;
+      for (let i = 0; i < len; i++) parts[i] = src[i];
 
-    // Left-right operators
+      // Prefix operators
 
-    internals.operatorsOrder.forEach(set => {
-      for (let i = 1; i < parts.length - 1;) {
-        if (set.includes(parts[i])) {
-          const operator = parts[i];
-          const left = internals.evaluate(parts[i - 1], context);
-          const right = internals.evaluate(parts[i + 1], context);
-          parts.splice(i, 2);
-          // Always use Decimal for calculations
-          const result = internals.calculate(operator, left, right);
-          parts[i - 1] = result === 0 ? 0 : result; // Convert -0
-        } else {
-          i += 2;
+      for (let i = parts.length - 2; i >= 0; --i) {
+        const part = parts[i];
+        if (part && part.type === "operator") {
+          const current = parts[i + 1];
+          parts.splice(i + 1, 1);
+          const value = internals.evaluate(current, context);
+          parts[i] = internals.single(part.value, value);
         }
       }
-    });
-    // PATCH: Handle function results (JSONX evaluators)
-    const result = internals.evaluate(parts[0], context);
-    return typeof result === "function" ? result(context) : result;
+
+      // Left-right operators
+
+      internals.operatorsOrder.forEach(set => {
+        for (let i = 1; i < parts.length - 1;) {
+          if (set.includes(parts[i])) {
+            const operator = parts[i];
+            const left = internals.evaluate(parts[i - 1], context);
+            const right = internals.evaluate(parts[i + 1], context);
+            parts.splice(i, 2);
+            // Always use Decimal for calculations
+            const result = internals.calculate(operator, left, right);
+            parts[i - 1] = result === 0 ? 0 : result; // Convert -0
+          } else {
+            i += 2;
+          }
+        }
+      });
+      // PATCH: Handle function results (JSONX evaluators)
+      const result = internals.evaluate(parts[0], context);
+      return typeof result === "function" ? result(context) : result;
+    } catch (err) {
+      if (this.settings.returnOriginalOnError !== false) return this._raw;
+      throw err;
+    }
   }
 };
 exports.Parser.prototype[internals.symbol] = true;
-internals.reference = function (name) {
+internals.reference = function (name, settings) {
   return function (context) {
-    return context && context[name] !== undefined ? context[name] : null;
+    const hasContext = context && Object.prototype.hasOwnProperty.call(context, name);
+    if (hasContext) {
+      return context[name];
+    }
+    if (settings && settings.strictReferences) {
+      throw new Error(`Unknown reference ${name}`);
+    }
+    return null;
   };
 };
 internals.evaluate = function (part, context) {
@@ -491,6 +536,22 @@ internals.exists = function (value) {
 };
 const Parser = exports.Parser;
 
-export { Parser, exports as default };
+/**
+ * Convenience helper to evaluate a formula or JSONX fragment with the v6 parser.
+  * @param {string} text - Formula text or JSONX string
+  * @param {Record<string, any>} [context] - Variables/functions context
+  * @param {object} [options] - Parser options ({ constants, functions, strictReferences, returnOriginalOnError })
+  * @returns {any} Parsed result or the original string if parsing fails
+  */
+function evaluateFormula(text, context, options) {
+  try {
+    const parser = new Parser(text, options);
+    return parser.evaluate(context);
+  } catch (err) {
+    return text;
+  }
+}
+
+export { Parser, evaluateFormula, exports as default };
 
 //# sourceMappingURL=formula@3.0.2!cjs.map

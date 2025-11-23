@@ -39,7 +39,7 @@ t('formula testing: evaluating as formula a wrong formula, the original string i
 
   for (const wf of wrongFormulas) {
     try {
-      const result = new Parser(wf).evaluate();
+      const result = new Parser(wf, {returnOriginalOnError: true}).evaluate();
       assert.strictEqual(result, wf);
     } catch (error) {
       errors.push({

@@ -41,6 +41,16 @@ export interface Options {
      * A hash of key-value pairs used to resolve formula functions.
      */
     readonly functions?: Record<string, Function>;
+
+    /**
+     * When true, unknown variables throw instead of returning null. Default: true.
+     */
+    readonly strictReferences?: boolean;
+
+    /**
+     * When true, any parse/eval error returns the original formula string. Default: false.
+     */
+    readonly returnOriginalOnError?: boolean;
 }
 
 
