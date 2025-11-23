@@ -4,6 +4,7 @@ import * as s from '../../src/lib/schema_sanitization_utils.js';
 import { validateSanitizeFunction_TestAsset } from './validateSanitizeFunction_TestAsset.js';
 import { isValidDate } from '../../src/lib/date_utils.js';
 import { Decimal } from '../../vendor/decimaljs/decimal.js';
+import { DSB } from '../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -716,13 +717,13 @@ t('test sanitize() - decimal type', async () => {
 
   // bigInt
   {
-    assert(isDecimalEqualTo(1, s.sanitize({ value: 1n, sanitization: tDec })));
+    assert(isDecimalEqualTo(DSB.toString((DSB.fromNumber(1))), s.sanitize({ value: DSB.fromNumber(1), sanitization: tDec })));
     assert(isDecimalEqualTo(0, s.sanitize({ value: 0n, sanitization: tDec })));
     // originally tested up to 10**1_000_000, but Bun cannot handle that size directly (because is internally using JavaScriptCore instead of Node an Deno that uses V8)
     // from https://github.com/oven-sh/bun/issues/15072
     // "Bun uses JavaScriptCore which limits BigInt to 2^20 - 1 bits (~1 million), while Node and Deno use V8 which seems to set the limit at 2^30 - 1 (~1 billion). We can investigate how hard it is to increase JSC's limit."
-    assert(isDecimalEqualTo('1e+300000', s.sanitize({ value: 10n ** 300000n, sanitization: tDec })));
-    assert(isDecimalEqualTo('-1e+300000', s.sanitize({ value: -(10n ** 300000n), sanitization: tDec })));
+    assert(isDecimalEqualTo(DSB.toString(DSB.fromString('1e+10')), s.sanitize({ value: DSB.fromNumber(10 ** 10), sanitization: tDec })));
+    assert(isDecimalEqualTo(DSB.toString(DSB.fromString('-1e+10')), s.sanitize({ value: DSB.fromNumber(10 ** 10 * -1), sanitization: tDec })));
   }
 
   // booleans -> 1 / 0
@@ -795,7 +796,7 @@ t('test sanitize() - array of decimals type', async () => {
         1,
         '2.5',
         'a',
-        999n,
+        DSB.fromNumber(999),
         '',
         new Date(2022, 11, 25),
         new Date(NaN),
@@ -812,7 +813,7 @@ t('test sanitize() - array of decimals type', async () => {
       '1',
       '2.5',
       '0',
-      '999',
+      DSB.toString(DSB.fromNumber(999)),
       '0',
       '1671922800000',
       '0',  // invalid date

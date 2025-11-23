@@ -17,6 +17,7 @@
 // REFACTOR: Import modular components
 import { createJSONXFormula, evaluateStringFormula } from './modules/formula-jsonx-handler.js';
 import { calculate as arithmeticCalculate } from './modules/formula-arithmetic.js';
+import { scanBracket, scanBrace } from './modules/formula-scanner.js';
 
 var exports = {};
 const internals = {
@@ -37,71 +38,7 @@ const internals = {
   symbol: Symbol("formula"),
   settings: Symbol("settings")
 };
-// REFACTOR: Keep only core parsing helpers (scanBracket/scanBrace)
-// Other helpers moved to modules/formula-jsonx-handler.js
 
-function scanBracket(str, start) {
-  const len = str.length;
-  let depth = 1, quote = 0, hasComma = false, hasNested = false;
-  let i = start + 1;
-  const startIdx = i;
-
-  for (; i < len; i++) {
-    const ch = str.charCodeAt(i);
-    if (quote) {
-      if (ch === quote) quote = 0;
-      continue;
-    }
-    if (ch === 34 || ch === 39 || ch === 96) {
-      quote = ch;
-      continue;
-    }
-    if (ch === 91) {
-      depth++;
-      hasNested = true;
-    } else if (ch === 123) {
-      hasNested = true;
-    } else if (ch === 93) {
-      depth--;
-      if (depth === 0) {
-        return {
-          end: i,
-          content: str.slice(startIdx, i),
-          isJsonxArray: hasComma || hasNested
-        };
-      }
-    } else if (ch === 44) {
-      hasComma = true;
-    }
-  }
-  throw new Error("Formula missing closing bracket");
-}
-
-function scanBrace(str, start) {
-  const len = str.length;
-  let depth = 1, quote = 0;
-  let i = start + 1;
-  const startIdx = i;
-
-  for (; i < len; i++) {
-    const ch = str.charCodeAt(i);
-    if (quote) {
-      if (ch === quote) quote = 0;
-      continue;
-    }
-    if (ch === 34 || ch === 39 || ch === 96) {
-      quote = ch;
-    } else if (ch === 123) {
-      depth++;
-    } else if (ch === 125) {
-      depth--;
-      if (depth === 0) {
-        return { end: i, content: str.slice(startIdx, i) };
-      }
-    }
-  }
-  throw new Error("Formula missing closing brace");
-}
 exports.Parser = class {
   constructor(string, options = {}) {
     if (!options[internals.settings] && options.constants) {
@@ -416,11 +353,9 @@ exports.Parser = class {
       return method.call(context, ...innerValues);
     };
   }
-  // REFACTOR: Delegate JSONX handling to module
   _jsonxFormula(text) {
     return createJSONXFormula(text, exports.Parser, this.settings);
   }
-  // REFACTOR: Delegate string formula evaluation to module
   _evaluateStringFormula(str, context) {
     return evaluateStringFormula(str, exports.Parser, this.settings, context);
   }
@@ -508,7 +443,6 @@ internals.single = function (operator, value) {
   }
   return negative;
 };
-// REFACTOR: Always use Decimal arithmetic for precision
 /**
  * Calculate result of an operation using Decimal arithmetic
  * @param {string} operator - The operator (+, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, ??)
