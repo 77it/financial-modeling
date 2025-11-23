@@ -9,10 +9,9 @@
  * Options (all optional):
  * - `constants`: map of name -> primitive constant.
  * - `functions`: map of name -> (...args) => any.
- * - `strictReferences`: default true. Unknown variables throw; combined with
- *   `returnOriginalOnError` this means a bad reference yields the original string.
- * - `returnOriginalOnError`: default false. When true, any parse/eval error returns
- *   the original formula text instead of throwing.
+ * - `disableConstantsAndPassArgsAsStringsToFunctions`: default true. When true,
+ *   constants are not resolved and single references passed to functions are kept
+ *   as strings. Formulas (e.g., "0+555") are still evaluated normally.
  */
 
 // REFACTOR: Import modular components
@@ -117,25 +116,16 @@ exports.Parser = class {
       [internals.settings]: true,
       constants: {},
       functions: {},
-      // strictReferences=true: unknown variables throw
-      strictReferences: true,
-      // returnOriginalOnError=false: parsing/eval errors throw unless explicitly enabled
-      returnOriginalOnError: false
+      // disableConstantsAndPassArgsAsStringsToFunctions=true: constants are not resolved
+      // and single references to functions are passed as strings (formulas are still evaluated)
+      disableConstantsAndPassArgsAsStringsToFunctions: true
     }, options);
     this.single = null;
     this._parts = null;
     // OPTIMIZATION: Reuse array in evaluate()
     this._work = [];
     this._raw = string;
-    this._parseError = null;
-    try {
-      this._parse(string);
-    } catch (err) {
-      this._parseError = err;
-      if (this.settings.returnOriginalOnError === false) {
-        throw err;
-      }
-    }
+    this._parse(string);
   }
   _parse(string) {
     let parts = [];
@@ -193,13 +183,13 @@ exports.Parser = class {
           });
         }
       } else if (current.match(internals.numberRx)) {
-        // Number
+        // Number - keep as string for precision (arithmetic engine handles conversion)
         parts.push({
           type: "constant",
-          value: parseFloat(current)
+          value: current
         });
-      } else if (this.settings.constants[current] !== undefined) {
-        // Constant
+      } else if (!this.settings.disableConstantsAndPassArgsAsStringsToFunctions && this.settings.constants[current] !== undefined) {
+        // Constant (only if constants are enabled)
         parts.push({
           type: "constant",
           value: this.settings.constants[current]
@@ -360,6 +350,7 @@ exports.Parser = class {
       throw new Error(`Formula contains unknown function ${name}`);
     }
     let args = [];
+    const argStrings = [];
     if (string) {
       let current = "";
       let parenthesis = 0;
@@ -371,6 +362,7 @@ exports.Parser = class {
         if (!current) {
           throw new Error(`Formula contains function ${name} with invalid arguments ${string}`);
         }
+        argStrings.push(current);
         args.push(current);
         current = "";
       };
@@ -405,11 +397,21 @@ exports.Parser = class {
       }
       flush();
     }
+    const pasStringsToFunctions = this.settings.disableConstantsAndPassArgsAsStringsToFunctions;
     args = args.map(arg => new exports.Parser(arg, this.settings));
     return function (context) {
       const innerValues = [];
-      for (const arg of args) {
-        innerValues.push(arg.evaluate(context));
+      for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        const argStr = argStrings[i];
+
+        if (pasStringsToFunctions && arg.single && arg.single.type === "reference") {
+          // Pass single references as strings (e.g., "myVar" stays as "myVar")
+          innerValues.push(argStr);
+        } else {
+          // Evaluate formulas and other values (e.g., "0+555" becomes 555)
+          innerValues.push(arg.evaluate(context));
+        }
       }
       return method.call(context, ...innerValues);
     };
@@ -423,54 +425,45 @@ exports.Parser = class {
     return evaluateStringFormula(str, exports.Parser, this.settings, context);
   }
   evaluate(context) {
-    if (this._parseError) {
-      if (this.settings.returnOriginalOnError === false) throw this._parseError;
-      return this._raw;
+    // OPTIMIZATION: Reuse scratch array instead of slice()
+    const src = this._parts;
+    const parts = this._work;
+    const len = src.length;
+    parts.length = len;
+    for (let i = 0; i < len; i++) parts[i] = src[i];
+
+    // Prefix operators
+
+    for (let i = parts.length - 2; i >= 0; --i) {
+      const part = parts[i];
+      if (part && part.type === "operator") {
+        const current = parts[i + 1];
+        parts.splice(i + 1, 1);
+        const value = internals.evaluate(current, context);
+        parts[i] = internals.single(part.value, value);
+      }
     }
-    try {
-      // OPTIMIZATION: Reuse scratch array instead of slice()
-      const src = this._parts;
-      const parts = this._work;
-      let len = src.length;
-      parts.length = len;
-      for (let i = 0; i < len; i++) parts[i] = src[i];
 
-      // Prefix operators
+    // Left-right operators
 
-      for (let i = parts.length - 2; i >= 0; --i) {
-        const part = parts[i];
-        if (part && part.type === "operator") {
-          const current = parts[i + 1];
-          parts.splice(i + 1, 1);
-          const value = internals.evaluate(current, context);
-          parts[i] = internals.single(part.value, value);
+    internals.operatorsOrder.forEach(set => {
+      for (let i = 1; i < parts.length - 1;) {
+        if (set.includes(parts[i])) {
+          const operator = parts[i];
+          const left = internals.evaluate(parts[i - 1], context);
+          const right = internals.evaluate(parts[i + 1], context);
+          parts.splice(i, 2);
+          // Always use Decimal for calculations
+          const result = internals.calculate(operator, left, right);
+          parts[i - 1] = result === 0 ? 0 : result; // Convert -0
+        } else {
+          i += 2;
         }
       }
-
-      // Left-right operators
-
-      internals.operatorsOrder.forEach(set => {
-        for (let i = 1; i < parts.length - 1;) {
-          if (set.includes(parts[i])) {
-            const operator = parts[i];
-            const left = internals.evaluate(parts[i - 1], context);
-            const right = internals.evaluate(parts[i + 1], context);
-            parts.splice(i, 2);
-            // Always use Decimal for calculations
-            const result = internals.calculate(operator, left, right);
-            parts[i - 1] = result === 0 ? 0 : result; // Convert -0
-          } else {
-            i += 2;
-          }
-        }
-      });
-      // PATCH: Handle function results (JSONX evaluators)
-      const result = internals.evaluate(parts[0], context);
-      return typeof result === "function" ? result(context) : result;
-    } catch (err) {
-      if (this.settings.returnOriginalOnError !== false) return this._raw;
-      throw err;
-    }
+    });
+    // PATCH: Handle function results (JSONX evaluators)
+    const result = internals.evaluate(parts[0], context);
+    return typeof result === "function" ? result(context) : result;
   }
 };
 exports.Parser.prototype[internals.symbol] = true;
@@ -480,10 +473,7 @@ internals.reference = function (name, settings) {
     if (hasContext) {
       return context[name];
     }
-    if (settings && settings.strictReferences) {
-      throw new Error(`Unknown reference ${name}`);
-    }
-    return null;
+    throw new Error(`Unknown reference ${name}`);
   };
 };
 internals.evaluate = function (part, context) {

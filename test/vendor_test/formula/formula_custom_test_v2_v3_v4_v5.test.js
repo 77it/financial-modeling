@@ -24,18 +24,24 @@ const functions = {
 };
 
 t('formula calling with functions containing quoted and unquoted values', () => {
-  assert.deepStrictEqual(new Parser('444', { functions }).evaluate(), 444);
+  assert.deepStrictEqual(new Parser('444', { functions }).evaluate(), '444');
+  assert.deepStrictEqual(new Parser('"444"', { functions }).evaluate(), '444');
   assert.deepStrictEqual(new Parser('q( 0+555 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(555));
-  assert.deepStrictEqual(new Parser('q( +777 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(777));
+  assert.deepStrictEqual(new Parser('q( -777 )', { functions }).evaluate(), (-777));
+  assert.deepStrictEqual(new Parser('q( +777 )', { functions }).evaluate(), 777);
   // a number is passed to a function as string
-  assert.deepStrictEqual(new Parser('q( 88888 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(88888));
+  assert.deepStrictEqual(new Parser('q( 88888 )', { functions }).evaluate(), '88888');
   // a date outside a JSONX object is treated, rightly, as an arithmetic expression
   assert.deepStrictEqual(new Parser('q( 2025-12-31 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(2025 - 12 - 31));
   assert.deepStrictEqual(new Parser('q( "2025-12-31" )', { functions }).evaluate(), "2025-12-31");
   assert.deepStrictEqual(new Parser('q( "mamma mia" )', { functions }).evaluate(), 'mamma mia');
   // mamma_mia variable is not defined, then is null
-  assert.deepStrictEqual(new Parser('q( mamma_mia )', { functions }).evaluate(), null);
+  assert.deepStrictEqual(new Parser('q( mamma_mia )', { functions }).evaluate(), ' mamma_mia ');
   assert.deepStrictEqual(new Parser('q("mam ma")', { functions }).evaluate(), "mam ma");
+  assert.deepStrictEqual(new Parser('q("mam" + "ma")', { functions }).evaluate(), 0n);  // summed as decimals
+
+  // test throwing if function contains 2 token without operator
+  assert.throws(() => { new Parser('q(mam ma)', { functions }).evaluate(); });
 });
 
 t('formula calling directly JSONX, outside functions', () => {
@@ -43,18 +49,24 @@ t('formula calling directly JSONX, outside functions', () => {
   const expected2 = {a: convertWhenFmlEvalRequiresIt(11), b: {x: "mam ma"}, "c": null, d: "2025-12-31"};
 
   assert.deepStrictEqual(new Parser('{a: 10 + 1 * 1 + 9*0, b: mam ma, c: null, d: 2025-12-31}').evaluate(), expected);
-  assert.deepStrictEqual(new Parser('{a: q(777)}', { functions }).evaluate(), { a: 777 });
-  assert.deepStrictEqual(new Parser('{a: q(mam ma)}', { functions }).evaluate(), { a: "mam ma" });
+  assert.deepStrictEqual(new Parser('{a: q(777)}', { functions }).evaluate(), { a: '777' });
   assert.deepStrictEqual(new Parser('{a: q({b: mam ma})}', { functions }).evaluate(), { a: {b: "mam ma"} });
+  assert.deepStrictEqual(new Parser('{a: q(mamma)}', { functions }).evaluate(), { a: "mamma" });
   assert.deepStrictEqual(new Parser('{a: q(10) + 1 * 1 + 9*0, b: q({x: mam ma}), c: null, d: 2025-12-31}', { functions }).evaluate(), expected2);
+
+  // quotes inside a formula are not supported and the formula is returned as-is
+  assert.deepStrictEqual(new Parser('{a: q("mamma")}', { functions }).evaluate(), '{a: q("mamma")}');
+  assert.deepStrictEqual(new Parser("{a: q('mamma')}", { functions }).evaluate(), "{a: q('mamma')}");
+  assert.deepStrictEqual(new Parser('{a: q(mam ma)}', { functions }).evaluate(), { a: "q(mam ma)" });
 });
 
-t('formula with JSONX, array, date, etc', () => {
+t('formula with JSONX, array, date, nested json objects etc', () => {
   assert.deepStrictEqual(new Parser('Q( {a: [1, 2025/12/31, abcd e, q(10) + 1 * 1 + 9*0] } )', { functions }).evaluate(), {a: ['1', "2025/12/31", "abcd e", convertWhenFmlEvalRequiresIt(11)]});
-  assert.deepStrictEqual(new Parser('q( [1, 2025/12/31, abcd e, q(999)] )', { functions }).evaluate(), ['1', "2025/12/31", "abcd e", 999]);
-  assert.deepStrictEqual(new Parser('q( {a: 2025/12/31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q(ciao ciao)} } )', { functions }).evaluate(), {a: "2025/12/31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: "ciao ciao"}});
-  assert.deepStrictEqual(new Parser('q( {a: 2025-12-31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q(ciao ciao)} } )', { functions }).evaluate(), {a: "2025-12-31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: "ciao ciao"}});
-  assert.deepStrictEqual(new Parser('q( {a: 2025.12.31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q(ciao ciao)} } )', { functions }).evaluate(), {a: "2025.12.31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: "ciao ciao"}});
+  assert.deepStrictEqual(new Parser('q( [1, 2025/12/31, abcd e, q(999)] )', { functions }).evaluate(), ['1', "2025/12/31", "abcd e", '999']);
+  // nested json objects
+  assert.deepStrictEqual(new Parser('q( {a: 2025/12/31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: ciao_ciao})} } )', { functions }).evaluate(), {a: "2025/12/31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: "ciao_ciao"}}});
+  assert.deepStrictEqual(new Parser('q( {a: 2025-12-31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: ciao_ciao})} } )', { functions }).evaluate(), {a: "2025-12-31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: "ciao_ciao"}}});
+  assert.deepStrictEqual(new Parser('q( {a: 2025.12.31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: ciao_ciao})} } )', { functions }).evaluate(), {a: "2025.12.31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: "ciao_ciao"}}});
 });
 
 t('arithmetics with negative numbers  // only v4 supports numbers with explicit + sign', () => {

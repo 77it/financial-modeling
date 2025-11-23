@@ -13,9 +13,8 @@ import { EVALUATE_NUMBERS_AS_DECIMALSCALEDBIGINT } from './_formula__tests_setti
 import { describe, it } from '../../lib/bdd_polyfill.js';
 import { add, bigIntScaledToString } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
-//runTests({Parser: OriginalParser, evaluateNumbersAsStrings: false});
-
 runTests({Parser: CustomParser, evaluateNumbersAsStrings: EVALUATE_NUMBERS_AS_DECIMALSCALEDBIGINT});
+runTests({Parser: OriginalParser, evaluateNumbersAsStrings: false});
 
 /**
  * Run tests for the Parser passed as argument with options
