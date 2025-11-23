@@ -297,12 +297,28 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input, unquotedStringsMarker = '
   // Includes all text including spaces until hitting boundaries based on context
   function readBareValueUntilBoundary() {
     const start = i;
+    let localBraceDepth = 0;
+    let localBracketDepth = 0;
+    let localParenDepth = 0;
     while (i < n) {
       const c = input[i];
-      // Always stop at closing braces/brackets (end of structures)
-      if (c === '}' || c === ']') break;
-      // Stop at comma only if inside a structure (array or object)
-      if (c === ',' && depth > 0) break;
+      // Track nested structures inside a value so we don't cut early
+      if (c === '{') { localBraceDepth++; i++; continue; }
+      if (c === '[') { localBracketDepth++; i++; continue; }
+      if (c === '(') { localParenDepth++; i++; continue; }
+      if (c === '}') {
+        if (localBraceDepth > 0) { localBraceDepth--; i++; continue; }
+        if (localBracketDepth === 0 && localParenDepth === 0) break;
+      }
+      if (c === ']') {
+        if (localBracketDepth > 0) { localBracketDepth--; i++; continue; }
+        if (localBraceDepth === 0 && localParenDepth === 0) break;
+      }
+      if (c === ')') {
+        if (localParenDepth > 0) { localParenDepth--; i++; continue; }
+      }
+      // Stop at comma only if we're not nested inside value-local braces/brackets/parens
+      if (c === ',' && depth > 0 && localBraceDepth === 0 && localBracketDepth === 0 && localParenDepth === 0) break;
       // Stop at quotes (start of string)
       if (c === '"' || c === "'") break;
       // Stop at slash only if it starts a comment
