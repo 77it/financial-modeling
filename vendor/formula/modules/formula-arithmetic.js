@@ -101,42 +101,48 @@ function nativeCalculate(operator, left, right) {
  * @returns {*} Result
  */
 function decimalCalculate(operator, left, right) {
+  // Normalize to Decimal
+  const _left = DecimalOps.normalize(left);
+  const _right = DecimalOps.normalize(right);
+
   // For non-numeric operations, use native
   if (operator === "??") {
-    return exists(left) ? left : right;
+    return exists(_left) ? _left : _right;
   }
 
   switch (operator) {
     case "^":
-      return DecimalOps.pow(left, right);
+      return DecimalOps.pow(_left, _right);
     case "*":
-      return DecimalOps.multiply(left, right);
+      return DecimalOps.multiply(_left, _right);
     case "/":
-      return DecimalOps.divide(left, right);
+      return DecimalOps.divide(_left, _right);
     case "%":
-      return DecimalOps.modulo(left, right);
+      return DecimalOps.modulo(_left, _right);
     case "+":
-      return DecimalOps.add(left, right);
+      return DecimalOps.add(_left, _right);
     case "-":
-      return DecimalOps.subtract(left, right);
+      return DecimalOps.subtract(_left, _right);
+  }
 
-    // For comparisons and logical operators, use native
+  // For comparisons and logical operators, use native.
+  switch (operator) {
     case "<":
-      return left < right;
+      return _left < _right;
     case "<=":
-      return left <= right;
+      return _left <= _right;
     case ">":
-      return left > right;
+      return _left > _right;
     case ">=":
-      return left >= right;
+      return _left >= _right;
     case "==":
-      return left === right;
+      return _left === _right;
     case "!=":
-      return left !== right;
+      return _left !== _right;
     case "&&":
-      return left && right;
+      return _left && _right;
     case "||":
-      return left || right;
+      return _left || _right;
   }
   return null;
 }
