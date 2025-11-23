@@ -106,26 +106,21 @@ function decimalCalculate(operator, left, right) {
     return exists(left) ? left : right;
   }
 
-  // For numeric operations, use Decimal adapter (handle both numbers, numeric strings, and bigints)
-  if ((typeof left === "number" || typeof left === "string" || typeof left === "bigint") && (typeof right === "number" || typeof right === "string" || typeof right === "bigint")) {
-    switch (operator) {
-      case "^":
-        return DecimalOps.pow(left, right);
-      case "*":
-        return DecimalOps.multiply(left, right);
-      case "/":
-        return DecimalOps.divide(left, right);
-      case "%":
-        return DecimalOps.modulo(left, right);
-      case "+":
-        return DecimalOps.add(left, right);
-      case "-":
-        return DecimalOps.subtract(left, right);
-    }
-  }
-
-  // For comparisons and logical operators, use native
   switch (operator) {
+    case "^":
+      return DecimalOps.pow(left, right);
+    case "*":
+      return DecimalOps.multiply(left, right);
+    case "/":
+      return DecimalOps.divide(left, right);
+    case "%":
+      return DecimalOps.modulo(left, right);
+    case "+":
+      return DecimalOps.add(left, right);
+    case "-":
+      return DecimalOps.subtract(left, right);
+
+    // For comparisons and logical operators, use native
     case "<":
       return left < right;
     case "<=":
