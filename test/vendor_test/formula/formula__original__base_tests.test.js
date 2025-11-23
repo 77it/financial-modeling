@@ -7,26 +7,21 @@
 // with the addition of region "BDD Jest-like globals"
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
-import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v6_x.js';
-import { EVALUATE_NUMBERS_AS_DECIMALSCALEDBIGINT } from './_formula__tests_settings.js';
 
 import { describe, it } from '../../lib/bdd_polyfill.js';
 import { add, bigIntScaledToString } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
-runTests({Parser: CustomParser, evaluateNumbersAsStrings: EVALUATE_NUMBERS_AS_DECIMALSCALEDBIGINT});
-runTests({Parser: OriginalParser, evaluateNumbersAsStrings: false});
+runTests({Parser: OriginalParser});
 
 /**
  * Run tests for the Parser passed as argument with options
  * @param {Object} p
  * @param {*} p.Parser
- * @param {boolean} p.evaluateNumbersAsStrings
  */
-function runTests({ Parser, evaluateNumbersAsStrings }) {
+function runTests({ Parser }) {
     // Wrapper for expect.toEqual to auto-convert numbers to strings if evaluateNumbersAsStrings is true
     const expectEqual = (actual, expected) => {
-        const convertedExpected = evaluateNumbersAsStrings && typeof expected === 'number' ? String(expected) : expected;
-        expect(actual).toEqual(convertedExpected);
+        expect(actual).toEqual(expected);
     };
 
     describe('Formula, original and custom, tests', () => {
@@ -35,11 +30,7 @@ function runTests({ Parser, evaluateNumbersAsStrings }) {
 
             const functions = {
                 x: (value) => {
-                    if (evaluateNumbersAsStrings) {
-                        return bigIntScaledToString(add(value, 10));
-                    } else {
-                        return value + 10;
-                    }
+                    return value + 10;
                 }
             };
             const constants = {
@@ -48,22 +39,14 @@ function runTests({ Parser, evaluateNumbersAsStrings }) {
 
             const formula = new Parser('1 + a.b.c.2.4.x + [b] + x([y + 4] + Z)', { functions, constants });
             expectEqual(formula.evaluate({ 'a.b.c.2.4.x': 2, b: 3, 'y + 4': 5 }), 1 + 2 + 3 + 5 + 10 + 100);
-            if (evaluateNumbersAsStrings) {
-                expectEqual(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' }), 1 + 2 + 3 + 5 + 10 + 100);
-            } else {
-                expectEqual(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' }), '123510010');
-            }
+            expectEqual(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3, 'y + 4': '5' }), '123510010');
         });
 
         it('evaluates a formula (custom reference handler)', () => {
 
             const functions = {
                 x: (value) => {
-                    if (evaluateNumbersAsStrings) {
-                        return bigIntScaledToString(add(value, 10));
-                    } else {
-                        return value + 10;
-                    }
+                    return value + 10;
                 }
             };
 

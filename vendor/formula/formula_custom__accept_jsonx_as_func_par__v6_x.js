@@ -494,14 +494,14 @@ internals.single = function (operator, value) {
   if (operator === "!") {
     return value ? false : true;
   }
-  // PATCH: Handle unary plus operator
+  // PATCH: Handle unary plus operator - use Decimal arithmetic for consistency
   if (operator === "p") {
-    return +value;
+    return arithmeticCalculate("+", 0, value, true);
   }
 
   // operator === 'n'
-
-  const negative = -value;
+  // Use Decimal arithmetic for negation (0 - value) to maintain precision consistency with binary operators
+  const negative = arithmeticCalculate("-", 0, value, true);
   if (negative === 0) {
     // Override -0
     return 0;

@@ -23,12 +23,28 @@ const functions = {
   Q: returnAny
 };
 
+t('formula calling with really long numbers, quoted and not', () => {
+  // being any operation absent, is not converted to decimal but simply to a string
+  assert.deepStrictEqual(new Parser('123456789012345678901234567890.0987654321', { functions }).evaluate(), '123456789012345678901234567890.0987654321');
+  assert.deepStrictEqual(new Parser('"123456789012345678901234567890.0987654321"', { functions }).evaluate(), '123456789012345678901234567890.0987654321');
+  assert.deepStrictEqual(new Parser('q( 123456789012345678901234567890.0987654321+300000000000000000000000000000 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt('423456789012345678901234567890.0987654321'));
+  assert.deepStrictEqual(new Parser('q( -123456789012345678901234567890.0987654321 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt('-123456789012345678901234567890.0987654321'));
+  assert.deepStrictEqual(new Parser('q( +123456789012345678901234567890.0987654321 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt('123456789012345678901234567890.0987654321'));
+  // a number is passed to a function as string
+  assert.deepStrictEqual(new Parser('q( 123456789012345678901234567890.0987654321 )', { functions }).evaluate(), '123456789012345678901234567890.0987654321');
+  // long numbers inside a JSON object
+  assert.deepStrictEqual(new Parser('q( {a: 123456789012345678901234567890.0987654321} )', { functions }).evaluate(), {a: '123456789012345678901234567890.0987654321'});
+  assert.deepStrictEqual(new Parser(`q( {a: '123456789012345678901234567890.0987654321'} )`, { functions }).evaluate(), {a: '123456789012345678901234567890.0987654321'});
+  assert.deepStrictEqual(new Parser(`q( {a: "123456789012345678901234567890.0987654321"} )`, { functions }).evaluate(), {a: '123456789012345678901234567890.0987654321'});
+});
+
 t('formula calling with functions containing quoted and unquoted values', () => {
+  // being any operation absent, is not converted to decimal but simply to a string
   assert.deepStrictEqual(new Parser('444', { functions }).evaluate(), '444');
   assert.deepStrictEqual(new Parser('"444"', { functions }).evaluate(), '444');
   assert.deepStrictEqual(new Parser('q( 0+555 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(555));
-  assert.deepStrictEqual(new Parser('q( -777 )', { functions }).evaluate(), (-777));
-  assert.deepStrictEqual(new Parser('q( +777 )', { functions }).evaluate(), 777);
+  assert.deepStrictEqual(new Parser('q( -777 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(-777));
+  assert.deepStrictEqual(new Parser('q( +777 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(777));
   // a number is passed to a function as string
   assert.deepStrictEqual(new Parser('q( 88888 )', { functions }).evaluate(), '88888');
   // a date outside a JSONX object is treated, rightly, as an arithmetic expression

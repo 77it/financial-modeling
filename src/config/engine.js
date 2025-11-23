@@ -52,7 +52,7 @@ export const DEFAULT_NUMBER_OF_YEARS_FROM_TODAY = 5;
 // Rounding mode to use when storing numbers in the ledger and in other places that requires rounding
 export const ROUNDING_MODE = ROUNDING_MODES.HALF_EVEN;
 // Scale to use when doing decimal calculations with BigInt (SCALE)
-export const BIGINT_DECIMAL_SCALE = 10;
+export const BIGINT_DECIMAL_SCALE = 10;  // scale of 10 means that numbers are stored with 10 decimal places of precision
 // Decimal places to use when storing numbers in the ledger (PRECISION)
 export const ACCOUNTING_DECIMAL_PLACES = 4;
 
