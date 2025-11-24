@@ -23,5 +23,65 @@ const functions = {
   Q: returnAny
 };
 
-t('extra tests #2', () => {
+t('logical operators: non-numeric strings become falsy after normalization', () => {
+  const ctx = {foo: 'bar'};
+
+  assert.deepStrictEqual(
+    new Parser('foo || 1').evaluate(ctx),
+    convertWhenFmlEvalRequiresIt(1)  // "bar" normalizes to 0n, so || returns right side
+  );
+
+  assert.deepStrictEqual(
+    new Parser('foo && 1').evaluate(ctx),
+    convertWhenFmlEvalRequiresIt(0)  // "bar" -> 0n, so && returns 0n instead of evaluating right side
+  );
+});
+
+t('nullish coalescing: defined non-numeric values are coerced to 0n', () => {
+  assert.deepStrictEqual(
+    new Parser('"foo" ?? 1').evaluate(),
+    convertWhenFmlEvalRequiresIt(0)  // defined literal string is normalized to 0n instead of being returned as-is
+  );
+
+  assert.deepStrictEqual(
+    new Parser('foo ?? 1').evaluate({foo: 'bar'}),
+    convertWhenFmlEvalRequiresIt(0)  // context value exists but gets coerced to 0n
+  );
+});
+
+t('logical/nullish operators: arrays/objects are treated as zero-like', () => {
+  const ctx = {arr: [1, 2], obj: {a: 1}};
+
+  assert.deepStrictEqual(
+    new Parser('arr || 5').evaluate(ctx),
+    convertWhenFmlEvalRequiresIt(5)  // array normalizes to 0n, so || chooses right side
+  );
+
+  assert.deepStrictEqual(
+    new Parser('arr && 5').evaluate(ctx),
+    convertWhenFmlEvalRequiresIt(0)  // array normalizes to 0n, so && short-circuits to 0n
+  );
+
+  assert.deepStrictEqual(
+    new Parser('obj ?? 5').evaluate(ctx),
+    convertWhenFmlEvalRequiresIt(0)  // object exists but normalization returns 0n
+  );
+});
+
+t('function arguments: bare references are passed as strings unless opted out', () => {
+  /** @type {any[]} */
+  const seen = [];
+  const record = (value) => {
+    seen.push(value);
+    return value;
+  };
+
+  new Parser('echo(value)', {functions: {echo: record}}).evaluate({value: 42});
+  assert.deepStrictEqual(seen.shift(), 'value');
+
+  new Parser('echo(value)', {
+    functions: {echo: record},
+    disableConstantsAndPassArgsAsStringsToFunctions: false
+  }).evaluate({value: 42});
+  assert.deepStrictEqual(seen.shift(), 42);
 });
