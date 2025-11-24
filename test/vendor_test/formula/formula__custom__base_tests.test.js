@@ -520,14 +520,14 @@ function runTests({ Parser }) {
                 expectEqual(formula.evaluate({ x: 10, y: 10 }), 10);
                 expectEqual(formula.evaluate({ x: 0, y: 10 }), 0);
                 expectEqual(formula.evaluate({ x: 0, y: 0 }), 0);
-                expectEqual(formula.evaluate({ x: null, y: 2 }), 0);
+                expectEqual(formula.evaluate({ x: null, y: 2 }), 2);  // FIXED: null ?? 2 should return 2
                 expectEqual(formula.evaluate({ x: 1, y: null }), 1);
 
                 expectEqual(formula.evaluate({ x: '1', y: '2' }), 1);
                 expectEqual(formula.evaluate({ x: '1', y: '1' }), 1);
                 expectEqual(formula.evaluate({ x: '', y: '1' }), 0);
                 expectEqual(formula.evaluate({ x: '', y: '' }), 0);
-                expectEqual(formula.evaluate({ x: null, y: '2' }), 0);
+                expectEqual(formula.evaluate({ x: null, y: '2' }), 2);  // FIXED: null ?? '2' should return 2
                 expectEqual(formula.evaluate({ x: '1', y: null }), 1);
 
                 expectEqual(formula.evaluate({ x: 1, y: '2' }), 1);
@@ -535,7 +535,7 @@ function runTests({ Parser }) {
                 expectEqual(formula.evaluate({ x: 1, y: '1' }), 1);
                 expectEqual(formula.evaluate({ x: '1', y: 1 }), 1);
 
-                expectEqual(formula.evaluate({ x: null, y: null }), 0);
+                expect(formula.evaluate({ x: null, y: null })).toEqual(null);  // null ?? null -> null (stays null)
             });
         });
     });

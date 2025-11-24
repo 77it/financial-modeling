@@ -105,9 +105,11 @@ function decimalCalculate(operator, left, right) {
   const _left = DecimalOps.normalize(left);
   const _right = DecimalOps.normalize(right);
 
-  // For non-numeric operations, use native
+  // Nullish coalescing - check existence on original values, return normalized
   if (operator === "??") {
-    return exists(_left) ? _left : _right;
+    if (exists(left)) return _left;
+    if (exists(right)) return _right;
+    return null;  // Both null/undefined, propagate for chaining
   }
 
   switch (operator) {
@@ -125,7 +127,7 @@ function decimalCalculate(operator, left, right) {
       return DecimalOps.subtract(_left, _right);
   }
 
-  // For comparisons and logical operators, use native.
+  // For comparisons, use native (returns boolean)
   switch (operator) {
     case "<":
       return _left < _right;
@@ -139,10 +141,15 @@ function decimalCalculate(operator, left, right) {
       return _left === _right;
     case "!=":
       return _left !== _right;
-    case "&&":
-      return _left && _right;
-    case "||":
-      return _left || _right;
   }
+
+  // Logical operators return actual values (JavaScript-like behavior)
+  switch (operator) {
+    case "&&":
+      return _left && _right;  // Returns right if both truthy, else left
+    case "||":
+      return _left || _right;  // Returns first truthy value
+  }
+
   return null;
 }
