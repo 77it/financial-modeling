@@ -51,6 +51,14 @@ export interface Options {
      * When true, any parse/eval error returns the original formula string. Default: false.
      */
     readonly returnOriginalOnError?: boolean;
+
+    /**
+     * When true, constants are not resolved and single references passed to functions
+     * are kept as strings. Formulas (e.g., "x + 555") are still evaluated normally
+     * trying to resolve X with context.
+     * Default: true.
+     */
+    readonly disableConstantsAndPassArgsAsStringsToFunctions?: boolean;
 }
 
 

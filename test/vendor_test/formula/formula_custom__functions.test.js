@@ -47,3 +47,16 @@ t('formula calling with functions containing quoted and unquoted values', () => 
   assert.throws(() => { new Parser('q(mam ma)', { functions }).evaluate(); });
 });
 
+t('formula calling with functions containing references variables, defined or not in the context', () => {
+  // variable bare references (without operations)
+  assert.deepStrictEqual(new Parser('q(x)', { functions }).evaluate({ x: 10, y: 3 }), 10);
+
+  // undefined variable bare references in function, passed as value
+  assert.deepStrictEqual(new Parser('q(zazza)', { functions }).evaluate({ x: 10, y: 3 }), 'zazza');
+
+  // variable used in operation
+  assert.deepStrictEqual(new Parser('q(x + 1)', { functions }).evaluate({ x: 10, y: 3 }), convertWhenFmlEvalRequiresIt(11));
+
+  // undefined variable used in operation
+  assert.throws(() => { new Parser('q(z + 1)', { functions }).evaluate({ x: 10, y: 3 }) });
+});

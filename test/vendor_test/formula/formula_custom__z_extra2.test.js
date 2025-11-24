@@ -67,21 +67,3 @@ t('logical/nullish operators: arrays/objects are treated as zero-like', () => {
     convertWhenFmlEvalRequiresIt(0)  // object exists but normalization returns 0n
   );
 });
-
-t('function arguments: bare references are passed as strings unless opted out', () => {
-  /** @type {any[]} */
-  const seen = [];
-  const record = (value) => {
-    seen.push(value);
-    return value;
-  };
-
-  new Parser('echo(value)', {functions: {echo: record}}).evaluate({value: 42});
-  assert.deepStrictEqual(seen.shift(), 'value');
-
-  new Parser('echo(value)', {
-    functions: {echo: record},
-    disableConstantsAndPassArgsAsStringsToFunctions: false
-  }).evaluate({value: 42});
-  assert.deepStrictEqual(seen.shift(), 42);
-});

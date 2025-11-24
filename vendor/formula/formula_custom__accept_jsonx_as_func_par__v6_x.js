@@ -343,8 +343,13 @@ exports.Parser = class {
         const argStr = argStrings[i];
 
         if (pasStringsToFunctions && arg.single && arg.single.type === "reference") {
-          // Pass single references as strings (e.g., "myVar" stays as "myVar")
-          innerValues.push(argStr);
+          // Try to evaluate the reference; if it doesn't exist in context, pass as string
+          try {
+            innerValues.push(arg.evaluate(context));
+          } catch (err) {
+            // If reference is not defined, pass the string instead
+            innerValues.push(argStr);
+          }
         } else {
           // Evaluate formulas and other values (e.g., "0+555" becomes 555)
           innerValues.push(arg.evaluate(context));
