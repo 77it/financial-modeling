@@ -111,7 +111,7 @@ t('ensureBigIntScaled conversion', () => {
     "  -12345678901235678901234567890123567890.9876543210987654321098765432109876543210  ",  // string
     12345.67890,  // number
     new Date(NaN),
-    new Date(1),
+    new Date(1,1,1),
     true, false,  // boolean
     "", "   ",  // empty strings
     new Decimal("1234567890.123456789"),  // Decimal
@@ -131,7 +131,7 @@ t('ensureBigIntScaled conversion', () => {
     stringToBigIntScaled("-12345678901235678901234567890123567890.9876543210987654321098765432109876543210"),  // string
     numberToBigIntScaled(12345.67890),  // number
     0n,  // invalid date
-    stringToBigIntScaled("1"),  // new Date(1)
+    numberToBigIntScaled(new Date(1,1,1).getTime()),  // new Date(1, 1, 1)
     stringToBigIntScaled("1"), 0n,  // boolean
     0n, 0n,  // empty strings
     stringToBigIntScaled("1234567890.123456789"),  // Decimal

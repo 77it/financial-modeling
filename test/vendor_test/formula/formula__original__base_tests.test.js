@@ -86,8 +86,8 @@ function runTests({ Parser }) {
 
             it('identifies single literal (string)', () => {
 
-                const formula = new Parser('"x"');
-                expectEqual(formula.single, { type: 'value', value: 'x' });
+                const formula = new Parser('"2 + 2"');
+                expectEqual(formula.single, { type: 'value', value: '2 + 2' });
             });
 
             it('identifies single literal (number)', () => {
