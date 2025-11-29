@@ -89,7 +89,8 @@ function nativeCalculate(operator, left, right) {
     case "||":
       return left || right;
   }
-  return null;
+
+  throw new Error(`Unsupported operator: ${operator}`);
 }
 
 /**
@@ -151,5 +152,5 @@ function decimalCalculate(operator, left, right) {
       return _left || _right;  // Returns first truthy value
   }
 
-  return null;
+  throw new Error(`Unsupported operator: ${operator}`);
 }
