@@ -2,7 +2,6 @@
 
 // @deno-types="../../../vendor/formula/index.d.ts"
 import { Parser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v6_x.js';
-//import { Parser } from '../../../vendor/formula/extras/formula_custom__accept_yaml_as_func_par__v3_x.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
 
 import { test } from 'node:test';
@@ -23,6 +22,19 @@ const functions = {
   Q: returnAny
 };
 
+
+t('UNSUPPORTED quotes inside a function in JSONX are not supported and the formula is returned as-is, and other cases', () => {
+  // see 'formula_custom___jsonx.test.js'
+});
+
+t('SUPPORTED quotes inside a function in JSONX are not supported and the formula is returned as-is, and other cases', () => {
+  // see 'formula_custom___jsonx.test.js'
+});
+
+t('function with JSONX, array, date, nested json objects etc', () => {
+  // see 'formula_custom___jsonx.test.js'
+});
+
 t('formula calling with functions containing quoted and unquoted values', () => {
   // being any operation absent, is not converted to decimal but simply to a string
   assert.deepStrictEqual(new Parser('444', { functions }).evaluate(), '444');
@@ -38,8 +50,8 @@ t('formula calling with functions containing quoted and unquoted values', () => 
   assert.deepStrictEqual(new Parser('q( 2025-12-31 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(2025 - 12 - 31));
   assert.deepStrictEqual(new Parser('q( "2025-12-31" )', { functions }).evaluate(), "2025-12-31");
   assert.deepStrictEqual(new Parser('q( "mamma mia" )', { functions }).evaluate(), 'mamma mia');
-  // mamma_mia variable is not defined, then is null
-  assert.deepStrictEqual(new Parser('q( mamma_mia )', { functions }).evaluate(), ' mamma_mia ');
+  // mamma_mia variable is not defined, then throws
+  assert.throws(() => { new Parser('q( mamma_mia )', { functions }).evaluate(); });
   assert.deepStrictEqual(new Parser('q("mam ma")', { functions }).evaluate(), "mam ma");
   assert.deepStrictEqual(new Parser('q("mam" + "ma")', { functions }).evaluate(), 0n);  // summed as decimals
 
@@ -51,8 +63,8 @@ t('formula calling with functions containing references variables, defined or no
   // variable bare references (without operations)
   assert.deepStrictEqual(new Parser('q(x)', { functions }).evaluate({ x: 10, y: 3 }), 10);
 
-  // undefined variable bare references in function, passed as value
-  assert.deepStrictEqual(new Parser('q(zazza)', { functions }).evaluate({ x: 10, y: 3 }), 'zazza');
+  // undefined variable bare references in function, throws
+  assert.throws(() => { new Parser('q(zazza)', { functions }).evaluate({ x: 10, y: 3 }); });
 
   // variable used in operation
   assert.deepStrictEqual(new Parser('q(x + 1)', { functions }).evaluate({ x: 10, y: 3 }), convertWhenFmlEvalRequiresIt(11));

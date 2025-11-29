@@ -6,12 +6,13 @@
  * Use `new Parser(formulaText, options).evaluate(context)` to evaluate plain formulas
  * or JSONX fragments (unquoted values marked with FORMULA_MARKER).
  *
+ * V6 Optimizations:
+ * - Constants permanently disabled (use context instead)
+ * - All function arguments always evaluated (no string fallback)
+ * - Improved performance through simplified code paths
+ *
  * Options (all optional):
- * - `constants`: map of name -> primitive constant.
  * - `functions`: map of name -> (...args) => any.
- * - `disableConstantsAndPassArgsAsStringsToFunctions`: default true. When true,
- *   constants are not resolved and single references passed to functions are kept
- *   as strings. Formulas (e.g., "0+555") are still evaluated normally.
  */
 
 // REFACTOR: Import modular components
@@ -51,11 +52,9 @@ exports.Parser = class {
     }
     this.settings = options[internals.settings] ? options : Object.assign({
       [internals.settings]: true,
-      constants: {},
-      functions: {},
-      // disableConstantsAndPassArgsAsStringsToFunctions=true: constants are not resolved
-      // and single references to functions are passed as strings (formulas are still evaluated)
-      disableConstantsAndPassArgsAsStringsToFunctions: true
+      functions: {}
+      // V6 REMOVED: constants option (permanently disabled for performance)
+      // V6 REMOVED: disableConstantsAndPassArgsAsStringsToFunctions (always true for performance)
     }, options);
     this.single = null;
     this._parts = null;
@@ -125,14 +124,9 @@ exports.Parser = class {
           type: "constant",
           value: current
         });
-      } else if (!this.settings.disableConstantsAndPassArgsAsStringsToFunctions && this.settings.constants[current] !== undefined) {
-        // Constant (only if constants are enabled)
-        parts.push({
-          type: "constant",
-          value: this.settings.constants[current]
-        });
       } else {
-        // Reference
+        // V6 OPTIMIZATION: Constants permanently disabled - always treat as reference
+        // This improves performance by removing conditional checks
         if (!current.match(internals.tokenRx)) {
           throw new Error(`Formula contains invalid token: ${current}`);
         }
@@ -141,6 +135,14 @@ exports.Parser = class {
           value: current
         });
       }
+      /* V6 REMOVED: Constants feature for performance
+      } else if (!this.settings.disableConstantsAndPassArgsAsStringsToFunctions && this.settings.constants[current] !== undefined) {
+        parts.push({
+          type: "constant",
+          value: this.settings.constants[current]
+        });
+      }
+      */
       current = "";
     };
     // PATCH: Changed to index loop for JSONX scanning
@@ -287,7 +289,7 @@ exports.Parser = class {
       throw new Error(`Formula contains unknown function ${name}`);
     }
     let args = [];
-    const argStrings = [];
+    // V6 REMOVED: argStrings array - no longer needed without string argument passing
     if (string) {
       let current = "";
       let parenthesis = 0;
@@ -299,7 +301,7 @@ exports.Parser = class {
         if (!current) {
           throw new Error(`Formula contains function ${name} with invalid arguments ${string}`);
         }
-        argStrings.push(current);
+        // V6 REMOVED: argStrings.push(current);
         args.push(current);
         current = "";
       };
@@ -334,8 +336,18 @@ exports.Parser = class {
       }
       flush();
     }
-    const pasStringsToFunctions = this.settings.disableConstantsAndPassArgsAsStringsToFunctions;
+    // V6 REMOVED: pasStringsToFunctions logic - always evaluate all arguments
     args = args.map(arg => new exports.Parser(arg, this.settings));
+    return function (context) {
+      // V6 OPTIMIZATION: Simplified - just evaluate all arguments (no try-catch, no string fallback)
+      const innerValues = [];
+      for (let i = 0; i < args.length; i++) {
+        innerValues.push(args[i].evaluate(context));
+      }
+      return method.call(context, ...innerValues);
+    };
+
+    /* V6 REMOVED: String argument passing feature (was slow with try-catch):
     return function (context) {
       const innerValues = [];
       for (let i = 0; i < args.length; i++) {
@@ -343,20 +355,18 @@ exports.Parser = class {
         const argStr = argStrings[i];
 
         if (pasStringsToFunctions && arg.single && arg.single.type === "reference") {
-          // Try to evaluate the reference; if it doesn't exist in context, pass as string
           try {
             innerValues.push(arg.evaluate(context));
           } catch (err) {
-            // If reference is not defined, pass the string instead
             innerValues.push(argStr);
           }
         } else {
-          // Evaluate formulas and other values (e.g., "0+555" becomes 555)
           innerValues.push(arg.evaluate(context));
         }
       }
       return method.call(context, ...innerValues);
     };
+    */
   }
   _jsonxFormula(text) {
     return createJSONXFormula(text, exports.Parser, this.settings);

@@ -23,17 +23,13 @@ export class Parser {
 export interface Options {
 
     /**
-     * A hash of key - value pairs used to convert constants to values.
-     */
-    readonly constants?: Record<string, any>;
-
-    /**
      * A regular expression used to validate token variables.
      */
     readonly tokenRx?: RegExp;
 
     /**
      * A variable resolver factory function.
+     * BEWARE! providing a custom reference resolver completely ignore the context parameter passed to `evaluate` method.
      */
     readonly reference?: Options.Reference;
 
@@ -41,24 +37,6 @@ export interface Options {
      * A hash of key-value pairs used to resolve formula functions.
      */
     readonly functions?: Record<string, Function>;
-
-    /**
-     * When true, unknown variables throw instead of returning null. Default: true.
-     */
-    readonly strictReferences?: boolean;
-
-    /**
-     * When true, any parse/eval error returns the original formula string. Default: false.
-     */
-    readonly returnOriginalOnError?: boolean;
-
-    /**
-     * When true, constants are not resolved and single references passed to functions
-     * are kept as strings. Formulas (e.g., "x + 555") are still evaluated normally
-     * trying to resolve X with context.
-     * Default: true.
-     */
-    readonly disableConstantsAndPassArgsAsStringsToFunctions?: boolean;
 }
 
 

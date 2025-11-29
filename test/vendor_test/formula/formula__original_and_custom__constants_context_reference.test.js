@@ -20,20 +20,16 @@ t('formula original and custom: test with constant and context', () => {
         x: (value) => Number(value) + 10
     };
 
-    const constants = {
-        Z: 100
-    };
-
     for (const { Parser, opts } of parserDefs) {
         evaluateNumbersAsStrings = opts.evaluateNumbersAsStrings;
 
-        const formula = new Parser('1 + a.b.c.2.4.x + [b] + x(105) + Z', { functions, constants, ...opts });
-        assert.deepStrictEqual(formula.evaluate({ 'a.b.c.2.4.x': 2, b: 3 }), _convertWhenFmlEvalRequiresIt(1 + 2 + 3 + 115 + 100));
+        const formula = new Parser('1 + a.b.c.2.4.x + [b] + x(105)', { functions, ...opts });
+        assert.deepStrictEqual(formula.evaluate({ 'a.b.c.2.4.x': 2, b: 3 }), _convertWhenFmlEvalRequiresIt(1 + 2 + 3 + 115));
 
         if (evaluateNumbersAsStrings) {
-            assert.deepStrictEqual(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3 }), _convertWhenFmlEvalRequiresIt(1 + 2 + 3 + 115 + 100));
+            assert.deepStrictEqual(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3 }), _convertWhenFmlEvalRequiresIt(1 + 2 + 3 + 115));
         } else {
-            assert.deepStrictEqual(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3 }), '123115100');
+            assert.deepStrictEqual(formula.evaluate({ 'a.b.c.2.4.x': '2', b: 3 }), '123115');
         }
     }
 });
