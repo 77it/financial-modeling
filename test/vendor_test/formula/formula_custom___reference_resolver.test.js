@@ -1,8 +1,8 @@
 // test with deno test --allow-import
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v6_x.js';
-import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
+import { Parser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v6_x.js';
+import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -24,41 +24,67 @@ const functions = {
 
 // Tests the evaluation of a string formula with a custom variable resolver
 t('hapi formula with custom variable resolver', () => {
+  let callCount = 0;  // Counter outside the function
+
   /**
    * @param {string} name
-   * @return {*}
+   * @return {*}  // ← Must return a function!
    */
   const reference_resolver = function (name) {
-    switch (name) {
-      case 'a':
-        return 1;
-      case 'a.b':
-        return 2;
-      case 'b':
-        return 3;
-      case '$':
-        return 1;
-      case '{$.ciao}':
-        return 4;
-      case 'ad{$.ciao}':
-        return 4;
-      default:
-        throw new Error('unrecognized value');
-    }
+    // This is called during PARSE - once per reference
+    return function(/** @type {any} */ context) {
+      // This is called during EVALUATE - every time evaluate() is called
+      callCount++;  // Increment on every EVALUATION
+
+      switch (name) {
+        case 'a':
+          return 1 + callCount;  // return different value on each call
+        case 'a.b':
+          return 2;
+        case 'b':
+          return 3;
+        case '$':
+          return 1;
+        case '$.ciao':
+          return 4;
+        case 'ad$.ciao':
+          return 4;
+        default:
+          throw new Error('unrecognized value');
+      }
+    };
   };
 
-  const string_to_parse_1 = 'a + 1.99 + a.b + (((a+1)*2)+1) + a + {$.ciao} + $ + ((ad{$.ciao}+10)-2*5)';
-  const expected_1 = '19.99';
-  const formula1_o = new OriginalParser(string_to_parse_1, { reference: reference_resolver });
-  assert.deepStrictEqual(Number(formula1_o.evaluate()).toFixed(2), expected_1);
-  const formula1_c = new CustomParser(string_to_parse_1, { reference: reference_resolver });
-  assert.deepStrictEqual(Number(formula1_c.evaluate()).toFixed(2), expected_1);
+  const simple_formula = new Parser('a+b+1', { reference: reference_resolver });
+  assert.deepStrictEqual(callCount, 0); // right, no calls yet
+  assert.deepStrictEqual(simple_formula.evaluate(), convertWhenFmlEvalRequiresIt(6));
+  assert.deepStrictEqual(callCount, 2); // two calls during evaluation
+  assert.deepStrictEqual(simple_formula.evaluate(), convertWhenFmlEvalRequiresIt(8));
+  assert.deepStrictEqual(callCount, 4); // right, +2 calls during evaluation
+  assert.deepStrictEqual(simple_formula.evaluate(), convertWhenFmlEvalRequiresIt(10));
+  assert.deepStrictEqual(callCount, 6); // right, +2 calls during evaluation
 
+  const string_to_parse_1 = 'a + 1.99 + a.b + (((a+1)*2)+1) + a + $.ciao + $ + ((ad$.ciao+10)-2*5)';
+  const expected_1 = convertWhenFmlEvalRequiresIt('54.99');
+  const formula1 = new Parser(string_to_parse_1, { reference: reference_resolver });
+  assert.deepStrictEqual(formula1.evaluate(), expected_1);
+  assert.deepStrictEqual(callCount, 13); // right, +7 calls during evaluation
+  const expected_2 = convertWhenFmlEvalRequiresIt('82.99');
+  assert.deepStrictEqual(formula1.evaluate(), expected_2);
+  assert.deepStrictEqual(callCount, 20); // right, +7 calls during evaluation
+
+  // X is undefined
   assert.throws(() => {
-    const string_to_parse_2 = 'a + x + 1';
-    const formula2_o = new OriginalParser(string_to_parse_2, { reference: reference_resolver });
-    formula2_o.evaluate();
-    const formula2_c = new CustomParser(string_to_parse_2, { reference: reference_resolver });
-    formula2_c.evaluate();
+    const formula2 = new Parser('a + x + 1', { reference: reference_resolver });
+    formula2.evaluate();
   });
+
+  // AAA_from_context is defined in context, but passing a custom reference resolver bypasses it
+  assert.throws(() => {
+    const formula3 = new Parser('a + AAA_from_context + 1', { reference: reference_resolver });
+    formula3.evaluate({AAA_from_context: 90});
+  });
+  // AAA_from_context defined in context works only without custom reference resolver
+  const formula4 = new Parser('a + AAA_from_context + 1');
+  assert.deepStrictEqual(formula4.evaluate({a: 1, AAA_from_context: 90}), convertWhenFmlEvalRequiresIt(92));
 });
