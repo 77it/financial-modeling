@@ -37,6 +37,12 @@ export interface Options {
      * A hash of key-value pairs used to resolve formula functions.
      */
     readonly functions?: Record<string, Function>;
+
+    /**
+     * Whether to use Decimal arithmetic for precision.
+     * @default true
+     */
+    readonly useDecimal?: boolean;
 }
 
 

@@ -13,6 +13,7 @@
  *
  * Options (all optional):
  * - `functions`: map of name -> (...args) => any.
+ * - `useDecimal`: boolean (default: true) - use Decimal arithmetic for precision.
  */
 
 // REFACTOR: Import modular components
@@ -52,7 +53,8 @@ exports.Parser = class {
     }
     this.settings = options[internals.settings] ? options : Object.assign({
       [internals.settings]: true,
-      functions: {}
+      functions: {},
+      useDecimal: true
       // V6 REMOVED: constants option (permanently disabled for performance)
       // V6 REMOVED: disableConstantsAndPassArgsAsStringsToFunctions (always true for performance)
     }, options);
@@ -382,6 +384,8 @@ exports.Parser = class {
     parts.length = len;
     for (let i = 0; i < len; i++) parts[i] = src[i];
 
+    const useDecimal = this.settings.useDecimal;
+
     // Prefix operators
 
     for (let i = parts.length - 2; i >= 0; --i) {
@@ -390,7 +394,7 @@ exports.Parser = class {
         const current = parts[i + 1];
         parts.splice(i + 1, 1);
         const value = internals.evaluate(current, context);
-        parts[i] = internals.single(part.value, value);
+        parts[i] = internals.single(part.value, value, useDecimal);
       }
     }
 
@@ -403,8 +407,7 @@ exports.Parser = class {
           const left = internals.evaluate(parts[i - 1], context);
           const right = internals.evaluate(parts[i + 1], context);
           parts.splice(i, 2);
-          // Always use Decimal for calculations
-          const result = internals.calculate(operator, left, right);
+          const result = internals.calculate(operator, left, right, useDecimal);
           parts[i - 1] = result === 0 ? 0 : result; // Convert -0
         } else {
           i += 2;
@@ -440,18 +443,18 @@ internals.evaluate = function (part, context) {
   }
   return part;
 };
-internals.single = function (operator, value) {
+internals.single = function (operator, value, useDecimal) {
   if (operator === "!") {
     return value ? false : true;
   }
   // PATCH: Handle unary plus operator - use Decimal arithmetic for consistency
   if (operator === "p") {
-    return arithmeticCalculate("+", 0, value, true);
+    return arithmeticCalculate("+", 0, value, useDecimal);
   }
 
   // operator === 'n'
   // Use Decimal arithmetic for negation (0 - value) to maintain precision consistency with binary operators
-  const negative = arithmeticCalculate("-", 0, value, true);
+  const negative = arithmeticCalculate("-", 0, value, useDecimal);
   if (negative === 0) {
     // Override -0
     return 0;
@@ -463,11 +466,11 @@ internals.single = function (operator, value) {
  * @param {string} operator - The operator (+, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, ??)
  * @param {any} left - Left operand value
  * @param {any} right - Right operand value
+ * @param {boolean} useDecimal - Whether to use Decimal precision (default: true)
  * @returns {any} Result of the operation
  */
-internals.calculate = function (operator, left, right) {
-  // Always use Decimal for calculations via arithmetic module
-  return arithmeticCalculate(operator, left, right, true);
+internals.calculate = function (operator, left, right, useDecimal = true) {
+  return arithmeticCalculate(operator, left, right, useDecimal);
 };
 internals.exists = function (value) {
   return value !== null && value !== undefined;
