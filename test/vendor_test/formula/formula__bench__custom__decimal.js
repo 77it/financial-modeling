@@ -64,7 +64,7 @@ import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v7_1_x.js';
+import { Parser } from '../../../vendor/formula/formula_v3_x.js';
 import { parseJSONrelaxed } from '../../../src/lib/json.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
 

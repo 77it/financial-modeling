@@ -162,19 +162,29 @@ function _TEST_ONLY__set(fn, {decimalScale, accountingDecimalPlaces, roundingMod
  * **fast path** for plain decimals and a **slow path** for e-notation.
  *
  * Parse decimal with or without scientific notation (fast plain path, slow sci path).
+ * Supports underscore separators (e.g., "1_000_000" or "1.5e1_0").
  *
  * @example
  * stringToBigIntScaled("123.45")        // → 1234500000000000000000n
  * stringToBigIntScaled("-1.2e-3")       // → -0000000000000012000000n
  * stringToBigIntScaled("9.999...e15")   // preserves all input digits, rounds as needed
+ * stringToBigIntScaled("1_000_000.50")  // → 1000000500000000000000n (underscores stripped)
+ * stringToBigIntScaled("1.5e1_0")       // → 15000000000000000000000000000n (underscores in exponent)
  *
  * @param {string} s
  * @returns {bigint} BigInt scaled by 10^MATH_SCALE; empty string -> 0n
  * @throws {SyntaxError} on invalid input
  */
 function stringToBigIntScaled(s) {
-  const str = String(s).trim();  // throws on null/undefined and if .trim() fails
+  let str = String(s).trim();  // throws on null/undefined and if .trim() fails
   if (!str) return DEFAULT_DECIMAL;
+
+  // Strip underscores (number separator for readability, e.g., 1_000_000)
+  // Only check if underscore exists to avoid unnecessary work
+  if (str.includes('_')) {
+    str = str.replace(/_/g, '');
+  }
+
   return hasENotation(str) ? parseSciDecimal(str) : parsePlainDecimal_fast(str);
 }
 

@@ -5,28 +5,9 @@
  * Extracted from core formula.js to enable swappable arithmetic backends
  */
 
-export { calculate };
+export { decimalCalculate, nativeCalculate };
 
 import * as DecimalOps from '../adapters/decimal-adapter.js';
-
-/**
- * Calculate operation result
- *
- * @param {string} operator - The operator
- * @param {*} left - Left operand
- * @param {*} right - Right operand
- * @param {boolean} useDecimal - Whether to use Decimal precision
- * @returns {*} Result
- */
-function calculate(operator, left, right, useDecimal = false) {
-  let returnedValue;
-  if (useDecimal) {
-    returnedValue = decimalCalculate(operator, left, right);
-  } else {
-    returnedValue = nativeCalculate(operator, left, right);
-  }
-  return returnedValue;
-}
 
 /**
  * Check if value exists (not null or undefined)

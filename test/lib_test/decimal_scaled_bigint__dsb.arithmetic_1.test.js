@@ -99,6 +99,21 @@ t('numberToBigIntScaled, stringToBigIntScaled – finite numbers map via string 
   { decimalScale: SCALE, accountingDecimalPlaces: 4, roundingMode: ROUNDING_MODES.HALF_UP });
 });
 
+t('number strings with underscore', () => {
+  const input = [
+    "1_000", "-1_000", "123_456.789_012", "-123_456.789_012",
+  ];
+
+  const expected = [
+    "1000", "-1000", "123456.789012", "-123456.789012",
+  ];
+
+  for (let i = 0; i < input.length; i++) {
+    const got = toStr(stringToBigIntScaled(input[i]));
+    assert.strictEqual(got, expected[i], `input: "${input[i]}"`);
+  }
+});
+
 t('ensureBigIntScaled conversion', () => {
   const input = [
     null, undefined,  // == null

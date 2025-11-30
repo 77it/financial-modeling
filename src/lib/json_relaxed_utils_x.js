@@ -1,5 +1,6 @@
 export { quoteKeysNumbersAndDatesForRelaxedJSON };
 import { regExp_YYYYMMDDTHHMMSSMMMZ as DATE_RE } from './date_utils.js';
+import { IS_DIGIT, isPureDecimalNumber } from './number_utils.js';
 
 // --- Hoisted tables (small, fast) ---
 const IS_JSON_SYNTAX = (() => {
@@ -10,11 +11,6 @@ const IS_JSON_SYNTAX = (() => {
 const IS_WS = (() => {
   const a = new Array(128).fill(false);
   a[32] = a[9] = a[10] = a[13] = true; // space, tab, LF, CR
-  return a;
-})();
-const IS_DIGIT = (() => {
-  const a = new Array(128).fill(false);
-  for (let c = 48; c <= 57; c++) a[c] = true; // 0-9
   return a;
 })();
 
@@ -257,41 +253,6 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input, unquotedStringsMarker = '
     return false;
   }
 
-  // Check simple decimal form with underscores and optional exponent/sign
-  /** @param {string} token */
-  function isPureDecimalNumber(token) {
-    let j = 0, len = token.length;
-    if (!len) return false;
-    let c = token[0], code = token.charCodeAt(0);
-
-    if (c === '+' || c === '-') {
-      if (len === 1) return false;
-      j = 1; c = token[1]; code = token.charCodeAt(1);
-    }
-    if (!(code < 128 && IS_DIGIT[code]) && c !== '.') return false;
-
-    let sawDigit = false, sawDot = false, sawE = false;
-    while (j < len) {
-      c = token[j]; code = token.charCodeAt(j);
-      if (code < 128 && IS_DIGIT[code]) { sawDigit = true; j++; }
-      else if (c === '_') { j++; }
-      else if (c === '.' && !sawDot && !sawE) { sawDot = true; j++; }
-      else if ((c === 'e' || c === 'E') && !sawE && sawDigit) {
-        sawE = true; j++;
-        if (j < len && (token[j] === '+' || token[j] === '-')) j++;
-        let expDigits = false;
-        while (j < len) {
-          const cc = token.charCodeAt(j);
-          if (cc < 128 && IS_DIGIT[cc]) { expDigits = true; j++; }
-          else if (token[j] === '_') { j++; }
-          else break;
-        }
-        if (!expDigits) return false;
-      } else return false;
-    }
-    // Token should not end with trailing whitespace when this is called
-    return sawDigit;
-  }
 
   // Read a bare value until JSON boundary (for value positions)
   // Includes all text including spaces until hitting boundaries based on context
