@@ -1,7 +1,9 @@
 //@ts-nocheck
 
 // Import math operations from decimal-adapter
-import { add, sub, mul, div, pow, modulo, ensureBigIntScaled } from './adapters/decimal-adapter2.js';
+import { ensureBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from '../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
+import { pow, modulo } from './adapters/decimal-adapter.js';
+import { isPureDecimalNumber } from '../../src/lib/number_utils.js';
 
 var exports = {};
 
@@ -16,7 +18,6 @@ const internals = {
     "'": "'",
     "[": "]"
   },
-  numberRx: /^(?:[0-9]*(\.[0-9]*)?){1}$/,
   tokenRx: /^[\w\$\#\.\@\:\{\}]+$/,
   symbol: Symbol("formula"),
   settings: Symbol("settings")
@@ -26,7 +27,7 @@ const internals = {
 internals.helpers = {
   // Null coalescing
   nullCoalesce(left, right) {
-    return (left !== null && left !== undefined) ? right : right;
+    return (left !== null && left !== undefined) ? left : right;
   },
 
   // Logical NOT
@@ -37,12 +38,12 @@ internals.helpers = {
 
 // Math operations from decimal-adapter
 internals.mathOps = {
-  add,
-  sub,
-  mul,
-  div,
-  pow,
-  modulo
+  add: (a, b) => fxAdd(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  sub: (a, b) => fxSub(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  mul: (a, b) => fxMul(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  div: (a, b) => fxDiv(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  pow: (a, b) => pow(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  modulo: (a, b) => modulo(ensureBigIntScaled(a), ensureBigIntScaled(b))
 };
 
 exports.Parser = class {
@@ -136,18 +137,18 @@ exports.Parser = class {
         }); // Literal
       } else if (internals.operatorCharacters.includes(current)) {
         // Operator
-        if (last && last.type === "operator" && internals.operators.includes(last.value + current)) {
-          // 2 characters operator
+      if (last && last.type === "operator" && internals.operators.includes(last.value + current)) {
+        // 2 characters operator
 
-          last.value += current;
-        } else {
-          parts.push({
-            type: "operator",
-            value: current
-          });
-        }
-      } else if (current.match(internals.numberRx)) {
-        // Number - store as string for later conversion
+        last.value += current;
+      } else {
+        parts.push({
+          type: "operator",
+          value: current
+        });
+      }
+      } else if (isPureDecimalNumber(current)) {
+        // Numeric literal - leave as string, normalize later
         parts.push({
           type: "constant",
           value: current,
@@ -444,13 +445,9 @@ exports.Parser = class {
               opCode = `__h.nullCoalesce(${leftCode}, ${rightCode})`;
               break;
             case '+':
-              if (isStringOp) {
-                // Native string concatenation
-                opCode = `(${leftCode} + ${rightCode})`;
-              } else {
-                // BigInt addition via adapter
-                opCode = `__mathOps.add(${leftCode}, ${rightCode})`;
-              }
+              opCode = isStringOp
+                ? `(${leftCode} + ${rightCode})`
+                : `__mathOps.add(${leftCode}, ${rightCode})`;
               break;
             case '-':
               opCode = `__mathOps.sub(${leftCode}, ${rightCode})`;
