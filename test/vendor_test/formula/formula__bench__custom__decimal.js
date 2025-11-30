@@ -29,13 +29,42 @@ hapi formula with custom variable resolver x 56,123 ops/sec ±4.26% (79 runs sam
 quick functions call x 276,277 ops/sec ±3.65% (85 runs sampled)
 simple formula + quick function call x 292,988 ops/sec ±4.51% (79 runs sampled)
 Fastest is simple formula + quick function call
+
+
+
+
+with 7.1
+
+NODEJS run
+
+hapi formula calling function with a string parameter parsed as JSONX x 91,031 ops/sec ±3.79% (68 runs sampled)
+hapi formula with custom variable resolver x 195,011 ops/sec ±3.33% (75 runs sampled)
+quick functions call x 743,388 ops/sec ±1.52% (82 runs sampled)
+simple formula + quick function call x 1,213,877 ops/sec ±2.69% (73 runs sampled)
+Fastest is simple formula + quick function call
+
+DENO run
+
+hapi formula calling function with a string parameter parsed as JSONX x 87,334 ops/sec ±4.86% (63 runs sampled)
+hapi formula with custom variable resolver x 118,285 ops/sec ±5.39% (74 runs sampled)
+quick functions call x 483,760 ops/sec ±6.50% (71 runs sampled)
+simple formula + quick function call x 823,866 ops/sec ±4.19% (81 runs sampled)
+Fastest is simple formula + quick function call
+
+BUN run
+
+hapi formula calling function with a string parameter parsed as JSONX x 49,517 ops/sec ±12.42% (56 runs sampled)
+hapi formula with custom variable resolver x 84,671 ops/sec ±1.11% (87 runs sampled)
+quick functions call x 297,085 ops/sec ±0.84% (87 runs sampled)
+simple formula + quick function call x 494,001 ops/sec ±0.90% (86 runs sampled)
+Fastest is simple formula + quick function call
  */
 
 import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v6_x.js';
+import { Parser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v7_1_x.js';
 import { parseJSONrelaxed } from '../../../src/lib/json.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
 

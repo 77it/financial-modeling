@@ -28,6 +28,7 @@ set TZ=Europe/Rome
 bun run --preload ./src/bun/__bun__https_import_plugin_v2.js "%FILE%"
 echo.
 
-echo Press Enter to run again or close this window to exit:
-pause >nul
-goto loop
+:ask
+choice /C YN /M "Y to continue, N to end"
+if errorlevel 2 exit
+if errorlevel 1 goto loop

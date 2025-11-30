@@ -23,7 +23,9 @@
       "Bash(node --test:*)",
       "WebFetch(domain:observablehq.com)",
       "WebSearch",
-      "Bash(node --version:*)"
+      "Bash(node --version:*)",
+      "Bash(node --import ./__node__register-hooks.js:*)",
+      "Bash(node:*)"
     ],
     "deny": [
       "Bash(git add:*)",

@@ -29,6 +29,80 @@ parseJSON5relaxed (relaxed payload)  108.5    1,844  1.9 KB
 parseYAML                             35.8    5,584  1.7 KB
 parseYAML (relaxed payload)           60.5    3,303  2.1 KB
 
+
+
+
+on P16S
+
+NODEJS run
+
+=== Parser Benchmark ===
+records (n): 2000
+iterations : 200
+validate   : on
+JSON bytes : 355.1 KB
+JSON5 bytes: 405.9 KB
+YAML bytes : 411.7 KB
+relaxed JSON5 bytes (relaxed only): 388.1 KB
+relaxed YAML  bytes (relaxed only): 431.0 KB
+
+Parser                                    ms  ops/sec     bytes
+-----------------------------------  -------  -------  --------
+JSON.parse                            2373.1       84  355.1 KB
+parseJSONrelaxed                      4242.0       47  355.1 KB
+parseJSONrelaxed (relaxed payload)    4999.9       40  388.1 KB
+parseJSON5strict                     16652.6       12  355.1 KB
+parseJSON5relaxed                    18783.5       11  355.1 KB
+parseJSON5relaxed (relaxed payload)  20659.5       10  388.1 KB
+parseYAML                             5951.4       34  355.1 KB
+parseYAML (relaxed payload)           8157.4       25  431.0 KB
+
+DENO run
+
+=== Parser Benchmark ===
+records (n): 2000
+iterations : 200
+validate   : on
+JSON bytes : 355.1 KB
+JSON5 bytes: 405.9 KB
+YAML bytes : 411.7 KB
+relaxed JSON5 bytes (relaxed only): 388.1 KB
+relaxed YAML  bytes (relaxed only): 431.0 KB
+
+Parser                                    ms  ops/sec     bytes
+-----------------------------------  -------  -------  --------
+JSON.parse                            2221.2       90  355.1 KB
+parseJSONrelaxed                      6100.8       33  355.1 KB
+parseJSONrelaxed (relaxed payload)    7174.4       28  388.1 KB
+parseJSON5strict                     25450.0        8  355.1 KB
+parseJSON5relaxed                    27713.4        7  355.1 KB
+parseJSON5relaxed (relaxed payload)  29780.7        7  388.1 KB
+parseYAML                             8382.0       24  355.1 KB
+parseYAML (relaxed payload)          11582.7       17  431.0 KB
+
+BUN run
+
+=== Parser Benchmark ===
+records (n): 2000
+iterations : 200
+validate   : on
+JSON bytes : 355.1 KB
+JSON5 bytes: 405.9 KB
+YAML bytes : 411.7 KB
+relaxed JSON5 bytes (relaxed only): 388.1 KB
+relaxed YAML  bytes (relaxed only): 431.0 KB
+
+Parser                                    ms  ops/sec     bytes
+-----------------------------------  -------  -------  --------
+JSON.parse                            2185.8       91  355.1 KB
+parseJSONrelaxed                      8860.5       23  355.1 KB
+parseJSONrelaxed (relaxed payload)   10313.2       19  388.1 KB
+parseJSON5strict                     49746.4        4  355.1 KB
+parseJSON5relaxed                    53819.3        4  355.1 KB
+parseJSON5relaxed (relaxed payload)  59101.3        3  388.1 KB
+parseYAML                             8863.5       23  355.1 KB
+parseYAML (relaxed payload)          12291.2       16  431.0 KB
+
  */
 import { parseJSON5strict, parseJSON5relaxed } from '../../src/lib/unused/json5.js';
 import { parseJSONrelaxed } from '../../src/lib/json.js';
@@ -113,14 +187,19 @@ function makeFixtures(n) {
       qty: (i % 10) + 1,           // integer
       price: Number((Math.imul(i + 123, 77) % 1000) + '.' + ((i * 9301 + 49297) % 100)).valueOf(), // number-ish
       tags: [`t${i % 5}`, `t${(i + 2) % 5}`],
-      active: (i % 3) === 0
+      active: (i % 3) === 0,
+      // Additional number formats (JS numbers in data, will be formatted with underscores/scientific in relaxed text)
+      largeNum: 1000000000 + i,       // → formatted as 1_000_000_000 in relaxed payload
+      scientific: 1.5e10 + i,      // → formatted as 1.5e+10 in relaxed payload
+      negativePrice: -(i * 0.99),  // negative decimals
+      percentage: 0.05 + (i * 0.001) // small decimals
     };
   }
   const obj = {
     meta: {
       version: 3,
       generatedAt: new Date('2024-01-02T10:30:00Z').toISOString(),
-      note: 'Benchmark payload; numbers intentionally simple.'
+      note: 'Benchmark payload with various number formats (underscores, scientific notation, signs).'
     },
     items
   };
@@ -128,29 +207,29 @@ function makeFixtures(n) {
   // Strict payloads (equivalent across parsers)
   const jsonText = JSON.stringify(obj);
 
-  // JSON5 string with same semantics (quoted keys, standard)
+  // JSON5 string with same semantics (quoted keys, standard numbers)
   const json5Lines = ['{', '  "meta": {',
     '    "version": 3,',
     `    "generatedAt": "${obj.meta.generatedAt}",`,
-    `    "note": "Benchmark payload; numbers intentionally simple."`,
+    `    "note": "${obj.meta.note}"`,
     '  },',
     '  "items": ['];
   for (let i = 0; i < items.length; i++) {
     const it = items[i];
     const trailing = i === items.length - 1 ? '' : ',';
     json5Lines.push(
-      `    { "id": ${it.id}, "name": "${it.name}", "qty": ${it.qty}, "price": ${it.price}, "tags": ${JSON.stringify(it.tags)}, "active": ${it.active} }${trailing}`
+      `    { "id": ${it.id}, "name": "${it.name}", "qty": ${it.qty}, "price": ${it.price}, "tags": ${JSON.stringify(it.tags)}, "active": ${it.active}, "largeNum": ${it.largeNum}, "scientific": ${it.scientific}, "negativePrice": ${it.negativePrice}, "percentage": ${it.percentage} }${trailing}`
     );
   }
   json5Lines.push('  ]', '}');
   const json5Text = json5Lines.join('\n');
 
-  // YAML (equivalent semantics)
+  // YAML (equivalent semantics, standard numbers)
   const yamlLines = [
     'meta:',
     '  version: 3',
     `  generatedAt: "${obj.meta.generatedAt}"`,
-    `  note: "Benchmark payload; numbers intentionally simple."`,
+    `  note: "${obj.meta.note}"`,
     'items:'
   ];
   for (const it of items) {
@@ -160,17 +239,21 @@ function makeFixtures(n) {
     yamlLines.push(`    price: ${it.price}`);
     yamlLines.push(`    tags: [${it.tags.map(t => `"${t}"`).join(', ')}]`);
     yamlLines.push(`    active: ${it.active ? 'true' : 'false'}`);
+    yamlLines.push(`    largeNum: ${it.largeNum}`);
+    yamlLines.push(`    scientific: ${it.scientific}`);
+    yamlLines.push(`    negativePrice: ${it.negativePrice}`);
+    yamlLines.push(`    percentage: ${it.percentage}`);
   }
   const yamlText = yamlLines.join('\n');
 
   // Relaxed payloads — ONLY for parseJSON5relaxed and YAML
-  // Unquoted keys + unquoted numbers + unquoted ISO dates; other values quoted.
+  // Unquoted keys + unquoted numbers (WITH underscores, scientific notation, signs) + unquoted ISO dates
   const relaxedJson5Lines = [
     '{',
     '  meta: {',
     '    version: 3,',
     `    generatedAt: ${obj.meta.generatedAt},`, // unquoted ISO
-    `    note: "Benchmark payload; numbers intentionally simple.",`,
+    `    note: "${obj.meta.note}",`,
     '  },',
     '  items: ['
   ];
@@ -178,9 +261,11 @@ function makeFixtures(n) {
     const it = items[i];
     const trailing = i === items.length - 1 ? '' : ',';
     const tagList = it.tags.map(t => `"${t}"`).join(', ');
-    // numbers unquoted; booleans quoted (as per request: "other values quoted")
+    // Format numbers with underscores and scientific notation in the TEXT
+    const largeNumFormatted = it.largeNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '_');
+    const scientificFormatted = it.scientific.toExponential();
     relaxedJson5Lines.push(
-      `    { id: ${it.id}, name: "${it.name}", qty: ${it.qty}, price: ${it.price}, tags: [${tagList}], active: "${String(it.active)}" }${trailing}`
+      `    { id: ${it.id}, name: "${it.name}", qty: ${it.qty}, price: ${it.price}, tags: [${tagList}], active: "${String(it.active)}", largeNum: ${largeNumFormatted}, scientific: ${scientificFormatted}, negativePrice: ${it.negativePrice}, percentage: ${it.percentage} }${trailing}`
     );
   }
   relaxedJson5Lines.push('  ]', '}');
@@ -190,16 +275,23 @@ function makeFixtures(n) {
     'meta:',
     '  version: 3',
     `  generatedAt: ${obj.meta.generatedAt}`, // unquoted ISO -> YAML timestamp
-    `  note: "Benchmark payload; numbers intentionally simple."`,
+    `  note: "${obj.meta.note}"`,
     'items:'
   ];
   for (const it of items) {
+    // Format numbers with underscores and scientific notation in the TEXT
+    const largeNumFormatted = it.largeNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '_');
+    const scientificFormatted = it.scientific.toExponential();
     relaxedYamlLines.push(`  - id: ${it.id}`);
     relaxedYamlLines.push(`    name: "${it.name}"`);
     relaxedYamlLines.push(`    qty: ${it.qty}`);
     relaxedYamlLines.push(`    price: ${it.price}`);
     relaxedYamlLines.push(`    tags: [${it.tags.map(t => `"${t}"`).join(', ')}]`);
     relaxedYamlLines.push(`    active: "${String(it.active)}"`);
+    relaxedYamlLines.push(`    largeNum: ${largeNumFormatted}`);
+    relaxedYamlLines.push(`    scientific: ${scientificFormatted}`);
+    relaxedYamlLines.push(`    negativePrice: ${it.negativePrice}`);
+    relaxedYamlLines.push(`    percentage: ${it.percentage}`);
   }
   const relaxedYamlText = relaxedYamlLines.join('\n');
 

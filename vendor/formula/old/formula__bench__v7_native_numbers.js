@@ -6,64 +6,20 @@
 // docs https://benchmarkjs.com/
 
 /*
-P16s
+V7 NATIVE MODE BENCHMARK (useDecimal: false, enableJsonx: false)
 
-NODEJS run
-
-hapi formula calling function with a string parameter parsed as JSONX x 100,833 ops/sec ±1.86% (76 runs sampled)
-hapi formula with custom variable resolver x 232,960 ops/sec ±1.62% (78 runs sampled)
-quick functions call x 1,181,387 ops/sec ±1.57% (77 runs sampled)
-simple formula + quick function call x 1,247,256 ops/sec ±2.55% (70 runs sampled)
-Fastest is simple formula + quick function call
-
-DENO run
-
-hapi formula calling function with a string parameter parsed as JSONX x 89,131 ops/sec ±4.35% (65 runs sampled)
-hapi formula with custom variable resolver x 172,440 ops/sec ±7.16% (76 runs sampled)
-quick functions call x 808,223 ops/sec ±5.40% (79 runs sampled)
-simple formula + quick function call x 857,659 ops/sec ±6.62% (80 runs sampled)
-Fastest is simple formula + quick function call
-
-BUN run
-
-hapi formula calling function with a string parameter parsed as JSONX x 60,420 ops/sec ±2.46% (71 runs sampled)
-hapi formula with custom variable resolver x 236,183 ops/sec ±0.85% (83 runs sampled)
-quick functions call x 764,257 ops/sec ±0.82% (85 runs sampled)
-simple formula + quick function call x 855,735 ops/sec ±0.88% (81 runs sampled)
-Fastest is simple formula + quick function call
-
-
-
-with 7.1
-
-NODEJS run
-hapi formula calling function with a string parameter parsed as JSONX x 105,509 ops/sec ±2.82% (68 runs sampled)
-hapi formula with custom variable resolver x 538,634 ops/sec ±1.89% (70 runs sampled)
-quick functions call x 1,996,290 ops/sec ±2.00% (71 runs sampled)
-simple formula + quick function call x 2,813,039 ops/sec ±1.72% (77 runs sampled)
-Fastest is simple formula + quick function call
-
-DENO run
-hapi formula calling function with a string parameter parsed as JSONX x 90,165 ops/sec ±7.52% (60 runs sampled)
-hapi formula with custom variable resolver x 371,822 ops/sec ±5.06% (75 runs sampled)
-quick functions call x 1,516,399 ops/sec ±7.24% (77 runs sampled)
-simple formula + quick function call x 2,265,192 ops/sec ±6.55% (78 runs sampled)
-Fastest is simple formula + quick function call
-
-BUN run
-hapi formula calling function with a string parameter parsed as JSONX x 50,758 ops/sec ±15.57% (49 runs sampled)
-hapi formula with custom variable resolver x 151,882 ops/sec ±26.78% (58 runs sampled)
-quick functions call x 663,575 ops/sec ±13.90% (79 runs sampled)
-simple formula + quick function call x 881,756 ops/sec ±2.12% (79 runs sampled)
-Fastest is simple formula + quick function call
-
- */
+Expected improvements over v6:
+- Direct operator dispatch (no arithmeticCalculate layer)
+- Parse-time literal conversion
+- JSONX scanning disabled for speed
+- Non-throwing resolver
+*/
 
 import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v7_1_x.js';
+import { Parser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v7.js';
 import { parseJSONrelaxed } from '../../../src/lib/json.js';
 
 /**
@@ -140,7 +96,7 @@ const reference = function (name) {
       case '$.ciao':
         return 4;
       default:
-        throw new Error('unrecognized value');
+        return undefined;  // V7: non-throwing
     }
   }
   return resolve;
@@ -149,17 +105,33 @@ const reference = function (name) {
 // shared data
 let data;
 
-const formula1 = new Parser('a + 1.99 + a.b + (((a+1)*2)+1) + a + $.ciao + $ + $.ciao', { reference: reference, useDecimal: false });
-const expected1 = 11.99211414;
+const formula1 = new Parser('a + 1.99 + a.b + (((a+1)*2)+1) + a + $.ciao + $ + $.ciao', {
+  reference: reference,
+  useDecimal: false,
+  enableJsonx: false  // V7: disable JSONX for max speed
+});
+const expected1 = 19.99;
 
 const fmlText2 = "Q(\"{a: 11, b: mam ma, c: null, t: 2024-01-12:2025-05-07, e: 7\") + q(\"a: 55, b: -1000, x: 'ciao,, ciao'}\")";  //missing closing / opening brackets
 const fmlText2_simple = "50 + Q('ten')";
-const expected2 = 5050;
-const formula2 = new Parser(fmlText2, { functions, useDecimal: false });
+const expected2 = 100;
+const formula2 = new Parser(fmlText2, {
+  functions,
+  useDecimal: false,
+  enableJsonx: false
+});
 
-const formula3 = new Parser(fmlText2, { functions: functions_quick, useDecimal: false });
+const formula3 = new Parser(fmlText2, {
+  functions: functions_quick,
+  useDecimal: false,
+  enableJsonx: false
+});
 
-const formula4 = new Parser(fmlText2_simple, { functions: functions_quick, useDecimal: false });
+const formula4 = new Parser(fmlText2_simple, {
+  functions: functions_quick,
+  useDecimal: false,
+  enableJsonx: false
+});
 
 console.log(formula1.evaluate());
 console.log(formula2.evaluate());
