@@ -35,7 +35,7 @@ Fastest is sample sum For 1.000 runs
 // run it with `deno run --allow-read --allow-write --allow-net --allow-import`
 
 import { fxAdd, ensureBigIntScaled } from "../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js";
-import { Parser } from "../vendor/formula/formula.js";
+import { Parser } from "../vendor/formula/formula_v4_eval_x.js";
 
 import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');
@@ -48,6 +48,7 @@ let data;
 
 // preparsed formula
 const formula2 = new Parser('1000000 + 2000000');
+const fn2 = formula2.toFunction();
 const sumEval = eval(`
     (function(x, y) {
       return x + y;
@@ -56,12 +57,6 @@ const sumEval = eval(`
 
 // add tests
 suite
-  .add(`sum For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
-    for (let i = 0; i < COUNTER; i++) {
-      const a = 1000000 + 2000000;
-    }
-  })
-
   .add(`bigint sum For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
     for (let i = 0; i < COUNTER; i++) {
       const a = 1000000n + 2000000n;
@@ -71,12 +66,6 @@ suite
   .add(`bigint sum with fx For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
     for (let i = 0; i < COUNTER; i++) {
       const a = fxAdd(1000000n, 2000000n);
-    }
-  })
-
-  .add(`bigint sum with fx & conversion from bigint For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
-    for (let i = 0; i < COUNTER; i++) {
-      const a = fxAdd(ensureBigIntScaled(1000000n), ensureBigIntScaled(2000000n));
     }
   })
 
@@ -96,19 +85,7 @@ suite
 
   .add(`sum with formula - preparsed For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
     for (let i = 0; i < COUNTER; i++) {
-      const a = formula2.evaluate();
-    }
-  })
-
-  .add(`sum with Eval() For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
-    for (let i = 0; i < COUNTER; i++) {
-      const a = eval('1000000 + 2000000');
-    }
-  })
-
-  .add(`bigint sum with Eval() For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
-    for (let i = 0; i < COUNTER; i++) {
-      const a = eval('1000000n + 2000000n');
+      const a = fn2();
     }
   })
 

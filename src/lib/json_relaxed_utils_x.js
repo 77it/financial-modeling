@@ -103,7 +103,10 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input, unquotedStringsMarker = '
   // Input validation
   if (typeof input !== 'string') return '';
 
-  const n = input.length;
+  // Pre-wrap unquoted function-like values into marker-prefixed strings so they survive JSON.parse
+  input = wrapFunctionLikeValues(input, unquotedStringsMarker);
+
+  let n = input.length;
   if (n === 0) return '';
 
   // Bail quickly if nothing numeric (often means nothing to transform)
@@ -451,3 +454,249 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input, unquotedStringsMarker = '
 
   return out.trim();
 }
+
+/**
+ * Wrap unquoted function-like values (identifier immediately followed by '(' in value position)
+ * into JSON strings prefixed with the provided marker, so the relaxed JSON output stays parseable.
+ *
+ * This operates at the text level before the main normalizer:
+ * - Only triggers when the parser is expecting a value (after ':' or ',' or '[' element).
+ * - Skips quoted strings entirely.
+ * - Reads balanced parentheses/braces/brackets and respects string escapes inside expressions.
+ *
+ * Examples:
+ *   {a: fn({b:"c"})}  -> {\"a\":\"<marker>fn({b:\\\"c\\\"})\"}
+ *
+ * @param {string} input - relaxed JSON/JSON5-like text
+ * @param {string} marker - marker to prefix the wrapped expression (e.g., FORMULA_MARKER)
+ * @returns {string} rewritten text safe for subsequent JSON parsing
+ */
+function wrapFunctionLikeValues(input, marker = '') {
+  const n = input.length;
+  let i = 0;
+  let out = '';
+  let inString = false;
+  let quote = null;
+  let escape = false;
+  const ctx = []; // 'object' | 'array'
+  let expectingValue = false;
+  let expectingKey = false;
+
+  // Helper: detect an unquoted function call in a segment (ignores quoted substrings)
+  /** @param {string} segment */
+  function segmentHasFnCall(segment) {
+    let j = 0;
+    let segInString = false;
+    let segQuote = null;
+    let segEscape = false;
+    while (j < segment.length) {
+      const ch = segment[j];
+      if (segEscape) {
+        segEscape = false;
+        j++;
+        continue;
+      }
+      if (segInString) {
+        if (ch === '\\') {
+          segEscape = true;
+        } else if (ch === segQuote) {
+          segInString = false;
+          segQuote = null;
+        }
+        j++;
+        continue;
+      }
+      if (ch === '"' || ch === "'" || ch === '`') {
+        segInString = true;
+        segQuote = ch;
+        j++;
+        continue;
+      }
+      if (/[A-Za-z_$]/.test(ch)) {
+        let k = j + 1;
+        while (k < segment.length && /[A-Za-z0-9_$]/.test(segment[k])) k++;
+        let look = k;
+        while (look < segment.length && /\s/.test(segment[look])) look++;
+        if (segment[look] === '(') {
+          return true;
+        }
+        j = k;
+        continue;
+      }
+      j++;
+    }
+    return false;
+  }
+
+  while (i < n) {
+    const c = input[i];
+
+    if (escape) {
+      out += c;
+      escape = false;
+      i++;
+      continue;
+    }
+
+    if (inString) {
+      out += c;
+      if (c === '\\') {
+        escape = true;
+      } else if (c === quote) {
+        inString = false;
+        quote = null;
+      }
+      i++;
+      continue;
+    }
+
+    if (c === '"' || c === "'" || c === '`') {
+      inString = true;
+      quote = c;
+      out += c;
+      i++;
+      continue;
+    }
+
+    if (c === '{') {
+      ctx.push('object');
+      expectingKey = true;
+      expectingValue = false;
+      out += c;
+      i++;
+      continue;
+    }
+
+    if (c === '[') {
+      ctx.push('array');
+      expectingValue = true;
+      expectingKey = false;
+      out += c;
+      i++;
+      continue;
+    }
+
+    if (c === '}') {
+      ctx.pop();
+      expectingKey = false;
+      expectingValue = false;
+      out += c;
+      i++;
+      continue;
+    }
+
+    if (c === ']') {
+      ctx.pop();
+      expectingKey = false;
+      expectingValue = false;
+      out += c;
+      i++;
+      continue;
+    }
+
+    if (c === ':') {
+      out += c;
+      expectingValue = true;
+      expectingKey = false;
+      i++;
+      continue;
+    }
+
+    if (c === ',') {
+      out += c;
+      const top = ctx[ctx.length - 1];
+      if (top === 'object') {
+        expectingKey = true;
+        expectingValue = false;
+      } else if (top === 'array') {
+        expectingValue = true;
+        expectingKey = false;
+      }
+      i++;
+      continue;
+    }
+
+    if (/\s/.test(c)) {
+      out += c;
+      i++;
+      continue;
+    }
+
+    if (expectingKey) {
+      out += c;
+      i++;
+      continue;
+    }
+
+    if (expectingValue) {
+      const start = i;
+      let k = i;
+      let depthParen = 0;
+      let depthBrace = 0;
+      let depthBracket = 0;
+      let localInString = false;
+      let localQuote = null;
+      let localEscape = false;
+
+      while (k < n) {
+        const ch = input[k];
+        if (localEscape) {
+          localEscape = false;
+          k++;
+          continue;
+        }
+        if (localInString) {
+          if (ch === '\\') {
+            localEscape = true;
+          } else if (ch === localQuote) {
+            localInString = false;
+            localQuote = null;
+          }
+          k++;
+          continue;
+        }
+        if (ch === '"' || ch === "'" || ch === '`') {
+          localInString = true;
+          localQuote = ch;
+          k++;
+          continue;
+        }
+        if (ch === '(') depthParen++;
+        else if (ch === ')') depthParen = Math.max(0, depthParen - 1);
+        else if (ch === '{') depthBrace++;
+        else if (ch === '}') depthBrace = Math.max(0, depthBrace - 1);
+        else if (ch === '[') depthBracket++;
+        else if (ch === ']') depthBracket = Math.max(0, depthBracket - 1);
+
+        if (depthParen === 0 && depthBrace === 0 && depthBracket === 0 && (ch === ',' || ch === '}' || ch === ']')) {
+          break;
+        }
+        k++;
+      }
+
+      const segment = input.slice(start, k);
+      const exprTrimmed = segment.trim();
+
+      if (segmentHasFnCall(exprTrimmed)) {
+        const normalizedExpr = /[\\{\\[]/.test(exprTrimmed)
+          ? exprTrimmed.replace(/'([^']*)'/g, "\"$1\"")
+          : exprTrimmed;
+        const wrapped = JSON.stringify(`${marker}${normalizedExpr}`);
+        out += wrapped;
+      } else {
+        out += segment;
+      }
+
+      expectingValue = false;
+      expectingKey = ctx[ctx.length - 1] === 'object';
+      i = k;
+      continue;
+    }
+
+    out += c;
+    i++;
+  }
+
+  return out;
+}
+

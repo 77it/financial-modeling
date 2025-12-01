@@ -1,6 +1,10 @@
 //@ts-nocheck
 
-import { Parser } from '../vendor/formula/formula_v3_x.js';
+import { Parser } from '../vendor/formula/formula_v5_eval2cached_x.js';
+import { ensureBigIntScaled } from '../vendor/formula/adapters/decimal-adapter2.js';
+
+console.log(ensureBigIntScaled("1_0"));
+console.log(ensureBigIntScaled("+1_0"));
 
 console.log('╔══════════════════════════════════════════════════════════╗');
 console.log('║  Formula V4: Compile-Time BigInt + Decimal Adapter      ║');
@@ -11,7 +15,7 @@ console.log('╚═════════════════════�
 // ============================================================================
 console.log('📌 EXAMPLE 1: Compile-Time BigInt Conversion\n');
 
-const parser1 = new Parser('100 + 200.50 * 3');
+const parser1 = new Parser('100_000_000_000_000_999_888_777_666_555_444.12345678901234567890 + "200.50" * 3');
 const fn1 = parser1.toFunction();
 
 console.log('Formula: 100 + 200.50 * 3');
@@ -134,37 +138,74 @@ console.log('─'.repeat(60) + '\n');
 // ============================================================================
 // EXAMPLE 6: Function Registry
 // ============================================================================
-console.log('📌 EXAMPLE 6: Callable Functions\n');
+{
+  console.log('📌 EXAMPLE 6: Callable Functions\n');
 
-const functions = {
-  sum: function(...args) {
-    console.log(`  [sum] called with ${args.length} arguments`);
-    return args.reduce((a, b) => a + b, 0n);
-  },
+  const functions = {
+    sum: function (...args) {
+      console.log(`  [sum] called with ${args.length} arguments`);
+      return args.reduce((a, b) => a + b, 0n);
+    },
 
-  avg: function(...args) {
-    console.log(`  [avg] called with ${args.length} arguments`);
-    const total = args.reduce((a, b) => a + b, 0n);
-    return total / BigInt(args.length);
-  }
-};
+    avg: function (...args) {
+      console.log(`  [avg] called with ${args.length} arguments`);
+      const total = args.reduce((a, b) => a + b, 0n);
+      return total / BigInt(args.length);
+    }
+  };
 
-const parser6 = new Parser('avg(a, b, c) * 100', {
-  functions
-});
-const fn6 = parser6.toFunction();
+  const parser6 = new Parser('avg(a, b, c) * 100', {
+    functions
+  });
+  const fn6 = parser6.toFunction();
 
-console.log('Formula: avg(a, b, c) * 100');
-console.log('Context: { a: 100000, b: 200000, c: 300000 }');
-console.log('\nExecuting...');
-const result6 = fn6({
-  a: 100000n,
-  b: 200000n,
-  c: 300000n
-});
-console.log(`Result: ${result6}\n`);
-console.log('─'.repeat(60) + '\n');
+  console.log('Formula: avg(a, b, c) * 100');
+  console.log('Context: { a: 100000, b: 200000, c: 300000 }');
+  console.log('\nExecuting...');
+  const result6 = fn6({
+    a: 100000n,
+    b: 200000n,
+    c: 300000n
+  });
+  console.log(`Result: ${result6}\n`);
+  console.log('─'.repeat(60) + '\n');
+}
+// ============================================================================
+// EXAMPLE 6b: Function with json parameter
+// ============================================================================
+{
+  console.log('📌 EXAMPLE 6b: Function with json parameter\n');
 
+  const functions = {
+    sum: function (args) {
+      return args.x + args.y + args.z;
+    },
+
+    avg: function (args) {
+      const total = args.a + args.b + args.c;
+      return BigInt(total) / BigInt(3);
+    }
+  };
+
+  const parser6 = new Parser('avg({a: 10, b: sum({x: 1, y: "988_444_444_333_333_222_111.999_888_77777", z: 10}), c: 300_888_777_666_555_444_333_222_111}) * 100', {
+    functions
+  });
+  const fn6 = parser6.toFunction();
+
+  console.log('\n🔍 Generated Code:');
+  console.log(parser6._compiled.toString());
+
+  console.log('Formula: avg(a, b, c) * 100');
+  console.log('Context: { a: 100000, b: 200000, c: 300000 }');
+  console.log('\nExecuting...');
+  const result6 = fn6({
+    a: 100000n,
+    b: 200000n,
+    c: 300000n
+  });
+  console.log(`Result: ${result6}\n`);
+  console.log('─'.repeat(60) + '\n');
+}
 // ============================================================================
 // EXAMPLE 7: Complex Real-World Formula
 // ============================================================================
