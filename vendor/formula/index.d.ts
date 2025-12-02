@@ -18,20 +18,23 @@ export class Parser {
      * @returns the resolved formula outcome (any type).
      */
     evaluate(context?: any): any;
+
+    /**
+     * Convert to a callable function (uses compiled version if available).
+     */
+    toFunction(): (context?: any) => any;
 }
 
 export interface Options {
-
     /**
      * A regular expression used to validate token variables.
      */
     readonly tokenRx?: RegExp;
 
     /**
-     * A variable resolver factory function.
-     * BEWARE! providing a custom reference resolver completely ignore the context parameter passed to `evaluate` method.
+     * A variable resolver function (receives name and context).
      */
-    readonly reference?: Options.Reference;
+    readonly reference?: (name: string, context: any) => any;
 
     /**
      * A hash of key-value pairs used to resolve formula functions.
@@ -39,14 +42,17 @@ export interface Options {
     readonly functions?: Record<string, Function>;
 
     /**
-     * Whether to use Decimal arithmetic for precision.
+     * A hash of constant values (boolean, number, string, or null).
+     */
+    readonly constants?: Record<string, boolean | number | string | null>;
+
+    /**
+     * Enable compilation of formulas to JS functions.
      * @default true
      */
-    readonly useDecimal?: boolean;
+    readonly compile?: boolean;
 }
 
-
 export namespace Options {
-
-    type Reference = (name: string) => (context: any) => any;
+    type Reference = (name: string, context: any) => any;
 }

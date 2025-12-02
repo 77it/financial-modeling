@@ -629,7 +629,8 @@ exports.Parser = class {
 
     let parsed;
     try {
-      parsed = parse(trimmed, FORMULA_MARKER);
+      // Enable advanced formula parsing to handle function-like values: fn({...})
+      parsed = parse(trimmed, FORMULA_MARKER, true);
     } catch {
       return null;
     }

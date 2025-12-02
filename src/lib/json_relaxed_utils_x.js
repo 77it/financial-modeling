@@ -13,6 +13,23 @@ const IS_WS = (() => {
   a[32] = a[9] = a[10] = a[13] = true; // space, tab, LF, CR
   return a;
 })();
+const IS_ALPHA = (() => {
+  const a = new Array(128).fill(false);
+  // A-Z: 65-90, a-z: 97-122, _: 95, $: 36
+  for (let i = 65; i <= 90; i++) a[i] = true;
+  for (let i = 97; i <= 122; i++) a[i] = true;
+  a[95] = a[36] = true;
+  return a;
+})();
+const IS_ALPHANUM = (() => {
+  const a = new Array(128).fill(false);
+  // A-Z: 65-90, a-z: 97-122, 0-9: 48-57, _: 95, $: 36
+  for (let i = 65; i <= 90; i++) a[i] = true;
+  for (let i = 97; i <= 122; i++) a[i] = true;
+  for (let i = 48; i <= 57; i++) a[i] = true;
+  a[95] = a[36] = true;
+  return a;
+})();
 
 /**
  * Transform a relaxed / JSON5-like input string into strict JSON syntax.
@@ -97,16 +114,23 @@ const IS_WS = (() => {
  *                                              Useful for formula evaluation systems where unquoted strings
  *                                              should be evaluated as formulas, while quoted strings are literals.
  *                                              Example: with marker "#", {a: hello} → {"a": "#hello"}
+ * @param {boolean} [formulaAdvancedParsing=false] - Enable advanced formula parsing (function-like values).
+ *                                                    When true, detects and wraps function calls like fn(args).
+ *                                                    This is slower but necessary for complex formulas.
+ *                                                    Default: false for better performance.
  * @returns {string} A strict JSON string, safe for JSON.parse()
  */
-function quoteKeysNumbersAndDatesForRelaxedJSON(input, unquotedStringsMarker = '') {
+function quoteKeysNumbersAndDatesForRelaxedJSON(input, unquotedStringsMarker = '', formulaAdvancedParsing = false) {
   // Input validation
   if (typeof input !== 'string') return '';
 
   // Pre-wrap unquoted function-like values into marker-prefixed strings so they survive JSON.parse
-  input = wrapFunctionLikeValues(input, unquotedStringsMarker);
+  // Only do this expensive operation if explicitly requested
+  if (formulaAdvancedParsing) {
+    input = wrapFunctionLikeValues(input, unquotedStringsMarker);
+  }
 
-  let n = input.length;
+  const n = input.length;
   if (n === 0) return '';
 
   // Bail quickly if nothing numeric (often means nothing to transform)
@@ -474,7 +498,7 @@ function quoteKeysNumbersAndDatesForRelaxedJSON(input, unquotedStringsMarker = '
 function wrapFunctionLikeValues(input, marker = '') {
   const n = input.length;
   let i = 0;
-  let out = '';
+  const parts = []; // Build array instead of string concat
   let inString = false;
   let quote = null;
   let escape = false;
@@ -486,11 +510,13 @@ function wrapFunctionLikeValues(input, marker = '') {
   /** @param {string} segment */
   function segmentHasFnCall(segment) {
     let j = 0;
+    const len = segment.length;
     let segInString = false;
     let segQuote = null;
     let segEscape = false;
-    while (j < segment.length) {
+    while (j < len) {
       const ch = segment[j];
+      const code = segment.charCodeAt(j);
       if (segEscape) {
         segEscape = false;
         j++;
@@ -512,11 +538,22 @@ function wrapFunctionLikeValues(input, marker = '') {
         j++;
         continue;
       }
-      if (/[A-Za-z_$]/.test(ch)) {
+      // Fast path: check if identifier start (A-Za-z_$)
+      if (code < 128 && IS_ALPHA[code]) {
         let k = j + 1;
-        while (k < segment.length && /[A-Za-z0-9_$]/.test(segment[k])) k++;
+        // Scan identifier body (A-Za-z0-9_$)
+        while (k < len) {
+          const kcode = segment.charCodeAt(k);
+          if (kcode >= 128 || !IS_ALPHANUM[kcode]) break;
+          k++;
+        }
+        // Skip whitespace
         let look = k;
-        while (look < segment.length && /\s/.test(segment[look])) look++;
+        while (look < len) {
+          const lcode = segment.charCodeAt(look);
+          if (lcode >= 128 || !IS_WS[lcode]) break;
+          look++;
+        }
         if (segment[look] === '(') {
           return true;
         }
@@ -530,16 +567,17 @@ function wrapFunctionLikeValues(input, marker = '') {
 
   while (i < n) {
     const c = input[i];
+    const code = input.charCodeAt(i);
 
     if (escape) {
-      out += c;
+      parts.push(c);
       escape = false;
       i++;
       continue;
     }
 
     if (inString) {
-      out += c;
+      parts.push(c);
       if (c === '\\') {
         escape = true;
       } else if (c === quote) {
@@ -553,7 +591,7 @@ function wrapFunctionLikeValues(input, marker = '') {
     if (c === '"' || c === "'" || c === '`') {
       inString = true;
       quote = c;
-      out += c;
+      parts.push(c);
       i++;
       continue;
     }
@@ -562,7 +600,7 @@ function wrapFunctionLikeValues(input, marker = '') {
       ctx.push('object');
       expectingKey = true;
       expectingValue = false;
-      out += c;
+      parts.push(c);
       i++;
       continue;
     }
@@ -571,7 +609,7 @@ function wrapFunctionLikeValues(input, marker = '') {
       ctx.push('array');
       expectingValue = true;
       expectingKey = false;
-      out += c;
+      parts.push(c);
       i++;
       continue;
     }
@@ -580,7 +618,7 @@ function wrapFunctionLikeValues(input, marker = '') {
       ctx.pop();
       expectingKey = false;
       expectingValue = false;
-      out += c;
+      parts.push(c);
       i++;
       continue;
     }
@@ -589,13 +627,13 @@ function wrapFunctionLikeValues(input, marker = '') {
       ctx.pop();
       expectingKey = false;
       expectingValue = false;
-      out += c;
+      parts.push(c);
       i++;
       continue;
     }
 
     if (c === ':') {
-      out += c;
+      parts.push(c);
       expectingValue = true;
       expectingKey = false;
       i++;
@@ -603,7 +641,7 @@ function wrapFunctionLikeValues(input, marker = '') {
     }
 
     if (c === ',') {
-      out += c;
+      parts.push(c);
       const top = ctx[ctx.length - 1];
       if (top === 'object') {
         expectingKey = true;
@@ -616,14 +654,15 @@ function wrapFunctionLikeValues(input, marker = '') {
       continue;
     }
 
-    if (/\s/.test(c)) {
-      out += c;
+    // Fast whitespace check
+    if (code < 128 && IS_WS[code]) {
+      parts.push(c);
       i++;
       continue;
     }
 
     if (expectingKey) {
-      out += c;
+      parts.push(c);
       i++;
       continue;
     }
@@ -678,13 +717,59 @@ function wrapFunctionLikeValues(input, marker = '') {
       const exprTrimmed = segment.trim();
 
       if (segmentHasFnCall(exprTrimmed)) {
-        const normalizedExpr = /[\\{\\[]/.test(exprTrimmed)
-          ? exprTrimmed.replace(/'([^']*)'/g, "\"$1\"")
-          : exprTrimmed;
+        // Check if we need to normalize single quotes (only if contains { or [)
+        let normalizedExpr = exprTrimmed;
+        let needsNormalization = false;
+        for (let m = 0; m < exprTrimmed.length; m++) {
+          const ch = exprTrimmed[m];
+          if (ch === '{' || ch === '[') {
+            needsNormalization = true;
+            break;
+          }
+        }
+        if (needsNormalization) {
+          // Convert single quotes to double quotes (respecting escape sequences and double quotes)
+          normalizedExpr = '';
+          let inSQ = false;
+          let inDQ = false;
+          let esc = false;
+          for (let m = 0; m < exprTrimmed.length; m++) {
+            const ch = exprTrimmed[m];
+            if (esc) {
+              normalizedExpr += ch;
+              esc = false;
+              continue;
+            }
+            if (ch === '\\') {
+              normalizedExpr += ch;
+              esc = true;
+              continue;
+            }
+            // Handle double quotes (leave as-is)
+            if (ch === '"') {
+              normalizedExpr += ch;
+              if (!inSQ) {
+                inDQ = !inDQ;
+              }
+              continue;
+            }
+            // Handle single quotes (convert to double)
+            if (ch === "'") {
+              if (!inDQ) {
+                normalizedExpr += '"';
+                inSQ = !inSQ;
+              } else {
+                normalizedExpr += ch;
+              }
+              continue;
+            }
+            normalizedExpr += ch;
+          }
+        }
         const wrapped = JSON.stringify(`${marker}${normalizedExpr}`);
-        out += wrapped;
+        parts.push(wrapped);
       } else {
-        out += segment;
+        parts.push(segment);
       }
 
       expectingValue = false;
@@ -693,10 +778,10 @@ function wrapFunctionLikeValues(input, marker = '') {
       continue;
     }
 
-    out += c;
+    parts.push(c);
     i++;
   }
 
-  return out;
+  return parts.join('');
 }
 

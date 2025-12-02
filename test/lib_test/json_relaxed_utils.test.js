@@ -408,7 +408,9 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
   const errors = [];
 
   for (const [input, expectedQuotedJSON, sanitization, expectedParsedAndSanitized] of cases) {
-    const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input, FORMULA_MARKER);
+    // Enable advanced formula parsing for inputs that contain function calls like q({...})
+    const needsAdvancedParsing = /\w+\s*\(/.test(input);
+    const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input, FORMULA_MARKER, needsAdvancedParsing);
     const parsed = (() => {try { return JSON.parse(quotedJSON); } catch { return null; }})();
     if (quotedJSON !== expectedQuotedJSON) {
       //const gotCharCodes = Array.from(quotedJSON).map(c => c.charCodeAt(0)).join(', ');

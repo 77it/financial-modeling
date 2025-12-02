@@ -2,6 +2,8 @@
 
 import { Parser } from '../vendor/formula/formula_v5_eval2cached_x.js';
 import { ensureBigIntScaled } from '../vendor/formula/adapters/decimal-adapter2.js';
+import { convertWhenFmlEvalRequiresIt } from './vendor_test/formula/_formula__tests_settings.js';
+import { parseJSONrelaxed } from '../src/lib/json.js';
 
 console.log(ensureBigIntScaled("1_0"));
 console.log(ensureBigIntScaled("+1_0"));
@@ -318,3 +320,123 @@ console.log('║  6. ✅ Function registry support                        ║');
 console.log('║     - Functions callable with evaluated args            ║');
 console.log('║                                                          ║');
 console.log('╚══════════════════════════════════════════════════════════╝');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Parse a parseYAML string
+ * @param {*} value
+ * @returns {undefined | *} undefined if not valid, otherwise the parsed value
+ */
+function parseJSONX (value) {
+  try {
+    if (value == null)
+      return undefined;
+
+    //@ts-ignore
+    return parseJSONrelaxed(value);
+  } catch (e) {
+    return undefined;
+  }
+}
+
+/**
+ * @param {string} value
+ * @return {number}
+ */
+function q (value) {
+  // if value is missing opening or closing brackets, add them
+  if (!value.trim().startsWith("{"))
+    value = "{" + value;
+  if (!value.trim().endsWith("}"))
+    value = value + "}";
+
+  let parsed = parseJSONX(value);
+  return 50;
+}
+
+const functions = {
+  Q: q,
+  q: q
+};
+
+/**
+ * @param {string} value
+ * @return {bigint}
+ */
+function q_quick (value) {
+  return 50n;
+}
+
+const functions_quick = {
+  Q: q_quick,
+  q: q_quick
+};
+
+
+/**
+ * @param {string} name
+ * @return {*}
+ */
+const reference = function (name) {
+  /**
+   @param {*} context
+   @return {*}
+   */
+  function resolve(context)  // context is unused
+  {
+    switch (name) {
+      case 'a':
+        return 1n;
+      case 'a.b':
+        return 2n;
+      case 'b':
+        return 3n;
+      case '$':
+        return 1n;
+      case '$.ciao':
+        return 4n;
+      default:
+        throw new Error('unrecognized value');
+    }
+  }
+  return resolve;
+};
+
+// shared data
+let data;
+
+const formula1 = new Parser('1 + 2', { reference: reference }).toFunction();
+const expected1 = convertWhenFmlEvalRequiresIt(19.99);
+
+const fmlText2 = "Q(\"{a: 11, b: mam ma, c: null, t: 2024-01-12:2025-05-07, e: 7\") + q(\"a: 55, b: -1000, x: 'ciao,, ciao'}\")";  //missing closing / opening brackets
+const fmlText2_simple = "50 + Q('ten')";
+const expected2 = convertWhenFmlEvalRequiresIt(100);
+const formula2 = new Parser(fmlText2, { functions }).toFunction();
+
+const formula3 = new Parser(fmlText2, { functions: functions_quick }).toFunction();
+
+const formula4 = new Parser(fmlText2_simple, { functions: functions_quick }).toFunction();
+formula1();
+formula2();
+formula3();
+formula4();

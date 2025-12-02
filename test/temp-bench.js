@@ -35,7 +35,7 @@ Fastest is sample sum For 1.000 runs
 // run it with `deno run --allow-read --allow-write --allow-net --allow-import`
 
 import { fxAdd, ensureBigIntScaled } from "../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js";
-import { Parser } from "../vendor/formula/formula_v4_eval_x.js";
+import { Parser } from "../vendor/formula/formula_v5_eval2cached_x.js";
 
 import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');
@@ -54,6 +54,8 @@ const sumEval = eval(`
       return x + y;
     })
   `);
+
+
 
 // add tests
 suite
