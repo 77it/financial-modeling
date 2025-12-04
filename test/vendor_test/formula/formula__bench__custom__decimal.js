@@ -140,25 +140,25 @@ const expected4 = 500000000050n;
 // add tests
 suite.add('hapi formula calling function with a string parameter parsed as JSONX', function() {
   if (formula2() !== expected2) {
-    throw new Error("should be 100, instead is " + formula2());
+    throw new Error("formula should be " + expected2 + ", instead is " + formula2());
   }
 })
 
   .add('hapi formula with custom variable resolver', function() {
     if (formula1() !== expected1) {
-      throw new Error(expected1);
+      throw new Error("formula should be " + expected1 + ", instead is " + formula1());
     }
   })
 
   .add('quick functions call', function() {
     if (formula3() !== expected2) {
-      throw new Error("should be 100");
+      throw new Error("formula should be " + expected2 + ", instead is " + formula3());
     }
   })
 
   .add('simple formula + quick function call', function() {
-    if (formula4() !== expected2) {
-      throw new Error("should be 100");
+    if (formula4() !== expected4) {
+      throw new Error("formula should be " + expected4 + ", instead is " + formula4());
     }
   })
 
