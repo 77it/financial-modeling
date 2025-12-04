@@ -13,8 +13,8 @@ import { Decimal } from '../../decimaljs/decimal.js';
 import { anyToDecimal } from '../../../src/lib/decimal_utils.js';
 
 /**
- * Normalize a number to bigint
- * @param {bigint} a
+ * Normalize a value to bigint
+ * @param {*} a
  * @returns {bigint}
  */
 function ensureBigIntScaled(a) {

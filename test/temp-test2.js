@@ -132,7 +132,7 @@ console.log('Formula: user.balance * 1.05');
 console.log('Context: { user: { balance: 1000000n } } // 100.0000');
 console.log('\nExecuting...');
 const result5 = fn5({
-  user: { balance: 1000000n }
+  user: { balance: 1000000n }  // calling a function passing context
 });
 console.log(`Result: ${result5} // Should be 105.0000\n`);
 console.log('─'.repeat(60) + '\n');
@@ -343,23 +343,6 @@ console.log('╚═════════════════════�
 
 
 /**
- * Parse a parseYAML string
- * @param {*} value
- * @returns {undefined | *} undefined if not valid, otherwise the parsed value
- */
-function parseJSONX (value) {
-  try {
-    if (value == null)
-      return undefined;
-
-    //@ts-ignore
-    return parseJSONrelaxed(value);
-  } catch (e) {
-    return undefined;
-  }
-}
-
-/**
  * @param {string} value
  * @return {number}
  */
@@ -370,7 +353,6 @@ function q (value) {
   if (!value.trim().endsWith("}"))
     value = value + "}";
 
-  let parsed = parseJSONX(value);
   return 50;
 }
 
@@ -392,40 +374,39 @@ const functions_quick = {
   q: q_quick
 };
 
+const multiplier = 1;
 
 /**
+ * New v5 signature: (name, context) => value
+ * Still supports closures - can capture external state
  * @param {string} name
- * @return {*}
+ * @param {*} context
+ * @return {bigint}
  */
-const reference = function (name) {
-  /**
-   @param {*} context
-   @return {*}
-   */
-  function resolve(context)  // context is unused
-  {
-    switch (name) {
-      case 'a':
-        return 1n;
-      case 'a.b':
-        return 2n;
-      case 'b':
-        return 3n;
-      case '$':
-        return 1n;
-      case '$.ciao':
-        return 4n;
-      default:
-        throw new Error('unrecognized value');
-    }
+const reference = function (name, context) {
+  // Closure example: can access external variables
+  // const externalData = { ... };  // Would be captured here
+
+  switch (name) {
+    case 'a':
+      return ensureBigIntScaled(0 + multiplier);
+    case 'a.b':
+      return ensureBigIntScaled('2');
+    case 'b':
+      return ensureBigIntScaled('3');
+    case '$':
+      return ensureBigIntScaled('1');
+    case '$.ciao':
+      return ensureBigIntScaled('4');
+    default:
+      throw new Error('unrecognized value');
   }
-  return resolve;
 };
 
 // shared data
 let data;
 
-const formula1 = new Parser('1 + 2', { reference: reference }).toFunction();
+const formula1 = new Parser('a + 1.99 + a.b + (((a+1)*2)+1) + a + $.ciao + $ + $.ciao', { reference: reference }).toFunction();
 const expected1 = convertWhenFmlEvalRequiresIt(19.99);
 
 const fmlText2 = "Q(\"{a: 11, b: mam ma, c: null, t: 2024-01-12:2025-05-07, e: 7\") + q(\"a: 55, b: -1000, x: 'ciao,, ciao'}\")";  //missing closing / opening brackets
@@ -436,7 +417,11 @@ const formula2 = new Parser(fmlText2, { functions }).toFunction();
 const formula3 = new Parser(fmlText2, { functions: functions_quick }).toFunction();
 
 const formula4 = new Parser(fmlText2_simple, { functions: functions_quick }).toFunction();
-formula1();
-formula2();
-formula3();
-formula4();
+
+console.log(formula1());
+console.log(`Expected: ${expected1}`);
+console.log(formula2());
+console.log(`Expected: ${expected2}`);
+console.log(formula3());
+console.log(formula4());
+console.log('All done.');
