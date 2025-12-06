@@ -1,29 +1,46 @@
 //@ts-nocheck
 
+/**
+ * Formula parser (v6) entry point.
+ *
+ * Use `new Parser(formulaText, options).evaluate(context)` to evaluate plain formulas
+ * or JSONX fragments (unquoted values marked with FORMULA_MARKER).
+ *
+ * V6 Optimizations:
+ * - Constants permanently disabled (use context instead)
+ * - All function arguments always evaluated (no string fallback)
+ * - Improved performance through simplified code paths
+ *
+ * Options (all optional):
+ * - `functions`: map of name -> (...args) => any.
+ * - `useDecimal`: boolean (default: true) - use Decimal arithmetic for precision.
+ */
+
+// REFACTOR: Import modular components
+import { createJSONXFormula, evaluateStringFormula } from '../modules/formula-jsonx-handler.js';
+import { calculate as arithmeticCalculate } from '../modules/formula-arithmetic.js';
+import { scanBracket, scanBrace } from '../modules/formula-scanner.js';
+
 var exports = {};
-
-// V2 UPDATE: Import number detection utilities and decimal arithmetic
-import { IS_DIGIT, isPureDecimalNumber } from '../../src/lib/number_utils.js';
-import { decimalCalculate } from './modules/formula-arithmetic.js';
-
 const internals = {
   operators: ["!", "^", "*", "/", "%", "+", "-", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "??"],
   operatorCharacters: ["!", "^", "*", "/", "%", "+", "-", "<", "=", ">", "&", "|", "?"],
+  // OPTIMIZATION: Set for O(1) operator lookup
+  operatorChars: new Set(["!", "^", "*", "/", "%", "+", "-", "<", "=", ">", "&", "|", "?"]),
   operatorsOrder: [["^"], ["*", "/", "%"], ["+", "-"], ["<", "<=", ">", ">="], ["==", "!="], ["&&"], ["||", "??"]],
-  operatorsPrefix: ["!", "n"],
+  operatorsPrefix: ["!", "n", "p"],
   literals: {
     "\"": "\"",
     "`": "`",
     "'": "'",
     "[": "]"
   },
-  // V2 UPDATE: IS_DIGIT imported from number_utils.js (see top of file)
+  numberRx: /^(?:[0-9]*(\.[0-9]*)?){1}$/,
   tokenRx: /^[\w\$\#\.\@\:\{\}]+$/,
   symbol: Symbol("formula"),
-  settings: Symbol("settings"),
-  // V2 UPDATE: Use decimal arithmetic by default
-  calculate: decimalCalculate
+  settings: Symbol("settings")
 };
+
 exports.Parser = class {
   constructor(string, options = {}) {
     if (!options[internals.settings] && options.constants) {
@@ -36,11 +53,16 @@ exports.Parser = class {
     }
     this.settings = options[internals.settings] ? options : Object.assign({
       [internals.settings]: true,
-      constants: {},
-      functions: {}
+      functions: {},
+      useDecimal: true
+      // V6 REMOVED: constants option (permanently disabled for performance)
+      // V6 REMOVED: disableConstantsAndPassArgsAsStringsToFunctions (always true for performance)
     }, options);
     this.single = null;
     this._parts = null;
+    // OPTIMIZATION: Reuse array in evaluate()
+    this._work = [];
+    this._raw = string;
     this._parse(string);
   }
   _parse(string) {
@@ -85,7 +107,8 @@ exports.Parser = class {
           type: "literal",
           value: current
         }); // Literal
-      } else if (internals.operatorCharacters.includes(current)) {
+      } else if (internals.operatorChars.has(current)) {
+        // OPTIMIZATION: Use Set.has() for O(1) lookup
         // Operator
         if (last && last.type === "operator" && internals.operators.includes(last.value + current)) {
           // 2 characters operator
@@ -97,27 +120,15 @@ exports.Parser = class {
             value: current
           });
         }
-      } else if (isPureDecimalNumber(current)) {
-        // V2 UPDATE: Numbers kept as strings for decimal precision
-        // Clean underscores and leading + before storing
-        let cleaned = '';
-        for (let k = 0; k < current.length; k++) {
-          const ch = current[k];
-          if (ch === '_' || (k === 0 && ch === '+')) continue;
-          cleaned += ch;
-        }
+      } else if (current.match(internals.numberRx)) {
+        // Number - keep as string for precision (arithmetic engine handles conversion)
         parts.push({
           type: "constant",
-          value: cleaned  // V2 UPDATE: Keep as string, not parseFloat
-        });
-      } else if (this.settings.constants[current] !== undefined) {
-        // Constant
-        parts.push({
-          type: "constant",
-          value: this.settings.constants[current]
+          value: current
         });
       } else {
-        // Reference
+        // V6 OPTIMIZATION: Constants permanently disabled - always treat as reference
+        // This improves performance by removing conditional checks
         if (!current.match(internals.tokenRx)) {
           throw new Error(`Formula contains invalid token: ${current}`);
         }
@@ -126,9 +137,19 @@ exports.Parser = class {
           value: current
         });
       }
+      /* V6 REMOVED: Constants feature for performance
+      } else if (!this.settings.disableConstantsAndPassArgsAsStringsToFunctions && this.settings.constants[current] !== undefined) {
+        parts.push({
+          type: "constant",
+          value: this.settings.constants[current]
+        });
+      }
+      */
       current = "";
     };
-    for (const c of string) {
+    // PATCH: Changed to index loop for JSONX scanning
+    for (let i = 0; i < string.length; ++i) {
+      const c = string[i];
       if (literal) {
         if (c === literal) {
           flush();
@@ -150,12 +171,29 @@ exports.Parser = class {
         } else {
           current += c;
         }
+      } else if (c === "[") {
+        // PATCH: Check if JSONX array or legacy reference
+        const { end, content, isJsonxArray } = scanBracket(string, i);
+        flush();
+        if (isJsonxArray) {
+          parts.push({ type: "jsonx", value: this._jsonxFormula("[" + content + "]") });
+        } else {
+          parts.push({ type: "reference", value: content });
+        }
+        i = end;
+      } else if (c === "{") {
+        // PATCH: Handle JSONX objects
+        const { end, content } = scanBrace(string, i);
+        flush();
+        parts.push({ type: "jsonx", value: this._jsonxFormula("{" + content + "}") });
+        i = end;
       } else if (c in internals.literals) {
         literal = internals.literals[c];
       } else if (c === "(") {
         flush();
         ++parenthesis;
-      } else if (internals.operatorCharacters.includes(c)) {
+      } else if (internals.operatorChars.has(c)) {
+        // OPTIMIZATION: Use Set.has() for O(1) lookup
         flush();
         current = c;
         flush();
@@ -170,13 +208,23 @@ exports.Parser = class {
     // Replace prefix - to internal negative operator
 
     parts = parts.map((part, i) => {
-      if (part.type !== "operator" || part.value !== "-" || i && parts[i - 1].type !== "operator") {
+      if (part.type !== "operator" || i && parts[i - 1].type !== "operator") {
         return part;
       }
-      return {
-        type: "operator",
-        value: "n"
-      };
+      // PATCH: Map prefix + to "p" and prefix - to "n"
+      if (part.value === "-") {
+        return {
+          type: "operator",
+          value: "n"
+        };
+      }
+      if (part.value === "+") {
+        return {
+          type: "operator",
+          value: "p"
+        };
+      }
+      return part;
     });
 
     // Validate tokens order
@@ -204,7 +252,7 @@ exports.Parser = class {
 
     // Identify single part
 
-    if (parts.length === 1 && ["reference", "literal", "constant"].includes(parts[0].type)) {
+    if (parts.length === 1 && ["reference", "literal", "constant", "jsonx"].includes(parts[0].type)) {
       this.single = {
         type: parts[0].type === "reference" ? "reference" : "value",
         value: parts[0].value
@@ -234,7 +282,7 @@ exports.Parser = class {
       if (this.settings.reference) {
         return this.settings.reference(part.value);
       }
-      return internals.reference(part.value);
+      return internals.reference(part.value, this.settings);
     });
   }
   _subFormula(string, name) {
@@ -243,14 +291,19 @@ exports.Parser = class {
       throw new Error(`Formula contains unknown function ${name}`);
     }
     let args = [];
+    // V6 REMOVED: argStrings array - no longer needed without string argument passing
     if (string) {
       let current = "";
       let parenthesis = 0;
       let literal = false;
+      // PATCH: Track braces and brackets for JSONX
+      let brace = 0;
+      let bracket = 0;
       const flush = () => {
         if (!current) {
           throw new Error(`Formula contains function ${name} with invalid arguments ${string}`);
         }
+        // V6 REMOVED: argStrings.push(current);
         args.push(current);
         current = "";
       };
@@ -261,10 +314,10 @@ exports.Parser = class {
           if (c === literal) {
             literal = false;
           }
-        } else if (c in internals.literals && !parenthesis) {
+        } else if (c in internals.literals && !parenthesis && !brace && !bracket) {
           current += c;
           literal = internals.literals[c];
-        } else if (c === "," && !parenthesis) {
+        } else if (c === "," && !parenthesis && !brace && !bracket) {
           flush();
         } else {
           current += c;
@@ -272,22 +325,66 @@ exports.Parser = class {
             ++parenthesis;
           } else if (c === ")") {
             --parenthesis;
+          } else if (c === "{") {
+            ++brace;
+          } else if (c === "}") {
+            --brace;
+          } else if (c === "[") {
+            ++bracket;
+          } else if (c === "]") {
+            --bracket;
           }
         }
       }
       flush();
     }
+    // V6 REMOVED: pasStringsToFunctions logic - always evaluate all arguments
     args = args.map(arg => new exports.Parser(arg, this.settings));
     return function (context) {
+      // V6 OPTIMIZATION: Simplified - just evaluate all arguments (no try-catch, no string fallback)
       const innerValues = [];
-      for (const arg of args) {
-        innerValues.push(arg.evaluate(context));
+      for (let i = 0; i < args.length; i++) {
+        innerValues.push(args[i].evaluate(context));
       }
       return method.call(context, ...innerValues);
     };
+
+    /* V6 REMOVED: String argument passing feature (was slow with try-catch):
+    return function (context) {
+      const innerValues = [];
+      for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        const argStr = argStrings[i];
+
+        if (pasStringsToFunctions && arg.single && arg.single.type === "reference") {
+          try {
+            innerValues.push(arg.evaluate(context));
+          } catch (err) {
+            innerValues.push(argStr);
+          }
+        } else {
+          innerValues.push(arg.evaluate(context));
+        }
+      }
+      return method.call(context, ...innerValues);
+    };
+    */
+  }
+  _jsonxFormula(text) {
+    return createJSONXFormula(text, exports.Parser, this.settings);
+  }
+  _evaluateStringFormula(str, context) {
+    return evaluateStringFormula(str, exports.Parser, this.settings, context);
   }
   evaluate(context) {
-    const parts = this._parts.slice();
+    // OPTIMIZATION: Reuse scratch array instead of slice()
+    const src = this._parts;
+    const parts = this._work;
+    const len = src.length;
+    parts.length = len;
+    for (let i = 0; i < len; i++) parts[i] = src[i];
+
+    const useDecimal = this.settings.useDecimal;
 
     // Prefix operators
 
@@ -297,7 +394,7 @@ exports.Parser = class {
         const current = parts[i + 1];
         parts.splice(i + 1, 1);
         const value = internals.evaluate(current, context);
-        parts[i] = internals.single(part.value, value);
+        parts[i] = internals.single(part.value, value, useDecimal);
       }
     }
 
@@ -310,21 +407,26 @@ exports.Parser = class {
           const left = internals.evaluate(parts[i - 1], context);
           const right = internals.evaluate(parts[i + 1], context);
           parts.splice(i, 2);
-          // V2 UPDATE: Use decimalCalculate for all arithmetic
-          const result = internals.calculate(operator, left, right);
+          const result = internals.calculate(operator, left, right, useDecimal);
           parts[i - 1] = result === 0 ? 0 : result; // Convert -0
         } else {
           i += 2;
         }
       }
     });
-    return internals.evaluate(parts[0], context);
+    // PATCH: Handle function results (JSONX evaluators)
+    const result = internals.evaluate(parts[0], context);
+    return typeof result === "function" ? result(context) : result;
   }
 };
 exports.Parser.prototype[internals.symbol] = true;
-internals.reference = function (name) {
+internals.reference = function (name, settings) {
   return function (context) {
-    return context && context[name] !== undefined ? context[name] : null;
+    const hasContext = context && Object.prototype.hasOwnProperty.call(context, name);
+    if (hasContext) {
+      return context[name];
+    }
+    throw new Error(`Unknown reference ${name}`);
   };
 };
 internals.evaluate = function (part, context) {
@@ -332,32 +434,50 @@ internals.evaluate = function (part, context) {
     return null;
   }
   if (typeof part === "function") {
-    return part(context);
+    // PATCH: Handle nested function results
+    const result = part(context);
+    return typeof result === "function" ? result(context) : result;
   }
   if (part[internals.symbol]) {
     return part.evaluate(context);
   }
   return part;
 };
-internals.single = function (operator, value) {
+internals.single = function (operator, value, useDecimal) {
   if (operator === "!") {
     return value ? false : true;
   }
+  // PATCH: Handle unary plus operator - use Decimal arithmetic for consistency
+  if (operator === "p") {
+    return arithmeticCalculate("+", 0, value, useDecimal);
+  }
 
   // operator === 'n'
-
-  const negative = -value;
+  // Use Decimal arithmetic for negation (0 - value) to maintain precision consistency with binary operators
+  const negative = arithmeticCalculate("-", 0, value, useDecimal);
   if (negative === 0) {
     // Override -0
     return 0;
   }
   return negative;
 };
-// V2 UPDATE: Use decimalCalculate from formula-arithmetic.js (assigned in internals above)
-// Old native calculate function removed - now using decimal arithmetic
+/**
+ * Calculate result of an operation using Decimal arithmetic
+ * @param {string} operator - The operator (+, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, ??)
+ * @param {any} left - Left operand value
+ * @param {any} right - Right operand value
+ * @param {boolean} useDecimal - Whether to use Decimal precision (default: true)
+ * @returns {any} Result of the operation
+ */
+internals.calculate = function (operator, left, right, useDecimal = true) {
+  return arithmeticCalculate(operator, left, right, useDecimal);
+};
 internals.exists = function (value) {
   return value !== null && value !== undefined;
 };
+/**
+ Types for Parser are provided in the index.d.ts file
+ */
 const Parser = exports.Parser;
 
 export { Parser, exports as default };

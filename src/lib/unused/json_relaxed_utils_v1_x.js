@@ -1,6 +1,6 @@
 export { quoteKeysNumbersAndDatesForRelaxedJSON };
-import { regExp_YYYYMMDDTHHMMSSMMMZ as DATE_RE } from './date_utils.js';
-import { IS_DIGIT, isPureDecimalNumber } from './number_utils.js';
+import { regExp_YYYYMMDDTHHMMSSMMMZ as DATE_RE } from '../date_utils.js';
+import { IS_DIGIT, isPureDecimalNumber } from '../number_utils.js';
 
 // --- Hoisted tables (small, fast) ---
 const IS_JSON_SYNTAX = (() => {

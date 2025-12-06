@@ -1,6 +1,6 @@
 // run with `deno test --allow-import`
 
-import { quoteKeysNumbersAndDatesForRelaxedJSON } from '../../src/lib/json_relaxed_utils_v3_x.js';
+import { quoteKeysNumbersAndDatesForRelaxedJSON } from '../../src/lib/json_relaxed_utils_v4_x.js';
 import { FORMULA_MARKER } from '../../vendor/formula/modules/formula-marker.js';
 
 import { parseJSONrelaxed } from '../../src/lib/json.js';
@@ -448,4 +448,308 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
       return null;
     }
   }
+});
+
+t('JSON quoteKeysNumbersAndDatesForRelaxedJSON (markerless spaced bare values)', () => {
+  /** @type {[string, string, any][]} */
+  const cases = [
+    ['{a_b_c:mamma babbo}', '{"a_b_c":"mamma babbo"}', { a_b_c: 'mamma babbo' }],
+    ['{ "pino lino" :mamma babbo}', '{ "pino lino" :"mamma babbo"}', { 'pino lino': 'mamma babbo' }],
+    ['x 123 y', '"x 123 y"', 'x 123 y'],
+  ];
+
+  const errors = [];
+  for (const [input, expectedQuotedJSON, expectedParsed] of cases) {
+    const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input);
+    let parsed = null;
+    try { parsed = JSON.parse(quotedJSON); } catch { /* ignore */ }
+
+    if (quotedJSON !== expectedQuotedJSON) {
+      errors.push(`For Input:\n${input}\nGot:\n${quotedJSON}\nExpected:\n${expectedQuotedJSON}\n`);
+    }
+    const same = (expectedParsed && typeof expectedParsed === 'object')
+      ? eqObj(parsed, expectedParsed)
+      : parsed === expectedParsed;
+    if (!same) {
+      errors.push(`For Input:\n${input}\nParsed Value:\n${JSON.stringify(parsed)}\nExpected Parsed Value:\n${JSON.stringify(expectedParsed)}`);
+    }
+  }
+
+  if (errors.length) console.error(errors.join('\n\n'));
+  assert(errors.length === 0, 'Errors found (see console)');
+});
+
+t('JSON quoteKeysNumbersAndDatesForRelaxedJSON (corner cases)', () => {
+  /** @type {[string, string, any, string][]} */
+  const cases = [
+    // ── 1) Deep nesting ──
+    ['{a:{b:{c:{d:{e:123}}}}}', '{"a":{"b":{"c":{"d":{"e":"123"}}}}}', {a:{b:{c:{d:{e:"123"}}}}}, 'deeply nested objects'],
+    ['[[[[123]]]]', '[[[["123"]]]]', [[[["123"]]]], 'deeply nested arrays'],
+    ['{a:[{b:[{c:1}]}]}', '{"a":[{"b":[{"c":"1"}]}]}', {a:[{b:[{c:"1"}]}]}, 'mixed nested objects and arrays'],
+
+    // ── 2) Empty structures ──
+    ['{}', '{}', {}, 'empty object'],
+    ['[]', '[]', [], 'empty array'],
+    ['{a:{}}', '{"a":{}}', {a:{}}, 'nested empty object'],
+    ['{a:[]}', '{"a":[]}', {a:[]}, 'nested empty array'],
+    ['[{}]', '[{}]', [{}], 'array with empty object'],
+    ['[[]]', '[[]]', [[]], 'array with empty array'],
+    ['{a:{b:{}}}', '{"a":{"b":{}}}', {a:{b:{}}}, 'double nested empty object'],
+
+    // ── 3) Trailing commas ──
+    ['{a:1,}', '{"a":"1"}', {a:"1"}, 'trailing comma in object'],
+    ['[1,2,3,]', '["1","2","3"]', ["1","2","3"], 'trailing comma in array'],
+    ['{a:1,b:2,}', '{"a":"1","b":"2"}', {a:"1",b:"2"}, 'trailing comma after multiple properties'],
+    ['{a:1,b:2,c:3,}', '{"a":"1","b":"2","c":"3"}', {a:"1",b:"2",c:"3"}, 'trailing comma after three properties'],
+    ['[1,]', '["1"]', ["1"], 'trailing comma single element array'],
+    ['{a:[1,2,],}', '{"a":["1","2"]}', {a:["1","2"]}, 'nested trailing commas'],
+
+    // ── 4) Escape sequences in strings ──
+    ['"hello\\nworld"', '"hello\\nworld"', 'hello\nworld', 'newline escape'],
+    ['"tab\\there"', '"tab\\there"', 'tab\there', 'tab escape'],
+    ['"quote\\"here"', '"quote\\"here"', 'quote"here', 'escaped double quote'],
+    ["'escaped\\'quote'", '"escaped\'quote"', "escaped'quote", 'escaped single quote in single-quoted string'],
+    ['"back\\\\slash"', '"back\\\\slash"', 'back\\slash', 'escaped backslash'],
+    ['"multi\\n\\t\\r"', '"multi\\n\\t\\r"', 'multi\n\t\r', 'multiple escapes'],
+
+    // ── 5) Mixed quotes edge cases ──
+    ['{a:"it\'s ok"}', '{"a":"it\'s ok"}', {a:"it's ok"}, 'single quote inside double quoted'],
+    ["{a:'say \"hi\"'}", '{"a":"say \\"hi\\""}', {a:'say "hi"'}, 'double quote inside single quoted'],
+    ['{a:"mixed\'quotes"}', '{"a":"mixed\'quotes"}', {a:"mixed'quotes"}, 'single quote in double quoted value'],
+    ["{a:'mixed\"quotes'}", '{"a":"mixed\\"quotes"}', {a:'mixed"quotes'}, 'double quote in single quoted value'],
+
+    // ── 6) Adjacent values/keys spacing variations ──
+    ['{a:1,b:2}', '{"a":"1","b":"2"}', {a:"1",b:"2"}, 'no space after comma'],
+    ['{a :1}', '{"a" :"1"}', {a:"1"}, 'space before colon'],
+    ['{a : 1}', '{"a" : "1"}', {a:"1"}, 'space before and after colon'],
+    ['{ a : 1 }', '{ "a" : "1" }', {a:"1"}, 'spaces everywhere'],
+    ['{a:1 ,b:2}', '{"a":"1" ,"b":"2"}', {a:"1",b:"2"}, 'space before comma'],
+    ['[1 ,2 ,3]', '["1" ,"2" ,"3"]', ["1","2","3"], 'spaces before commas in array'],
+
+    // ── 7) Markerless mode with special words in spaced values ──
+    ['{a: true or false}', '{"a": "true or false"}', {a:"true or false"}, 'boolean words in bareword'],
+    ['{a: null value here}', '{"a": "null value here"}', {a:"null value here"}, 'null word in bareword'],
+    ['{a: 123 456 789}', '{"a": "123 456 789"}', {a:"123 456 789"}, 'multiple numbers in bareword'],
+    ['{a: yes and no}', '{"a": "yes and no"}', {a:"yes and no"}, 'other keywords in bareword'],
+
+    // ── 8) Comments edge cases ──
+    ['{a:1//comment\n,b:2}', '{"a":"1"\n,"b":"2"}', {a:"1",b:"2"}, 'line comment mid-object'],
+    ['{a:/**/1}', '{"a":"1"}', {a:"1"}, 'empty block comment'],
+    ['{/*comment*/a:1}', '{"a":"1"}', {a:"1"}, 'comment before key'],
+    ['{a/*comment*/:1}', '{"a":"1"}', {a:"1"}, 'comment between key and colon'],
+    ['{a:/*comment*/1}', '{"a":"1"}', {a:"1"}, 'comment between colon and value'],
+    ['[1,/*comment*/2]', '["1","2"]', ["1","2"], 'comment between array elements'],
+    ['//start\n{a:1}//end', '{"a":"1"}', {a:"1"}, 'comments at start and end'],
+    ['/*a*//*b*/{c:1}', '{"c":"1"}', {c:"1"}, 'multiple block comments'],
+
+    // ── 9) Non-ASCII characters ──
+    ['{città: Roma}', '{"città": "Roma"}', {città:"Roma"}, 'accented key markerless'],
+    ['{a: città}', '{"a": "città"}', {a:"città"}, 'accented value markerless'],
+    ['{日本語: 値}', '{"日本語": "値"}', {日本語:"値"}, 'Japanese characters'],
+    ['{emoji: 🎉}', '{"emoji": "🎉"}', {emoji:"🎉"}, 'emoji value'],
+    ['{a: Ça va bien}', '{"a": "Ça va bien"}', {a:"Ça va bien"}, 'French with cedilla'],
+    ['{größe: groß}', '{"größe": "groß"}', {größe:"groß"}, 'German with umlaut and eszett'],
+
+    // ── 10) Boundary conditions ──
+    ['a', '"a"', 'a', 'single character bareword'],
+    ['1', '"1"', '1', 'single digit'],
+    ['{a:b}', '{"a":"b"}', {a:"b"}, 'minimal object'],
+    ['[a]', '["a"]', ['a'], 'single element array bareword'],
+    ['{a:1,b:2,c:3,d:4,e:5}', '{"a":"1","b":"2","c":"3","d":"4","e":"5"}', {a:"1",b:"2",c:"3",d:"4",e:"5"}, 'many properties'],
+
+    // ── 11) Whitespace handling ──
+    ['  {  a  :  1  }  ', '{  "a"  :  "1"  }', {a:"1"}, 'excessive whitespace'],
+    ['\n\n{a:1}\n\n', '{"a":"1"}', {a:"1"}, 'newlines around object'],
+    ['\t{a:\t1\t}', '{"a":\t"1"\t}', {a:"1"}, 'tabs in object'],
+    ['{a:\r\n1}', '{"a":\r\n"1"}', {a:"1"}, 'CRLF in value position'],
+
+    // ── 12) Key edge cases ──
+    ['{123:abc}', '{"123":"abc"}', {"123":"abc"}, 'numeric key'],
+    ['{true:1}', '{"true":"1"}', {"true":"1"}, 'boolean keyword as key'],
+    ['{null:1}', '{"null":"1"}', {"null":"1"}, 'null keyword as key'],
+    ['{$key:1}', '{"$key":"1"}', {$key:"1"}, 'key starting with $'],
+    ['{_key:1}', '{"_key":"1"}', {_key:"1"}, 'key starting with _'],
+    ['{key123:1}', '{"key123":"1"}', {key123:"1"}, 'key with digits'],
+    ['{a1b2c3:1}', '{"a1b2c3":"1"}', {a1b2c3:"1"}, 'mixed alphanumeric key'],
+
+    // ── 13) Array with various value types ──
+    ['[1,true,null,"str",abc]', '["1",true,null,"str","abc"]', ["1",true,null,"str","abc"], 'array with mixed types'],
+    ['[1,2,3,4,5,6,7,8,9,10]', '["1","2","3","4","5","6","7","8","9","10"]', ["1","2","3","4","5","6","7","8","9","10"], 'array with many numbers'],
+
+    // ── 14) Complex real-world-like structures ──
+    ['{name:John Doe,age:30,active:true}', '{"name":"John Doe","age":"30","active":true}', {name:"John Doe",age:"30",active:true}, 'person-like object'],
+    ['{items:[{id:1,name:Item A},{id:2,name:Item B}]}', '{"items":[{"id":"1","name":"Item A"},{"id":"2","name":"Item B"}]}', {items:[{id:"1",name:"Item A"},{id:"2",name:"Item B"}]}, 'items array'],
+    ['{config:{debug:true,timeout:5000,retries:3}}', '{"config":{"debug":true,"timeout":"5000","retries":"3"}}', {config:{debug:true,timeout:"5000",retries:"3"}}, 'config object'],
+  ];
+
+  const errors = [];
+  for (const [input, expectedQuotedJSON, expectedParsed, description] of cases) {
+    const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input);
+    let parsed = null;
+    try { parsed = JSON.parse(quotedJSON); } catch { /* ignore */ }
+
+    if (quotedJSON !== expectedQuotedJSON) {
+      errors.push(`[${description}]\nInput:\n${input}\nGot:\n${quotedJSON}\nExpected:\n${expectedQuotedJSON}\n`);
+    }
+    if (expectedParsed !== null) {
+      const same = (expectedParsed && typeof expectedParsed === 'object')
+        ? eqObj(parsed, expectedParsed)
+        : parsed === expectedParsed;
+      if (!same) {
+        errors.push(`[${description}]\nInput:\n${input}\nParsed Value:\n${JSON.stringify(parsed)}\nExpected Parsed Value:\n${JSON.stringify(expectedParsed)}`);
+      }
+    }
+  }
+
+  if (errors.length) console.error(errors.join('\n\n'));
+  assert(errors.length === 0, 'Errors found (see console)');
+});
+
+t('JSON quoteKeysNumbersAndDatesForRelaxedJSON (corner cases with marker)', () => {
+  /** @type {[string, string, any, string][]} */
+  const cases = [
+    // ── 1) Deep nesting ──
+    ['{a:{b:{c:{d:{e:123}}}}}', '{"a":{"b":{"c":{"d":{"e":"123"}}}}}', {a:{b:{c:{d:{e:"123"}}}}}, 'deeply nested objects'],
+    ['[[[[123]]]]', '[[[["123"]]]]', [[[["123"]]]], 'deeply nested arrays'],
+    ['{a:[{b:[{c:1}]}]}', '{"a":[{"b":[{"c":"1"}]}]}', {a:[{b:[{c:"1"}]}]}, 'mixed nested objects and arrays'],
+
+    // ── 2) Empty structures ──
+    ['{}', '{}', {}, 'empty object'],
+    ['[]', '[]', [], 'empty array'],
+    ['{a:{}}', '{"a":{}}', {a:{}}, 'nested empty object'],
+    ['{a:[]}', '{"a":[]}', {a:[]}, 'nested empty array'],
+    ['[{}]', '[{}]', [{}], 'array with empty object'],
+    ['[[]]', '[[]]', [[]], 'array with empty array'],
+    ['{a:{b:{}}}', '{"a":{"b":{}}}', {a:{b:{}}}, 'double nested empty object'],
+
+    // ── 3) Trailing commas ──
+    ['{a:1,}', '{"a":"1"}', {a:"1"}, 'trailing comma in object'],
+    ['[1,2,3,]', '["1","2","3"]', ["1","2","3"], 'trailing comma in array'],
+    ['{a:1,b:2,}', '{"a":"1","b":"2"}', {a:"1",b:"2"}, 'trailing comma after multiple properties'],
+    ['{a:1,b:2,c:3,}', '{"a":"1","b":"2","c":"3"}', {a:"1",b:"2",c:"3"}, 'trailing comma after three properties'],
+    ['[1,]', '["1"]', ["1"], 'trailing comma single element array'],
+    ['{a:[1,2,],}', '{"a":["1","2"]}', {a:["1","2"]}, 'nested trailing commas'],
+
+    // ── 4) Escape sequences in strings ──
+    ['"hello\\nworld"', '"hello\\nworld"', 'hello\nworld', 'newline escape'],
+    ['"tab\\there"', '"tab\\there"', 'tab\there', 'tab escape'],
+    ['"quote\\"here"', '"quote\\"here"', 'quote"here', 'escaped double quote'],
+    ["'escaped\\'quote'", '"escaped\'quote"', "escaped'quote", 'escaped single quote in single-quoted string'],
+    ['"back\\\\slash"', '"back\\\\slash"', 'back\\slash', 'escaped backslash'],
+    ['"multi\\n\\t\\r"', '"multi\\n\\t\\r"', 'multi\n\t\r', 'multiple escapes'],
+
+    // ── 5) Mixed quotes edge cases ──
+    ['{a:"it\'s ok"}', '{"a":"it\'s ok"}', {a:"it's ok"}, 'single quote inside double quoted'],
+    ["{a:'say \"hi\"'}", '{"a":"say \\"hi\\""}', {a:'say "hi"'}, 'double quote inside single quoted'],
+    ['{a:"mixed\'quotes"}', '{"a":"mixed\'quotes"}', {a:"mixed'quotes"}, 'single quote in double quoted value'],
+    ["{a:'mixed\"quotes'}", '{"a":"mixed\\"quotes"}', {a:'mixed"quotes'}, 'double quote in single quoted value'],
+
+    // ── 6) Adjacent values/keys spacing variations ──
+    ['{a:1,b:2}', '{"a":"1","b":"2"}', {a:"1",b:"2"}, 'no space after comma'],
+    ['{a :1}', '{"a" :"1"}', {a:"1"}, 'space before colon'],
+    ['{a : 1}', '{"a" : "1"}', {a:"1"}, 'space before and after colon'],
+    ['{ a : 1 }', '{ "a" : "1" }', {a:"1"}, 'spaces everywhere'],
+    ['{a:1 ,b:2}', '{"a":"1" ,"b":"2"}', {a:"1",b:"2"}, 'space before comma'],
+    ['[1 ,2 ,3]', '["1" ,"2" ,"3"]', ["1","2","3"], 'spaces before commas in array'],
+
+    // ── 7) Marker mode with special words in spaced values (barewords get marker) ──
+    ['{a: true or false}', `{"a": "${FM}true or false"}`, {a:`${FM2}true or false`}, 'boolean words in bareword with marker'],
+    ['{a: null value here}', `{"a": "${FM}null value here"}`, {a:`${FM2}null value here`}, 'null word in bareword with marker'],
+    ['{a: 123 456 789}', `{"a": "${FM}123 456 789"}`, {a:`${FM2}123 456 789`}, 'multiple numbers in bareword with marker'],
+    ['{a: yes and no}', `{"a": "${FM}yes and no"}`, {a:`${FM2}yes and no`}, 'other keywords in bareword with marker'],
+
+    // ── 8) Comments edge cases ──
+    ['{a:1//comment\n,b:2}', '{"a":"1"\n,"b":"2"}', {a:"1",b:"2"}, 'line comment mid-object'],
+    ['{a:/**/1}', '{"a":"1"}', {a:"1"}, 'empty block comment'],
+    ['{/*comment*/a:1}', '{"a":"1"}', {a:"1"}, 'comment before key'],
+    ['{a/*comment*/:1}', '{"a":"1"}', {a:"1"}, 'comment between key and colon'],
+    ['{a:/*comment*/1}', '{"a":"1"}', {a:"1"}, 'comment between colon and value'],
+    ['[1,/*comment*/2]', '["1","2"]', ["1","2"], 'comment between array elements'],
+    ['//start\n{a:1}//end', '{"a":"1"}', {a:"1"}, 'comments at start and end'],
+    ['/*a*//*b*/{c:1}', '{"c":"1"}', {c:"1"}, 'multiple block comments'],
+
+    // ── 9) Non-ASCII characters (barewords get marker) ──
+    ['{città: Roma}', `{"città": "${FM}Roma"}`, {città:`${FM2}Roma`}, 'accented key with marker'],
+    ['{a: città}', `{"a": "${FM}città"}`, {a:`${FM2}città`}, 'accented value with marker'],
+    ['{日本語: 値}', `{"日本語": "${FM}値"}`, {日本語:`${FM2}値`}, 'Japanese characters with marker'],
+    ['{emoji: 🎉}', `{"emoji": "${FM}🎉"}`, {emoji:`${FM2}🎉`}, 'emoji value with marker'],
+    ['{a: Ça va bien}', `{"a": "${FM}Ça va bien"}`, {a:`${FM2}Ça va bien`}, 'French with cedilla with marker'],
+    ['{größe: groß}', `{"größe": "${FM}groß"}`, {größe:`${FM2}groß`}, 'German with umlaut and eszett with marker'],
+
+    // ── 10) Boundary conditions ──
+    ['a', `"${FM}a"`, `${FM2}a`, 'single character bareword with marker'],
+    ['1', '"1"', '1', 'single digit'],
+    ['{a:b}', `{"a":"${FM}b"}`, {a:`${FM2}b`}, 'minimal object with marker'],
+    ['[a]', `["${FM}a"]`, [`${FM2}a`], 'single element array bareword with marker'],
+    ['{a:1,b:2,c:3,d:4,e:5}', '{"a":"1","b":"2","c":"3","d":"4","e":"5"}', {a:"1",b:"2",c:"3",d:"4",e:"5"}, 'many properties'],
+
+    // ── 11) Whitespace handling ──
+    ['  {  a  :  1  }  ', '{  "a"  :  "1"  }', {a:"1"}, 'excessive whitespace'],
+    ['\n\n{a:1}\n\n', '{"a":"1"}', {a:"1"}, 'newlines around object'],
+    ['\t{a:\t1\t}', '{"a":\t"1"\t}', {a:"1"}, 'tabs in object'],
+    ['{a:\r\n1}', '{"a":\r\n"1"}', {a:"1"}, 'CRLF in value position'],
+
+    // ── 12) Key edge cases ──
+    ['{123:abc}', `{"123":"${FM}abc"}`, {"123":`${FM2}abc`}, 'numeric key with bareword value'],
+    ['{true:1}', '{"true":"1"}', {"true":"1"}, 'boolean keyword as key'],
+    ['{null:1}', '{"null":"1"}', {"null":"1"}, 'null keyword as key'],
+    ['{$key:1}', '{"$key":"1"}', {$key:"1"}, 'key starting with $'],
+    ['{_key:1}', '{"_key":"1"}', {_key:"1"}, 'key starting with _'],
+    ['{key123:1}', '{"key123":"1"}', {key123:"1"}, 'key with digits'],
+    ['{a1b2c3:1}', '{"a1b2c3":"1"}', {a1b2c3:"1"}, 'mixed alphanumeric key'],
+
+    // ── 13) Array with various value types (barewords get marker) ──
+    ['[1,true,null,"str",abc]', `["1",true,null,"str","${FM}abc"]`, ["1",true,null,"str",`${FM2}abc`], 'array with mixed types and marker'],
+    ['[1,2,3,4,5,6,7,8,9,10]', '["1","2","3","4","5","6","7","8","9","10"]', ["1","2","3","4","5","6","7","8","9","10"], 'array with many numbers'],
+
+    // ── 14) Complex real-world-like structures (barewords get marker) ──
+    ['{name:John Doe,age:30,active:true}', `{"name":"${FM}John Doe","age":"30","active":true}`, {name:`${FM2}John Doe`,age:"30",active:true}, 'person-like object with marker'],
+    ['{items:[{id:1,name:Item A},{id:2,name:Item B}]}', `{"items":[{"id":"1","name":"${FM}Item A"},{"id":"2","name":"${FM}Item B"}]}`, {items:[{id:"1",name:`${FM2}Item A`},{id:"2",name:`${FM2}Item B`}]}, 'items array with marker'],
+    ['{config:{debug:true,timeout:5000,retries:3}}', '{"config":{"debug":true,"timeout":"5000","retries":"3"}}', {config:{debug:true,timeout:"5000",retries:"3"}}, 'config object'],
+
+    // ── 15) Bareword identifiers with marker ──
+    ['hello', `"${FM}hello"`, `${FM2}hello`, 'simple bareword with marker'],
+    ['hello_world', `"${FM}hello_world"`, `${FM2}hello_world`, 'bareword with underscore'],
+    ['$variable', `"${FM}$variable"`, `${FM2}$variable`, 'bareword starting with $'],
+    ['_private', `"${FM}_private"`, `${FM2}_private`, 'bareword starting with _'],
+    ['{a: hello world}', `{"a": "${FM}hello world"}`, {a:`${FM2}hello world`}, 'spaced bareword in object with marker'],
+
+    // ── 16) Mixed quoted and unquoted in same object ──
+    ['{a:"quoted",b:unquoted}', `{"a":"quoted","b":"${FM}unquoted"}`, {a:"quoted",b:`${FM2}unquoted`}, 'mixed quoted and unquoted values'],
+    ['{a:123,b:abc,c:"str"}', `{"a":"123","b":"${FM}abc","c":"str"}`, {a:"123",b:`${FM2}abc`,c:"str"}, 'number, bareword, and string'],
+    ["{'a':'single',b:bare}", `{"a":"single","b":"${FM}bare"}`, {a:"single",b:`${FM2}bare`}, 'single quoted and bareword'],
+
+    // ── 17) Nested objects with barewords ──
+    ['{outer:{inner:value}}', `{"outer":{"inner":"${FM}value"}}`, {outer:{inner:`${FM2}value`}}, 'nested bareword value'],
+    ['{a:{b:{c:deep}}}', `{"a":{"b":{"c":"${FM}deep"}}}`, {a:{b:{c:`${FM2}deep`}}}, 'deeply nested bareword'],
+    ['[{a:one},{b:two}]', `[{"a":"${FM}one"},{"b":"${FM}two"}]`, [{a:`${FM2}one`},{b:`${FM2}two`}], 'array of objects with barewords'],
+
+    // ── 18) Special characters in barewords (get marker) ──
+    ['{a: hello#world}', `{"a": "${FM}hello#world"}`, {a:`${FM2}hello#world`}, 'hash in bareword'],
+    ['{a: hello.world}', `{"a": "${FM}hello.world"}`, {a:`${FM2}hello.world`}, 'dot in bareword'],
+    ['{a: hello@world}', `{"a": "${FM}hello@world"}`, {a:`${FM2}hello@world`}, 'at sign in bareword'],
+    ['{a: hello!world}', `{"a": "${FM}hello!world"}`, {a:`${FM2}hello!world`}, 'exclamation in bareword'],
+  ];
+
+  const errors = [];
+  for (const [input, expectedQuotedJSON, expectedParsed, description] of cases) {
+    const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input, FORMULA_MARKER);
+    let parsed = null;
+    try { parsed = JSON.parse(quotedJSON); } catch { /* ignore */ }
+
+    if (quotedJSON !== expectedQuotedJSON) {
+      errors.push(`[${description}]\nInput:\n${input}\nGot:\n${quotedJSON}\nExpected:\n${expectedQuotedJSON}\n`);
+    }
+    if (expectedParsed !== null) {
+      const same = (expectedParsed && typeof expectedParsed === 'object')
+        ? eqObj(parsed, expectedParsed)
+        : parsed === expectedParsed;
+      if (!same) {
+        errors.push(`[${description}]\nInput:\n${input}\nParsed Value:\n${JSON.stringify(parsed)}\nExpected Parsed Value:\n${JSON.stringify(expectedParsed)}`);
+      }
+    }
+  }
+
+  if (errors.length) console.error(errors.join('\n\n'));
+  assert(errors.length === 0, 'Errors found (see console)');
 });

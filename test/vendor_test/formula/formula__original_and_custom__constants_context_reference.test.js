@@ -1,7 +1,7 @@
 //@ts-nocheck
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
-import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v6_x.js';
+import { Parser as CustomParser } from '../../../vendor/formula/formula_v5_eval2cached_x.js';
 import { EVALUATE_NUMBERS_AS_DECIMALSCALEDBIGINT, convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
 
 import { test } from 'node:test';

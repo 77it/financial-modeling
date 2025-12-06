@@ -8,7 +8,7 @@
 // from https://github.com/77it/formula/blob/aeb95946d444466d96cd7a9864c78a4530124f74/test/index.js
 // with the addition of region "BDD Jest-like globals"
 
-import { Parser as CustomParser } from '../../../vendor/formula/formula_custom__accept_jsonx_as_func_par__v6_x.js';
+import { Parser as CustomParser } from '../../../vendor/formula/formula_v5_eval2cached_x.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js';
 import { DSB } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 

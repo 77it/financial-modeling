@@ -1,9 +1,9 @@
 //@ts-nocheck
 
 // Import math operations from decimal-adapter
-import { ensureBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from '../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
-import { pow, modulo } from './adapters/decimal-adapter.js';
-import { isPureDecimalNumber } from '../../src/lib/number_utils.js';
+import { ensureBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
+import { pow, modulo } from '../adapters/decimal-adapter.js';
+import { isPureDecimalNumber } from '../../../src/lib/number_utils.js';
 
 var exports = {};
 
@@ -38,13 +38,12 @@ internals.helpers = {
 
 // Math operations from decimal-adapter
 internals.mathOps = {
-  // Fast path: assume inputs are already BigInt/DSB-scaled; caller should normalize once
-  add: fxAdd,
-  sub: fxSub,
-  mul: fxMul,
-  div: fxDiv,
-  pow,
-  modulo
+  add: (a, b) => fxAdd(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  sub: (a, b) => fxSub(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  mul: (a, b) => fxMul(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  div: (a, b) => fxDiv(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  pow: (a, b) => pow(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  modulo: (a, b) => modulo(ensureBigIntScaled(a), ensureBigIntScaled(b))
 };
 
 exports.Parser = class {
@@ -132,19 +131,10 @@ exports.Parser = class {
           current = "";
           return;
         }
-        // Literal - if it looks like a number, treat as numeric constant
-        if (isPureDecimalNumber(current)) {
-          parts.push({
-            type: "constant",
-            value: current,
-            isNumber: true
-          });
-        } else {
-          parts.push({
-            type: "literal",
-            value: current
-          }); // Literal
-        }
+        parts.push({
+          type: "literal",
+          value: current
+        }); // Literal
       } else if (internals.operatorCharacters.includes(current)) {
         // Operator
       if (last && last.type === "operator" && internals.operators.includes(last.value + current)) {
@@ -310,7 +300,6 @@ exports.Parser = class {
       let current = "";
       let parenthesis = 0;
       let literal = false;
-      let brace = 0;
       const flush = () => {
         if (!current) {
           throw new Error(`Formula contains function ${name} with invalid arguments ${string}`);
@@ -325,19 +314,10 @@ exports.Parser = class {
           if (c === literal) {
             literal = false;
           }
-        } else if (c in internals.literals && !parenthesis && !brace) {
+        } else if (c in internals.literals && !parenthesis) {
           current += c;
           literal = internals.literals[c];
-        } else if (c === "{") {
-          current += c;
-          ++brace;
-        } else if (c === "}") {
-          if (!brace) {
-            throw new Error(`Formula contains function ${name} with invalid arguments ${string}`);
-          }
-          current += c;
-          --brace;
-        } else if ((c === "," || c === ";") && !parenthesis && !brace) {
+        } else if (c === "," && !parenthesis) {
           flush();
         } else {
           current += c;
@@ -349,11 +329,8 @@ exports.Parser = class {
         }
       }
       flush();
-      if (brace) {
-        throw new Error(`Formula contains function ${name} with unbalanced object literal ${string}`);
-      }
     }
-    args = args.map(arg => this._parseArgument(arg));
+    args = args.map(arg => new exports.Parser(arg, this.settings));
 
     // Store for compilation
     const functionData = {
@@ -361,15 +338,10 @@ exports.Parser = class {
       args
     };
 
-    const objectEvaluator = this._evaluateObjectNode.bind(this);
     const evaluator = function (context) {
       const innerValues = [];
       for (const arg of args) {
-        if (arg && arg._isLiteralObject) {
-          innerValues.push(objectEvaluator(arg._node, context));
-        } else {
-          innerValues.push(arg.evaluate(context));
-        }
+        innerValues.push(arg.evaluate(context));
       }
       return method.call(context, ...innerValues);
     };
@@ -382,17 +354,14 @@ exports.Parser = class {
     // Generate JavaScript code from the AST
     const code = this._generateCode(this._originalParts);
 
-    // Build a small factory and eval it so math/refs/functions are lexically captured
-    const mathOps = this.settings.mathOps || internals.mathOps;
-    const helpers = internals.helpers;
-    const functions = this.settings.functions || {};
-    const reference = this.settings.reference;
-
-    /* eslint-disable no-eval */
-    const factorySrc = `(function(){ const __h = helpers; const __fns = functions; const __ref = reference; const __mathOps = mathOps; return function(__ctx){ 'use strict'; return ${code}; }; })()`;
-    const compiled = eval(factorySrc);
-    /* eslint-enable no-eval */
-    return compiled;
+    // Create the compiled function
+    // Parameters:
+    // - __ctx: context object
+    // - __h: helper functions
+    // - __fns: functions registry
+    // - __ref: custom reference function (if provided)
+    // - __mathOps: math operations (add, sub, mul, div, pow, modulo)
+    return new Function('__ctx', '__h', '__fns', '__ref', '__mathOps', `'use strict'; return ${code}`);
   }
 
   _generateCode(parts) {
@@ -568,21 +537,15 @@ exports.Parser = class {
         // Recursively compile sub-parser
         return `(${part.value._generateCode(part.value._originalParts)})`;
 
-      case 'function': {
+      case 'function':
         // Function call
         const funcData = part.value._functionData;
         if (!funcData) {
           throw new Error('Function missing metadata for compilation');
         }
 
-        const argCodes = funcData.args.map(arg => {
-          if (arg && arg._isLiteralObject) {
-            return this._objectNodeToCode(arg._node);
-          }
-          return arg._generateCode(arg._originalParts);
-        });
+        const argCodes = funcData.args.map(arg => arg._generateCode(arg._originalParts));
         return `__fns[${JSON.stringify(funcData.name)}].call(__ctx, ${argCodes.join(', ')})`;
-      }
 
       default:
         throw new Error(`Unknown part type: ${part.type}`);
@@ -592,322 +555,27 @@ exports.Parser = class {
   toFunction() {
     // Return a direct callable function for maximum performance
     if (this._compiled) {
-      return this._compiled;
+      const compiled = this._compiled;
+      const helpers = internals.helpers;
+      const functions = this.settings.functions;
+      const reference = this.settings.reference;
+      const mathOps = internals.mathOps;
+
+      // Return a wrapper that binds all dependencies
+      return function(context) {
+        return compiled(context, helpers, functions, reference, mathOps);
+      };
     }
 
     // Fall back to bound evaluate method
     return this.evaluate.bind(this);
   }
 
-  _parseArgument(arg) {
-    const objectLiteral = this._tryParseObjectLiteral(arg);
-    if (objectLiteral !== null) {
-      return { _isLiteralObject: true, _node: objectLiteral };
-    }
-    return new exports.Parser(arg, this.settings);
-  }
-
-  _tryParseObjectLiteral(string) {
-    const trimmed = string.trim();
-    if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) {
-      return null;
-    }
-
-    // Parse the object literal directly (no JSON.parse / stringify)
-    try {
-      const { value, index } = this._parseObjectLiteral(trimmed, 0);
-      if (index !== trimmed.length) {
-        return null;
-      }
-      return value;
-    } catch {
-      return null;
-    }
-  }
-
-  _parseObjectLiteral(input, startIndex) {
-    let i = startIndex;
-    const len = input.length;
-
-    const skipWs = () => {
-      while (i < len && /\s/.test(input[i])) {
-        i++;
-      }
-    };
-
-    const parseString = () => {
-      const quote = input[i++];
-      let out = "";
-      while (i < len) {
-        const c = input[i++];
-        if (c === "\\" && i < len) {
-          const next = input[i++];
-          out += next;
-          continue;
-        }
-        if (c === quote) {
-          break;
-        }
-        out += c;
-      }
-      return out;
-    };
-
-    const parseValue = () => {
-      skipWs();
-      if (i >= len) {
-        throw new Error("Unexpected end of object literal");
-      }
-      const c = input[i];
-      if (c === "'" || c === '"' || c === "`") {
-        const strVal = parseString();
-        return this._makeLiteralNode(this._coerceLiteralValue(strVal, true));
-      }
-      if (c === "{") {
-        const { value, index } = this._parseObjectLiteral(input, i);
-        i = index;
-        return value;
-      }
-      if (c === "[") {
-        const arr = [];
-        i++; // skip '['
-        while (true) {
-          skipWs();
-          if (i >= len) {
-            throw new Error("Unclosed array literal");
-          }
-          if (input[i] === "]") {
-            i++;
-            break;
-          }
-          const val = parseValue();
-          arr.push(val);
-          skipWs();
-          if (input[i] === "," || input[i] === ";") {
-            i++;
-            continue;
-          }
-          if (input[i] === "]") {
-            i++;
-            break;
-          }
-          throw new Error("Invalid array literal");
-        }
-        return { kind: "array", items: arr };
-      }
-
-      // Expression or bare literal until delimiter
-      let depthParen = 0;
-      let depthBrace = 0;
-      let depthBracket = 0;
-      const start = i;
-      while (i < len) {
-        const ch = input[i];
-        if (ch === "'" || ch === '"' || ch === "`") {
-          parseString();
-          continue;
-        }
-        if (ch === "(") depthParen++;
-        else if (ch === ")") depthParen = Math.max(depthParen - 1, -1);
-        else if (ch === "{") depthBrace++;
-        else if (ch === "}") {
-          if (depthBrace === 0 && depthBracket === 0 && depthParen === 0) break;
-          depthBrace--;
-        }
-        else if (ch === "[") depthBracket++;
-        else if (ch === "]") {
-          if (depthBrace === 0 && depthBracket === 0 && depthParen === 0) break;
-          depthBracket--;
-        }
-
-        if (depthParen < 0) {
-          throw new Error("Mismatched parenthesis in object literal");
-        }
-
-        if (depthParen === 0 && depthBrace === 0 && depthBracket === 0 && (ch === "," || ch === ";" || ch === "}" || ch === "]")) {
-          break;
-        }
-        i++;
-      }
-      if (depthParen > 0 || depthBrace > 0 || depthBracket > 0) {
-        throw new Error("Unclosed grouping in object literal");
-      }
-      const token = input.slice(start, i).trim();
-      if (!token) {
-        throw new Error("Invalid value in object literal");
-      }
-      return this._coerceValueOrExpression(token);
-    };
-
-    skipWs();
-    if (input[i] !== "{") {
-      throw new Error("Expected {");
-    }
-    i++; // skip {
-    const obj = { kind: "object", entries: [] };
-    let expectingKey = true;
-    let expectSeparator = false;
-    while (i < len) {
-      skipWs();
-      if (input[i] === "}") {
-        i++;
-        return { value: obj, index: i };
-      }
-      if (expectSeparator) {
-        if (input[i] === "," || input[i] === ";") {
-          i++;
-          expectSeparator = false;
-          expectingKey = true;
-          continue;
-        } else {
-          throw new Error("Missing separator in object literal");
-        }
-      }
-      if (!expectingKey) {
-        throw new Error("Unexpected token in object literal");
-      }
-
-      // Key
-      let key;
-      const ch = input[i];
-      if (ch === "'" || ch === '"' || ch === "`") {
-        key = parseString();
-      } else {
-        const startKey = i;
-        while (i < len && /[A-Za-z0-9_\$]/.test(input[i])) {
-          i++;
-        }
-        key = input.slice(startKey, i);
-        if (!key) {
-          throw new Error("Invalid object key");
-        }
-      }
-      skipWs();
-      if (input[i] !== ":") {
-        throw new Error("Missing : after key in object literal");
-      }
-      i++; // skip :
-
-      // Value
-      const val = parseValue();
-      obj.entries.push({ key, node: val });
-      skipWs();
-      if (input[i] === "}" ) {
-        i++;
-        return { value: obj, index: i };
-      }
-      expectSeparator = true;
-    }
-
-    throw new Error("Unclosed object literal");
-  }
-
-  _coerceLiteralValue(value, fromStringLiteral) {
-    const candidate = typeof value === "string" ? value.trim() : value;
-    if (typeof candidate === "string" && isPureDecimalNumber(candidate)) {
-      return ensureBigIntScaled(candidate);
-    }
-    if (!fromStringLiteral && candidate === "true") return true;
-    if (!fromStringLiteral && candidate === "false") return false;
-    if (!fromStringLiteral && candidate === "null") return null;
-    return value;
-  }
-
-  _coerceValueOrExpression(token) {
-    if (isPureDecimalNumber(token)) {
-      return this._makeLiteralNode(ensureBigIntScaled(token));
-    }
-    if (token === "true") return this._makeLiteralNode(true);
-    if (token === "false") return this._makeLiteralNode(false);
-    if (token === "null") return this._makeLiteralNode(null);
-
-    // Otherwise treat as formula expression
-    const exprParser = new exports.Parser(token, this.settings);
-    return { kind: "expr", parser: exprParser };
-  }
-
-  _makeLiteralNode(value) {
-    if (value && value.kind === "object" && value.entries) {
-      return value;
-    }
-    if (Array.isArray(value)) {
-      return { kind: "array", items: value.map(v => this._makeLiteralNode(v)) };
-    }
-    if (value && typeof value === "object" && value.kind === "object") {
-      return value;
-    }
-    return { kind: "literal", value };
-  }
-
-  _evaluateObjectNode(node, context) {
-    if (!node || typeof node !== "object") {
-      return node;
-    }
-    switch (node.kind) {
-      case "literal":
-        return node.value;
-      case "expr":
-        return node.parser.evaluate(context);
-      case "array":
-        return node.items.map(item => this._evaluateObjectNode(item, context));
-      case "object": {
-        const out = {};
-        for (const { key, node: child } of node.entries) {
-          out[key] = this._evaluateObjectNode(child, context);
-        }
-        return out;
-      }
-      default:
-        return null;
-    }
-  }
-
-  _objectNodeToCode(node) {
-    switch (node.kind) {
-      case "literal": {
-        const value = node.value;
-        if (value === null) return "null";
-        if (typeof value === "bigint") return `${value}n`;
-        if (typeof value === "string") return JSON.stringify(value);
-        if (typeof value === "number") return JSON.stringify(value);
-        if (typeof value === "boolean") return value ? "true" : "false";
-        if (Array.isArray(value)) {
-          const arrCode = value.map(v => this._objectNodeToCode(this._makeLiteralNode(v))).join(", ");
-          return `[${arrCode}]`;
-        }
-        if (typeof value === "object") {
-          const parts = [];
-          for (const [k, v] of Object.entries(value)) {
-            const keyCode = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(k) ? k : JSON.stringify(k);
-            parts.push(`${keyCode}: ${this._objectNodeToCode(this._makeLiteralNode(v))}`);
-          }
-          return `{ ${parts.join(", ")} }`;
-        }
-        throw new Error("Unsupported literal in object argument");
-      }
-      case "expr":
-        return node.parser._generateCode(node.parser._originalParts);
-      case "array": {
-        const inner = node.items.map(item => this._objectNodeToCode(item)).join(", ");
-        return `[${inner}]`;
-      }
-      case "object": {
-        const parts = node.entries.map(({ key, node: child }) => {
-          const keyCode = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key) ? key : JSON.stringify(key);
-          return `${keyCode}: ${this._objectNodeToCode(child)}`;
-        });
-        return `{ ${parts.join(", ")} }`;
-      }
-      default:
-        throw new Error("Unsupported object node");
-    }
-  }
-
   evaluate(context) {
     // Use compiled version if available
     if (this._compiled) {
       try {
-        return this._compiled(context);
+        return this._compiled(context, internals.helpers, this.settings.functions, this.settings.reference, internals.mathOps);
       } catch (err) {
         // Fall back to interpretation on runtime error
         console.warn('Compiled evaluation failed, falling back to interpretation:', err.message);
