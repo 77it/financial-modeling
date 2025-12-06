@@ -32,12 +32,32 @@ const IS_ALPHANUM = (() => {
 /**
  * Transform a relaxed / JSON5-like input string into strict JSON syntax.
  *
- * v4: correctness from v1 (value reader) + v3 perf (string concat, fast no-marker path).
+ * This is a preprocessing step before `JSON.parse()` that accepts JSON5-like
+ * relaxations (unquoted keys, single quotes, comments, trailing commas, bare
+ * numbers/dates, spaced barewords) and rewrites them into strict JSON.
  *
- * @param {string} input
- * @param {string} [unquotedStringsMarker='']
- * @param {boolean} [formulaAdvancedParsing=false]
- * @returns {string}
+ * v4 keeps the fast string-concat approach of v3, but uses the whitespace-
+ * preserving value reader from v1 for both markerless and marker modes so
+ * bare values with spaces stay intact (e.g., `{a: mamma babbo}`).
+ *
+ * Main behaviors:
+ * 1) Keys: any unquoted key is quoted with proper JSON escaping.
+ * 2) Strings: double-quoted passed through; single-quoted rewritten to valid JSON strings.
+ * 3) Numbers: pure decimal numbers (with sign/underscores/exponent) become JSON strings
+ *    with leading `+` stripped and `_` removed to preserve original formatting safely.
+ * 4) Dates: ISO-like date tokens are quoted as strings to avoid number coercion.
+ * 5) Booleans/null: kept as literals (not quoted).
+ * 6) Comments: `//` and `/ASTERISK* *ASTERISK/` are skipped.
+ * 7) Trailing commas: removed before `}` or `]`.
+ * 8) Bare words: everything else becomes a JSON string; when a marker is provided,
+ *    it is prepended to unquoted string values (not keys) to tag original barewords.
+ * 9) Optional formula parsing: when enabled, wraps function-like bare values in
+ *    marker-prefixed strings before the main pass (expensive; opt-in).
+ *
+ * @param {string} input - Relaxed/JSON5-like text
+ * @param {string} [unquotedStringsMarker=''] - Marker to prepend to unquoted string values
+ * @param {boolean} [formulaAdvancedParsing=false] - Enable function-call wrapping (slower)
+ * @returns {string} Strict JSON text suitable for JSON.parse()
  */
 function quoteKeysNumbersAndDatesForRelaxedJSON(input, unquotedStringsMarker = '', formulaAdvancedParsing = false) {
   if (typeof input !== 'string') return '';
