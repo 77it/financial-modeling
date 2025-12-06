@@ -71,7 +71,7 @@ financial-modeling/
 │   │   │   ├── schema_validation_utils.js    Validation logic
 │   │   │   ├── schema_sanitization_utils.js  Sanitization logic
 │   │   │   ├── json.js                JSON parsing
-│   │   │   ├── json_relaxed_utils_x.js  Relaxed JSON support
+│   │   │   ├── json_relaxed_utils_v*_x.js  Relaxed JSON support
 │   │   │   ├── result.js              Result/Error handling
 │   │   │   ├── drivers_repo.js        Drivers repository
 │   │   │   └── global_immutable_value.js  Immutable value utilities

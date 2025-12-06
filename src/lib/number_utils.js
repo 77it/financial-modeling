@@ -8,7 +8,7 @@
  * - Decimal numbers (1.23, 0.5, .5)
  *
  * Used by:
- * - json_relaxed_utils_x.js (JSONX parser)
+ * - json_relaxed_utils_v*_x.js (JSONX parser)
  * - formula_v2.js (formula parser)
  */
 

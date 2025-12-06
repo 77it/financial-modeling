@@ -1,6 +1,6 @@
 export { cachedParseJSONrelaxed, parseJSONrelaxed };
 
-import { quoteKeysNumbersAndDatesForRelaxedJSON } from './json_relaxed_utils_x.js';
+import { quoteKeysNumbersAndDatesForRelaxedJSON } from './json_relaxed_utils_v2_x.js';
 import { deepFreeze } from './obj_utils.js';
 import { lru } from '../../vendor/tiny_lru/lru.js';
 import { JSON_CACHE_SIZE, JSON_CACHE_SIZE__MAX_CACHEABLE_CHARS } from '../config/engine.js';
