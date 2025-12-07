@@ -75,11 +75,10 @@ exports.Parser = class {
       constants: {},
       functions: {},
       reference: null,  // Custom reference function
-      compile: true,    // Enable compilation by default
-      evaluateNumbersAsStrings: true  // From v6: enable numeric mode by default
+      compile: true     // Enable compilation by default
     }, options);
 
-    this.numericMode = this.settings.evaluateNumbersAsStrings !== false;  // From v6
+    this.numericMode = true;  // Always run in numeric (BigInt) mode for custom parser
     this._isJsonxRoot = false;
 
     this.single = null;
