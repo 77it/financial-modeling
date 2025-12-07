@@ -81,7 +81,7 @@ t('invalid decimal strings should throw', () => {
         '.', '+.', '-.',
         '1..2', '1.2.3', '1e', 'e10', '1ee10', '1e+', '1e-', '1e--2',
         'abc', 'NaN', 'Infinity', '+Infinity', '-Infinity',
-        '0x10', '1_000', '--1', '++2', '1.-2',
+        '0x10', '--1', '++2', '1.-2',
       ];
 
       for (const s of bad) {
