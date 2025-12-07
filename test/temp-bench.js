@@ -35,7 +35,9 @@ Fastest is sample sum For 1.000 runs
 // run it with `deno run --allow-read --allow-write --allow-net --allow-import`
 
 import { fxAdd, ensureBigIntScaled } from "../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js";
-import { Parser } from "../vendor/formula/formula_v5_eval2cached_x.js";
+import { Parser as ParserOriginal } from "../vendor/formula/formula.js";
+import { Parser as ParserCustom } from "../vendor/formula/formula_v5_eval2cached_x.js";
+import { Parser as ParserCustom2 } from "../vendor/formula/formula_v6_eval2cached+old_behaviour_x.js";
 
 import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');
@@ -46,14 +48,19 @@ const COUNTER = 1_000;
 // shared data
 let data;
 
-// preparsed formula
-const formula2 = new Parser('1000000 + 2000000');
+// preparsed formula v5
+const formula2 = new ParserCustom('1000000 + 2000000');
 const fn2 = formula2.toFunction();
+
 const sumEval = eval(`
     (function(x, y) {
       return x + y;
     })
   `);
+
+// preparsed formula v6
+const formula3 = new ParserCustom2('1000000 + 2000000');
+const fn3 = formula3.toFunction();
 
 
 
@@ -77,17 +84,31 @@ suite
     }
   })
 
-  .add(`sum with formula For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
-    const formula1 = new Parser('1000000 + 2000000');
+  .add(`sum with formula Original For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    const formula1 = new ParserOriginal('1000000 + 2000000');
 
     for (let i = 0; i < COUNTER; i++) {
       const a = formula1.evaluate();
     }
   })
 
-  .add(`sum with formula - preparsed For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+  .add(`sum with formula Custom For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    const formula1 = new ParserCustom('1000000 + 2000000');
+
+    for (let i = 0; i < COUNTER; i++) {
+      const a = formula1.evaluate();
+    }
+  })
+
+  .add(`sum with formula Custom v5 - compiled toFunction() For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
     for (let i = 0; i < COUNTER; i++) {
       const a = fn2();
+    }
+  })
+
+  .add(`sum with formula Custom v6 - compiled toFunction() For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = fn3();
     }
   })
 
