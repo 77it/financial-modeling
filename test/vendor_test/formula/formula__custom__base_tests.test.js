@@ -1,4 +1,4 @@
-    //@ts-nocheck
+//@ts-nocheck
 
 // DISABLED A TEST IN "errors on invalid operator position" because with the new custom code
 // 'x + + y' is evaluated correctly

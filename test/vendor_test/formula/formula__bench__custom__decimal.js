@@ -64,7 +64,7 @@ import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_v5_eval2cached_x.js';
+import { Parser } from '../../../vendor/formula/formula_v7_x.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
 
 /**

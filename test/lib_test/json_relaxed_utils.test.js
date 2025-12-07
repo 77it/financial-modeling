@@ -19,10 +19,12 @@ import assert from 'node:assert';
 const FM = JSON.stringify(FORMULA_MARKER).slice(1, -1);
 const FM2 = FORMULA_MARKER;  // raw form for expected parsed values
 
-t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
-  /** @type {[string, string, any, any][]} */
+const FORMULAADVANCEDPARSING = true;
+
+t('JSON quoteKeysNumbersAndDatesForRelaxedJSON with formulaAdvancedParsing', () => {
+  // format is: [input, expected output from quoteKeysNumbersAndDatesForRelaxedJSON, sanitization, expected parsed and sanitized value, optional - true to apply formulaAdvancedParsing or not]
+  /** @type {[string, string, any, any, boolean?][]} */
   const cases = [
-    // format is: [input, expected output from quoteKeysNumbersAndDatesForRelaxedJSON, sanitization, expected parsed and sanitized value]
 
     // 0) Special number values (should be treated as barewords with markers)
     ['Infinity', `"${FM}Infinity"`, S.ANY_TYPE, `${FM2}Infinity`],
@@ -167,14 +169,16 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
     // 15) complex objects
     ['{a: q(mam ma)}', `{"a": "${FM}q(mam ma)"}`, S.ANY_TYPE, {"a": `${FM2}q(mam ma)`}],
     ['{a: q({b:mam ma})}', `{"a": "${FM}q({b:mam ma})"}`, S.ANY_TYPE, {"a": `${FM2}q({b:mam ma})`}],
-    ['{a: q({b:"mam ma"})}', `{"a": "${FM}q({b:\\"mam ma\\"})"}`, S.ANY_TYPE, {"a": `${FM2}q({b:"mam ma"})`}],
-    [`{a: q({b:'mam ma'})}`, `{"a": "${FM}q({b:\\"mam ma\\"})"}`, S.ANY_TYPE, {"a": `${FM2}q({b:"mam ma"})`}],
     ['{a: 10 + 1 * 1 + 9*0, b: mam ma, c: null, d: 2025-12-31}', `{"a": "${FM}10 + 1 * 1 + 9*0", "b": "${FM}mam ma", "c": null, "d": "2025-12-31"}`, S.ANY_TYPE, {"a": `${FM2}10 + 1 * 1 + 9*0`, "b": `${FM2}mam ma`, "c": null, "d": "2025-12-31"}],
-    [`{a: 9 * q(10) + 1 * 1 + 9*0, b: 10 + q({x: mam ma, h: q({i: 55, j: ciao gino})}), c: null, d: 2025-12-31, e: {f: 555, g: "pap pa"}, f: 9 * q("10") + q('iii') + 1 * 1 + 9*0}`, `{"a": "${FM}9 * q(10) + 1 * 1 + 9*0", "b": "${FM}10 + q({x: mam ma, h: q({i: 55, j: ciao gino})})", "c": null, "d": "2025-12-31", "e": {"f": "555", "g": "pap pa"}, "f": "${FM}9 * q(\\"10\\") + q('iii') + 1 * 1 + 9*0"}`, S.ANY_TYPE, {"a": `${FM2}9 * q(10) + 1 * 1 + 9*0`, "b": `${FM2}10 + q({x: mam ma, h: q({i: 55, j: ciao gino})})`, "c": null, "d": "2025-12-31", "e": {"f": "555", "g": "pap pa"}, f: `${FM2}9 * q("10") + q('iii') + 1 * 1 + 9*0`}],
     ['{a: q(10) + 1 * 1 + 9*0, b: q(20 + q(30 + q(50))), c: null, d: 2025-12-31, e: {f: 555, g: "pap pa"}}', `{"a": "${FM}q(10) + 1 * 1 + 9*0", "b": "${FM}q(20 + q(30 + q(50)))", "c": null, "d": "2025-12-31", "e": {"f": "555", "g": "pap pa"}}`, S.ANY_TYPE, {"a": `${FM2}q(10) + 1 * 1 + 9*0`, "b": `${FM2}q(20 + q(30 + q(50)))`, "c": null, "d": "2025-12-31", "e": {"f": "555", "g": "pap pa"}}],
-    ['{a: 10, b: sum({x: 1, y: "988_444_444_333_333_222_111.999_888_77777", z: 10}), c: 300_888_777_666_555_444_333_222_111}', `{"a": "10", "b": "${FM}sum({x: 1, y: \\"988_444_444_333_333_222_111.999_888_77777\\", z: 10})", "c": "300888777666555444333222111"}`, S.ANY_TYPE, {"a": "10", "b": `${FM2}sum({x: 1, y: "988_444_444_333_333_222_111.999_888_77777", z: 10})`, "c": "300888777666555444333222111"}],
 
-    // 15b) Complex object with spaces/newlines/tabs, also with single quote
+    // 15b) complex objects with FORMULAADVANCEDPARSING
+    ['{a: q({b:"mam ma"})}', `{"a": "${FM}q({b:\\"mam ma\\"})"}`, S.ANY_TYPE, {"a": `${FM2}q({b:"mam ma"})`}, FORMULAADVANCEDPARSING],
+    [`{a: q({b:'mam ma'})}`, `{"a": "${FM}q({b:\\"mam ma\\"})"}`, S.ANY_TYPE, {"a": `${FM2}q({b:"mam ma"})`}, FORMULAADVANCEDPARSING],
+    [`{a: 9 * q(10) + 1 * 1 + 9*0, b: 10 + q({x: mam ma, h: q({i: 55, j: ciao gino})}), c: null, d: 2025-12-31, e: {f: 555, g: "pap pa"}, f: 9 * q("10") + q('iii') + 1 * 1 + 9*0}`, `{"a": "${FM}9 * q(10) + 1 * 1 + 9*0", "b": "${FM}10 + q({x: mam ma, h: q({i: 55, j: ciao gino})})", "c": null, "d": "2025-12-31", "e": {"f": "555", "g": "pap pa"}, "f": "${FM}9 * q(\\"10\\") + q('iii') + 1 * 1 + 9*0"}`, S.ANY_TYPE, {"a": `${FM2}9 * q(10) + 1 * 1 + 9*0`, "b": `${FM2}10 + q({x: mam ma, h: q({i: 55, j: ciao gino})})`, "c": null, "d": "2025-12-31", "e": {"f": "555", "g": "pap pa"}, f: `${FM2}9 * q("10") + q('iii') + 1 * 1 + 9*0`}, FORMULAADVANCEDPARSING],
+    ['{a: 10, b: sum({x: 1, y: "988_444_444_333_333_222_111.999_888_77777", z: 10}), c: 300_888_777_666_555_444_333_222_111}', `{"a": "10", "b": "${FM}sum({x: 1, y: \\"988_444_444_333_333_222_111.999_888_77777\\", z: 10})", "c": "300888777666555444333222111"}`, S.ANY_TYPE, {"a": "10", "b": `${FM2}sum({x: 1, y: "988_444_444_333_333_222_111.999_888_77777", z: 10})`, "c": "300888777666555444333222111"}, FORMULAADVANCEDPARSING],
+
+    // 15c) Complex object with spaces/newlines/tabs, also with single quote
     [
       '{ \n  a : 1_2_3 ,\t b:\n-4.5e-6 , c : "12_3" , d: 0x1ABC \n}',
       `{ \n  "a" : "123" ,\t "b":\n"-4.5e-6" , "c" : "12_3" , "d": "${FM}0x1ABC" \n}`,
@@ -407,10 +411,10 @@ t('JSON quoteKeysNumbersAndDatesForRelaxedJSON', () => {
 
   const errors = [];
 
-  for (const [input, expectedQuotedJSON, sanitization, expectedParsedAndSanitized] of cases) {
+  for (const [input, expectedQuotedJSON, sanitization, expectedParsedAndSanitized, formulaAdvancedParsing] of cases) {
+    const _formulaAdvancedParsing = formulaAdvancedParsing != null;
     // Enable advanced formula parsing for inputs that contain function calls like q({...})
-    const needsAdvancedParsing = /\w+\s*\(/.test(input);
-    const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input, FORMULA_MARKER, needsAdvancedParsing);
+    const quotedJSON = quoteKeysNumbersAndDatesForRelaxedJSON(input, FORMULA_MARKER, _formulaAdvancedParsing);
     const parsed = (() => {try { return JSON.parse(quotedJSON); } catch { return null; }})();
     if (quotedJSON !== expectedQuotedJSON) {
       //const gotCharCodes = Array.from(quotedJSON).map(c => c.charCodeAt(0)).join(', ');
