@@ -1,12 +1,13 @@
 //@ts-nocheck
 
 // Import math operations from decimal-adapter
-import { ensureBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from '../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
-import { pow, modulo } from './adapters/decimal-adapter.js';
-import { isPureDecimalNumber } from '../../src/lib/number_utils.js';
-import { cachedParseJSONrelaxed as parse } from '../../src/lib/json.js';
-import { FORMULA_MARKER } from './modules/formula-marker.js';
-import { lru } from '../tiny_lru/lru.js';
+import { ensureBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
+import { pow, modulo } from '../adapters/decimal-adapter.js';
+import { isPureDecimalNumber } from '../../../src/lib/number_utils.js';
+import { cachedParseJSONrelaxed as parse } from '../../../src/lib/json.js';
+import { FORMULA_MARKER } from '../modules/formula-marker.js';
+import { isLikelyFormula } from '../modules/formula-jsonx-handler.js';
+import { lru } from '../../tiny_lru/lru.js';
 
 var exports = {};
 
@@ -14,7 +15,7 @@ const internals = {
   operators: ["!", "^", "*", "/", "%", "+", "-", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "??"],
   operatorCharacters: ["!", "^", "*", "/", "%", "+", "-", "<", "=", ">", "&", "|", "?"],
   operatorsOrder: [["^"], ["*", "/", "%"], ["+", "-"], ["<", "<=", ">", ">="], ["==", "!="], ["&&"], ["||", "??"]],
-  operatorsPrefix: ["!", "n"],
+  operatorsPrefix: ["!", "n", "p"],
   literals: {
     "\"": "\"",
     "`": "`",
@@ -46,13 +47,14 @@ internals.helpers = {
 
 // Math operations from decimal-adapter
 internals.mathOps = {
-  // Fast path: assume inputs are already BigInt/DSB-scaled; caller should normalize once
-  add: fxAdd,
-  sub: fxSub,
-  mul: fxMul,
-  div: fxDiv,
-  pow,
-  modulo
+  // Coercing wrappers: accept string/number/bigint and normalize once per op
+  add: (a, b) => fxAdd(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  sub: (a, b) => fxSub(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  mul: (a, b) => fxMul(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  div: (a, b) => fxDiv(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  pow: (a, b) => pow(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  modulo: (a, b) => modulo(ensureBigIntScaled(a), ensureBigIntScaled(b)),
+  ensure: ensureBigIntScaled
 };
 
 exports.Parser = class {
@@ -70,8 +72,12 @@ exports.Parser = class {
       constants: {},
       functions: {},
       reference: null,  // Custom reference function
-      compile: true     // Enable compilation by default
+      compile: true,    // Enable compilation by default
+      evaluateNumbersAsStrings: true
     }, options);
+
+    this.numericMode = this.settings.evaluateNumbersAsStrings !== false;
+    this._isJsonxRoot = false;
 
     this.single = null;
     this._parts = null;
@@ -79,7 +85,7 @@ exports.Parser = class {
     this._parse(string);
 
     // Try to compile if enabled
-    if (this.settings.compile && this._supportsCompilation()) {
+    if (!this._isJsonxRoot && this.settings.compile && this._supportsCompilation()) {
       try {
         this._compiled = this._compile();
       } catch (err) {
@@ -103,6 +109,18 @@ exports.Parser = class {
   }
 
   _parse(string) {
+    // Fast path: whole expression is JSONX/relaxed JSON
+    const trimmed = string.trim();
+    const jsonxRoot = this._parseObjectArgument(trimmed);
+    if (jsonxRoot) {
+      this._isJsonxRoot = true;
+      this._originalParts = [{ type: "jsonx", node: jsonxRoot }];
+      const evaluateJsonx = (ctx) => this._evaluateObjectNode(jsonxRoot, ctx);
+      this._parts = [evaluateJsonx];
+      this.single = null;
+      return;
+    }
+
     let parts = [];
     let current = "";
     let parenthesis = 0;
@@ -230,15 +248,14 @@ exports.Parser = class {
     }
     flush();
 
-    // Replace prefix - to internal negative operator
-
+    // Replace prefix -/+ to internal operators
     parts = parts.map((part, i) => {
-      if (part.type !== "operator" || part.value !== "-" || i && parts[i - 1].type !== "operator") {
+      if (part.type !== "operator" || !["-", "+"].includes(part.value) || i && parts[i - 1].type !== "operator") {
         return part;
       }
       return {
         type: "operator",
-        value: "n"
+        value: part.value === "-" ? "n" : "p"
       };
     });
 
@@ -298,10 +315,12 @@ exports.Parser = class {
         throw new Error(`Formula contains invalid reference ${part.value}`);
       }
       if (this.settings.reference) {
-        const refFn = this.settings.reference;
-        const varName = part.value;
+        const resolver = this.settings.reference(part.value);
+        if (typeof resolver !== "function") {
+          throw new Error("Reference resolver must return a function");
+        }
         return function(context) {
-          return refFn(varName, context);
+          return resolver(context);
         };
       }
       return internals.reference(part.value);
@@ -394,7 +413,28 @@ exports.Parser = class {
     const mathOps = this.settings.mathOps || internals.mathOps;
     const helpers = internals.helpers;
     const functions = this.settings.functions || {};
-    const reference = this.settings.reference;
+    const reference = this.settings.reference
+      ? (() => {
+          const cache = new Map();
+          const factory = this.settings.reference;
+          return (name, ctx) => {
+            let resolver = cache.get(name);
+            if (!resolver) {
+              resolver = factory(name);
+              if (typeof resolver !== "function") {
+                throw new Error("Reference resolver must return a function");
+              }
+              cache.set(name, resolver);
+            }
+            return resolver(ctx);
+          };
+        })()
+      : ((name, ctx) => {
+          if (ctx && Object.prototype.hasOwnProperty.call(ctx, name)) {
+            return ctx[name];
+          }
+          throw new Error(`Unknown reference ${name}`);
+        });
 
     /* eslint-disable no-eval */
     const factorySrc = `(function(){ const __h = helpers; const __fns = functions; const __ref = reference; const __mathOps = mathOps; return function(__ctx){ 'use strict'; return ${code}; }; })()`;
@@ -413,6 +453,10 @@ exports.Parser = class {
   }
 
   _isStringOperation(parts, operatorIndex) {
+    if (this.numericMode) {
+      return false;
+    }
+
     // Check if this is a string concatenation operation
     // by examining the types of operands
     if (parts[operatorIndex] !== '+' && parts[operatorIndex]?.value !== '+') {
@@ -452,8 +496,11 @@ exports.Parser = class {
         if (part.value === '!') {
           prefixCode = `__h.not(${nextCode})`;
         } else if (part.value === 'n') {
-          // Unary minus - just prepend minus sign to BigInt
-          prefixCode = `(-${nextCode})`;
+          // Unary minus - coerce then negate
+          prefixCode = `(-__mathOps.ensure(${nextCode}))`;
+        } else if (part.value === 'p') {
+          // Unary plus - coerce to numeric
+          prefixCode = `(__mathOps.ensure(${nextCode}))`;
         }
 
         // Replace the operator and next part with the generated code
@@ -481,7 +528,11 @@ exports.Parser = class {
 
           switch (operator) {
             case '??':
-              opCode = `__h.nullCoalesce(${leftCode}, ${rightCode})`;
+              if (this.numericMode) {
+                opCode = `(() => { const __v = __h.nullCoalesce(${leftCode}, ${rightCode}); return (__v === null || __v === undefined) ? null : __mathOps.ensure(__v); })()`;
+              } else {
+                opCode = `__h.nullCoalesce(${leftCode}, ${rightCode})`;
+              }
               break;
             case '+':
               opCode = isStringOp
@@ -504,28 +555,28 @@ exports.Parser = class {
               opCode = `__mathOps.pow(${leftCode}, ${rightCode})`;
               break;
             case '<':
-              opCode = `(${leftCode} < ${rightCode})`;
+              opCode = `(__mathOps.ensure(${leftCode}) < __mathOps.ensure(${rightCode}))`;
               break;
             case '<=':
-              opCode = `(${leftCode} <= ${rightCode})`;
+              opCode = `(__mathOps.ensure(${leftCode}) <= __mathOps.ensure(${rightCode}))`;
               break;
             case '>':
-              opCode = `(${leftCode} > ${rightCode})`;
+              opCode = `(__mathOps.ensure(${leftCode}) > __mathOps.ensure(${rightCode}))`;
               break;
             case '>=':
-              opCode = `(${leftCode} >= ${rightCode})`;
+              opCode = `(__mathOps.ensure(${leftCode}) >= __mathOps.ensure(${rightCode}))`;
               break;
             case '==':
-              opCode = `(${leftCode} === ${rightCode})`;
+              opCode = `(__mathOps.ensure(${leftCode}) === __mathOps.ensure(${rightCode}))`;
               break;
             case '!=':
-              opCode = `(${leftCode} !== ${rightCode})`;
+              opCode = `(__mathOps.ensure(${leftCode}) !== __mathOps.ensure(${rightCode}))`;
               break;
             case '&&':
-              opCode = `(${leftCode} && ${rightCode})`;
+              opCode = `(__mathOps.ensure(${leftCode}) && __mathOps.ensure(${rightCode}))`;
               break;
             case '||':
-              opCode = `(${leftCode} || ${rightCode})`;
+              opCode = `(__mathOps.ensure(${leftCode}) || __mathOps.ensure(${rightCode}))`;
               break;
             default:
               throw new Error(`Unknown operator: ${operator}`);
@@ -550,27 +601,17 @@ exports.Parser = class {
     // Handle different part types from original parts
     switch (part.type) {
       case 'constant':
-        // Convert to BigInt AT COMPILE TIME
-        if (part.isNumber) {
-          // It's a number - convert to BigInt now and embed as literal
-          const bigIntValue = ensureBigIntScaled(part.value);
-          return `${bigIntValue}n`; // Embed as BigInt literal
-        } else {
-          // It's a constant from the constants registry
-          return JSON.stringify(part.value);
-        }
+        // Keep literal; math ops will coerce when needed
+        return JSON.stringify(part.value);
 
       case 'literal':
         return JSON.stringify(part.value);
 
       case 'reference':
-        // Use custom reference function if provided
-        if (this.settings.reference) {
-          return `__ref(${JSON.stringify(part.value)}, __ctx)`;
-        } else {
-          // Fall back to default: access context property
-          return `(__ctx && __ctx[${JSON.stringify(part.value)}] !== undefined ? __ctx[${JSON.stringify(part.value)}] : null)`;
-        }
+        return `__ref(${JSON.stringify(part.value)}, __ctx)`;
+
+      case 'jsonx':
+        return this._objectNodeToCode(part.node);
 
       case 'segment':
         // Recursively compile sub-parser
@@ -620,6 +661,15 @@ exports.Parser = class {
     if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) {
       return null;
     }
+    // Simple heuristic: bare bracket references (no commas/colons and no nested bracket) are formulas, not JSONX
+    if (trimmed.startsWith("[") && trimmed.endsWith("]") && !trimmed.includes(":")) {
+      const inner = trimmed.slice(1, -1);
+      if (!inner.includes(",") && !inner.includes("[")) {
+        return null;
+      }
+    } else if (trimmed.startsWith("[") && !trimmed.includes(",") && !trimmed.includes(":") && !trimmed.includes("{")) {
+      return null;
+    }
 
     const cacheKey = this._objectCacheKey(trimmed);
     const cached = internals.objectLiteralCache.get(cacheKey);
@@ -629,14 +679,29 @@ exports.Parser = class {
 
     let parsed;
     try {
-      // Enable advanced formula parsing to handle function-like values: fn({...})
-      parsed = parse(trimmed, FORMULA_MARKER, true);
+      parsed = parse(trimmed, FORMULA_MARKER);
     } catch {
       return null;
     }
 
-    // parseJSONX returns the original input when parsing fails
     if (parsed === trimmed) {
+      if (trimmed.startsWith("[") && !trimmed.endsWith("]")) {
+        throw new Error("Formula missing closing bracket");
+      }
+      if (trimmed.startsWith("{") && !trimmed.endsWith("}")) {
+        throw new Error("Formula missing closing brace");
+      }
+      if (trimmed.startsWith("{") && trimmed.endsWith("}") && !trimmed.includes(":")) {
+        const node = { kind: "literal", value: trimmed };
+        internals.objectLiteralCache.set(cacheKey, node);
+        return node;
+      }
+      // If it still looks like JSON-ish text, treat as literal; otherwise let formula parsing handle it
+      if (trimmed.includes(":")) {
+        const node = { kind: "literal", value: trimmed };
+        internals.objectLiteralCache.set(cacheKey, node);
+        return node;
+      }
       return null;
     }
 
@@ -660,11 +725,23 @@ exports.Parser = class {
     }
     const t = typeof value;
     if (t === "string") {
-      const exprNode = this._maybeExpressionNode(value);
+      const hasMarker = value.startsWith(FORMULA_MARKER);
+      const base = hasMarker ? value.slice(FORMULA_MARKER.length) : value;
+      const cleaned = (base.length >= 2 && base.startsWith("`") && base.endsWith("`"))
+        ? base.slice(1, -1)
+        : base;
+      if (hasMarker) {
+        const exprNode = this._maybeExpressionNode(FORMULA_MARKER + cleaned);
+        if (exprNode) {
+          return exprNode;
+        }
+        return { kind: "literal", value: this._coerceStringNumber(cleaned) };
+      }
+      const exprNode = this._maybeExpressionNode(cleaned);
       if (exprNode) {
         return exprNode;
       }
-      return { kind: "literal", value: this._coerceStringNumber(value) };
+      return { kind: "literal", value: this._coerceStringNumber(cleaned) };
     }
     if (t === "number") {
       return { kind: "literal", value: ensureBigIntScaled(String(value)) };
@@ -688,17 +765,22 @@ exports.Parser = class {
   _maybeExpressionNode(str) {
     if (str.startsWith(FORMULA_MARKER)) {
       const inner = str.slice(FORMULA_MARKER.length);
-      const parser = new exports.Parser(inner, this.settings);
-      return { kind: "expr", parser };
+      // Skip obvious non-formulas early to avoid noisy parse errors
+      if (!isLikelyFormula(inner)) {
+        return { kind: "literal", value: inner };
+      }
+      try {
+        const parser = new exports.Parser(inner, this.settings);
+        return { kind: "expr", parser, raw: inner };
+      } catch {
+        // Treat invalid formulas as plain strings, stripping the marker
+        return { kind: "literal", value: inner };
+      }
     }
     return null;
   }
 
   _coerceStringNumber(value) {
-    const trimmed = value.trim();
-    if (isPureDecimalNumber(trimmed)) {
-      return ensureBigIntScaled(trimmed);
-    }
     return value;
   }
 
@@ -710,7 +792,11 @@ exports.Parser = class {
       case "literal":
         return node.value;
       case "expr":
-        return node.parser.evaluate(context);
+        try {
+          return node.parser.evaluate(context);
+        } catch (_) {
+          return node.raw ?? null;
+        }
       case "array":
         return node.items.map(item => this._evaluateObjectNode(item, context));
       case "object": {
@@ -749,6 +835,10 @@ exports.Parser = class {
         throw new Error("Unsupported literal in object argument");
       }
       case "expr":
+        if (node.raw !== undefined) {
+          const exprCode = node.parser._generateCode(node.parser._originalParts);
+          return `(function(){ try { return ${exprCode}; } catch { return ${JSON.stringify(node.raw)}; } })()`;
+        }
         return node.parser._generateCode(node.parser._originalParts);
       case "array": {
         const inner = node.items.map(item => this._objectNodeToCode(item)).join(", ");
@@ -771,10 +861,8 @@ exports.Parser = class {
     if (this._compiled) {
       try {
         return this._compiled(context);
-      } catch (err) {
-        // Fall back to interpretation on runtime error
-        console.warn('Compiled evaluation failed, falling back to interpretation:', err.message);
       }
+      catch (_) { /* fall back to interpreter */ }
     }
 
     // Original interpretation method
@@ -788,7 +876,7 @@ exports.Parser = class {
         const current = parts[i + 1];
         parts.splice(i + 1, 1);
         const value = internals.evaluate(current, context);
-        parts[i] = internals.single(part.value, value);
+        parts[i] = internals.single(part.value, value, this.numericMode);
       }
     }
 
@@ -801,7 +889,7 @@ exports.Parser = class {
           const left = internals.evaluate(parts[i - 1], context);
           const right = internals.evaluate(parts[i + 1], context);
           parts.splice(i, 2);
-          const result = internals.calculate(operator, left, right);
+          const result = internals.calculate(operator, left, right, this.numericMode);
           parts[i - 1] = result === 0 ? 0 : result; // Convert -0
         } else {
           i += 2;
@@ -816,7 +904,10 @@ exports.Parser.prototype[internals.symbol] = true;
 
 internals.reference = function (name) {
   return function (context) {
-    return context && context[name] !== undefined ? context[name] : null;
+    if (context && Object.prototype.hasOwnProperty.call(context, name)) {
+      return context[name];
+    }
+    throw new Error(`Unknown reference ${name}`);
   };
 };
 
@@ -833,14 +924,17 @@ internals.evaluate = function (part, context) {
   return part;
 };
 
-internals.single = function (operator, value) {
+internals.single = function (operator, value, numericMode = true) {
   if (operator === "!") {
     return value ? false : true;
   }
 
-  // operator === 'n'
+  const coerced = numericMode ? ensureBigIntScaled(value) : value;
+  if (operator === "p") {
+    return coerced;
+  }
 
-  const negative = -value;
+  const negative = numericMode ? -coerced : -value;
   if (negative === 0) {
     // Override -0
     return 0;
@@ -848,49 +942,87 @@ internals.single = function (operator, value) {
   return negative;
 };
 
-internals.calculate = function (operator, left, right) {
+internals.calculate = function (operator, left, right, numericMode = true) {
   if (operator === "??") {
-    return internals.exists(left) ? left : right;
+    const result = internals.exists(left) ? left : right;
+    if (!numericMode) return result;
+    return internals.exists(result) ? ensureBigIntScaled(result) : null;
   }
-  if (typeof left === "string" || typeof right === "string") {
-    if (operator === "+") {
-      left = internals.exists(left) ? left : "";
-      right = internals.exists(right) ? right : "";
-      return left + right;
-    }
-  } else {
+
+  const mathOps = internals.mathOps;
+
+  if (numericMode) {
     switch (operator) {
       case "^":
-        return Math.pow(left, right);
+        return mathOps.pow(left, right);
       case "*":
-        return left * right;
+        return mathOps.mul(left, right);
       case "/":
-        return left / right;
+        return mathOps.div(left, right);
       case "%":
-        return left % right;
+        return mathOps.modulo(left, right);
       case "+":
-        return left + right;
+        return mathOps.add(left, right);
       case "-":
-        return left - right;
+        return mathOps.sub(left, right);
+      case "<":
+        return mathOps.ensure(left) < mathOps.ensure(right);
+      case "<=":
+        return mathOps.ensure(left) <= mathOps.ensure(right);
+      case ">":
+        return mathOps.ensure(left) > mathOps.ensure(right);
+      case ">=":
+        return mathOps.ensure(left) >= mathOps.ensure(right);
+      case "==":
+        return mathOps.ensure(left) === mathOps.ensure(right);
+      case "!=":
+        return mathOps.ensure(left) !== mathOps.ensure(right);
+      case "&&":
+        return mathOps.ensure(left) && mathOps.ensure(right);
+      case "||":
+        return mathOps.ensure(left) || mathOps.ensure(right);
     }
-  }
-  switch (operator) {
-    case "<":
-      return left < right;
-    case "<=":
-      return left <= right;
-    case ">":
-      return left > right;
-    case ">=":
-      return left >= right;
-    case "==":
-      return left === right;
-    case "!=":
-      return left !== right;
-    case "&&":
-      return left && right;
-    case "||":
-      return left || right;
+  } else {
+    if (typeof left === "string" || typeof right === "string") {
+      if (operator === "+") {
+        left = internals.exists(left) ? left : "";
+        right = internals.exists(right) ? right : "";
+        return left + right;
+      }
+    } else {
+      switch (operator) {
+        case "^":
+          return Math.pow(left, right);
+        case "*":
+          return left * right;
+        case "/":
+          return left / right;
+        case "%":
+          return left % right;
+        case "+":
+          return left + right;
+        case "-":
+          return left - right;
+      }
+    }
+    switch (operator) {
+      case "<":
+        return left < right;
+      case "<=":
+        return left <= right;
+      case ">":
+        return left > right;
+      case ">=":
+        return left >= right;
+      case "==":
+        return left === right;
+      case "!=":
+        return left !== right;
+      case "&&":
+        return left && right;
+      case "||":
+        return left || right;
+    }
   }
   return null;
 };
