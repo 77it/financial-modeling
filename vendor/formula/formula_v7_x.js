@@ -466,6 +466,22 @@ exports.Parser = class {
     return false;
   }
 
+  // Check if a part needs __ensure() wrapping (only references need it, not pre-converted constants)
+  _needsEnsure(part) {
+    if (part._code) return true;  // Generated code from sub-expressions - may need ensure
+    if (part.type === 'constant' && part.isNumber) return false;  // Already BigInt literal
+    if (part.type === 'literal') return true;  // String literals need coercion to BigInt
+    if (part.type === 'reference') return true;  // Context values need coercion
+    if (part.type === 'segment') return true;  // Sub-expressions may return non-BigInt
+    if (part.type === 'function') return true;  // Function results need coercion
+    return false;
+  }
+
+  // Wrap code with __ensure() only if needed
+  _ensureCode(part, code) {
+    return this._needsEnsure(part) ? `__ensure(${code})` : code;
+  }
+
   _generateCodeWithPrecedence(parts) {
     if (parts.length === 0) {
       return 'null';
@@ -488,11 +504,11 @@ exports.Parser = class {
         if (part.value === '!') {
           prefixCode = `__h.not(${nextCode})`;
         } else if (part.value === 'n') {
-          // Unary minus - ensure then negate
-          prefixCode = `(-__ensure(${nextCode}))`;
+          // Unary minus - ensure then negate (only if needed)
+          prefixCode = `(-${this._ensureCode(nextPart, nextCode)})`;
         } else if (part.value === 'p') {
-          // Unary plus - ensure to numeric
-          prefixCode = `(__ensure(${nextCode}))`;
+          // Unary plus - ensure to numeric (only if needed)
+          prefixCode = this._ensureCode(nextPart, nextCode);
         }
 
         // Replace the operator and next part with the generated code
@@ -513,6 +529,10 @@ exports.Parser = class {
           const leftCode = this._partToCode(left);
           const rightCode = this._partToCode(right);
 
+          // Only wrap with __ensure() if the part needs it
+          const leftEnsured = this._ensureCode(left, leftCode);
+          const rightEnsured = this._ensureCode(right, rightCode);
+
           let opCode;
 
           // Special handling for string concatenation
@@ -521,7 +541,7 @@ exports.Parser = class {
           switch (operator) {
             case '??':
               if (this.numericMode) {
-                // From v6: ensure result is numeric if not null
+                // Result of ?? needs ensure since it could be either side
                 opCode = `(() => { const __v = __h.nullCoalesce(${leftCode}, ${rightCode}); return (__v === null || __v === undefined) ? null : __ensure(__v); })()`;
               } else {
                 opCode = `__h.nullCoalesce(${leftCode}, ${rightCode})`;
@@ -530,46 +550,46 @@ exports.Parser = class {
             case '+':
               opCode = isStringOp
                 ? `(${leftCode} + ${rightCode})`
-                : `__mathOps.add(__ensure(${leftCode}), __ensure(${rightCode}))`;
+                : `__mathOps.add(${leftEnsured}, ${rightEnsured})`;
               break;
             case '-':
-              opCode = `__mathOps.sub(__ensure(${leftCode}), __ensure(${rightCode}))`;
+              opCode = `__mathOps.sub(${leftEnsured}, ${rightEnsured})`;
               break;
             case '*':
-              opCode = `__mathOps.mul(__ensure(${leftCode}), __ensure(${rightCode}))`;
+              opCode = `__mathOps.mul(${leftEnsured}, ${rightEnsured})`;
               break;
             case '/':
-              opCode = `__mathOps.div(__ensure(${leftCode}), __ensure(${rightCode}))`;
+              opCode = `__mathOps.div(${leftEnsured}, ${rightEnsured})`;
               break;
             case '%':
-              opCode = `__mathOps.modulo(__ensure(${leftCode}), __ensure(${rightCode}))`;
+              opCode = `__mathOps.modulo(${leftEnsured}, ${rightEnsured})`;
               break;
             case '^':
-              opCode = `__mathOps.pow(__ensure(${leftCode}), __ensure(${rightCode}))`;
+              opCode = `__mathOps.pow(${leftEnsured}, ${rightEnsured})`;
               break;
             case '<':
-              opCode = `(__ensure(${leftCode}) < __ensure(${rightCode}))`;
+              opCode = `(${leftEnsured} < ${rightEnsured})`;
               break;
             case '<=':
-              opCode = `(__ensure(${leftCode}) <= __ensure(${rightCode}))`;
+              opCode = `(${leftEnsured} <= ${rightEnsured})`;
               break;
             case '>':
-              opCode = `(__ensure(${leftCode}) > __ensure(${rightCode}))`;
+              opCode = `(${leftEnsured} > ${rightEnsured})`;
               break;
             case '>=':
-              opCode = `(__ensure(${leftCode}) >= __ensure(${rightCode}))`;
+              opCode = `(${leftEnsured} >= ${rightEnsured})`;
               break;
             case '==':
-              opCode = `(__ensure(${leftCode}) === __ensure(${rightCode}))`;
+              opCode = `(${leftEnsured} === ${rightEnsured})`;
               break;
             case '!=':
-              opCode = `(__ensure(${leftCode}) !== __ensure(${rightCode}))`;
+              opCode = `(${leftEnsured} !== ${rightEnsured})`;
               break;
             case '&&':
-              opCode = `(__ensure(${leftCode}) && __ensure(${rightCode}))`;
+              opCode = `(${leftEnsured} && ${rightEnsured})`;
               break;
             case '||':
-              opCode = `(__ensure(${leftCode}) || __ensure(${rightCode}))`;
+              opCode = `(${leftEnsured} || ${rightEnsured})`;
               break;
             default:
               throw new Error(`Unknown operator: ${operator}`);
