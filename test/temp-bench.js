@@ -38,6 +38,7 @@ import { fxAdd, ensureBigIntScaled } from "../src/lib/decimal_scaled_bigint__dsb
 import { Parser as ParserOriginal } from "../vendor/formula/formula.js";
 import { Parser as ParserCustom } from "../vendor/formula/formula_v5_eval2cached_x.js";
 import { Parser as ParserCustom2 } from "../vendor/formula/formula_v6_eval2cached+old_behaviour_x.js";
+import { Parser as ParserCustom3 } from "../vendor/formula/formula_v7_x.js";
 
 import * as Benchmark from "benchmark";
 const suite = new Benchmark.default.Suite('');
@@ -61,6 +62,10 @@ const sumEval = eval(`
 // preparsed formula v6
 const formula3 = new ParserCustom2('1000000 + 2000000');
 const fn3 = formula3.toFunction();
+
+// preparsed formula v7
+const formula4 = new ParserCustom3('1000000 + 2000000');
+const fn4 = formula4.toFunction();
 
 
 
@@ -109,6 +114,12 @@ suite
   .add(`sum with formula Custom v6 - compiled toFunction() For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
     for (let i = 0; i < COUNTER; i++) {
       const a = fn3();
+    }
+  })
+
+  .add(`sum with formula Custom v7 - compiled toFunction() For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = fn4();
     }
   })
 
