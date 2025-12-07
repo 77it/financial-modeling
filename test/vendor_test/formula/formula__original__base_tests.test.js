@@ -19,7 +19,6 @@ runTests({Parser: OriginalParser});
  * @param {*} p.Parser
  */
 function runTests({ Parser }) {
-    // Wrapper for expect.toEqual to auto-convert numbers to strings if evaluateNumbersAsStrings is true
     const expectEqual = (actual, expected) => {
         expect(actual).toEqual(expected);
     };

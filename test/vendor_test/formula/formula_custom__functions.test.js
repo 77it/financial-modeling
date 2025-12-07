@@ -1,7 +1,7 @@
 // test with deno test --allow-import
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_v5_eval2cached_x.js';
+import { Parser } from '../../../vendor/formula/formula_v7_x.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
 
 import { test } from 'node:test';
@@ -36,16 +36,18 @@ t('function with JSONX, array, date, nested json objects etc', () => {
 });
 
 t('formula calling with functions containing quoted and unquoted values', () => {
-  // being any operation absent, is not converted to decimal but simply to a string
-  assert.deepStrictEqual(new Parser('444', { functions }).evaluate(), '444');
-  assert.deepStrictEqual(new Parser('"444"', { functions }).evaluate(), '444');
+  // v7: bare numbers are converted to BigInt for performance
+  assert.deepStrictEqual(new Parser('444', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(444));
+  // quoted numeric strings are also converted to BigInt
+  assert.deepStrictEqual(new Parser('"444"', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(444));
   assert.deepStrictEqual(new Parser('222 + 222', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(444));
+  // quoted non-numeric string stays as string
   assert.deepStrictEqual(new Parser('"222 + 222"', { functions }).evaluate(), '222 + 222');
   assert.deepStrictEqual(new Parser('q( 0+555 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(555));
   assert.deepStrictEqual(new Parser('q( -777 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(-777));
   assert.deepStrictEqual(new Parser('q( +777 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(777));
-  // a number is passed to a function as string
-  assert.deepStrictEqual(new Parser('q( 88888 )', { functions }).evaluate(), '88888');
+  // v7: a number is passed to a function as BigInt (for performance)
+  assert.deepStrictEqual(new Parser('q( 88888 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(88888));
   // a date outside a JSONX object is treated, rightly, as an arithmetic expression
   assert.deepStrictEqual(new Parser('q( 2025-12-31 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt(2025 - 12 - 31));
   assert.deepStrictEqual(new Parser('q( "2025-12-31" )', { functions }).evaluate(), "2025-12-31");

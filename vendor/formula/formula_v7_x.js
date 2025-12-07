@@ -10,6 +10,7 @@ import { pow, modulo } from './adapters/decimal-adapter.js';
 import { isPureDecimalNumber } from '../../src/lib/number_utils.js';
 import { cachedParseJSONrelaxed as parse } from '../../src/lib/json.js';
 import { FORMULA_MARKER } from './modules/formula-marker.js';
+import { isLikelyFormula } from './modules/formula-jsonx-handler.js';
 import { lru } from '../tiny_lru/lru.js';
 
 var exports = {};
@@ -79,14 +80,15 @@ exports.Parser = class {
     }, options);
 
     this.numericMode = this.settings.evaluateNumbersAsStrings !== false;  // From v6
+    this._isJsonxRoot = false;
 
     this.single = null;
     this._parts = null;
     this._compiled = null;
     this._parse(string);
 
-    // Try to compile if enabled
-    if (this.settings.compile && this._supportsCompilation()) {
+    // Try to compile if enabled (skip for JSONX root expressions)
+    if (!this._isJsonxRoot && this.settings.compile && this._supportsCompilation()) {
       try {
         this._compiled = this._compile();
       } catch (err) {
@@ -110,6 +112,18 @@ exports.Parser = class {
   }
 
   _parse(string) {
+    // Fast path: whole expression is JSONX/relaxed JSON
+    const trimmed = string.trim();
+    const jsonxRoot = this._parseObjectArgument(trimmed);
+    if (jsonxRoot) {
+      this._isJsonxRoot = true;
+      this._originalParts = [{ type: "jsonx", node: jsonxRoot }];
+      const evaluateJsonx = (ctx) => this._evaluateObjectNode(jsonxRoot, ctx);
+      this._parts = [evaluateJsonx];
+      this.single = null;
+      return;
+    }
+
     let parts = [];
     let current = "";
     let parenthesis = 0;
@@ -633,8 +647,9 @@ exports.Parser = class {
         if (this.settings.reference) {
           return `__ref(${JSON.stringify(part.value)}, __ctx)`;
         } else {
-          // Fall back to default: access context property
-          return `(__ctx && __ctx[${JSON.stringify(part.value)}] !== undefined ? __ctx[${JSON.stringify(part.value)}] : null)`;
+          // Fall back to default: access context property, throw if undefined
+          const refName = JSON.stringify(part.value);
+          return `(__ctx && Object.prototype.hasOwnProperty.call(__ctx, ${refName}) ? __ctx[${refName}] : (() => { throw new Error('Unknown reference ' + ${refName}); })())`;
         }
 
       case 'segment':
@@ -685,6 +700,15 @@ exports.Parser = class {
     if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) {
       return null;
     }
+    // Simple heuristic: bare bracket references (no commas/colons and no nested bracket) are formulas, not JSONX
+    if (trimmed.startsWith("[") && trimmed.endsWith("]") && !trimmed.includes(":")) {
+      const inner = trimmed.slice(1, -1);
+      if (!inner.includes(",") && !inner.includes("[")) {
+        return null;
+      }
+    } else if (trimmed.startsWith("[") && !trimmed.includes(",") && !trimmed.includes(":") && !trimmed.includes("{")) {
+      return null;
+    }
 
     const cacheKey = this._objectCacheKey(trimmed);
     const cached = internals.objectLiteralCache.get(cacheKey);
@@ -694,14 +718,29 @@ exports.Parser = class {
 
     let parsed;
     try {
-      // Enable advanced formula parsing to handle function-like values: fn({...})
-      parsed = parse(trimmed, FORMULA_MARKER, true);
+      parsed = parse(trimmed, FORMULA_MARKER);
     } catch {
       return null;
     }
 
-    // parseJSONX returns the original input when parsing fails
     if (parsed === trimmed) {
+      if (trimmed.startsWith("[") && !trimmed.endsWith("]")) {
+        throw new Error("Formula missing closing bracket");
+      }
+      if (trimmed.startsWith("{") && !trimmed.endsWith("}")) {
+        throw new Error("Formula missing closing brace");
+      }
+      if (trimmed.startsWith("{") && trimmed.endsWith("}") && !trimmed.includes(":")) {
+        const node = { kind: "literal", value: trimmed };
+        internals.objectLiteralCache.set(cacheKey, node);
+        return node;
+      }
+      // If it still looks like JSON-ish text, treat as literal; otherwise let formula parsing handle it
+      if (trimmed.includes(":")) {
+        const node = { kind: "literal", value: trimmed };
+        internals.objectLiteralCache.set(cacheKey, node);
+        return node;
+      }
       return null;
     }
 
@@ -725,11 +764,23 @@ exports.Parser = class {
     }
     const t = typeof value;
     if (t === "string") {
-      const exprNode = this._maybeExpressionNode(value);
+      const hasMarker = value.startsWith(FORMULA_MARKER);
+      const base = hasMarker ? value.slice(FORMULA_MARKER.length) : value;
+      const cleaned = (base.length >= 2 && base.startsWith("`") && base.endsWith("`"))
+        ? base.slice(1, -1)
+        : base;
+      if (hasMarker) {
+        const exprNode = this._maybeExpressionNode(FORMULA_MARKER + cleaned);
+        if (exprNode) {
+          return exprNode;
+        }
+        return { kind: "literal", value: this._coerceStringNumber(cleaned) };
+      }
+      const exprNode = this._maybeExpressionNode(cleaned);
       if (exprNode) {
         return exprNode;
       }
-      return { kind: "literal", value: this._coerceStringNumber(value) };
+      return { kind: "literal", value: this._coerceStringNumber(cleaned) };
     }
     if (t === "number") {
       return { kind: "literal", value: ensureBigIntScaled(String(value)) };
@@ -753,17 +804,22 @@ exports.Parser = class {
   _maybeExpressionNode(str) {
     if (str.startsWith(FORMULA_MARKER)) {
       const inner = str.slice(FORMULA_MARKER.length);
-      const parser = new exports.Parser(inner, this.settings);
-      return { kind: "expr", parser };
+      // Skip obvious non-formulas early to avoid noisy parse errors
+      if (!isLikelyFormula(inner)) {
+        return { kind: "literal", value: inner };
+      }
+      try {
+        const parser = new exports.Parser(inner, this.settings);
+        return { kind: "expr", parser, raw: inner };
+      } catch {
+        // Treat invalid formulas as plain strings, stripping the marker
+        return { kind: "literal", value: inner };
+      }
     }
     return null;
   }
 
   _coerceStringNumber(value) {
-    const trimmed = value.trim();
-    if (isPureDecimalNumber(trimmed)) {
-      return ensureBigIntScaled(trimmed);
-    }
     return value;
   }
 
@@ -775,7 +831,11 @@ exports.Parser = class {
       case "literal":
         return node.value;
       case "expr":
-        return node.parser.evaluate(context);
+        try {
+          return node.parser.evaluate(context);
+        } catch (_) {
+          return node.raw ?? null;
+        }
       case "array":
         return node.items.map(item => this._evaluateObjectNode(item, context));
       case "object": {
@@ -814,6 +874,10 @@ exports.Parser = class {
         throw new Error("Unsupported literal in object argument");
       }
       case "expr":
+        if (node.raw !== undefined) {
+          const exprCode = node.parser._generateCode(node.parser._originalParts);
+          return `(function(){ try { return ${exprCode}; } catch { return ${JSON.stringify(node.raw)}; } })()`;
+        }
         return node.parser._generateCode(node.parser._originalParts);
       case "array": {
         const inner = node.items.map(item => this._objectNodeToCode(item)).join(", ");
@@ -881,7 +945,10 @@ exports.Parser.prototype[internals.symbol] = true;
 
 internals.reference = function (name) {
   return function (context) {
-    return context && context[name] !== undefined ? context[name] : null;
+    if (context && Object.prototype.hasOwnProperty.call(context, name)) {
+      return context[name];
+    }
+    throw new Error(`Unknown reference ${name}`);
   };
 };
 

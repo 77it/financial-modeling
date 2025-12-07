@@ -1,7 +1,7 @@
 // test with deno test --allow-import
 
 // @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_v5_eval2cached_x.js';
+import { Parser } from '../../../vendor/formula/formula_v7_x.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
 
 import { test } from 'node:test';
@@ -23,19 +23,20 @@ const functions = {
 };
 
 t('formula calling with really long numbers, quoted and not', () => {
-  // being any operation absent, is not converted to decimal but simply to a string
-  assert.deepStrictEqual(new Parser('123456789012345678901234567890.0987654321', { functions }).evaluate(), '123456789012345678901234567890.0987654321');
-  assert.deepStrictEqual(new Parser('"123456789012345678901234567890.0987654321"', { functions }).evaluate(), '123456789012345678901234567890.0987654321');
+  // v7: numeric literals are always converted to BigInt for performance
+  assert.deepStrictEqual(new Parser('123456789012345678901234567890.0987654321', { functions }).evaluate(), convertWhenFmlEvalRequiresIt('123456789012345678901234567890.0987654321'));
+  assert.deepStrictEqual(new Parser('"123456789012345678901234567890.0987654321"', { functions }).evaluate(), convertWhenFmlEvalRequiresIt('123456789012345678901234567890.0987654321'));
 
   // long numbers in functions
   assert.deepStrictEqual(new Parser('q( 123456789012345678901234567890.0987654321+300000000000000000000000000000 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt('423456789012345678901234567890.0987654321'));
 
-  // a number in function without operation is returned as string
+  // v7: a number in function with unary operator is converted to BigInt
   assert.deepStrictEqual(new Parser('q( -123456789012345678901234567890.0987654321 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt('-123456789012345678901234567890.0987654321'));
   assert.deepStrictEqual(new Parser('q( +123456789012345678901234567890.0987654321 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt('123456789012345678901234567890.0987654321'));
-  assert.deepStrictEqual(new Parser('q( 123456789012345678901234567890.0987654321 )', { functions }).evaluate(), '123456789012345678901234567890.0987654321');
+  // v7: bare number in function is also converted to BigInt for performance
+  assert.deepStrictEqual(new Parser('q( 123456789012345678901234567890.0987654321 )', { functions }).evaluate(), convertWhenFmlEvalRequiresIt('123456789012345678901234567890.0987654321'));
 
-  // long numbers inside a JSONX object
+  // long numbers inside a JSONX object - stay as strings in JSONX
   assert.deepStrictEqual(new Parser('q( {a: 123456789012345678901234567890.0987654321} )', { functions }).evaluate(), {a: '123456789012345678901234567890.0987654321'});
   assert.deepStrictEqual(new Parser(`q( {a: '123456789012345678901234567890.0987654321'} )`, { functions }).evaluate(), {a: '123456789012345678901234567890.0987654321'});
   assert.deepStrictEqual(new Parser(`q( {a: "123456789012345678901234567890.0987654321"} )`, { functions }).evaluate(), {a: '123456789012345678901234567890.0987654321'});
