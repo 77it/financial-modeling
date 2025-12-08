@@ -3,6 +3,7 @@
 // @deno-types="../../../vendor/formula/index.d.ts"
 import { Parser } from '../../../vendor/formula/formula_v7_x.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
+import { reference_returnAny as reference } from './_formula__reference_and_functions.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
@@ -14,10 +15,14 @@ t('formula calling with bare references variables, defined or not in the context
 
   // undefined variable bare references -> throws
   assert.throws(() => { new Parser('z').evaluate({ x: 10, y: 3 }) });
+  // 'z' is defined with reference function
+  assert.deepStrictEqual(new Parser('z', {reference}).evaluate({ x: 10, y: 3 }), "z");
 
   // variable used in operation
   assert.deepStrictEqual(new Parser('x + 1').evaluate({ x: 10, y: 3 }), convertWhenFmlEvalRequiresIt(11));
 
   // undefined variable used in operation -> throws
   assert.throws(() => { new Parser('z + 1').evaluate({ x: 10, y: 3 }) });
+  // 'z' is defined with reference function (z is converted to 0 when used in operation)
+  assert.deepStrictEqual(new Parser('z + 1', {reference}).evaluate({ x: 10, y: 3 }), convertWhenFmlEvalRequiresIt(1));
 });

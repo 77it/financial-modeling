@@ -3,35 +3,17 @@
 // @deno-types="../../../vendor/formula/index.d.ts"
 import { Parser } from '../../../vendor/formula/formula_v7_x.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
+import { functions, reference_returnAny as reference } from './_formula__reference_and_functions.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
-/**
- * @param {*} p
- * @return {*}
- */
-function returnAny (p) {
-  console.log(p);
-  return p;
-}
-
-const functions = {
-  q: returnAny,
-  Q: returnAny
-};
-
-/** @param {string} name @returns {(ctx: any) => any} */
-const reference = (name) => {
-  return () => returnAny(name);
-};
-
 t('quotes/quoted and bare parameters inside a function in JSONX are supported', () => {
   // quoted parameter supported
   assert.deepStrictEqual(new Parser('{a: q("mamma")}', { functions }).evaluate(), {a: "mamma"});
   assert.deepStrictEqual(new Parser("{a: q('mamma')}", { functions }).evaluate(), {a: "mamma"});
-  // unquoted parameter
+  // query bare reference
   assert.deepStrictEqual(new Parser('{a: q(mam)}', { functions, reference }).evaluate(), { a: "mam" });
 
   // if we need to pass a string as parameter better calling a function with json object
@@ -41,7 +23,7 @@ t('quotes/quoted and bare parameters inside a function in JSONX are supported', 
   assert.deepStrictEqual(new Parser('{a: q({mam})}', { functions }).evaluate(), { a: "{mam}" });
   assert.deepStrictEqual(new Parser('{a: q({mam ma})}', { functions }).evaluate(), { a: "{mam ma}" });
 
-  // spaced function parameter are supported in json, but not supported in formula calls
+  // spaced function parameter are supported in json, but not supported in formula calls (bare references can't have spaces)
   assert.throws(() => { new Parser('{a: q(mam ma)}', { functions, reference }).evaluate(); });
 });
 
@@ -53,6 +35,7 @@ t('function with JSONX, array, date, nested json objects etc', () => {
   assert.deepStrictEqual(new Parser('q( {a: 2025/12/31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: q(99)})} } )', { functions }).evaluate(), {a: "2025/12/31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: convertWhenFmlEvalRequiresIt(99)}}});
   assert.deepStrictEqual(new Parser('q( {a: 2025-12-31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: q("ciao_ciao")})} } )', { functions }).evaluate(), {a: "2025-12-31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: "ciao_ciao"}}});
   assert.deepStrictEqual(new Parser(`q( {a: 2025-12-31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: q('ciao_ciao')})} } )`, { functions }).evaluate(), {a: "2025-12-31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: "ciao_ciao"}}});
+  // query bare reference inside json object
   assert.deepStrictEqual(new Parser('q( {a: 2025.12.31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: q(ciao_ciao)})} } )', { functions, reference }).evaluate(), {a: "2025.12.31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: "ciao_ciao"}}});
 });
 
