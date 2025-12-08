@@ -52,6 +52,7 @@ t('function with JSONX, array, date, nested json objects etc', () => {
   // nested json objects - JSONX values stay as strings (no BigInt conversion in JSONX objects)
   assert.deepStrictEqual(new Parser('q( {a: 2025/12/31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: q(99)})} } )', { functions }).evaluate(), {a: "2025/12/31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: convertWhenFmlEvalRequiresIt(99)}}});
   assert.deepStrictEqual(new Parser('q( {a: 2025-12-31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: q("ciao_ciao")})} } )', { functions }).evaluate(), {a: "2025-12-31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: "ciao_ciao"}}});
+  assert.deepStrictEqual(new Parser(`q( {a: 2025-12-31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: q('ciao_ciao')})} } )`, { functions }).evaluate(), {a: "2025-12-31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: "ciao_ciao"}}});
   assert.deepStrictEqual(new Parser('q( {a: 2025.12.31, b: mamma mia, c: 999, d: [1, a b c], e: {aa: 99, bb: q({z: q(ciao_ciao)})} } )', { functions, reference }).evaluate(), {a: "2025.12.31", b: "mamma mia", c: '999', d: ['1', "a b c"], e: {aa: '99', bb: {z: "ciao_ciao"}}});
 });
 
