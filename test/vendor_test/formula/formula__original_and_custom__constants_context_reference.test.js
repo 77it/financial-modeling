@@ -2,6 +2,7 @@
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
 import { Parser as CustomParser } from '../../../vendor/formula/formula_v7_x.js';
+import { setReferenceValues, reference_withContext as reference } from './_formula__reference_and_functions.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js';
 import { DSB } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
@@ -82,42 +83,13 @@ t('arithmetics with strings and numbers', () => {
 });
 
 t('formula original and custom: custom variable reference resolver', () => {
-    /**
-     * @param {string} name
-     * @return {*}
-     */
-    const reference = function (name) {
-        /**
-         * Custom variable resolver function
-         *
-         * Resolves variable names to their values based on `context` variable optionally passed to `.evaluate()`
-         * or with the switch as fallback.
-         @param {*} context
-         @return {*}
-         */
-        function _resolve (context)
-        {
-            // if `name` is defined in context, return it, otherwise, go to the switch
-            if (name in context) {
-                return context[name];
-            } else {
-                const fallback = {
-                    a: 1,
-                    'a.b': 2,
-                    b: 3,
-                    '$': 4,
-                    bonus: closure_computeBonus(7) // uses outer constants + helper
-                }[name];
-
-                if (fallback !== undefined) {
-                    return fallback;
-                }
-                throw new Error('unrecognized value');
-            }
-        }
-
-        return _resolve;
-    };
+    setReferenceValues({
+        a: 1,
+        'a.b': 2,
+        b: 3,
+        '$': 4,
+        bonus: closure_computeBonus(7) // uses outer constants + helper
+    });
 
     const string_to_parse_1 = 'a + 1.99 + a.b + (((a+1)*2)+1) + a + $ + ((10)-2*5 + mamma) + bonus';
     const expected_1 = 1 + 1.99 + 2 + (((1 + 1) * 2) + 1) + 1 + 4 + ((10) - 2 * 5 + 99) + closure_computeBonus(7);
@@ -131,6 +103,7 @@ t('formula original and custom: custom variable reference resolver', () => {
 /**
  * Converts a number to a string if the setting is enabled.
  * @param {*} value
+ * @param {boolean} numericMode
  * @return {*|string}
  */
 export function _convertWhenFmlEvalRequiresIt(value, numericMode) {

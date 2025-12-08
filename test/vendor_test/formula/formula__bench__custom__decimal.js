@@ -1,71 +1,39 @@
-// run it with `node --import ./__node__register-hooks.js`
-// run it with `run --allow-read --allow-write --allow-net --allow-import`
-
-// docs https://benchmarkjs.com/
-
 /*
-P16s
-
 NODEJS run
 
-hapi formula calling function with a string parameter parsed as JSONX x 92,274 ops/sec ±2.91% (70 runs sampled)
-hapi formula with custom variable resolver x 137,052 ops/sec ±2.25% (71 runs sampled)
-quick functions call x 506,053 ops/sec ±3.49% (71 runs sampled)
-simple formula + quick function call x 590,590 ops/sec ±3.08% (72 runs sampled)
-Fastest is simple formula + quick function call
-
-DENO run
-
-hapi formula calling function with a string parameter parsed as JSONX x 83,155 ops/sec ±6.31% (62 runs sampled)
-hapi formula with custom variable resolver x 101,324 ops/sec ±3.28% (82 runs sampled)
-quick functions call x 331,754 ops/sec ±6.36% (74 runs sampled)
-simple formula + quick function call x 376,640 ops/sec ±7.51% (71 runs sampled)
-Fastest is simple formula + quick function call
-
-BUN run
-
-hapi formula calling function with a string parameter parsed as JSONX x 54,117 ops/sec ±5.28% (58 runs sampled)
-hapi formula with custom variable resolver x 56,123 ops/sec ±4.26% (79 runs sampled)
-quick functions call x 276,277 ops/sec ±3.65% (85 runs sampled)
-simple formula + quick function call x 292,988 ops/sec ±4.51% (79 runs sampled)
-Fastest is simple formula + quick function call
-
-
-
-
-with 7.1
-
-NODEJS run
-
-hapi formula calling function with a string parameter parsed as JSONX x 91,031 ops/sec ±3.79% (68 runs sampled)
-hapi formula with custom variable resolver x 195,011 ops/sec ±3.33% (75 runs sampled)
-quick functions call x 743,388 ops/sec ±1.52% (82 runs sampled)
-simple formula + quick function call x 1,213,877 ops/sec ±2.69% (73 runs sampled)
-Fastest is simple formula + quick function call
-
-DENO run
-
-hapi formula calling function with a string parameter parsed as JSONX x 87,334 ops/sec ±4.86% (63 runs sampled)
-hapi formula with custom variable resolver x 118,285 ops/sec ±5.39% (74 runs sampled)
-quick functions call x 483,760 ops/sec ±6.50% (71 runs sampled)
-simple formula + quick function call x 823,866 ops/sec ±4.19% (81 runs sampled)
-Fastest is simple formula + quick function call
-
-BUN run
-
-hapi formula calling function with a string parameter parsed as JSONX x 49,517 ops/sec ±12.42% (56 runs sampled)
-hapi formula with custom variable resolver x 84,671 ops/sec ±1.11% (87 runs sampled)
-quick functions call x 297,085 ops/sec ±0.84% (87 runs sampled)
-simple formula + quick function call x 494,001 ops/sec ±0.90% (86 runs sampled)
-Fastest is simple formula + quick function call
+bigint sum For 1000 runs x 1,475,425 ops/sec ±3.09% (80 runs sampled)
+bigint sum with fx For 1000 runs x 1,493,350 ops/sec ±2.78% (77 runs sampled)
+bigint sum with fx & conversion from string For 1000 runs x 995 ops/sec ±2.54% (85 runs sampled)
+bigint sum generated with Eval() For 1000 runs x 1,485,614 ops/sec ±2.03% (75 runs sampled)
+sum with evaluate() formula Original Parser For 1000 runs x 6,860 ops/sec ±3.46% (82 runs sampled)
+sum with evaluate() formula Custom v7 For 1000 runs x 370,498 ops/sec ±2.09% (80 runs sampled)
+sum with COMPILED toFunction() formula Custom v7 For 1000 runs x 1,423,556 ops/sec ±1.84% (80 runs sampled)
+formula with custom variable COMPILED toFunction() formula Custom v7 For 1000 runs x 1,557 ops/sec ±1.61% (85 runs sampled)
+quick functions call COMPILED toFunction() formula Custom v7 For 1000 runs x 1,481,284 ops/sec ±2.50% (75 runs sampled)
+sum with COMPILED toFunction() formula Custom v6 For 1000 runs x 903 ops/sec ±2.14% (78 runs sampled)
+sum with COMPILED toFunction() formula Custom v5 For 1000 runs x 1,448,817 ops/sec ±3.07% (75 runs sampled)
  */
 
+// run it with `node --import ./__node__register-hooks.js`
+// run it with `deno run --allow-read --allow-write --allow-net --allow-import`
+
+import { fxAdd, ensureBigIntScaled } from "../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js";
+import { Parser as ParserOriginal } from "../../../vendor/formula/formula.js";
+import { Parser as ParserCustom5 } from "../../../vendor/formula/old/formula_v5_eval2cached_x.js";
+import { Parser as ParserCustom6 } from "../../../vendor/formula/old/formula_v6_eval2cached+old_behaviour_x.js";
+import { Parser as ParserCustom7 } from '../../../vendor/formula/formula_v7_x.js';
+
+import { setReferenceValues, reference_getOnly as reference } from './_formula__reference_and_functions.js';
+import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js';
+
 import * as Benchmark from "benchmark";
+
 const suite = new Benchmark.default.Suite('');
 
-// @deno-types="../../../vendor/formula/index.d.ts"
-import { Parser } from '../../../vendor/formula/formula_v7_x.js';
-import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
+// loop counter
+const COUNTER = 1_000;
+
+//#region arrange test helpers
 
 /**
  * @param {string} value
@@ -80,96 +48,137 @@ const functions = {
   q: q
 };
 
-/**
- * @param {string} value
- * @return {bigint}
- */
-function q_quick (value) {
-  return 50n;
-}
+setReferenceValues({
+  'a': 2n,
+  'a.b': 3n,
+  'b': 4n,
+  '$': 2n,
+  '$.ciao': 5n
+});
 
-const functions_quick = {
-  Q: q_quick,
-  q: q_quick
-};
+//#endregion arrange test helpers
 
-const delta_context = 1n;
+//#region arrange test assets
 
-/**
- * @param {string} name
- * @param {*} context
- * @return {bigint}
- */
-const reference = function (name, context) {
-  // Closure example: can access external variables
-  // const externalData = { ... };  // Would be captured here
+// eval generated function
+const sumEval = eval(`
+    (function(x, y) {
+      return x + y;
+    })
+  `);
 
-  switch (name) {
-    case 'a':
-      return 1n + delta_context;
-    case 'a.b':
-      return 2n + delta_context;
-    case 'b':
-      return 3n + delta_context;
-    case '$':
-      return 1n + delta_context;
-    case '$.ciao':
-      return 4n + delta_context;
-    default:
-      throw new Error('unrecognized value');
-  }
-};
+// evaluated formula original parser
+const formula_v0 = new ParserOriginal('1000000 + 2000000');
 
-// shared data
-let data;
+// preparsed formula v5
+const formula_v5 = new ParserCustom5('1000000 + 2000000');
+const compiled_v5 = formula_v5.toFunction();
 
-const formula1 = new Parser('a + 1.99 + a.b + (((a+1)*2)+1) + a + $.ciao + $ + $.ciao', { reference: reference }).toFunction();
-const expected1 = convertWhenFmlEvalRequiresIt(49900000023n);
+// preparsed formula v6
+const formula_v6 = new ParserCustom6('1000000 + 2000000');
+const compiled_v6 = formula_v6.toFunction();
 
-const fmlText2 = "Q(\"{a: 11, b: mam ma, c: null, t: 2024-01-12:2025-05-07, e: 7\") + q(\"a: 55, b: -1000, x: 'ciao,, ciao'}\")";  //missing closing / opening brackets
-const fmlText2_simple = "50 + Q('ten')";
-const expected2 = 100n;
-const formula2 = new Parser(fmlText2, { functions }).toFunction();
+// preparsed formula v7
+const formula_v7 = new ParserCustom7('1000000 + 2000000');
+const compiled_v7 = formula_v7.toFunction();
 
-const formula3 = new Parser(fmlText2, { functions: functions_quick }).toFunction();
+// preparsed formula v7 with custom variable resolver
+const compiled_v7_customVariableResolver = new ParserCustom7('a + 1.99 + a.b + (((a+1)*2)+1) + a + $.ciao + $ + $.ciao', { reference: reference }).toFunction();
+const expected_v7_customVariableResolver = convertWhenFmlEvalRequiresIt(49900000023n);
 
-const formula4 = new Parser(fmlText2_simple, { functions: functions_quick }).toFunction();
-const expected4 = 500000000050n;
+// preparsed formula v7 with quick function call
+const compiled_v7_quickFunctionCall = new ParserCustom7("50 + Q('ten')", { functions }).toFunction();
+const expected_v7_quickFunctionCall = 500000000050n ;
 
-// add tests
-suite.add('hapi formula calling function with a string parameter parsed as JSONX', function() {
-  if (formula2() !== expected2) {
-    throw new Error("formula should be " + expected2 + ", instead is " + formula2());
-  }
-})
+//#region arrange test assets
 
-  .add('hapi formula with custom variable resolver', function() {
-    if (formula1() !== expected1) {
-      throw new Error("formula should be " + expected1 + ", instead is " + formula1());
+
+// tests
+suite
+  .add(`bigint sum For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = 1000000n + 2000000n;
     }
   })
 
-  .add('quick functions call', function() {
-    if (formula3() !== expected2) {
-      throw new Error("formula should be " + expected2 + ", instead is " + formula3());
+  .add(`bigint sum with fx For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = fxAdd(1000000n, 2000000n);
     }
   })
 
-  .add('simple formula + quick function call', function() {
-    if (formula4() !== expected4) {
-      throw new Error("formula should be " + expected4 + ", instead is " + formula4());
+  .add(`bigint sum with fx & conversion from string For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = fxAdd(ensureBigIntScaled("1000000"), ensureBigIntScaled("2000000"));
     }
   })
+
+  .add(`bigint sum generated with Eval() For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = sumEval(1000000n, 2000000n);
+    }
+  })
+
+  .add(`sum with evaluate() formula Original Parser For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = formula_v0.evaluate();
+    }
+  })
+
+  .add(`sum with evaluate() formula Custom v7 For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = formula_v7.evaluate();
+    }
+  })
+
+  .add(`sum with COMPILED toFunction() formula Custom v7 For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = compiled_v7();
+    }
+  })
+
+  .add(`formula with custom variable COMPILED toFunction() formula Custom v7 For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    if (compiled_v7_customVariableResolver() !== expected_v7_customVariableResolver) {
+      throw new Error("formula should be " + expected_v7_customVariableResolver + ", instead is " + compiled_v7_customVariableResolver());
+    }
+    for (let i = 0; i < COUNTER; i++) {
+      const a = compiled_v7_customVariableResolver();
+    }
+  })
+
+  .add(`quick functions call COMPILED toFunction() formula Custom v7 For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    if (compiled_v7_quickFunctionCall() !== expected_v7_quickFunctionCall) {
+      throw new Error("formula should be " + expected_v7_quickFunctionCall + ", instead is " + compiled_v7_quickFunctionCall());
+    }
+    for (let i = 0; i < COUNTER; i++) {
+      const a = compiled_v7_quickFunctionCall();
+    }
+  })
+
+  .add(`sum with COMPILED toFunction() formula Custom v6 For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = compiled_v6();
+    }
+  })
+
+  .add(`sum with COMPILED toFunction() formula Custom v5 For ${COUNTER.toLocaleString('it-IT')} runs`, function() {
+    for (let i = 0; i < COUNTER; i++) {
+      const a = compiled_v5();
+    }
+  })
+
 
   // add listeners
-  .on('cycle', function(event) {
+  .on('cycle', function(/** @type {Benchmark.Event} */ event) {
     console.log(String(event.target));
   })
   .on('complete', function() {
+    // @ts-ignore types from benchmark may not include .filter in Deno ambient
     console.log('Fastest is ' + this.filter('fastest').map('name'));
   })
-  .on('error', function (event) {
+  .on('error', function (/** @type {Benchmark.Event} */ event) {
     console.error(`Test "${event.target.name}" failed with error:`);
+    // @ts-ignore ignore Deno errrors
     console.error(event.target.error); // logs the actual Error object
   })
   // run async

@@ -1,6 +1,6 @@
 //@ts-nocheck
 
-import { Parser } from '../vendor/formula/formula_v5_eval2cached_x.js';
+import { Parser } from '../vendor/formula/old/formula_v5_eval2cached_x.js';
 import { ensureBigIntScaled } from '../vendor/formula/adapters/decimal-adapter2.js';
 import { convertWhenFmlEvalRequiresIt } from './vendor_test/formula/_formula__tests_settings.js';
 import { parseJSONrelaxed } from '../src/lib/json.js';
