@@ -717,7 +717,8 @@ exports.Parser = class {
 
     let parsed;
     try {
-      parsed = parse(trimmed, FORMULA_MARKER);
+      const needsAdvancedParsing = trimmed.includes('(');
+      parsed = parse(trimmed, FORMULA_MARKER, needsAdvancedParsing);
     } catch {
       return null;
     }
@@ -807,13 +808,8 @@ exports.Parser = class {
       if (!isLikelyFormula(inner)) {
         return { kind: "literal", value: inner };
       }
-      try {
-        const parser = new exports.Parser(inner, this.settings);
-        return { kind: "expr", parser, raw: inner };
-      } catch {
-        // Treat invalid formulas as plain strings, stripping the marker
-        return { kind: "literal", value: inner };
-      }
+      const parser = new exports.Parser(inner, this.settings);
+      return { kind: "expr", parser, raw: inner };
     }
     return null;
   }
