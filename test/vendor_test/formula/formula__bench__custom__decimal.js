@@ -23,7 +23,7 @@ import { Parser as ParserCustom5 } from "../../../vendor/formula/old/formula_v5_
 import { Parser as ParserCustom6 } from "../../../vendor/formula/old/formula_v6_eval2cached+old_behaviour_x.js";
 import { Parser as ParserCustom7 } from '../../../vendor/formula/formula_v7_x.js';
 
-import { setReferenceValues, reference_getOnly as reference } from './_formula__reference_and_functions.js';
+import { setReferenceValues, reference__values_fromReference_NOTfromContext as reference } from './_formula__reference_and_functions.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js';
 
 import * as Benchmark from "benchmark";

@@ -2,7 +2,7 @@
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
 import { Parser as CustomParser } from '../../../vendor/formula/formula_v7_x.js';
-import { setReferenceValues, reference_withContext as reference } from './_formula__reference_and_functions.js';
+import { setReferenceValues, reference__values_fromReference_andFromContext as reference } from './_formula__reference_and_functions.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js';
 import { DSB } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
