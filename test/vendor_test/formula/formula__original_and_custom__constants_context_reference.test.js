@@ -1,4 +1,3 @@
-//@ts-nocheck
 
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
 import { Parser as CustomParser } from '../../../vendor/formula/formula_v7_x.js';
@@ -7,6 +6,7 @@ import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js';
 import { DSB } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 const OUTER_BONUS = 5;
+/** @param {any} base */
 const closure_computeBonus = (base) => base + OUTER_BONUS; // shows reference resolver closing over module scope using a closure
 
 import { test } from 'node:test';
@@ -15,16 +15,16 @@ import assert from 'node:assert';
 
 // Original parser uses Number, Custom parser uses DSB for BigInt compatibility
 const originalFunctions = {
-    x: (value) => Number(value) + 10,
-    y: (value) => Number(value) + 2,
-    z: (value) => Number(value) + 3,
+    x: (/** @type {any} */ value) => Number(value) + 10,
+    y: (/** @type {any} */ value) => Number(value) + 2,
+    z: (/** @type {any} */ value) => Number(value) + 3,
     a: () => 9
 };
 
 const customFunctions = {
-    x: (value) => DSB.add(value, 10),
-    y: (value) => DSB.add(value, 2),
-    z: (value) => DSB.add(value, 3),
+    x: (/** @type {any} */ value) => DSB.add(value, 10),
+    y: (/** @type {any} */ value) => DSB.add(value, 2),
+    z: (/** @type {any} */ value) => DSB.add(value, 3),
     a: () => DSB.fromNumber(9)
 };
 
@@ -47,9 +47,9 @@ t('formula original and custom: multiple nested functions', () => {
     // Test Original Parser with Number-based functions
     {
         const functions = {
-            x: (value) => Number(value) + 1,
-            y: (value) => Number(value) + 2,
-            z: (value) => Number(value) + 3,
+            x: (/** @type {any} */ value) => Number(value) + 1,
+            y: (/** @type {any} */ value) => Number(value) + 2,
+            z: (/** @type {any} */ value) => Number(value) + 3,
             a: () => 9
         };
         const formula = new OriginalParser('x(y(3)) + x(10) + y(z(30)) + z(x(40)) + a()', { functions });
@@ -58,9 +58,9 @@ t('formula original and custom: multiple nested functions', () => {
     // Test Custom Parser with DSB-compatible functions
     {
         const functions = {
-            x: (value) => DSB.add(value, 1),
-            y: (value) => DSB.add(value, 2),
-            z: (value) => DSB.add(value, 3),
+            x: (/** @type {any} */ value) => DSB.add(value, 1),
+            y: (/** @type {any} */ value) => DSB.add(value, 2),
+            z: (/** @type {any} */ value) => DSB.add(value, 3),
             a: () => DSB.fromNumber(9)
         };
         const formula = new CustomParser('x(y(3)) + x(10) + y(z(30)) + z(x(40)) + a()', { functions });
