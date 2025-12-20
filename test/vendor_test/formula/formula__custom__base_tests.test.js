@@ -28,7 +28,7 @@ function runTests({ Parser }) {
         expect(actual).toEqual(convertWhenFmlEvalRequiresIt(expected));
     };
 
-    describe('Formula, original and custom, tests', () => {
+    describe('Formula, custom, tests', () => {
 
         it('evaluates a formula', () => {
 

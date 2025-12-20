@@ -89,7 +89,29 @@ function returnAny (p) {
 
 const functions = {
   q: returnAny,
-  Q: returnAny
+  Q: returnAny,
+
+  /**
+   * Sums all arguments (BigInt).
+   *
+   * @param {...bigint} args - Values to add.
+   * @returns {bigint} The sum of all provided values (0n if none).
+   */
+  sum: function (...args) {
+    return args.reduce((a, b) => a + b, 0n);
+  },
+
+  /**
+   * Computes the integer average (BigInt division, truncating toward 0).
+   *
+   * @param {...bigint} args - Values to average.
+   * @returns {bigint} The average of the provided values.
+   * @throws {RangeError} If called with no arguments.
+   */
+  avg: function (...args) {
+    const total = args.reduce((a, b) => a + b, 0n);
+    return total / BigInt(args.length);
+  }
 };
 //#endregion functions
 

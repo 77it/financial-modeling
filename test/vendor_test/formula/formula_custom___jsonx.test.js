@@ -9,15 +9,18 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
-t('quotes/quoted and bare parameters inside a function in JSONX are supported', () => {
+t('quotes/quoted and bare parameters inside a function in JSONX and outside are supported', () => {
   // quoted parameter supported
   assert.deepStrictEqual(new Parser('{a: q("mamma")}', { functions }).evaluate(), {a: "mamma"});
   assert.deepStrictEqual(new Parser("{a: q('mamma')}", { functions }).evaluate(), {a: "mamma"});
   // query bare reference
   assert.deepStrictEqual(new Parser('{a: q(mam)}', { functions, reference }).evaluate(), { a: "mam" });
 
-  // if we need to pass a string as parameter better calling a function with json object
+  // JSON object as parameters are supported, keys and values quoted and unquoted (bare)
   assert.deepStrictEqual(new Parser('{a: q({b: mam m a})}', { functions }).evaluate(), { a: {b: "mam m a"} });
+  assert.deepStrictEqual(new Parser('{a: q({"b": mam m a})}', { functions }).evaluate(), { a: {b: "mam m a"} });
+  assert.deepStrictEqual(new Parser('{a: q({b: "mam m a"})}', { functions }).evaluate(), { a: {b: "mam m a"} });
+  assert.deepStrictEqual(new Parser('{a: q({"b": "mam m a"})}', { functions }).evaluate(), { a: {b: "mam m a"} });
 
   // json with a string inside will be passed to the formula, BUT with the json braces
   assert.deepStrictEqual(new Parser('{a: q({mam})}', { functions }).evaluate(), { a: "{mam}" });

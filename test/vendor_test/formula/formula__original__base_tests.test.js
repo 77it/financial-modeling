@@ -9,7 +9,6 @@
 import { Parser as OriginalParser } from '../../../vendor/formula/formula.js';
 
 import { describe, it } from '../../lib/bdd_polyfill.js';
-import { add, bigIntScaledToString } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 runTests({Parser: OriginalParser});
 
@@ -23,7 +22,7 @@ function runTests({ Parser }) {
         expect(actual).toEqual(expected);
     };
 
-    describe('Formula, original and custom, tests', () => {
+    describe('Formula, original, tests', () => {
 
         it('evaluates a formula', () => {
 

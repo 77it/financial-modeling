@@ -1,26 +1,65 @@
 /**
- * Formula parser
+ * Formula parser and evaluator.
+ *
+ * Supports both original (formula.js) and v7+ (formula_v7_x.js) versions.
+ *
+ * Parses mathematical and logical expressions:
+ * - Arithmetic: +, -, *, /, %, ^
+ * - Comparison: <, <=, >, >=, ==, !=
+ * - Logical: &&, ||, !, ??
+ * - Unary: - (negate), + (v7+ only)
+ * - Parentheses, variables, string literals, function calls
+ * - JSONX object/array literals (v7+ only)
+ *
+ * ## Version Differences
+ *
+ * | Feature                | Original             | v7+                         |
+ * |------------------------|----------------------|-----------------------------|
+ * | Arithmetic             | Native JS float      | Scaled BigInt (precise)     |
+ * | Missing reference      | Returns `null`       | Throws Error                |
+ * | String concat with `+` | Supported            | Not supported (numeric)     |
+ * | Unary `+` operator     | Not supported        | Supported                   |
+ * | JSONX literals         | Not supported        | Supported                   |
+ * | Compilation            | Not supported        | Supported (default: true)   |
+ * | `toFunction()`         | Not available        | Available                   |
  */
 export class Parser {
     /**
      * Create a new formula parser.
      *
+     * Parses the formula string immediately.
+     * v7+: Also compiles to JS function if `options.compile` is true (default).
+     * Compilation happens exactly once at construction time.
+     *
      * @param formula - the formula string to parse.
      * @param options - optional settings.
+     * @throws Error if the formula contains syntax errors.
      */
     constructor(formula: string, options?: Options);
 
     /**
      * Evaluate the formula.
      *
-     * @param context - optional object with runtime formula context used to resolve variables.
+     * **Original**: Always uses interpretation. Returns `null` for missing references.
      *
+     * **v7+**: Uses compiled function if available (fast path), falls back to
+     * interpretation on runtime error. Fallback does not trigger recompilation.
+     * Throws Error for missing references.
+     *
+     * @param context - optional object with runtime formula context used to resolve variables.
      * @returns the resolved formula outcome (any type).
      */
     evaluate(context?: any): any;
 
     /**
-     * Convert to a callable function (uses compiled version if available).
+     * Convert to a callable function.
+     *
+     * **v7+ only** - not available in original formula.js (will throw at runtime).
+     *
+     * Returns the compiled function if available, otherwise returns a bound
+     * version of `evaluate()`.
+     *
+     * @returns a function that takes a context and returns the evaluation result.
      */
     toFunction(): (context?: any) => any;
 }
@@ -32,7 +71,12 @@ export interface Options {
     readonly tokenRx?: RegExp;
 
     /**
-     * A variable resolver function (receives name and context).
+     * A variable resolver function.
+     *
+     * Receives a variable name and must return a resolver function that will
+     * be called with the context during evaluation.
+     *
+     * Signature is the same for both original and v7+.
      */
     readonly reference?: (name: string) => (context: any) => any;
 
@@ -48,6 +92,13 @@ export interface Options {
 
     /**
      * Enable compilation of formulas to JS functions.
+     *
+     * **v7+ only** - ignored in original formula.js.
+     *
+     * When enabled, the formula is compiled to a native JavaScript function
+     * at construction time for faster evaluation. Compilation happens exactly
+     * once and is never retried on fallback.
+     *
      * @default true
      */
     readonly compile?: boolean;

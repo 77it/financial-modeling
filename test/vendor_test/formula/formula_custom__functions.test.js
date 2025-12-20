@@ -4,16 +4,13 @@
 import { Parser } from '../../../vendor/formula/formula_v7_x.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
 import { functions, reference_returnAny as reference } from './_formula__reference_and_functions.js';
+import { DSB } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
-t('UNSUPPORTED quotes inside a function in JSONX are not supported and the formula is returned as-is, and other cases', () => {
-  // see 'formula_custom___jsonx.test.js'
-});
-
-t('SUPPORTED quotes inside a function in JSONX are not supported and the formula is returned as-is, and other cases', () => {
+t('quotes/quoted and bare parameters inside a function in JSONX and outside are supported', () => {
   // see 'formula_custom___jsonx.test.js'
 });
 
@@ -60,4 +57,19 @@ t('formula calling with functions containing references variables, defined or no
 
   // undefined variable used in operation
   assert.throws(() => { new Parser('q(z + 1)', { functions }).evaluate({ x: 10, y: 3 }) });
+});
+
+t('formula calling with custom sum and average functions', () => {
+  const parser6 = new Parser('avg(a, b, c) * 100', {
+    functions
+  });
+  const fn6 = parser6.toFunction();
+  const ctx = {
+    a: convertWhenFmlEvalRequiresIt(100000),
+    b: convertWhenFmlEvalRequiresIt(200000),
+    c: convertWhenFmlEvalRequiresIt(300000)
+  };
+  const result6 = fn6(ctx);
+
+  assert.deepStrictEqual(result6, DSB.mul(DSB.div(DSB.add(ctx.a, DSB.add(ctx.b, ctx.c)), 3), 100));
 });
