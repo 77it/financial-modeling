@@ -28,12 +28,16 @@ export class Parser {
      * Create a new formula parser.
      *
      * Parses the formula string immediately.
-     * v7+: Also compiles to JS function if `options.compile` is true (default).
-     * Compilation happens exactly once at construction time.
+     *
+     * **v7+**: Also compiles to JS function if `options.compile` is true (default)
+     * and environment supports it (no CSP restrictions). Compilation happens
+     * exactly once at construction time. If the environment supports compilation
+     * but compilation fails, an error is thrown (indicates a bug).
      *
      * @param formula - the formula string to parse.
      * @param options - optional settings.
      * @throws Error if the formula contains syntax errors.
+     * @throws Error (v7+) if compilation fails when environment supports it.
      */
     constructor(formula: string, options?: Options);
 
@@ -42,8 +46,8 @@ export class Parser {
      *
      * **Original**: Always uses interpretation. Returns `null` for missing references.
      *
-     * **v7+**: Uses compiled function if available (fast path), falls back to
-     * interpretation on runtime error. Fallback does not trigger recompilation.
+     * **v7+**: Uses compiled function if available. Falls back to interpretation
+     * only when environment doesn't support compilation (e.g., CSP restrictions).
      * Throws Error for missing references.
      *
      * @param context - optional object with runtime formula context used to resolve variables.
@@ -97,7 +101,15 @@ export interface Options {
      *
      * When enabled, the formula is compiled to a native JavaScript function
      * at construction time for faster evaluation. Compilation happens exactly
-     * once and is never retried on fallback.
+     * once in the constructor.
+     *
+     * Compilation uses `eval()` (not `new Function()`) because `eval()` can
+     * capture local scope variables (helpers, mathOps, etc.) in the closure.
+     *
+     * If the environment doesn't support `eval()` (e.g., blocked by Content
+     * Security Policy (CSP) - a browser security feature that restricts dynamic
+     * code execution to prevent XSS attacks), interpretation is used as fallback.
+     * If the environment supports `eval()` but compilation fails, an error is thrown.
      *
      * @default true
      */

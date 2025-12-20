@@ -1,0 +1,1 @@
+- Consider optimizing formula_v7_x.js compilation: track numeric-only sub-expressions so _needsEnsure can skip wrapping __ensure around compiled BigInt-only ops; benchmark before and after.

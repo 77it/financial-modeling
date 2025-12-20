@@ -86,22 +86,22 @@ exports.Parser = class {
     this._compiled = null;
     this._parse(string);
 
-    // Try to compile if enabled (skip for JSONX root expressions)
-    if (!this._isJsonxRoot && this.settings.compile && this._supportsCompilation()) {
-      try {
-        this._compiled = this._compile();
-      } catch (err) {
-        // Fall back to interpretation if compilation fails
-        console.warn('Formula compilation failed, falling back to interpretation:', err.message);
-        console.warn('Error details:', err);
-      }
+    // Compile if enabled and environment supports it
+    // If compilation fails here, it's a bug - let it throw
+    if (this.settings.compile && this._supportsCompilation()) {
+      this._compiled = this._compile();
     }
   }
 
   _supportsCompilation() {
+    // Check if eval() is supported. Some environments block eval() via
+    // Content Security Policy (CSP) - a browser security feature that restricts
+    // dynamic code execution to prevent XSS attacks.
+    // We use eval() for compilation (not new Function()) because eval() can
+    // capture local scope variables (helpers, mathOps, etc.) in the closure.
     if (internals.compilationSupported === undefined) {
       try {
-        new Function('return 1')();
+        eval('1');
         internals.compilationSupported = true;
       } catch {
         internals.compilationSupported = false;
@@ -671,6 +671,10 @@ exports.Parser = class {
         return `__fns[${JSON.stringify(funcData.name)}].call(__ctx, ${argCodes.join(', ')})`;
       }
 
+      case 'jsonx':
+        // JSONX root expression - compile the object/array with embedded formulas
+        return this._objectNodeToCode(part.node);
+
       default:
         throw new Error(`Unknown part type: ${part.type}`);
     }
@@ -893,15 +897,10 @@ exports.Parser = class {
   evaluate(context) {
     // Use compiled version if available
     if (this._compiled) {
-      try {
-        return this._compiled(context);
-      } catch (err) {
-        // Fall back to interpretation on runtime error
-        console.warn('Compiled evaluation failed, falling back to interpretation:', err.message);
-      }
+      return this._compiled(context);
     }
 
-    // Original interpretation method
+    // Interpretation fallback (only when environment doesn't support compilation)
     const parts = this._parts.slice();
 
     // Prefix operators
