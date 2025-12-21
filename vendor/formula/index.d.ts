@@ -86,6 +86,9 @@ export interface Options {
 
     /**
      * A hash of key-value pairs used to resolve formula functions.
+     *
+     * Functions receive only their evaluated arguments, not the context.
+     * Example: `avg(a, b)` calls `functions.avg(valueOfA, valueOfB)`.
      */
     readonly functions?: Record<string, (...args: any[]) => any>;
 

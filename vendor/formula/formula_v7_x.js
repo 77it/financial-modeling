@@ -441,7 +441,7 @@ exports.Parser = class {
           innerValues.push(arg.evaluate(context));
         }
       }
-      return method.call(context, ...innerValues);
+      return method(...innerValues);
     };
 
     evaluator._functionData = functionData;
@@ -708,7 +708,7 @@ exports.Parser = class {
           }
           return arg._generateCode(arg._originalParts);
         });
-        return `__fns[${JSON.stringify(funcData.name)}].call(__ctx, ${argCodes.join(', ')})`;
+        return `__fns[${JSON.stringify(funcData.name)}](${argCodes.join(', ')})`;
       }
 
       case 'jsonx':
