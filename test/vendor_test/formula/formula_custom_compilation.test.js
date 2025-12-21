@@ -87,9 +87,7 @@ t('simple reference', () => {
 });
 
 t('reference and context', () => {
-  const p4 = new Parser('x + y', {
-    reference
-  });
+  const p4 = new Parser('x + y', { reference });
 
   const refValues = {
     x: 150000n, // 15.0000
@@ -112,7 +110,7 @@ t('reference and context', () => {
 
 
 t('JSONX: root compilation via toFunction', () => {
-  const p5 = new Parser('{sum: a+b, items: [1+1, 2*2]}');
+  const p5 = new Parser('{sum: a+b, items: [1+1, 2*2]}', { reference });
 
   const fn5 = p5.toFunction();
 
@@ -126,6 +124,6 @@ t('JSONX: root compilation via toFunction', () => {
   assert.deepStrictEqual(
     //@ts-ignore  _compiled is private
     p5._compiled.toString(),
-    `function(__ctx){ 'use strict'; return { sum: (function(){ try { return __mathOps.add(__ensure((__ctx && Object.prototype.hasOwnProperty.call(__ctx, "a") ? __ctx["a"] : (() => { throw new Error('Unknown reference ' + "a"); })())), __ensure((__ctx && Object.prototype.hasOwnProperty.call(__ctx, "b") ? __ctx["b"] : (() => { throw new Error('Unknown reference ' + "b"); })()))); } catch { return "a+b"; } })(), items: [(function(){ try { return __mathOps.add(10000000000n, 10000000000n); } catch { return "1+1"; } })(), (function(){ try { return __mathOps.mul(20000000000n, 20000000000n); } catch { return "2*2"; } })()] }; }`
+    `function(__ctx){ 'use strict'; return { sum: __mathOps.add(__ensure(__ref("a", __ctx)), __ensure(__ref("b", __ctx))), items: [__mathOps.add(10000000000n, 10000000000n), __mathOps.mul(20000000000n, 20000000000n)] }; }`
   );
 });

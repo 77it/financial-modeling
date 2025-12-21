@@ -873,10 +873,6 @@ exports.Parser = class {
         throw new Error("Unsupported literal in object argument");
       }
       case "expr":
-        if (node.raw !== undefined) {
-          const exprCode = node.parser._generateCode(node.parser._originalParts);
-          return `(function(){ try { return ${exprCode}; } catch { return ${JSON.stringify(node.raw)}; } })()`;
-        }
         return node.parser._generateCode(node.parser._originalParts);
       case "array": {
         const inner = node.items.map(item => this._objectNodeToCode(item)).join(", ");
