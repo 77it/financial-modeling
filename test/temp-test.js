@@ -1,33 +1,10 @@
-console.log(String([1.55]));
-console.log(String([1.66, 7]));
+// deno --allow-sys
 
+import prettier from 'prettier';
 
-const fn = eval(`
-    (function(x, y) {
-      return x + y;
-    })
-  `);
+const code = `function(__ctx){ 'use strict'; return __mathOps.sub(__ensure(__mathOps.add(__ensure(__ref("a", __ctx)), __ensure(__mathOps.mul(__ensure(__ref("b", __ctx)), __ensure(__ref("c", __ctx)))))), __ensure(__mathOps.div(__ensure(__ref("d", __ctx)), __ensure(__ref("e", __ctx))))); }`;
 
-const fn2 = eval(`
-    (function(x) {
-      return x.a + x.b;
-    })
-  `);
+// Format JavaScript code
+const formatted = await prettier.format(`(${code})`, { parser: 'babel' });
 
-/**
- * @param {*} z
- * @return {*}
- */
-function q(z) {
-  return z;
-}
-
-export const fn3 = eval(`
-    (function() {
-      return 10n + 100n + q(20n);
-    })
-  `);
-
-console.log(fn(5, 10));
-console.log(fn2({ a: 999, b: 'mamma' }));
-console.log(fn3());
+console.log(formatted);

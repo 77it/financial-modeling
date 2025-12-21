@@ -1,5 +1,5 @@
 set TZ=Europe/Rome
-deno test --check --allow-net --allow-read --allow-write --allow-run --allow-env --allow-import --config deno.json test/
+deno test --check --allow-net --allow-read --allow-write --allow-run --allow-env --allow-import  --allow-sys --config deno.json test/
 
 :ask
 choice /C Y /M "Press Y to exit"

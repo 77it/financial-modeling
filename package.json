@@ -7,6 +7,7 @@
     "@types/node": "^24.3.0",
     "benchmark": "^2.1.4",
     "@types/benchmark": "^2.1.5",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "prettier": "^3.4.2"
   }
 }
