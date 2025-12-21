@@ -61,7 +61,7 @@ export const IMMUTABLEPREFIX__IMMUTABLE_WITHOUT_DATES = '$$';
 export const IMMUTABLEPREFIX__IMMUTABLE_WITH_DATES = '$';
 
 // Formula and JSON cache size
-export const FML_CACHE_SIZE = 10_000;
+//export const FML_CACHE_SIZE = 10_000;  // disabled, because two formulas of the same kind are really rare and also because formulas depends on context as current unit ecc that are always different and could be saved alongside the formula then using the cache is risky
 export const JSON_CACHE_SIZE = 10_000;
 export const JSON_CACHE_SIZE__MAX_CACHEABLE_CHARS = 250_000; // ~250KB to ~500KB of memory occupation
 //#endregion internal engine config
