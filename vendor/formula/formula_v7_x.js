@@ -9,11 +9,51 @@ import { ensureBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from '../../src/lib/de
 import { pow, modulo } from './adapters/decimal-adapter.js';
 import { isPureDecimalNumber } from '../../src/lib/number_utils.js';
 import { cachedParseJSONrelaxed as parse } from '../../src/lib/json.js';
-import { FORMULA_MARKER } from './modules/formula-marker.js';
-import { isLikelyFormula } from './modules/formula-jsonx-handler.js';
 import { lru } from '../tiny_lru/lru.js';
+import { UNPRINTABLE_CHAR, FML_PREFIX } from '../../src/config/engine.js'
+import { regExp_YYYYMMDDTHHMMSSMMMZ_notGrouping } from '../../src/lib/date_utils.js';
 
 var exports = {};
+
+//#region Marker of unquoted formula values in JSONX (and for other uses, if needed)
+
+// Special markers for unquoted formula values in JSONX
+// ASCII 31 (hidden character) + '#' (visible marker)
+const FORMULA_MARKER_HIDDEN = UNPRINTABLE_CHAR;
+const FORMULA_MARKER_VISIBLE = FML_PREFIX[0];
+const FORMULA_MARKER = FORMULA_MARKER_HIDDEN + FORMULA_MARKER_VISIBLE;  // Combined marker
+
+//#endregion Marker of unquoted formula values in JSONX (and for other uses, if needed)
+
+//#region Formula detection helpers
+
+// Formula regex patterns - matches operators and function calls
+const formulaLikeRx = /[!\^\*\/%\+\-<>=&\|\?\(\)]|\w\s*\(/;
+
+/**
+ * Check if string looks like a date
+ * @param {any} s
+ * @returns {boolean}
+ */
+function isDateLikeString(s) {
+  return typeof s === "string" && regExp_YYYYMMDDTHHMMSSMMMZ_notGrouping.test(s);
+}
+
+/**
+ * Check if string looks like a formula
+ * @param {any} s
+ * @returns {boolean}
+ */
+function isLikelyFormula(s) {
+  if (typeof s !== "string") return false;
+
+  // Don't treat date-like strings as formulas
+  if (isDateLikeString(s)) return false;
+
+  return formulaLikeRx.test(s);
+}
+
+//#endregion Formula detection helpers
 
 const internals = {
   operators: ["!", "^", "*", "/", "%", "+", "-", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "??"],
@@ -1070,4 +1110,4 @@ internals.exists = function (value) {
 
 const Parser = exports.Parser;
 
-export { Parser, exports as default };
+export { Parser, FORMULA_MARKER, exports as default };

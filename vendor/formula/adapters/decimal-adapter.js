@@ -6,64 +6,11 @@
  * by changing this file without touching core code
  */
 
-export { add, subtract, multiply, divide, pow, modulo, normalize };
+export { pow, modulo };
 
 import { DSB } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 import { Decimal } from '../../decimaljs/decimal.js';
 import { anyToDecimal } from '../../../src/lib/decimal_utils.js';
-
-/**
- * Normalize a number to bigint
- * @param {number|string|bigint} a
- * @returns {bigint}
- */
-function normalize(a) {
-  return DSB.from(a);
-}
-
-/**
- * Add two numbers
- * @param {number|string|bigint} a
- * @param {number|string|bigint} b
- * @returns {bigint}
- */
-function add(a, b) {
-  //return new Decimal(a).plus(b).toString();
-  return DSB.add(a, b);
-}
-
-/**
- * Subtract two numbers
- * @param {number|string|bigint} a
- * @param {number|string|bigint} b
- * @returns {bigint}
- */
-function subtract(a, b) {
-  //return new Decimal(a).minus(b).toString();
-  return DSB.sub(a, b);
-}
-
-/**
- * Multiply two numbers
- * @param {number|string|bigint} a
- * @param {number|string|bigint} b
- * @returns {bigint}
- */
-function multiply(a, b) {
-  //return new Decimal(a).times(b).toString();
-  return DSB.mul(a, b);
-}
-
-/**
- * Divide two numbers
- * @param {number|string|bigint} a
- * @param {number|string|bigint} b
- * @returns {bigint}
- */
-function divide(a, b) {
-  //return new Decimal(a).dividedBy(b).toString();
-  return DSB.div(a, b);
-}
 
 /**
  * Raise 'a' to the power of 'b'

@@ -1,7 +1,7 @@
 // run with `deno test --allow-import`
 
 import { quoteKeysNumbersAndDatesForRelaxedJSON } from '../../src/lib/json_relaxed_utils_v4_x.js';
-import { FORMULA_MARKER } from '../../vendor/formula/modules/formula-marker.js';
+import { FORMULA_MARKER } from '../../vendor/formula/formula_v7_x.js';
 
 import { parseJSONrelaxed } from '../../src/lib/json.js';
 import { eqObj } from '../lib/obj_utils.js';

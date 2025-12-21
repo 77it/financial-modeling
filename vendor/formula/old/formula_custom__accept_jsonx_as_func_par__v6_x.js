@@ -17,9 +17,9 @@
  */
 
 // REFACTOR: Import modular components
-import { createJSONXFormula, evaluateStringFormula } from '../modules/formula-jsonx-handler.js';
+import { createJSONXFormula, evaluateStringFormula } from './formula-jsonx-handler.js';
 import { calculate as arithmeticCalculate } from '../modules/formula-arithmetic.js';
-import { scanBracket, scanBrace } from '../modules/formula-scanner.js';
+import { scanBracket, scanBrace } from './formula-scanner.js';
 
 var exports = {};
 const internals = {

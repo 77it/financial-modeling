@@ -5,8 +5,8 @@ import { ensureBigIntScaled, fxAdd, fxSub, fxMul, fxDiv } from '../../../src/lib
 import { pow, modulo } from '../adapters/decimal-adapter.js';
 import { isPureDecimalNumber } from '../../../src/lib/number_utils.js';
 import { cachedParseJSONrelaxed as parse } from '../../../src/lib/json.js';
-import { FORMULA_MARKER } from '../modules/formula-marker.js';
-import { isLikelyFormula } from '../modules/formula-jsonx-handler.js';
+import { FORMULA_MARKER } from './formula-marker.js';
+import { isLikelyFormula } from './formula-jsonx-handler.js';
 import { lru } from '../../tiny_lru/lru.js';
 
 var exports = {};

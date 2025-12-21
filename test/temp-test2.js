@@ -9,32 +9,6 @@ import { Parser } from '../vendor/formula/formula_v7_x.js';
 
 
 // ============================================================================
-// EXAMPLE 3: All Operators Covered
-// ============================================================================
-console.log('📌 EXAMPLE 3: All Math Operators\n');
-
-const testCases = [
-  { formula: '10 + 5', desc: 'Addition' },
-  { formula: '10 - 5', desc: 'Subtraction' },
-  { formula: '10 * 5', desc: 'Multiplication' },
-  { formula: '10 / 5', desc: 'Division' },
-  { formula: '10 ^ 2', desc: 'Power' },
-  { formula: '10 % 3', desc: 'Modulo' },
-  { formula: '-10', desc: 'Unary minus' }
-];
-
-testCases.forEach(({ formula, desc }) => {
-  const parser = new Parser(formula);
-  const fn = parser.toFunction();
-
-  console.log(`${desc}: ${formula}`);
-  const result = fn({});
-  console.log(`  Result: ${result}\n`);
-});
-
-console.log('─'.repeat(60) + '\n');
-
-// ============================================================================
 // EXAMPLE 4: String Concatenation (Native)
 // ============================================================================
 console.log('📌 EXAMPLE 4: String Concatenation Stays Native\n');

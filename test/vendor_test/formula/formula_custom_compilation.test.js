@@ -2,6 +2,7 @@
 
 // @deno-types="../../../vendor/formula/index.d.ts"
 import { Parser } from '../../../vendor/formula/formula_v7_x.js';
+import { pow, modulo } from '../../../vendor/formula/adapters/decimal-adapter.js';
 import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
 import { functions, reference__values_fromReference_andFromContext as reference, setReferenceValues } from './_formula__reference_and_functions.js';
 import { DSB } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
@@ -108,7 +109,6 @@ t('reference and context', () => {
   );
 });
 
-
 t('JSONX: root compilation via toFunction', () => {
   const p5 = new Parser('{sum: a+b, items: [1+1, 2*2]}', { reference });
 
@@ -126,4 +126,29 @@ t('JSONX: root compilation via toFunction', () => {
     p5._compiled.toString(),
     `function(__ctx){ 'use strict'; return { sum: __mathOps.add(__ensure(__ref("a", __ctx)), __ensure(__ref("b", __ctx))), items: [__mathOps.add(10000000000n, 10000000000n), __mathOps.mul(20000000000n, 20000000000n)] }; }`
   );
+});
+
+t('All Math Operators', () => {
+  const testCases = [
+    { formula: '10 + 5', result: DSB.add(10, 5), compiled: `function(__ctx){ 'use strict'; return __mathOps.add(100000000000n, 50000000000n); }` },
+    { formula: '10 - 5', result: DSB.sub(10, 5), compiled: `function(__ctx){ 'use strict'; return __mathOps.sub(100000000000n, 50000000000n); }` },
+    { formula: '10 * 5', result: DSB.mul(10, 5), compiled: `function(__ctx){ 'use strict'; return __mathOps.mul(100000000000n, 50000000000n); }` },
+    { formula: '10 / 5', result: DSB.div(10, 5), compiled: `function(__ctx){ 'use strict'; return __mathOps.div(100000000000n, 50000000000n); }` },
+    { formula: '10 ^ 2', result: pow(10, 2), compiled: `function(__ctx){ 'use strict'; return __mathOps.pow(100000000000n, 20000000000n); }` },
+    { formula: '10 % 3', result: modulo(10, 3), compiled: `function(__ctx){ 'use strict'; return __mathOps.modulo(100000000000n, 30000000000n); }` },
+    { formula: '-10', result: convertWhenFmlEvalRequiresIt(-10), compiled: `function(__ctx){ 'use strict'; return (-100000000000n); }` },
+  ];
+
+  testCases.forEach(({ formula, result, compiled }) => {
+    const p6 = new Parser(formula, { reference });
+    const fn6 = p6.toFunction();
+
+    assert.deepStrictEqual(fn6(), result);
+
+    assert.deepStrictEqual(
+      //@ts-ignore  _compiled is private
+      p6._compiled.toString(),
+      compiled
+    );
+  });
 });

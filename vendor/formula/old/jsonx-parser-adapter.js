@@ -11,7 +11,7 @@ import { cachedParseJSONrelaxed as parse } from '../../../src/lib/json.js';
 // YAML
 //import { customParseYAML as parse } from '../../../src/lib/unused/yaml.js';
 
-import { FORMULA_MARKER } from '../modules/formula-marker.js';
+import { FORMULA_MARKER } from './formula-marker.js';
 
 
 /**

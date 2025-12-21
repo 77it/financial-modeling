@@ -8,7 +8,7 @@
 export { isPlainObject, isDateLikeString, isLikelyFormula, createJSONXFormula, evaluateStringFormula };
 
 import { FORMULA_MARKER } from './formula-marker.js';
-import { parseJSONX } from '../adapters/jsonx-parser-adapter.js';
+import { parseJSONX } from './jsonx-parser-adapter.js';
 import { regExp_YYYYMMDDTHHMMSSMMMZ_notGrouping } from '../../../src/lib/date_utils.js';
 
 // formula regex patterns
