@@ -15,24 +15,25 @@ YAML bytes : 411.7 KB
 relaxed JSON5 bytes (relaxed only): 388.1 KB
 relaxed YAML  bytes (relaxed only): 431.0 KB
 
-Parser                                      ms  ops/sec     bytes
--------------------------------------  -------  -------  --------
-JSON.parse                              1979.3      101  355.1 KB
-parseJSONrelaxed v4 (relaxed payload)   6806.7       29  388.1 KB
-parseJSONrelaxed v3 (relaxed payload)   6903.6       29  388.1 KB
-parseJSONrelaxed v2 (relaxed payload)  11195.5       18  388.1 KB
-parseJSONrelaxed v1 (relaxed payload)   6832.8       29  388.1 KB
-parseJSONrelaxed v0 (relaxed payload)   6337.3       32  388.1 KB
-parseJSONrelaxed v4                     5642.6       35  355.1 KB
-parseJSONrelaxed v3                     5605.2       36  355.1 KB
-parseJSONrelaxed v2                    10521.2       19  355.1 KB
-parseJSONrelaxed v1                     5781.7       35  355.1 KB
-parseJSONrelaxed v0                     5874.3       34  355.1 KB
-parseJSON5relaxed (relaxed payload)    28332.4        7  388.1 KB
-parseJSON5relaxed                      26942.1        7  355.1 KB
-parseJSON5strict                       24657.9        8  355.1 KB
-parseYAML (relaxed payload)            11399.0       18  431.0 KB
-parseYAML                               9405.9       21  355.1 KB
+Parser                                              ms  ops/sec     bytes
+---------------------------------------------  -------  -------  --------
+JSON.parse                                      1002.1      200  355.1 KB
+parseJSONrelaxed v4 (complex relaxed payload)      2.8   70,423     170 B
+parseJSONrelaxed v4 (relaxed payload)           4029.6       50  388.1 KB
+parseJSONrelaxed v3 (relaxed payload)           7514.5       27  388.1 KB
+parseJSONrelaxed v2 (relaxed payload)          10842.3       18  388.1 KB
+parseJSONrelaxed v1 (relaxed payload)           7743.2       26  388.1 KB
+parseJSONrelaxed v0 (relaxed payload)           7432.0       27  388.1 KB
+parseJSONrelaxed v4                             6374.9       31  355.1 KB
+parseJSONrelaxed v3                             6494.9       31  355.1 KB
+parseJSONrelaxed v2                            10171.2       20  355.1 KB
+parseJSONrelaxed v1                             5938.3       34  355.1 KB
+parseJSONrelaxed v0                             5825.9       34  355.1 KB
+parseJSON5relaxed (relaxed payload)            29040.5        7  388.1 KB
+parseJSON5relaxed                              26801.4        7  355.1 KB
+parseJSON5strict                               23886.1        8  355.1 KB
+parseYAML (relaxed payload)                    12272.5       16  431.0 KB
+parseYAML                                       8516.1       23  355.1 KB
 
  */
 import { parseJSON5strict, parseJSON5relaxed } from '../../src/lib/unused/json5.js';
@@ -40,6 +41,7 @@ import { parseJSONrelaxed } from '../../src/lib/json.js';
 import { parseJSONrelaxed_v3, parseJSONrelaxed_v2, parseJSONrelaxed_v1, parseJSONrelaxed_v0 } from '../../src/lib/unused/json.js';
 import { parseYAML } from '../../src/lib/unused/yaml.js';
 
+import { complexNestedFunctionsAndFormulasWithJSONX } from '../vendor_test/formula/_formula__tests_settings.js';
 
 /** @typedef {{ name: string, parseFn: () => any, text: string }} Block */
 /** @typedef {{ name: string, ms: number, opsSec: number, bytes: number, digest?: string }} BenchResult */
@@ -309,6 +311,7 @@ async function main() {
   /** @type {Block[]} */
   const blocks = [
     { name: 'JSON.parse',                             parseFn: () => JSON.parse(jsonText),                text: jsonText },
+    { name: 'parseJSONrelaxed v4 (complex relaxed payload)',  parseFn: () => parseJSONrelaxed(complexNestedFunctionsAndFormulasWithJSONX),  text: complexNestedFunctionsAndFormulasWithJSONX },
     { name: 'parseJSONrelaxed v4 (relaxed payload)',  parseFn: () => parseJSONrelaxed(relaxedJson5Text),  text: relaxedJson5Text },
     { name: 'parseJSONrelaxed v3 (relaxed payload)',  parseFn: () => parseJSONrelaxed_v3(relaxedJson5Text),  text: relaxedJson5Text },
     { name: 'parseJSONrelaxed v2 (relaxed payload)',  parseFn: () => parseJSONrelaxed_v2(relaxedJson5Text),  text: relaxedJson5Text },

@@ -200,3 +200,43 @@ export const expected9 = `
   );
 });
 `;
+
+export const expected10 = `
+(function (__ctx) {
+  "use strict";
+  return {
+    calc: __mathOps.add(
+      __ensure(
+        __fns["sumObj"]({
+          x: "2.5",
+          y: ["3", __mathOps.add(40000000000n, 10000000000n)],
+          z: {
+            w: __mathOps.mul(
+              __ensure(
+                __mathOps.add(__ensure(__ref("a", __ctx)), 10000000000n),
+              ),
+              20000000000n,
+            ),
+          },
+        }),
+      ),
+      10000000000n,
+    ),
+    nested: {
+      arr: [
+        __mathOps.add(10000000000n, 10000000000n),
+        { v: __fns["sum"](10000000000n, 20000000000n, 30000000000n) },
+        __fns["q"]({ deep: { n: __mathOps.add(40000000000n, 10000000000n) } }),
+      ],
+    },
+    mix: __fns["q"]({
+      inside: [
+        __mathOps.mul(
+          __ensure(__mathOps.add(__ensure(__ref("b", __ctx)), 20000000000n)),
+          30000000000n,
+        ),
+        { t: "7.75" },
+      ],
+    }),
+  };
+});`;

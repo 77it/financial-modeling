@@ -83,7 +83,6 @@ function resetCallCounter() { callCounter = 0; }
  * @return {*}
  */
 function returnAny (p) {
-  console.log(p);
   return p;
 }
 

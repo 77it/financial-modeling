@@ -1,4 +1,4 @@
-export { EVALUATE_NUMBERS_AS_DECIMALSCALEDBIGINT, convertWhenFmlEvalRequiresIt }
+export { EVALUATE_NUMBERS_AS_DECIMALSCALEDBIGINT, convertWhenFmlEvalRequiresIt, complexNestedFunctionsAndFormulasWithJSONX }
 
 import { numberToBigIntScaled, stringToBigIntScaled } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 
@@ -17,3 +17,5 @@ function convertWhenFmlEvalRequiresIt(value) {
   }
   return value;
 }
+
+const complexNestedFunctionsAndFormulasWithJSONX = '{calc: sumObj({x: "2.5", y: [3, 4+1], z: {w: (a + 1) * 2}}) + 1, nested: {arr: [1+1, {v: sum(1,2,3)}, q({deep: {n: 4+1}})]}, mix: q({inside: [(b + 2) * 3, {t: "7.75"}]})}';

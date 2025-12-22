@@ -3,7 +3,7 @@
 // @deno-types="../../../vendor/formula/index.d.ts"
 import { Parser } from '../../../vendor/formula/formula_v7_x.js';
 import { pow, modulo } from '../../../vendor/formula/adapters/decimal-adapter.js';
-import { convertWhenFmlEvalRequiresIt } from './_formula__tests_settings.js'
+import { convertWhenFmlEvalRequiresIt, complexNestedFunctionsAndFormulasWithJSONX } from './_formula__tests_settings.js';
 import { functions, reference__values_fromReference_andFromContext as reference, setReferenceValues } from './_formula__reference_and_functions.js';
 import { DSB } from '../../../src/lib/decimal_scaled_bigint__dsb.arithmetic_x.js';
 import prettier from 'prettier';
@@ -12,6 +12,7 @@ import * as EXPECTED from './formula_custom_compilation.compiled.js';
 
 import { test } from 'node:test';
 import assert from 'node:assert';
+
 /** @type {any} */ const t = typeof Deno !== 'undefined' ? Deno.test : await import('bun:test').then(m => m.test).catch(() => test);
 
 t('Compile-Time BigInt Conversion', async () => {
@@ -19,7 +20,7 @@ t('Compile-Time BigInt Conversion', async () => {
 
   assert.deepStrictEqual(
     p1.toFunction()(),
-    DSB.add("100_000_000_000_000_999_888_777_666_555_444.12345678901234567890", DSB.mul("200.50", 3))
+    DSB.add('100_000_000_000_000_999_888_777_666_555_444.12345678901234567890', DSB.mul('200.50', 3))
   );
 
   //@ts-ignore  _compiled is private
@@ -65,9 +66,6 @@ t('Math Operations via Decimal Adapter with context with reference', async () =>
   assert.deepStrictEqual(p2b.toFunction()(ctx), _sub);
 
   //@ts-ignore  _compiled is private
-  console.log(p2b._compiled.toString());
-
-  //@ts-ignore  _compiled is private
   await cmp(p2b._compiled.toString(), EXPECTED.expected2b);
 });
 
@@ -111,11 +109,11 @@ t('JSONX: root compilation via toFunction', async () => {
 
   const fn5 = p5.toFunction();
 
-  const ctx = {a: 3, b: 4};
+  const ctx = { a: 3, b: 4 };
 
   assert.deepStrictEqual(
     fn5(ctx),
-    {sum: convertWhenFmlEvalRequiresIt(ctx.a + ctx.b), items: [convertWhenFmlEvalRequiresIt(1+1), convertWhenFmlEvalRequiresIt(2*2)]}
+    { sum: convertWhenFmlEvalRequiresIt(ctx.a + ctx.b), items: [convertWhenFmlEvalRequiresIt(1 + 1), convertWhenFmlEvalRequiresIt(2 * 2)] }
   );
 
   //@ts-ignore  _compiled is private
@@ -216,7 +214,7 @@ t(`Nested function with json parameter`, async () => {
      * @returns {bigint} The sum of all provided values (0n if none).
      */
     sum: function (args) {
-      return DSB.add(args.x,DSB.add(args.y, args.z));
+      return DSB.add(args.x, DSB.add(args.y, args.z));
     },
 
     /**
@@ -225,7 +223,7 @@ t(`Nested function with json parameter`, async () => {
      */
     avg: function (args) {
       const total = DSB.add(args.a, DSB.add(args.b, args.c));
-      return DSB.div(total,3);
+      return DSB.div(total, 3);
     }
   };
 
@@ -233,8 +231,8 @@ t(`Nested function with json parameter`, async () => {
 
   const fn9 = p9.toFunction();
 
-  const sum = DSB.add(1, DSB.add("988_444_444_333_333_222_111.999_888_77777", 10));
-  const avg = DSB.div(DSB.add(10, DSB.add(sum, "300_888_777_666_555_444_333_222_111")), 3);
+  const sum = DSB.add(1, DSB.add('988_444_444_333_333_222_111.999_888_77777', 10));
+  const avg = DSB.div(DSB.add(10, DSB.add(sum, '300_888_777_666_555_444_333_222_111')), 3);
   const mul = DSB.mul(avg, 100);
 
   assert.deepStrictEqual(
@@ -244,6 +242,68 @@ t(`Nested function with json parameter`, async () => {
 
   //@ts-ignore  _compiled is private
   await cmp(p9._compiled.toString(), EXPECTED.expected9);
+});
+
+t('JSONX: complex nested functions and formulas', async () => {
+  const refVal = { a: 10, b: 4 };
+  setReferenceValues(refVal);
+
+  const functions10 = {
+    ...functions,
+    /**
+     * @param {{ x: any, y: any[], z: { w: any } }} obj
+     * @returns {bigint}
+     */
+    sumObj: (obj) => {
+      return DSB.add(
+        obj.x,
+        DSB.add(
+          obj.y[0],
+          DSB.add(obj.y[1], obj.z.w)
+        )
+      );
+    }
+  };
+
+  const p10 = new Parser(complexNestedFunctionsAndFormulasWithJSONX, { functions: functions10, reference });
+  const fn10 = p10.toFunction();
+
+  const expectedCalc = DSB.add(
+    DSB.add(
+      '2.5',
+      DSB.add(
+        '3',
+        DSB.add(
+          convertWhenFmlEvalRequiresIt(5),
+          DSB.mul(DSB.add(refVal.a, 1), 2)
+        )
+      )
+    ),
+    1
+  );
+
+  assert.deepStrictEqual(
+    fn10(),
+    {
+      calc: expectedCalc,
+      nested: {
+        arr: [
+          convertWhenFmlEvalRequiresIt(2),
+          { v: DSB.add(1, DSB.add(2, 3)) },
+          { deep: { n: convertWhenFmlEvalRequiresIt(5) } }
+        ]
+      },
+      mix: {
+        inside: [
+          DSB.mul(DSB.add(refVal.b, 2), 3),
+          { t: '7.75' }
+        ]
+      }
+    }
+  );
+
+  //@ts-ignore  _compiled is private
+  await cmp(p10._compiled.toString(), EXPECTED.expected10);
 });
 
 /**
