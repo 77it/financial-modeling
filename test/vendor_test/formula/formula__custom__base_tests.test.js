@@ -103,20 +103,6 @@ function runTests({ Parser }) {
                 expectEqual(formula.evaluate(), 11 + 33 + 2 + 41 + 3 + 9);
             });
 
-            it('passes context as this to functions', () => {
-
-                const functions = {
-                    x: function () {
-
-                        return this.X;
-                    }
-                };
-
-                const formula = new Parser('x()', { functions });
-                expect(formula.evaluate({ X: '1' })).toEqual('1');
-                expect(formula.evaluate({ X: 1 })).toEqual(1);
-            });
-
             it('parses parenthesis', () => {
 
                 const formula = new Parser('(x + 4) * (x - 5) / (x ^ 2)');

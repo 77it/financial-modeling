@@ -23,7 +23,7 @@ class SimObject_Metadata {
    * The length of the 3 arrays must be equal.
    * Validation schema is read from ACTIVE_METADATA setting.
    *
-   * Weights are in percentage; if a single weight is > 1 it is considered as percentage (e.g. 20 = 20%) then is / 100.
+   * Weights are in percentage; if ANY weight is > 1, ALL weights are considered as percentage (e.g. 20 = 20%) then are / 100.
    * If a single weight is < 0 or > 100 an error is thrown.
    *
    * @param {Object} p
@@ -53,11 +53,12 @@ class SimObject_Metadata {
     this.metadata__Value = [...p.value];
     this.metadata__PercentageWeight = [...p.weight];
 
-    // Normalize weights to be in range 0-1. If a weight is > 1 it is considered as percentage (e.g. 20 = 20%) then is / 100.
+    // Normalize weights to be in range 0-1. If ANY weight is > 1, ALL are considered as percentage (e.g. 20 = 20%) then are / 100.
     // We don't need to manipulate the number string because integer are well represented as floating point numbers
     // then dividing by 100 won't cause loss of precision.
-    for (let i = 0; i < this.metadata__PercentageWeight.length; i++) {
-      if (this.metadata__PercentageWeight[i] > 1) {
+    const anyWeightGreaterThanOne = this.metadata__PercentageWeight.some(w => w > 1);
+    if (anyWeightGreaterThanOne) {
+      for (let i = 0; i < this.metadata__PercentageWeight.length; i++) {
         this.metadata__PercentageWeight[i] = this.metadata__PercentageWeight[i] / 100;
       }
     }
