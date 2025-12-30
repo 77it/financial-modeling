@@ -25,7 +25,10 @@
       "WebSearch",
       "Bash(node --version:*)",
       "Bash(node --import ./__node__register-hooks.js:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.closedxml.io)",
+      "WebFetch(domain:csharpforums.net)"
     ],
     "deny": [
       "Bash(git add:*)",
