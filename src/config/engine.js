@@ -12,12 +12,19 @@ export const ROUNDING_MODES = {
 Object.freeze(ROUNDING_MODES);
 
 //#region debug and release config
-// If true, the debug validations and checks are disabled; this should be true ONLY IF YOU REALLY NEED IT in release mode, to speed up execution
+// If true, accounting validation is disabled;
+// this should be true ONLY IF YOU REALLY NEED IT in release mode, to speed up execution
+// (not recommended, because it can hide validation problems that can't be easily caught otherwise)
+export const RELEASE__DISABLE_ACCOUNTING_VALIDATION = false;
+
+// If true, some sanitizations, validations and checks are disabled;
+// this flag is used only in some hot-path code to disable parts of the code that can slow down the execution;
+// this should be true ONLY IF YOU REALLY NEED IT in release mode, to speed up execution
 // (not recommended, because it can hide validation problems that can't be easily caught otherwise)
 export const RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS = false;
 
-// If true, the validation of the data is disabled in 'schema_validation_utils.js/validate()';
-// not recommended to set this to true, is usable for testing purposes or (maybe) to speed up the execution of the engine, thanks to the absence of validation
+// If true, ALL the validation of the data are disabled in 'schema_validation_utils.js/validate()';
+// not recommended to set this to true, is usable for testing purposes or to speed up (a little) the execution of the engine, thanks to the absence of validation
 export const DISABLE_VALIDATION = false;
 //#endregion debug and release config
 

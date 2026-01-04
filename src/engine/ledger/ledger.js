@@ -2,7 +2,7 @@
 
 import * as schema from '../../lib/schema.js';
 import { sanitize } from '../../lib/schema_sanitization_utils.js';
-import { RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
+import { RELEASE__DISABLE_ACCOUNTING_VALIDATION, RELEASE__DISABLE_SANITIZATIONS_VALIDATIONS_AND_CHECKS } from '../../config/engine.js';
 import { validate } from '../../lib/schema_validation_utils.js';
 import { isNullOrWhiteSpace } from '../../lib/string_utils.js';
 
@@ -232,7 +232,9 @@ class Ledger {
   commit () {
     if (this.#currentTransaction.length === 0) return;
 
-    // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
+    if (!RELEASE__DISABLE_ACCOUNTING_VALIDATION) {
+      // TODO validate trn: errore se non quadra transazione/unit, se il tipo non è un tipo riconosciuto, etc;
+    }
 
     this.#commit();
   }
